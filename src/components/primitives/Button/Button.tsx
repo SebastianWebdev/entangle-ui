@@ -1,17 +1,17 @@
 // src/primitives/Button/Button.tsx
 import React from 'react';
 import styled from '@emotion/styled';
-import type { Prettify, LiteralUnion } from '../../../types/utilities';
+import {Size, Variant} from '@/types/common'
 
 /**
  * Rozmiary przycisku zoptymalizowane dla interfejsów edytora
  */
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonSize =Size;
 
 /**
  * Warianty wizualne przycisku
  */
-export type ButtonVariant = 'default' | 'ghost' | 'filled';
+export type ButtonVariant = Variant;
 
 /**
  * Właściwości komponentu Button

@@ -10,6 +10,7 @@ export type { Theme, Tokens } from '@/theme';
 // Primitives
 export {
   Button,
+  Icon,
 } from '@/components/primitives';
 
 export type {
