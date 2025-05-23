@@ -4,26 +4,26 @@ export {
   tokens, 
   createTheme, 
   ThemeProvider 
-} from './theme';
-export type { Theme, Tokens } from './theme';
+} from '@/theme';
+export type { Theme, Tokens } from '@/theme';
 
 // Primitives
 export {
   Button,
-} from './components/primitives';
+} from '@/components/primitives';
 
 export type {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
-} from './components/primitives';
+} from '@/components/primitives';
 
 // Types
 export type { 
   BaseComponent, 
   Size, 
   Variant 
-} from './types/common';
+} from '@/types/common';
 
 // Utility Types for better DX
 export type {
@@ -37,7 +37,7 @@ export type {
   Brand,
   DeepReadonly,
   NonEmptyArray
-} from './types/utilities';
+} from '@/types/utilities';
 
 // Utilities
-export { cn } from './utils/cn';
+export { cn } from '@/utils/cn';
