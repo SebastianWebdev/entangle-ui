@@ -5,3 +5,4 @@ export { SearchIcon } from './SearchIcon';
 export { AddIcon } from './AddIcon';
 export { CloseIcon } from './CloseIcon';
 export { EditIcon } from './EditIcon';
+export { PlayIcon } from './PlayIcon';
