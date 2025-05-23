@@ -6,12 +6,12 @@ import type { Prettify, LiteralUnion } from '../../../types/utilities';
 /**
  * Rozmiary przycisku zoptymalizowane dla interfejsów edytora
  */
-export type ButtonSize = LiteralUnion<'sm' | 'md' | 'lg'>;
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 /**
  * Warianty wizualne przycisku
  */
-export type ButtonVariant = LiteralUnion<'default' | 'ghost' | 'filled'>;
+export type ButtonVariant = 'default' | 'ghost' | 'filled';
 
 /**
  * Właściwości komponentu Button
