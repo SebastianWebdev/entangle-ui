@@ -14,13 +14,9 @@ import type { IconProps } from '@/components/primitives';
  * <Button icon={<SaveIcon />}>Save</Button>
  * ```
  */
-export const SaveIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
+export const SaveIcon: React.FC<Omit<IconProps, 'children'|'svg'>> = (props) => {
   return (
-    <Icon {...props}>
-      <path
-        d="M3 3v18h18V6.414L17.586 3H3zm2 2h10v4H5V5zm0 6h14v8H5v-8zm2 2v4h10v-4H7z"
-        fill="currentColor"
-      />
+    <Icon svg='M3 3v18h18V6.414L17.586 3H3zm2 2h10v4H5V5zm0 6h14v8H5v-8zm2 2v4h10v-4H7z' {...props}>
     </Icon>
   );
 };

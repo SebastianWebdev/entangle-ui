@@ -1,4 +1,9 @@
+// src/icons/AllIcons.stories.tsx
 import type { Meta, StoryObj } from '@storybook/react';
+import { ThemeProvider } from '@/theme';
+import type { IconProps } from '@/components/primitives/Icon';
+
+// Core 10 icons
 import { SaveIcon } from './SaveIcon';
 import { TrashIcon } from './TrashIcon';
 import { SettingsIcon } from './SettingsIcon';
@@ -9,20 +14,75 @@ import { EditIcon } from './EditIcon';
 import { PlayIcon } from './PlayIcon';
 import { FolderIcon } from './FolderIcon';
 import { EyeIcon } from './EyeIcon';
-import type { IconProps } from '../primitives/Icon';
+
+// Additional icons
+import { CopyIcon } from './CopyIcon';
+import { CutIcon } from './CutIcon';
+import { PasteIcon } from './PasteIcon';
+import { UndoIcon } from './UndoIcon';
+import { RedoIcon } from './RedoIcon';
+import { RefreshIcon } from './RefreshIcon';
+import { DownloadIcon } from './DownloadIcon';
+import { UploadIcon } from './UploadIcon';
+import { LockIcon } from './LockIcon';
+import { UnlockIcon } from './UnlockIcon';
+import { HomeIcon } from './HomeIcon';
+import { MenuIcon } from './MenuIcon';
+import { GridIcon } from './GridIcon';
+import { ListIcon } from './ListIcon';
+import { FilterIcon } from './FilterIcon';
+import { SortIcon } from './SortIcon';
+import { ZoomInIcon } from './ZoomInIcon';
+import { ZoomOutIcon } from './ZoomOutIcon';
+import { FullscreenIcon } from './FullscreenIcon';
+import { HelpIcon } from './HelpIcon';
+import { InfoIcon } from './InfoIcon';
+import { WarningIcon } from './WarningIcon';
+import { ErrorIcon } from './ErrorIcon';
+import { SuccessIcon } from './SuccessIcon';
+import { ArrowUpIcon } from './ArrowUpIcon';
+import { ArrowDownIcon } from './ArrowDownIcon';
+import { ArrowLeftIcon } from './ArrowLeftIcon';
+import { ArrowRightIcon } from './ArrowRightIcon';
+import { ChevronUpIcon } from './ChevronUpIcon';
+import { ChevronDownIcon } from './ChevronDownIcon';
+import { MaximizeIcon } from './MaximizeIcon';
+import { MinimizeIcon } from './MinimizeIcon';
+import { CalendarIcon } from './CalendarIcon';
+import { ClockIcon } from './ClockIcon';
+import { UserIcon } from './UserIcon';
+import { StarIcon } from './StarIcon';
+import { HeartIcon } from './HeartIcon';
+import { BookmarkIcon } from './BookmarkIcon';
+import { TagIcon } from './TagIcon';
+import { LinkIcon } from './LinkIcon';
 
 /**
- * Storybook configuration for Icon components
+ * Storybook configuration for all Icon components
  * 
- * Showcases all available icons with different sizes and colors
+ * Showcases the complete collection of available icons with different sizes and colors
  * for use in editor interfaces and applications.
  */
 const meta: Meta<IconProps> = {
   title: 'Icons/All Icons',
+  decorators: [
+    (Story) => (
+      <ThemeProvider>
+        <div style={{ 
+          padding: '1rem', 
+          backgroundColor: 'var(--background-primary)',
+          color: 'var(--text-primary)',
+          minHeight: '100vh'
+        }}>
+          <Story />
+        </div>
+      </ThemeProvider>
+    ),
+  ],
   parameters: {
     docs: {
       description: {
-        component: 'A collection of commonly used icons for editor interfaces. All icons are built using the base Icon component and support consistent sizing and coloring.',
+        component: 'A comprehensive collection of 40 commonly used icons for editor interfaces. All icons are built using the base Icon component and support consistent sizing and coloring.',
       },
     },
   },
@@ -45,57 +105,126 @@ const meta: Meta<IconProps> = {
 export default meta;
 type Story = StoryObj<IconProps>;
 
+// All icons grouped by category
+const coreIcons = [
+  { Component: SaveIcon, name: 'SaveIcon' },
+  { Component: TrashIcon, name: 'TrashIcon' },
+  { Component: SettingsIcon, name: 'SettingsIcon' },
+  { Component: SearchIcon, name: 'SearchIcon' },
+  { Component: AddIcon, name: 'AddIcon' },
+  { Component: CloseIcon, name: 'CloseIcon' },
+  { Component: EditIcon, name: 'EditIcon' },
+  { Component: PlayIcon, name: 'PlayIcon' },
+  { Component: FolderIcon, name: 'FolderIcon' },
+  { Component: EyeIcon, name: 'EyeIcon' },
+];
+
+const editingIcons = [
+  { Component: CopyIcon, name: 'CopyIcon' },
+  { Component: CutIcon, name: 'CutIcon' },
+  { Component: PasteIcon, name: 'PasteIcon' },
+  { Component: UndoIcon, name: 'UndoIcon' },
+  { Component: RedoIcon, name: 'RedoIcon' },
+  { Component: RefreshIcon, name: 'RefreshIcon' },
+];
+
+const fileIcons = [
+  { Component: DownloadIcon, name: 'DownloadIcon' },
+  { Component: UploadIcon, name: 'UploadIcon' },
+  { Component: LockIcon, name: 'LockIcon' },
+  { Component: UnlockIcon, name: 'UnlockIcon' },
+];
+
+const navigationIcons = [
+  { Component: HomeIcon, name: 'HomeIcon' },
+  { Component: MenuIcon, name: 'MenuIcon' },
+  { Component: ArrowUpIcon, name: 'ArrowUpIcon' },
+  { Component: ArrowDownIcon, name: 'ArrowDownIcon' },
+  { Component: ArrowLeftIcon, name: 'ArrowLeftIcon' },
+  { Component: ArrowRightIcon, name: 'ArrowRightIcon' },
+  { Component: ChevronUpIcon, name: 'ChevronUpIcon' },
+  { Component: ChevronDownIcon, name: 'ChevronDownIcon' },
+];
+
+const viewIcons = [
+  { Component: GridIcon, name: 'GridIcon' },
+  { Component: ListIcon, name: 'ListIcon' },
+  { Component: FilterIcon, name: 'FilterIcon' },
+  { Component: SortIcon, name: 'SortIcon' },
+  { Component: ZoomInIcon, name: 'ZoomInIcon' },
+  { Component: ZoomOutIcon, name: 'ZoomOutIcon' },
+  { Component: FullscreenIcon, name: 'FullscreenIcon' },
+  { Component: MaximizeIcon, name: 'MaximizeIcon' },
+  { Component: MinimizeIcon, name: 'MinimizeIcon' },
+];
+
+const statusIcons = [
+  { Component: HelpIcon, name: 'HelpIcon' },
+  { Component: InfoIcon, name: 'InfoIcon' },
+  { Component: WarningIcon, name: 'WarningIcon' },
+  { Component: ErrorIcon, name: 'ErrorIcon' },
+  { Component: SuccessIcon, name: 'SuccessIcon' },
+];
+
+const socialIcons = [
+  { Component: CalendarIcon, name: 'CalendarIcon' },
+  { Component: ClockIcon, name: 'ClockIcon' },
+  { Component: UserIcon, name: 'UserIcon' },
+  { Component: StarIcon, name: 'StarIcon' },
+  { Component: HeartIcon, name: 'HeartIcon' },
+  { Component: BookmarkIcon, name: 'BookmarkIcon' },
+  { Component: TagIcon, name: 'TagIcon' },
+  { Component: LinkIcon, name: 'LinkIcon' },
+];
+
+const IconGrid = ({ icons, title, ...iconProps }: { icons: typeof coreIcons; title: string } & IconProps) => (
+  <div style={{ marginBottom: '32px' }}>
+    <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+      {title}
+    </h3>
+    <div style={{ 
+      display: 'grid', 
+      gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', 
+      gap: '16px'
+    }}>
+      {icons.map(({ Component, name }) => (
+        <div key={name} style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          gap: '8px',
+          padding: '12px',
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          borderRadius: '6px',
+          border: '1px solid rgba(255, 255, 255, 0.1)'
+        }}>
+          <Component {...iconProps} />
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center' }}>
+            {name}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 /**
- * Overview of all available icons in the library
+ * Complete overview of all available icons organized by category
  */
 export const AllIcons: Story = {
   render: (args) => (
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
-      gap: '24px',
-      padding: '24px'
-    }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <SaveIcon {...args} />
-        <span style={{ fontSize: '12px', color: '#666' }}>SaveIcon</span>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <TrashIcon {...args} />
-        <span style={{ fontSize: '12px', color: '#666' }}>TrashIcon</span>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <SettingsIcon {...args} />
-        <span style={{ fontSize: '12px', color: '#666' }}>SettingsIcon</span>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <SearchIcon {...args} />
-        <span style={{ fontSize: '12px', color: '#666' }}>SearchIcon</span>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <AddIcon {...args} />
-        <span style={{ fontSize: '12px', color: '#666' }}>AddIcon</span>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <CloseIcon {...args} />
-        <span style={{ fontSize: '12px', color: '#666' }}>CloseIcon</span>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <EditIcon {...args} />
-        <span style={{ fontSize: '12px', color: '#666' }}>EditIcon</span>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <PlayIcon {...args} />
-        <span style={{ fontSize: '12px', color: '#666' }}>PlayIcon</span>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <FolderIcon {...args} />
-        <span style={{ fontSize: '12px', color: '#666' }}>FolderIcon</span>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <EyeIcon {...args} />
-        <span style={{ fontSize: '12px', color: '#666' }}>EyeIcon</span>
-      </div>
+    <div style={{ padding: '24px' }}>
+      <h2 style={{ marginBottom: '32px', fontSize: '24px', fontWeight: '600', color: 'var(--text-primary)' }}>
+        Icon Library ({coreIcons.length + editingIcons.length + fileIcons.length + navigationIcons.length + viewIcons.length + statusIcons.length + socialIcons.length} Icons)
+      </h2>
+      
+      <IconGrid icons={coreIcons} title="Core Icons" {...args} />
+      <IconGrid icons={editingIcons} title="Editing & Actions" {...args} />
+      <IconGrid icons={fileIcons} title="File Operations" {...args} />
+      <IconGrid icons={navigationIcons} title="Navigation" {...args} />
+      <IconGrid icons={viewIcons} title="View Controls" {...args} />
+      <IconGrid icons={statusIcons} title="Status & Feedback" {...args} />
+      <IconGrid icons={socialIcons} title="Social & Metadata" {...args} />
     </div>
   ),
   args: {
@@ -105,101 +234,129 @@ export const AllIcons: Story = {
 };
 
 /**
- * Size comparison showing all icons in different sizes
+ * Size comparison showing icons in all available sizes
  */
 export const SizeComparison: Story = {
-  render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', padding: '24px' }}>
-      <div>
-        <h3 style={{ marginBottom: '16px', fontSize: '14px', fontWeight: '600' }}>Small (sm)</h3>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <SaveIcon size="sm" />
-          <TrashIcon size="sm" />
-          <SettingsIcon size="sm" />
-          <SearchIcon size="sm" />
-          <AddIcon size="sm" />
-          <CloseIcon size="sm" />
-          <EditIcon size="sm" />
-          <PlayIcon size="sm" />
-          <FolderIcon size="sm" />
-          <EyeIcon size="sm" />
-        </div>
+  render: () => {
+    const sampleIcons = [SaveIcon, SearchIcon, SettingsIcon, PlayIcon, EditIcon, TrashIcon, AddIcon, FolderIcon];
+    
+    return (
+      <div style={{ padding: '24px' }}>
+        <h2 style={{ marginBottom: '32px', fontSize: '20px', fontWeight: '600', color: 'var(--text-primary)' }}>
+          Size Variants
+        </h2>
+        
+        {(['sm', 'md', 'lg'] as const).map(size => (
+          <div key={size} style={{ marginBottom: '32px' }}>
+            <h3 style={{ 
+              marginBottom: '16px', 
+              fontSize: '14px', 
+              fontWeight: '600',
+              color: 'var(--text-secondary)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              {size.toUpperCase()} ({size === 'sm' ? '12px' : size === 'md' ? '16px' : '20px'})
+            </h3>
+            <div style={{ 
+              display: 'flex', 
+              gap: '24px', 
+              alignItems: 'center',
+              padding: '16px',
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: '8px'
+            }}>
+              {sampleIcons.map((Icon, index) => (
+                <Icon key={index} size={size} color="primary" />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
-      <div>
-        <h3 style={{ marginBottom: '16px', fontSize: '14px', fontWeight: '600' }}>Medium (md)</h3>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <SaveIcon size="md" />
-          <TrashIcon size="md" />
-          <SettingsIcon size="md" />
-          <SearchIcon size="md" />
-          <AddIcon size="md" />
-          <CloseIcon size="md" />
-          <EditIcon size="md" />
-          <PlayIcon size="md" />
-          <FolderIcon size="md" />
-          <EyeIcon size="md" />
-        </div>
-      </div>
-      <div>
-        <h3 style={{ marginBottom: '16px', fontSize: '14px', fontWeight: '600' }}>Large (lg)</h3>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <SaveIcon size="lg" />
-          <TrashIcon size="lg" />
-          <SettingsIcon size="lg" />
-          <SearchIcon size="lg" />
-          <AddIcon size="lg" />
-          <CloseIcon size="lg" />
-          <EditIcon size="lg" />
-          <PlayIcon size="lg" />
-          <FolderIcon size="lg" />
-          <EyeIcon size="lg" />
-        </div>
-      </div>
-    </div>
-  ),
+    );
+  },
 };
 
 /**
- * Color variants showing semantic color usage
+ * Color variants showing semantic color usage with examples
  */
 export const ColorVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '24px' }}>
-      <div>
-        <h3 style={{ marginBottom: '16px', fontSize: '14px', fontWeight: '600' }}>Action Colors</h3>
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <SaveIcon color="success" size="lg" />
-            <span style={{ fontSize: '12px', color: '#666' }}>Success</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <TrashIcon color="error" size="lg" />
-            <span style={{ fontSize: '12px', color: '#666' }}>Error</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <SettingsIcon color="warning" size="lg" />
-            <span style={{ fontSize: '12px', color: '#666' }}>Warning</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <PlayIcon color="accent" size="lg" />
-            <span style={{ fontSize: '12px', color: '#666' }}>Accent</span>
+    <div style={{ padding: '24px' }}>
+      <h2 style={{ marginBottom: '32px', fontSize: '20px', fontWeight: '600', color: 'var(--text-primary)' }}>
+        Color Variants
+      </h2>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        {/* Semantic Colors */}
+        <div>
+          <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+            Semantic Colors
+          </h3>
+          <div style={{ display: 'flex', gap: '32px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <SuccessIcon color="success" size="lg" />
+                <SaveIcon color="success" size="lg" />
+              </div>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Success Actions</span>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <ErrorIcon color="error" size="lg" />
+                <TrashIcon color="error" size="lg" />
+              </div>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Destructive Actions</span>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <WarningIcon color="warning" size="lg" />
+                <LockIcon color="warning" size="lg" />
+              </div>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Warning States</span>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <PlayIcon color="accent" size="lg" />
+                <AddIcon color="accent" size="lg" />
+              </div>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Primary Actions</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div>
-        <h3 style={{ marginBottom: '16px', fontSize: '14px', fontWeight: '600' }}>Neutral Colors</h3>
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <SearchIcon color="primary" size="lg" />
-            <span style={{ fontSize: '12px', color: '#666' }}>Primary</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <EditIcon color="secondary" size="lg" />
-            <span style={{ fontSize: '12px', color: '#666' }}>Secondary</span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <CloseIcon color="muted" size="lg" />
-            <span style={{ fontSize: '12px', color: '#666' }}>Muted</span>
+
+        {/* Neutral Colors */}
+        <div>
+          <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+            Neutral Colors
+          </h3>
+          <div style={{ display: 'flex', gap: '32px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <SearchIcon color="primary" size="lg" />
+                <SettingsIcon color="primary" size="lg" />
+              </div>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Primary Content</span>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <EditIcon color="secondary" size="lg" />
+                <FolderIcon color="secondary" size="lg" />
+              </div>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Secondary Content</span>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <CloseIcon color="muted" size="lg" />
+                <HelpIcon color="muted" size="lg" />
+              </div>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Subtle Elements</span>
+            </div>
           </div>
         </div>
       </div>
@@ -208,154 +365,97 @@ export const ColorVariants: Story = {
 };
 
 /**
- * Individual icon stories for detailed documentation
+ * Usage examples showing icons in practical contexts
  */
-export const SaveIconStory: Story = {
-  render: (args) => <SaveIcon {...args} />,
-  args: {
-    size: 'md',
-    color: 'success',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Save icon for save operations and data persistence actions.',
-      },
-    },
-  },
-};
+export const UsageExamples: Story = {
+  render: () => (
+    <div style={{ padding: '24px' }}>
+      <h2 style={{ marginBottom: '32px', fontSize: '20px', fontWeight: '600', color: 'var(--text-primary)' }}>
+        Usage Examples
+      </h2>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        {/* Toolbar Example */}
+        <div>
+          <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+            Editor Toolbar
+          </h3>
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            padding: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '6px',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <UndoIcon size="sm" color="secondary" />
+            <RedoIcon size="sm" color="secondary" />
+            <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255, 255, 255, 0.2)', margin: '0 4px' }} />
+            <CopyIcon size="sm" color="secondary" />
+            <CutIcon size="sm" color="secondary" />
+            <PasteIcon size="sm" color="secondary" />
+            <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255, 255, 255, 0.2)', margin: '0 4px' }} />
+            <ZoomInIcon size="sm" color="secondary" />
+            <ZoomOutIcon size="sm" color="secondary" />
+            <FullscreenIcon size="sm" color="secondary" />
+          </div>
+        </div>
 
-export const TrashIconStory: Story = {
-  render: (args) => <TrashIcon {...args} />,
-  args: {
-    size: 'md',
-    color: 'error',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Trash icon for delete and remove operations.',
-      },
-    },
-  },
-};
+        {/* Status Indicators */}
+        <div>
+          <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+            Status Indicators
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <SuccessIcon size="sm" color="success" />
+              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>File saved successfully</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <WarningIcon size="sm" color="warning" />
+              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>Unsaved changes detected</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <ErrorIcon size="sm" color="error" />
+              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>Failed to load project</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <InfoIcon size="sm" color="accent" />
+              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>Processing in background</span>
+            </div>
+          </div>
+        </div>
 
-export const SettingsIconStory: Story = {
-  render: (args) => <SettingsIcon {...args} />,
-  args: {
-    size: 'md',
-    color: 'primary',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Settings icon for configuration and preferences.',
-      },
-    },
-  },
-};
-
-export const SearchIconStory: Story = {
-  render: (args) => <SearchIcon {...args} />,
-  args: {
-    size: 'md',
-    color: 'primary',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Search icon for search functionality and filters.',
-      },
-    },
-  },
-};
-
-export const AddIconStory: Story = {
-  render: (args) => <AddIcon {...args} />,
-  args: {
-    size: 'md',
-    color: 'accent',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Add icon for creating new items and expanding content.',
-      },
-    },
-  },
-};
-
-export const CloseIconStory: Story = {
-  render: (args) => <CloseIcon {...args} />,
-  args: {
-    size: 'md',
-    color: 'muted',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Close icon for closing dialogs and canceling operations.',
-      },
-    },
-  },
-};
-
-export const EditIconStory: Story = {
-  render: (args) => <EditIcon {...args} />,
-  args: {
-    size: 'md',
-    color: 'primary',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Edit icon for editing content and modifying data.',
-      },
-    },
-  },
-};
-
-export const PlayIconStory: Story = {
-  render: (args) => <PlayIcon {...args} />,
-  args: {
-    size: 'md',
-    color: 'success',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Play icon for starting playback and running processes.',
-      },
-    },
-  },
-};
-
-export const FolderIconStory: Story = {
-  render: (args) => <FolderIcon {...args} />,
-  args: {
-    size: 'md',
-    color: 'primary',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Folder icon for file system navigation and organizing content.',
-      },
-    },
-  },
-};
-
-export const EyeIconStory: Story = {
-  render: (args) => <EyeIcon {...args} />,
-  args: {
-    size: 'md',
-    color: 'primary',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Eye icon for visibility toggles and preview functionality.',
-      },
-    },
-  },
+        {/* Navigation Menu */}
+        <div>
+          <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+            Navigation Menu
+          </h3>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            gap: '8px',
+            padding: '16px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '6px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            width: '200px'
+          }}>
+            {[
+              { Icon: HomeIcon, label: 'Dashboard' },
+              { Icon: FolderIcon, label: 'Projects' },
+              { Icon: UserIcon, label: 'Profile' },
+              { Icon: SettingsIcon, label: 'Settings' },
+              { Icon: HelpIcon, label: 'Help & Support' },
+            ].map(({ Icon, label }) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px', borderRadius: '4px' }}>
+                <Icon size="sm" color="secondary" />
+                <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
 };

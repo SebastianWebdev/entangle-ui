@@ -1,3 +1,4 @@
+// src/icons/CloseIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -5,7 +6,7 @@ import type { IconProps } from '../primitives/Icon';
 /**
  * Close icon component for close/cancel actions.
  * 
- * A standard X icon commonly used for closing dialogs, modals,
+ * A standard X icon commonly used for closing dialogs,
  * canceling operations, and dismissing content in editor interfaces.
  * 
  * @example
@@ -14,7 +15,7 @@ import type { IconProps } from '../primitives/Icon';
  * <CloseIcon />
  * 
  * // With custom size and color
- * <CloseIcon size="lg" color="muted" />
+ * <CloseIcon size="sm" color="muted" />
  * 
  * // In a close button
  * <Button icon={<CloseIcon />}>Close</Button>
@@ -23,7 +24,7 @@ import type { IconProps } from '../primitives/Icon';
 export const CloseIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
   return (
     <Icon
-      svg="m18 6-12 12m0-12 12 12"
+      svg="M18.3 5.71a.996.996 0 00-1.41 0L12 10.59 7.11 5.7A.996.996 0 105.7 7.11L10.59 12 5.7 16.89a.996.996 0 101.41 1.41L12 13.41l4.89 4.89a.996.996 0 101.41-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"
       {...props}
     />
   );

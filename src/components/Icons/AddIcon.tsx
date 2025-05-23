@@ -1,3 +1,4 @@
+// src/icons/AddIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -23,7 +24,7 @@ import type { IconProps } from '../primitives/Icon';
 export const AddIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
   return (
     <Icon
-      svg="M12 5v14m-7-7h14"
+      svg="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
       {...props}
     />
   );
