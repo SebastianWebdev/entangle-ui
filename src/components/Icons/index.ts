@@ -6,3 +6,4 @@ export { AddIcon } from './AddIcon';
 export { CloseIcon } from './CloseIcon';
 export { EditIcon } from './EditIcon';
 export { PlayIcon } from './PlayIcon';
+export { FolderIcon } from './FolderIcon';
