@@ -1,33 +1,96 @@
 // src/primitives/Button/Button.tsx
 import React from 'react';
 import styled from '@emotion/styled';
+import type { Prettify, LiteralUnion } from '../../../types/utilities';
 
-export type ButtonSize = 'sm' | 'md' | 'lg';
-export type ButtonVariant = 'default' | 'ghost' | 'filled';
+/**
+ * Rozmiary przycisku zoptymalizowane dla interfejsów edytora
+ */
+export type ButtonSize = LiteralUnion<'sm' | 'md' | 'lg'>;
 
+/**
+ * Warianty wizualne przycisku
+ */
+export type ButtonVariant = LiteralUnion<'default' | 'ghost' | 'filled'>;
+
+/**
+ * Właściwości komponentu Button
+ */
 export interface ButtonProps {
-  /** Button content */
+  /** 
+   * Zawartość przycisku - tekst, ikony lub inne elementy React
+   * @example "Zapisz", <><SaveIcon /> Zapisz</> 
+   */
   children?: React.ReactNode;
-  /** Additional CSS classes */
+  
+  /** 
+   * Dodatkowe klasy CSS
+   */
   className?: string;
-  /** Button size */
+  
+  /** 
+   * Wariant rozmiaru zoptymalizowany dla interfejsów edytora
+   * - `sm`: wysokość 24px, kompaktowy dla pasków narzędzi
+   * - `md`: wysokość 28px, standardowy dla paneli
+   * - `lg`: wysokość 32px, dla prominentnych akcji
+   * @default "md"
+   */
   size?: ButtonSize;
-  /** Button variant */
+  
+  /** 
+   * Wariant wizualny przycisku
+   * - `default`: Przezroczysty z obramowaniem, wypełnia się przy hover
+   * - `ghost`: Bez obramowania, subtelny stan hover  
+   * - `filled`: Solidne tło z kolorem akcentu
+   * @default "default"
+   */
   variant?: ButtonVariant;
-  /** Whether button is disabled */
+  
+  /** 
+   * Czy przycisk jest wyłączony
+   * Gdy true, przycisk staje się nieinteraktywny z obniżoną przezroczystością
+   * @default false
+   */
   disabled?: boolean;
-  /** Loading state */
+  
+  /** 
+   * Stan ładowania - pokazuje spinner i wyłącza interakcję
+   * Używaj dla operacji asynchronicznych jak zapisywanie, ładowanie danych
+   * @default false
+   */
   loading?: boolean;
-  /** Icon before text */
+  
+  /** 
+   * Element ikony do wyświetlenia przed tekstem
+   * Powinien mieć rozmiar 16x16px dla optymalnego wyglądu
+   * @example <SaveIcon />, <PlayIcon />
+   */
   icon?: React.ReactNode;
-  /** Full width button */
+  
+  /** 
+   * Czy przycisk powinien zajmować pełną szerokość kontenera
+   * Przydatne dla akcji formularzy i przycisków modalnych
+   * @default false
+   */
   fullWidth?: boolean;
-  /** Click handler */
+  
+  /** 
+   * Handler zdarzenia kliknięcia
+   * Wywoływany gdy przycisk jest kliknięty (nie gdy disabled/loading)
+   */
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  /** Test ID */
+  
+  /** 
+   * Identyfikator testowy dla testów automatycznych
+   * Powinien następować wzorzec: component-action-context
+   * @example "button-save-project", "button-cancel-dialog"
+   */
   'data-testid'?: string;
 }
 
+/**
+ * Właściwości dla stylowanego komponentu przycisku
+ */
 interface StyledButtonProps {
   $size: ButtonSize;
   $variant: ButtonVariant;
@@ -155,6 +218,9 @@ const StyledButton = styled.button<StyledButtonProps>`
   }
 `;
 
+/**
+ * Komponent spinnera ładowania
+ */
 const LoadingSpinner = styled.div`
   width: 16px;
   height: 16px;
@@ -168,6 +234,9 @@ const LoadingSpinner = styled.div`
   }
 `;
 
+/**
+ * Wrapper dla ikony
+ */
 const IconWrapper = styled.span`
   width: 16px;
   height: 16px;
@@ -176,6 +245,32 @@ const IconWrapper = styled.span`
   justify-content: center;
 `;
 
+/**
+ * Wszechstronny komponent przycisku dla interfejsów edytora.
+ * 
+ * Obsługuje wiele wariantów, rozmiarów i stanów. Zoptymalizowany dla profesjonalnych
+ * interfejsów edytora z kompaktowymi wymiarami i precyzyjnymi interakcjami.
+ * 
+ * @example
+ * ```tsx
+ * // Podstawowe użycie
+ * <Button variant="default" size="md">Zapisz</Button>
+ * 
+ * // Z ikoną i stanem ładowania
+ * <Button 
+ *   icon={<SaveIcon />} 
+ *   loading={isSaving}
+ *   onClick={handleSave}
+ * >
+ *   Zapisz Projekt
+ * </Button>
+ * 
+ * // Przycisk pełnej szerokości
+ * <Button variant="filled" fullWidth>
+ *   Potwierdź
+ * </Button>
+ * ```
+ */
 export const Button: React.FC<ButtonProps> = ({
   children,
   className,
