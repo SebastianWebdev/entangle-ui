@@ -3,10 +3,10 @@ import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Folder icon component for directory/folder actions.
+ * Folder icon component for directory and organization actions.
  * 
- * A standard folder icon commonly used for file system navigation,
- * organizing content, and representing directories in editor interfaces.
+ * A standard folder icon commonly used for file organization,
+ * directory navigation, and grouping content in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -16,15 +16,14 @@ import type { IconProps } from '../primitives/Icon';
  * // With custom size and color
  * <FolderIcon size="lg" color="primary" />
  * 
- * // In a folder button
+ * // In a folder browser
  * <Button icon={<FolderIcon />}>Open Folder</Button>
  * ```
  */
-export const FolderIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const FolderIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M4 4h6l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"
-      {...props}
-    />
+    <Icon {...props}>
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+    </Icon>
   );
 };

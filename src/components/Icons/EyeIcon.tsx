@@ -3,10 +3,10 @@ import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Eye icon component for visibility/show actions.
+ * Eye icon component for visibility and view actions.
  * 
- * A standard eye icon commonly used for showing/hiding content,
- * toggling visibility, and preview functionality in editor interfaces.
+ * A standard eye icon commonly used for showing content,
+ * toggling visibility, and preview actions in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -14,17 +14,17 @@ import type { IconProps } from '../primitives/Icon';
  * <EyeIcon />
  * 
  * // With custom size and color
- * <EyeIcon size="lg" color="primary" />
+ * <EyeIcon size="md" color="primary" />
  * 
- * // In a visibility toggle button
+ * // In a visibility toggle
  * <Button icon={<EyeIcon />}>Show</Button>
  * ```
  */
-export const EyeIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const EyeIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 100 6 3 3 0 000-6z"
-      {...props}
-    />
+    <Icon {...props}>
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </Icon>
   );
 };

@@ -1,13 +1,12 @@
-// src/icons/ArrowDownIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Arrow Down icon component for downward navigation.
+ * Arrow Down icon component for downward navigation and expansion.
  * 
- * A standard downward arrow icon commonly used for navigation down,
- * sorting descending, and directional controls in editor interfaces.
+ * A standard downward-pointing arrow commonly used for dropdown menus,
+ * expanding content, and downward navigation in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,16 @@ import type { IconProps } from '../primitives/Icon';
  * <ArrowDownIcon />
  * 
  * // With custom size and color
- * <ArrowDownIcon size="md" color="primary" />
+ * <ArrowDownIcon size="lg" color="primary" />
  * 
- * // In a navigation context
- * <Button icon={<ArrowDownIcon />}>Move Down</Button>
+ * // In a dropdown button
+ * <Button icon={<ArrowDownIcon />}>Expand</Button>
  * ```
  */
-export const ArrowDownIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const ArrowDownIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M12 5v14 M19 12l-7 7-7-7"
-      {...props}
-    />
+    <Icon {...props}>
+      <path d="M7 10l5 5 5-5z" />
+    </Icon>
   );
 };

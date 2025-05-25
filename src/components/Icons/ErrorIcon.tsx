@@ -1,13 +1,12 @@
-// src/icons/ErrorIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Error icon component for error states.
+ * Error icon component for error states and alerts.
  * 
- * A standard X circle icon commonly used for error messages,
- * failed operations, and critical alerts in editor interfaces.
+ * A standard error icon commonly used for error messages,
+ * validation failures, and critical alerts in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,18 @@ import type { IconProps } from '../primitives/Icon';
  * <ErrorIcon />
  * 
  * // With custom size and color
- * <ErrorIcon size="sm" color="error" />
+ * <ErrorIcon size="lg" color="error" />
  * 
- * // In an error context
- * <Button icon={<ErrorIcon />}>Error</Button>
+ * // In an error message
+ * <Alert icon={<ErrorIcon />} variant="error">Error occurred</Alert>
  * ```
  */
-export const ErrorIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const ErrorIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M18 6L6 18 M6 6l12 12 M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z"
-      {...props}
-    />
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <line x1="15" y1="9" x2="9" y2="15" />
+      <line x1="9" y1="9" x2="15" y2="15" />
+    </Icon>
   );
 };

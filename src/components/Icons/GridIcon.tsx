@@ -1,13 +1,12 @@
-// src/icons/GridIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Grid icon component for grid view layouts.
+ * Grid icon component for grid view and layout actions.
  * 
- * A standard grid pattern icon commonly used for switching to grid view,
- * layout controls, and structured data display in editor interfaces.
+ * A standard grid icon commonly used for switching to grid view,
+ * layout options, and organizing content in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,19 @@ import type { IconProps } from '../primitives/Icon';
  * <GridIcon />
  * 
  * // With custom size and color
- * <GridIcon size="sm" color="accent" />
+ * <GridIcon size="md" color="primary" />
  * 
  * // In a view toggle
  * <Button icon={<GridIcon />}>Grid View</Button>
  * ```
  */
-export const GridIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const GridIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z"
-      {...props}
-    />
+    <Icon {...props}>
+      <rect x="3" y="3" width="7" height="7" />
+      <rect x="14" y="3" width="7" height="7" />
+      <rect x="14" y="14" width="7" height="7" />
+      <rect x="3" y="14" width="7" height="7" />
+    </Icon>
   );
 };

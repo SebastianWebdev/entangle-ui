@@ -1,13 +1,12 @@
-// src/icons/ChevronDownIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Chevron Down icon component for downward expansion.
+ * Chevron Down icon component for dropdown and expansion indicators.
  * 
- * A standard downward chevron icon commonly used for expanding content,
- * dropdown controls, and subtle directional navigation in editor interfaces.
+ * A subtle downward chevron commonly used for dropdown menus,
+ * accordion expansion, and subtle directional cues in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,16 @@ import type { IconProps } from '../primitives/Icon';
  * <ChevronDownIcon />
  * 
  * // With custom size and color
- * <ChevronDownIcon size="lg" color="primary" />
+ * <ChevronDownIcon size="sm" color="muted" />
  * 
- * // In a dropdown context
- * <Button icon={<ChevronDownIcon />}>Expand</Button>
+ * // In a dropdown
+ * <Select icon={<ChevronDownIcon />}>Options</Select>
  * ```
  */
-export const ChevronDownIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const ChevronDownIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M6 9l6 6 6-6"
-      {...props}
-    />
+    <Icon {...props}>
+      <polyline points="6,9 12,15 18,9" />
+    </Icon>
   );
 };

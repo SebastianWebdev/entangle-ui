@@ -1,13 +1,12 @@
-// src/icons/ArrowLeftIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Arrow Left icon component for leftward navigation.
+ * Arrow Left icon component for leftward navigation and back actions.
  * 
- * A standard leftward arrow icon commonly used for back navigation,
- * previous actions, and directional controls in editor interfaces.
+ * A standard leftward-pointing arrow commonly used for back buttons,
+ * previous navigation, and leftward movement in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,16 @@ import type { IconProps } from '../primitives/Icon';
  * <ArrowLeftIcon />
  * 
  * // With custom size and color
- * <ArrowLeftIcon size="lg" color="secondary" />
+ * <ArrowLeftIcon size="lg" color="primary" />
  * 
- * // In a navigation context
+ * // In a back button
  * <Button icon={<ArrowLeftIcon />}>Back</Button>
  * ```
  */
-export const ArrowLeftIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const ArrowLeftIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M19 12H5 M12 19l-7-7 7-7"
-      {...props}
-    />
+    <Icon {...props}>
+      <path d="M14 7l-5 5 5 5V7z" />
+    </Icon>
   );
 };

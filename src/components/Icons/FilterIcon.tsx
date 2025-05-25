@@ -1,13 +1,12 @@
-// src/icons/FilterIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Filter icon component for filtering actions.
+ * Filter icon component for filtering and sorting actions.
  * 
- * A standard funnel icon commonly used for filtering content,
- * data refinement, and search operations in editor interfaces.
+ * A standard filter icon commonly used for filtering content,
+ * applying search filters, and data sorting in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,16 @@ import type { IconProps } from '../primitives/Icon';
  * <FilterIcon />
  * 
  * // With custom size and color
- * <FilterIcon size="lg" color="secondary" />
+ * <FilterIcon size="md" color="primary" />
  * 
- * // In a filter context
+ * // In a filter button
  * <Button icon={<FilterIcon />}>Filter</Button>
  * ```
  */
-export const FilterIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const FilterIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"
-      {...props}
-    />
+    <Icon {...props}>
+      <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" />
+    </Icon>
   );
 };

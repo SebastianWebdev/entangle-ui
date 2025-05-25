@@ -1,13 +1,12 @@
-// src/icons/InfoIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Info icon component for information display.
+ * Info icon component for information and details.
  * 
- * A standard information circle icon commonly used for showing information,
- * details, and contextual help in editor interfaces.
+ * A standard info icon commonly used for information messages,
+ * details, and informational content in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,18 @@ import type { IconProps } from '../primitives/Icon';
  * <InfoIcon />
  * 
  * // With custom size and color
- * <InfoIcon size="lg" color="accent" />
+ * <InfoIcon size="md" color="primary" />
  * 
- * // In an info context
- * <Button icon={<InfoIcon />}>Info</Button>
+ * // In an info message
+ * <Alert icon={<InfoIcon />} variant="info">Information</Alert>
  * ```
  */
-export const InfoIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const InfoIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M12 16v-4 M12 8h.01 M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z"
-      {...props}
-    />
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
+    </Icon>
   );
 };

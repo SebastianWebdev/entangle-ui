@@ -1,13 +1,12 @@
-// src/icons/ClockIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Clock icon component for time and timing.
+ * Clock icon component for time and scheduling functionality.
  * 
  * A standard clock icon commonly used for time displays,
- * timing controls, and temporal features in editor interfaces.
+ * scheduling features, and temporal indicators in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,17 @@ import type { IconProps } from '../primitives/Icon';
  * <ClockIcon />
  * 
  * // With custom size and color
- * <ClockIcon size="md" color="primary" />
+ * <ClockIcon size="lg" color="primary" />
  * 
- * // In a time context
- * <Button icon={<ClockIcon />}>Timer</Button>
+ * // In a time picker
+ * <Button icon={<ClockIcon />}>Set Time</Button>
  * ```
  */
-export const ClockIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const ClockIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M12 6v6l4 2 M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z"
-      {...props}
-    />
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12,6 12,12 16,14" />
+    </Icon>
   );
 };

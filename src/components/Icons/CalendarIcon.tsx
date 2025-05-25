@@ -1,13 +1,12 @@
-// src/icons/CalendarIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Calendar icon component for date and scheduling.
+ * Calendar icon component for date and scheduling functionality.
  * 
  * A standard calendar icon commonly used for date pickers,
- * scheduling features, and time-based operations in editor interfaces.
+ * scheduling, and time-related features in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,19 @@ import type { IconProps } from '../primitives/Icon';
  * <CalendarIcon />
  * 
  * // With custom size and color
- * <CalendarIcon size="lg" color="accent" />
+ * <CalendarIcon size="lg" color="primary" />
  * 
- * // In a date context
- * <Button icon={<CalendarIcon />}>Schedule</Button>
+ * // In a date picker
+ * <Button icon={<CalendarIcon />}>Select Date</Button>
  * ```
  */
-export const CalendarIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const CalendarIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z M16 2v4 M8 2v4 M3 10h18"
-      {...props}
-    />
+    <Icon {...props}>
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </Icon>
   );
 };

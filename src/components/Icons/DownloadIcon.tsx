@@ -1,13 +1,12 @@
-// src/icons/DownloadIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Download icon component for download actions.
+ * Download icon component for file download actions.
  * 
- * A standard download arrow icon commonly used for downloading files,
- * exporting data, and save operations in editor interfaces.
+ * A standard download icon commonly used for downloading files,
+ * exporting content, and save-to-device actions in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,18 @@ import type { IconProps } from '../primitives/Icon';
  * <DownloadIcon />
  * 
  * // With custom size and color
- * <DownloadIcon size="md" color="success" />
+ * <DownloadIcon size="lg" color="success" />
  * 
  * // In a download button
  * <Button icon={<DownloadIcon />}>Download</Button>
  * ```
  */
-export const DownloadIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const DownloadIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M3 17v3a2 2 0 002 2h14a2 2 0 002-2v-3M8 12l4 4 4-4M12 2v14"
-      {...props}
-    />
+    <Icon {...props}>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7,10 12,15 17,10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </Icon>
   );
 };

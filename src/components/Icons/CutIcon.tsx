@@ -1,13 +1,12 @@
-// src/icons/CutIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Cut icon component for cut actions.
+ * Cut icon component for cutting and removal actions.
  * 
  * A standard scissors icon commonly used for cutting content,
- * removing items, and clipboard operations in editor interfaces.
+ * removing items, and clipboard cut operations in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,20 @@ import type { IconProps } from '../primitives/Icon';
  * <CutIcon />
  * 
  * // With custom size and color
- * <CutIcon size="md" color="warning" />
+ * <CutIcon size="md" color="primary" />
  * 
  * // In a cut button
  * <Button icon={<CutIcon />}>Cut</Button>
  * ```
  */
-export const CutIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const CutIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M9.64 7.64a.75.75 0 0 1 1.06-1.06L12 7.88l1.3-1.3a.75.75 0 1 1 1.06 1.06L13.06 9l1.3 1.3a.75.75 0 0 1-1.06 1.06L12 10.06l-1.3 1.3a.75.75 0 0 1-1.06-1.06L10.94 9 9.64 7.64z M6.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M17.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M6.5 10a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"
-      {...props}
-    />
+    <Icon {...props}>
+      <circle cx="6" cy="6" r="3" />
+      <circle cx="6" cy="18" r="3" />
+      <line x1="20" y1="4" x2="8.12" y2="15.88" />
+      <line x1="14.47" y1="14.48" x2="20" y2="20" />
+      <line x1="8.12" y1="8.12" x2="12" y2="12" />
+    </Icon>
   );
 };

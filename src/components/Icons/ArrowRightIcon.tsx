@@ -1,13 +1,12 @@
-// src/icons/ArrowRightIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Arrow Right icon component for rightward navigation.
+ * Arrow Right icon component for rightward navigation and forward actions.
  * 
- * A standard rightward arrow icon commonly used for forward navigation,
- * next actions, and directional controls in editor interfaces.
+ * A standard rightward-pointing arrow commonly used for next buttons,
+ * forward navigation, and rightward movement in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -15,17 +14,16 @@ import type { IconProps } from '../primitives/Icon';
  * <ArrowRightIcon />
  * 
  * // With custom size and color
- * <ArrowRightIcon size="sm" color="accent" />
+ * <ArrowRightIcon size="lg" color="primary" />
  * 
- * // In a navigation context
+ * // In a next button
  * <Button icon={<ArrowRightIcon />}>Next</Button>
  * ```
  */
-export const ArrowRightIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const ArrowRightIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M5 12h14 M12 5l7 7-7 7"
-      {...props}
-    />
+    <Icon {...props}>
+      <path d="M10 17l5-5-5-5v10z" />
+    </Icon>
   );
 };

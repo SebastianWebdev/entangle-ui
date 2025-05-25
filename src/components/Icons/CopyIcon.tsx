@@ -1,12 +1,11 @@
-// src/icons/CopyIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Copy icon component for copy actions.
+ * Copy icon component for duplication and clipboard actions.
  * 
- * A standard copy/duplicate icon commonly used for copying content,
+ * A standard copy icon commonly used for copying content,
  * duplicating items, and clipboard operations in editor interfaces.
  * 
  * @example
@@ -15,17 +14,17 @@ import type { IconProps } from '../primitives/Icon';
  * <CopyIcon />
  * 
  * // With custom size and color
- * <CopyIcon size="sm" color="secondary" />
+ * <CopyIcon size="md" color="primary" />
  * 
  * // In a copy button
  * <Button icon={<CopyIcon />}>Copy</Button>
  * ```
  */
-export const CopyIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const CopyIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M20 9h-3.5l-1-1h-11l-1 1H1v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9z M9 9H4V4a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v5"
-      {...props}
-    />
+    <Icon {...props}>
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </Icon>
   );
 };
