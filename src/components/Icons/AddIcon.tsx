@@ -21,11 +21,10 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<AddIcon />}>Add Item</Button>
  * ```
  */
-export const AddIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const AddIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
-      {...props}
-    />
+    <Icon {...props}>
+      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+    </Icon>
   );
 };
