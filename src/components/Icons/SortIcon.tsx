@@ -21,11 +21,12 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<SortIcon />}>Sort</Button>
  * ```
  */
-export const SortIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const SortIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M3 6h18 M3 12h12 M3 18h6 M17 8l4-4 4 4 M21 4v16"
-      {...props}
-    />
+    <Icon {...props}>
+      <path d="M3 6h18" />
+      <path d="M7 12h10" />
+      <path d="M10 18h4" />
+    </Icon>
   );
 };

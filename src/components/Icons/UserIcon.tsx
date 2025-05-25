@@ -21,11 +21,11 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<UserIcon />}>Profile</Button>
  * ```
  */
-export const UserIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const UserIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
-      {...props}
-    />
+    <Icon {...props}>
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </Icon>
   );
 };

@@ -17,6 +17,8 @@ export type {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
+  IconProps,
+  IconSize,
 } from '@/components/primitives';
 
 // Types

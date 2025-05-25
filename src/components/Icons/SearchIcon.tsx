@@ -1,3 +1,4 @@
+// src/icons/SearchIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -5,8 +6,8 @@ import type { IconProps } from '../primitives/Icon';
 /**
  * Search icon component for search functionality.
  * 
- * A standard magnifying glass icon commonly used for search operations,
- * filters, and find functionality in editor interfaces and applications.
+ * A standard magnifying glass icon commonly used for search inputs,
+ * find operations, and lookup features in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -14,17 +15,17 @@ import type { IconProps } from '../primitives/Icon';
  * <SearchIcon />
  * 
  * // With custom size and color
- * <SearchIcon size="lg" color="primary" />
+ * <SearchIcon size="md" color="primary" />
  * 
- * // In a search button
- * <Button icon={<SearchIcon />}>Search</Button>
+ * // In a search input
+ * <Input startIcon={<SearchIcon />} placeholder="Search..." />
  * ```
  */
-export const SearchIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const SearchIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-      {...props}
-    />
+    <Icon {...props}>
+      <circle cx="11" cy="11" r="8" />
+      <path d="M21 21l-4.35-4.35" />
+    </Icon>
   );
 };

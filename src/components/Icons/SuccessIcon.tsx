@@ -21,11 +21,11 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<SuccessIcon />}>Success</Button>
  * ```
  */
-export const SuccessIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const SuccessIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M9 12l2 2 4-4 M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z"
-      {...props}
-    />
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="9,12 12,15 16,10" />
+    </Icon>
   );
 };

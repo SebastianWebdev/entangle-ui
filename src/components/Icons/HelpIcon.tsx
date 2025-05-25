@@ -1,12 +1,13 @@
+// src/icons/HelpIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Help icon component for help and information actions.
+ * Help icon component for help and support actions.
  * 
- * A standard question mark icon commonly used for help content,
- * tooltips, and assistance features in editor interfaces.
+ * A standard question mark icon commonly used for help documentation,
+ * support links, and information assistance in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -16,7 +17,7 @@ import type { IconProps } from '../primitives/Icon';
  * // With custom size and color
  * <HelpIcon size="sm" color="muted" />
  * 
- * // In a help button
+ * // In a help context
  * <Button icon={<HelpIcon />}>Help</Button>
  * ```
  */

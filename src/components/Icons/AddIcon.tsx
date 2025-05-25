@@ -3,6 +3,7 @@ import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
+
 /**
  * Add icon component for create/add actions.
  * 
@@ -24,7 +25,8 @@ import type { IconProps } from '../primitives/Icon';
 export const AddIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
     <Icon {...props}>
-      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
     </Icon>
   );
 };

@@ -1,3 +1,4 @@
+// src/icons/PlayIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -6,7 +7,7 @@ import type { IconProps } from '../primitives/Icon';
  * Play icon component for play/start actions.
  * 
  * A standard play triangle icon commonly used for starting playback,
- * running processes, and initiating actions in editor interfaces.
+ * running processes, and begin operations in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -20,11 +21,10 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<PlayIcon />}>Play</Button>
  * ```
  */
-export const PlayIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const PlayIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="m9 18 6-6-6-6v12z"
-      {...props}
-    />
+    <Icon {...props}>
+      <polygon points="5,3 19,12 5,21" />
+    </Icon>
   );
 };

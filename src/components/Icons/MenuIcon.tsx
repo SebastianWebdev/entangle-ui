@@ -21,11 +21,12 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<MenuIcon />}>Menu</Button>
  * ```
  */
-export const MenuIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const MenuIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M3 12h18 M3 6h18 M3 18h18"
-      {...props}
-    />
+    <Icon {...props}>
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="18" x2="21" y2="18" />
+    </Icon>
   );
 };

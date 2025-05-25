@@ -1,12 +1,13 @@
+// src/icons/InfoIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Info icon component for information and details.
+ * Info icon component for information display.
  * 
- * A standard info icon commonly used for information messages,
- * details, and informational content in editor interfaces.
+ * A standard information circle icon commonly used for showing information,
+ * details, and contextual help in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -14,10 +15,10 @@ import type { IconProps } from '../primitives/Icon';
  * <InfoIcon />
  * 
  * // With custom size and color
- * <InfoIcon size="md" color="primary" />
+ * <InfoIcon size="lg" color="accent" />
  * 
- * // In an info message
- * <Alert icon={<InfoIcon />} variant="info">Information</Alert>
+ * // In an info context
+ * <Button icon={<InfoIcon />}>Info</Button>
  * ```
  */
 export const InfoIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {

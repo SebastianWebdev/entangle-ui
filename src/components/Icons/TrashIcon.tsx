@@ -1,12 +1,13 @@
+// src/icons/TrashIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
 /**
- * Trash icon component for delete/remove actions.
+ * Trash icon component for delete actions.
  * 
- * A standard trash can icon commonly used for delete operations
- * in editor interfaces and applications.
+ * A standard trash can icon commonly used for deleting items,
+ * removing content, and destructive operations in editor interfaces.
  * 
  * @example
  * ```tsx
@@ -14,17 +15,19 @@ import type { IconProps } from '../primitives/Icon';
  * <TrashIcon />
  * 
  * // With custom size and color
- * <TrashIcon size="lg" color="error" />
+ * <TrashIcon size="md" color="error" />
  * 
  * // In a delete button
  * <Button icon={<TrashIcon />}>Delete</Button>
  * ```
  */
-export const TrashIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const TrashIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M3 6h18m-2 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2m-6 5v6m4-6v6"
-      {...props}
-    />
+    <Icon {...props}>
+      <polyline points="3,6 5,6 21,6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </Icon>
   );
 };

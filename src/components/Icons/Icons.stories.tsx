@@ -1,61 +1,62 @@
 // src/icons/AllIcons.stories.tsx
-import type { Meta, StoryObj } from '@storybook/react';
-import { ThemeProvider } from '@/theme';
 import type { IconProps } from '@/components/primitives/Icon';
+import { ThemeProvider } from '@/theme';
+import type { Meta, StoryObj } from '@storybook/react';
 
 // Core 10 icons
-import { SaveIcon } from './SaveIcon';
-import { TrashIcon } from './TrashIcon';
-import { SettingsIcon } from './SettingsIcon';
-import { SearchIcon } from './SearchIcon';
 import { AddIcon } from './AddIcon';
 import { CloseIcon } from './CloseIcon';
 import { EditIcon } from './EditIcon';
-import { PlayIcon } from './PlayIcon';
-import { FolderIcon } from './FolderIcon';
 import { EyeIcon } from './EyeIcon';
+import { FolderIcon } from './FolderIcon';
+import { PlayIcon } from './PlayIcon';
+import { SaveIcon } from './SaveIcon';
+import { SearchIcon } from './SearchIcon';
+import { SettingsIcon } from './SettingsIcon';
+import { TrashIcon } from './TrashIcon';
 
 // Additional icons
-import { CopyIcon } from './CopyIcon';
-import { CutIcon } from './CutIcon';
-import { PasteIcon } from './PasteIcon';
-import { UndoIcon } from './UndoIcon';
-import { RedoIcon } from './RedoIcon';
-import { RefreshIcon } from './RefreshIcon';
-import { DownloadIcon } from './DownloadIcon';
-import { UploadIcon } from './UploadIcon';
-import { LockIcon } from './LockIcon';
-import { UnlockIcon } from './UnlockIcon';
-import { HomeIcon } from './HomeIcon';
-import { MenuIcon } from './MenuIcon';
-import { GridIcon } from './GridIcon';
-import { ListIcon } from './ListIcon';
-import { FilterIcon } from './FilterIcon';
-import { SortIcon } from './SortIcon';
-import { ZoomInIcon } from './ZoomInIcon';
-import { ZoomOutIcon } from './ZoomOutIcon';
-import { FullscreenIcon } from './FullscreenIcon';
-import { HelpIcon } from './HelpIcon';
-import { InfoIcon } from './InfoIcon';
-import { WarningIcon } from './WarningIcon';
-import { ErrorIcon } from './ErrorIcon';
-import { SuccessIcon } from './SuccessIcon';
-import { ArrowUpIcon } from './ArrowUpIcon';
 import { ArrowDownIcon } from './ArrowDownIcon';
 import { ArrowLeftIcon } from './ArrowLeftIcon';
 import { ArrowRightIcon } from './ArrowRightIcon';
-import { ChevronUpIcon } from './ChevronUpIcon';
-import { ChevronDownIcon } from './ChevronDownIcon';
-import { MaximizeIcon } from './MaximizeIcon';
-import { MinimizeIcon } from './MinimizeIcon';
-import { CalendarIcon } from './CalendarIcon';
-import { ClockIcon } from './ClockIcon';
-import { UserIcon } from './UserIcon';
-import { StarIcon } from './StarIcon';
-import { HeartIcon } from './HeartIcon';
+import { ArrowUpIcon } from './ArrowUpIcon';
 import { BookmarkIcon } from './BookmarkIcon';
-import { TagIcon } from './TagIcon';
+import { CalendarIcon } from './CalendarIcon';
+import { ChevronDownIcon } from './ChevronDownIcon';
+import { ChevronUpIcon } from './ChevronUpIcon';
+import { ClockIcon } from './ClockIcon';
+import { CodeIcon } from './CodeIcon';
+import { CopyIcon } from './CopyIcon';
+import { CutIcon } from './CutIcon';
+import { DownloadIcon } from './DownloadIcon';
+import { ErrorIcon } from './ErrorIcon';
+import { FilterIcon } from './FilterIcon';
+import { FullscreenIcon } from './FullscreenIcon';
+import { GridIcon } from './GridIcon';
+import { HeartIcon } from './HeartIcon';
+import { HelpIcon } from './HelpIcon';
+import { HomeIcon } from './HomeIcon';
+import { InfoIcon } from './InfoIcon';
 import { LinkIcon } from './LinkIcon';
+import { ListIcon } from './ListIcon';
+import { LockIcon } from './LockIcon';
+import { MaximizeIcon } from './MaximizeIcon';
+import { MenuIcon } from './MenuIcon';
+import { MinimizeIcon } from './MinimizeIcon';
+import { PasteIcon } from './PasteIcon';
+import { RedoIcon } from './RedoIcon';
+import { RefreshIcon } from './RefreshIcon';
+import { SortIcon } from './SortIcon';
+import { StarIcon } from './StarIcon';
+import { SuccessIcon } from './SuccessIcon';
+import { TagIcon } from './TagIcon';
+import { UndoIcon } from './UndoIcon';
+import { UnlockIcon } from './UnlockIcon';
+import { UploadIcon } from './UploadIcon';
+import { UserIcon } from './UserIcon';
+import { WarningIcon } from './WarningIcon';
+import { ZoomInIcon } from './ZoomInIcon';
+import { ZoomOutIcon } from './ZoomOutIcon';
 
 /**
  * Storybook configuration for all Icon components
@@ -117,6 +118,7 @@ const coreIcons = [
   { Component: PlayIcon, name: 'PlayIcon' },
   { Component: FolderIcon, name: 'FolderIcon' },
   { Component: EyeIcon, name: 'EyeIcon' },
+  { Component: CodeIcon, name: 'CodeIcon' },
 ];
 
 const editingIcons = [

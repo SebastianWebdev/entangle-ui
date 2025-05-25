@@ -21,11 +21,13 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<ZoomInIcon />}>Zoom In</Button>
  * ```
  */
-export const ZoomInIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const ZoomInIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z M10 7v6 M7 10h6"
-      {...props}
-    />
+    <Icon {...props}>
+      <circle cx="11" cy="11" r="8" />
+      <path d="M21 21l-4.35-4.35" />
+      <line x1="11" y1="8" x2="11" y2="14" />
+      <line x1="8" y1="11" x2="14" y2="11" />
+    </Icon>
   );
 };

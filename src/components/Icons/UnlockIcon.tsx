@@ -21,11 +21,11 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<UnlockIcon />}>Unlock</Button>
  * ```
  */
-export const UnlockIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const UnlockIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M8 11V7a4 4 0 017.748-.905M12 15v2m-6-6h12a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6a2 2 0 012-2z"
-      {...props}
-    />
+    <Icon {...props}>
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+    </Icon>
   );
 };

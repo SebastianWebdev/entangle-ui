@@ -21,11 +21,11 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<RedoIcon />}>Redo</Button>
  * ```
  */
-export const RedoIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const RedoIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"
-      {...props}
-    />
+    <Icon {...props}>
+      <path d="M21 7v6h-6" />
+      <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+    </Icon>
   );
 };

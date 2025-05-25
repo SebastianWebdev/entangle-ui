@@ -21,11 +21,12 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<UploadIcon />}>Upload</Button>
  * ```
  */
-export const UploadIcon: React.FC<Omit<IconProps, 'svg'>> = (props) => {
+export const UploadIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon
-      svg="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M12 18v-6 M9 15l3-3 3 3"
-      {...props}
-    />
+    <Icon {...props}>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="17,8 12,3 7,8" />
+      <line x1="12" y1="3" x2="12" y2="15" />
+    </Icon>
   );
 };

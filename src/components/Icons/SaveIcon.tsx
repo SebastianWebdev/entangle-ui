@@ -1,22 +1,32 @@
+// src/icons/SaveIcon.tsx
 import React from 'react';
-import { Icon } from '@/components/primitives';
-import type { IconProps } from '@/components/primitives';
+import { Icon } from '../primitives/Icon';
+import type { IconProps } from '../primitives/Icon';
 
 /**
- * Save icon component for editor interfaces.
+ * Save icon component for save actions.
  * 
- * Displays a floppy disk icon commonly used for save actions.
- * Optimized for editor toolbars and buttons.
+ * A standard floppy disk icon commonly used for saving files,
+ * persisting data, and storage operations in editor interfaces.
  * 
  * @example
  * ```tsx
- * <SaveIcon size="md" />
+ * // Basic usage
+ * <SaveIcon />
+ * 
+ * // With custom size and color
+ * <SaveIcon size="lg" color="success" />
+ * 
+ * // In a save button
  * <Button icon={<SaveIcon />}>Save</Button>
  * ```
  */
-export const SaveIcon: React.FC<Omit<IconProps, 'children'|'svg'>> = (props) => {
+export const SaveIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
   return (
-    <Icon svg='M3 3v18h18V6.414L17.586 3H3zm2 2h10v4H5V5zm0 6h14v8H5v-8zm2 2v4h10v-4H7z' {...props}>
+    <Icon {...props}>
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+      <polyline points="17,21 17,13 7,13 7,21" />
+      <polyline points="7,3 7,8 15,8" />
     </Icon>
   );
 };
