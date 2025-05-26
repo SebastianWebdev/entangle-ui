@@ -1,13 +1,15 @@
 {
-  "name": "editor-ui-toolkit",
-  "version": "0.1.0",
+  "name": "entangle-ui",
+  "version": "0.1.0-alpha.0",
   "type": "module",
   "description": "A specialized React component library for building professional editor interfaces",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
@@ -22,7 +24,7 @@
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run clean && npm run build"
+    "prepublishOnly": "npm run clean && npm run build && npm run test:run && npm run lint"
   },
   "keywords": [
     "react",
@@ -31,8 +33,16 @@
     "editor",
     "components"
   ],
-  "author": "",
+  "author": "Sebastian Gołębiowski see.golebiowski@gmail,com",
   "license": "MIT",
+  "homepage": "https://github.com/SebastianWebdev/entangle-ui#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SebastianWebdev/entangle-ui/entangle-ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SebastianWebdev/entangle-ui/issues"
+  },
   "peerDependencies": {
     "react": ">=19.1.0",
     "react-dom": ">=19.1.0"

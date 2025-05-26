@@ -1,0 +1,32 @@
+# Source files
+src/
+stories/
+.storybook/
+
+# Tests
+**/*.test.*
+**/*.stories.*
+tests/
+__tests__/
+
+# Development
+.github/
+docs/
+examples/
+coverage/
+
+# Config files
+*.config.js
+*.config.ts
+rollup.config.js
+vite.config.ts
+vitest.config.ts
+tsconfig.json
+eslint.config.js
+prettier.config.js
+
+# Misc
+.vscode/
+.idea/
+*.log
+.DS_Store

@@ -11,6 +11,7 @@ export type { Theme, Tokens } from '@/theme';
 export {
   Button,
   Icon,
+  Input
 } from '@/components/primitives';
 
 export type {
@@ -19,6 +20,7 @@ export type {
   ButtonVariant,
   IconProps,
   IconSize,
+  InputProps
 } from '@/components/primitives';
 
 // Types
