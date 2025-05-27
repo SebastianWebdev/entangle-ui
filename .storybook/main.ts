@@ -23,6 +23,13 @@ const config: StorybookConfig = {
   docs: {
     autodocs: 'tag',
   },
+   viteFinal: async (config) => {
+    // Ensure proper base URL for GitHub Pages
+    if (process.env.NODE_ENV === 'production') {
+      config.base = '/entangle-ui/storybook/';
+    }
+    return config;
+  },
 };
 
 export default config;

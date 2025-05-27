@@ -9,36 +9,41 @@
   "files": [
     "dist",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
     "build": "rollup -c",
     "build-storybook": "storybook build",
-    "test": "vitest",
+    "test": "vitest run",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run",
+    "test:failed": "vitest run --reporter=./scripts/failed-tests-reporter.js",
     "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest --watch",
+    "test:package-report": "npm run test:coverage && node scripts/generate-package-report.js",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist",
-    "prepublishOnly": "npm run clean && npm run build && npm run test:run && npm run lint"
+    "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "keywords": [
     "react",
     "typescript",
     "ui-library",
     "editor",
-    "components"
+    "components",
+    "ui-toolkit",
+    "design-system",
+    "react-components",
+    "editor-ui"
   ],
-  "author": "Sebastian Gołębiowski see.golebiowski@gmail,com",
+  "author": "Sebastian Gołębiowski <see.golebiowski@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/SebastianWebdev/entangle-ui#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SebastianWebdev/entangle-ui/entangle-ui.git"
+    "url": "git+https://github.com/SebastianWebdev/entangle-ui.git"
   },
   "bugs": {
     "url": "https://github.com/SebastianWebdev/entangle-ui/issues"

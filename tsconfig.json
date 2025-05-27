@@ -32,6 +32,6 @@
     "noUncheckedIndexedAccess": true,
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "scripts"],
   "exclude": ["node_modules", "dist", "stories"]
 }

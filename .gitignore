@@ -18,3 +18,9 @@ build/
 .DS_Store
 .aider*
 .foldermapperignore
+
+# Test results and reports
+test_results/
+
+# Coverage reports (if separate from test_results)
+coverage/
