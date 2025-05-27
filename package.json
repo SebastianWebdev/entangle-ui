@@ -15,7 +15,7 @@
   "scripts": {
     "dev": "storybook dev -p 6006",
     "build": "rollup -c",
-    "build-storybook": "storybook build",
+    "build-storybook": "storybook build --output-dir storybook-static",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:failed": "vitest run --reporter=./scripts/failed-tests-reporter.js",
