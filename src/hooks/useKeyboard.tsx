@@ -116,10 +116,19 @@ export const useKeyboard = (options: UseKeyboardOptions = {}): KeyboardState => 
     const modifiers = updateModifiers(event);
     
     setKeyboardState(prevState => {
-      const shouldTrackKey = trackAllKeys || trackedKeys.includes(event.code);
+      // Filter out empty or invalid key codes
+      const keyCode = event.code;
+      if (!keyCode || keyCode.trim() === '') {
+        return {
+          ...modifiers,
+          pressedKeys: prevState.pressedKeys,
+        };
+      }
+
+      const shouldTrackKey = trackAllKeys || trackedKeys.includes(keyCode);
       
-      const newPressedKeys = shouldTrackKey && !prevState.pressedKeys.includes(event.code)
-        ? [...prevState.pressedKeys, event.code]
+      const newPressedKeys = shouldTrackKey && !prevState.pressedKeys.includes(keyCode)
+        ? [...prevState.pressedKeys, keyCode]
         : prevState.pressedKeys;
 
       return {
@@ -135,7 +144,16 @@ export const useKeyboard = (options: UseKeyboardOptions = {}): KeyboardState => 
     const modifiers = updateModifiers(event);
     
     setKeyboardState(prevState => {
-      const newPressedKeys = prevState.pressedKeys.filter(key => key !== event.code);
+      // Filter out empty or invalid key codes
+      const keyCode = event.code;
+      if (!keyCode || keyCode.trim() === '') {
+        return {
+          ...modifiers,
+          pressedKeys: prevState.pressedKeys,
+        };
+      }
+
+      const newPressedKeys = prevState.pressedKeys.filter(key => key !== keyCode);
 
       return {
         ...modifiers,
