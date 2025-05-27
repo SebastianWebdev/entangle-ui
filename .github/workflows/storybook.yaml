@@ -41,20 +41,41 @@ jobs:
       - name: Build Storybook
         run: npm run build-storybook
       
-      - name: Create Pages structure
+      - name: Create proper Pages structure
         run: |
-          # Create the final directory structure
-          mkdir -p pages-build
+          # Create the deployment directory
+          mkdir -p deploy
           
-          # Copy landing page (index.html) to root
-          cp public/index.html pages-build/
+          # Copy the landing page to root
+          if [ -f "public/index.html" ]; then
+            cp public/index.html deploy/index.html
+            echo "✅ Copied landing page"
+          else
+            echo "❌ Landing page not found at public/index.html"
+            ls -la public/ || echo "Public directory doesn't exist"
+          fi
           
-          # Copy storybook to /storybook/ subdirectory
-          cp -r storybook-static pages-build/storybook
+          # Move storybook build to /storybook subdirectory
+          if [ -d "storybook-static" ]; then
+            mv storybook-static deploy/storybook
+            echo "✅ Moved Storybook to /storybook/"
+          else
+            echo "❌ Storybook build not found"
+            ls -la
+          fi
           
-          # List the structure for debugging
-          echo "Pages structure:"
-          find pages-build -type f | head -20
+          # Verify the structure
+          echo "📁 Final deployment structure:"
+          find deploy -type f | head -10
+          
+          # Check that both key files exist
+          if [ -f "deploy/index.html" ] && [ -f "deploy/storybook/index.html" ]; then
+            echo "✅ Both landing page and Storybook are ready"
+          else
+            echo "❌ Missing files:"
+            ls -la deploy/
+            ls -la deploy/storybook/ || echo "Storybook directory missing"
+          fi
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -62,7 +83,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './pages-build'
+          path: './deploy'
       
       - name: Deploy to GitHub Pages
         id: deployment
