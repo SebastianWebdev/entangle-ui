@@ -8,6 +8,7 @@ on:
       - 'stories/**'
       - '.storybook/**'
       - 'package.json'
+      - 'public/**'
   
   workflow_dispatch:
 
@@ -40,13 +41,28 @@ jobs:
       - name: Build Storybook
         run: npm run build-storybook
       
+      - name: Create Pages structure
+        run: |
+          # Create the final directory structure
+          mkdir -p pages-build
+          
+          # Copy landing page (index.html) to root
+          cp public/index.html pages-build/
+          
+          # Copy storybook to /storybook/ subdirectory
+          cp -r storybook-static pages-build/storybook
+          
+          # List the structure for debugging
+          echo "Pages structure:"
+          find pages-build -type f | head -20
+      
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './storybook-static'
+          path: './pages-build'
       
       - name: Deploy to GitHub Pages
         id: deployment
