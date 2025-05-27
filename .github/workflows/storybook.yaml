@@ -3,14 +3,6 @@ name: Deploy Storybook and Landing Page
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'src/**'
-      - 'stories/**'
-      - '.storybook/**'
-      - 'package.json'
-      - 'public/**'
-      - '.github/workflows/**'
-  
   workflow_dispatch:
 
 jobs:
@@ -40,37 +32,49 @@ jobs:
         run: npm ci
       
       - name: Build Storybook
-        run: npm run build-storybook
+        run: |
+          # Build Storybook with proper base path
+          npm run build-storybook -- --output-dir storybook-static
         env:
           NODE_ENV: production
       
       - name: Create deployment structure
         run: |
+          # Debug: Show current directory structure
+          echo "Current directory structure:"
+          ls -la
+          
           # Create the deployment directory
           mkdir -p deploy
           
           # Copy the landing page to root
           if [ -f "public/index.html" ]; then
             cp public/index.html deploy/index.html
-            echo "✅ Copied landing page"
+            echo "✅ Copied landing page from public/index.html"
+          elif [ -f "index.html" ]; then
+            cp index.html deploy/index.html
+            echo "✅ Copied landing page from root index.html"
           else
-            echo "⚠️  No landing page found, creating from paste.txt"
-            # If paste.txt exists, use it as index.html
-            if [ -f "paste.txt" ]; then
-              cp paste.txt deploy/index.html
-            fi
-          fi
-          
-          # Copy any other public assets
-          if [ -d "public" ]; then
-            # Copy all files except index.html (already copied)
-            find public -type f -not -name "index.html" -exec cp {} deploy/ \;
+            echo "❌ No landing page found!"
+            exit 1
           fi
           
           # Move storybook build to /storybook subdirectory
           if [ -d "storybook-static" ]; then
-            mv storybook-static deploy/storybook
-            echo "✅ Moved Storybook to /storybook/"
+            # IMPORTANT: Move the entire directory contents
+            mkdir -p deploy/storybook
+            cp -r storybook-static/* deploy/storybook/
+            echo "✅ Copied Storybook to /storybook/"
+            
+            # Verify Storybook index.html exists
+            if [ -f "deploy/storybook/index.html" ]; then
+              echo "✅ Storybook index.html confirmed at deploy/storybook/index.html"
+            else
+              echo "❌ Storybook index.html not found!"
+              echo "Contents of storybook-static:"
+              ls -la storybook-static/
+              exit 1
+            fi
           else
             echo "❌ Storybook build not found"
             exit 1
@@ -79,13 +83,35 @@ jobs:
           # Create a .nojekyll file to prevent GitHub Pages Jekyll processing
           touch deploy/.nojekyll
           
-          # Verify the structure
-          echo "📁 Final deployment structure:"
-          find deploy -type f | head -20
+          # IMPORTANT: Create a 404.html that redirects to root
+          # This prevents the root index.html from being served for all routes
+          cat > deploy/404.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset="utf-8">
+              <title>404 - Page Not Found</title>
+              <script>
+                  // Simple 404 page - don't redirect
+                  console.log('404 - Page not found');
+              </script>
+          </head>
+          <body>
+              <h1>404 - Page Not Found</h1>
+              <p><a href="/">Go to home page</a></p>
+          </body>
+          </html>
+          EOF
           
-          # Check that both key files exist
+          # Verify the final structure
+          echo "📁 Final deployment structure:"
+          find deploy -type f -name "*.html" | sort
+          
+          # Double-check both index files exist
           if [ -f "deploy/index.html" ] && [ -f "deploy/storybook/index.html" ]; then
-            echo "✅ Both landing page and Storybook are ready"
+            echo "✅ Both landing page and Storybook index files are ready"
+            echo "Landing page size: $(wc -c < deploy/index.html) bytes"
+            echo "Storybook index size: $(wc -c < deploy/storybook/index.html) bytes"
           else
             echo "❌ Missing required files"
             exit 1

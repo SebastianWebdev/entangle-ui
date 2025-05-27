@@ -23,13 +23,23 @@ const config: StorybookConfig = {
   docs: {
     autodocs: 'tag',
   },
-   viteFinal: async (config) => {
-    // Ensure proper base URL for GitHub Pages
+  viteFinal: async (config) => {
+    // Set base URL for GitHub Pages deployment
+    // This ensures assets load from the correct path
     if (process.env.NODE_ENV === 'production') {
       config.base = '/entangle-ui/storybook/';
     }
+    
+    // Ensure publicDir is set correctly
+    config.publicDir = false;
+    
     return config;
   },
+  // Add manager head to handle routing properly
+  managerHead: (head) => `
+    ${head}
+    <base href="/entangle-ui/storybook/">
+  `,
 };
 
 export default config;
