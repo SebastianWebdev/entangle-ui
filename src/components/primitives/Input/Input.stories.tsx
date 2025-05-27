@@ -4,12 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Input } from './Input';
 import { ThemeProvider } from '@/theme';
 
-import { SearchIcon } from '../../icons/SearchIcon';
-import { EyeIcon } from '../../icons/EyeIcon';
-import { UserIcon } from '../../icons/UserIcon';
-import { LockIcon } from '../../icons/LockIcon';
-import { SuccessIcon } from '../../icons/SuccessIcon';
-import { ErrorIcon } from '../../icons/ErrorIcon';
+import { SearchIcon, EyeIcon, UserIcon, LockIcon, SuccessIcon, ErrorIcon } from '@/components/Icons';
 
 /**
  * Storybook configuration for Input component
