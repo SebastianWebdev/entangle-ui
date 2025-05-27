@@ -586,18 +586,22 @@ describe('Edge Cases and Error Handling', () => {
   it('handles malformed key events gracefully', () => {
     const { result } = renderHook(() => useKeyboard());
     
-    // Event without code property
+    // Event without code property - should be filtered out by hook
     act(() => {
       const event = new KeyboardEvent('keydown', { bubbles: true });
       window.dispatchEvent(event);
     });
     
-    // Should not crash
+    // Should not add empty or undefined keys
     expect(result.current.pressedKeys).toEqual([]);
+    expect(result.current.pressedKeys.every(key => key && key.length > 0)).toBe(true);
   });
 
   it('handles re-renders without losing state', () => {
-    const { result, rerender } = renderHook(() => useKeyboard());
+    const { result, rerender } = renderHook(
+      (props) => useKeyboard(props),
+      { initialProps: {} }
+    );
     
     act(() => {
       window.dispatchEvent(createKeyboardEvent('keydown', { 
@@ -609,8 +613,8 @@ describe('Edge Cases and Error Handling', () => {
     expect(result.current.pressedKeys).toContain('KeyA');
     expect(result.current.ctrl).toBe(true);
     
-    // Force re-render
-    rerender();
+    // Force re-render with same props
+    rerender({});
     
     expect(result.current.pressedKeys).toContain('KeyA');
     expect(result.current.ctrl).toBe(true);
