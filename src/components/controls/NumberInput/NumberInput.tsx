@@ -158,6 +158,7 @@ interface StyledInputWrapperProps {
   $error: boolean;
   $disabled: boolean;
   $focused: boolean;
+  $showStepButtons: boolean;
 }
 
 const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
@@ -169,28 +170,38 @@ const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
   transition: all ${props => props.theme.transitions.normal};
   background: ${props => props.$disabled ? props.theme.colors.surface.disabled : props.theme.colors.surface.default};
   
-  /* Size variants */
+  /* Size variants with consistent width */
   ${props => {
     const sizes = {
       sm: {
         height: '20px',
+        minWidth: '60px',
         padding: `0 ${props.theme.spacing.sm}px`,
       },
       md: {
         height: '24px',
+        minWidth: '80px',
         padding: `0 ${props.theme.spacing.md}px`,
       },
       lg: {
         height: '32px',
+        minWidth: '100px',
         padding: `0 ${props.theme.spacing.lg}px`,
       },
     };
     const size = sizes[props.$size];
     return `
       height: ${size.height};
+      min-width: ${size.minWidth};
       padding: ${size.padding};
     `;
   }}
+  
+  /* Reserve space for step buttons to prevent width changes */
+  ${props => props.$showStepButtons && `
+    padding-left: ${props.$size === 'sm' ? '20px' : props.$size === 'md' ? '24px' : '30px'};
+    padding-right: ${props.$size === 'sm' ? '20px' : props.$size === 'md' ? '24px' : '30px'};
+  `}
   
   /* Border color states */
   border-color: ${props => {
@@ -290,6 +301,7 @@ const StyledInput = styled.input<{ $size: Size; $hasStepButtons: boolean; $hasUn
   font-family: inherit;
   color: ${props => props.theme.colors.text.primary};
   text-align: center;
+  width: 100%;
   
   ${props => {
     const fontSize = {
@@ -300,11 +312,8 @@ const StyledInput = styled.input<{ $size: Size; $hasStepButtons: boolean; $hasUn
     return `font-size: ${fontSize[props.$size]}px;`;
   }}
   
-  /* Padding for step buttons */
-  ${props => props.$hasStepButtons && `
-    padding-left: ${props.$size === 'sm' ? '20px' : props.$size === 'md' ? '24px' : '30px'};
-    padding-right: ${props.$size === 'sm' ? '20px' : props.$size === 'md' ? '24px' : '30px'};
-  `}
+  /* No additional padding since wrapper handles it */
+  padding: 0;
   
   &::placeholder {
     color: ${props => props.theme.colors.text.muted};
@@ -336,6 +345,9 @@ const StyledValueDisplay = styled.div<{ $size: Size; $hasStepButtons: boolean }>
   align-items: center;
   gap: 2px;
   color: ${props => props.theme.colors.text.primary};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   
   ${props => {
     const fontSize = {
@@ -349,6 +361,11 @@ const StyledValueDisplay = styled.div<{ $size: Size; $hasStepButtons: boolean }>
   /* Adjust for step buttons */
   ${props => props.$hasStepButtons && `
     max-width: calc(100% - ${props.$size === 'sm' ? '40px' : props.$size === 'md' ? '48px' : '60px'});
+  `}
+  
+  /* Fallback max-width when no step buttons */
+  ${props => !props.$hasStepButtons && `
+    max-width: calc(100% - 8px);
   `}
 `;
 
@@ -469,7 +486,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NewNumberInputProp
       increment,
       decrement,
       startDrag,
-      updateDrag,
+      updateD rag,
       endDrag,
       startEditing,
       endEditing,
@@ -661,6 +678,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NewNumberInputProp
         $error={effectiveError}
         $disabled={disabled}
         $focused={focused}
+        $showStepButtons={showStepButtons}
       >
         {/* Decrement button */}
         {showStepButtons && (
