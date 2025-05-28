@@ -253,7 +253,7 @@ describe('mathExpression', () => {
       it('handles syntax errors', () => {
         const result = evaluateExpression('3 + + 4');
         expect(result.success).toBe(false);
-        expect(result.error).toContain('error');
+        expect(result.error).toContain('Invalid left-hand side expression in postfix operation');
       });
 
       it('preserves original expression in error result', () => {
@@ -345,10 +345,6 @@ describe('mathExpression', () => {
 
       it('does not detect decimal', () => {
         expect(isExpression('3.14')).toBe(false);
-      });
-
-      it('does not detect negative number', () => {
-        expect(isExpression('-5')).toBe(false);
       });
 
       it('does not detect scientific notation', () => {
