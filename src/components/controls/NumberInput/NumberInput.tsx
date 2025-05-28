@@ -55,7 +55,7 @@ export interface NumberInputBaseProps extends
 /**
  * Props for the NumberInput component with prettified type for better IntelliSense
  */
-export type NumberInputProps = NumberInputBaseProps;
+export type NumberInputProps = Prettify<NumberInputBaseProps>;
 
 interface StyledContainerProps {
   $isHovered: boolean;
@@ -78,22 +78,11 @@ const StyledNumberInputContainer = styled.div<StyledContainerProps>`
   `}
 `;
 
-const StyledInputWrapper = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-`;
-
 interface StyledStepButtonProps {
-  $position: 'left' | 'right';
-  $size: NonNullable<InputProps['size']>;
   $visible: boolean;
 }
 
 const StyledStepButton = styled.button<StyledStepButtonProps>`
-  position: absolute;
-  top: 1px;
-  bottom: 1px;
   background: none;
   border: none;
   cursor: pointer;
@@ -101,23 +90,8 @@ const StyledStepButton = styled.button<StyledStepButtonProps>`
   align-items: center;
   justify-content: center;
   padding: 0;
-  z-index: 1;
-  
-  /* Position */
-  ${props => props.$position === 'left' ? 'left: 1px;' : 'right: 1px;'}
-  
-  /* Size variants */
-  ${props => {
-    const sizes = {
-      sm: { width: '20px' },
-      md: { width: '24px' },
-      lg: { width: '28px' },
-    };
-    const size = sizes[props.$size];
-    return `
-      width: ${size.width};
-    `;
-  }}
+  width: 14px;
+  height: 14px;
   
   /* Visibility */
   opacity: ${props => props.$visible ? 1 : 0};
@@ -141,31 +115,38 @@ const StyledStepButton = styled.button<StyledStepButtonProps>`
     width: 0;
     height: 0;
     border-style: solid;
-    
-    ${props => props.$position === 'left' ? `
-      border-width: 4px 6px 4px 0;
-      border-color: transparent ${props.theme.colors.text.muted} transparent transparent;
-    ` : `
-      border-width: 4px 0 4px 6px;
-      border-color: transparent transparent transparent ${props.theme.colors.text.muted};
-    `}
-  }
-  
-  &:hover::before {
-    ${props => props.$position === 'left' ? `
-      border-right-color: ${props.theme.colors.text.primary};
-    ` : `
-      border-left-color: ${props.theme.colors.text.primary};
-    `}
   }
 `;
 
+const StyledDecrementButton = styled(StyledStepButton)`
+  &::before {
+    border-width: 4px 6px 4px 0;
+    border-color: transparent ${props => props.theme.colors.text.muted} transparent transparent;
+  }
+  
+  &:hover::before {
+    border-right-color: ${props => props.theme.colors.text.primary};
+  }
+`;
+
+const StyledIncrementButton = styled(StyledStepButton)`
+  &::before {
+    border-width: 4px 0 4px 6px;
+    border-color: transparent transparent transparent ${props => props.theme.colors.text.muted};
+  }
+  
+  &:hover::before {
+    border-left-color: ${props => props.theme.colors.text.primary};
+  }
+`;
+
+const StyledUnitWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
 const StyledUnitLabel = styled.span<{ $size: NonNullable<InputProps['size']> }>`
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
   color: ${props => props.theme.colors.text.muted};
   font-size: ${props => {
     const fontSize = {
@@ -179,22 +160,10 @@ const StyledUnitLabel = styled.span<{ $size: NonNullable<InputProps['size']> }>`
   white-space: nowrap;
 `;
 
-const StyledInput = styled(Input)<{ $hasUnit: boolean; $hasStepButtons: boolean }>`
-  /* Add padding for step buttons and unit */
+const StyledInput = styled(Input)`
+  /* Center text alignment for number input */
   input {
     text-align: center;
-    
-    ${props => props.$hasStepButtons && `
-      padding-left: ${props.size === 'sm' ? '24px' : props.size === 'md' ? '28px' : '32px'};
-      padding-right: ${props.$hasUnit ? 
-        (props.size === 'sm' ? '48px' : props.size === 'md' ? '52px' : '56px') : 
-        (props.size === 'sm' ? '24px' : props.size === 'md' ? '28px' : '32px')
-      };
-    `}
-    
-    ${props => !props.$hasStepButtons && props.$hasUnit && `
-      padding-right: 40px;
-    `}
   }
 `;
 
@@ -412,6 +381,41 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
   // Format unit display
   const unitDisplay = typeof unit === 'function' ? unit(value) : unit;
 
+  // Create step buttons
+  const decrementButton = showStepButtons ? (
+    <StyledDecrementButton
+      type="button"
+      $visible={shouldShowStepButtons}
+      onClick={handleDecrementClick}
+      disabled={disabled}
+      tabIndex={-1}
+      aria-label="Decrement value"
+    />
+  ) : undefined;
+
+  const incrementButton = showStepButtons ? (
+    <StyledIncrementButton
+      type="button"
+      $visible={shouldShowStepButtons}
+      onClick={handleIncrementClick}
+      disabled={disabled}
+      tabIndex={-1}
+      aria-label="Increment value"
+    />
+  ) : undefined;
+
+  // Create end icon with unit and increment button
+  const endIcon = (
+    <StyledUnitWrapper>
+      {unitDisplay && (
+        <StyledUnitLabel $size={size}>
+          {unitDisplay}
+        </StyledUnitLabel>
+      )}
+      {incrementButton}
+    </StyledUnitWrapper>
+  );
+
   return (
     <StyledNumberInputContainer
       ref={containerRef}
@@ -424,60 +428,22 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       onMouseDown={handleMouseDown}
       data-testid={testId}
     >
-      <StyledInputWrapper>
-        {/* Decrement button */}
-        {showStepButtons && (
-          <StyledStepButton
-            type="button"
-            $position="left"
-            $size={size}
-            $visible={shouldShowStepButtons}
-            onClick={handleDecrementClick}
-            disabled={disabled}
-            tabIndex={-1}
-            aria-label="Decrement value"
-          />
-        )}
-        
-        {/* Main input field */}
-        <StyledInput
-          {...inputProps}
-          ref={inputRef}
-          value={displayValue}
-          onChange={handleInputChange}
-          onFocus={handleInputFocus}
-          onBlur={handleInputBlur}
-          onKeyDown={handleInputKeyDown}
-          size={size}
-          errorMessage={effectiveError}
-          disabled={disabled}
-          readOnly={readOnly && !isEditing}
-          type="text"
-          $hasUnit={!!unitDisplay}
-          $hasStepButtons={shouldShowStepButtons}
-        />
-        
-        {/* Increment button */}
-        {showStepButtons && (
-          <StyledStepButton
-            type="button"
-            $position="right"
-            $size={size}
-            $visible={shouldShowStepButtons}
-            onClick={handleIncrementClick}
-            disabled={disabled}
-            tabIndex={-1}
-            aria-label="Increment value"
-          />
-        )}
-        
-        {/* Unit label */}
-        {unitDisplay && (
-          <StyledUnitLabel $size={size}>
-            {unitDisplay}
-          </StyledUnitLabel>
-        )}
-      </StyledInputWrapper>
+      <StyledInput
+        {...inputProps}
+        ref={inputRef}
+        value={displayValue}
+        onChange={handleInputChange}
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
+        onKeyDown={handleInputKeyDown}
+        size={size}
+        errorMessage={effectiveError}
+        disabled={disabled}
+        readOnly={readOnly && !isEditing}
+        type="text"
+        startIcon={decrementButton}
+        endIcon={endIcon}
+      />
     </StyledNumberInputContainer>
   );
 });
