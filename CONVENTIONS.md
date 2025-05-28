@@ -3,11 +3,13 @@
 ## 1. Language Requirements - CRITICAL
 
 **All text must be in English:**
+
 - JSDoc comments and documentation
 - Code comments and console logs  
 - Type descriptions and error messages
 - Test descriptions and Storybook docs
 - README files and commit messages
+- commit messages
 
 ```typescript
 // ✅ CORRECT
@@ -38,11 +40,13 @@ import type { Prettify, LiteralUnion, DeepPartial } from '@/types/utilities';
 ```
 
 **When to use LiteralUnion:**
+
 - User needs custom values (colors, icons, CSS values)
 - Extensibility is required
 - Third-party integrations need custom values
 
 **Use strict types for:**
+
 - Component APIs that should be controlled
 - Values that map to specific internal logic
 - Fixed component variants
@@ -144,6 +148,7 @@ import type { Theme } from '../../theme';
 
 **Rules:**
 - Always use `@/` prefix for internal imports
+- 
 - Never mix relative and alias imports
 - Add aliases for new top-level src directories
 
@@ -160,6 +165,7 @@ ComponentName/
 ```
 
 **Import Order:**
+
 ```typescript
 // 1. React and external libraries
 import React from 'react';
@@ -241,6 +247,7 @@ AI: Creates Button.tsx + tests + stories + exports
 ```
 
 **Task Order:**
+
 1. Component implementation
 2. Type definitions (if complex)
 3. Unit tests
@@ -248,6 +255,7 @@ AI: Creates Button.tsx + tests + stories + exports
 5. Index exports
 
 **Communication:**
+
 ```
 "I've created the Button component. Would you like me to:
 - Add unit tests
@@ -286,6 +294,7 @@ const handleClick = useCallback((event) => {}, [dependencies]);
 ---
 
 **CRITICAL REMINDERS:**
+
 1. **All documentation must be in English**
 2. These are requirements, not suggestions
 3. One task per response to avoid rate limits

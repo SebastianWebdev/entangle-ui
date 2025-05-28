@@ -112,6 +112,11 @@ export interface InputBaseProps {
    * Key down event handler
    */
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+
+  /**
+   * Reference to the input element
+   */
+  ref?: React.Ref<HTMLInputElement> | undefined;
   
   /**
    * Test identifier for automated testing
@@ -312,6 +317,7 @@ export const Input: React.FC<InputProps> = ({
   startIcon,
   endIcon,
   className,
+  ref,
   onChange,
   onFocus,
   onBlur,
@@ -360,6 +366,7 @@ export const Input: React.FC<InputProps> = ({
         )}
         
         <StyledInput
+          ref={ref}
           id={inputId}
           type={type}
           value={value}
