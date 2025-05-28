@@ -451,6 +451,11 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NewNumberInputProp
   const inputRef = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = React.useState(false);
   
+  // Track mouse state for distinguishing click vs drag
+  const mouseDownRef = useRef<{ x: number; time: number; hasMoved: boolean } | null>(null);
+  const dragThreshold = 3; // pixels
+  const clickTimeThreshold = 200; // milliseconds
+  
   // Combine refs
   React.useImperativeHandle(forwardedRef, () => inputRef.current!);
   
@@ -496,39 +501,76 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NewNumberInputProp
   const effectiveError =  !!errorMessage || !!externalError || !!internalError;
   const effectiveErrorMessage = errorMessage || externalError || internalError;
 
-  // Mouse event handlers for dragging
+  // Mouse event handlers for dragging vs clicking
   const handleMouseDown = (event: React.MouseEvent) => {
-    if (disabled || readOnly || isEditing) return;
+    if (disabled || readOnly) return;
     
-    // Only start drag on left mouse button
+    // Only handle left mouse button
     if (event.button !== 0) return;
     
-    // Don't start drag if clicking on step buttons
+    // Don't handle if clicking on step buttons
     const target = event.target as HTMLElement;
     if (target.tagName === 'BUTTON' || target.closest('button')) return;
     
+    // Record mouse down state
+    mouseDownRef.current = {
+      x: event.clientX,
+      time: Date.now(),
+      hasMoved: false
+    };
+    
     event.preventDefault();
-    startDrag(event.clientX);
+  };
+
+  const handleMouseMove = (event: React.MouseEvent) => {
+    if (!mouseDownRef.current || disabled || readOnly) return;
+    
+    const deltaX = Math.abs(event.clientX - mouseDownRef.current.x);
+    
+    // If we've moved beyond threshold and not already dragging, start drag
+    if (deltaX > dragThreshold && !mouseDownRef.current.hasMoved && !isDragging) {
+      mouseDownRef.current.hasMoved = true;
+      startDrag(mouseDownRef.current.x);
+    }
+  };
+
+  const handleMouseUp = (event: React.MouseEvent) => {
+    if (!mouseDownRef.current || disabled || readOnly) return;
+    
+    const timeDelta = Date.now() - mouseDownRef.current.time;
+    const wasClick = !mouseDownRef.current.hasMoved && timeDelta < clickTimeThreshold;
+    
+    // If it was a click (not drag), start editing
+    if (wasClick && !isEditing) {
+      startEditing();
+      // Focus the input after a short delay to ensure it's visible
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
+    }
+    
+    mouseDownRef.current = null;
   };
 
   // Global mouse move and up handlers for dragging
   useEffect(() => {
     if (!isDragging) return;
 
-    const handleMouseMove = (event: MouseEvent) => {
+    const handleGlobalMouseMove = (event: MouseEvent) => {
       updateDrag(event.clientX);
     };
 
-    const handleMouseUp = () => {
+    const handleGlobalMouseUp = () => {
       endDrag();
+      mouseDownRef.current = null;
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleGlobalMouseMove);
+    document.addEventListener('mouseup', handleGlobalMouseUp);
     
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
     };
   }, [isDragging, updateDrag, endDrag]);
 
@@ -539,9 +581,6 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NewNumberInputProp
 
   const handleInputFocus = (event: React.FocusEvent<HTMLInputElement>) => {
     setFocused(true);
-    if (!isEditing) {
-      startEditing();
-    }
     onFocus?.(event);
   };
 
@@ -565,6 +604,8 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NewNumberInputProp
 
   const handleContainerMouseLeave = () => {
     setHovered(false);
+    // Reset mouse state if leaving container
+    mouseDownRef.current = null;
   };
 
   // Step button handlers
@@ -572,14 +613,14 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NewNumberInputProp
     event.preventDefault();
     event.stopPropagation();
     increment();
-    inputRef.current?.focus();
+    // Don't focus input after step button click
   };
 
   const handleDecrementClick = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     decrement();
-    inputRef.current?.focus();
+    // Don't focus input after step button click
   };
 
   // Show step buttons when appropriate
@@ -604,6 +645,8 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NewNumberInputProp
       onMouseEnter={handleContainerMouseEnter}
       onMouseLeave={handleContainerMouseLeave}
       onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
       data-testid={testId}
     >
       {label && (
