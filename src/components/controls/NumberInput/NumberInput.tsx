@@ -86,8 +86,8 @@ interface StyledStepButtonProps {
 
 const StyledStepButton = styled.button<StyledStepButtonProps>`
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 1px;
+  bottom: 1px;
   background: none;
   border: none;
   cursor: pointer;
@@ -98,19 +98,18 @@ const StyledStepButton = styled.button<StyledStepButtonProps>`
   z-index: 1;
   
   /* Position */
-  ${props => props.$position === 'left' ? 'left: 2px;' : 'right: 2px;'}
+  ${props => props.$position === 'left' ? 'left: 1px;' : 'right: 1px;'}
   
   /* Size variants */
   ${props => {
     const sizes = {
-      sm: { width: '16px', height: '16px' },
-      md: { width: '20px', height: '20px' },
-      lg: { width: '24px', height: '24px' },
+      sm: { width: '20px' },
+      md: { width: '24px' },
+      lg: { width: '28px' },
     };
     const size = sizes[props.$size];
     return `
       width: ${size.width};
-      height: ${size.height};
     `;
   }}
   
@@ -177,9 +176,14 @@ const StyledUnitLabel = styled.span<{ $size: NonNullable<InputProps['size']> }>`
 const StyledInput = styled(Input)<{ $hasUnit: boolean; $hasStepButtons: boolean }>`
   /* Add padding for step buttons and unit */
   input {
+    text-align: center;
+    
     ${props => props.$hasStepButtons && `
-      padding-left: 24px;
-      padding-right: ${props.$hasUnit ? '48px' : '24px'};
+      padding-left: ${props.$size === 'sm' ? '24px' : props.$size === 'md' ? '28px' : '32px'};
+      padding-right: ${props.$hasUnit ? 
+        (props.$size === 'sm' ? '48px' : props.$size === 'md' ? '52px' : '56px') : 
+        (props.$size === 'sm' ? '24px' : props.$size === 'md' ? '28px' : '32px')
+      };
     `}
     
     ${props => !props.$hasStepButtons && props.$hasUnit && `
