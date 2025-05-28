@@ -3,7 +3,7 @@ export { NumberInput } from './NumberInput';
 export type { NumberInputProps } from './NumberInput';
 export { useNumberInput } from './useNumberInput';
 export type { 
-  NumberInputOptions, 
-  NumberInputState, 
-  NumberInputActions 
+UseNumberInputOptions,
+UseNumberInputReturn,
+UseNumberInputProps,
 } from './useNumberInput';

@@ -9,7 +9,7 @@ import { useNumberInput, type UseNumberInputOptions } from './useNumberInput';
 /**
  * Props specific to NumberInput component
  */
-export interface NewNumberInputBaseProps extends 
+export interface NumberInputBaseProps extends 
   BaseComponent,
   UseNumberInputOptions {
   /**
@@ -120,7 +120,7 @@ export interface NewNumberInputBaseProps extends
 /**
  * Props for the NumberInput component with prettified type for better IntelliSense
  */
-export type NewNumberInputProps = Prettify<NewNumberInputBaseProps>;
+export type NumberInputProps = Prettify<NumberInputBaseProps>;
 
 interface StyledContainerProps {
   $isHovered: boolean;
@@ -403,7 +403,7 @@ const StyledHelperText = styled.div<{ $error: boolean }>`
  * />
  * ```
  */
-export const NumberInput = React.forwardRef<HTMLInputElement, NewNumberInputProps>(({
+export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(({
   // Value props
   value,
   onChange,

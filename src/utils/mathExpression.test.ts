@@ -5,7 +5,6 @@ import {
   parseNumericInput,
   AVAILABLE_CONSTANTS,
   AVAILABLE_FUNCTIONS,
-  type EvaluationResult,
 } from './mathExpression';
 
 describe('mathExpression', () => {
