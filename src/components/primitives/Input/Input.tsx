@@ -1,6 +1,5 @@
 // src/primitives/Input/Input.tsx
 import type { Size } from '@/types/common';
-import type { Prettify } from '@/types/utilities';
 import styled from '@emotion/styled';
 import React from 'react';
 
@@ -127,7 +126,7 @@ export interface InputBaseProps {
 /**
  * Props for the Input component with prettified type for better IntelliSense
  */
-export type InputProps = Prettify<InputBaseProps>;
+export type InputProps = InputBaseProps;
 
 interface StyledInputContainerProps {
   $size: InputSize;
