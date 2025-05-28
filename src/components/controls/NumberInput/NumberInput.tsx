@@ -78,6 +78,12 @@ const StyledNumberInputContainer = styled.div<StyledContainerProps>`
   `}
 `;
 
+const StyledInputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
 interface StyledStepButtonProps {
   $position: 'left' | 'right';
   $size: NonNullable<InputProps['size']>;
@@ -418,58 +424,60 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       onMouseDown={handleMouseDown}
       data-testid={testId}
     >
-      {/* Decrement button */}
-      {showStepButtons && (
-        <StyledStepButton
-          type="button"
-          $position="left"
-          $size={size}
-          $visible={shouldShowStepButtons}
-          onClick={handleDecrementClick}
+      <StyledInputWrapper>
+        {/* Decrement button */}
+        {showStepButtons && (
+          <StyledStepButton
+            type="button"
+            $position="left"
+            $size={size}
+            $visible={shouldShowStepButtons}
+            onClick={handleDecrementClick}
+            disabled={disabled}
+            tabIndex={-1}
+            aria-label="Decrement value"
+          />
+        )}
+        
+        {/* Main input field */}
+        <StyledInput
+          {...inputProps}
+          ref={inputRef}
+          value={displayValue}
+          onChange={handleInputChange}
+          onFocus={handleInputFocus}
+          onBlur={handleInputBlur}
+          onKeyDown={handleInputKeyDown}
+          size={size}
+          errorMessage={effectiveError}
           disabled={disabled}
-          tabIndex={-1}
-          aria-label="Decrement value"
+          readOnly={readOnly && !isEditing}
+          type="text"
+          $hasUnit={!!unitDisplay}
+          $hasStepButtons={shouldShowStepButtons}
         />
-      )}
-      
-      {/* Main input field */}
-      <StyledInput
-        {...inputProps}
-        ref={inputRef}
-        value={displayValue}
-        onChange={handleInputChange}
-        onFocus={handleInputFocus}
-        onBlur={handleInputBlur}
-        onKeyDown={handleInputKeyDown}
-        size={size}
-        errorMessage={effectiveError}
-        disabled={disabled}
-        readOnly={readOnly && !isEditing}
-        type="text"
-        $hasUnit={!!unitDisplay}
-        $hasStepButtons={shouldShowStepButtons}
-      />
-      
-      {/* Increment button */}
-      {showStepButtons && (
-        <StyledStepButton
-          type="button"
-          $position="right"
-          $size={size}
-          $visible={shouldShowStepButtons}
-          onClick={handleIncrementClick}
-          disabled={disabled}
-          tabIndex={-1}
-          aria-label="Increment value"
-        />
-      )}
-      
-      {/* Unit label */}
-      {unitDisplay && (
-        <StyledUnitLabel $size={size}>
-          {unitDisplay}
-        </StyledUnitLabel>
-      )}
+        
+        {/* Increment button */}
+        {showStepButtons && (
+          <StyledStepButton
+            type="button"
+            $position="right"
+            $size={size}
+            $visible={shouldShowStepButtons}
+            onClick={handleIncrementClick}
+            disabled={disabled}
+            tabIndex={-1}
+            aria-label="Increment value"
+          />
+        )}
+        
+        {/* Unit label */}
+        {unitDisplay && (
+          <StyledUnitLabel $size={size}>
+            {unitDisplay}
+          </StyledUnitLabel>
+        )}
+      </StyledInputWrapper>
     </StyledNumberInputContainer>
   );
 });
