@@ -55,7 +55,7 @@ export interface NumberInputBaseProps extends
 /**
  * Props for the NumberInput component with prettified type for better IntelliSense
  */
-export type NumberInputProps = Prettify<NumberInputBaseProps>;
+export type NumberInputProps = NumberInputBaseProps;
 
 interface StyledContainerProps {
   $isHovered: boolean;
@@ -179,10 +179,10 @@ const StyledInput = styled(Input)<{ $hasUnit: boolean; $hasStepButtons: boolean 
     text-align: center;
     
     ${props => props.$hasStepButtons && `
-      padding-left: ${props.$size === 'sm' ? '24px' : props.$size === 'md' ? '28px' : '32px'};
+      padding-left: ${props.size === 'sm' ? '24px' : props.size === 'md' ? '28px' : '32px'};
       padding-right: ${props.$hasUnit ? 
-        (props.$size === 'sm' ? '48px' : props.$size === 'md' ? '52px' : '56px') : 
-        (props.$size === 'sm' ? '24px' : props.$size === 'md' ? '28px' : '32px')
+        (props.size === 'sm' ? '48px' : props.size === 'md' ? '52px' : '56px') : 
+        (props.size === 'sm' ? '24px' : props.size === 'md' ? '28px' : '32px')
       };
     `}
     
@@ -280,7 +280,6 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     isEditing,
     isDragging,
     isHovered,
-    isFocused,
     error: internalError,
     increment,
     decrement,
@@ -289,7 +288,6 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     endDrag,
     startEditing,
     endEditing,
-    cancelEditing,
     updateDisplayValue,
     setHovered,
     setFocused,
