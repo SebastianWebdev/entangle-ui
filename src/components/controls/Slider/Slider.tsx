@@ -448,7 +448,7 @@ export const Slider: React.FC<SliderProps> = ({
   step = 1,
   precisionStep,
   largeStep,
-  precision,
+  precision = 2,
   size = 'md',
   disabled = false,
   readOnly = false,
