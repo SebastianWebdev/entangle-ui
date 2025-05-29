@@ -20,6 +20,8 @@ export interface BaseComponent<T = HTMLDivElement> extends Omit<React.HTMLAttrib
    * Can be an object of CSS properties or a function that receives theme and returns CSS properties
    */
   css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined;
+
+  ref?: React.Ref<T>;
 }
 
 export type Size = 'sm' | 'md' | 'lg';

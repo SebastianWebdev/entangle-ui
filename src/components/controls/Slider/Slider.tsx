@@ -9,7 +9,7 @@ import { FormLabel, FormHelperText, InputWrapper } from '@/components/form';
 /**
  * Props specific to Slider component
  */
-export interface SliderBaseProps extends BaseComponent {
+export interface SliderBaseProps extends Omit<BaseComponent, 'onChange'> {
   /**
    * Current numeric value
    */
@@ -172,7 +172,7 @@ const StyledSliderWrapper = styled.div`
   align-items: center;
   cursor: pointer;
   user-select: none;
-  padding: 8px 0;
+  padding: 0px 0;
   width: 100%;
 `;
 
@@ -629,6 +629,7 @@ export const Slider: React.FC<SliderProps> = ({
         error={error}
         disabled={disabled}
         focused={isFocused}
+        css={{ border:'none', background: 'transparent', padding: 0, height: 5 }}
       >
         <StyledSliderWrapper
           ref={sliderRef}
@@ -647,7 +648,7 @@ export const Slider: React.FC<SliderProps> = ({
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          css={{ padding: '8px 0' }}
+          
         >
         <StyledTrack ref={trackRef} $size={size} $error={error}>
           <StyledFill $percentage={percentage} $error={error} />

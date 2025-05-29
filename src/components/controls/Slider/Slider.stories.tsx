@@ -350,6 +350,7 @@ export const AudioMixer: Story = {
             size="sm"
           />
           <Slider
+            precision={3}
             value={treble}
             onChange={setTreble}
             label="Treble"
