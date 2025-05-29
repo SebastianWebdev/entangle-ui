@@ -177,8 +177,9 @@ describe('Spacer', () => {
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
       
-      expect(styles.width).toBe('0px');
-      expect(styles.height).toBe('0px');
+      // jsdom may return '0' or '0px' for zero values
+      expect(['0', '0px']).toContain(styles.width);
+      expect(['0', '0px']).toContain(styles.height);
       expect(styles.flexGrow).toBe('0');
       expect(styles.flexShrink).toBe('0');
     });
@@ -189,8 +190,9 @@ describe('Spacer', () => {
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
       
-      expect(styles.width).toBe('0px');
-      expect(styles.height).toBe('0px');
+      // jsdom may return '0' or '0px' for zero values
+      expect(['0', '0px']).toContain(styles.width);
+      expect(['0', '0px']).toContain(styles.height);
     });
 
     it('handles large size values', () => {
