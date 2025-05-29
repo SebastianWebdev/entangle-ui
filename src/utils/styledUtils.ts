@@ -19,7 +19,9 @@ export const processCss = (css: React.CSSProperties | ((theme: Theme) => React.C
   return Object.entries(cssObj)
     .map(([key, value]) => {
       const kebabKey = camelToKebab(key);
-      return `${kebabKey}: ${value};`;
+      // Dodaj 'px' do wartości liczbowych (z wyjątkiem 0)
+      const formattedValue = typeof value === 'number' && value !== 0 ? `${value}px` : value;
+      return `${kebabKey}: ${formattedValue};`;
     })
     .join('\n');
 };
