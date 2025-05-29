@@ -4,6 +4,11 @@ import type { Size } from '@/types/common';
 
 export interface InputWrapperProps {
   /**
+   * Ref to the input wrapper element
+   */
+  ref?: React.Ref<HTMLDivElement>;
+
+  /**
    * Input wrapper content
    */
   children: React.ReactNode;
@@ -145,6 +150,7 @@ export const InputWrapper: React.FC<InputWrapperProps> = ({
   className,
   onMouseDown,
   onClick,
+  ref
 }) => {
   return (
     <StyledInputWrapper
@@ -155,6 +161,7 @@ export const InputWrapper: React.FC<InputWrapperProps> = ({
       className={className}
       onMouseDown={onMouseDown}
       onClick={onClick}
+      ref={ref}
     >
       {children}
     </StyledInputWrapper>
