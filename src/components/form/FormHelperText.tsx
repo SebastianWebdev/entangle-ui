@@ -17,13 +17,27 @@ export interface FormHelperTextProps {
    * Additional CSS classes
    */
   className?: string;
+  
+  /**
+   * Custom CSS styles applied inline
+   */
+  style?: React.CSSProperties;
+  
+  /**
+   * Custom CSS styles included in styled-components
+   * This allows for more powerful styling with theme access and nesting
+   */
+  css?: string | ((props: any) => string);
 }
 
-const StyledHelperText = styled.div<{ $error: boolean }>`
+const StyledHelperText = styled.div<{ $error: boolean; $css?: string | ((props: any) => string) }>`
   font-size: ${props => props.theme.typography.fontSize.xs}px;
   line-height: ${props => props.theme.typography.lineHeight.tight};
   color: ${props => props.$error ? props.theme.colors.accent.error : props.theme.colors.text.muted};
   margin-top: ${props => props.theme.spacing.xs}px;
+  
+  /* Custom CSS */
+  ${props => props.$css && typeof props.$css === 'function' ? props.$css(props) : props.$css}
 `;
 
 /**
@@ -45,11 +59,15 @@ export const FormHelperText: React.FC<FormHelperTextProps> = ({
   children,
   error = false,
   className,
+  style,
+  css,
 }) => {
   return (
     <StyledHelperText 
       $error={error}
+      $css={css}
       className={className}
+      style={style}
     >
       {children}
     </StyledHelperText>

@@ -28,15 +28,29 @@ export interface FormLabelProps {
    * Additional CSS classes
    */
   className?: string;
+  
+  /**
+   * Custom CSS styles applied inline
+   */
+  style?: React.CSSProperties;
+  
+  /**
+   * Custom CSS styles included in styled-components
+   * This allows for more powerful styling with theme access and nesting
+   */
+  css?: string | ((props: any) => string);
 }
 
-const StyledLabel = styled.label<{ $disabled: boolean }>`
+const StyledLabel = styled.label<{ $disabled: boolean; $css?: string | ((props: any) => string) }>`
   font-size: ${props => props.theme.typography.fontSize.sm}px;
   font-weight: ${props => props.theme.typography.fontWeight.medium};
   color: ${props => props.$disabled ? props.theme.colors.text.disabled : props.theme.colors.text.secondary};
   line-height: ${props => props.theme.typography.lineHeight.tight};
   margin-bottom: ${props => props.theme.spacing.xs}px;
   display: inline-block;
+  
+  /* Custom CSS */
+  ${props => props.$css && typeof props.$css === 'function' ? props.$css(props) : props.$css}
 `;
 
 const RequiredIndicator = styled.span`
@@ -64,12 +78,16 @@ export const FormLabel: React.FC<FormLabelProps> = ({
   disabled = false,
   required = false,
   className,
+  style,
+  css,
 }) => {
   return (
     <StyledLabel 
       htmlFor={htmlFor}
       $disabled={disabled}
+      $css={css}
       className={className}
+      style={style}
     >
       {children}
       {required && <RequiredIndicator> *</RequiredIndicator>}

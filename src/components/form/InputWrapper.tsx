@@ -46,9 +46,15 @@ export interface InputWrapperProps {
   className?: string;
   
   /**
-   * Custom CSS styles
+   * Custom CSS styles applied inline
    */
   style?: React.CSSProperties;
+  
+  /**
+   * Custom CSS styles included in styled-components
+   * This allows for more powerful styling with theme access and nesting
+   */
+  css?: string | ((props: any) => string);
   
   /**
    * Mouse down event handler
@@ -66,6 +72,7 @@ interface StyledInputWrapperProps {
   $error: boolean;
   $disabled: boolean;
   $focused: boolean;
+  $css?: string | ((props: any) => string);
 }
 
 const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
@@ -125,6 +132,9 @@ const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
       return props.theme.colors.border.focus;
     }};
   }
+  
+  /* Custom CSS */
+  ${props => props.$css && typeof props.$css === 'function' ? props.$css(props) : props.$css}
 `;
 
 /**
@@ -154,6 +164,7 @@ export const InputWrapper: React.FC<InputWrapperProps> = ({
   focused = false,
   className,
   style,
+  css,
   onMouseDown,
   onClick,
   ref
@@ -164,6 +175,7 @@ export const InputWrapper: React.FC<InputWrapperProps> = ({
       $error={error}
       $disabled={disabled}
       $focused={focused}
+      $css={css}
       className={className}
       style={style}
       onMouseDown={onMouseDown}
