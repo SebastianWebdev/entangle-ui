@@ -46,6 +46,11 @@ export interface InputWrapperProps {
   className?: string;
   
   /**
+   * Custom CSS styles
+   */
+  style?: React.CSSProperties;
+  
+  /**
    * Mouse down event handler
    */
   onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
@@ -148,6 +153,7 @@ export const InputWrapper: React.FC<InputWrapperProps> = ({
   disabled = false,
   focused = false,
   className,
+  style,
   onMouseDown,
   onClick,
   ref
@@ -159,6 +165,7 @@ export const InputWrapper: React.FC<InputWrapperProps> = ({
       $disabled={disabled}
       $focused={focused}
       className={className}
+      style={style}
       onMouseDown={onMouseDown}
       onClick={onClick}
       ref={ref}
