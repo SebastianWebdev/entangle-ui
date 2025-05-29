@@ -1,6 +1,5 @@
 // src/primitives/Input/Input.tsx
 import type { Size } from '@/types/common';
-import type { Prettify } from '@/types/utilities';
 import styled from '@emotion/styled';
 import React from 'react';
 
@@ -112,6 +111,11 @@ export interface InputBaseProps {
    * Key down event handler
    */
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+
+  /**
+   * Reference to the input element
+   */
+  ref?: React.Ref<HTMLInputElement> | undefined;
   
   /**
    * Test identifier for automated testing
@@ -122,7 +126,7 @@ export interface InputBaseProps {
 /**
  * Props for the Input component with prettified type for better IntelliSense
  */
-export type InputProps = Prettify<InputBaseProps>;
+export type InputProps = InputBaseProps;
 
 interface StyledInputContainerProps {
   $size: InputSize;
@@ -312,6 +316,7 @@ export const Input: React.FC<InputProps> = ({
   startIcon,
   endIcon,
   className,
+  ref,
   onChange,
   onFocus,
   onBlur,
@@ -360,6 +365,7 @@ export const Input: React.FC<InputProps> = ({
         )}
         
         <StyledInput
+          ref={ref}
           id={inputId}
           type={type}
           value={value}

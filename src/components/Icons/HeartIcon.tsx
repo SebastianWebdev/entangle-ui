@@ -27,3 +27,4 @@ export const HeartIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
     </Icon>
   );
 };
+
