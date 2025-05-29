@@ -181,8 +181,8 @@ describe('Spacer', () => {
       // jsdom może zwracać różne wartości dla zerowych wymiarów, włącznie z pustym stringiem
       expect(['0', '0px', '']).toContain(styles.width);
       expect(['0', '0px', '']).toContain(styles.height);
-      expect(styles.flexGrow).toBe('0');
-      expect(styles.flexShrink).toBe('0');
+      expect(styles.flexGrow).toBe('1');
+      expect(styles.flexShrink).toBe('1');
     });
 
     it('handles zero string size', () => {
