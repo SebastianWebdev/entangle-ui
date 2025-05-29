@@ -27,10 +27,10 @@ export interface FormHelperTextProps {
    * Custom CSS styles included in styled-components
    * This allows for more powerful styling with theme access and nesting
    */
-  css?: string | ((props: any) => string);
+  css?: string | ((props: any) => string) | undefined;
 }
 
-const StyledHelperText = styled.div<{ $error: boolean; $css?: string | ((props: any) => string) }>`
+const StyledHelperText = styled.div<{ $error: boolean; $css?: string | ((props: any) => string)| undefined }>`
   font-size: ${props => props.theme.typography.fontSize.xs}px;
   line-height: ${props => props.theme.typography.lineHeight.tight};
   color: ${props => props.$error ? props.theme.colors.accent.error : props.theme.colors.text.muted};

@@ -54,7 +54,7 @@ export interface InputWrapperProps {
    * Custom CSS styles included in styled-components
    * This allows for more powerful styling with theme access and nesting
    */
-  css?: string | ((props: any) => string);
+  css?: string | ((props: any) => string) | undefined;
   
   /**
    * Mouse down event handler
@@ -72,7 +72,7 @@ interface StyledInputWrapperProps {
   $error: boolean;
   $disabled: boolean;
   $focused: boolean;
-  $css?: string | ((props: any) => string);
+  $css?: string | ((props: any) => string)  | undefined;
 }
 
 const StyledInputWrapper = styled.div<StyledInputWrapperProps>`

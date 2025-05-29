@@ -173,6 +173,7 @@ const StyledSliderWrapper = styled.div`
   cursor: pointer;
   user-select: none;
   padding: 8px 0;
+  width: 100%;
 `;
 
 interface StyledTrackProps {
@@ -646,6 +647,7 @@ export const Slider: React.FC<SliderProps> = ({
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
+          css=''
         >
         <StyledTrack ref={trackRef} $size={size} $error={error}>
           <StyledFill $percentage={percentage} $error={error} />
