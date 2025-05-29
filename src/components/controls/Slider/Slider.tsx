@@ -485,12 +485,12 @@ export const Slider: React.FC<SliderProps> = ({
   const percentage = ((value - min) / (max - min)) * 100;
   const clampedValue = clamp(value, min, max);
   
-  // Format display value
+  // Format display value with consistent precision to prevent tooltip size changes
   const displayValue = formatValue 
     ? formatValue(clampedValue)
     : unit 
-    ? `${clampedValue}${unit}`
-    : clampedValue.toString();
+    ? `${precision !== undefined ? clampedValue.toFixed(precision) : clampedValue}${unit}`
+    : precision !== undefined ? clampedValue.toFixed(precision) : clampedValue.toString();
 
   /**
    * Gets the appropriate step size based on modifier keys
