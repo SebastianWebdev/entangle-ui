@@ -34,7 +34,9 @@ interface StyledSpacerProps {
 const StyledSpacer = styled.div<StyledSpacerProps>`
   /* Auto-expanding behavior by default */
   ${props => !props.$size && `
-    flex: 1;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
     min-width: 0;
     min-height: 0;
   `}

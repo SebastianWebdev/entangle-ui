@@ -47,7 +47,8 @@ describe('Spacer', () => {
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
       
-      expect(styles.flex).toBe('1');
+      // jsdom może zwracać różne wartości dla flex, sprawdzamy tylko flexGrow
+      expect(styles.flexGrow).toBe('1');
     });
 
     it('applies min dimensions to prevent shrinking', () => {
@@ -148,9 +149,9 @@ describe('Spacer', () => {
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
       
-      expect(styles.flex).toBe('1');
-      expect(styles.minWidth).toBe('0');
-      expect(styles.minHeight).toBe('0');
+      expect(styles.flexGrow).toBe('1');
+      expect(['0', '0px']).toContain(styles.minWidth);
+      expect(['0', '0px']).toContain(styles.minHeight);
       expect(styles.pointerEvents).toBe('none');
       expect(styles.userSelect).toBe('none');
     });
@@ -297,7 +298,7 @@ describe('Spacer', () => {
       
       // Should have flex: 1 to fill available space
       const styles = window.getComputedStyle(spacer);
-      expect(styles.flex).toBe('1');
+      expect(styles.flexGrow).toBe('1');
     });
 
     it('works in column layout', () => {
