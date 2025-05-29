@@ -67,8 +67,8 @@ const Item: React.FC<{ children: React.ReactNode; color?: string }> = ({
 // Basic usage
 export const PushApart: Story = {
   render: () => (
-    <div style={{ border: '1px dashed rgba(255, 255, 255, 0.3)', padding: '1rem' }}>
-      <Stack direction="row">
+    <div style={{ border: '1px dashed rgba(255, 255, 255, 0.3)', padding: '1rem', width: '300px' }}>
+      <Stack direction="row" expand>
         <Item color="rgba(244, 67, 54, 0.1)">Left</Item>
         <Spacer />
         <Item color="rgba(76, 175, 80, 0.1)">Right</Item>
@@ -101,25 +101,13 @@ export const FixedSize: Story = {
 
 export const MultipleSpacers: Story = {
   render: () => (
-    <div style={{ border: '1px dashed rgba(255, 255, 255, 0.3)', padding: '1rem' }}>
-      <Stack direction="row">
+    <div style={{ border: '1px dashed rgba(255, 255, 255, 0.3)', padding: '1rem', width: '400px' }}>
+      <Stack direction="row" expand>
         <Item color="rgba(244, 67, 54, 0.1)">Logo</Item>
         <Spacer />
         <Item color="rgba(255, 152, 0, 0.1)">Nav</Item>
         <Spacer />
         <Item color="rgba(76, 175, 80, 0.1)">User</Item>
-      </Stack>
-    </div>
-  ),
-};
-
-export const Interactive: Story = {
-  render: (args) => (
-    <div style={{ border: '1px dashed rgba(255, 255, 255, 0.3)', padding: '1rem' }}>
-      <Stack direction="row">
-        <Item>Before</Item>
-        <Spacer {...args} />
-        <Item>After</Item>
       </Stack>
     </div>
   ),
