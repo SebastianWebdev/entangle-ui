@@ -3,6 +3,7 @@
 ## 1. Language Requirements - CRITICAL
 
 **All text must be in English:**
+
 - JSDoc comments and documentation
 - Code comments and console logs  
 - Type descriptions and error messages

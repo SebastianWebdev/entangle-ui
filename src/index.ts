@@ -14,6 +14,8 @@ export {
   Input
 } from '@/components/primitives';
 
+export {Grid} from '@/components/layout';
+
 export type {
   ButtonProps,
   ButtonSize,
@@ -22,6 +24,12 @@ export type {
   IconSize,
   InputProps
 } from '@/components/primitives';
+
+export type {
+  GridProps,
+  GridSpacing,
+  GridSize
+} from '@/components/layout';
 
 // Types
 export type { 

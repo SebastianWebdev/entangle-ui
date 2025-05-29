@@ -1,0 +1,73 @@
+{
+  "numTotalTestSuites": 5,
+  "numFailedTestSuites": 1,
+  "numFailedTests": 4,
+  "startTime": 1748525669919,
+  "success": false,
+  "testResults": [
+    {
+      "name": "src/components/layout/Grid/Grid.test.tsx",
+      "startTime": 1748525669566,
+      "status": "failed",
+      "message": "",
+      "assertionResults": [
+        {
+          "ancestorTitles": [
+            "Grid",
+            "Spacing System"
+          ],
+          "fullName": "Grid Spacing System applies default spacing (2 = 8px)",
+          "status": "failed",
+          "title": "applies default spacing (2 = 8px)",
+          "duration": 7.641279999999938,
+          "failureMessages": [
+            "expected '2px' to be '8px' // Object.is equality"
+          ],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": [
+            "Grid",
+            "Spacing System"
+          ],
+          "fullName": "Grid Spacing System applies various spacing multipliers",
+          "status": "failed",
+          "title": "applies various spacing multipliers",
+          "duration": 2.9191679999998996,
+          "failureMessages": [
+            "expected '1px' to be '4px' // Object.is equality"
+          ],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": [
+            "Grid",
+            "Theme Integration"
+          ],
+          "fullName": "Grid Theme Integration uses theme spacing values correctly",
+          "status": "failed",
+          "title": "uses theme spacing values correctly",
+          "duration": 2.503017,
+          "failureMessages": [
+            "expected '3px' to be '12px' // Object.is equality"
+          ],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": [
+            "Grid",
+            "Edge Cases"
+          ],
+          "fullName": "Grid Edge Cases handles maximum spacing value",
+          "status": "failed",
+          "title": "handles maximum spacing value",
+          "duration": 2.5261470000000372,
+          "failureMessages": [
+            "expected '8px' to be '32px' // Object.is equality"
+          ],
+          "meta": {}
+        }
+      ]
+    }
+  ]
+}
