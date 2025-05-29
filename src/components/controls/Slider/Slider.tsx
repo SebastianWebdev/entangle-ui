@@ -4,6 +4,7 @@ import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
 import { useModifierKeys } from '@/hooks/useKeyboard';
+import { FormLabel, FormHelperText, InputWrapper } from '@/components/form';
 
 /**
  * Props specific to Slider component
@@ -164,51 +165,14 @@ const StyledSliderContainer = styled.div<StyledSliderContainerProps>`
   pointer-events: ${props => props.$disabled ? 'none' : 'auto'};
 `;
 
-const StyledLabel = styled.label<{ $disabled: boolean }>`
-  font-size: ${props => props.theme.typography.fontSize.sm}px;
-  font-weight: ${props => props.theme.typography.fontWeight.medium};
-  color: ${props => props.$disabled ? props.theme.colors.text.disabled : props.theme.colors.text.secondary};
-  line-height: ${props => props.theme.typography.lineHeight.tight};
-`;
 
-interface StyledSliderWrapperProps {
-  $size: Size;
-  $error: boolean;
-  $focused: boolean;
-}
-
-const StyledSliderWrapper = styled.div<StyledSliderWrapperProps>`
+const StyledSliderWrapper = styled.div`
   position: relative;
   display: flex;
   align-items: center;
   cursor: pointer;
   user-select: none;
-  
-  /* Size variants */
-  ${props => {
-    const sizes = {
-      sm: { height: '20px', padding: '8px 0' },
-      md: { height: '24px', padding: '10px 0' },
-      lg: { height: '32px', padding: '14px 0' },
-    };
-    const size = sizes[props.$size];
-    return `
-      height: ${size.height};
-      padding: ${size.padding};
-    `;
-  }}
-  
-  /* Focus ring */
-  ${props => props.$focused && `
-    &::before {
-      content: '';
-      position: absolute;
-      inset: -2px;
-      border-radius: ${props.theme.borderRadius.md}px;
-      box-shadow: 0 0 0 2px ${props.theme.colors.accent.primary}40;
-      pointer-events: none;
-    }
-  `}
+  padding: 8px 0;
 `;
 
 interface StyledTrackProps {
@@ -369,11 +333,6 @@ const StyledTooltip = styled.div<StyledTooltipProps>`
   }
 `;
 
-const StyledHelperText = styled.div<{ $error: boolean }>`
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  line-height: ${props => props.theme.typography.lineHeight.tight};
-  color: ${props => props.$error ? props.theme.colors.accent.error : props.theme.colors.text.muted};
-`;
 
 /**
  * Clamps a value between min and max bounds
@@ -655,33 +614,39 @@ export const Slider: React.FC<SliderProps> = ({
       {...props}
     >
       {label && (
-        <StyledLabel htmlFor={sliderId} $disabled={disabled}>
+        <FormLabel 
+          htmlFor={sliderId} 
+          disabled={disabled}
+          required={required}
+        >
           {label}
-          {required && <span style={{ color: 'var(--accent-error)' }}> *</span>}
-        </StyledLabel>
+        </FormLabel>
       )}
       
-      <StyledSliderWrapper
-        ref={sliderRef}
-        $size={size}
-        $error={error}
-        $focused={isFocused}
-        onMouseDown={handleMouseDown}
-        tabIndex={disabled ? -1 : 0}
-        role="slider"
-        aria-valuemin={min}
-        aria-valuemax={max}
-        aria-valuenow={clampedValue}
-        aria-valuetext={displayValue}
-        aria-disabled={disabled}
-        aria-readonly={readOnly}
-        aria-required={required}
-        aria-invalid={error}
-        aria-labelledby={label ? sliderId : undefined}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
+      <InputWrapper
+        size={size}
+        error={error}
+        disabled={disabled}
+        focused={isFocused}
       >
+        <StyledSliderWrapper
+          ref={sliderRef}
+          onMouseDown={handleMouseDown}
+          tabIndex={disabled ? -1 : 0}
+          role="slider"
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-valuenow={clampedValue}
+          aria-valuetext={displayValue}
+          aria-disabled={disabled}
+          aria-readonly={readOnly}
+          aria-required={required}
+          aria-invalid={error}
+          aria-labelledby={label ? sliderId : undefined}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+        >
         <StyledTrack ref={trackRef} $size={size} $error={error}>
           <StyledFill $percentage={percentage} $error={error} />
         </StyledTrack>
@@ -709,12 +674,13 @@ export const Slider: React.FC<SliderProps> = ({
             {displayValue}
           </StyledTooltip>
         )}
-      </StyledSliderWrapper>
+        </StyledSliderWrapper>
+      </InputWrapper>
       
       {(helperText || (error && errorMessage)) && (
-        <StyledHelperText $error={error}>
+        <FormHelperText error={error}>
           {error && errorMessage ? errorMessage : helperText}
-        </StyledHelperText>
+        </FormHelperText>
       )}
     </StyledSliderContainer>
   );
