@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
+import type {Theme} from '@/theme'
 
 export interface FormHelperTextProps {
   /**
@@ -28,10 +29,10 @@ export interface FormHelperTextProps {
    * This allows for more powerful styling with theme access
    * Can be an object of CSS properties or a function that receives theme and returns CSS properties
    */
-  css?: React.CSSProperties | ((theme: any) => React.CSSProperties) | undefined;
+  css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined;
 }
 
-const StyledHelperText = styled.div<{ $error: boolean; $css?: React.CSSProperties | ((theme: any) => React.CSSProperties) | undefined }>`
+const StyledHelperText = styled.div<{ $error: boolean; $css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined }>`
   font-size: ${props => props.theme.typography.fontSize.xs}px;
   line-height: ${props => props.theme.typography.lineHeight.tight};
   color: ${props => props.$error ? props.theme.colors.accent.error : props.theme.colors.text.muted};

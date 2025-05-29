@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import type { Size } from '@/types/common';
+import type {Theme} from '@/theme'
 
 export interface InputWrapperProps {
   /**
@@ -55,7 +56,7 @@ export interface InputWrapperProps {
    * This allows for more powerful styling with theme access
    * Can be an object of CSS properties or a function that receives theme and returns CSS properties
    */
-  css?: React.CSSProperties | ((theme: any) => React.CSSProperties) | undefined;
+  css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined;
   
   /**
    * Mouse down event handler
@@ -73,7 +74,7 @@ interface StyledInputWrapperProps {
   $error: boolean;
   $disabled: boolean;
   $focused: boolean;
-  $css?: React.CSSProperties | ((theme: any) => React.CSSProperties) | undefined;
+  $css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined;
 }
 
 const StyledInputWrapper = styled.div<StyledInputWrapperProps>`

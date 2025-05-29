@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
+import type {Theme} from '@/theme'
 
 export interface FormLabelProps {
   /**
@@ -32,17 +33,17 @@ export interface FormLabelProps {
   /**
    * Custom CSS styles applied inline
    */
-  style?: React.CSSProperties;
+  style?: React.CSSProperties | undefined;
   
   /**
    * Custom CSS styles included in styled-components
    * This allows for more powerful styling with theme access
    * Can be an object of CSS properties or a function that receives theme and returns CSS properties
    */
-  css?: React.CSSProperties | ((theme: any) => React.CSSProperties);
+  css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined;
 }
 
-const StyledLabel = styled.label<{ $disabled: boolean; $css?: React.CSSProperties | ((theme: any) => React.CSSProperties) }>`
+const StyledLabel = styled.label<{ $disabled: boolean; $css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined }>`
   font-size: ${props => props.theme.typography.fontSize.sm}px;
   font-weight: ${props => props.theme.typography.fontWeight.medium};
   color: ${props => props.$disabled ? props.theme.colors.text.disabled : props.theme.colors.text.secondary};
