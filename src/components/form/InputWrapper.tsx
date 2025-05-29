@@ -1,14 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import type { Size } from '@/types/common';
-import type {Theme} from '@/theme'
+import type { BaseComponent, Size } from '@/types/common';
+import { processCss } from '@/utils/styledUtils';
 
-export interface InputWrapperProps {
-  /**
-   * Ref to the input wrapper element
-   */
-  ref?: React.Ref<HTMLDivElement>;
-
+export interface InputWrapperProps extends BaseComponent<HTMLDivElement> {
   /**
    * Input wrapper content
    */
@@ -40,33 +35,6 @@ export interface InputWrapperProps {
    * @default false
    */
   focused?: boolean;
-  
-  /**
-   * Additional CSS classes
-   */
-  className?: string;
-  
-  /**
-   * Custom CSS styles applied inline
-   */
-  style?: React.CSSProperties;
-  
-  /**
-   * Custom CSS styles included in styled-components
-   * This allows for more powerful styling with theme access
-   * Can be an object of CSS properties or a function that receives theme and returns CSS properties
-   */
-  css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined;
-  
-  /**
-   * Mouse down event handler
-   */
-  onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
-  
-  /**
-   * Click event handler
-   */
-  onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 interface StyledInputWrapperProps {
@@ -74,7 +42,7 @@ interface StyledInputWrapperProps {
   $error: boolean;
   $disabled: boolean;
   $focused: boolean;
-  $css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined;
+  $css?: InputWrapperProps['css'];
 }
 
 const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
@@ -136,21 +104,7 @@ const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
   }
   
   /* Custom CSS */
-  ${props => {
-    if (!props.$css) return '';
-    
-    const cssObj = typeof props.$css === 'function' 
-      ? props.$css(props.theme) 
-      : props.$css;
-      
-    return Object.entries(cssObj)
-      .map(([key, value]) => {
-        // Konwertuj camelCase na kebab-case
-        const kebabKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-        return `${kebabKey}: ${value};`;
-      })
-      .join('\n');
-  }}
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 /**
@@ -181,9 +135,7 @@ export const InputWrapper: React.FC<InputWrapperProps> = ({
   className,
   style,
   css,
-  onMouseDown,
-  onClick,
-  ref
+  ...rest
 }) => {
   return (
     <StyledInputWrapper
@@ -194,9 +146,7 @@ export const InputWrapper: React.FC<InputWrapperProps> = ({
       $css={css}
       className={className}
       style={style}
-      onMouseDown={onMouseDown}
-      onClick={onClick}
-      ref={ref}
+      {...rest}
     >
       {children}
     </StyledInputWrapper>

@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import type {Theme} from '@/theme'
+import type { BaseComponent } from '@/types/common';
+import { processCss } from '@/utils/styledUtils';
 
-export interface FormLabelProps {
+export interface FormLabelProps extends BaseComponent<HTMLLabelElement> {
   /**
    * Label content
    */
@@ -24,26 +25,9 @@ export interface FormLabelProps {
    * @default false
    */
   required?: boolean;
-  
-  /**
-   * Additional CSS classes
-   */
-  className?: string;
-  
-  /**
-   * Custom CSS styles applied inline
-   */
-  style?: React.CSSProperties | undefined;
-  
-  /**
-   * Custom CSS styles included in styled-components
-   * This allows for more powerful styling with theme access
-   * Can be an object of CSS properties or a function that receives theme and returns CSS properties
-   */
-  css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined;
 }
 
-const StyledLabel = styled.label<{ $disabled: boolean; $css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined }>`
+const StyledLabel = styled.label<{ $disabled: boolean; $css?: FormLabelProps['css'] }>`
   font-size: ${props => props.theme.typography.fontSize.sm}px;
   font-weight: ${props => props.theme.typography.fontWeight.medium};
   color: ${props => props.$disabled ? props.theme.colors.text.disabled : props.theme.colors.text.secondary};
@@ -52,21 +36,7 @@ const StyledLabel = styled.label<{ $disabled: boolean; $css?: React.CSSPropertie
   display: inline-block;
   
   /* Custom CSS */
-  ${props => {
-    if (!props.$css) return '';
-    
-    const cssObj = typeof props.$css === 'function' 
-      ? props.$css(props.theme) 
-      : props.$css;
-      
-    return Object.entries(cssObj)
-      .map(([key, value]) => {
-        // Konwertuj camelCase na kebab-case
-        const kebabKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-        return `${kebabKey}: ${value};`;
-      })
-      .join('\n');
-  }}
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 const RequiredIndicator = styled.span`
@@ -96,6 +66,7 @@ export const FormLabel: React.FC<FormLabelProps> = ({
   className,
   style,
   css,
+  ...rest
 }) => {
   return (
     <StyledLabel 
@@ -104,6 +75,7 @@ export const FormLabel: React.FC<FormLabelProps> = ({
       $css={css}
       className={className}
       style={style}
+      {...rest}
     >
       {children}
       {required && <RequiredIndicator> *</RequiredIndicator>}

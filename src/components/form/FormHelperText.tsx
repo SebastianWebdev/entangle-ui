@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import type {Theme} from '@/theme'
+import type { BaseComponent } from '@/types/common';
+import { processCss } from '@/utils/styledUtils';
 
-export interface FormHelperTextProps {
+export interface FormHelperTextProps extends BaseComponent<HTMLDivElement> {
   /**
    * Helper text content
    */
@@ -13,47 +14,16 @@ export interface FormHelperTextProps {
    * @default false
    */
   error?: boolean;
-  
-  /**
-   * Additional CSS classes
-   */
-  className?: string;
-  
-  /**
-   * Custom CSS styles applied inline
-   */
-  style?: React.CSSProperties;
-  
-  /**
-   * Custom CSS styles included in styled-components
-   * This allows for more powerful styling with theme access
-   * Can be an object of CSS properties or a function that receives theme and returns CSS properties
-   */
-  css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined;
 }
 
-const StyledHelperText = styled.div<{ $error: boolean; $css?: React.CSSProperties | ((theme: Theme) => React.CSSProperties) | undefined }>`
+const StyledHelperText = styled.div<{ $error: boolean; $css?: FormHelperTextProps['css'] }>`
   font-size: ${props => props.theme.typography.fontSize.xs}px;
   line-height: ${props => props.theme.typography.lineHeight.tight};
   color: ${props => props.$error ? props.theme.colors.accent.error : props.theme.colors.text.muted};
   margin-top: ${props => props.theme.spacing.xs}px;
   
   /* Custom CSS */
-  ${props => {
-    if (!props.$css) return '';
-    
-    const cssObj = typeof props.$css === 'function' 
-      ? props.$css(props.theme) 
-      : props.$css;
-      
-    return Object.entries(cssObj)
-      .map(([key, value]) => {
-        // Konwertuj camelCase na kebab-case
-        const kebabKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-        return `${kebabKey}: ${value};`;
-      })
-      .join('\n');
-  }}
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 /**
@@ -77,6 +47,7 @@ export const FormHelperText: React.FC<FormHelperTextProps> = ({
   className,
   style,
   css,
+  ...rest
 }) => {
   return (
     <StyledHelperText 
@@ -84,6 +55,7 @@ export const FormHelperText: React.FC<FormHelperTextProps> = ({
       $css={css}
       className={className}
       style={style}
+      {...rest}
     >
       {children}
     </StyledHelperText>
