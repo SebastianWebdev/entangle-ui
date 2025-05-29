@@ -647,7 +647,7 @@ export const Slider: React.FC<SliderProps> = ({
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          css=''
+          css={{ padding: '8px 0' }}
         >
         <StyledTrack ref={trackRef} $size={size} $error={error}>
           <StyledFill $percentage={percentage} $error={error} />

@@ -36,12 +36,13 @@ export interface FormLabelProps {
   
   /**
    * Custom CSS styles included in styled-components
-   * This allows for more powerful styling with theme access and nesting
+   * This allows for more powerful styling with theme access
+   * Can be an object of CSS properties or a function that receives theme and returns CSS properties
    */
-  css?: string | ((props: any) => string);
+  css?: React.CSSProperties | ((theme: any) => React.CSSProperties);
 }
 
-const StyledLabel = styled.label<{ $disabled: boolean; $css?: string | ((props: any) => string) }>`
+const StyledLabel = styled.label<{ $disabled: boolean; $css?: React.CSSProperties | ((theme: any) => React.CSSProperties) }>`
   font-size: ${props => props.theme.typography.fontSize.sm}px;
   font-weight: ${props => props.theme.typography.fontWeight.medium};
   color: ${props => props.$disabled ? props.theme.colors.text.disabled : props.theme.colors.text.secondary};
@@ -50,7 +51,21 @@ const StyledLabel = styled.label<{ $disabled: boolean; $css?: string | ((props: 
   display: inline-block;
   
   /* Custom CSS */
-  ${props => props.$css && typeof props.$css === 'function' ? props.$css(props) : props.$css}
+  ${props => {
+    if (!props.$css) return '';
+    
+    const cssObj = typeof props.$css === 'function' 
+      ? props.$css(props.theme) 
+      : props.$css;
+      
+    return Object.entries(cssObj)
+      .map(([key, value]) => {
+        // Konwertuj camelCase na kebab-case
+        const kebabKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+        return `${kebabKey}: ${value};`;
+      })
+      .join('\n');
+  }}
 `;
 
 const RequiredIndicator = styled.span`
