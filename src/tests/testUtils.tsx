@@ -1,13 +1,13 @@
 // src/tests/test-utils.tsx
 import React from 'react';
-import { render, RenderOptions, } from '@testing-library/react';
+import { render, RenderOptions } from '@testing-library/react';
 import { expect } from 'vitest';
 import { ThemeProvider } from '@emotion/react';
 import type { Theme } from '@/theme';
 
 /**
  * Mock theme for testing purposes
- * 
+ *
  * Provides a complete theme structure that matches the actual theme tokens
  * to ensure styled components work correctly in test environment.
  */
@@ -98,10 +98,10 @@ export const mockTheme: Theme = {
 
 /**
  * Test wrapper component that provides theme context
- * 
+ *
  * Wraps components with the ThemeProvider to ensure all styled components
  * have access to theme tokens during testing.
- * 
+ *
  * @param children - React components to wrap with theme provider
  * @param theme - Optional custom theme (defaults to mockTheme)
  */
@@ -110,36 +110,32 @@ interface TestWrapperProps {
   theme?: Theme;
 }
 
-export const TestWrapper: React.FC<TestWrapperProps> = ({ 
-  children, 
-  theme = mockTheme 
-}) => (
-  <ThemeProvider theme={theme}>
-    {children}
-  </ThemeProvider>
-);
+export const TestWrapper: React.FC<TestWrapperProps> = ({
+  children,
+  theme = mockTheme,
+}) => <ThemeProvider theme={theme}>{children}</ThemeProvider>;
 
 /**
  * Custom render function with theme provider
- * 
+ *
  * Renders components with theme context automatically provided.
  * Use this instead of the default render function from @testing-library/react
  * for components that use styled-components with theme.
- * 
+ *
  * @param ui - React element to render
  * @param options - Render options (can include custom theme)
  * @returns Render result with theme context
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
  * renderWithTheme(<Button>Test</Button>);
- * 
+ *
  * // With custom theme
  * renderWithTheme(<Button>Test</Button>, {
  *   theme: customTheme
  * });
- * 
+ *
  * // With additional render options
  * renderWithTheme(<Button>Test</Button>, {
  *   theme: customTheme,
@@ -156,11 +152,9 @@ export const renderWithTheme = (
   options: RenderWithThemeOptions = {}
 ) => {
   const { theme = mockTheme, ...renderOptions } = options;
-  
+
   const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <TestWrapper theme={theme}>
-      {children}
-    </TestWrapper>
+    <TestWrapper theme={theme}>{children}</TestWrapper>
   );
 
   return render(ui, { wrapper: Wrapper, ...renderOptions });
@@ -168,13 +162,13 @@ export const renderWithTheme = (
 
 /**
  * Creates a custom theme for testing specific scenarios
- * 
+ *
  * Allows partial theme overrides while maintaining the complete theme structure.
  * Useful for testing edge cases or specific theme configurations.
- * 
+ *
  * @param overrides - Partial theme object to merge with mockTheme
  * @returns Complete theme with overrides applied
- * 
+ *
  * @example
  * ```tsx
  * const customTheme = createTestTheme({
@@ -184,7 +178,7 @@ export const renderWithTheme = (
  *     }
  *   }
  * });
- * 
+ *
  * renderWithTheme(<Button variant="filled">Test</Button>, {
  *   theme: customTheme
  * });
@@ -223,14 +217,14 @@ export const createTestTheme = (overrides: Partial<Theme> = {}): Theme => {
 
 /**
  * Common test assertions for styled components
- * 
+ *
  * Provides helper functions for frequently used style assertions
  * to reduce test boilerplate and improve consistency.
  */
 export const styleAssertions = {
   /**
    * Asserts that an element has the expected background color
-   * 
+   *
    * @param element - DOM element to check
    * @param expectedColor - Expected CSS color value (rgb, hex, etc.)
    */
@@ -241,7 +235,7 @@ export const styleAssertions = {
 
   /**
    * Asserts that an element has the expected text color
-   * 
+   *
    * @param element - DOM element to check
    * @param expectedColor - Expected CSS color value (rgb, hex, etc.)
    */
@@ -252,7 +246,7 @@ export const styleAssertions = {
 
   /**
    * Asserts that an element has the expected dimensions
-   * 
+   *
    * @param element - DOM element to check
    * @param width - Expected width (e.g., '100px', '50%')
    * @param height - Expected height (e.g., '32px', 'auto')
@@ -265,7 +259,7 @@ export const styleAssertions = {
 
   /**
    * Asserts that an element has the expected border radius
-   * 
+   *
    * @param element - DOM element to check
    * @param expectedRadius - Expected border radius (e.g., '4px', '50%')
    */

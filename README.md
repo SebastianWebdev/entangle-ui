@@ -14,7 +14,7 @@ Entangle UI brings quantum mechanics principles to interface design. Components 
 ## ⚡ Features
 
 - **🔗 Quantum Entanglement**: Components synchronize instantly across your app
-- **🎯 Precision Controls**: Built for professional editor interfaces  
+- **🎯 Precision Controls**: Built for professional editor interfaces
 - **⚫ Minimal & Powerful**: Maximum functionality, minimal visual footprint
 - **📐 TypeScript First**: Complete type safety and IntelliSense support
 - **🌙 Dark Matter Theme**: Designed for professionals who build worlds
@@ -44,7 +44,7 @@ function App() {
 
 - 🌍 **Planet generators** & procedural tools
 - 🎮 **Node-based editors** & visual programming
-- 🎨 **3D modeling interfaces** & CAD applications  
+- 🎨 **3D modeling interfaces** & CAD applications
 - ⚙️ **Parameter control systems** & scientific tools
 - 🔬 **Precision applications** requiring exact values
 
@@ -57,7 +57,7 @@ function App() {
 ### ✅ Available Components
 
 - [ ] Button - Quantum interaction states
-- [ ] Input - Precision numeric controls  
+- [ ] Input - Precision numeric controls
 - [ ] Slider - Fine-tuned value manipulation
 - [ ] Toggle - Binary state quantum switches
 
@@ -112,6 +112,6 @@ MIT © [Your Name](https://github.com/yourusername)
 
 ---
 
-> *"Spooky action at a distance, but for UI components"* ⚛️
+> _"Spooky action at a distance, but for UI components"_ ⚛️
 
 **Built for creators who shape digital realities**

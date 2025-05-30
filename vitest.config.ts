@@ -32,23 +32,23 @@ export default defineConfig({
         'stories/',
         'rollup.config.js',
         'vite.config.ts',
-        'vitest.config.ts'
+        'vitest.config.ts',
       ],
       include: [
         'src/components/**/*.{ts,tsx}',
         'src/hooks/**/*.{ts,tsx}',
         'src/utils/**/*.{ts,tsx}',
         'src/theme/**/*.{ts,tsx}',
-        'src/types/**/*.{ts,tsx}'
+        'src/types/**/*.{ts,tsx}',
       ],
       thresholds: {
         global: {
           branches: 80,
           functions: 80,
           lines: 80,
-          statements: 80
-        }
-      }
+          statements: 80,
+        },
+      },
     },
   },
 });

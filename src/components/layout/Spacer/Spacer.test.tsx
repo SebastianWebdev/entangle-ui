@@ -7,14 +7,14 @@ import { Spacer } from './Spacer';
 
 /**
  * Test suite for Spacer component
- * 
+ *
  * Covers: rendering, auto-expanding, fixed size, CSS properties
  */
 describe('Spacer', () => {
   describe('Rendering', () => {
     it('renders with default props', () => {
       renderWithTheme(<Spacer data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       expect(spacer).toBeInTheDocument();
     });
@@ -23,7 +23,7 @@ describe('Spacer', () => {
       renderWithTheme(
         <Spacer className="custom-spacer" data-testid="test-spacer" />
       );
-      
+
       const spacer = screen.getByTestId('test-spacer');
       expect(spacer).toHaveClass('custom-spacer');
     });
@@ -35,7 +35,7 @@ describe('Spacer', () => {
 
     it('does not render any content', () => {
       renderWithTheme(<Spacer data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       expect(spacer).toBeEmptyDOMElement();
     });
@@ -44,20 +44,20 @@ describe('Spacer', () => {
   describe('Auto-expanding behavior', () => {
     it('applies flex: 1 by default', () => {
       renderWithTheme(<Spacer data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       // jsdom może zwracać różne wartości dla flex, sprawdzamy tylko flexGrow
       expect(styles.flexGrow).toBe('1');
     });
 
     it('applies min dimensions to prevent shrinking', () => {
       renderWithTheme(<Spacer data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       // jsdom returns '0' instead of '0px' for min dimensions
       expect(styles.minWidth).toBe('0');
       expect(styles.minHeight).toBe('0');
@@ -65,10 +65,10 @@ describe('Spacer', () => {
 
     it('does not apply fixed dimensions when auto-expanding', () => {
       renderWithTheme(<Spacer data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       // Should not have explicit width/height set
       expect(styles.width).not.toMatch(/^\d+px$/);
       expect(styles.height).not.toMatch(/^\d+px$/);
@@ -78,10 +78,10 @@ describe('Spacer', () => {
   describe('Fixed size mode', () => {
     it('applies fixed size with string value', () => {
       renderWithTheme(<Spacer size="20px" data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       expect(styles.width).toBe('20px');
       expect(styles.height).toBe('20px');
       // jsdom reports flex shorthand differently
@@ -91,10 +91,10 @@ describe('Spacer', () => {
 
     it('applies fixed size with number value', () => {
       renderWithTheme(<Spacer size={30} data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       expect(styles.width).toBe('30px');
       expect(styles.height).toBe('30px');
       expect(styles.flexGrow).toBe('0');
@@ -103,30 +103,30 @@ describe('Spacer', () => {
 
     it('applies fixed size with rem units', () => {
       renderWithTheme(<Spacer size="2rem" data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       expect(styles.width).toBe('2rem');
       expect(styles.height).toBe('2rem');
     });
 
     it('applies fixed size with em units', () => {
       renderWithTheme(<Spacer size="1.5em" data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       expect(styles.width).toBe('1.5em');
       expect(styles.height).toBe('1.5em');
     });
 
     it('does not apply min dimensions when fixed size', () => {
       renderWithTheme(<Spacer size="20px" data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       // When fixed size is applied, min dimensions are not explicitly set to 0
       expect(styles.width).toBe('20px');
       expect(styles.height).toBe('20px');
@@ -136,20 +136,20 @@ describe('Spacer', () => {
   describe('CSS Properties', () => {
     it('applies non-interfering styles', () => {
       renderWithTheme(<Spacer data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       expect(styles.pointerEvents).toBe('none');
       expect(styles.userSelect).toBe('none');
     });
 
     it('maintains proper CSS structure for auto-expanding', () => {
       renderWithTheme(<Spacer data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       expect(styles.flexGrow).toBe('1');
       expect(['0', '0px']).toContain(styles.minWidth);
       expect(['0', '0px']).toContain(styles.minHeight);
@@ -159,10 +159,10 @@ describe('Spacer', () => {
 
     it('maintains proper CSS structure for fixed size', () => {
       renderWithTheme(<Spacer size="25px" data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       expect(styles.flexGrow).toBe('0');
       expect(styles.flexShrink).toBe('0');
       expect(styles.width).toBe('25px');
@@ -175,10 +175,10 @@ describe('Spacer', () => {
   describe('Edge Cases', () => {
     it('handles zero size', () => {
       renderWithTheme(<Spacer size={0} data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       // jsdom może zwracać różne wartości dla zerowych wymiarów, włącznie z pustym stringiem
       expect(['0', '0px', '']).toContain(styles.width);
       expect(['0', '0px', '']).toContain(styles.height);
@@ -188,10 +188,10 @@ describe('Spacer', () => {
 
     it('handles zero string size', () => {
       renderWithTheme(<Spacer size="0px" data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       // jsdom may return '0' or '0px' for zero values
       expect(['0', '0px']).toContain(styles.width);
       expect(['0', '0px']).toContain(styles.height);
@@ -199,30 +199,30 @@ describe('Spacer', () => {
 
     it('handles large size values', () => {
       renderWithTheme(<Spacer size={1000} data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       expect(styles.width).toBe('1000px');
       expect(styles.height).toBe('1000px');
     });
 
     it('handles percentage values', () => {
       renderWithTheme(<Spacer size="50%" data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       expect(styles.width).toBe('50%');
       expect(styles.height).toBe('50%');
     });
 
     it('handles decimal values', () => {
       renderWithTheme(<Spacer size="1.5rem" data-testid="test-spacer" />);
-      
+
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
-      
+
       expect(styles.width).toBe('1.5rem');
       expect(styles.height).toBe('1.5rem');
     });
@@ -231,13 +231,9 @@ describe('Spacer', () => {
   describe('HTML Attributes', () => {
     it('supports custom HTML attributes', () => {
       renderWithTheme(
-        <Spacer 
-          id="custom-id"
-          data-custom="value"
-          data-testid="test-spacer"
-        />
+        <Spacer id="custom-id" data-custom="value" data-testid="test-spacer" />
       );
-      
+
       const spacer = screen.getByTestId('test-spacer');
       expect(spacer).toHaveAttribute('id', 'custom-id');
       expect(spacer).toHaveAttribute('data-custom', 'value');
@@ -245,13 +241,9 @@ describe('Spacer', () => {
 
     it('supports ARIA attributes', () => {
       renderWithTheme(
-        <Spacer 
-          role="separator"
-          aria-hidden="true"
-          data-testid="test-spacer"
-        />
+        <Spacer role="separator" aria-hidden="true" data-testid="test-spacer" />
       );
-      
+
       const spacer = screen.getByTestId('test-spacer');
       expect(spacer).toHaveAttribute('role', 'separator');
       expect(spacer).toHaveAttribute('aria-hidden', 'true');
@@ -263,7 +255,7 @@ describe('Spacer', () => {
       expect(() => {
         renderWithTheme(<Spacer data-testid="test-spacer" />);
       }).not.toThrow();
-      
+
       expect(screen.getByTestId('test-spacer')).toBeInTheDocument();
     });
 
@@ -284,10 +276,10 @@ describe('Spacer', () => {
           <div>Item 2</div>
         </div>
       );
-      
+
       const spacer = screen.getByTestId('test-spacer');
       expect(spacer).toBeInTheDocument();
-      
+
       // Should have flex: 1 to fill available space
       const styles = window.getComputedStyle(spacer);
       expect(styles.flexGrow).toBe('1');
@@ -295,16 +287,18 @@ describe('Spacer', () => {
 
     it('works in column layout', () => {
       renderWithTheme(
-        <div style={{ display: 'flex', flexDirection: 'column', height: '200px' }}>
+        <div
+          style={{ display: 'flex', flexDirection: 'column', height: '200px' }}
+        >
           <div>Top</div>
           <Spacer data-testid="test-spacer" />
           <div>Bottom</div>
         </div>
       );
-      
+
       const spacer = screen.getByTestId('test-spacer');
       expect(spacer).toBeInTheDocument();
-      
+
       // Should expand to fill vertical space
       const styles = window.getComputedStyle(spacer);
       // jsdom zwraca pełną wartość flex shorthand
@@ -319,10 +313,10 @@ describe('Spacer', () => {
           <div>Right</div>
         </div>
       );
-      
+
       const spacer = screen.getByTestId('test-spacer');
       expect(spacer).toBeInTheDocument();
-      
+
       // Should expand to fill horizontal space
       const styles = window.getComputedStyle(spacer);
       // jsdom zwraca pełną wartość flex shorthand
@@ -333,12 +327,12 @@ describe('Spacer', () => {
   describe('Performance', () => {
     it('renders quickly with minimal DOM impact', () => {
       const startTime = performance.now();
-      
+
       renderWithTheme(<Spacer data-testid="test-spacer" />);
-      
+
       const endTime = performance.now();
       const renderTime = endTime - startTime;
-      
+
       expect(screen.getByTestId('test-spacer')).toBeInTheDocument();
       expect(renderTime).toBeLessThan(10); // Very fast rendering
     });
@@ -347,18 +341,18 @@ describe('Spacer', () => {
       const spacers = Array.from({ length: 50 }, (_, i) => (
         <Spacer key={i} data-testid={`spacer-${i}`} />
       ));
-      
+
       const startTime = performance.now();
-      
+
       renderWithTheme(
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {spacers}
         </div>
       );
-      
+
       const endTime = performance.now();
       const renderTime = endTime - startTime;
-      
+
       expect(screen.getByTestId('spacer-0')).toBeInTheDocument();
       expect(screen.getByTestId('spacer-49')).toBeInTheDocument();
       expect(renderTime).toBeLessThan(50); // Should be very fast

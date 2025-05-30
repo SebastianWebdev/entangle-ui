@@ -60,21 +60,23 @@ import { ZoomOutIcon } from './ZoomOutIcon';
 
 /**
  * Storybook configuration for all Icon components
- * 
+ *
  * Showcases the complete collection of available icons with different sizes and colors
  * for use in editor interfaces and applications.
  */
 const meta: Meta<IconProps> = {
   title: 'Icons/All Icons',
   decorators: [
-    (Story) => (
+    Story => (
       <ThemeProvider>
-        <div style={{ 
-          padding: '1rem', 
-          backgroundColor: 'var(--background-primary)',
-          color: 'var(--text-primary)',
-          minHeight: '100vh'
-        }}>
+        <div
+          style={{
+            padding: '1rem',
+            backgroundColor: 'var(--background-primary)',
+            color: 'var(--text-primary)',
+            minHeight: '100vh',
+          }}
+        >
           <Story />
         </div>
       </ThemeProvider>
@@ -83,7 +85,8 @@ const meta: Meta<IconProps> = {
   parameters: {
     docs: {
       description: {
-        component: 'A comprehensive collection of 40 commonly used icons for editor interfaces. All icons are built using the base Icon component and support consistent sizing and coloring.',
+        component:
+          'A comprehensive collection of 40 commonly used icons for editor interfaces. All icons are built using the base Icon component and support consistent sizing and coloring.',
       },
     },
   },
@@ -96,7 +99,15 @@ const meta: Meta<IconProps> = {
     },
     color: {
       control: 'select',
-      options: ['primary', 'secondary', 'muted', 'accent', 'success', 'warning', 'error'],
+      options: [
+        'primary',
+        'secondary',
+        'muted',
+        'accent',
+        'success',
+        'warning',
+        'error',
+      ],
       description: 'Color variant of the icon',
       defaultValue: 'primary',
     },
@@ -179,29 +190,51 @@ const socialIcons = [
   { Component: LinkIcon, name: 'LinkIcon' },
 ];
 
-const IconGrid = ({ icons, title, ...iconProps }: { icons: typeof coreIcons; title: string } & IconProps) => (
+const IconGrid = ({
+  icons,
+  title,
+  ...iconProps
+}: { icons: typeof coreIcons; title: string } & IconProps) => (
   <div style={{ marginBottom: '32px' }}>
-    <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+    <h3
+      style={{
+        marginBottom: '16px',
+        fontSize: '16px',
+        fontWeight: '600',
+        color: 'var(--text-primary)',
+      }}
+    >
       {title}
     </h3>
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', 
-      gap: '16px'
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+        gap: '16px',
+      }}
+    >
       {icons.map(({ Component, name }) => (
-        <div key={name} style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
-          gap: '8px',
-          padding: '12px',
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-          borderRadius: '6px',
-          border: '1px solid rgba(255, 255, 255, 0.1)'
-        }}>
+        <div
+          key={name}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '6px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}
+        >
           <Component {...iconProps} />
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center' }}>
+          <span
+            style={{
+              fontSize: '11px',
+              color: 'var(--text-muted)',
+              textAlign: 'center',
+            }}
+          >
             {name}
           </span>
         </div>
@@ -214,12 +247,27 @@ const IconGrid = ({ icons, title, ...iconProps }: { icons: typeof coreIcons; tit
  * Complete overview of all available icons organized by category
  */
 export const AllIcons: Story = {
-  render: (args) => (
+  render: args => (
     <div style={{ padding: '24px' }}>
-      <h2 style={{ marginBottom: '32px', fontSize: '24px', fontWeight: '600', color: 'var(--text-primary)' }}>
-        Icon Library ({coreIcons.length + editingIcons.length + fileIcons.length + navigationIcons.length + viewIcons.length + statusIcons.length + socialIcons.length} Icons)
+      <h2
+        style={{
+          marginBottom: '32px',
+          fontSize: '24px',
+          fontWeight: '600',
+          color: 'var(--text-primary)',
+        }}
+      >
+        Icon Library (
+        {coreIcons.length +
+          editingIcons.length +
+          fileIcons.length +
+          navigationIcons.length +
+          viewIcons.length +
+          statusIcons.length +
+          socialIcons.length}{' '}
+        Icons)
       </h2>
-      
+
       <IconGrid icons={coreIcons} title="Core Icons" {...args} />
       <IconGrid icons={editingIcons} title="Editing & Actions" {...args} />
       <IconGrid icons={fileIcons} title="File Operations" {...args} />
@@ -240,34 +288,55 @@ export const AllIcons: Story = {
  */
 export const SizeComparison: Story = {
   render: () => {
-    const sampleIcons = [SaveIcon, SearchIcon, SettingsIcon, PlayIcon, EditIcon, TrashIcon, AddIcon, FolderIcon];
-    
+    const sampleIcons = [
+      SaveIcon,
+      SearchIcon,
+      SettingsIcon,
+      PlayIcon,
+      EditIcon,
+      TrashIcon,
+      AddIcon,
+      FolderIcon,
+    ];
+
     return (
       <div style={{ padding: '24px' }}>
-        <h2 style={{ marginBottom: '32px', fontSize: '20px', fontWeight: '600', color: 'var(--text-primary)' }}>
+        <h2
+          style={{
+            marginBottom: '32px',
+            fontSize: '20px',
+            fontWeight: '600',
+            color: 'var(--text-primary)',
+          }}
+        >
           Size Variants
         </h2>
-        
+
         {(['sm', 'md', 'lg'] as const).map(size => (
           <div key={size} style={{ marginBottom: '32px' }}>
-            <h3 style={{ 
-              marginBottom: '16px', 
-              fontSize: '14px', 
-              fontWeight: '600',
-              color: 'var(--text-secondary)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              {size.toUpperCase()} ({size === 'sm' ? '12px' : size === 'md' ? '16px' : '20px'})
+            <h3
+              style={{
+                marginBottom: '16px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: 'var(--text-secondary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
+              {size.toUpperCase()} (
+              {size === 'sm' ? '12px' : size === 'md' ? '16px' : '20px'})
             </h3>
-            <div style={{ 
-              display: 'flex', 
-              gap: '24px', 
-              alignItems: 'center',
-              padding: '16px',
-              backgroundColor: 'rgba(255, 255, 255, 0.03)',
-              borderRadius: '8px'
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: '24px',
+                alignItems: 'center',
+                padding: '16px',
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                borderRadius: '8px',
+              }}
+            >
               {sampleIcons.map((Icon, index) => (
                 <Icon key={index} size={size} color="primary" />
               ))}
@@ -285,79 +354,191 @@ export const SizeComparison: Story = {
 export const ColorVariants: Story = {
   render: () => (
     <div style={{ padding: '24px' }}>
-      <h2 style={{ marginBottom: '32px', fontSize: '20px', fontWeight: '600', color: 'var(--text-primary)' }}>
+      <h2
+        style={{
+          marginBottom: '32px',
+          fontSize: '20px',
+          fontWeight: '600',
+          color: 'var(--text-primary)',
+        }}
+      >
         Color Variants
       </h2>
-      
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         {/* Semantic Colors */}
         <div>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+          <h3
+            style={{
+              marginBottom: '16px',
+              fontSize: '16px',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+            }}
+          >
             Semantic Colors
           </h3>
-          <div style={{ display: 'flex', gap: '32px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '32px',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <div
+                style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+              >
                 <SuccessIcon color="success" size="lg" />
                 <SaveIcon color="success" size="lg" />
               </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Success Actions</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Success Actions
+              </span>
             </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <div
+                style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+              >
                 <ErrorIcon color="error" size="lg" />
                 <TrashIcon color="error" size="lg" />
               </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Destructive Actions</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Destructive Actions
+              </span>
             </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <div
+                style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+              >
                 <WarningIcon color="warning" size="lg" />
                 <LockIcon color="warning" size="lg" />
               </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Warning States</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Warning States
+              </span>
             </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <div
+                style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+              >
                 <PlayIcon color="accent" size="lg" />
                 <AddIcon color="accent" size="lg" />
               </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Primary Actions</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Primary Actions
+              </span>
             </div>
           </div>
         </div>
 
         {/* Neutral Colors */}
         <div>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+          <h3
+            style={{
+              marginBottom: '16px',
+              fontSize: '16px',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+            }}
+          >
             Neutral Colors
           </h3>
-          <div style={{ display: 'flex', gap: '32px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '32px',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <div
+                style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+              >
                 <SearchIcon color="primary" size="lg" />
                 <SettingsIcon color="primary" size="lg" />
               </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Primary Content</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Primary Content
+              </span>
             </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <div
+                style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+              >
                 <EditIcon color="secondary" size="lg" />
                 <FolderIcon color="secondary" size="lg" />
               </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Secondary Content</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Secondary Content
+              </span>
             </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <div
+                style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+              >
                 <CloseIcon color="muted" size="lg" />
                 <HelpIcon color="muted" size="lg" />
               </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Subtle Elements</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Subtle Elements
+              </span>
             </div>
           </div>
         </div>
@@ -372,31 +553,61 @@ export const ColorVariants: Story = {
 export const UsageExamples: Story = {
   render: () => (
     <div style={{ padding: '24px' }}>
-      <h2 style={{ marginBottom: '32px', fontSize: '20px', fontWeight: '600', color: 'var(--text-primary)' }}>
+      <h2
+        style={{
+          marginBottom: '32px',
+          fontSize: '20px',
+          fontWeight: '600',
+          color: 'var(--text-primary)',
+        }}
+      >
         Usage Examples
       </h2>
-      
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         {/* Toolbar Example */}
         <div>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+          <h3
+            style={{
+              marginBottom: '16px',
+              fontSize: '16px',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+            }}
+          >
             Editor Toolbar
           </h3>
-          <div style={{ 
-            display: 'flex', 
-            gap: '8px', 
-            padding: '12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '6px',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '8px',
+              padding: '12px',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '6px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
             <UndoIcon size="sm" color="secondary" />
             <RedoIcon size="sm" color="secondary" />
-            <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255, 255, 255, 0.2)', margin: '0 4px' }} />
+            <div
+              style={{
+                width: '1px',
+                height: '16px',
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                margin: '0 4px',
+              }}
+            />
             <CopyIcon size="sm" color="secondary" />
             <CutIcon size="sm" color="secondary" />
             <PasteIcon size="sm" color="secondary" />
-            <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255, 255, 255, 0.2)', margin: '0 4px' }} />
+            <div
+              style={{
+                width: '1px',
+                height: '16px',
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                margin: '0 4px',
+              }}
+            />
             <ZoomInIcon size="sm" color="secondary" />
             <ZoomOutIcon size="sm" color="secondary" />
             <FullscreenIcon size="sm" color="secondary" />
@@ -405,44 +616,70 @@ export const UsageExamples: Story = {
 
         {/* Status Indicators */}
         <div>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+          <h3
+            style={{
+              marginBottom: '16px',
+              fontSize: '16px',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+            }}
+          >
             Status Indicators
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <SuccessIcon size="sm" color="success" />
-              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>File saved successfully</span>
+              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
+                File saved successfully
+              </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <WarningIcon size="sm" color="warning" />
-              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>Unsaved changes detected</span>
+              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
+                Unsaved changes detected
+              </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <ErrorIcon size="sm" color="error" />
-              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>Failed to load project</span>
+              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
+                Failed to load project
+              </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <InfoIcon size="sm" color="accent" />
-              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>Processing in background</span>
+              <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
+                Processing in background
+              </span>
             </div>
           </div>
         </div>
 
         {/* Navigation Menu */}
         <div>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
+          <h3
+            style={{
+              marginBottom: '16px',
+              fontSize: '16px',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+            }}
+          >
             Navigation Menu
           </h3>
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column',
-            gap: '8px',
-            padding: '16px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '6px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            width: '200px'
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              padding: '16px',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '6px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              width: '200px',
+            }}
+          >
             {[
               { Icon: HomeIcon, label: 'Dashboard' },
               { Icon: FolderIcon, label: 'Projects' },
@@ -450,9 +687,22 @@ export const UsageExamples: Story = {
               { Icon: SettingsIcon, label: 'Settings' },
               { Icon: HelpIcon, label: 'Help & Support' },
             ].map(({ Icon, label }) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px', borderRadius: '4px' }}>
+              <div
+                key={label}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '8px',
+                  borderRadius: '4px',
+                }}
+              >
                 <Icon size="sm" color="secondary" />
-                <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{label}</span>
+                <span
+                  style={{ fontSize: '14px', color: 'var(--text-primary)' }}
+                >
+                  {label}
+                </span>
               </div>
             ))}
           </div>

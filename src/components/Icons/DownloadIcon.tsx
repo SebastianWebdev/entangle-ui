@@ -4,23 +4,23 @@ import type { IconProps } from '../primitives/Icon';
 
 /**
  * Download icon component for file download actions.
- * 
+ *
  * A standard download icon commonly used for downloading files,
  * exporting content, and save-to-device actions in editor interfaces.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
  * <DownloadIcon />
- * 
+ *
  * // With custom size and color
  * <DownloadIcon size="lg" color="success" />
- * 
+ *
  * // In a download button
  * <Button icon={<DownloadIcon />}>Download</Button>
  * ```
  */
-export const DownloadIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
+export const DownloadIcon: React.FC<Omit<IconProps, 'children'>> = props => {
   return (
     <Icon {...props}>
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

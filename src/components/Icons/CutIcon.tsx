@@ -4,23 +4,23 @@ import type { IconProps } from '../primitives/Icon';
 
 /**
  * Cut icon component for cutting and removal actions.
- * 
+ *
  * A standard scissors icon commonly used for cutting content,
  * removing items, and clipboard cut operations in editor interfaces.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
  * <CutIcon />
- * 
+ *
  * // With custom size and color
  * <CutIcon size="md" color="primary" />
- * 
+ *
  * // In a cut button
  * <Button icon={<CutIcon />}>Cut</Button>
  * ```
  */
-export const CutIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
+export const CutIcon: React.FC<Omit<IconProps, 'children'>> = props => {
   return (
     <Icon {...props}>
       <circle cx="6" cy="6" r="3" />

@@ -5,23 +5,23 @@ import type { IconProps } from '../primitives/Icon';
 
 /**
  * Zoom Out icon component for zoom out actions.
- * 
+ *
  * A standard magnifying glass with minus icon commonly used for zooming out,
  * reducing content, and scale decrease operations in editor interfaces.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
  * <ZoomOutIcon />
- * 
+ *
  * // With custom size and color
  * <ZoomOutIcon size="lg" color="secondary" />
- * 
+ *
  * // In a zoom context
  * <Button icon={<ZoomOutIcon />}>Zoom Out</Button>
  * ```
  */
-export const ZoomOutIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
+export const ZoomOutIcon: React.FC<Omit<IconProps, 'children'>> = props => {
   return (
     <Icon {...props}>
       <circle cx="11" cy="11" r="8" />

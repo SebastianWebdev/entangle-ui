@@ -5,14 +5,14 @@ import { Stack } from './Stack';
 
 /**
  * Test suite for Stack component
- * 
+ *
  * Covers: rendering, direction, spacing, alignment, expand behavior, responsive, wrap
  */
 describe('Stack', () => {
   describe('Rendering', () => {
     it('renders with default props', () => {
       renderWithTheme(<Stack data-testid="test-stack">Content</Stack>);
-      
+
       const stack = screen.getByTestId('test-stack');
       expect(stack).toBeInTheDocument();
       expect(screen.getByText('Content')).toBeInTheDocument();
@@ -25,7 +25,7 @@ describe('Stack', () => {
           <div>Child 2</div>
         </Stack>
       );
-      
+
       expect(screen.getByText('Child 1')).toBeInTheDocument();
       expect(screen.getByText('Child 2')).toBeInTheDocument();
     });
@@ -36,7 +36,7 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       expect(stack).toHaveClass('custom-stack');
     });
@@ -50,33 +50,37 @@ describe('Stack', () => {
   describe('Direction Control', () => {
     it('applies column direction by default', () => {
       renderWithTheme(<Stack data-testid="test-stack">Content</Stack>);
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.display).toBe('flex');
       expect(styles.flexDirection).toBe('column');
     });
 
     it('applies row direction when specified', () => {
       renderWithTheme(
-        <Stack direction="row" data-testid="test-stack">Content</Stack>
+        <Stack direction="row" data-testid="test-stack">
+          Content
+        </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.flexDirection).toBe('row');
     });
 
     it('applies column direction when explicitly set', () => {
       renderWithTheme(
-        <Stack direction="column" data-testid="test-stack">Content</Stack>
+        <Stack direction="column" data-testid="test-stack">
+          Content
+        </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.flexDirection).toBe('column');
     });
   });
@@ -84,10 +88,10 @@ describe('Stack', () => {
   describe('Expand Behavior', () => {
     it('does not expand by default', () => {
       renderWithTheme(<Stack data-testid="test-stack">Content</Stack>);
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.width).not.toBe('100%');
       expect(styles.height).not.toBe('100%');
     });
@@ -98,10 +102,10 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.width).toBe('100%');
     });
 
@@ -111,10 +115,10 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.height).toBe('100%');
     });
 
@@ -124,10 +128,10 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.width).not.toBe('100%');
     });
   });
@@ -135,30 +139,30 @@ describe('Stack', () => {
   describe('Spacing System', () => {
     it('applies no gap by default', () => {
       renderWithTheme(<Stack data-testid="test-stack">Content</Stack>);
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.gap).toBe('0px');
     });
 
     it('applies spacing based on theme multiplier', () => {
       const spacingValues = [1, 2, 3, 4, 5, 6, 7, 8] as const;
-      
+
       spacingValues.forEach(spacing => {
         const { unmount } = renderWithTheme(
           <Stack spacing={spacing} data-testid={`stack-${spacing}`}>
             Content
           </Stack>
         );
-        
+
         const stack = screen.getByTestId(`stack-${spacing}`);
         const styles = window.getComputedStyle(stack);
-        
+
         // Each spacing unit = 4px (theme.spacing.sm)
         const expectedGap = `${spacing * 4}px`;
         expect(styles.gap).toBe(expectedGap);
-        
+
         unmount();
       });
     });
@@ -169,10 +173,10 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.gap).toBe('24px');
     });
 
@@ -182,10 +186,10 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.gap).toBe('10px');
     });
 
@@ -195,10 +199,10 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.gap).toBe('20px');
     });
 
@@ -208,10 +212,10 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.gap).toBe('1rem 0.5rem');
     });
   });
@@ -219,31 +223,35 @@ describe('Stack', () => {
   describe('Justify Content', () => {
     it('applies flex-start justify by default', () => {
       renderWithTheme(<Stack data-testid="test-stack">Content</Stack>);
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.justifyContent).toBe('flex-start');
     });
 
     it('applies all justify content options', () => {
       const justifyOptions = [
-        'flex-start', 'flex-end', 'center', 
-        'space-between', 'space-around', 'space-evenly'
+        'flex-start',
+        'flex-end',
+        'center',
+        'space-between',
+        'space-around',
+        'space-evenly',
       ] as const;
-      
+
       justifyOptions.forEach(justify => {
         const { unmount } = renderWithTheme(
           <Stack justify={justify} data-testid={`stack-${justify}`}>
             Content
           </Stack>
         );
-        
+
         const stack = screen.getByTestId(`stack-${justify}`);
         const styles = window.getComputedStyle(stack);
-        
+
         expect(styles.justifyContent).toBe(justify);
-        
+
         unmount();
       });
     });
@@ -252,30 +260,34 @@ describe('Stack', () => {
   describe('Align Items', () => {
     it('applies flex-start align by default', () => {
       renderWithTheme(<Stack data-testid="test-stack">Content</Stack>);
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.alignItems).toBe('flex-start');
     });
 
     it('applies all align items options', () => {
       const alignOptions = [
-        'flex-start', 'flex-end', 'center', 'stretch', 'baseline'
+        'flex-start',
+        'flex-end',
+        'center',
+        'stretch',
+        'baseline',
       ] as const;
-      
+
       alignOptions.forEach(align => {
         const { unmount } = renderWithTheme(
           <Stack align={align} data-testid={`stack-${align}`}>
             Content
           </Stack>
         );
-        
+
         const stack = screen.getByTestId(`stack-${align}`);
         const styles = window.getComputedStyle(stack);
-        
+
         expect(styles.alignItems).toBe(align);
-        
+
         unmount();
       });
     });
@@ -284,28 +296,28 @@ describe('Stack', () => {
   describe('Wrap Behavior', () => {
     it('applies nowrap by default', () => {
       renderWithTheme(<Stack data-testid="test-stack">Content</Stack>);
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.flexWrap).toBe('nowrap');
     });
 
     it('applies all wrap options', () => {
       const wrapOptions = ['nowrap', 'wrap', 'wrap-reverse'] as const;
-      
+
       wrapOptions.forEach(wrap => {
         const { unmount } = renderWithTheme(
           <Stack wrap={wrap} data-testid={`stack-${wrap}`}>
             Content
           </Stack>
         );
-        
+
         const stack = screen.getByTestId(`stack-${wrap}`);
         const styles = window.getComputedStyle(stack);
-        
+
         expect(styles.flexWrap).toBe(wrap);
-        
+
         unmount();
       });
     });
@@ -314,7 +326,7 @@ describe('Stack', () => {
   describe('Responsive Direction', () => {
     it('applies responsive breakpoints', () => {
       renderWithTheme(
-        <Stack 
+        <Stack
           direction="column"
           sm="row"
           md="column"
@@ -325,21 +337,21 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       expect(stack).toBeInTheDocument();
-      
+
       // Base direction
       const styles = window.getComputedStyle(stack);
       expect(styles.flexDirection).toBe('column');
-      
+
       // Responsive styles are present in CSS (hard to test in jsdom)
       // At least verify the element renders without errors
     });
 
     it('handles all responsive breakpoints', () => {
       const breakpoints = ['sm', 'md', 'lg', 'xl'] as const;
-      
+
       breakpoints.forEach(breakpoint => {
         const props = { [breakpoint]: 'row' as const };
         const { unmount } = renderWithTheme(
@@ -347,10 +359,10 @@ describe('Stack', () => {
             Content
           </Stack>
         );
-        
+
         const stack = screen.getByTestId(`stack-${breakpoint}`);
         expect(stack).toBeInTheDocument();
-        
+
         unmount();
       });
     });
@@ -373,10 +385,10 @@ describe('Stack', () => {
           <div>Item 3</div>
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.flexDirection).toBe('row');
       expect(styles.width).toBe('100%');
       expect(styles.gap).toBe('12px'); // 3 * 4px
@@ -387,19 +399,14 @@ describe('Stack', () => {
 
     it('handles responsive with expand behavior', () => {
       renderWithTheme(
-        <Stack
-          direction="column"
-          md="row"
-          expand
-          data-testid="test-stack"
-        >
+        <Stack direction="column" md="row" expand data-testid="test-stack">
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       // Base: column with height 100%
       expect(styles.flexDirection).toBe('column');
       expect(styles.height).toBe('100%');
@@ -415,7 +422,7 @@ describe('Stack', () => {
           </Stack>
         );
       }).not.toThrow();
-      
+
       expect(screen.getByTestId('test-stack')).toBeInTheDocument();
     });
 
@@ -425,10 +432,10 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       // Should use theme.spacing.sm (4px) * 2 = 8px
       expect(styles.gap).toBe('8px');
     });
@@ -436,23 +443,15 @@ describe('Stack', () => {
 
   describe('Edge Cases', () => {
     it('handles empty children gracefully', () => {
-      renderWithTheme(
-        <Stack data-testid="test-stack">
-          {null}
-        </Stack>
-      );
-      
+      renderWithTheme(<Stack data-testid="test-stack">{null}</Stack>);
+
       const stack = screen.getByTestId('test-stack');
       expect(stack).toBeInTheDocument();
     });
 
     it('handles undefined children gracefully', () => {
-      renderWithTheme(
-        <Stack data-testid="test-stack">
-          {undefined}
-        </Stack>
-      );
-      
+      renderWithTheme(<Stack data-testid="test-stack">{undefined}</Stack>);
+
       const stack = screen.getByTestId('test-stack');
       expect(stack).toBeInTheDocument();
     });
@@ -469,7 +468,7 @@ describe('Stack', () => {
           ))}
         </Stack>
       );
-      
+
       expect(screen.getByText('Complex')).toBeInTheDocument();
       expect(screen.getByText('Content')).toBeInTheDocument();
       expect(screen.getByText('Item 1')).toBeInTheDocument();
@@ -482,10 +481,10 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.gap).toBe('32px'); // 8 * 4px
     });
 
@@ -495,10 +494,10 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       // Default direction is column, so should expand height
       expect(styles.height).toBe('100%');
     });
@@ -513,14 +512,14 @@ describe('Stack', () => {
           <nav>Navigation</nav>
         </Stack>
       );
-      
+
       expect(screen.getByRole('heading', { level: 2 })).toBeInTheDocument();
       expect(screen.getByRole('navigation')).toBeInTheDocument();
     });
 
     it('does not interfere with ARIA attributes', () => {
       renderWithTheme(
-        <Stack 
+        <Stack
           role="main"
           aria-label="Main content stack"
           data-testid="test-stack"
@@ -528,26 +527,22 @@ describe('Stack', () => {
           <div role="article">Article content</div>
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       expect(stack).toHaveAttribute('role', 'main');
       expect(stack).toHaveAttribute('aria-label', 'Main content stack');
-      
+
       const article = screen.getByRole('article');
       expect(article).toBeInTheDocument();
     });
 
     it('supports custom HTML attributes', () => {
       renderWithTheme(
-        <Stack 
-          id="custom-id"
-          data-custom="value"
-          data-testid="test-stack"
-        >
+        <Stack id="custom-id" data-custom="value" data-testid="test-stack">
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       expect(stack).toHaveAttribute('id', 'custom-id');
       expect(stack).toHaveAttribute('data-custom', 'value');
@@ -559,22 +554,22 @@ describe('Stack', () => {
       const items = Array.from({ length: 100 }, (_, i) => (
         <div key={i}>Item {i + 1}</div>
       ));
-      
+
       const startTime = performance.now();
-      
+
       renderWithTheme(
         <Stack spacing={1} data-testid="large-stack">
           {items}
         </Stack>
       );
-      
+
       const endTime = performance.now();
       const renderTime = endTime - startTime;
-      
+
       expect(screen.getByTestId('large-stack')).toBeInTheDocument();
       expect(screen.getByText('Item 1')).toBeInTheDocument();
       expect(screen.getByText('Item 100')).toBeInTheDocument();
-      
+
       // Should render within reasonable time (adjust threshold as needed)
       expect(renderTime).toBeLessThan(100); // 100ms threshold
     });
@@ -583,7 +578,7 @@ describe('Stack', () => {
   describe('CSS Properties', () => {
     it('applies correct flexbox properties', () => {
       renderWithTheme(
-        <Stack 
+        <Stack
           direction="row"
           justify="center"
           align="stretch"
@@ -593,10 +588,10 @@ describe('Stack', () => {
           Content
         </Stack>
       );
-      
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.display).toBe('flex');
       expect(styles.flexDirection).toBe('row');
       expect(styles.justifyContent).toBe('center');
@@ -606,15 +601,11 @@ describe('Stack', () => {
     });
 
     it('maintains proper box sizing', () => {
-      renderWithTheme(
-        <Stack data-testid="test-stack">
-          Content
-        </Stack>
-      );
-      
+      renderWithTheme(<Stack data-testid="test-stack">Content</Stack>);
+
       const stack = screen.getByTestId('test-stack');
       const styles = window.getComputedStyle(stack);
-      
+
       expect(styles.boxSizing).toBe('border-box');
     });
   });

@@ -3,11 +3,11 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Slider } from './Slider';
 import { ThemeProvider } from '@/theme';
-import {KeyboardContextProvider} from '@/context/KeyboardContext'
+import { KeyboardContextProvider } from '@/context/KeyboardContext';
 
 /**
  * Storybook configuration for Slider component
- * 
+ *
  * A professional slider component with drag interaction and keyboard support
  * for precise value control in editor interfaces.
  */
@@ -15,18 +15,22 @@ const meta: Meta<typeof Slider> = {
   title: 'Controls/Slider',
   component: Slider,
   decorators: [
-    (Story) => (
+    Story => (
       <ThemeProvider>
-        <KeyboardContextProvider> <div style={{ 
-          padding: '2rem', 
-          backgroundColor: 'var(--background-primary)',
-          color: 'var(--text-primary)',
-          minWidth: '300px',
-          maxWidth: '400px'
-        }}>
-          <Story />
-        </div></KeyboardContextProvider>
-       
+        <KeyboardContextProvider>
+          {' '}
+          <div
+            style={{
+              padding: '2rem',
+              backgroundColor: 'var(--background-primary)',
+              color: 'var(--text-primary)',
+              minWidth: '300px',
+              maxWidth: '400px',
+            }}
+          >
+            <Story />
+          </div>
+        </KeyboardContextProvider>
       </ThemeProvider>
     ),
   ],
@@ -69,7 +73,7 @@ A professional slider component optimized for editor interfaces.
     },
     max: {
       control: 'number',
-      description: 'Maximum value', 
+      description: 'Maximum value',
       table: { defaultValue: { summary: '100' } },
     },
     step: {
@@ -142,7 +146,7 @@ export const Sizes: Story = {
     const [small, setSmall] = React.useState(25);
     const [medium, setMedium] = React.useState(50);
     const [large, setLarge] = React.useState(75);
-    
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <Slider
@@ -178,7 +182,7 @@ export const Sizes: Story = {
 export const PrecisionControl: Story = {
   render: () => {
     const [value, setValue] = React.useState(2.5);
-    
+
     return (
       <Slider
         value={value}
@@ -244,15 +248,15 @@ export const ColorEditor: Story = {
     const [h, setH] = React.useState(210);
     const [s, setS] = React.useState(75);
     const [l, setL] = React.useState(50);
-    
+
     const color = `hsl(${h}, ${s}%, ${l}%)`;
-    
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
           HSL Color Editor
         </h3>
-        
+
         <Slider
           value={h}
           onChange={setH}
@@ -264,7 +268,7 @@ export const ColorEditor: Story = {
           showTicks
           tickCount={13}
         />
-        
+
         <Slider
           value={s}
           onChange={setS}
@@ -274,7 +278,7 @@ export const ColorEditor: Story = {
           step={1}
           unit="%"
         />
-        
+
         <Slider
           value={l}
           onChange={setL}
@@ -284,21 +288,23 @@ export const ColorEditor: Story = {
           step={1}
           unit="%"
         />
-        
-        <div style={{ 
-          height: '60px',
-          backgroundColor: color,
-          borderRadius: '4px',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontFamily: 'monospace',
-          fontSize: '12px',
-          color: l > 50 ? 'black' : 'white',
-          fontWeight: '600',
-          marginTop: '0.5rem'
-        }}>
+
+        <div
+          style={{
+            height: '60px',
+            backgroundColor: color,
+            borderRadius: '4px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: 'monospace',
+            fontSize: '12px',
+            color: l > 50 ? 'black' : 'white',
+            fontWeight: '600',
+            marginTop: '0.5rem',
+          }}
+        >
           {color}
         </div>
       </div>
@@ -312,13 +318,13 @@ export const AudioMixer: Story = {
     const [bass, setBass] = React.useState(50);
     const [mid, setMid] = React.useState(60);
     const [treble, setTreble] = React.useState(55);
-    
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
           Audio Mixer
         </h3>
-        
+
         <Slider
           value={master}
           onChange={setMaster}
@@ -331,8 +337,14 @@ export const AudioMixer: Story = {
           showTicks
           tickCount={6}
         />
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gap: '1rem',
+          }}
+        >
           <Slider
             value={bass}
             onChange={setBass}

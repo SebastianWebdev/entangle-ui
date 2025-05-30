@@ -5,23 +5,23 @@ import type { IconProps } from '../primitives/Icon';
 
 /**
  * Trash icon component for delete actions.
- * 
+ *
  * A standard trash can icon commonly used for deleting items,
  * removing content, and destructive operations in editor interfaces.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
  * <TrashIcon />
- * 
+ *
  * // With custom size and color
  * <TrashIcon size="md" color="error" />
- * 
+ *
  * // In a delete button
  * <Button icon={<TrashIcon />}>Delete</Button>
  * ```
  */
-export const TrashIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
+export const TrashIcon: React.FC<Omit<IconProps, 'children'>> = props => {
   return (
     <Icon {...props}>
       <polyline points="3,6 5,6 21,6" />

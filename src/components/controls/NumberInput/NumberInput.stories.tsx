@@ -3,11 +3,11 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { NumberInput } from './NumberInput';
 import { ThemeProvider } from '@/theme';
-import {KeyboardContextProvider} from '@/context/KeyboardContext'
+import { KeyboardContextProvider } from '@/context/KeyboardContext';
 
 /**
  * Storybook configuration for NumberInput component
- * 
+ *
  * Showcases the advanced number input with Blender-like functionality
  * including drag interactions, mathematical expressions, and keyboard shortcuts.
  */
@@ -15,18 +15,20 @@ const meta: Meta<typeof NumberInput> = {
   title: 'Controls/NumberInput',
   component: NumberInput,
   decorators: [
-    (Story) => (
+    Story => (
       <ThemeProvider>
         <KeyboardContextProvider>
-            <div style={{ 
-          padding: '2rem', 
-          backgroundColor: 'var(--background-primary)',
-          color: 'var(--text-primary)',
-          minWidth: '300px',
-          maxWidth: '400px'
-        }}>
-          <Story />
-        </div>
+          <div
+            style={{
+              padding: '2rem',
+              backgroundColor: 'var(--background-primary)',
+              color: 'var(--text-primary)',
+              minWidth: '300px',
+              maxWidth: '400px',
+            }}
+          >
+            <Story />
+          </div>
         </KeyboardContextProvider>
       </ThemeProvider>
     ),
@@ -177,7 +179,8 @@ export const WithExpressions: Story = {
     label: 'Radius',
     unit: 'px',
     placeholder: 'Try: pi * 2, sqrt(16), sin(45)',
-    helperText: 'Supports mathematical expressions with functions and constants',
+    helperText:
+      'Supports mathematical expressions with functions and constants',
   },
 };
 
@@ -187,7 +190,7 @@ export const Sizes: Story = {
     const [small, setSmall] = React.useState(10);
     const [medium, setMedium] = React.useState(20);
     const [large, setLarge] = React.useState(30);
-    
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <NumberInput
@@ -220,7 +223,7 @@ export const Sizes: Story = {
 export const PrecisionControl: Story = {
   render: () => {
     const [value, setValue] = React.useState(3.14159);
-    
+
     return (
       <NumberInput
         value={value}
@@ -252,7 +255,7 @@ export const IntegerOnly: Story = {
 export const HardLimits: Story = {
   render: () => {
     const [value, setValue] = React.useState(50);
-    
+
     return (
       <NumberInput
         value={value}
@@ -271,7 +274,7 @@ export const HardLimits: Story = {
 export const SoftAndHardLimits: Story = {
   render: () => {
     const [value, setValue] = React.useState(0);
-    
+
     return (
       <NumberInput
         value={value}
@@ -331,14 +334,14 @@ export const States: Story = {
 export const WithValidation: Story = {
   render: () => {
     const [value, setValue] = React.useState(-5);
-    
+
     return (
       <NumberInput
         value={value}
         onChange={setValue}
         label="Positive Numbers Only"
         unit="px"
-        validate={(v) => v < 0 ? 'Value must be positive' : undefined}
+        validate={v => (v < 0 ? 'Value must be positive' : undefined)}
         helperText={value >= 0 ? 'Enter a positive number' : undefined}
       />
     );
@@ -348,14 +351,14 @@ export const WithValidation: Story = {
 export const ComplexValidation: Story = {
   render: () => {
     const [value, setValue] = React.useState(7);
-    
+
     const validate = (v: number) => {
       if (v < 1) return 'Value must be at least 1';
       if (v > 100) return 'Value must be at most 100';
       if (v % 2 !== 0) return 'Value must be even';
       return undefined;
     };
-    
+
     return (
       <NumberInput
         value={value}
@@ -375,17 +378,19 @@ export const ComplexValidation: Story = {
 export const CurrencyFormatting: Story = {
   render: () => {
     const [value, setValue] = React.useState(1234567.89);
-    
+
     return (
       <NumberInput
         value={value}
         onChange={setValue}
         label="Price"
-        formatValue={(v) => v.toLocaleString('en-US', { 
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2 
-        })}
-        parseValue={(input) => {
+        formatValue={v =>
+          v.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        }
+        parseValue={input => {
           const cleaned = input.replace(/[,$]/g, '');
           const parsed = parseFloat(cleaned);
           return isNaN(parsed) ? null : parsed;
@@ -402,14 +407,14 @@ export const CurrencyFormatting: Story = {
 export const PercentageFormatting: Story = {
   render: () => {
     const [value, setValue] = React.useState(0.754);
-    
+
     return (
       <NumberInput
         value={value}
         onChange={setValue}
         label="Success Rate"
-        formatValue={(v) => (v * 100).toFixed(1)}
-        parseValue={(input) => {
+        formatValue={v => (v * 100).toFixed(1)}
+        parseValue={input => {
           const cleaned = input.replace(/%/g, '');
           const parsed = parseFloat(cleaned);
           return isNaN(parsed) ? null : parsed / 100;
@@ -429,21 +434,21 @@ export const PercentageFormatting: Story = {
 export const DynamicUnits: Story = {
   render: () => {
     const [bytes, setBytes] = React.useState(1536);
-    
+
     const formatUnit = (value: number) => {
       if (value >= 1073741824) return 'GB';
       if (value >= 1048576) return 'MB';
       if (value >= 1024) return 'KB';
       return 'B';
     };
-    
+
     const formatDisplay = (value: number) => {
       if (value >= 1073741824) return (value / 1073741824).toFixed(2);
       if (value >= 1048576) return (value / 1048576).toFixed(2);
       if (value >= 1024) return (value / 1024).toFixed(2);
       return value.toString();
     };
-    
+
     return (
       <NumberInput
         value={bytes}
@@ -479,16 +484,22 @@ export const ColorEditor: Story = {
     const [s, setS] = React.useState(75);
     const [l, setL] = React.useState(50);
     const [a, setA] = React.useState(1);
-    
+
     const color = `hsla(${h}, ${s}%, ${l}%, ${a})`;
-    
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
           HSL Color Editor
         </h3>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '0.75rem',
+          }}
+        >
           <NumberInput
             value={h}
             onChange={setH}
@@ -530,20 +541,22 @@ export const ColorEditor: Story = {
             size="sm"
           />
         </div>
-        
-        <div style={{ 
-          height: '60px',
-          backgroundColor: color,
-          borderRadius: '4px',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontFamily: 'monospace',
-          fontSize: '12px',
-          color: l > 50 ? 'black' : 'white',
-          fontWeight: '600'
-        }}>
+
+        <div
+          style={{
+            height: '60px',
+            backgroundColor: color,
+            borderRadius: '4px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: 'monospace',
+            fontSize: '12px',
+            color: l > 50 ? 'black' : 'white',
+            fontWeight: '600',
+          }}
+        >
           {color}
         </div>
       </div>
@@ -556,21 +569,27 @@ export const ViewportDimensions: Story = {
     const [width, setWidth] = React.useState(1920);
     const [height, setHeight] = React.useState(1080);
     const aspectRatio = width / height;
-    
+
     const commonResolutions = [
       { label: '720p', w: 1280, h: 720 },
       { label: '1080p', w: 1920, h: 1080 },
       { label: '1440p', w: 2560, h: 1440 },
       { label: '4K', w: 3840, h: 2160 },
     ];
-    
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
           Viewport Settings
         </h3>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '0.75rem',
+          }}
+        >
           <NumberInput
             value={width}
             onChange={setWidth}
@@ -590,19 +609,30 @@ export const ViewportDimensions: Story = {
             allowExpressions
           />
         </div>
-        
-        <div style={{ 
-          padding: '0.75rem',
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-          borderRadius: '4px',
-          fontSize: '12px',
-        }}>
-          <div>Aspect Ratio: <strong>{aspectRatio.toFixed(3)}</strong></div>
-          <div>Resolution: <strong>{width} × {height}</strong></div>
+
+        <div
+          style={{
+            padding: '0.75rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '4px',
+            fontSize: '12px',
+          }}
+        >
+          <div>
+            Aspect Ratio: <strong>{aspectRatio.toFixed(3)}</strong>
+          </div>
+          <div>
+            Resolution:{' '}
+            <strong>
+              {width} × {height}
+            </strong>
+          </div>
         </div>
-        
+
         <div>
-          <div style={{ fontSize: '12px', marginBottom: '0.5rem', opacity: 0.7 }}>
+          <div
+            style={{ fontSize: '12px', marginBottom: '0.5rem', opacity: 0.7 }}
+          >
             Quick presets:
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -620,7 +650,7 @@ export const ViewportDimensions: Story = {
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   borderRadius: '3px',
                   color: 'inherit',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
                 }}
               >
                 {res.label}
@@ -639,7 +669,7 @@ export const TransformPanel: Story = {
     const [rotation, setRotation] = React.useState({ x: 0, y: 0, z: 0 });
     const [scale, setScale] = React.useState({ x: 1, y: 1, z: 1 });
     const [uniformScale, setUniformScale] = React.useState(true);
-    
+
     const handleScaleChange = (axis: 'x' | 'y' | 'z', value: number) => {
       if (uniformScale) {
         setScale({ x: value, y: value, z: value });
@@ -647,22 +677,30 @@ export const TransformPanel: Story = {
         setScale(prev => ({ ...prev, [axis]: value }));
       }
     };
-    
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
           Transform Properties
         </h3>
-        
+
         {/* Position */}
         <div>
-          <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '12px', opacity: 0.7 }}>
+          <h4
+            style={{ margin: '0 0 0.5rem 0', fontSize: '12px', opacity: 0.7 }}
+          >
             Position
           </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              gap: '0.5rem',
+            }}
+          >
             <NumberInput
               value={position.x}
-              onChange={(v) => setPosition(prev => ({ ...prev, x: v }))}
+              onChange={v => setPosition(prev => ({ ...prev, x: v }))}
               label="X"
               unit="m"
               step={0.1}
@@ -671,7 +709,7 @@ export const TransformPanel: Story = {
             />
             <NumberInput
               value={position.y}
-              onChange={(v) => setPosition(prev => ({ ...prev, y: v }))}
+              onChange={v => setPosition(prev => ({ ...prev, y: v }))}
               label="Y"
               unit="m"
               step={0.1}
@@ -680,7 +718,7 @@ export const TransformPanel: Story = {
             />
             <NumberInput
               value={position.z}
-              onChange={(v) => setPosition(prev => ({ ...prev, z: v }))}
+              onChange={v => setPosition(prev => ({ ...prev, z: v }))}
               label="Z"
               unit="m"
               step={0.1}
@@ -689,16 +727,24 @@ export const TransformPanel: Story = {
             />
           </div>
         </div>
-        
+
         {/* Rotation */}
         <div>
-          <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '12px', opacity: 0.7 }}>
+          <h4
+            style={{ margin: '0 0 0.5rem 0', fontSize: '12px', opacity: 0.7 }}
+          >
             Rotation
           </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              gap: '0.5rem',
+            }}
+          >
             <NumberInput
               value={rotation.x}
-              onChange={(v) => setRotation(prev => ({ ...prev, x: v }))}
+              onChange={v => setRotation(prev => ({ ...prev, x: v }))}
               label="X"
               unit="°"
               min={-180}
@@ -708,7 +754,7 @@ export const TransformPanel: Story = {
             />
             <NumberInput
               value={rotation.y}
-              onChange={(v) => setRotation(prev => ({ ...prev, y: v }))}
+              onChange={v => setRotation(prev => ({ ...prev, y: v }))}
               label="Y"
               unit="°"
               min={-180}
@@ -718,7 +764,7 @@ export const TransformPanel: Story = {
             />
             <NumberInput
               value={rotation.z}
-              onChange={(v) => setRotation(prev => ({ ...prev, z: v }))}
+              onChange={v => setRotation(prev => ({ ...prev, z: v }))}
               label="Z"
               unit="°"
               min={-180}
@@ -728,27 +774,45 @@ export const TransformPanel: Story = {
             />
           </div>
         </div>
-        
+
         {/* Scale */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-            <h4 style={{ margin: 0, fontSize: '12px', opacity: 0.7 }}>
-              Scale
-            </h4>
-            <label style={{ fontSize: '11px', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '0.5rem',
+            }}
+          >
+            <h4 style={{ margin: 0, fontSize: '12px', opacity: 0.7 }}>Scale</h4>
+            <label
+              style={{
+                fontSize: '11px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+              }}
+            >
               <input
                 type="checkbox"
                 checked={uniformScale}
-                onChange={(e) => setUniformScale(e.target.checked)}
+                onChange={e => setUniformScale(e.target.checked)}
                 style={{ width: '12px', height: '12px' }}
               />
               Uniform
             </label>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr',
+              gap: '0.5rem',
+            }}
+          >
             <NumberInput
               value={scale.x}
-              onChange={(v) => handleScaleChange('x', v)}
+              onChange={v => handleScaleChange('x', v)}
               label="X"
               min={0.01}
               step={0.1}
@@ -757,7 +821,7 @@ export const TransformPanel: Story = {
             />
             <NumberInput
               value={scale.y}
-              onChange={(v) => handleScaleChange('y', v)}
+              onChange={v => handleScaleChange('y', v)}
               label="Y"
               min={0.01}
               step={0.1}
@@ -767,7 +831,7 @@ export const TransformPanel: Story = {
             />
             <NumberInput
               value={scale.z}
-              onChange={(v) => handleScaleChange('z', v)}
+              onChange={v => handleScaleChange('z', v)}
               label="Z"
               min={0.01}
               step={0.1}
@@ -787,7 +851,7 @@ export const ExpressionShowcase: Story = {
   render: () => {
     const [result, setResult] = React.useState(0);
     const [history, setHistory] = React.useState<string[]>([]);
-    
+
     const examples = [
       { expr: 'pi * 2', desc: '2π' },
       { expr: 'sqrt(16)', desc: 'Square root' },
@@ -799,16 +863,16 @@ export const ExpressionShowcase: Story = {
       { expr: 'floor(3.7)', desc: 'Floor' },
       { expr: 'ceil(3.2)', desc: 'Ceiling' },
     ];
-    
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
           Mathematical Expression Calculator
         </h3>
-        
+
         <NumberInput
           value={result}
-          onChange={(v) => {
+          onChange={v => {
             setResult(v);
             if (history[history.length - 1] !== v.toString()) {
               setHistory(prev => [...prev.slice(-4), v.toString()]);
@@ -820,46 +884,60 @@ export const ExpressionShowcase: Story = {
           precision={6}
           helperText="Type mathematical expressions and press Enter"
         />
-        
-        <div style={{ 
-          padding: '0.75rem',
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-          borderRadius: '4px'
-        }}>
-          <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '0.5rem' }}>
+
+        <div
+          style={{
+            padding: '0.75rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '4px',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '11px',
+              fontWeight: '600',
+              marginBottom: '0.5rem',
+            }}
+          >
             Try these examples:
           </div>
-          <div style={{ 
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '0.5rem'
-          }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '0.5rem',
+            }}
+          >
             {examples.map((example, i) => (
               <div
                 key={i}
-                style={{ 
+                style={{
                   padding: '0.25rem 0.5rem',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '3px',
                   fontSize: '10px',
                   cursor: 'pointer',
-                  transition: 'background-color 0.2s'
+                  transition: 'background-color 0.2s',
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor =
+                    'rgba(255, 255, 255, 0.15)';
                 }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                onMouseLeave={e => {
+                  e.currentTarget.style.backgroundColor =
+                    'rgba(255, 255, 255, 0.1)';
                 }}
                 title={`Click to try: ${example.expr}`}
               >
                 <code style={{ fontFamily: 'monospace' }}>{example.expr}</code>
-                <div style={{ opacity: 0.6, marginTop: '2px' }}>{example.desc}</div>
+                <div style={{ opacity: 0.6, marginTop: '2px' }}>
+                  {example.desc}
+                </div>
               </div>
             ))}
           </div>
         </div>
-        
+
         {history.length > 0 && (
           <div style={{ fontSize: '11px', opacity: 0.7 }}>
             Recent: {history.join(' → ')}
@@ -875,13 +953,13 @@ export const InteractiveDemo: Story = {
   render: () => {
     const [value, setValue] = React.useState(50);
     const [showFeatures, setShowFeatures] = React.useState(true);
-    
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
           Interactive Demo - Try All Features
         </h3>
-        
+
         <NumberInput
           value={value}
           onChange={setValue}
@@ -898,20 +976,28 @@ export const InteractiveDemo: Story = {
           placeholder="Type expression or drag..."
           helperText="Experiment with all the interactive features"
         />
-        
+
         {showFeatures && (
-          <div style={{ 
-            padding: '1rem',
-            backgroundColor: 'rgba(0, 122, 204, 0.1)',
-            borderRadius: '4px',
-            border: '1px solid rgba(0, 122, 204, 0.3)',
-            fontSize: '11px'
-          }}>
+          <div
+            style={{
+              padding: '1rem',
+              backgroundColor: 'rgba(0, 122, 204, 0.1)',
+              borderRadius: '4px',
+              border: '1px solid rgba(0, 122, 204, 0.3)',
+              fontSize: '11px',
+            }}
+          >
             <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '12px' }}>
               🎮 Interactive Features:
             </h4>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '0.75rem',
+              }}
+            >
               <div>
                 <strong>Mouse Controls:</strong>
                 <ul style={{ margin: '0.25rem 0', paddingLeft: '1.25rem' }}>
@@ -921,7 +1007,7 @@ export const InteractiveDemo: Story = {
                   <li>Hold Ctrl while dragging for large steps</li>
                 </ul>
               </div>
-              
+
               <div>
                 <strong>Keyboard Controls:</strong>
                 <ul style={{ margin: '0.25rem 0', paddingLeft: '1.25rem' }}>
@@ -932,15 +1018,15 @@ export const InteractiveDemo: Story = {
                 </ul>
               </div>
             </div>
-            
+
             <div style={{ marginTop: '0.75rem' }}>
               <strong>Mathematical Expressions:</strong>
               <p style={{ margin: '0.25rem 0' }}>
-                Type expressions like: <code>pi * 2</code>, <code>sqrt(25)</code>, 
-                <code>sin(45)</code>, <code>100 / 3</code>
+                Type expressions like: <code>pi * 2</code>,{' '}
+                <code>sqrt(25)</code>,<code>sin(45)</code>, <code>100 / 3</code>
               </p>
             </div>
-            
+
             <button
               onClick={() => setShowFeatures(false)}
               style={{
@@ -951,23 +1037,25 @@ export const InteractiveDemo: Story = {
                 border: '1px solid rgba(255, 255, 255, 0.3)',
                 borderRadius: '3px',
                 color: 'inherit',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
             >
               Hide Instructions
             </button>
           </div>
         )}
-        
-        <div style={{ 
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '0.75rem',
-          padding: '0.75rem',
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-          borderRadius: '4px',
-          fontSize: '11px'
-        }}>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '0.75rem',
+            padding: '0.75rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '4px',
+            fontSize: '11px',
+          }}
+        >
           <div>
             <strong>Current Value:</strong> {value}%
           </div>

@@ -8,14 +8,16 @@ export default [
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     ignores: [
-      'dist/**', 
-      '.eslintrc.cjs', 
+      'dist/**',
+      '.eslintrc.cjs',
       'eslint.config.js',
-      'rollup.config.js', 
+      'rollup.config.js',
       'node_modules/**',
       '**/*.test.{js,jsx,ts,tsx}',
       '**/*.spec.{js,jsx,ts,tsx}',
-      '**/__tests__/**'
+      '**/__tests__/**',
+      'prettier.config.js',
+      'scripts/**',
     ],
     languageOptions: {
       ecmaVersion: 'latest',
@@ -37,11 +39,11 @@ export default [
     rules: {
       // ESLint recommended rules
       ...js.configs.recommended.rules,
-      
+
       // TypeScript ESLint recommended rules
       ...tseslint.configs.recommended.rules,
       ...tseslint.configs['recommended-requiring-type-checking'].rules,
-      
+
       // Custom rules
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
@@ -54,13 +56,13 @@ export default [
       'no-var': 'error',
     },
   },
-  
+
   // Configuration for test files
   {
     files: [
-      '**/*.test.{js,jsx,ts,tsx}', 
+      '**/*.test.{js,jsx,ts,tsx}',
       '**/*.spec.{js,jsx,ts,tsx}',
-      '**/__tests__/**/*.{js,jsx,ts,tsx}'
+      '**/__tests__/**/*.{js,jsx,ts,tsx}',
     ],
     languageOptions: {
       ecmaVersion: 'latest',
@@ -83,11 +85,11 @@ export default [
     rules: {
       // ESLint recommended rules
       ...js.configs.recommended.rules,
-      
+
       // TypeScript ESLint recommended rules
       ...tseslint.configs.recommended.rules,
       ...tseslint.configs['recommended-requiring-type-checking'].rules,
-      
+
       // Custom rules (same as main config)
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
@@ -98,7 +100,7 @@ export default [
       '@typescript-eslint/no-unnecessary-type-assertion': 'error',
       'prefer-const': 'error',
       'no-var': 'error',
-      
+
       // Test-specific rule relaxations
       '@typescript-eslint/explicit-function-return-type': 'off',
     },

@@ -7,14 +7,14 @@ import { Button } from './Button';
 
 /**
  * Test suite for Button component
- * 
+ *
  * Covers: rendering, variants, interactions, accessibility, loading states
  */
 describe('Button', () => {
   describe('Rendering', () => {
     it('renders with default props', () => {
       renderWithTheme(<Button>Click me</Button>);
-      
+
       const button = screen.getByRole('button');
       expect(button).toBeInTheDocument();
       expect(screen.getByText('Click me')).toBeInTheDocument();
@@ -95,17 +95,16 @@ describe('Button', () => {
 
       const button = screen.getByRole('button');
       expect(button).toBeDisabled();
-      
+
       // Check for loading spinner element by its characteristics
       const spinner = button.querySelector('div');
       expect(spinner).toBeInTheDocument();
-      
+
       // Verify spinner has expected dimensions and styling
-      if(spinner){
-      styleAssertions.expectDimensions(spinner, '16px', '16px');
-      styleAssertions.expectBorderRadius(spinner, '50%');
+      if (spinner) {
+        styleAssertions.expectDimensions(spinner, '16px', '16px');
+        styleAssertions.expectBorderRadius(spinner, '50%');
       }
-     
     });
 
     it('hides icon when loading', () => {
@@ -151,7 +150,7 @@ describe('Button', () => {
     it('applies small size styles', () => {
       renderWithTheme(<Button size="sm">Small</Button>);
       const button = screen.getByRole('button');
-      
+
       // Check computed styles
       styleAssertions.expectDimensions(button, '', '24px');
     });
@@ -159,21 +158,21 @@ describe('Button', () => {
     it('applies medium size styles (default)', () => {
       renderWithTheme(<Button size="md">Medium</Button>);
       const button = screen.getByRole('button');
-      
+
       styleAssertions.expectDimensions(button, '', '28px');
     });
 
     it('applies large size styles', () => {
       renderWithTheme(<Button size="lg">Large</Button>);
       const button = screen.getByRole('button');
-      
+
       styleAssertions.expectDimensions(button, '', '32px');
     });
 
     it('uses medium size by default', () => {
       renderWithTheme(<Button>Default</Button>);
       const button = screen.getByRole('button');
-      
+
       styleAssertions.expectDimensions(button, '', '28px');
     });
   });
@@ -182,7 +181,7 @@ describe('Button', () => {
     it('applies default variant styles', () => {
       renderWithTheme(<Button variant="default">Default</Button>);
       const button = screen.getByRole('button');
-      
+
       const styles = window.getComputedStyle(button);
       expect(styles.background).toContain('transparent');
     });
@@ -190,7 +189,7 @@ describe('Button', () => {
     it('applies ghost variant styles', () => {
       renderWithTheme(<Button variant="ghost">Ghost</Button>);
       const button = screen.getByRole('button');
-      
+
       const styles = window.getComputedStyle(button);
       expect(styles.background).toContain('transparent');
     });
@@ -198,14 +197,14 @@ describe('Button', () => {
     it('applies filled variant styles', () => {
       renderWithTheme(<Button variant="filled">Filled</Button>);
       const button = screen.getByRole('button');
-      
+
       styleAssertions.expectBackgroundColor(button, 'rgb(0, 122, 204)'); // #007acc
     });
 
     it('uses default variant by default', () => {
       renderWithTheme(<Button>Default Variant</Button>);
       const button = screen.getByRole('button');
-      
+
       const styles = window.getComputedStyle(button);
       expect(styles.background).toContain('transparent');
     });
@@ -215,14 +214,14 @@ describe('Button', () => {
     it('applies full width when fullWidth is true', () => {
       renderWithTheme(<Button fullWidth>Full Width</Button>);
       const button = screen.getByRole('button');
-      
+
       styleAssertions.expectDimensions(button, '100%', '28px');
     });
 
     it('does not apply full width by default', () => {
       renderWithTheme(<Button>Normal Width</Button>);
       const button = screen.getByRole('button');
-      
+
       const styles = window.getComputedStyle(button);
       expect(styles.width).not.toBe('100%');
     });
@@ -237,7 +236,7 @@ describe('Button', () => {
     it('maintains focus visibility', () => {
       renderWithTheme(<Button>Focusable</Button>);
       const button = screen.getByRole('button');
-      
+
       button.focus();
       expect(button).toHaveFocus();
     });
@@ -245,7 +244,7 @@ describe('Button', () => {
     it('provides proper disabled state for screen readers', () => {
       renderWithTheme(<Button disabled>Disabled Button</Button>);
       const button = screen.getByRole('button');
-      
+
       expect(button).toHaveAttribute('disabled');
       expect(button).toBeDisabled();
     });
@@ -253,7 +252,7 @@ describe('Button', () => {
     it('provides proper disabled state when loading', () => {
       renderWithTheme(<Button loading>Loading Button</Button>);
       const button = screen.getByRole('button');
-      
+
       expect(button).toBeDisabled();
     });
   });
@@ -280,7 +279,7 @@ describe('Button', () => {
           <span>Complex</span> <strong>Content</strong>
         </Button>
       );
-      
+
       expect(screen.getByText('Complex')).toBeInTheDocument();
       expect(screen.getByText('Content')).toBeInTheDocument();
     });

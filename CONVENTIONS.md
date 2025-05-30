@@ -5,7 +5,7 @@
 **All text must be in English:**
 
 - JSDoc comments and documentation
-- Code comments and console logs  
+- Code comments and console logs
 - Type descriptions and error messages
 - Test descriptions and Storybook docs
 - README files and commit messages
@@ -53,13 +53,13 @@ import type { Prettify, LiteralUnion, DeepPartial } from '@/types/utilities';
 
 ## 3. JSDoc Documentation - MANDATORY
 
-```typescript
+````typescript
 /**
  * A versatile button component for editor interfaces.
- * 
+ *
  * Supports multiple variants, sizes, and states optimized for
  * professional editor UIs with compact dimensions.
- * 
+ *
  * @example
  * ```tsx
  * <Button variant="default" size="md">Save</Button>
@@ -69,31 +69,31 @@ import type { Prettify, LiteralUnion, DeepPartial } from '@/types/utilities';
 export const Button: React.FC<ButtonProps> = ({ ... }) => {};
 
 export interface ButtonProps {
-  /** 
+  /**
    * Button content - text, icons, or other React elements
-   * @example "Save", <><SaveIcon /> Save</> 
+   * @example "Save", <><SaveIcon /> Save</>
    */
   children?: React.ReactNode;
-  
-  /** 
+
+  /**
    * Visual variant of the button
    * - `default`: Transparent with border, fills on hover
-   * - `ghost`: No border, subtle hover state  
+   * - `ghost`: No border, subtle hover state
    * - `filled`: Solid background with accent color
    * @default "default"
    */
   variant?: 'default' | 'ghost' | 'filled';
-  
-  /** 
+
+  /**
    * Size optimized for editor interfaces
    * - `sm`: 24px height, compact for toolbars
-   * - `md`: 28px height, standard for panels  
+   * - `md`: 28px height, standard for panels
    * - `lg`: 32px height, prominent actions
    * @default "md"
    */
   size?: 'sm' | 'md' | 'lg';
 }
-```
+````
 
 ## 4. Emotion Styled Components
 
@@ -108,7 +108,7 @@ const StyledComponent = styled.div<StyledComponentProps>`
   /* Reset and base styles */
   margin: 0;
   font-family: inherit;
-  
+
   /* Dynamic styles using theme */
   ${props => {
     const { theme } = props;
@@ -119,13 +119,15 @@ const StyledComponent = styled.div<StyledComponentProps>`
       transition: all ${theme.transitions.normal};
     `;
   }}
-  
+
   /* Variant and size styles */
   ${props => getVariantStyles(props.$variant, props.theme)}
   ${props => getSizeStyles(props.$size, props.theme)}
   
   /* State styles */
-  ${props => props.$disabled && `
+  ${props =>
+    props.$disabled &&
+    `
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
@@ -147,8 +149,9 @@ import type { Theme } from '../../theme';
 ```
 
 **Rules:**
+
 - Always use `@/` prefix for internal imports
-- 
+-
 - Never mix relative and alias imports
 - Add aliases for new top-level src directories
 
@@ -184,7 +187,7 @@ import { useComponentHook } from './useComponentHook';
 ```typescript
 /**
  * Test suite for Button component
- * 
+ *
  * Covers: rendering, variants, interactions, accessibility
  */
 describe('Button', () => {
@@ -192,12 +195,12 @@ describe('Button', () => {
     it('renders with default props', () => {});
     it('renders all variants correctly', () => {});
   });
-  
+
   describe('Interactions', () => {
     it('handles click events', () => {});
     it('prevents interaction when disabled', () => {});
   });
-  
+
   describe('Accessibility', () => {
     it('provides proper ARIA attributes', () => {});
   });
@@ -216,7 +219,8 @@ const meta: Meta<typeof Button> = {
   parameters: {
     docs: {
       description: {
-        component: 'A versatile button component optimized for editor interfaces.',
+        component:
+          'A versatile button component optimized for editor interfaces.',
       },
     },
   },
@@ -239,7 +243,7 @@ const meta: Meta<typeof Button> = {
 User: "Create Button component"
 AI: Creates only Button.tsx
 
-User: "Add tests" 
+User: "Add tests"
 AI: Creates only Button.test.tsx
 
 // ❌ WRONG - Multiple artifacts at once

@@ -12,23 +12,31 @@ export interface InputBaseProps {
   /**
    * Input value (controlled)
    */
-  value?: string|undefined;
-  
+  value?: string | undefined;
+
   /**
    * Default value (uncontrolled)
    */
-  defaultValue?: string|undefined;
-  
+  defaultValue?: string | undefined;
+
   /**
    * Placeholder text
    */
-  placeholder?: string|undefined;
-  
+  placeholder?: string | undefined;
+
   /**
    * Input type
    */
-  type?: 'text' | 'email' | 'password' | 'number' | 'search' | 'url' | 'tel'|undefined;
-  
+  type?:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'number'
+    | 'search'
+    | 'url'
+    | 'tel'
+    | undefined;
+
   /**
    * Input size using standard library sizing
    * - `sm`: 20px height, compact for toolbars
@@ -37,76 +45,76 @@ export interface InputBaseProps {
    * @default "md"
    */
   size?: InputSize;
-  
+
   /**
    * Whether the input is disabled
    * @default false
    */
   disabled?: boolean;
-  
+
   /**
    * Whether the input has an error state
    * @default false
    */
   error?: boolean;
-  
+
   /**
    * Whether the input is required
    * @default false
    */
   required?: boolean;
-  
+
   /**
    * Whether the input is read-only
    * @default false
    */
   readOnly?: boolean;
-  
+
   /**
    * Input label
    */
   label?: string | undefined;
-  
+
   /**
    * Helper text displayed below the input
    */
   helperText?: string | undefined;
-  
+
   /**
    * Error message displayed when error is true
    */
   errorMessage?: string | undefined;
-  
+
   /**
    * Icon displayed at the start of the input
    */
   startIcon?: React.ReactNode;
-  
+
   /**
    * Icon displayed at the end of the input
    */
   endIcon?: React.ReactNode;
-  
+
   /**
    * Additional CSS classes
    */
   className?: string;
-  
+
   /**
    * Change event handler
    */
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  
+
   /**
    * Focus event handler
    */
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
-  
+
   /**
    * Blur event handler
    */
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
-  
+
   /**
    * Key down event handler
    */
@@ -116,7 +124,7 @@ export interface InputBaseProps {
    * Reference to the input element
    */
   ref?: React.Ref<HTMLInputElement> | undefined;
-  
+
   /**
    * Test identifier for automated testing
    */
@@ -144,7 +152,10 @@ const StyledInputContainer = styled.div<StyledInputContainerProps>`
 const StyledLabel = styled.label<{ $disabled: boolean }>`
   font-size: ${props => props.theme.typography.fontSize.sm}px;
   font-weight: ${props => props.theme.typography.fontWeight.medium};
-  color: ${props => props.$disabled ? props.theme.colors.text.disabled : props.theme.colors.text.secondary};
+  color: ${props =>
+    props.$disabled
+      ? props.theme.colors.text.disabled
+      : props.theme.colors.text.secondary};
   line-height: ${props => props.theme.typography.lineHeight.tight};
 `;
 
@@ -155,8 +166,11 @@ const StyledInputWrapper = styled.div<StyledInputContainerProps>`
   border: 1px solid;
   border-radius: ${props => props.theme.borderRadius.md}px;
   transition: all ${props => props.theme.transitions.normal};
-  background: ${props => props.$disabled ? props.theme.colors.surface.disabled : props.theme.colors.surface.default};
-  
+  background: ${props =>
+    props.$disabled
+      ? props.theme.colors.surface.disabled
+      : props.theme.colors.surface.default};
+
   /* Size variants */
   ${props => {
     const sizes = {
@@ -179,21 +193,26 @@ const StyledInputWrapper = styled.div<StyledInputContainerProps>`
       padding: ${size.padding};
     `;
   }}
-  
+
   /* Border color states */
   border-color: ${props => {
     if (props.$error) return props.theme.colors.border.error;
     if (props.$focused) return props.theme.colors.border.focus;
     return props.theme.colors.border.default;
   }};
-  
+
   /* Focus ring */
-  ${props => props.$focused && !props.$error && `
+  ${props =>
+    props.$focused &&
+    !props.$error &&
+    `
     box-shadow: 0 0 0 2px ${props.theme.colors.accent.primary}20;
   `}
-  
+
   /* Disabled state */
-  ${props => props.$disabled && `
+  ${props =>
+    props.$disabled &&
+    `
     opacity: 0.5;
     cursor: not-allowed;
   `}
@@ -214,7 +233,7 @@ const StyledInput = styled.input<{ $size: InputSize }>`
   background: transparent;
   font-family: inherit;
   color: ${props => props.theme.colors.text.primary};
-  
+
   ${props => {
     const fontSize = {
       sm: props.theme.typography.fontSize.xs,
@@ -223,23 +242,23 @@ const StyledInput = styled.input<{ $size: InputSize }>`
     };
     return `font-size: ${fontSize[props.$size]}px;`;
   }}
-  
+
   &::placeholder {
     color: ${props => props.theme.colors.text.muted};
   }
-  
+
   &:disabled {
     cursor: not-allowed;
   }
-  
+
   /* Remove number input arrows */
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
-  
-  &[type=number] {
+
+  &[type='number'] {
     -moz-appearance: textfield;
   }
 `;
@@ -249,9 +268,10 @@ const StyledIcon = styled.div<{ $position: 'start' | 'end' }>`
   align-items: center;
   justify-content: center;
   color: ${props => props.theme.colors.text.muted};
-  
-  ${props => props.$position === 'start' ? 'margin-right: 6px;' : 'margin-left: 6px;'}
-  
+
+  ${props =>
+    props.$position === 'start' ? 'margin-right: 6px;' : 'margin-left: 6px;'}
+
   & > * {
     width: 14px;
     height: 14px;
@@ -261,24 +281,27 @@ const StyledIcon = styled.div<{ $position: 'start' | 'end' }>`
 const StyledHelperText = styled.div<{ $error: boolean }>`
   font-size: ${props => props.theme.typography.fontSize.xs}px;
   line-height: ${props => props.theme.typography.lineHeight.tight};
-  color: ${props => props.$error ? props.theme.colors.accent.error : props.theme.colors.text.muted};
+  color: ${props =>
+    props.$error
+      ? props.theme.colors.accent.error
+      : props.theme.colors.text.muted};
 `;
 
 /**
  * A versatile input component for text entry in editor interfaces.
- * 
+ *
  * Provides a clean, consistent text input with support for labels, helper text,
  * icons, and various states. Optimized for editor UIs with compact sizing.
- * 
+ *
  * @example
  * ```tsx
  * // Basic text input
- * <Input 
- *   placeholder="Enter text..." 
+ * <Input
+ *   placeholder="Enter text..."
  *   value={text}
  *   onChange={(e) => setText(e.target.value)}
  * />
- * 
+ *
  * // With label and helper text
  * <Input
  *   label="Project Name"
@@ -287,7 +310,7 @@ const StyledHelperText = styled.div<{ $error: boolean }>`
  *   value={name}
  *   onChange={(e) => setName(e.target.value)}
  * />
- * 
+ *
  * // With icons and error state
  * <Input
  *   label="Email"
@@ -338,7 +361,7 @@ export const Input: React.FC<InputProps> = ({
   };
 
   return (
-    <StyledInputContainer 
+    <StyledInputContainer
       className={className}
       $size={size}
       $error={error}
@@ -351,19 +374,15 @@ export const Input: React.FC<InputProps> = ({
           {required && <span style={{ color: 'var(--accent-error)' }}> *</span>}
         </StyledLabel>
       )}
-      
+
       <StyledInputWrapper
         $size={size}
         $error={error}
         $disabled={disabled}
         $focused={focused}
       >
-        {startIcon && (
-          <StyledIcon $position="start">
-            {startIcon}
-          </StyledIcon>
-        )}
-        
+        {startIcon && <StyledIcon $position="start">{startIcon}</StyledIcon>}
+
         <StyledInput
           ref={ref}
           id={inputId}
@@ -382,14 +401,10 @@ export const Input: React.FC<InputProps> = ({
           data-testid={testId}
           {...props}
         />
-        
-        {endIcon && (
-          <StyledIcon $position="end">
-            {endIcon}
-          </StyledIcon>
-        )}
+
+        {endIcon && <StyledIcon $position="end">{endIcon}</StyledIcon>}
       </StyledInputWrapper>
-      
+
       {(helperText ?? (error && errorMessage)) && (
         <StyledHelperText $error={error}>
           {error && errorMessage ? errorMessage : helperText}

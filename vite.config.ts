@@ -14,7 +14,7 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'EditorUIToolkit',
       formats: ['es', 'umd'],
-      fileName: (format) => `index.${format}.js`,
+      fileName: format => `index.${format}.js`,
     },
     rollupOptions: {
       external: ['react', 'react-dom'],

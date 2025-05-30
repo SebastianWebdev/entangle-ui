@@ -1,29 +1,42 @@
-
-import {KeyboardState, KeyboardInnerState, AllKeys, ModifierKeys} from './types';
+import {
+  KeyboardState,
+  KeyboardInnerState,
+  AllKeys,
+  ModifierKeys,
+} from './types';
 
 export const isModifierKey = (key: string): key is ModifierKeys => {
   return ['ctrl', 'shift', 'alt', 'meta', 'control'].includes(key);
 };
 
-const KeypressUpdate = (prevState: KeyboardInnerState, key: AllKeys):KeyboardInnerState=>{
-  if(prevState.has(key)){
-    return prevState; 
+const KeypressUpdate = (
+  prevState: KeyboardInnerState,
+  key: AllKeys
+): KeyboardInnerState => {
+  if (prevState.has(key)) {
+    return prevState;
   }
   const newState = new Set(prevState);
   newState.add(key);
   return newState;
-}
+};
 
-const KeyReleaseUpdate = (prevState: KeyboardInnerState, key: AllKeys):KeyboardInnerState=>{
-  if(!prevState.has(key)){
-    return prevState; 
+const KeyReleaseUpdate = (
+  prevState: KeyboardInnerState,
+  key: AllKeys
+): KeyboardInnerState => {
+  if (!prevState.has(key)) {
+    return prevState;
   }
   const newState = new Set(prevState);
   newState.delete(key);
   return newState;
-}
+};
 
-export const updateState = (prevState: KeyboardInnerState, event:KeyboardEvent): KeyboardInnerState => {
+export const updateState = (
+  prevState: KeyboardInnerState,
+  event: KeyboardEvent
+): KeyboardInnerState => {
   const key = event.key.toLowerCase();
   const eventType = event.type;
   switch (eventType) {
@@ -35,9 +48,11 @@ export const updateState = (prevState: KeyboardInnerState, event:KeyboardEvent):
       console.warn(`Unhandled event type: ${eventType}`);
       return prevState;
   }
-}
+};
 
-export const mapInnerStateToState = (innerState: KeyboardInnerState): KeyboardState => {
+export const mapInnerStateToState = (
+  innerState: KeyboardInnerState
+): KeyboardState => {
   const modifiers: KeyboardState['modifiers'] = {
     control: innerState.has('control') || innerState.has('ctrl'),
     shift: innerState.has('shift'),
@@ -49,11 +64,14 @@ export const mapInnerStateToState = (innerState: KeyboardInnerState): KeyboardSt
     pressedKeys,
     modifiers,
   };
-}
+};
 
-export const isKeyPressed = (keyboardState: KeyboardState, key: AllKeys): boolean => {
+export const isKeyPressed = (
+  keyboardState: KeyboardState,
+  key: AllKeys
+): boolean => {
   if (isModifierKey(key)) {
     return keyboardState.modifiers[key];
   }
   return keyboardState.pressedKeys.includes(key);
-}
+};
