@@ -1,35 +1,11 @@
 // src/hooks/useKeyboard.ts
 import { useEffect, useState, useCallback } from 'react';
-
-/**
- * Represents the state of modifier keys and currently pressed keys
- */
-export interface KeyboardState {
-  /**
-   * Array of currently pressed key codes
-   */
-  pressedKeys: string[];
-  
-  /**
-   * Whether Ctrl key is currently pressed
-   */
-  ctrl: boolean;
-  
-  /**
-   * Whether Shift key is currently pressed
-   */
-  shift: boolean;
-  
-  /**
-   * Whether Alt key is currently pressed
-   */
-  alt: boolean;
-  
-  /**
-   * Whether Meta key (Cmd on Mac, Win on Windows) is currently pressed
-   */
-  meta: boolean;
-}
+import { 
+  KeyboardState, 
+  useKeyboardContext, 
+  useKeyPressed as useContextKeyPressed,
+  useModifierKeys as useContextModifierKeys
+} from '@/contexts/KeyboardContext';
 
 /**
  * Configuration options for the useKeyboard hook
@@ -93,147 +69,28 @@ export const useKeyboard = (options: UseKeyboardOptions = {}): KeyboardState => 
     enabled = true,
   } = options;
 
-  const [keyboardState, setKeyboardState] = useState<KeyboardState>({
-    pressedKeys: [],
-    ctrl: false,
-    shift: false,
-    alt: false,
-    meta: false,
-  });
-
-  const updateModifiers = useCallback((event: KeyboardEvent) => {
+  // Używamy kontekstu zamiast lokalnego stanu
+  const keyboardState = useKeyboardContext();
+  
+  // Filtrujemy klawisze, jeśli nie śledzimy wszystkich
+  if (!trackAllKeys && trackedKeys.length > 0 && enabled) {
     return {
-      ctrl: event.ctrlKey,
-      shift: event.shiftKey,
-      alt: event.altKey,
-      meta: event.metaKey,
+      ...keyboardState,
+      pressedKeys: keyboardState.pressedKeys.filter(key => trackedKeys.includes(key))
     };
-  }, []);
-
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (!enabled) return;
-
-    const modifiers = updateModifiers(event);
-    
-    setKeyboardState(prevState => {
-      // Filter out empty or invalid key codes
-      const keyCode = event.code;
-      if (!keyCode || keyCode.trim() === '') {
-        // Sprawdzamy, czy modyfikatory się zmieniły
-        if (prevState.ctrl === modifiers.ctrl &&
-            prevState.shift === modifiers.shift &&
-            prevState.alt === modifiers.alt &&
-            prevState.meta === modifiers.meta) {
-          return prevState; // Nie aktualizuj stanu, jeśli nic się nie zmieniło
-        }
-        return {
-          ...modifiers,
-          pressedKeys: prevState.pressedKeys,
-        };
-      }
-
-      const shouldTrackKey = trackAllKeys || trackedKeys.includes(keyCode);
-      
-      // Jeśli klawisz jest już w tablicy, nie dodawaj go ponownie
-      if (!shouldTrackKey || prevState.pressedKeys.includes(keyCode)) {
-        // Sprawdzamy, czy modyfikatory się zmieniły
-        if (prevState.ctrl === modifiers.ctrl &&
-            prevState.shift === modifiers.shift &&
-            prevState.alt === modifiers.alt &&
-            prevState.meta === modifiers.meta) {
-          return prevState; // Nie aktualizuj stanu, jeśli nic się nie zmieniło
-        }
-        return {
-          ...modifiers,
-          pressedKeys: prevState.pressedKeys,
-        };
-      }
-      
-      // Dodajemy nowy klawisz do tablicy
-      return {
-        ...modifiers,
-        pressedKeys: [...prevState.pressedKeys, keyCode],
-      };
-    });
-  }, [enabled, trackAllKeys, trackedKeys, updateModifiers]);
-
-  const handleKeyUp = useCallback((event: KeyboardEvent) => {
-    if (!enabled) return;
-
-    const modifiers = updateModifiers(event);
-    
-    setKeyboardState(prevState => {
-      // Filter out empty or invalid key codes
-      const keyCode = event.code;
-      if (!keyCode || keyCode.trim() === '') {
-        // Sprawdzamy, czy modyfikatory się zmieniły
-        if (prevState.ctrl === modifiers.ctrl &&
-            prevState.shift === modifiers.shift &&
-            prevState.alt === modifiers.alt &&
-            prevState.meta === modifiers.meta) {
-          return prevState; // Nie aktualizuj stanu, jeśli nic się nie zmieniło
-        }
-        return {
-          ...modifiers,
-          pressedKeys: prevState.pressedKeys,
-        };
-      }
-
-      // Sprawdzamy, czy klawisz jest w tablicy
-      if (!prevState.pressedKeys.includes(keyCode)) {
-        // Sprawdzamy, czy modyfikatory się zmieniły
-        if (prevState.ctrl === modifiers.ctrl &&
-            prevState.shift === modifiers.shift &&
-            prevState.alt === modifiers.alt &&
-            prevState.meta === modifiers.meta) {
-          return prevState; // Nie aktualizuj stanu, jeśli nic się nie zmieniło
-        }
-        return {
-          ...modifiers,
-          pressedKeys: prevState.pressedKeys,
-        };
-      }
-
-      const newPressedKeys = prevState.pressedKeys.filter(key => key !== keyCode);
-
-      return {
-        ...modifiers,
-        pressedKeys: newPressedKeys,
-      };
-    });
-  }, [enabled, updateModifiers]);
-
-  // Handle focus/blur to reset state when window loses focus
-  const handleBlur = useCallback(() => {
-    if (!enabled) return;
-    
-    setKeyboardState({
+  }
+  
+  // Zwracamy pusty stan, jeśli hook jest wyłączony
+  if (!enabled) {
+    return {
       pressedKeys: [],
       ctrl: false,
       shift: false,
       alt: false,
       meta: false,
-    });
-  }, [enabled]);
-
-  useEffect(() => {
-    if (!enabled) return;
-
-    // Add event listeners
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    window.addEventListener('blur', handleBlur);
-    window.addEventListener('focus', handleBlur); // Reset on focus too
-
-    // Cleanup
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-      window.removeEventListener('blur', handleBlur);
-      window.removeEventListener('focus', handleBlur);
     };
-  }, [handleKeyDown, handleKeyUp, handleBlur, enabled]);
-
+  }
+  
   return keyboardState;
 };
 
@@ -253,14 +110,7 @@ export const useKeyboard = (options: UseKeyboardOptions = {}): KeyboardState => 
  * }
  * ```
  */
-export const useKeyPressed = (key: string): boolean => {
-  const keyboard = useKeyboard({
-    trackAllKeys: false,
-    trackedKeys: [key],
-  });
-  
-  return keyboard.pressedKeys.includes(key);
-};
+export const useKeyPressed = useContextKeyPressed;
 
 /**
  * Utility hook for tracking only modifier keys (more performant than full useKeyboard)
@@ -280,16 +130,7 @@ export const useKeyPressed = (key: string): boolean => {
  * };
  * ```
  */
-export const useModifierKeys = () => {
-  const keyboard = useKeyboard({
-    trackAllKeys: false,
-    trackedKeys: [],
-  });
-  
-  return {
-    ctrl: keyboard.ctrl,
-    shift: keyboard.shift,
-    alt: keyboard.alt,
-    meta: keyboard.meta,
-  };
-};
+export const useModifierKeys = useContextModifierKeys;
+
+// Eksportujemy typy dla wstecznej kompatybilności
+export type { KeyboardState };

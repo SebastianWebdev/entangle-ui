@@ -439,7 +439,6 @@ export const Slider: React.FC<SliderProps> = ({
   const dragStartRef = useRef<{ startX: number; startValue: number } | null>(null);
   
   const modifiers = useModifierKeys();
-  console.log('Modifiers:', modifiers);
   
   // Calculate derived values
   const effectivePrecisionStep = precisionStep ?? step / 10;
