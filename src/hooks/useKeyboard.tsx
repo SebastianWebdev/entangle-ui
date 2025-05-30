@@ -119,6 +119,13 @@ export const useKeyboard = (options: UseKeyboardOptions = {}): KeyboardState => 
       // Filter out empty or invalid key codes
       const keyCode = event.code;
       if (!keyCode || keyCode.trim() === '') {
+        // Sprawdzamy, czy modyfikatory się zmieniły
+        if (prevState.ctrl === modifiers.ctrl &&
+            prevState.shift === modifiers.shift &&
+            prevState.alt === modifiers.alt &&
+            prevState.meta === modifiers.meta) {
+          return prevState; // Nie aktualizuj stanu, jeśli nic się nie zmieniło
+        }
         return {
           ...modifiers,
           pressedKeys: prevState.pressedKeys,
@@ -127,13 +134,25 @@ export const useKeyboard = (options: UseKeyboardOptions = {}): KeyboardState => 
 
       const shouldTrackKey = trackAllKeys || trackedKeys.includes(keyCode);
       
-      const newPressedKeys = shouldTrackKey && !prevState.pressedKeys.includes(keyCode)
-        ? [...prevState.pressedKeys, keyCode]
-        : prevState.pressedKeys;
-
+      // Jeśli klawisz jest już w tablicy, nie dodawaj go ponownie
+      if (!shouldTrackKey || prevState.pressedKeys.includes(keyCode)) {
+        // Sprawdzamy, czy modyfikatory się zmieniły
+        if (prevState.ctrl === modifiers.ctrl &&
+            prevState.shift === modifiers.shift &&
+            prevState.alt === modifiers.alt &&
+            prevState.meta === modifiers.meta) {
+          return prevState; // Nie aktualizuj stanu, jeśli nic się nie zmieniło
+        }
+        return {
+          ...modifiers,
+          pressedKeys: prevState.pressedKeys,
+        };
+      }
+      
+      // Dodajemy nowy klawisz do tablicy
       return {
         ...modifiers,
-        pressedKeys: newPressedKeys,
+        pressedKeys: [...prevState.pressedKeys, keyCode],
       };
     });
   }, [enabled, trackAllKeys, trackedKeys, updateModifiers]);
@@ -147,6 +166,28 @@ export const useKeyboard = (options: UseKeyboardOptions = {}): KeyboardState => 
       // Filter out empty or invalid key codes
       const keyCode = event.code;
       if (!keyCode || keyCode.trim() === '') {
+        // Sprawdzamy, czy modyfikatory się zmieniły
+        if (prevState.ctrl === modifiers.ctrl &&
+            prevState.shift === modifiers.shift &&
+            prevState.alt === modifiers.alt &&
+            prevState.meta === modifiers.meta) {
+          return prevState; // Nie aktualizuj stanu, jeśli nic się nie zmieniło
+        }
+        return {
+          ...modifiers,
+          pressedKeys: prevState.pressedKeys,
+        };
+      }
+
+      // Sprawdzamy, czy klawisz jest w tablicy
+      if (!prevState.pressedKeys.includes(keyCode)) {
+        // Sprawdzamy, czy modyfikatory się zmieniły
+        if (prevState.ctrl === modifiers.ctrl &&
+            prevState.shift === modifiers.shift &&
+            prevState.alt === modifiers.alt &&
+            prevState.meta === modifiers.meta) {
+          return prevState; // Nie aktualizuj stanu, jeśli nic się nie zmieniło
+        }
         return {
           ...modifiers,
           pressedKeys: prevState.pressedKeys,
