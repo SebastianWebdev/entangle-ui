@@ -446,6 +446,13 @@ export const Slider: React.FC<SliderProps> = ({
   const percentage = ((value - min) / (max - min)) * 100;
   const clampedValue = clamp(value, min, max);
   
+  // Memoizujemy funkcję getStepSize, aby uniknąć niepotrzebnych renderów
+  const getStepSize = useCallback((): number => {
+    if (modifiers.shift) return effectivePrecisionStep;
+    if (modifiers.ctrl || modifiers.meta) return effectiveLargeStep;
+    return step;
+  }, [modifiers.shift, modifiers.ctrl, modifiers.meta, effectivePrecisionStep, effectiveLargeStep, step]);
+  
   // Format display value with consistent precision to prevent tooltip size changes
   const displayValue = formatValue 
     ? formatValue(clampedValue)
@@ -453,14 +460,6 @@ export const Slider: React.FC<SliderProps> = ({
     ? `${precision !== undefined ? clampedValue.toFixed(precision) : clampedValue}${unit}`
     : precision !== undefined ? clampedValue.toFixed(precision) : clampedValue.toString();
 
-  /**
-   * Gets the appropriate step size based on modifier keys
-   */
-  const getStepSize = useCallback((): number => {
-    if (modifiers.shift) return effectivePrecisionStep;
-    if (modifiers.ctrl || modifiers.meta) return effectiveLargeStep;
-    return step;
-  }, [modifiers.shift, modifiers.ctrl, modifiers.meta, effectivePrecisionStep, effectiveLargeStep, step]);
 
   /**
    * Applies a new value with proper bounds checking and rounding
@@ -489,10 +488,13 @@ export const Slider: React.FC<SliderProps> = ({
     const percentage = clamp((clientX - rect.left) / rect.width, 0, 1);
     const newValue = min + percentage * (max - min);
     
+    // Używamy aktualnego kroku (zależnego od modyfikatorów klawiszy)
+    const currentStep = getStepSize();
+    
     // Snap to step increments
-    const steps = Math.round((newValue - min) / step);
-    return min + steps * step;
-  }, [min, max, value, step]);
+    const steps = Math.round((newValue - min) / currentStep);
+    return min + steps * currentStep;
+  }, [min, max, value, getStepSize]);
 
   /**
    * Handle mouse down on track or thumb
@@ -504,6 +506,7 @@ export const Slider: React.FC<SliderProps> = ({
     setIsDragging(true);
     setShowTooltipState(showTooltip);
     
+    // Używamy aktualnego kroku (zależnego od modyfikatorów klawiszy)
     const newValue = positionToValue(event.clientX);
     applyValue(newValue);
     
@@ -521,6 +524,7 @@ export const Slider: React.FC<SliderProps> = ({
     
     // Używamy requestAnimationFrame dla płynniejszego działania
     requestAnimationFrame(() => {
+      // Używamy aktualnego kroku (zależnego od modyfikatorów klawiszy)
       const newValue = positionToValue(event.clientX);
       applyValue(newValue);
     });
