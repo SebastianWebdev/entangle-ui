@@ -206,6 +206,7 @@ const StyledTrack = styled.div<StyledTrackProps>`
 interface StyledFillProps {
   $percentage: number;
   $error: boolean;
+  $isDragging: boolean;
 }
 
 const StyledFill = styled.div<StyledFillProps>`
@@ -215,7 +216,7 @@ const StyledFill = styled.div<StyledFillProps>`
   bottom: 0;
   width: ${props => props.$percentage}%;
   background: ${props => props.$error ? props.theme.colors.accent.error : props.theme.colors.accent.primary};
-  transition: width 0.1s ease-out;
+  transition: ${props => props.$isDragging ? 'none' : 'width 0.1s ease-out'};
 `;
 
 interface StyledThumbProps {
@@ -234,7 +235,7 @@ const StyledThumb = styled.div<StyledThumbProps>`
   border: 2px solid ${props => props.theme.colors.background.primary};
   border-radius: 50%;
   cursor: grab;
-  transition: all ${props => props.theme.transitions.fast};
+  transition: ${props => props.$isDragging ? 'none' : `all ${props.theme.transitions.fast}`};
   box-shadow: ${props => props.theme.shadows.sm};
   
   ${props => {
@@ -467,6 +468,9 @@ export const Slider: React.FC<SliderProps> = ({
   const applyValue = useCallback((newValue: number): void => {
     if (disabled || readOnly) return;
     
+    // Optymalizacja - unikamy zbędnych obliczeń jeśli wartość się nie zmieniła
+    if (newValue === value) return;
+    
     const rounded = roundToPrecision(newValue, precision);
     const clamped = clamp(rounded, min, max);
     
@@ -483,8 +487,12 @@ export const Slider: React.FC<SliderProps> = ({
     
     const rect = trackRef.current.getBoundingClientRect();
     const percentage = clamp((clientX - rect.left) / rect.width, 0, 1);
-    return min + percentage * (max - min);
-  }, [min, max, value]);
+    const newValue = min + percentage * (max - min);
+    
+    // Snap to step increments
+    const steps = Math.round((newValue - min) / step);
+    return min + steps * step;
+  }, [min, max, value, step]);
 
   /**
    * Handle mouse down on track or thumb
@@ -511,8 +519,11 @@ export const Slider: React.FC<SliderProps> = ({
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!isDragging || !dragStartRef.current) return;
     
-    const newValue = positionToValue(event.clientX);
-    applyValue(newValue);
+    // Używamy requestAnimationFrame dla płynniejszego działania
+    requestAnimationFrame(() => {
+      const newValue = positionToValue(event.clientX);
+      applyValue(newValue);
+    });
   }, [isDragging, positionToValue, applyValue]);
 
   /**
@@ -651,7 +662,7 @@ export const Slider: React.FC<SliderProps> = ({
           
         >
         <StyledTrack ref={trackRef} $size={size} $error={error}>
-          <StyledFill $percentage={percentage} $error={error} />
+          <StyledFill $percentage={percentage} $error={error} $isDragging={isDragging} />
         </StyledTrack>
         
         <StyledThumb
