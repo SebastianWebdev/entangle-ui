@@ -1,6 +1,8 @@
+import React from 'react';
+
 // src/controls/NumberInput/useNumberInput.ts
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useModifierKeys } from '@/hooks/useKeyboard';
+import { useKeyboardContext } from '@/context/KeyboardContext';
 import { parseNumericInput, isExpression } from '@/utils/mathExpression';
 
 /**
@@ -274,7 +276,7 @@ export function useNumberInput({
   const accumulatedDelta = useRef(0);
   
   // Keyboard state
-  const modifiers = useModifierKeys();
+  const {modifiers} = useKeyboardContext();
   
   // Update display value when external value changes (but not during editing)
   useEffect(() => {
@@ -290,9 +292,9 @@ export function useNumberInput({
    */
   const getStepSize = useCallback((): number => {
     if (modifiers.shift) return effectivePrecisionStep;
-    if (modifiers.ctrl || modifiers.meta) return effectiveLargeStep;
+    if (modifiers.control || modifiers.meta) return effectiveLargeStep;
     return step;
-  }, [modifiers.shift, modifiers.ctrl, modifiers.meta, effectivePrecisionStep, effectiveLargeStep, step]);
+  }, [modifiers.shift, modifiers.control, modifiers.meta, effectivePrecisionStep, effectiveLargeStep, step]);
   
   /**
    * Applies a new value with proper bounds checking and rounding
@@ -336,7 +338,7 @@ export function useNumberInput({
           setError(undefined);
           return true;
         } else {
-          setError(result.error || 'Invalid expression');
+          setError(result.error ?? 'Invalid expression');
           return false;
         }
       }
@@ -353,6 +355,7 @@ export function useNumberInput({
       return false;
     } catch (err) {
       setError('Invalid input');
+      console.error('Error parsing input:', err);
       return false;
     }
   }, [displayValue, parseValue, allowExpressions, applyValue]);

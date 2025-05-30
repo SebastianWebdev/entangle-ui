@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Theme } from '@/theme';
 
 /**
@@ -20,7 +21,7 @@ export const processCss = (css: React.CSSProperties | ((theme: Theme) => React.C
     .map(([key, value]) => {
       const kebabKey = camelToKebab(key);
       // Dodaj 'px' do wartości liczbowych (z wyjątkiem 0)
-      const formattedValue = typeof value === 'number' && value !== 0 ? `${value}px` : value;
+      const formattedValue = typeof value === 'number' && value !== 0 ? `${value}px` : value as string;
       return `${kebabKey}: ${formattedValue};`;
     })
     .join('\n');

@@ -1,7 +1,7 @@
 // src/components/layout/Grid/Grid.test.tsx
-import React from 'react';
-import { screen, render } from '@testing-library/react';
-import { renderWithTheme, styleAssertions } from '@/tests/test-utils';
+
+import { screen,  } from '@testing-library/react';
+import { renderWithTheme, } from '@/tests/testUtils';
 import { Grid } from './Grid';
 
 /**
@@ -204,7 +204,7 @@ describe('Grid', () => {
     it('applies all responsive breakpoints', () => {
       const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
       
-      breakpoints.forEach((breakpoint, index) => {
+      breakpoints.forEach((breakpoint) => {
         const props = { [breakpoint]: 6 };
         const { unmount } = renderWithTheme(
           <Grid {...props} data-testid={`${breakpoint}-grid`}>

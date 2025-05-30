@@ -1,7 +1,7 @@
 // src/components/layout/Grid/Grid.stories.tsx
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Grid, GridSize } from './Grid';
+import { Grid, GridSize, GridSpacing } from './Grid';
 import { ThemeProvider } from '@/theme';
 
 /**
@@ -70,22 +70,28 @@ export default meta;
 type Story = StoryObj<typeof Grid>;
 
 // Helper component for visual examples
+export const demoCardStyles: React.CSSProperties = {
+  padding: '1rem',
+  backgroundColor: 'rgba(0, 122, 204, 0.1)',
+  border: '1px solid rgba(0, 122, 204, 0.3)',
+  borderRadius: '4px',
+  textAlign: 'center',
+  minHeight: '60px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '14px',
+  fontWeight: '500',
+};
+
+// In DemoCard
 const DemoCard: React.FC<{ children: React.ReactNode; color?: string }> = ({ 
   children, 
   color = 'rgba(0, 122, 204, 0.1)' 
 }) => (
   <div style={{
-    padding: '1rem',
+    ...demoCardStyles,
     backgroundColor: color,
-    border: '1px solid rgba(0, 122, 204, 0.3)',
-    borderRadius: '4px',
-    textAlign: 'center',
-    minHeight: '60px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '14px',
-    fontWeight: '500',
   }}>
     {children}
   </div>
@@ -451,16 +457,16 @@ export const SpacingLarge: Story = {
     },
   },
 };
-
+const spacingValues:GridSpacing[] = [0, 1, 2, 3, 4];
 export const SpacingComparison: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      {[0, 1, 2, 3, 4].map(spacing => (
+      {spacingValues.map(spacing => (
         <div key={spacing}>
           <h4 style={{ margin: '0 0 1rem 0', fontSize: '14px', opacity: 0.8 }}>
             Spacing {spacing} ({spacing * 4}px)
           </h4>
-          <Grid container spacing={spacing as any}>
+          <Grid container spacing={spacing}>
             <Grid size={4}>
               <DemoCard>Item 1</DemoCard>
             </Grid>
@@ -789,9 +795,9 @@ export const CardGallery: Story = {
 // Interactive playground
 export const Playground: Story = {
   render: () => {
-    const [spacing, setSpacing] = React.useState(2);
+    const [spacing, setSpacing] = React.useState<GridSpacing>(2);
     const [columns, setColumns] = React.useState(12);
-    const [sizes, setSizes] = React.useState([4, 4, 4]);
+    const [sizes, setSizes] = React.useState<GridSize[]>([4, 4, 4]);
     
     const addColumn = () => {
       if (sizes.length < 6) {
@@ -805,7 +811,7 @@ export const Playground: Story = {
       }
     };
     
-    const updateSize = (index: number, newSize: number) => {
+    const updateSize = (index: number, newSize: GridSize) => {
       const newSizes = [...sizes];
       newSizes[index] = newSize;
       setSizes(newSizes);
@@ -830,7 +836,7 @@ export const Playground: Story = {
             </label>
             <select 
               value={spacing} 
-              onChange={(e) => setSpacing(Number(e.target.value))}
+              onChange={(e) => setSpacing(Number(e.target.value) as GridSpacing)}
               style={{ padding: '0.25rem', borderRadius: '3px', border: '1px solid #444' }}
             >
               {[0, 1, 2, 3, 4, 5, 6, 7, 8].map(s => (
@@ -890,11 +896,11 @@ export const Playground: Story = {
         </div>
         
         {/* Grid preview */}
-        <Grid container spacing={spacing as any} columns={columns}>
+        <Grid container spacing={spacing} columns={columns}>
           {sizes.map((size, index) => (
-            <Grid key={index} size={size as any}>
+            <Grid key={index} size={size}>
               <div style={{
-                ...DemoCard({children: ''})?.props.style,
+                ...demoCardStyles,
                 cursor: 'pointer',
                 position: 'relative'
               }}>
@@ -910,7 +916,7 @@ export const Playground: Story = {
                   justifyContent: 'center'
                 }}>
                   <button 
-                    onClick={() => updateSize(index, Math.max(1, size - 1))}
+                    onClick={() => updateSize(index, Math.max(1, size as number - 1) as GridSize)}
                     style={{ 
                       padding: '0.125rem 0.25rem',
                       fontSize: '12px',
@@ -924,7 +930,7 @@ export const Playground: Story = {
                     -
                   </button>
                   <button 
-                    onClick={() => updateSize(index, Math.min(columns, size + 1))}
+                    onClick={() => updateSize(index, Math.min(columns, size as  number + 1) as GridSize)}
                     style={{ 
                       padding: '0.125rem 0.25rem',
                       fontSize: '12px',
@@ -950,7 +956,7 @@ export const Playground: Story = {
           opacity: 0.7,
           textAlign: 'center'
         }}>
-          Total columns used: {sizes.reduce((sum, size) => sum + size, 0)} / {columns}
+          Total columns used: {sizes.reduce((sum, size) => sum + (size as number), 0)} / {columns}
         </div>
       </div>
     );

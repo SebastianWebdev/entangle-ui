@@ -1,6 +1,7 @@
 // src/tests/test-utils.tsx
 import React from 'react';
-import { render, RenderOptions } from '@testing-library/react';
+import { render, RenderOptions, } from '@testing-library/react';
+import { expect } from 'vitest';
 import { ThemeProvider } from '@emotion/react';
 import type { Theme } from '@/theme';
 

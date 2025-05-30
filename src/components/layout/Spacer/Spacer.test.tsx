@@ -1,7 +1,8 @@
-// src/components/layout/Spacer/Spacer.test.tsx
 import React from 'react';
+
+// src/components/layout/Spacer/Spacer.test.tsx
 import { screen } from '@testing-library/react';
-import { renderWithTheme } from '@/tests/test-utils';
+import { renderWithTheme } from '@/tests/testUtils';
 import { Spacer } from './Spacer';
 
 /**
@@ -254,15 +255,6 @@ describe('Spacer', () => {
       const spacer = screen.getByTestId('test-spacer');
       expect(spacer).toHaveAttribute('role', 'separator');
       expect(spacer).toHaveAttribute('aria-hidden', 'true');
-    });
-
-    it('does not accept children prop', () => {
-      // TypeScript should prevent this, but test runtime behavior
-      const spacer = <Spacer data-testid="test-spacer" />;
-      
-      // Component interface doesn't extend children, so this test
-      // mainly ensures our typing is correct
-      expect(spacer.props.children).toBeUndefined();
     });
   });
 

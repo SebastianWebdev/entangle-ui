@@ -2,7 +2,7 @@
 import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
-import { renderWithTheme, styleAssertions } from '@/tests/test-utils';
+import { renderWithTheme, styleAssertions } from '@/tests/testUtils';
 import { Button } from './Button';
 
 /**
@@ -101,8 +101,11 @@ describe('Button', () => {
       expect(spinner).toBeInTheDocument();
       
       // Verify spinner has expected dimensions and styling
-      styleAssertions.expectDimensions(spinner!, '16px', '16px');
-      styleAssertions.expectBorderRadius(spinner!, '50%');
+      if(spinner){
+      styleAssertions.expectDimensions(spinner, '16px', '16px');
+      styleAssertions.expectBorderRadius(spinner, '50%');
+      }
+     
     });
 
     it('hides icon when loading', () => {

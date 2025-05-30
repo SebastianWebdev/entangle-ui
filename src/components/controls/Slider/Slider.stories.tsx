@@ -3,6 +3,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Slider } from './Slider';
 import { ThemeProvider } from '@/theme';
+import {KeyboardContextProvider} from '@/context/KeyboardContext'
 
 /**
  * Storybook configuration for Slider component
@@ -16,7 +17,7 @@ const meta: Meta<typeof Slider> = {
   decorators: [
     (Story) => (
       <ThemeProvider>
-        <div style={{ 
+        <KeyboardContextProvider> <div style={{ 
           padding: '2rem', 
           backgroundColor: 'var(--background-primary)',
           color: 'var(--text-primary)',
@@ -24,7 +25,8 @@ const meta: Meta<typeof Slider> = {
           maxWidth: '400px'
         }}>
           <Story />
-        </div>
+        </div></KeyboardContextProvider>
+       
       </ThemeProvider>
     ),
   ],

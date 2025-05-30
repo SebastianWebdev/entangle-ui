@@ -3,7 +3,7 @@ import React, { useRef, useCallback, useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
-import { useModifierKeys } from '@/hooks/useKeyboard';
+import { useKeyboardContext } from '@/context/KeyboardContext';
 import { FormLabel, FormHelperText, InputWrapper } from '@/components/form';
 
 /**
@@ -438,7 +438,7 @@ export const Slider: React.FC<SliderProps> = ({
   const trackRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef<{ startX: number; startValue: number } | null>(null);
   
-  const modifiers = useModifierKeys();
+  const {modifiers} = useKeyboardContext();
   
   // Calculate derived values
   const effectivePrecisionStep = precisionStep ?? step / 10;
@@ -448,9 +448,9 @@ export const Slider: React.FC<SliderProps> = ({
   
   const getStepSize = useCallback((): number => {
     if (modifiers.shift) return effectivePrecisionStep;
-    if (modifiers.ctrl || modifiers.meta) return effectiveLargeStep;
+    if (modifiers.control || modifiers.meta) return effectiveLargeStep;
     return step;
-  }, [modifiers.shift, modifiers.ctrl, modifiers.meta, effectivePrecisionStep, effectiveLargeStep, step]);
+  }, [modifiers.shift, modifiers.control, modifiers.meta, effectivePrecisionStep, effectiveLargeStep, step]);
   
   // Format display value with consistent precision to prevent tooltip size changes
   const displayValue = formatValue 
@@ -692,7 +692,7 @@ export const Slider: React.FC<SliderProps> = ({
         </StyledSliderWrapper>
       </InputWrapper>
       
-      {(helperText || (error && errorMessage)) && (
+      {(helperText ?? (error && errorMessage)) && (
         <FormHelperText error={error}>
           {error && errorMessage ? errorMessage : helperText}
         </FormHelperText>

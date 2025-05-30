@@ -1,7 +1,7 @@
 // src/primitives/Icon/Icon.test.tsx
 import React from 'react';
 import { screen } from '@testing-library/react';
-import { renderWithTheme, styleAssertions } from '@/tests/test-utils';
+import { renderWithTheme, styleAssertions } from '@/tests/testUtils';
 import { Icon } from './Icon';
 
 // Sample SVG content for testing

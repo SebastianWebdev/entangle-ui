@@ -3,6 +3,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { NumberInput } from './NumberInput';
 import { ThemeProvider } from '@/theme';
+import {KeyboardContextProvider} from '@/context/KeyboardContext'
 
 /**
  * Storybook configuration for NumberInput component
@@ -16,7 +17,8 @@ const meta: Meta<typeof NumberInput> = {
   decorators: [
     (Story) => (
       <ThemeProvider>
-        <div style={{ 
+        <KeyboardContextProvider>
+            <div style={{ 
           padding: '2rem', 
           backgroundColor: 'var(--background-primary)',
           color: 'var(--text-primary)',
@@ -25,6 +27,7 @@ const meta: Meta<typeof NumberInput> = {
         }}>
           <Story />
         </div>
+        </KeyboardContextProvider>
       </ThemeProvider>
     ),
   ],

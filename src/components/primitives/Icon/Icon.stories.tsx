@@ -3,7 +3,7 @@
 import React from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react';
-import { Icon } from './Icon';
+import { Icon, IconSize } from './Icon';
 import { ThemeProvider } from '@/theme';
 
 /**
@@ -288,13 +288,13 @@ export const InteractiveExample: Story = {
 
     const [selectedIcon, setSelectedIcon] = React.useState('star');
     const [selectedColor, setSelectedColor] = React.useState('primary');
-    const [selectedSize, setSelectedSize] = React.useState('md');
+    const [selectedSize, setSelectedSize] = React.useState<IconSize>('md');
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'center' }}>
         <Icon 
-          color={selectedColor as any}
-          size={selectedSize as any}
+          color={selectedColor}
+          size={selectedSize}
           title={`${selectedIcon} icon`}
         >
           <path d={iconPaths[selectedIcon as keyof typeof iconPaths]} />
@@ -331,7 +331,7 @@ export const InteractiveExample: Story = {
             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '14px' }}>Size:</label>
             <select 
               value={selectedSize} 
-              onChange={(e) => setSelectedSize(e.target.value)}
+              onChange={(e) => setSelectedSize(e.target.value as IconSize)}
               style={{ padding: '0.5rem', borderRadius: '4px' }}
             >
               {['sm', 'md', 'lg'].map(size => (

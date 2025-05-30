@@ -2,6 +2,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Flex } from './Flex';
+import type { FlexSpacing } from './Flex';
 import { ThemeProvider } from '@/theme';
 
 /**
@@ -112,7 +113,7 @@ const FlexItem: React.FC<{
   size?: 'sm' | 'md' | 'lg';
   grow?: number;
   shrink?: number;
-  basis?: string;
+  basis?: string | undefined;
 }> = ({ 
   children, 
   color = 'rgba(0, 122, 204, 0.1)',
@@ -351,12 +352,14 @@ export const FlexWrap: Story = {
 };
 
 // Gap examples
+const gaps:FlexSpacing[] = [0, 1, 2, 3, 4];
 export const GapSpacing: Story = {
+ 
   render: () => (
     <div>
-      {[0, 1, 2, 3, 4].map(gap => (
+      {gaps.map(gap => (
         <Section key={gap} title={`Gap ${gap} (${gap * 4}px)`}>
-          <Flex gap={gap as any}>
+          <Flex gap={gap}>
             <FlexItem size="sm">A</FlexItem>
             <FlexItem size="sm">B</FlexItem>
             <FlexItem size="sm">C</FlexItem>
@@ -694,7 +697,7 @@ export const Playground: Story = {
     const [justify, setJustify] = React.useState<'flex-start' | 'center' | 'space-between'>('flex-start');
     const [align, setAlign] = React.useState<'stretch' | 'center' | 'flex-start'>('stretch');
     const [wrap, setWrap] = React.useState<'nowrap' | 'wrap'>('nowrap');
-    const [gap, setGap] = React.useState(2);
+    const [gap, setGap] = React.useState<FlexSpacing>(2);
     const [items, setItems] = React.useState(3);
     
     return (
@@ -716,7 +719,7 @@ export const Playground: Story = {
               </label>
               <select 
                 value={direction} 
-                onChange={(e) => setDirection(e.target.value as any)}
+                onChange={(e) => setDirection(e.target.value as "row" | "column")}
                 style={{ width: '100%', padding: '0.25rem', borderRadius: '3px', border: '1px solid #444' }}
               >
                 <option value="row">Row</option>
@@ -730,7 +733,7 @@ export const Playground: Story = {
               </label>
               <select 
                 value={justify} 
-                onChange={(e) => setJustify(e.target.value as any)}
+                onChange={(e) => setJustify(e.target.value as "flex-start" | "center" | "space-between")}
                 style={{ width: '100%', padding: '0.25rem', borderRadius: '3px', border: '1px solid #444' }}
               >
                 <option value="flex-start">Start</option>
@@ -745,7 +748,7 @@ export const Playground: Story = {
               </label>
               <select 
                 value={align} 
-                onChange={(e) => setAlign(e.target.value as any)}
+                onChange={(e) => setAlign(e.target.value as "stretch" | "center" | "flex-start")}
                 style={{ width: '100%', padding: '0.25rem', borderRadius: '3px', border: '1px solid #444' }}
               >
                 <option value="stretch">Stretch</option>
@@ -760,7 +763,7 @@ export const Playground: Story = {
               </label>
               <select 
                 value={wrap} 
-                onChange={(e) => setWrap(e.target.value as any)}
+                onChange={(e) => setWrap(e.target.value as "nowrap" | "wrap")}
                 style={{ width: '100%', padding: '0.25rem', borderRadius: '3px', border: '1px solid #444' }}
               >
                 <option value="nowrap">No Wrap</option>
@@ -777,7 +780,7 @@ export const Playground: Story = {
                 min="0" 
                 max="6"
                 value={gap}
-                onChange={(e) => setGap(Number(e.target.value))}
+                onChange={(e) => setGap(Number(e.target.value) as FlexSpacing)}
                 style={{ width: '100%' }}
               />
             </div>
@@ -803,7 +806,7 @@ export const Playground: Story = {
             justify={justify}
             align={align}
             wrap={wrap}
-            gap={gap as any}
+            gap={gap}
             style={{ 
               border: '2px dashed rgba(255, 255, 255, 0.3)',
               padding: '1rem',

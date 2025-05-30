@@ -454,7 +454,7 @@ export const NumberInput = ({
   const clickTimeThreshold = 200; // milliseconds
   
   // Combine refs
-  React.useImperativeHandle(ref, () => inputRef.current!);
+  React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement, [inputRef]);
   
    const {
       displayValue,
@@ -494,7 +494,7 @@ export const NumberInput = ({
   // External validation
   const externalError = validate ? validate(value) : undefined;
   const effectiveError =  !!errorMessage || !!externalError || !!internalError;
-  const effectiveErrorMessage = errorMessage || externalError || internalError;
+  const effectiveErrorMessage = errorMessage ?? externalError ?? internalError;
 
   // Mouse event handlers for dragging vs clicking
   const handleMouseDown = (event: React.MouseEvent) => {
@@ -529,7 +529,7 @@ export const NumberInput = ({
     }
   };
 
-  const handleMouseUp = (_event: React.MouseEvent) => {
+  const handleMouseUp = () => {
     if (!mouseDownRef.current || disabled || readOnly) return;
     
     const timeDelta = Date.now() - mouseDownRef.current.time;
@@ -727,7 +727,7 @@ export const NumberInput = ({
         )}
       </StyledInputWrapper>
       
-      {(helperText || (effectiveError && effectiveErrorMessage)) && (
+      {(helperText ?? (effectiveError && effectiveErrorMessage)) && (
         <StyledHelperText $error={effectiveError}>
           {effectiveError && effectiveErrorMessage ? effectiveErrorMessage : helperText}
         </StyledHelperText>

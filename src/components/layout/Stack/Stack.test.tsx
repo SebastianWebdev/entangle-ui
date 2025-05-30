@@ -1,7 +1,6 @@
 // src/components/layout/Stack/Stack.test.tsx
-import React from 'react';
 import { screen } from '@testing-library/react';
-import { renderWithTheme, styleAssertions } from '@/tests/test-utils';
+import { renderWithTheme } from '@/tests/testUtils';
 import { Stack } from './Stack';
 
 /**
