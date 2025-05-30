@@ -439,6 +439,7 @@ export const Slider: React.FC<SliderProps> = ({
   const dragStartRef = useRef<{ startX: number; startValue: number } | null>(null);
   
   const modifiers = useModifierKeys();
+  console.log('Modifiers:', modifiers);
   
   // Calculate derived values
   const effectivePrecisionStep = precisionStep ?? step / 10;
@@ -446,7 +447,6 @@ export const Slider: React.FC<SliderProps> = ({
   const percentage = ((value - min) / (max - min)) * 100;
   const clampedValue = clamp(value, min, max);
   
-  // Memoizujemy funkcję getStepSize, aby uniknąć niepotrzebnych renderów
   const getStepSize = useCallback((): number => {
     if (modifiers.shift) return effectivePrecisionStep;
     if (modifiers.ctrl || modifiers.meta) return effectiveLargeStep;
@@ -467,7 +467,6 @@ export const Slider: React.FC<SliderProps> = ({
   const applyValue = useCallback((newValue: number): void => {
     if (disabled || readOnly) return;
     
-    // Optymalizacja - unikamy zbędnych obliczeń jeśli wartość się nie zmieniła
     if (newValue === value) return;
     
     const rounded = roundToPrecision(newValue, precision);
@@ -521,7 +520,6 @@ export const Slider: React.FC<SliderProps> = ({
    */
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!isDragging || !dragStartRef.current) return;
-    
     // Używamy requestAnimationFrame dla płynniejszego działania
     requestAnimationFrame(() => {
       // Używamy aktualnego kroku (zależnego od modyfikatorów klawiszy)
