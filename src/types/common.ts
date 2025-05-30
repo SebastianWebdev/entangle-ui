@@ -1,3 +1,5 @@
+import React from 'react';
+
 // src/types/common.ts
 import type { Theme } from '@/theme';
 

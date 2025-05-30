@@ -3,7 +3,7 @@ import React, { useRef, useCallback, useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
-import { useModifierKeys } from '@/hooks/useKeyboard';
+import { useKeyboardContext } from '@/context/KeyboardContext';
 import { FormLabel, FormHelperText, InputWrapper } from '@/components/form';
 
 /**
@@ -206,6 +206,7 @@ const StyledTrack = styled.div<StyledTrackProps>`
 interface StyledFillProps {
   $percentage: number;
   $error: boolean;
+  $isDragging: boolean;
 }
 
 const StyledFill = styled.div<StyledFillProps>`
@@ -215,7 +216,7 @@ const StyledFill = styled.div<StyledFillProps>`
   bottom: 0;
   width: ${props => props.$percentage}%;
   background: ${props => props.$error ? props.theme.colors.accent.error : props.theme.colors.accent.primary};
-  transition: width 0.1s ease-out;
+  transition: ${props => props.$isDragging ? 'none' : 'width 0.1s ease-out'};
 `;
 
 interface StyledThumbProps {
@@ -234,7 +235,7 @@ const StyledThumb = styled.div<StyledThumbProps>`
   border: 2px solid ${props => props.theme.colors.background.primary};
   border-radius: 50%;
   cursor: grab;
-  transition: all ${props => props.theme.transitions.fast};
+  transition: ${props => props.$isDragging ? 'none' : `all ${props.theme.transitions.fast}`};
   box-shadow: ${props => props.theme.shadows.sm};
   
   ${props => {
@@ -437,13 +438,19 @@ export const Slider: React.FC<SliderProps> = ({
   const trackRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef<{ startX: number; startValue: number } | null>(null);
   
-  const modifiers = useModifierKeys();
+  const {modifiers} = useKeyboardContext();
   
   // Calculate derived values
   const effectivePrecisionStep = precisionStep ?? step / 10;
   const effectiveLargeStep = largeStep ?? step * 10;
   const percentage = ((value - min) / (max - min)) * 100;
   const clampedValue = clamp(value, min, max);
+  
+  const getStepSize = useCallback((): number => {
+    if (modifiers.shift) return effectivePrecisionStep;
+    if (modifiers.control || modifiers.meta) return effectiveLargeStep;
+    return step;
+  }, [modifiers.shift, modifiers.control, modifiers.meta, effectivePrecisionStep, effectiveLargeStep, step]);
   
   // Format display value with consistent precision to prevent tooltip size changes
   const displayValue = formatValue 
@@ -452,20 +459,14 @@ export const Slider: React.FC<SliderProps> = ({
     ? `${precision !== undefined ? clampedValue.toFixed(precision) : clampedValue}${unit}`
     : precision !== undefined ? clampedValue.toFixed(precision) : clampedValue.toString();
 
-  /**
-   * Gets the appropriate step size based on modifier keys
-   */
-  const getStepSize = useCallback((): number => {
-    if (modifiers.shift) return effectivePrecisionStep;
-    if (modifiers.ctrl || modifiers.meta) return effectiveLargeStep;
-    return step;
-  }, [modifiers.shift, modifiers.ctrl, modifiers.meta, effectivePrecisionStep, effectiveLargeStep, step]);
 
   /**
    * Applies a new value with proper bounds checking and rounding
    */
   const applyValue = useCallback((newValue: number): void => {
     if (disabled || readOnly) return;
+    
+    if (newValue === value) return;
     
     const rounded = roundToPrecision(newValue, precision);
     const clamped = clamp(rounded, min, max);
@@ -483,8 +484,15 @@ export const Slider: React.FC<SliderProps> = ({
     
     const rect = trackRef.current.getBoundingClientRect();
     const percentage = clamp((clientX - rect.left) / rect.width, 0, 1);
-    return min + percentage * (max - min);
-  }, [min, max, value]);
+    const newValue = min + percentage * (max - min);
+    
+    // Używamy aktualnego kroku (zależnego od modyfikatorów klawiszy)
+    const currentStep = getStepSize();
+    
+    // Snap to step increments
+    const steps = Math.round((newValue - min) / currentStep);
+    return min + steps * currentStep;
+  }, [min, max, value, getStepSize]);
 
   /**
    * Handle mouse down on track or thumb
@@ -496,6 +504,7 @@ export const Slider: React.FC<SliderProps> = ({
     setIsDragging(true);
     setShowTooltipState(showTooltip);
     
+    // Używamy aktualnego kroku (zależnego od modyfikatorów klawiszy)
     const newValue = positionToValue(event.clientX);
     applyValue(newValue);
     
@@ -510,9 +519,12 @@ export const Slider: React.FC<SliderProps> = ({
    */
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!isDragging || !dragStartRef.current) return;
-    
-    const newValue = positionToValue(event.clientX);
-    applyValue(newValue);
+    // Używamy requestAnimationFrame dla płynniejszego działania
+    requestAnimationFrame(() => {
+      // Używamy aktualnego kroku (zależnego od modyfikatorów klawiszy)
+      const newValue = positionToValue(event.clientX);
+      applyValue(newValue);
+    });
   }, [isDragging, positionToValue, applyValue]);
 
   /**
@@ -651,7 +663,7 @@ export const Slider: React.FC<SliderProps> = ({
           
         >
         <StyledTrack ref={trackRef} $size={size} $error={error}>
-          <StyledFill $percentage={percentage} $error={error} />
+          <StyledFill $percentage={percentage} $error={error} $isDragging={isDragging} />
         </StyledTrack>
         
         <StyledThumb
@@ -680,7 +692,7 @@ export const Slider: React.FC<SliderProps> = ({
         </StyledSliderWrapper>
       </InputWrapper>
       
-      {(helperText || (error && errorMessage)) && (
+      {(helperText ?? (error && errorMessage)) && (
         <FormHelperText error={error}>
           {error && errorMessage ? errorMessage : helperText}
         </FormHelperText>

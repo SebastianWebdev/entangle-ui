@@ -1,622 +1,330 @@
 // src/hooks/useKeyboard.test.ts
 import { renderHook, act } from '@testing-library/react';
-import { useKeyboard, useKeyPressed, useModifierKeys } from './useKeyboard';
-
- const createKeyboardEvent = (
-    type: 'keydown' | 'keyup',
-    options: {
-      code?: string;
-      key?: string;
-      ctrlKey?: boolean;
-      shiftKey?: boolean;
-      altKey?: boolean;
-      metaKey?: boolean;
-    } = {}
-  ) => {
-    return new KeyboardEvent(type, {
-      code: options.code ?? 'KeyA',
-      key: options.key ?? 'a',
-      ctrlKey: options.ctrlKey ?? false,
-      shiftKey: options.shiftKey ?? false,
-      altKey: options.altKey ?? false,
-      metaKey: options.metaKey ?? false,
-      bubbles: true,
-    });
-  };
+import { useKeyboard } from './useKeyboard';
 import { vi } from 'vitest';
 
-/**
- * Test suite for useKeyboard hook family
- * 
- * Covers:
- * - Basic keyboard state tracking
- * - Modifier key detection
- * - Key press/release cycles
- * - Configuration options
- * - Window focus/blur handling
- * - Performance optimization utilities
- * - Edge cases and cleanup
- */
-describe('useKeyboard', () => {
-  // Mock keyboard events
- 
+// Helper function to create keyboard events
+const createKeyboardEvent = (type: 'keydown' | 'keyup', key: string, modifiers?: {
+  controlKey?: boolean;
+  shiftKey?: boolean;
+  altKey?: boolean;
+  metaKey?: boolean;
+}): KeyboardEvent => {
+  const event = new KeyboardEvent(type, {
+    key,
+    ctrlKey: modifiers?. controlKey ?? false,
+    shiftKey: modifiers?.shiftKey ?? false,
+    altKey: modifiers?.altKey ?? false,
+    metaKey: modifiers?.metaKey ?? false,
+    bubbles: true,
+    cancelable: true,
+  });
+  return event;
+};
 
-  // Cleanup after each test
+describe('useKeyboard', () => {
+  beforeEach(() => {
+    // Spy on window event listeners
+    vi.spyOn(window, 'addEventListener');
+    vi.spyOn(window, 'removeEventListener');
+  });
+
   afterEach(() => {
-    // Reset any pressed keys
-    act(() => {
-      window.dispatchEvent(new Event('blur'));
+    // Clean up all spies
+    vi.restoreAllMocks();
+  });
+
+  describe('initialization', () => {
+    it('should return initial empty state', () => {
+      const { result } = renderHook(() => useKeyboard());
+
+      expect(result.current).toEqual({
+        pressedKeys: [],
+        modifiers: {
+           control: false,
+          shift: false,
+          alt: false,
+          meta: false,
+        },
+      });
+    });
+
+    it('should add event listeners on mount', () => {
+      renderHook(() => useKeyboard());
+
+      expect(window.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(window.addEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
+    });
+
+    it('should remove event listeners on unmount', () => {
+      const { unmount } = renderHook(() => useKeyboard());
+
+      unmount();
+
+      expect(window.removeEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
+      expect(window.removeEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
     });
   });
 
-  describe('Basic Functionality', () => {
-    it('initializes with empty state', () => {
+  describe('modifier keys tracking', () => {
+    it('should track  control key press and release', () => {
       const { result } = renderHook(() => useKeyboard());
-      
-      expect(result.current.pressedKeys).toEqual([]);
-      expect(result.current.ctrl).toBe(false);
-      expect(result.current.shift).toBe(false);
-      expect(result.current.alt).toBe(false);
-      expect(result.current.meta).toBe(false);
+
+      // Press  control
+      act(() => {
+        const event = createKeyboardEvent('keydown', 'Control');
+        window.dispatchEvent(event);
+      });
+
+      expect(result.current.modifiers. control).toBe(true);
+      expect(result.current.modifiers.shift).toBe(false);
+
+      // Release  control
+      act(() => {
+        const event = createKeyboardEvent('keyup', 'Control');
+        window.dispatchEvent(event);
+      });
+
+      expect(result.current.modifiers. control).toBe(false);
     });
 
-    it('tracks key press and release', () => {
+    it('should track shift key press and release', () => {
       const { result } = renderHook(() => useKeyboard());
-      
-      // Press key
+
       act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyA' }));
+        const event = createKeyboardEvent('keydown', 'Shift');
+        window.dispatchEvent(event);
       });
-      
-      expect(result.current.pressedKeys).toContain('KeyA');
-      
-      // Release key
+
+      expect(result.current.modifiers.shift).toBe(true);
+
       act(() => {
-        window.dispatchEvent(createKeyboardEvent('keyup', { code: 'KeyA' }));
+        const event = createKeyboardEvent('keyup', 'Shift');
+        window.dispatchEvent(event);
       });
-      
-      expect(result.current.pressedKeys).not.toContain('KeyA');
+
+      expect(result.current.modifiers.shift).toBe(false);
     });
 
-    it('tracks multiple simultaneous key presses', () => {
+    it('should track alt key press and release', () => {
       const { result } = renderHook(() => useKeyboard());
-      
-      // Press multiple keys
+
       act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyA' }));
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyB' }));
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'Space' }));
+        const event = createKeyboardEvent('keydown', 'Alt');
+        window.dispatchEvent(event);
       });
-      
-      expect(result.current.pressedKeys).toEqual(['KeyA', 'KeyB', 'Space']);
-      
+
+      expect(result.current.modifiers.alt).toBe(true);
+
+      act(() => {
+        const event = createKeyboardEvent('keyup', 'Alt');
+        window.dispatchEvent(event);
+      });
+
+      expect(result.current.modifiers.alt).toBe(false);
+    });
+
+    it('should track meta key press and release', () => {
+      const { result } = renderHook(() => useKeyboard());
+
+      act(() => {
+        const event = createKeyboardEvent('keydown', 'Meta');
+        window.dispatchEvent(event);
+      });
+
+      expect(result.current.modifiers.meta).toBe(true);
+
+      act(() => {
+        const event = createKeyboardEvent('keyup', 'Meta');
+        window.dispatchEvent(event);
+      });
+
+      expect(result.current.modifiers.meta).toBe(false);
+    });
+
+    it('should track multiple modifier keys simultaneously', () => {
+      const { result } = renderHook(() => useKeyboard());
+
+      // Press  control and shift
+      act(() => {
+        window.dispatchEvent(createKeyboardEvent('keydown', 'Control'));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'Shift'));
+      });
+
+      expect(result.current.modifiers. control).toBe(true);
+      expect(result.current.modifiers.shift).toBe(true);
+      expect(result.current.modifiers.alt).toBe(false);
+      expect(result.current.modifiers.meta).toBe(false);
+
+      // Release only  control
+      act(() => {
+        window.dispatchEvent(createKeyboardEvent('keyup', 'Control'));
+      });
+
+      expect(result.current.modifiers. control).toBe(false);
+      expect(result.current.modifiers.shift).toBe(true);
+    });
+  });
+
+  describe('regular key tracking', () => {
+    it('should track regular key presses', () => {
+      const { result } = renderHook(() => useKeyboard());
+
+      act(() => {
+        window.dispatchEvent(createKeyboardEvent('keydown', 'a'));
+      });
+      console.log(result.current)
+      expect(result.current.pressedKeys).toContain('a');
+
+      act(() => {
+        window.dispatchEvent(createKeyboardEvent('keyup', 'a'));
+      });
+
+      expect(result.current.pressedKeys).not.toContain('a');
+    });
+
+    it('should track multiple regular keys', () => {
+      const { result } = renderHook(() => useKeyboard());
+
+      act(() => {
+        window.dispatchEvent(createKeyboardEvent('keydown', 'a'));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'b'));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'c'));
+      });
+
+      expect(result.current.pressedKeys).toEqual(expect.arrayContaining(['a', 'b', 'c']));
+      expect(result.current.pressedKeys).toHaveLength(3);
+
       // Release one key
       act(() => {
-        window.dispatchEvent(createKeyboardEvent('keyup', { code: 'KeyB' }));
+        window.dispatchEvent(createKeyboardEvent('keyup', 'b'));
       });
-      
-      expect(result.current.pressedKeys).toEqual(['KeyA', 'Space']);
+
+      expect(result.current.pressedKeys).toEqual(expect.arrayContaining(['a', 'c']));
+      expect(result.current.pressedKeys).not.toContain('b');
+      expect(result.current.pressedKeys).toHaveLength(2);
     });
 
-    it('prevents duplicate key entries', () => {
+    it('should handle special keys like Space and Enter', () => {
       const { result } = renderHook(() => useKeyboard());
-      
-      // Press same key multiple times
+
       act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyA' }));
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyA' }));
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyA' }));
+        window.dispatchEvent(createKeyboardEvent('keydown', ' ')); // Space
+        window.dispatchEvent(createKeyboardEvent('keydown', 'Enter'));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'Escape'));
       });
-      
-      expect(result.current.pressedKeys).toEqual(['KeyA']);
+
+      expect(result.current.pressedKeys).toEqual(expect.arrayContaining([' ', 'enter', 'escape']));
     });
   });
 
-  describe('Modifier Keys', () => {
-    it('tracks Ctrl key', () => {
+  describe('mixed modifier and regular keys', () => {
+    it('should track modifiers and regular keys separately', () => {
       const { result } = renderHook(() => useKeyboard());
-      
+
       act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { 
-          code: 'ControlLeft',
-          ctrlKey: true 
-        }));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'Control'));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'a'));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'Shift'));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'b'));
       });
-      
-      expect(result.current.ctrl).toBe(true);
-      
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keyup', { 
-          code: 'ControlLeft',
-          ctrlKey: false 
-        }));
-      });
-      
-      expect(result.current.ctrl).toBe(false);
+
+      expect(result.current.modifiers. control).toBe(true);
+      expect(result.current.modifiers.shift).toBe(true);
+      expect(result.current.pressedKeys).toEqual(expect.arrayContaining(['a', 'b']));
+      expect(result.current.pressedKeys).toHaveLength(2);
     });
 
-    it('tracks Shift key', () => {
+    it('should handle  control+key combinations correctly', () => {
       const { result } = renderHook(() => useKeyboard());
-      
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { 
-          code: 'ShiftLeft',
-          shiftKey: true 
-        }));
-      });
-      
-      expect(result.current.shift).toBe(true);
-      
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keyup', { 
-          code: 'ShiftLeft',
-          shiftKey: false 
-        }));
-      });
-      
-      expect(result.current.shift).toBe(false);
-    });
 
-    it('tracks Alt key', () => {
+      
+
+      // Simulate  control+S
+      act(() => {
+        window.dispatchEvent(createKeyboardEvent('keydown', 'Control'));
+        window.dispatchEvent(createKeyboardEvent('keydown', 's'));
+      });
+
+      console.log(result.current)
+
+      expect(result.current.modifiers. control).toBe(true);
+      expect(result.current.pressedKeys).toContain('s');
+
+      // Release both
+      act(() => {
+        window.dispatchEvent(createKeyboardEvent('keyup', 'Control'));
+        window.dispatchEvent(createKeyboardEvent('keyup', 's'));
+      });
+
+      expect(result.current.modifiers. control).toBe(false);
+      expect(result.current.pressedKeys).not.toContain('s');
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should not add duplicate keys when pressed multiple times', () => {
       const { result } = renderHook(() => useKeyboard());
-      
+
       act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { 
-          code: 'AltLeft',
-          altKey: true 
-        }));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'a'));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'a'));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'a'));
       });
-      
-      expect(result.current.alt).toBe(true);
-      
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keyup', { 
-          code: 'AltLeft',
-          altKey: false 
-        }));
-      });
-      
-      expect(result.current.alt).toBe(false);
+
+      expect(result.current.pressedKeys.filter(key => key === 'a')).toHaveLength(1);
     });
 
-    it('tracks Meta key', () => {
+    it('should handle keyup without corresponding keydown', () => {
       const { result } = renderHook(() => useKeyboard());
-      
+
+      // Try to release a key that was never pressed
       act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { 
-          code: 'MetaLeft',
-          metaKey: true 
-        }));
+        window.dispatchEvent(createKeyboardEvent('keyup', 'a'));
       });
-      
-      expect(result.current.meta).toBe(true);
-      
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keyup', { 
-          code: 'MetaLeft',
-          metaKey: false 
-        }));
-      });
-      
-      expect(result.current.meta).toBe(false);
+
+      expect(result.current.pressedKeys).not.toContain('a');
+      expect(result.current.pressedKeys).toHaveLength(0);
     });
 
-    it('tracks multiple modifiers simultaneously', () => {
+    it('should handle case sensitivity correctly', () => {
       const { result } = renderHook(() => useKeyboard());
-      
+
       act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { 
-          code: 'KeyA',
-          ctrlKey: true,
-          shiftKey: true,
-          altKey: true 
-        }));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'A')); // Uppercase
       });
-      
-      expect(result.current.ctrl).toBe(true);
-      expect(result.current.shift).toBe(true);
-      expect(result.current.alt).toBe(true);
-      expect(result.current.meta).toBe(false);
+
+      expect(result.current.pressedKeys).toContain('a'); // Should be lowercase
+
+      act(() => {
+        window.dispatchEvent(createKeyboardEvent('keyup', 'A'));
+      });
+
+      expect(result.current.pressedKeys).not.toContain('a');
     });
   });
 
-  describe('Configuration Options', () => {
-    it('can be disabled', () => {
-      const { result } = renderHook(() => useKeyboard({ enabled: false }));
-      
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyA' }));
-      });
-      
-      expect(result.current.pressedKeys).toEqual([]);
-      expect(result.current.ctrl).toBe(false);
+  describe('memory stability', () => {
+    it('should maintain reference stability when state does not change', () => {
+      const { result, rerender } = renderHook(() => useKeyboard());
+
+      const firstResult = result.current;
+      rerender();
+      const secondResult = result.current;
+
+      expect(firstResult).toBe(secondResult);
     });
 
-    it('can track only specific keys', () => {
-      const { result } = renderHook(() => useKeyboard({
-        trackAllKeys: false,
-        trackedKeys: ['Space', 'Enter']
-      }));
-      
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyA' }));
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'Space' }));
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'Enter' }));
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyB' }));
-      });
-      
-      expect(result.current.pressedKeys).toEqual(['Space', 'Enter']);
-    });
-
-    it('tracks all keys by default', () => {
+    it('should return new object when state changes', () => {
       const { result } = renderHook(() => useKeyboard());
-      
+
+      const initialResult = result.current;
+
       act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyA' }));
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'Space' }));
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'Digit1' }));
+        window.dispatchEvent(createKeyboardEvent('keydown', 'a'));
       });
-      
-      expect(result.current.pressedKeys).toEqual(['KeyA', 'Space', 'Digit1']);
-    });
 
-    it('respects dynamic option changes', () => {
-      const { result, rerender } = renderHook(
-        ({ enabled }) => useKeyboard({ enabled }),
-        { initialProps: { enabled: true } }
-      );
-      
-      // Initially enabled
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyA' }));
-      });
-      expect(result.current.pressedKeys).toContain('KeyA');
-      
-      // Disable hook
-      rerender({ enabled: false });
-      
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyB' }));
-      });
-      expect(result.current.pressedKeys).toEqual(['KeyA']); // No new keys added
+      expect(result.current).not.toBe(initialResult);
     });
-  });
-
-  describe('Window Focus/Blur Handling', () => {
-    it('resets state on window blur', () => {
-      const { result } = renderHook(() => useKeyboard());
-      
-      // Press some keys
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { 
-          code: 'KeyA',
-          ctrlKey: true,
-          shiftKey: true
-        }));
-      });
-      
-      expect(result.current.pressedKeys).toContain('KeyA');
-      expect(result.current.ctrl).toBe(true);
-      expect(result.current.shift).toBe(true);
-      
-      // Simulate window blur
-      act(() => {
-        window.dispatchEvent(new Event('blur'));
-      });
-      
-      expect(result.current.pressedKeys).toEqual([]);
-      expect(result.current.ctrl).toBe(false);
-      expect(result.current.shift).toBe(false);
-      expect(result.current.alt).toBe(false);
-      expect(result.current.meta).toBe(false);
-    });
-
-    it('resets state on window focus', () => {
-      const { result } = renderHook(() => useKeyboard());
-      
-      // Press some keys
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { 
-          code: 'KeyA',
-          ctrlKey: true
-        }));
-      });
-      
-      expect(result.current.pressedKeys).toContain('KeyA');
-      expect(result.current.ctrl).toBe(true);
-      
-      // Simulate window focus
-      act(() => {
-        window.dispatchEvent(new Event('focus'));
-      });
-      
-      expect(result.current.pressedKeys).toEqual([]);
-      expect(result.current.ctrl).toBe(false);
-    });
-  });
-
-  describe('Cleanup', () => {
-    it('removes event listeners on unmount', () => {
-      const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
-      const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
-      
-      const { unmount } = renderHook(() => useKeyboard());
-      
-      expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
-      expect(addEventListenerSpy).toHaveBeenCalledWith('keyup', expect.any(Function));
-      expect(addEventListenerSpy).toHaveBeenCalledWith('blur', expect.any(Function));
-      expect(addEventListenerSpy).toHaveBeenCalledWith('focus', expect.any(Function));
-      
-      unmount();
-      
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('keyup', expect.any(Function));
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('blur', expect.any(Function));
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('focus', expect.any(Function));
-      
-      addEventListenerSpy.mockRestore();
-      removeEventListenerSpy.mockRestore();
-    });
-
-    it('does not add listeners when disabled', () => {
-      const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
-      
-      renderHook(() => useKeyboard({ enabled: false }));
-      
-      expect(addEventListenerSpy).not.toHaveBeenCalled();
-      
-      addEventListenerSpy.mockRestore();
-    });
-  });
-});
-
-describe('useKeyPressed', () => {
-  afterEach(() => {
-    act(() => {
-      window.dispatchEvent(new Event('blur'));
-    });
-  });
-
-  it('returns false initially', () => {
-    const { result } = renderHook(() => useKeyPressed('Space'));
-    
-    expect(result.current).toBe(false);
-  });
-
-  it('returns true when specified key is pressed', () => {
-    const { result } = renderHook(() => useKeyPressed('Space'));
-    
-    act(() => {
-      window.dispatchEvent(createKeyboardEvent('keydown', { code: 'Space' }));
-    });
-    
-    expect(result.current).toBe(true);
-  });
-
-  it('returns false after key is released', () => {
-    const { result } = renderHook(() => useKeyPressed('Space'));
-    
-    act(() => {
-      window.dispatchEvent(createKeyboardEvent('keydown', { code: 'Space' }));
-    });
-    expect(result.current).toBe(true);
-    
-    act(() => {
-      window.dispatchEvent(createKeyboardEvent('keyup', { code: 'Space' }));
-    });
-    expect(result.current).toBe(false);
-  });
-
-  it('ignores other keys', () => {
-    const { result } = renderHook(() => useKeyPressed('Space'));
-    
-    act(() => {
-      window.dispatchEvent(createKeyboardEvent('keydown', { code: 'KeyA' }));
-      window.dispatchEvent(createKeyboardEvent('keydown', { code: 'Enter' }));
-    });
-    
-    expect(result.current).toBe(false);
-  });
-
-  it('works with different key codes', () => {
-    const testCases = ['Enter', 'Escape', 'KeyA', 'Digit1', 'ArrowUp'];
-    
-    testCases.forEach(keyCode => {
-      const { result, unmount } = renderHook(() => useKeyPressed(keyCode));
-      
-      act(() => {
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: keyCode }));
-      });
-      
-      expect(result.current).toBe(true);
-      
-      unmount();
-    });
-  });
-});
-
-describe('useModifierKeys', () => {
-  const createKeyboardEvent = (
-    type: 'keydown' | 'keyup',
-    options: {
-      code?: string;
-      ctrlKey?: boolean;
-      shiftKey?: boolean;
-      altKey?: boolean;
-      metaKey?: boolean;
-    } = {}
-  ) => {
-    return new KeyboardEvent(type, {
-      code: options.code ?? 'KeyA',
-      ctrlKey: options.ctrlKey ?? false,
-      shiftKey: options.shiftKey ?? false,
-      altKey: options.altKey ?? false,
-      metaKey: options.metaKey ?? false,
-      bubbles: true,
-    });
-  };
-
-  afterEach(() => {
-    act(() => {
-      window.dispatchEvent(new Event('blur'));
-    });
-  });
-
-  it('returns all modifier states as false initially', () => {
-    const { result } = renderHook(() => useModifierKeys());
-    
-    expect(result.current.ctrl).toBe(false);
-    expect(result.current.shift).toBe(false);
-    expect(result.current.alt).toBe(false);
-    expect(result.current.meta).toBe(false);
-  });
-
-  it('tracks modifier key changes', () => {
-    const { result } = renderHook(() => useModifierKeys());
-    
-    act(() => {
-      window.dispatchEvent(createKeyboardEvent('keydown', { 
-        ctrlKey: true,
-        shiftKey: true
-      }));
-    });
-    
-    expect(result.current.ctrl).toBe(true);
-    expect(result.current.shift).toBe(true);
-    expect(result.current.alt).toBe(false);
-    expect(result.current.meta).toBe(false);
-  });
-
-  it('updates when modifiers are released', () => {
-    const { result } = renderHook(() => useModifierKeys());
-    
-    // Press modifiers
-    act(() => {
-      window.dispatchEvent(createKeyboardEvent('keydown', { 
-        ctrlKey: true,
-        shiftKey: true,
-        altKey: true
-      }));
-    });
-    
-    expect(result.current.ctrl).toBe(true);
-    expect(result.current.shift).toBe(true);
-    expect(result.current.alt).toBe(true);
-    
-    // Release some modifiers
-    act(() => {
-      window.dispatchEvent(createKeyboardEvent('keyup', { 
-        ctrlKey: false,
-        shiftKey: true,
-        altKey: true
-      }));
-    });
-    
-    expect(result.current.ctrl).toBe(false);
-    expect(result.current.shift).toBe(true);
-    expect(result.current.alt).toBe(true);
-  });
-
-  it('resets on window blur', () => {
-    const { result } = renderHook(() => useModifierKeys());
-    
-    act(() => {
-      window.dispatchEvent(createKeyboardEvent('keydown', { 
-        ctrlKey: true,
-        shiftKey: true,
-        altKey: true,
-        metaKey: true
-      }));
-    });
-    
-    expect(result.current.ctrl).toBe(true);
-    expect(result.current.shift).toBe(true);
-    expect(result.current.alt).toBe(true);
-    expect(result.current.meta).toBe(true);
-    
-    act(() => {
-      window.dispatchEvent(new Event('blur'));
-    });
-    
-    expect(result.current.ctrl).toBe(false);
-    expect(result.current.shift).toBe(false);
-    expect(result.current.alt).toBe(false);
-    expect(result.current.meta).toBe(false);
-  });
-
-  it('is more performant than full useKeyboard (does not track individual keys)', () => {
-    const { result } = renderHook(() => useModifierKeys());
-    
-    act(() => {
-      window.dispatchEvent(createKeyboardEvent('keydown', { 
-        code: 'KeyA',
-        ctrlKey: true
-      }));
-    });
-    
-    expect(result.current.ctrl).toBe(true);
-    // Should not have pressedKeys property
-    expect('pressedKeys' in result.current).toBe(false);
-  });
-});
-
-describe('Edge Cases and Error Handling', () => {
-  it('handles rapid key events correctly', () => {
-    const { result } = renderHook(() => useKeyboard());
-    
-    // Rapid key presses
-    act(() => {
-      for (let i = 0; i < 10; i++) {
-        window.dispatchEvent(createKeyboardEvent('keydown', { code: `Key${String.fromCharCode(65 + i)}` }));
-      }
-    });
-    
-    expect(result.current.pressedKeys).toHaveLength(10);
-    
-    // Rapid key releases
-    act(() => {
-      for (let i = 0; i < 10; i++) {
-        window.dispatchEvent(createKeyboardEvent('keyup', { code: `Key${String.fromCharCode(65 + i)}` }));
-      }
-    });
-    
-    expect(result.current.pressedKeys).toHaveLength(0);
-  });
-
-  it('handles malformed key events gracefully', () => {
-    const { result } = renderHook(() => useKeyboard());
-    
-    // Event without code property - should be filtered out by hook
-    act(() => {
-      const event = new KeyboardEvent('keydown', { bubbles: true });
-      window.dispatchEvent(event);
-    });
-    
-    // Should not add empty or undefined keys
-    expect(result.current.pressedKeys).toEqual([]);
-    expect(result.current.pressedKeys.every(key => key && key.length > 0)).toBe(true);
-  });
-
-  it('handles re-renders without losing state', () => {
-    const { result, rerender } = renderHook(
-      (props) => useKeyboard(props),
-      { initialProps: {} }
-    );
-    
-    act(() => {
-      window.dispatchEvent(createKeyboardEvent('keydown', { 
-        code: 'KeyA',
-        ctrlKey: true
-      }));
-    });
-    
-    expect(result.current.pressedKeys).toContain('KeyA');
-    expect(result.current.ctrl).toBe(true);
-    
-    // Force re-render with same props
-    rerender({});
-    
-    expect(result.current.pressedKeys).toContain('KeyA');
-    expect(result.current.ctrl).toBe(true);
   });
 });

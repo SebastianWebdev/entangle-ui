@@ -3,6 +3,8 @@ import React from 'react';
 import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
 
+import type { Theme } from '@/theme/types';
+
 /**
  * Stack direction options
  */
@@ -143,7 +145,7 @@ interface StyledStackProps {
 /**
  * Calculate gap value based on spacing multiplier and theme
  */
-const getGapValue = (spacing: StackSpacing, theme: any, customGap?: string | number): string => {
+const getGapValue = (spacing: StackSpacing, theme: Theme, customGap?: string | number): string => {
   if (customGap !== undefined) {
     return typeof customGap === 'number' ? `${customGap}px` : customGap;
   }

@@ -3,6 +3,8 @@ import React from 'react';
 import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
 
+import type { Theme } from '@/theme/types';
+
 /**
  * Grid size variants from 1-12 columns or auto-sizing
  */
@@ -103,7 +105,7 @@ interface StyledGridProps {
 /**
  * Calculate gap value based on spacing multiplier and theme
  */
-const getGapValue = (spacing: GridSpacing, theme: any, customGap?: string | number): string => {
+const getGapValue = (spacing: GridSpacing, theme: Theme, customGap?: string | number): string => {
   if (customGap !== undefined) {
     return typeof customGap === 'number' ? `${customGap}px` : customGap;
   }

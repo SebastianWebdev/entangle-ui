@@ -49,18 +49,18 @@
     "url": "https://github.com/SebastianWebdev/entangle-ui/issues"
   },
   "peerDependencies": {
-    "react": ">=19.1.0",
-    "react-dom": ">=19.1.0",
     "@emotion/react": "^11.0.0",
-    "@emotion/styled": "^11.0.0"
-    
+    "@emotion/styled": "^11.0.0",
+    "react": ">=19.1.0",
+    "react-dom": ">=19.1.0"
   },
   "dependencies": {
     "@base-ui-components/react": "^1.0.0-alpha.8",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0"
+    "@emotion/react": "^11.0.0",
+    "@emotion/styled": "^11.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.27.0",
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-typescript": "^12.1.2",
     "@storybook/addon-controls": "^8.6.14",
@@ -77,8 +77,10 @@
     "@typescript-eslint/parser": "^8.32.1",
     "@vitejs/plugin-react": "^4.5.0",
     "@vitest/coverage-v8": "^3.1.4",
+    "@vitest/eslint-plugin": "^1.2.1",
     "@vitest/ui": "^3.1.4",
     "eslint": "^9.27.0",
+    "globals": "^16.2.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.5.3",
     "react": "^19.1.0",

@@ -134,11 +134,16 @@ function replaceConstantsAndFunctions(expression: string): string {
  * Safely evaluates a mathematical expression using Function constructor
  * instead of eval() for better security.
  */
+
 function safeEvaluate(expression: string): number {
   // Create a function that returns the expression result
   // This is safer than eval() as it doesn't have access to the scope
+
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
   const func = new Function('Math', `"use strict"; return (${expression});`);
-  return func(Math);
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  return func(Math) as number;
 }
 
 /**
@@ -168,7 +173,7 @@ export function evaluateExpression(expression: string): EvaluationResult {
   
   try {
     // Handle empty or whitespace-only expressions
-    if (!expression || !expression.trim()) {
+    if (!expression?.trim()) {
       return {
         success: false,
         error: 'Expression cannot be empty',

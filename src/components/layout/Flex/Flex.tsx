@@ -3,6 +3,8 @@ import React from 'react';
 import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
 
+import type { Theme } from '@/theme/types';
+
 /**
  * Flex direction options
  */
@@ -37,7 +39,7 @@ export interface FlexBaseProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   /**
    * Flex content - any React elements
    */
-  children: React.ReactNode;
+  children?: React.ReactNode;
   
   /**
    * Flex direction - controls main axis orientation
@@ -188,7 +190,7 @@ interface StyledFlexProps {
   $customGap?: string | number | undefined;
   $grow: number;
   $shrink: number;
-  $basis: string | number;
+  $basis: string | number | undefined;
   $fullWidth: boolean;
   $fullHeight: boolean;
   $minHeight?: string | number | undefined;
@@ -198,7 +200,7 @@ interface StyledFlexProps {
 /**
  * Calculate gap value based on spacing multiplier and theme
  */
-const getGapValue = (gap: FlexSpacing, theme: any, customGap?: string | number): string => {
+const getGapValue = (gap: FlexSpacing, theme: Theme, customGap?: string | number): string => {
   if (customGap !== undefined) {
     return typeof customGap === 'number' ? `${customGap}px` : customGap;
   }

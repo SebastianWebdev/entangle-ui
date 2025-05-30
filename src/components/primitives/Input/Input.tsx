@@ -390,7 +390,7 @@ export const Input: React.FC<InputProps> = ({
         )}
       </StyledInputWrapper>
       
-      {(helperText || (error && errorMessage)) && (
+      {(helperText ?? (error && errorMessage)) && (
         <StyledHelperText $error={error}>
           {error && errorMessage ? errorMessage : helperText}
         </StyledHelperText>
