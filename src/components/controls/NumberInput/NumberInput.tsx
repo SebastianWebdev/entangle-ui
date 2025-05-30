@@ -10,7 +10,7 @@ import { useNumberInput, type UseNumberInputOptions } from './useNumberInput';
  * Props specific to NumberInput component
  */
 export interface NumberInputBaseProps extends 
-  BaseComponent,
+  Omit<BaseComponent, 'onChange'>,
   UseNumberInputOptions {
   /**
    * Current numeric value
@@ -403,7 +403,7 @@ const StyledHelperText = styled.div<{ $error: boolean }>`
  * />
  * ```
  */
-export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(({
+export const NumberInput = ({
   // Value props
   value,
   onChange,
@@ -441,8 +441,9 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
   onFocus,
   onBlur,
   onKeyDown,
+  ref,
   ...props
-}, forwardedRef) => {
+}:NumberInputProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = React.useState(false);
@@ -453,9 +454,8 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
   const clickTimeThreshold = 200; // milliseconds
   
   // Combine refs
-  React.useImperativeHandle(forwardedRef, () => inputRef.current!);
+  React.useImperativeHandle(ref, () => inputRef.current!);
   
-  // Use the NumberInput hook for all logic
    const {
       displayValue,
       isEditing,
@@ -471,7 +471,6 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       endEditing,
       updateDisplayValue,
       setHovered,
-    
       handleKeyDown,
     } = useNumberInput({
       value,
@@ -735,6 +734,6 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       )}
     </StyledNumberInputContainer>
   );
-});
+};
 
 NumberInput.displayName = 'NumberInput';
