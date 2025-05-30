@@ -8,7 +8,7 @@ export interface InputWrapperProps extends BaseComponent<HTMLDivElement> {
    * Input wrapper content
    */
   children: React.ReactNode;
-  
+
   /**
    * Input size using standard library sizing
    * - `sm`: 20px height, compact for toolbars
@@ -17,19 +17,19 @@ export interface InputWrapperProps extends BaseComponent<HTMLDivElement> {
    * @default "md"
    */
   size?: Size;
-  
+
   /**
    * Whether the input has an error state
    * @default false
    */
   error?: boolean;
-  
+
   /**
    * Whether the input is disabled
    * @default false
    */
   disabled?: boolean;
-  
+
   /**
    * Whether the input is focused
    * @default false
@@ -52,8 +52,11 @@ const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
   border: 1px solid;
   border-radius: ${props => props.theme.borderRadius.md}px;
   transition: all ${props => props.theme.transitions.normal};
-  background: ${props => props.$disabled ? props.theme.colors.surface.disabled : props.theme.colors.surface.default};
-  
+  background: ${props =>
+    props.$disabled
+      ? props.theme.colors.surface.disabled
+      : props.theme.colors.surface.default};
+
   /* Size variants */
   ${props => {
     const sizes = {
@@ -76,21 +79,26 @@ const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
       padding: ${size.padding};
     `;
   }}
-  
+
   /* Border color states */
   border-color: ${props => {
     if (props.$error) return props.theme.colors.border.error;
     if (props.$focused) return props.theme.colors.border.focus;
     return props.theme.colors.border.default;
   }};
-  
+
   /* Focus ring */
-  ${props => props.$focused && !props.$error && `
+  ${props =>
+    props.$focused &&
+    !props.$error &&
+    `
     box-shadow: 0 0 0 2px ${props.theme.colors.accent.primary}20;
   `}
-  
+
   /* Disabled state */
-  ${props => props.$disabled && `
+  ${props =>
+    props.$disabled &&
+    `
     opacity: 0.5;
     cursor: not-allowed;
   `}
@@ -102,21 +110,21 @@ const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
       return props.theme.colors.border.focus;
     }};
   }
-  
+
   /* Custom CSS */
   ${props => processCss(props.$css, props.theme)}
 `;
 
 /**
  * A standardized wrapper component for form inputs.
- * 
+ *
  * Provides consistent styling and behavior for input containers
  * across different form components, with support for different sizes,
  * states (error, disabled, focused), and consistent border styling.
- * 
+ *
  * @example
  * ```tsx
- * <InputWrapper 
+ * <InputWrapper
  *   size="md"
  *   error={!!inputError}
  *   disabled={isDisabled}

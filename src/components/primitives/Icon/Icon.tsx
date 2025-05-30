@@ -5,7 +5,9 @@ import type { Prettify, LiteralUnion } from '@/types/utilities';
 import type { Size } from '@/types/common';
 
 export type IconSize = Size;
-export type IconColor = LiteralUnion<'primary' | 'secondary' | 'muted' | 'accent' | 'success' | 'warning' | 'error'>;
+export type IconColor = LiteralUnion<
+  'primary' | 'secondary' | 'muted' | 'accent' | 'success' | 'warning' | 'error'
+>;
 
 export interface IconBaseProps {
   children: React.ReactNode;
@@ -30,12 +32,12 @@ const StyledSVG = styled.svg<StyledSVGProps>`
   vertical-align: middle;
   flex-shrink: 0;
   user-select: none;
-  
+
   /* Size variants optimized for editor interfaces */
   ${props => {
     const sizes = {
       sm: '12px',
-      md: '16px', 
+      md: '16px',
       lg: '20px',
     };
     return `
@@ -43,11 +45,11 @@ const StyledSVG = styled.svg<StyledSVGProps>`
       height: ${sizes[props.$size]};
     `;
   }}
-  
+
   /* Color variants using theme tokens */
   ${props => {
     const { theme } = props;
-    
+
     // Standard color mappings to theme
     const colorMap = {
       primary: theme.colors.text.primary,
@@ -58,10 +60,11 @@ const StyledSVG = styled.svg<StyledSVGProps>`
       warning: theme.colors.accent.warning,
       error: theme.colors.accent.error,
     };
-    
+
     // Use theme color if available, otherwise treat as custom color
-    const color = colorMap[props.$color as keyof typeof colorMap] || props.$color;
-    
+    const color =
+      colorMap[props.$color as keyof typeof colorMap] || props.$color;
+
     return `
       color: ${color};
       fill: none;

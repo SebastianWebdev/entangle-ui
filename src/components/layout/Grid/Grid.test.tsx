@@ -1,19 +1,19 @@
 // src/components/layout/Grid/Grid.test.tsx
 
-import { screen,  } from '@testing-library/react';
-import { renderWithTheme, } from '@/tests/testUtils';
+import { screen } from '@testing-library/react';
+import { renderWithTheme } from '@/tests/testUtils';
 import { Grid } from './Grid';
 
 /**
  * Test suite for Grid component
- * 
+ *
  * Covers: container/item modes, responsive sizing, spacing, accessibility, nesting
  */
 describe('Grid', () => {
   describe('Rendering', () => {
     it('renders with default props', () => {
       renderWithTheme(<Grid data-testid="test-grid">Content</Grid>);
-      
+
       const grid = screen.getByTestId('test-grid');
       expect(grid).toBeInTheDocument();
       expect(screen.getByText('Content')).toBeInTheDocument();
@@ -26,7 +26,7 @@ describe('Grid', () => {
           <div>Child 2</div>
         </Grid>
       );
-      
+
       expect(screen.getByText('Child 1')).toBeInTheDocument();
       expect(screen.getByText('Child 2')).toBeInTheDocument();
     });
@@ -37,7 +37,7 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const grid = screen.getByTestId('test-grid');
       expect(grid).toHaveClass('custom-grid');
     });
@@ -56,10 +56,10 @@ describe('Grid', () => {
           <Grid size={6}>Item 2</Grid>
         </Grid>
       );
-      
+
       const container = screen.getByTestId('container-grid');
       const styles = window.getComputedStyle(container);
-      
+
       expect(styles.display).toBe('grid');
       expect(styles.gridTemplateColumns).toContain('1fr');
       expect(styles.width).toBe('100%');
@@ -71,10 +71,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const container = screen.getByTestId('container-grid');
       const styles = window.getComputedStyle(container);
-      
+
       // Should have 12 columns (repeat(12, 1fr))
       expect(styles.gridTemplateColumns).toContain('repeat(12, 1fr)');
     });
@@ -85,55 +85,63 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const container = screen.getByTestId('container-grid');
       const styles = window.getComputedStyle(container);
-      
+
       expect(styles.gridTemplateColumns).toContain('repeat(6, 1fr)');
     });
 
     it('does not apply container styles when container=false', () => {
       renderWithTheme(<Grid data-testid="item-grid">Content</Grid>);
-      
+
       const grid = screen.getByTestId('item-grid');
       const styles = window.getComputedStyle(grid);
-      
+
       expect(styles.display).not.toBe('grid');
     });
   });
 
   describe('Item Sizing', () => {
     it('applies size prop correctly', () => {
-      renderWithTheme(<Grid size={6} data-testid="sized-grid">Content</Grid>);
-      
+      renderWithTheme(
+        <Grid size={6} data-testid="sized-grid">
+          Content
+        </Grid>
+      );
+
       const grid = screen.getByTestId('sized-grid');
       const styles = window.getComputedStyle(grid);
-      
+
       expect(styles.gridColumn).toBe('span 6');
     });
 
     it('handles auto sizing', () => {
-      renderWithTheme(<Grid size="auto" data-testid="auto-grid">Content</Grid>);
-      
+      renderWithTheme(
+        <Grid size="auto" data-testid="auto-grid">
+          Content
+        </Grid>
+      );
+
       const grid = screen.getByTestId('auto-grid');
       const styles = window.getComputedStyle(grid);
-      
+
       expect(styles.gridColumn).toBe('span auto');
     });
 
     it('handles all numeric sizes (1-12)', () => {
       const sizes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
-      
+
       sizes.forEach(size => {
         const { unmount } = renderWithTheme(
           <Grid size={size} data-testid={`grid-${size}`}>
             Content {size}
           </Grid>
         );
-        
+
         const grid = screen.getByTestId(`grid-${size}`);
         const styles = window.getComputedStyle(grid);
-        
+
         expect(styles.gridColumn).toBe(`span ${size}`);
         unmount();
       });
@@ -145,10 +153,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const grid = screen.getByTestId('container-with-size');
       const styles = window.getComputedStyle(grid);
-      
+
       // Container should not have grid-column span
       expect(styles.gridColumn).not.toContain('span');
     });
@@ -157,21 +165,14 @@ describe('Grid', () => {
   describe('Responsive Sizing', () => {
     it('applies responsive sizes correctly', () => {
       renderWithTheme(
-        <Grid 
-          xs={12} 
-          sm={6} 
-          md={4} 
-          lg={3} 
-          xl={2} 
-          data-testid="responsive-grid"
-        >
+        <Grid xs={12} sm={6} md={4} lg={3} xl={2} data-testid="responsive-grid">
           Content
         </Grid>
       );
-      
+
       const grid = screen.getByTestId('responsive-grid');
       expect(grid).toBeInTheDocument();
-      
+
       // Note: Testing responsive styles requires either jsdom-testing-mocks
       // or checking the generated CSS. For now, we verify the element exists.
     });
@@ -182,10 +183,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const grid = screen.getByTestId('mixed-responsive');
       const styles = window.getComputedStyle(grid);
-      
+
       // Should apply base size by default
       expect(styles.gridColumn).toBe('span 12');
     });
@@ -196,22 +197,22 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const grid = screen.getByTestId('responsive-auto');
       expect(grid).toBeInTheDocument();
     });
 
     it('applies all responsive breakpoints', () => {
       const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
-      
-      breakpoints.forEach((breakpoint) => {
+
+      breakpoints.forEach(breakpoint => {
         const props = { [breakpoint]: 6 };
         const { unmount } = renderWithTheme(
           <Grid {...props} data-testid={`${breakpoint}-grid`}>
             Content
           </Grid>
         );
-        
+
         const grid = screen.getByTestId(`${breakpoint}-grid`);
         expect(grid).toBeInTheDocument();
         unmount();
@@ -226,10 +227,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const container = screen.getByTestId('default-spacing');
       const styles = window.getComputedStyle(container);
-      
+
       // Default spacing should be 2 * 4px = 8px
       expect(styles.gap).toBe('8px');
     });
@@ -240,26 +241,26 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const container = screen.getByTestId('zero-spacing');
       const styles = window.getComputedStyle(container);
-      
+
       expect(styles.gap).toBe('0px');
     });
 
     it('applies various spacing multipliers', () => {
       const spacings = [1, 2, 3, 4, 5, 6, 7, 8] as const;
-      
+
       spacings.forEach(spacing => {
         const { unmount } = renderWithTheme(
           <Grid container spacing={spacing} data-testid={`spacing-${spacing}`}>
             Content
           </Grid>
         );
-        
+
         const container = screen.getByTestId(`spacing-${spacing}`);
         const styles = window.getComputedStyle(container);
-        
+
         // Each spacing unit = 4px (theme.spacing.sm)
         const expectedGap = `${spacing * 4}px`;
         expect(styles.gap).toBe(expectedGap);
@@ -273,10 +274,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const item = screen.getByTestId('item-spacing');
       const styles = window.getComputedStyle(item);
-      
+
       // Items should not have gap property
       expect(styles.gap).toBeFalsy();
     });
@@ -289,10 +290,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const container = screen.getByTestId('custom-gap-string');
       const styles = window.getComputedStyle(container);
-      
+
       expect(styles.gap).toBe('1rem');
     });
 
@@ -302,10 +303,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const container = screen.getByTestId('custom-gap-number');
       const styles = window.getComputedStyle(container);
-      
+
       expect(styles.gap).toBe('24px');
     });
 
@@ -315,10 +316,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const container = screen.getByTestId('gap-override');
       const styles = window.getComputedStyle(container);
-      
+
       // Should use gap value, not spacing
       expect(styles.gap).toBe('10px');
     });
@@ -329,10 +330,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const container = screen.getByTestId('complex-gap');
       const styles = window.getComputedStyle(container);
-      
+
       expect(styles.gap).toBe('2rem 1rem');
     });
   });
@@ -350,14 +351,14 @@ describe('Grid', () => {
           <Grid size={6}>Right content</Grid>
         </Grid>
       );
-      
+
       const outerGrid = screen.getByTestId('outer-grid');
       const innerGrid = screen.getByTestId('inner-grid');
-      
+
       // Both should be CSS grids
       expect(window.getComputedStyle(outerGrid).display).toBe('grid');
       expect(window.getComputedStyle(innerGrid).display).toBe('grid');
-      
+
       // Check content renders
       expect(screen.getByText('Nested 1')).toBeInTheDocument();
       expect(screen.getByText('Nested 2')).toBeInTheDocument();
@@ -378,7 +379,7 @@ describe('Grid', () => {
           </Grid>
         </Grid>
       );
-      
+
       expect(screen.getByTestId('level-1')).toBeInTheDocument();
       expect(screen.getByTestId('level-2')).toBeInTheDocument();
       expect(screen.getByTestId('level-3')).toBeInTheDocument();
@@ -393,10 +394,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const container = screen.getByTestId('container-box-sizing');
       const styles = window.getComputedStyle(container);
-      
+
       expect(styles.boxSizing).toBe('border-box');
     });
 
@@ -406,10 +407,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const item = screen.getByTestId('item-box-sizing');
       const styles = window.getComputedStyle(item);
-      
+
       expect(styles.boxSizing).toBe('border-box');
     });
   });
@@ -423,7 +424,7 @@ describe('Grid', () => {
           </Grid>
         );
       }).not.toThrow();
-      
+
       expect(screen.getByTestId('themed-grid')).toBeInTheDocument();
     });
 
@@ -433,10 +434,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const container = screen.getByTestId('theme-spacing');
       const styles = window.getComputedStyle(container);
-      
+
       // Should use theme.spacing.sm (4px) * 3 = 12px
       expect(styles.gap).toBe('12px');
     });
@@ -449,7 +450,7 @@ describe('Grid', () => {
           {null}
         </Grid>
       );
-      
+
       const grid = screen.getByTestId('empty-grid');
       expect(grid).toBeInTheDocument();
     });
@@ -460,7 +461,7 @@ describe('Grid', () => {
           {undefined}
         </Grid>
       );
-      
+
       const grid = screen.getByTestId('undefined-grid');
       expect(grid).toBeInTheDocument();
     });
@@ -481,7 +482,7 @@ describe('Grid', () => {
           </Grid>
         </Grid>
       );
-      
+
       expect(screen.getByText('Complex')).toBeInTheDocument();
       expect(screen.getByText('Content')).toBeInTheDocument();
       expect(screen.getByText('Item 1')).toBeInTheDocument();
@@ -494,10 +495,10 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const container = screen.getByTestId('max-spacing');
       const styles = window.getComputedStyle(container);
-      
+
       expect(styles.gap).toBe('32px'); // 8 * 4px
     });
 
@@ -507,10 +508,10 @@ describe('Grid', () => {
           <Grid size={1}>Full width</Grid>
         </Grid>
       );
-      
+
       const container = screen.getByTestId('single-column');
       const styles = window.getComputedStyle(container);
-      
+
       expect(styles.gridTemplateColumns).toContain('repeat(1, 1fr)');
     });
   });
@@ -528,15 +529,15 @@ describe('Grid', () => {
           </Grid>
         </Grid>
       );
-      
+
       expect(screen.getByRole('heading', { level: 2 })).toBeInTheDocument();
       expect(screen.getByRole('navigation')).toBeInTheDocument();
     });
 
     it('does not interfere with ARIA attributes', () => {
       renderWithTheme(
-        <Grid 
-          container 
+        <Grid
+          container
           role="main"
           aria-label="Main content grid"
           data-testid="aria-grid"
@@ -546,18 +547,18 @@ describe('Grid', () => {
           </Grid>
         </Grid>
       );
-      
+
       const container = screen.getByTestId('aria-grid');
       expect(container).toHaveAttribute('role', 'main');
       expect(container).toHaveAttribute('aria-label', 'Main content grid');
-      
+
       const article = screen.getByRole('article');
       expect(article).toBeInTheDocument();
     });
 
     it('supports custom HTML attributes', () => {
       renderWithTheme(
-        <Grid 
+        <Grid
           container
           id="custom-id"
           data-custom="value"
@@ -566,7 +567,7 @@ describe('Grid', () => {
           Content
         </Grid>
       );
-      
+
       const grid = screen.getByTestId('custom-attrs');
       expect(grid).toHaveAttribute('id', 'custom-id');
       expect(grid).toHaveAttribute('data-custom', 'value');
@@ -580,22 +581,22 @@ describe('Grid', () => {
           Item {i + 1}
         </Grid>
       ));
-      
+
       const startTime = performance.now();
-      
+
       renderWithTheme(
         <Grid container spacing={1} data-testid="large-grid">
           {items}
         </Grid>
       );
-      
+
       const endTime = performance.now();
       const renderTime = endTime - startTime;
-      
+
       expect(screen.getByTestId('large-grid')).toBeInTheDocument();
       expect(screen.getByText('Item 1')).toBeInTheDocument();
       expect(screen.getByText('Item 100')).toBeInTheDocument();
-      
+
       // Should render within reasonable time (adjust threshold as needed)
       expect(renderTime).toBeLessThan(100); // 100ms threshold
     });

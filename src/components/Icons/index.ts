@@ -49,4 +49,3 @@ export { UserIcon } from './UserIcon';
 export { WarningIcon } from './WarningIcon';
 export { ZoomInIcon } from './ZoomInIcon';
 export { ZoomOutIcon } from './ZoomOutIcon';
-

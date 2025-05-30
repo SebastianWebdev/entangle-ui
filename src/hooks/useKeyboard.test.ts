@@ -4,15 +4,19 @@ import { useKeyboard } from './useKeyboard';
 import { vi } from 'vitest';
 
 // Helper function to create keyboard events
-const createKeyboardEvent = (type: 'keydown' | 'keyup', key: string, modifiers?: {
-  controlKey?: boolean;
-  shiftKey?: boolean;
-  altKey?: boolean;
-  metaKey?: boolean;
-}): KeyboardEvent => {
+const createKeyboardEvent = (
+  type: 'keydown' | 'keyup',
+  key: string,
+  modifiers?: {
+    controlKey?: boolean;
+    shiftKey?: boolean;
+    altKey?: boolean;
+    metaKey?: boolean;
+  }
+): KeyboardEvent => {
   const event = new KeyboardEvent(type, {
     key,
-    ctrlKey: modifiers?. controlKey ?? false,
+    ctrlKey: modifiers?.controlKey ?? false,
     shiftKey: modifiers?.shiftKey ?? false,
     altKey: modifiers?.altKey ?? false,
     metaKey: modifiers?.metaKey ?? false,
@@ -41,7 +45,7 @@ describe('useKeyboard', () => {
       expect(result.current).toEqual({
         pressedKeys: [],
         modifiers: {
-           control: false,
+          control: false,
           shift: false,
           alt: false,
           meta: false,
@@ -52,8 +56,14 @@ describe('useKeyboard', () => {
     it('should add event listeners on mount', () => {
       renderHook(() => useKeyboard());
 
-      expect(window.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
-      expect(window.addEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
+      expect(window.addEventListener).toHaveBeenCalledWith(
+        'keydown',
+        expect.any(Function)
+      );
+      expect(window.addEventListener).toHaveBeenCalledWith(
+        'keyup',
+        expect.any(Function)
+      );
     });
 
     it('should remove event listeners on unmount', () => {
@@ -61,8 +71,14 @@ describe('useKeyboard', () => {
 
       unmount();
 
-      expect(window.removeEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
-      expect(window.removeEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
+      expect(window.removeEventListener).toHaveBeenCalledWith(
+        'keydown',
+        expect.any(Function)
+      );
+      expect(window.removeEventListener).toHaveBeenCalledWith(
+        'keyup',
+        expect.any(Function)
+      );
     });
   });
 
@@ -76,7 +92,7 @@ describe('useKeyboard', () => {
         window.dispatchEvent(event);
       });
 
-      expect(result.current.modifiers. control).toBe(true);
+      expect(result.current.modifiers.control).toBe(true);
       expect(result.current.modifiers.shift).toBe(false);
 
       // Release  control
@@ -85,7 +101,7 @@ describe('useKeyboard', () => {
         window.dispatchEvent(event);
       });
 
-      expect(result.current.modifiers. control).toBe(false);
+      expect(result.current.modifiers.control).toBe(false);
     });
 
     it('should track shift key press and release', () => {
@@ -151,7 +167,7 @@ describe('useKeyboard', () => {
         window.dispatchEvent(createKeyboardEvent('keydown', 'Shift'));
       });
 
-      expect(result.current.modifiers. control).toBe(true);
+      expect(result.current.modifiers.control).toBe(true);
       expect(result.current.modifiers.shift).toBe(true);
       expect(result.current.modifiers.alt).toBe(false);
       expect(result.current.modifiers.meta).toBe(false);
@@ -161,7 +177,7 @@ describe('useKeyboard', () => {
         window.dispatchEvent(createKeyboardEvent('keyup', 'Control'));
       });
 
-      expect(result.current.modifiers. control).toBe(false);
+      expect(result.current.modifiers.control).toBe(false);
       expect(result.current.modifiers.shift).toBe(true);
     });
   });
@@ -173,7 +189,7 @@ describe('useKeyboard', () => {
       act(() => {
         window.dispatchEvent(createKeyboardEvent('keydown', 'a'));
       });
-      console.log(result.current)
+      console.log(result.current);
       expect(result.current.pressedKeys).toContain('a');
 
       act(() => {
@@ -192,7 +208,9 @@ describe('useKeyboard', () => {
         window.dispatchEvent(createKeyboardEvent('keydown', 'c'));
       });
 
-      expect(result.current.pressedKeys).toEqual(expect.arrayContaining(['a', 'b', 'c']));
+      expect(result.current.pressedKeys).toEqual(
+        expect.arrayContaining(['a', 'b', 'c'])
+      );
       expect(result.current.pressedKeys).toHaveLength(3);
 
       // Release one key
@@ -200,7 +218,9 @@ describe('useKeyboard', () => {
         window.dispatchEvent(createKeyboardEvent('keyup', 'b'));
       });
 
-      expect(result.current.pressedKeys).toEqual(expect.arrayContaining(['a', 'c']));
+      expect(result.current.pressedKeys).toEqual(
+        expect.arrayContaining(['a', 'c'])
+      );
       expect(result.current.pressedKeys).not.toContain('b');
       expect(result.current.pressedKeys).toHaveLength(2);
     });
@@ -214,7 +234,9 @@ describe('useKeyboard', () => {
         window.dispatchEvent(createKeyboardEvent('keydown', 'Escape'));
       });
 
-      expect(result.current.pressedKeys).toEqual(expect.arrayContaining([' ', 'enter', 'escape']));
+      expect(result.current.pressedKeys).toEqual(
+        expect.arrayContaining([' ', 'enter', 'escape'])
+      );
     });
   });
 
@@ -229,16 +251,16 @@ describe('useKeyboard', () => {
         window.dispatchEvent(createKeyboardEvent('keydown', 'b'));
       });
 
-      expect(result.current.modifiers. control).toBe(true);
+      expect(result.current.modifiers.control).toBe(true);
       expect(result.current.modifiers.shift).toBe(true);
-      expect(result.current.pressedKeys).toEqual(expect.arrayContaining(['a', 'b']));
+      expect(result.current.pressedKeys).toEqual(
+        expect.arrayContaining(['a', 'b'])
+      );
       expect(result.current.pressedKeys).toHaveLength(2);
     });
 
     it('should handle  control+key combinations correctly', () => {
       const { result } = renderHook(() => useKeyboard());
-
-      
 
       // Simulate  control+S
       act(() => {
@@ -246,9 +268,9 @@ describe('useKeyboard', () => {
         window.dispatchEvent(createKeyboardEvent('keydown', 's'));
       });
 
-      console.log(result.current)
+      console.log(result.current);
 
-      expect(result.current.modifiers. control).toBe(true);
+      expect(result.current.modifiers.control).toBe(true);
       expect(result.current.pressedKeys).toContain('s');
 
       // Release both
@@ -257,7 +279,7 @@ describe('useKeyboard', () => {
         window.dispatchEvent(createKeyboardEvent('keyup', 's'));
       });
 
-      expect(result.current.modifiers. control).toBe(false);
+      expect(result.current.modifiers.control).toBe(false);
       expect(result.current.pressedKeys).not.toContain('s');
     });
   });
@@ -272,7 +294,9 @@ describe('useKeyboard', () => {
         window.dispatchEvent(createKeyboardEvent('keydown', 'a'));
       });
 
-      expect(result.current.pressedKeys.filter(key => key === 'a')).toHaveLength(1);
+      expect(
+        result.current.pressedKeys.filter(key => key === 'a')
+      ).toHaveLength(1);
     });
 
     it('should handle keyup without corresponding keydown', () => {

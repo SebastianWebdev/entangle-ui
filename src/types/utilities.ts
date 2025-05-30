@@ -16,7 +16,9 @@ export type Prettify<T> = {
  * type Colors = LiteralUnion<'red' | 'blue' | 'green', string>
  * // Shows autocomplete for 'red', 'blue', 'green' but accepts any string
  */
-export type LiteralUnion<T extends U, U = string> = T | (U & Record<never, never>);
+export type LiteralUnion<T extends U, U = string> =
+  | T
+  | (U & Record<never, never>);
 
 /**
  * Makes all properties optional recursively

@@ -3,19 +3,20 @@ import React from 'react';
 import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
 
-export interface SpacerBaseProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
+export interface SpacerBaseProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /**
    * Fixed size instead of auto-expanding
    * When provided, spacer will have a fixed dimension instead of flexible growth
    * @example "20px", "1rem", "2em", 40
    */
   size?: string | number | undefined;
-  
+
   /**
    * Additional CSS classes
    */
   className?: string | undefined;
-  
+
   /**
    * Test identifier for automated testing
    */
@@ -33,20 +34,25 @@ interface StyledSpacerProps {
 
 const StyledSpacer = styled.div<StyledSpacerProps>`
   /* Auto-expanding behavior by default */
-  ${props => !props.$size && `
+  ${props =>
+    !props.$size &&
+    `
     flex-grow: 1;
     flex-shrink: 1;
     flex-basis: auto;
     min-width: 0;
     min-height: 0;
   `}
-  
+
   /* Fixed size mode */
-  ${props => props.$size && `
+  ${props =>
+    props.$size &&
+    `
     flex: none;
-    ${typeof props.$size === 'number' 
-      ? `width: ${props.$size}px; height: ${props.$size}px;`
-      : `width: ${props.$size}; height: ${props.$size};`
+    ${
+      typeof props.$size === 'number'
+        ? `width: ${props.$size}px; height: ${props.$size}px;`
+        : `width: ${props.$size}; height: ${props.$size};`
     }
   `}
   
@@ -57,10 +63,10 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
 
 /**
  * A flexible spacer component that expands to fill available space.
- * 
+ *
  * Perfect for pushing elements apart in flex layouts (Stack, Flex components).
  * By default, it grows to fill available space. Can also be used with fixed size.
- * 
+ *
  * @example
  * ```tsx
  * // Auto-expanding spacer (pushes elements apart)
@@ -69,14 +75,14 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
  *   <Spacer />
  *   <Button>Right</Button>
  * </Stack>
- * 
+ *
  * // Fixed size spacer
  * <Stack direction="column">
  *   <Title>Header</Title>
  *   <Spacer size="2rem" />
  *   <Content>Body</Content>
  * </Stack>
- * 
+ *
  * // Multiple spacers for even distribution
  * <Flex direction="row">
  *   <Logo />
@@ -85,7 +91,7 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
  *   <Spacer />
  *   <UserMenu />
  * </Flex>
- * 
+ *
  * // Numeric size
  * <Stack>
  *   <Item />

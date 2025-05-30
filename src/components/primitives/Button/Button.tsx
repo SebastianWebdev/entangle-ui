@@ -1,12 +1,12 @@
 // src/primitives/Button/Button.tsx
 import React from 'react';
 import styled from '@emotion/styled';
-import {Size, Variant} from '@/types/common'
+import { Size, Variant } from '@/types/common';
 
 /**
  * Rozmiary przycisku zoptymalizowane dla interfejsów edytora
  */
-export type ButtonSize =Size;
+export type ButtonSize = Size;
 
 /**
  * Warianty wizualne przycisku
@@ -17,18 +17,18 @@ export type ButtonVariant = Variant;
  * Właściwości komponentu Button
  */
 export interface ButtonProps {
-  /** 
+  /**
    * Zawartość przycisku - tekst, ikony lub inne elementy React
-   * @example "Zapisz", <><SaveIcon /> Zapisz</> 
+   * @example "Zapisz", <><SaveIcon /> Zapisz</>
    */
   children?: React.ReactNode;
-  
-  /** 
+
+  /**
    * Dodatkowe klasy CSS
    */
   className?: string;
-  
-  /** 
+
+  /**
    * Wariant rozmiaru zoptymalizowany dla interfejsów edytora
    * - `sm`: wysokość 24px, kompaktowy dla pasków narzędzi
    * - `md`: wysokość 28px, standardowy dla paneli
@@ -36,51 +36,51 @@ export interface ButtonProps {
    * @default "md"
    */
   size?: ButtonSize;
-  
-  /** 
+
+  /**
    * Wariant wizualny przycisku
    * - `default`: Przezroczysty z obramowaniem, wypełnia się przy hover
-   * - `ghost`: Bez obramowania, subtelny stan hover  
+   * - `ghost`: Bez obramowania, subtelny stan hover
    * - `filled`: Solidne tło z kolorem akcentu
    * @default "default"
    */
   variant?: ButtonVariant;
-  
-  /** 
+
+  /**
    * Czy przycisk jest wyłączony
    * Gdy true, przycisk staje się nieinteraktywny z obniżoną przezroczystością
    * @default false
    */
   disabled?: boolean;
-  
-  /** 
+
+  /**
    * Stan ładowania - pokazuje spinner i wyłącza interakcję
    * Używaj dla operacji asynchronicznych jak zapisywanie, ładowanie danych
    * @default false
    */
   loading?: boolean;
-  
-  /** 
+
+  /**
    * Element ikony do wyświetlenia przed tekstem
    * Powinien mieć rozmiar 16x16px dla optymalnego wyglądu
    * @example <SaveIcon />, <PlayIcon />
    */
   icon?: React.ReactNode;
-  
-  /** 
+
+  /**
    * Czy przycisk powinien zajmować pełną szerokość kontenera
    * Przydatne dla akcji formularzy i przycisków modalnych
    * @default false
    */
   fullWidth?: boolean;
-  
-  /** 
+
+  /**
    * Handler zdarzenia kliknięcia
    * Wywoływany gdy przycisk jest kliknięty (nie gdy disabled/loading)
    */
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  
-  /** 
+
+  /**
    * Identyfikator testowy dla testów automatycznych
    * Powinien następować wzorzec: component-action-context
    * @example "button-save-project", "button-cancel-dialog"
@@ -102,9 +102,9 @@ const StyledButton = styled.button<StyledButtonProps>`
   /* Reset */
   margin: 0;
   font-family: inherit;
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
   user-select: none;
-  
+
   /* Layout */
   display: inline-flex;
   align-items: center;
@@ -113,7 +113,7 @@ const StyledButton = styled.button<StyledButtonProps>`
   border-radius: ${props => props.theme.borderRadius.md}px;
   transition: all ${props => props.theme.transitions.normal};
   outline: none;
-  
+
   /* Size variants */
   ${props => {
     const sizes = {
@@ -144,11 +144,11 @@ const StyledButton = styled.button<StyledButtonProps>`
       gap: ${size.gap};
     `;
   }}
-  
+
   /* Variant styles */
   ${props => {
     const { colors } = props.theme;
-    
+
     switch (props.$variant) {
       case 'default':
         return `
@@ -165,7 +165,7 @@ const StyledButton = styled.button<StyledButtonProps>`
             background: ${colors.surface.active};
           }
         `;
-        
+
       case 'ghost':
         return `
           background: transparent;
@@ -181,7 +181,7 @@ const StyledButton = styled.button<StyledButtonProps>`
             background: ${colors.surface.active};
           }
         `;
-        
+
       case 'filled':
         return `
           background: ${colors.accent.primary};
@@ -197,7 +197,7 @@ const StyledButton = styled.button<StyledButtonProps>`
             background: ${colors.accent.secondary};
           }
         `;
-        
+
       default:
         return '';
     }
@@ -211,7 +211,7 @@ const StyledButton = styled.button<StyledButtonProps>`
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   /* Focus visible */
   &:focus-visible {
     box-shadow: ${props => props.theme.shadows.focus};
@@ -228,9 +228,11 @@ const LoadingSpinner = styled.div`
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  
+
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;
 
@@ -247,24 +249,24 @@ const IconWrapper = styled.span`
 
 /**
  * Wszechstronny komponent przycisku dla interfejsów edytora.
- * 
+ *
  * Obsługuje wiele wariantów, rozmiarów i stanów. Zoptymalizowany dla profesjonalnych
  * interfejsów edytora z kompaktowymi wymiarami i precyzyjnymi interakcjami.
- * 
+ *
  * @example
  * ```tsx
  * // Podstawowe użycie
  * <Button variant="default" size="md">Zapisz</Button>
- * 
+ *
  * // Z ikoną i stanem ładowania
- * <Button 
- *   icon={<SaveIcon />} 
+ * <Button
+ *   icon={<SaveIcon />}
  *   loading={isSaving}
  *   onClick={handleSave}
  * >
  *   Zapisz Projekt
  * </Button>
- * 
+ *
  * // Przycisk pełnej szerokości
  * <Button variant="filled" fullWidth>
  *   Potwierdź
@@ -301,7 +303,7 @@ export const Button: React.FC<ButtonProps> = ({
       ) : icon ? (
         <IconWrapper>{icon}</IconWrapper>
       ) : null}
-      
+
       {children && <span>{children}</span>}
     </StyledButton>
   );

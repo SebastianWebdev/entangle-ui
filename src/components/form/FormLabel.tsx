@@ -8,18 +8,18 @@ export interface FormLabelProps extends BaseComponent<HTMLLabelElement> {
    * Label content
    */
   children: React.ReactNode;
-  
+
   /**
    * HTML for attribute to associate label with form control
    */
   htmlFor?: string;
-  
+
   /**
    * Whether the associated form control is disabled
    * @default false
    */
   disabled?: boolean;
-  
+
   /**
    * Whether the associated form control is required
    * @default false
@@ -27,14 +27,20 @@ export interface FormLabelProps extends BaseComponent<HTMLLabelElement> {
   required?: boolean;
 }
 
-const StyledLabel = styled.label<{ $disabled: boolean; $css?: FormLabelProps['css'] }>`
+const StyledLabel = styled.label<{
+  $disabled: boolean;
+  $css?: FormLabelProps['css'];
+}>`
   font-size: ${props => props.theme.typography.fontSize.sm}px;
   font-weight: ${props => props.theme.typography.fontWeight.medium};
-  color: ${props => props.$disabled ? props.theme.colors.text.disabled : props.theme.colors.text.secondary};
+  color: ${props =>
+    props.$disabled
+      ? props.theme.colors.text.disabled
+      : props.theme.colors.text.secondary};
   line-height: ${props => props.theme.typography.lineHeight.tight};
   margin-bottom: ${props => props.theme.spacing.xs}px;
   display: inline-block;
-  
+
   /* Custom CSS */
   ${props => processCss(props.$css, props.theme)}
 `;
@@ -46,10 +52,10 @@ const RequiredIndicator = styled.span`
 
 /**
  * A standardized form label component for use with form controls.
- * 
+ *
  * Provides consistent styling and behavior for labels across different
  * form components, with support for required indicators and disabled states.
- * 
+ *
  * @example
  * ```tsx
  * <FormLabel htmlFor="name-input" required>
@@ -69,7 +75,7 @@ export const FormLabel: React.FC<FormLabelProps> = ({
   ...rest
 }) => {
   return (
-    <StyledLabel 
+    <StyledLabel
       htmlFor={htmlFor}
       $disabled={disabled}
       $css={css}

@@ -5,23 +5,23 @@ import type { IconProps } from '../primitives/Icon';
 
 /**
  * Settings icon component for configuration and preferences.
- * 
+ *
  * A standard gear/cog icon commonly used for settings panels,
  * configuration dialogs, and preference screens in editor interfaces.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
  * <SettingsIcon />
- * 
+ *
  * // With custom size and color
  * <SettingsIcon size="lg" color="primary" />
- * 
+ *
  * // In a settings button
  * <Button icon={<SettingsIcon />}>Settings</Button>
  * ```
  */
-export const SettingsIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
+export const SettingsIcon: React.FC<Omit<IconProps, 'children'>> = props => {
   return (
     <Icon {...props}>
       <circle cx="12" cy="12" r="3" />

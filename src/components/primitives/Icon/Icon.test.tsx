@@ -5,7 +5,9 @@ import { renderWithTheme, styleAssertions } from '@/tests/testUtils';
 import { Icon } from './Icon';
 
 // Sample SVG content for testing
-const TestPath = () => <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />;
+const TestPath = () => (
+  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+);
 
 const TestComplexIcon = () => (
   <>
@@ -17,7 +19,7 @@ const TestComplexIcon = () => (
 
 /**
  * Test suite for Icon component
- * 
+ *
  * Covers: rendering, size variants, colors, accessibility, SVG structure
  */
 describe('Icon', () => {
@@ -28,14 +30,17 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
       expect(icon.tagName).toBe('svg');
-      
+
       const path = icon.querySelector('path');
       expect(path).toBeInTheDocument();
-      expect(path).toHaveAttribute('d', 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z');
+      expect(path).toHaveAttribute(
+        'd',
+        'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'
+      );
     });
 
     it('renders with default props', () => {
@@ -44,12 +49,12 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toHaveAttribute('viewBox', '0 0 24 24');
       expect(icon).toHaveAttribute('role', 'img');
       expect(icon).toHaveAttribute('fill', 'none');
-      
+
       // Temporary fix: Accept aria-hidden="false" until component is updated
       const ariaHidden = icon.getAttribute('aria-hidden');
       if (ariaHidden !== null) {
@@ -63,19 +68,22 @@ describe('Icon', () => {
           <TestComplexIcon />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
-      
+
       const path = icon.querySelector('path');
       const polyline = icon.querySelector('polyline');
       const line = icon.querySelector('line');
-      
+
       expect(path).toBeInTheDocument();
       expect(polyline).toBeInTheDocument();
       expect(line).toBeInTheDocument();
-      
-      expect(path).toHaveAttribute('d', 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4');
+
+      expect(path).toHaveAttribute(
+        'd',
+        'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'
+      );
       expect(polyline).toHaveAttribute('points', '7,10 12,15 17,10');
       expect(line).toHaveAttribute('x1', '12');
       expect(line).toHaveAttribute('y1', '15');
@@ -89,7 +97,7 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toHaveClass('custom-class');
     });
@@ -100,7 +108,7 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       expect(screen.getByTestId('custom-icon')).toBeInTheDocument();
     });
   });
@@ -112,10 +120,10 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
-      
+
       // Check actual size from component: sm = 12px
       styleAssertions.expectDimensions(icon, '12px', '12px');
     });
@@ -126,10 +134,10 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
-      
+
       // Check actual size from component: md = 16px (default)
       styleAssertions.expectDimensions(icon, '16px', '16px');
     });
@@ -140,17 +148,17 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
-      
+
       // Check actual size from component: lg = 20px
       styleAssertions.expectDimensions(icon, '20px', '20px');
     });
 
     it('handles all size variants without errors', () => {
       const sizes = ['sm', 'md', 'lg'] as const;
-      
+
       sizes.forEach(size => {
         expect(() => {
           renderWithTheme(
@@ -159,7 +167,7 @@ describe('Icon', () => {
             </Icon>
           );
         }).not.toThrow();
-        
+
         expect(screen.getByTestId(`icon-${size}`)).toBeInTheDocument();
       });
     });
@@ -172,10 +180,10 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
-      
+
       // Component should apply primary color from theme
       const styles = window.getComputedStyle(icon);
       expect(styles.color).toBe('rgb(255, 255, 255)'); // theme.colors.text.primary
@@ -187,10 +195,10 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
-      
+
       // Component should apply secondary color from theme
       const styles = window.getComputedStyle(icon);
       expect(styles.color).toBe('rgb(204, 204, 204)'); // theme.colors.text.secondary
@@ -202,10 +210,10 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
-      
+
       // Component should apply accent color from theme
       const styles = window.getComputedStyle(icon);
       expect(styles.color).toBe('rgb(0, 122, 204)'); // theme.colors.accent.primary
@@ -217,14 +225,22 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
     });
 
     it('handles all standard color variants', () => {
-      const colors = ['primary', 'secondary', 'muted', 'accent', 'success', 'warning', 'error'] as const;
-      
+      const colors = [
+        'primary',
+        'secondary',
+        'muted',
+        'accent',
+        'success',
+        'warning',
+        'error',
+      ] as const;
+
       colors.forEach(color => {
         expect(() => {
           renderWithTheme(
@@ -233,7 +249,7 @@ describe('Icon', () => {
             </Icon>
           );
         }).not.toThrow();
-        
+
         expect(screen.getByTestId(`icon-${color}`)).toBeInTheDocument();
       });
     });
@@ -246,10 +262,10 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       const title = icon.querySelector('title');
-      
+
       expect(title).toBeInTheDocument();
       expect(title).toHaveTextContent('Save file');
       expect(icon).toHaveAttribute('role', 'img');
@@ -261,7 +277,7 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toHaveAttribute('aria-hidden', 'true');
       expect(icon).toHaveAttribute('role', 'presentation');
@@ -273,10 +289,10 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       const title = icon.querySelector('title');
-      
+
       expect(title).not.toBeInTheDocument();
     });
 
@@ -286,10 +302,10 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toHaveAttribute('role', 'img');
-      
+
       // Temporary fix: Accept aria-hidden="false" until component is updated
       const ariaHidden = icon.getAttribute('aria-hidden');
       if (ariaHidden !== null) {
@@ -303,7 +319,7 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toHaveAccessibleName('Download');
     });
@@ -314,7 +330,7 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toHaveAttribute('role', 'presentation');
       expect(icon).toHaveAttribute('aria-hidden', 'true');
@@ -328,35 +344,27 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon.tagName).toBe('svg');
       expect(icon).toHaveAttribute('viewBox', '0 0 24 24');
       expect(icon).toHaveAttribute('fill', 'none');
-      
+
       const path = icon.querySelector('path');
       expect(path).toBeInTheDocument();
     });
 
     it('handles empty children gracefully', () => {
-      renderWithTheme(
-        <Icon data-testid="test-icon">
-          {null}
-        </Icon>
-      );
-      
+      renderWithTheme(<Icon data-testid="test-icon">{null}</Icon>);
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
       expect(icon.tagName).toBe('svg');
     });
 
     it('handles undefined children gracefully', () => {
-      renderWithTheme(
-        <Icon data-testid="test-icon">
-          {undefined}
-        </Icon>
-      );
-      
+      renderWithTheme(<Icon data-testid="test-icon">{undefined}</Icon>);
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
       expect(icon.tagName).toBe('svg');
@@ -370,7 +378,7 @@ describe('Icon', () => {
           <rect x="9" y="9" width="6" height="6" />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon.querySelector('path')).toBeInTheDocument();
       expect(icon.querySelector('circle')).toBeInTheDocument();
@@ -383,7 +391,7 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon.tagName).toBe('svg');
       expect(icon).toHaveAttribute('viewBox', '0 0 24 24');
@@ -400,20 +408,28 @@ describe('Icon', () => {
           </Icon>
         );
       }).not.toThrow();
-      
+
       expect(screen.getByTestId('test-icon')).toBeInTheDocument();
     });
 
     it('handles all standard color variants from theme', () => {
-      const colors = ['primary', 'secondary', 'muted', 'accent', 'success', 'warning', 'error'] as const;
-      
+      const colors = [
+        'primary',
+        'secondary',
+        'muted',
+        'accent',
+        'success',
+        'warning',
+        'error',
+      ] as const;
+
       colors.forEach(color => {
         const { unmount } = renderWithTheme(
           <Icon color={color} data-testid={`icon-${color}`}>
             <TestPath />
           </Icon>
         );
-        
+
         expect(screen.getByTestId(`icon-${color}`)).toBeInTheDocument();
         unmount();
       });
@@ -425,10 +441,10 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
-      
+
       // Theme color should be applied via styled-components
       const styles = window.getComputedStyle(icon);
       expect(styles).toBeDefined();
@@ -439,10 +455,12 @@ describe('Icon', () => {
     it('renders SVG text elements correctly', () => {
       renderWithTheme(
         <Icon data-testid="test-icon">
-          <text x="12" y="12">A</text>
+          <text x="12" y="12">
+            A
+          </text>
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       const text = icon.querySelector('text');
       expect(text).toBeInTheDocument();
@@ -453,13 +471,13 @@ describe('Icon', () => {
 
     it('renders functional component children', () => {
       const CustomPath = () => <path d="M0 0L24 24" />;
-      
+
       renderWithTheme(
         <Icon data-testid="test-icon">
           <CustomPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       const path = icon.querySelector('path');
       expect(path).toBeInTheDocument();
@@ -473,10 +491,12 @@ describe('Icon', () => {
             <path d="M12 2l3.09 6.26" />
             <circle cx="12" cy="12" r="3" />
           </g>
-          <text x="12" y="20">Icon</text>
+          <text x="12" y="20">
+            Icon
+          </text>
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon.querySelector('g')).toBeInTheDocument();
       expect(icon.querySelector('path')).toBeInTheDocument();
@@ -493,7 +513,7 @@ describe('Icon', () => {
           </React.Fragment>
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon.querySelector('path')).toBeInTheDocument();
       expect(icon.querySelector('circle')).toBeInTheDocument();
@@ -508,7 +528,7 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toHaveAttribute('viewBox', '0 0 24 24');
     });
@@ -519,16 +539,16 @@ describe('Icon', () => {
           <TestPath />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toHaveAttribute('fill', 'none');
     });
 
     it('handles multiple props simultaneously', () => {
       renderWithTheme(
-        <Icon 
-          size="lg" 
-          color="accent" 
+        <Icon
+          size="lg"
+          color="accent"
           title="Complex Icon"
           className="custom-icon"
           data-testid="test-icon"
@@ -536,7 +556,7 @@ describe('Icon', () => {
           <TestComplexIcon />
         </Icon>
       );
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
       expect(icon).toHaveClass('custom-icon');
@@ -546,13 +566,9 @@ describe('Icon', () => {
 
     it('handles empty children gracefully', () => {
       expect(() => {
-        renderWithTheme(
-          <Icon data-testid="test-icon">
-            {null}
-          </Icon>
-        );
+        renderWithTheme(<Icon data-testid="test-icon">{null}</Icon>);
       }).not.toThrow();
-      
+
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
       expect(icon.tagName).toBe('svg');

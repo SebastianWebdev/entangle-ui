@@ -5,23 +5,23 @@ import type { IconProps } from '../primitives/Icon';
 
 /**
  * Redo icon component for redo actions.
- * 
+ *
  * A standard curved arrow icon commonly used for redoing operations,
  * reapplying changes, and history navigation in editor interfaces.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
  * <RedoIcon />
- * 
+ *
  * // With custom size and color
  * <RedoIcon size="md" color="secondary" />
- * 
+ *
  * // In a redo button
  * <Button icon={<RedoIcon />}>Redo</Button>
  * ```
  */
-export const RedoIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
+export const RedoIcon: React.FC<Omit<IconProps, 'children'>> = props => {
   return (
     <Icon {...props}>
       <path d="M21 7v6h-6" />

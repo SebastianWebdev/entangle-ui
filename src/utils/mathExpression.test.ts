@@ -194,7 +194,9 @@ describe('mathExpression', () => {
 
     describe('Complex expressions', () => {
       it('evaluates complex mathematical expression', () => {
-        const result = evaluateExpression('sqrt(16) + sin(0) * cos(0) + pi / 2');
+        const result = evaluateExpression(
+          'sqrt(16) + sin(0) * cos(0) + pi / 2'
+        );
         expect(result.success).toBe(true);
         expect(result.value).toBeCloseTo(4 + 0 * 1 + Math.PI / 2);
       });
@@ -223,37 +225,49 @@ describe('mathExpression', () => {
       it('handles invalid characters', () => {
         const result = evaluateExpression('3 + $');
         expect(result.success).toBe(false);
-        expect(result.error).toBe('Expression contains invalid characters or syntax');
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
       });
 
       it('handles unbalanced parentheses - missing closing', () => {
         const result = evaluateExpression('(3 + 4');
         expect(result.success).toBe(false);
-        expect(result.error).toBe('Expression contains invalid characters or syntax');
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
       });
 
       it('handles unbalanced parentheses - missing opening', () => {
         const result = evaluateExpression('3 + 4)');
         expect(result.success).toBe(false);
-        expect(result.error).toBe('Expression contains invalid characters or syntax');
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
       });
 
       it('handles division by zero', () => {
         const result = evaluateExpression('5 / 0');
         expect(result.success).toBe(false);
-        expect(result.error).toBe('Expression does not evaluate to a valid number');
+        expect(result.error).toBe(
+          'Expression does not evaluate to a valid number'
+        );
       });
 
       it('handles invalid function calls', () => {
         const result = evaluateExpression('sqrt(-1)');
         expect(result.success).toBe(false);
-        expect(result.error).toBe('Expression does not evaluate to a valid number');
+        expect(result.error).toBe(
+          'Expression does not evaluate to a valid number'
+        );
       });
 
       it('handles syntax errors', () => {
         const result = evaluateExpression('3 + + 4');
         expect(result.success).toBe(false);
-        expect(result.error).toContain('Invalid left-hand side expression in postfix operation');
+        expect(result.error).toContain(
+          'Invalid left-hand side expression in postfix operation'
+        );
       });
 
       it('preserves original expression in error result', () => {
@@ -482,7 +496,7 @@ describe('mathExpression', () => {
   describe('EvaluationResult type', () => {
     it('has correct structure for successful evaluation', () => {
       const result = evaluateExpression('3 + 4');
-      
+
       expect(result).toHaveProperty('success');
       expect(result).toHaveProperty('value');
       expect(result).toHaveProperty('expression');
@@ -493,7 +507,7 @@ describe('mathExpression', () => {
 
     it('has correct structure for failed evaluation', () => {
       const result = evaluateExpression('invalid');
-      
+
       expect(result).toHaveProperty('success');
       expect(result).toHaveProperty('error');
       expect(result).toHaveProperty('expression');

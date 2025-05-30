@@ -8,7 +8,20 @@ import type { Theme } from '@/theme/types';
 /**
  * Grid size variants from 1-12 columns or auto-sizing
  */
-export type GridSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 'auto';
+export type GridSize =
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 'auto';
 
 /**
  * Spacing multiplier (0-8) based on theme spacing unit
@@ -16,24 +29,25 @@ export type GridSize = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 'auto'
  */
 export type GridSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-export interface GridBaseProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
+export interface GridBaseProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /**
    * Grid content - other Grid components or any React elements
    */
   children: React.ReactNode;
-  
+
   /**
    * Whether this Grid acts as a container (enables CSS Grid)
    * When true, this Grid becomes a container for child Grid items
    * @default false
    */
   container?: boolean;
-  
+
   /**
    * Grid item size (1-12 columns)
    * Only used when this Grid is a child of a container Grid
    * @example 6 // Takes 6 out of 12 columns (50% width)
-   */ 
+   */
   size?: GridSize | undefined;
 
   /**
@@ -46,12 +60,12 @@ export interface GridBaseProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   md?: GridSize | undefined;
   lg?: GridSize | undefined;
   xl?: GridSize | undefined;
-  
+
   /**
    * Spacing between grid items (multiplier of base spacing unit)
    * Only applies when container=true
    * - `0`: No spacing (0px)
-   * - `1`: 1x base unit (4px)  
+   * - `1`: 1x base unit (4px)
    * - `2`: 2x base unit (8px)
    * - `3`: 3x base unit (12px)
    * - `4`: 4x base unit (16px)
@@ -77,7 +91,7 @@ export interface GridBaseProps extends Omit<React.HTMLAttributes<HTMLDivElement>
    * Additional CSS classes
    */
   className?: string;
-  
+
   /**
    * Test identifier for automated testing
    */
@@ -105,7 +119,11 @@ interface StyledGridProps {
 /**
  * Calculate gap value based on spacing multiplier and theme
  */
-const getGapValue = (spacing: GridSpacing, theme: Theme, customGap?: string | number): string => {
+const getGapValue = (
+  spacing: GridSpacing,
+  theme: Theme,
+  customGap?: string | number
+): string => {
   if (customGap !== undefined) {
     return typeof customGap === 'number' ? `${customGap}px` : customGap;
   }
@@ -114,28 +132,38 @@ const getGapValue = (spacing: GridSpacing, theme: Theme, customGap?: string | nu
 
 const StyledGrid = styled.div<StyledGridProps>`
   /* Container styles - creates CSS Grid layout */
-  ${props => props.$container && `
+  ${props =>
+    props.$container &&
+    `
     display: grid;
     grid-template-columns: repeat(${props.$columns}, 1fr);
     width: 100%;
     box-sizing: border-box;
     gap: ${getGapValue(props.$spacing ?? 2, props.theme, props.$gap)};
   `}
-  
+
   /* Item styles - defines how this grid item behaves */
-  ${props => !props.$container && props.$size && `
+  ${props =>
+    !props.$container &&
+    props.$size &&
+    `
     grid-column: span ${props.$size === 'auto' ? 'auto' : props.$size};
   `}
   
   /* Responsive grid item sizes */
-  ${props => !props.$container && `
+  ${props =>
+    !props.$container &&
+    `
     /* Base size */
     ${props.$size && `grid-column: span ${props.$size === 'auto' ? 'auto' : props.$size};`}
     
     /* Extra small screens and up */
-    ${props.$xs && `
+    ${
+      props.$xs &&
+      `
       grid-column: span ${props.$xs === 'auto' ? 'auto' : props.$xs};
-    `}
+    `
+    }
     
     /* Small screens and up (576px) */
     @media (min-width: 576px) {
@@ -164,11 +192,11 @@ const StyledGrid = styled.div<StyledGridProps>`
 
 /**
  * A flexible 12-column grid system component for creating responsive layouts.
- * 
+ *
  * Supports both container and item modes. Container grids create the grid layout,
  * while item grids define how much space each child should occupy.
  * Built on CSS Grid for modern, flexible layouts.
- * 
+ *
  * @example
  * ```tsx
  * // Basic two-column layout
@@ -176,14 +204,14 @@ const StyledGrid = styled.div<StyledGridProps>`
  *   <Grid size={6}>Left content</Grid>
  *   <Grid size={6}>Right content</Grid>
  * </Grid>
- * 
+ *
  * // Responsive three-column layout
  * <Grid container spacing="lg">
  *   <Grid xs={12} sm={6} md={4}>Card 1</Grid>
  *   <Grid xs={12} sm={6} md={4}>Card 2</Grid>
  *   <Grid xs={12} sm={12} md={4}>Card 3</Grid>
  * </Grid>
- * 
+ *
  * // Nested grids
  * <Grid container spacing="md">
  *   <Grid size={8}>
@@ -194,7 +222,7 @@ const StyledGrid = styled.div<StyledGridProps>`
  *   </Grid>
  *   <Grid size={4}>Sidebar</Grid>
  * </Grid>
- * 
+ *
  * // Custom gap
  * <Grid container gap="2rem">
  *   <Grid size={4}>Item 1</Grid>

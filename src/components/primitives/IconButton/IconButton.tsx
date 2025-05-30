@@ -2,7 +2,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 
-import type { Prettify, } from '@/types/utilities';
+import type { Prettify } from '@/types/utilities';
 import type { Size, Variant } from '@/types/common';
 
 /**
@@ -25,26 +25,26 @@ export interface IconButtonBaseProps {
    * Icon component to display inside the button.
    * Should be an Icon component or similar icon element.
    * The button will automatically size itself based on the icon size.
-   * 
+   *
    * @example <SaveIcon />, <AddIcon />
    */
   children: React.ReactNode;
-  
+
   /**
    * Additional CSS classes for custom styling
    */
   className?: string;
-  
+
   /**
    * Button size using standard library sizing
    * Button will be square and sized appropriately for the icon
    * - `sm`: 20px square (for 12px icons)
-   * - `md`: 24px square (for 16px icons)  
+   * - `md`: 24px square (for 16px icons)
    * - `lg`: 32px square (for 20px icons)
    * @default "md"
    */
   size?: IconButtonSize;
-  
+
   /**
    * Button visual variant
    * - `default`: Transparent with border, fills on hover
@@ -53,52 +53,52 @@ export interface IconButtonBaseProps {
    * @default "ghost"
    */
   variant?: IconButtonVariant;
-  
+
   /**
    * Border radius for button shape control
    * - `none`: Sharp corners (0px)
    * - `sm`: Slightly rounded (2px)
-   * - `md`: Moderately rounded (4px) 
+   * - `md`: Moderately rounded (4px)
    * - `lg`: More rounded (6px)
    * - `full`: Fully circular
    * @default "md"
    */
   radius?: IconButtonRadius;
-  
+
   /**
    * Whether the button is disabled
    * When true, button becomes non-interactive with reduced opacity
    * @default false
    */
   disabled?: boolean;
-  
+
   /**
    * Whether the button is in a loading state
    * Shows spinner and disables interaction
    * @default false
    */
   loading?: boolean;
-  
+
   /**
    * Whether the button appears pressed/active
    * Useful for toggle states and active tool indicators
    * @default false
    */
   pressed?: boolean;
-  
+
   /**
    * Accessible label for screen readers
    * Required for proper accessibility
    * @example "Save file", "Delete item", "Close dialog"
    */
   'aria-label': string;
-  
+
   /**
    * Click event handler
    * Called when button is clicked (not when disabled/loading)
    */
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  
+
   /**
    * Test identifier for automated testing
    * @example "icon-button-save", "icon-button-delete"
@@ -124,9 +124,9 @@ const StyledIconButton = styled.button<StyledIconButtonProps>`
   margin: 0;
   padding: 0;
   font-family: inherit;
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
   user-select: none;
-  
+
   /* Layout */
   display: inline-flex;
   align-items: center;
@@ -134,22 +134,22 @@ const StyledIconButton = styled.button<StyledIconButtonProps>`
   transition: all ${props => props.theme.transitions.normal};
   outline: none;
   position: relative;
-  
+
   /* Size variants - square buttons scaled to icon size */
   ${props => {
     const sizes = {
       sm: {
-        width: '20px',   // Compact for 12px icons
+        width: '20px', // Compact for 12px icons
         height: '20px',
         padding: '4px',
       },
       md: {
-        width: '24px',   // Standard for 16px icons
-        height: '24px', 
+        width: '24px', // Standard for 16px icons
+        height: '24px',
         padding: '4px',
       },
       lg: {
-        width: '32px',   // Larger for 20px icons
+        width: '32px', // Larger for 20px icons
         height: '32px',
         padding: '6px',
       },
@@ -161,13 +161,13 @@ const StyledIconButton = styled.button<StyledIconButtonProps>`
       padding: ${size.padding};
     `;
   }}
-  
+
   /* Border radius variants */
   ${props => {
     const radiusMap = {
       none: '0px',
       sm: `${props.theme.borderRadius.sm}px`,
-      md: `${props.theme.borderRadius.md}px`, 
+      md: `${props.theme.borderRadius.md}px`,
       lg: `${props.theme.borderRadius.lg}px`,
       full: '50%',
     };
@@ -177,7 +177,7 @@ const StyledIconButton = styled.button<StyledIconButtonProps>`
   /* Variant styles */
   ${props => {
     const { colors } = props.theme;
-    
+
     switch (props.$variant) {
       case 'default':
         return `
@@ -194,7 +194,7 @@ const StyledIconButton = styled.button<StyledIconButtonProps>`
             background: ${colors.surface.active};
           }
         `;
-        
+
       case 'ghost':
         return `
           background: transparent;
@@ -210,7 +210,7 @@ const StyledIconButton = styled.button<StyledIconButtonProps>`
             background: ${colors.surface.active};
           }
         `;
-        
+
       case 'filled':
         return `
           background: ${colors.accent.primary};
@@ -226,14 +226,16 @@ const StyledIconButton = styled.button<StyledIconButtonProps>`
             background: ${colors.accent.secondary};
           }
         `;
-        
+
       default:
         return '';
     }
   }}
   
   /* Pressed state */
-  ${props => props.$pressed && `
+  ${props =>
+    props.$pressed &&
+    `
     background: ${props.theme.colors.surface.active} !important;
     border-color: ${props.theme.colors.border.focus} !important;
   `}
@@ -243,17 +245,17 @@ const StyledIconButton = styled.button<StyledIconButtonProps>`
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   /* Focus visible */
   &:focus-visible {
     box-shadow: ${props => props.theme.shadows.focus};
   }
-  
+
   /* Active press effect */
   &:active:not(:disabled) {
     transform: translateY(0.5px);
   }
-  
+
   /* Icon container - centers icon properly */
   & > * {
     display: flex;
@@ -267,7 +269,7 @@ const LoadingSpinner = styled.div<{ $size: IconButtonSize }>`
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  
+
   ${props => {
     const sizes = {
       sm: '12px',
@@ -279,48 +281,50 @@ const LoadingSpinner = styled.div<{ $size: IconButtonSize }>`
       height: ${sizes[props.$size]};
     `;
   }}
-  
+
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;
 
 /**
  * A specialized square button component for displaying icons in editor interfaces.
- * 
+ *
  * Designed for toolbar actions, quick controls, and icon-based interactions.
  * Always square and sized appropriately for the contained icon.
  * Supports various border radius options from sharp corners to fully circular.
- * 
+ *
  * @example
  * ```tsx
  * // Basic ghost button (default)
  * <IconButton aria-label="Save file">
  *   <SaveIcon />
  * </IconButton>
- * 
+ *
  * // Circular filled button
- * <IconButton 
- *   variant="filled" 
+ * <IconButton
+ *   variant="filled"
  *   radius="full"
  *   size="lg"
  *   aria-label="Add item"
  * >
  *   <AddIcon />
  * </IconButton>
- * 
+ *
  * // Sharp corners for toolbar
- * <IconButton 
+ * <IconButton
  *   variant="default"
- *   radius="none" 
+ *   radius="none"
  *   aria-label="Settings"
  * >
  *   <SettingsIcon />
  * </IconButton>
- * 
+ *
  * // Toggle state
- * <IconButton 
- *   pressed={isVisible} 
+ * <IconButton
+ *   pressed={isVisible}
  *   radius="sm"
  *   aria-label="Toggle visibility"
  *   onClick={toggleVisibility}
@@ -358,11 +362,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
       data-testid={testId}
       {...props}
     >
-      {loading ? (
-        <LoadingSpinner $size={size} />
-      ) : (
-        children
-      )}
+      {loading ? <LoadingSpinner $size={size} /> : children}
     </StyledIconButton>
   );
 };

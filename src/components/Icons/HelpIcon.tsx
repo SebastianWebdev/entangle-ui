@@ -5,23 +5,23 @@ import type { IconProps } from '../primitives/Icon';
 
 /**
  * Help icon component for help and support actions.
- * 
+ *
  * A standard question mark icon commonly used for help documentation,
  * support links, and information assistance in editor interfaces.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
  * <HelpIcon />
- * 
+ *
  * // With custom size and color
  * <HelpIcon size="sm" color="muted" />
- * 
+ *
  * // In a help context
  * <Button icon={<HelpIcon />}>Help</Button>
  * ```
  */
-export const HelpIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
+export const HelpIcon: React.FC<Omit<IconProps, 'children'>> = props => {
   return (
     <Icon {...props}>
       <circle cx="12" cy="12" r="10" />

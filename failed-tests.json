@@ -12,10 +12,7 @@
       "message": "",
       "assertionResults": [
         {
-          "ancestorTitles": [
-            "Grid",
-            "Spacing System"
-          ],
+          "ancestorTitles": ["Grid", "Spacing System"],
           "fullName": "Grid Spacing System applies default spacing (2 = 8px)",
           "status": "failed",
           "title": "applies default spacing (2 = 8px)",
@@ -26,10 +23,7 @@
           "meta": {}
         },
         {
-          "ancestorTitles": [
-            "Grid",
-            "Spacing System"
-          ],
+          "ancestorTitles": ["Grid", "Spacing System"],
           "fullName": "Grid Spacing System applies various spacing multipliers",
           "status": "failed",
           "title": "applies various spacing multipliers",
@@ -40,10 +34,7 @@
           "meta": {}
         },
         {
-          "ancestorTitles": [
-            "Grid",
-            "Theme Integration"
-          ],
+          "ancestorTitles": ["Grid", "Theme Integration"],
           "fullName": "Grid Theme Integration uses theme spacing values correctly",
           "status": "failed",
           "title": "uses theme spacing values correctly",
@@ -54,10 +45,7 @@
           "meta": {}
         },
         {
-          "ancestorTitles": [
-            "Grid",
-            "Edge Cases"
-          ],
+          "ancestorTitles": ["Grid", "Edge Cases"],
           "fullName": "Grid Edge Cases handles maximum spacing value",
           "status": "failed",
           "title": "handles maximum spacing value",

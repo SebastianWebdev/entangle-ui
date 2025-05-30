@@ -1,7 +1,6 @@
 import type { Preview } from '@storybook/react';
 import { ThemeProvider } from '../src/theme';
 
-
 const preview: Preview = {
   decorators: [
     Story => (

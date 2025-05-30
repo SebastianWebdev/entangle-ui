@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/theme';
 
 /**
  * Storybook configuration for Grid component
- * 
+ *
  * Showcases the flexible 12-column grid system with container/item patterns,
  * responsive sizing, spacing options, and real-world layout examples.
  */
@@ -14,14 +14,16 @@ const meta: Meta<typeof Grid> = {
   title: 'Layout/Grid',
   component: Grid,
   decorators: [
-    (Story) => (
+    Story => (
       <ThemeProvider>
-        <div style={{ 
-          padding: '1rem', 
-          backgroundColor: 'var(--background-primary)',
-          color: 'var(--text-primary)',
-          minHeight: '100vh'
-        }}>
+        <div
+          style={{
+            padding: '1rem',
+            backgroundColor: 'var(--background-primary)',
+            color: 'var(--text-primary)',
+            minHeight: '100vh',
+          }}
+        >
           <Story />
         </div>
       </ThemeProvider>
@@ -31,7 +33,8 @@ const meta: Meta<typeof Grid> = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'A flexible 12-column grid system for creating responsive layouts. Supports container/item patterns, responsive breakpoints, and customizable spacing.',
+        component:
+          'A flexible 12-column grid system for creating responsive layouts. Supports container/item patterns, responsive breakpoints, and customizable spacing.',
       },
     },
   },
@@ -85,14 +88,16 @@ export const demoCardStyles: React.CSSProperties = {
 };
 
 // In DemoCard
-const DemoCard: React.FC<{ children: React.ReactNode; color?: string }> = ({ 
-  children, 
-  color = 'rgba(0, 122, 204, 0.1)' 
+const DemoCard: React.FC<{ children: React.ReactNode; color?: string }> = ({
+  children,
+  color = 'rgba(0, 122, 204, 0.1)',
 }) => (
-  <div style={{
-    ...demoCardStyles,
-    backgroundColor: color,
-  }}>
+  <div
+    style={{
+      ...demoCardStyles,
+      backgroundColor: color,
+    }}
+  >
     {children}
   </div>
 );
@@ -123,7 +128,7 @@ export const Container: Story = {
     container: true,
     spacing: 2,
   },
-  render: (args) => (
+  render: args => (
     <Grid {...args}>
       <Grid size={4}>
         <DemoCard>Column 1</DemoCard>
@@ -142,7 +147,7 @@ export const Item: Story = {
   args: {
     size: 6,
   },
-  render: (args) => (
+  render: args => (
     <Grid container spacing={2}>
       <Grid {...args}>
         <DemoCard>Grid Item ({args.size} columns)</DemoCard>
@@ -287,7 +292,8 @@ export const ResponsiveBasic: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Responsive layout that stacks on mobile (xs=12) and splits on desktop (md=6). Resize viewport to see changes.',
+        story:
+          'Responsive layout that stacks on mobile (xs=12) and splits on desktop (md=6). Resize viewport to see changes.',
       },
     },
   },
@@ -337,7 +343,8 @@ export const ResponsiveComplex: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Complex responsive layout: 1 column on mobile, 2 on tablet, 4 on desktop.',
+        story:
+          'Complex responsive layout: 1 column on mobile, 2 on tablet, 4 on desktop.',
       },
     },
   },
@@ -382,7 +389,8 @@ export const ResponsiveMixed: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Responsive layout with nested grids. Notice how the sidebar widgets change arrangement on different screen sizes.',
+        story:
+          'Responsive layout with nested grids. Notice how the sidebar widgets change arrangement on different screen sizes.',
       },
     },
   },
@@ -457,7 +465,7 @@ export const SpacingLarge: Story = {
     },
   },
 };
-const spacingValues:GridSpacing[] = [0, 1, 2, 3, 4];
+const spacingValues: GridSpacing[] = [0, 1, 2, 3, 4];
 export const SpacingComparison: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -557,7 +565,8 @@ export const CustomGapComplex: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Grid with different vertical and horizontal gaps (gap="2rem 1rem").',
+        story:
+          'Grid with different vertical and horizontal gaps (gap="2rem 1rem").',
       },
     },
   },
@@ -592,7 +601,8 @@ export const NestedBasic: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Nested grid layout with a main content area containing its own grid.',
+        story:
+          'Nested grid layout with a main content area containing its own grid.',
       },
     },
   },
@@ -640,7 +650,8 @@ export const NestedComplex: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Complex nested layout demonstrating multiple levels of grid nesting.',
+        story:
+          'Complex nested layout demonstrating multiple levels of grid nesting.',
       },
     },
   },
@@ -660,7 +671,7 @@ export const DashboardLayout: Story = {
           </div>
         </DemoCard>
       </Grid>
-      
+
       {/* Main content area */}
       <Grid size={9}>
         <Grid container spacing={2}>
@@ -701,7 +712,7 @@ export const DashboardLayout: Story = {
               </div>
             </DemoCard>
           </Grid>
-          
+
           {/* Charts */}
           <Grid xs={12} md={8}>
             <DemoCard color="rgba(0, 122, 204, 0.1)">
@@ -723,7 +734,7 @@ export const DashboardLayout: Story = {
           </Grid>
         </Grid>
       </Grid>
-      
+
       {/* Sidebar */}
       <Grid size={3}>
         <Grid container spacing={2}>
@@ -761,7 +772,8 @@ export const DashboardLayout: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Complete dashboard layout with header, stats cards, charts, and sidebar.',
+        story:
+          'Complete dashboard layout with header, stats cards, charts, and sidebar.',
       },
     },
   },
@@ -786,7 +798,8 @@ export const CardGallery: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Responsive card gallery that adapts from 1 to 4 columns based on screen size.',
+        story:
+          'Responsive card gallery that adapts from 1 to 4 columns based on screen size.',
       },
     },
   },
@@ -798,147 +811,183 @@ export const Playground: Story = {
     const [spacing, setSpacing] = React.useState<GridSpacing>(2);
     const [columns, setColumns] = React.useState(12);
     const [sizes, setSizes] = React.useState<GridSize[]>([4, 4, 4]);
-    
+
     const addColumn = () => {
       if (sizes.length < 6) {
         setSizes([...sizes, 2]);
       }
     };
-    
+
     const removeColumn = () => {
       if (sizes.length > 1) {
         setSizes(sizes.slice(0, -1));
       }
     };
-    
+
     const updateSize = (index: number, newSize: GridSize) => {
       const newSizes = [...sizes];
       newSizes[index] = newSize;
       setSizes(newSizes);
     };
-    
+
     return (
       <div>
         {/* Controls */}
-        <div style={{ 
-          marginBottom: '2rem', 
-          padding: '1rem', 
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-          borderRadius: '6px',
-          display: 'flex',
-          gap: '1rem',
-          flexWrap: 'wrap',
-          alignItems: 'center'
-        }}>
+        <div
+          style={{
+            marginBottom: '2rem',
+            padding: '1rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '6px',
+            display: 'flex',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+          }}
+        >
           <div>
-            <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '12px' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '0.25rem',
+                fontSize: '12px',
+              }}
+            >
               Spacing:
             </label>
-            <select 
-              value={spacing} 
-              onChange={(e) => setSpacing(Number(e.target.value) as GridSpacing)}
-              style={{ padding: '0.25rem', borderRadius: '3px', border: '1px solid #444' }}
+            <select
+              value={spacing}
+              onChange={e => setSpacing(Number(e.target.value) as GridSpacing)}
+              style={{
+                padding: '0.25rem',
+                borderRadius: '3px',
+                border: '1px solid #444',
+              }}
             >
               {[0, 1, 2, 3, 4, 5, 6, 7, 8].map(s => (
-                <option key={s} value={s}>{s} ({s * 4}px)</option>
+                <option key={s} value={s}>
+                  {s} ({s * 4}px)
+                </option>
               ))}
             </select>
           </div>
-          
+
           <div>
-            <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '12px' }}>
+            <label
+              style={{
+                display: 'block',
+                marginBottom: '0.25rem',
+                fontSize: '12px',
+              }}
+            >
               Columns:
             </label>
-            <input 
-              type="number" 
-              min="1" 
-              max="24" 
+            <input
+              type="number"
+              min="1"
+              max="24"
               value={columns}
-              onChange={(e) => setColumns(Number(e.target.value))}
-              style={{ 
-                padding: '0.25rem', 
-                borderRadius: '3px', 
+              onChange={e => setColumns(Number(e.target.value))}
+              style={{
+                padding: '0.25rem',
+                borderRadius: '3px',
                 border: '1px solid #444',
-                width: '60px'
+                width: '60px',
               }}
             />
           </div>
-          
+
           <div>
-            <button 
+            <button
               onClick={addColumn}
-              style={{ 
-                padding: '0.25rem 0.5rem', 
+              style={{
+                padding: '0.25rem 0.5rem',
                 marginRight: '0.25rem',
                 borderRadius: '3px',
                 border: '1px solid #007acc',
                 backgroundColor: '#007acc',
                 color: 'white',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
             >
               + Add
             </button>
-            <button 
+            <button
               onClick={removeColumn}
-              style={{ 
+              style={{
                 padding: '0.25rem 0.5rem',
                 borderRadius: '3px',
                 border: '1px solid #f44336',
                 backgroundColor: '#f44336',
                 color: 'white',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
             >
               - Remove
             </button>
           </div>
         </div>
-        
+
         {/* Grid preview */}
         <Grid container spacing={spacing} columns={columns}>
           {sizes.map((size, index) => (
             <Grid key={index} size={size}>
-              <div style={{
-                ...demoCardStyles,
-                cursor: 'pointer',
-                position: 'relative'
-              }}>
+              <div
+                style={{
+                  ...demoCardStyles,
+                  cursor: 'pointer',
+                  position: 'relative',
+                }}
+              >
                 <div>
                   <strong>Column {index + 1}</strong>
                   <br />
-                  <small>Size: {size}/{columns}</small>
+                  <small>
+                    Size: {size}/{columns}
+                  </small>
                 </div>
-                <div style={{ 
-                  marginTop: '0.5rem',
-                  display: 'flex',
-                  gap: '0.25rem',
-                  justifyContent: 'center'
-                }}>
-                  <button 
-                    onClick={() => updateSize(index, Math.max(1, size as number - 1) as GridSize)}
-                    style={{ 
+                <div
+                  style={{
+                    marginTop: '0.5rem',
+                    display: 'flex',
+                    gap: '0.25rem',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <button
+                    onClick={() =>
+                      updateSize(
+                        index,
+                        Math.max(1, (size as number) - 1) as GridSize
+                      )
+                    }
+                    style={{
                       padding: '0.125rem 0.25rem',
                       fontSize: '12px',
                       borderRadius: '2px',
                       border: '1px solid #666',
                       backgroundColor: 'transparent',
                       color: 'inherit',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
                     }}
                   >
                     -
                   </button>
-                  <button 
-                    onClick={() => updateSize(index, Math.min(columns, size as  number + 1) as GridSize)}
-                    style={{ 
+                  <button
+                    onClick={() =>
+                      updateSize(
+                        index,
+                        Math.min(columns, (size as number) + 1) as GridSize
+                      )
+                    }
+                    style={{
                       padding: '0.125rem 0.25rem',
                       fontSize: '12px',
                       borderRadius: '2px',
                       border: '1px solid #666',
                       backgroundColor: 'transparent',
                       color: 'inherit',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
                     }}
                   >
                     +
@@ -948,15 +997,18 @@ export const Playground: Story = {
             </Grid>
           ))}
         </Grid>
-        
+
         {/* Info */}
-        <div style={{ 
-          marginTop: '1rem', 
-          fontSize: '12px', 
-          opacity: 0.7,
-          textAlign: 'center'
-        }}>
-          Total columns used: {sizes.reduce((sum, size) => sum + (size as number), 0)} / {columns}
+        <div
+          style={{
+            marginTop: '1rem',
+            fontSize: '12px',
+            opacity: 0.7,
+            textAlign: 'center',
+          }}
+        >
+          Total columns used:{' '}
+          {sizes.reduce((sum, size) => sum + (size as number), 0)} / {columns}
         </div>
       </div>
     );
@@ -964,7 +1016,8 @@ export const Playground: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Interactive playground to experiment with Grid settings. Adjust spacing, columns, and individual item sizes.',
+        story:
+          'Interactive playground to experiment with Grid settings. Adjust spacing, columns, and individual item sizes.',
       },
     },
   },

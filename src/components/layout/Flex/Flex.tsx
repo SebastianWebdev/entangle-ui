@@ -11,36 +11,54 @@ import type { Theme } from '@/theme/types';
 export type FlexDirection = 'row' | 'row-reverse' | 'column' | 'column-reverse';
 
 /**
- * Flex wrap options  
+ * Flex wrap options
  */
 export type FlexWrap = 'nowrap' | 'wrap' | 'wrap-reverse';
 
 /**
  * Justify content options
  */
-export type FlexJustify = 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly';
+export type FlexJustify =
+  | 'flex-start'
+  | 'flex-end'
+  | 'center'
+  | 'space-between'
+  | 'space-around'
+  | 'space-evenly';
 
 /**
  * Align items options
  */
-export type FlexAlign = 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline';
+export type FlexAlign =
+  | 'flex-start'
+  | 'flex-end'
+  | 'center'
+  | 'stretch'
+  | 'baseline';
 
 /**
  * Align content options (for wrapped flex containers)
  */
-export type FlexAlignContent = 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'space-between' | 'space-around';
+export type FlexAlignContent =
+  | 'flex-start'
+  | 'flex-end'
+  | 'center'
+  | 'stretch'
+  | 'space-between'
+  | 'space-around';
 
 /**
  * Spacing multiplier (0-8) based on theme spacing unit
  */
 export type FlexSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-export interface FlexBaseProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
+export interface FlexBaseProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /**
    * Flex content - any React elements
    */
   children?: React.ReactNode;
-  
+
   /**
    * Flex direction - controls main axis orientation
    * - `row`: Left to right (default)
@@ -91,7 +109,7 @@ export interface FlexBaseProps extends Omit<React.HTMLAttributes<HTMLDivElement>
    * @default "stretch"
    */
   align?: FlexAlign | undefined;
-  
+
   /**
    * Align content - aligns wrapped lines
    * Only applies when wrap is enabled and there are multiple lines
@@ -104,7 +122,7 @@ export interface FlexBaseProps extends Omit<React.HTMLAttributes<HTMLDivElement>
    * @default "stretch"
    */
   alignContent?: FlexAlignContent | undefined;
-  
+
   /**
    * Gap between flex items (multiplier of base spacing unit)
    * - `0`: No gap (0px)
@@ -115,26 +133,26 @@ export interface FlexBaseProps extends Omit<React.HTMLAttributes<HTMLDivElement>
    * @default 0
    */
   gap?: FlexSpacing | undefined;
-  
+
   /**
    * Custom gap override (CSS value)
    * Overrides gap prop if provided
    * @example "16px", "1rem", "2rem 1rem"
    */
   customGap?: string | number | undefined;
-  
+
   /**
    * Flex grow - how much item should grow
    * @default 0
    */
   grow?: number | undefined;
-  
+
   /**
    * Flex shrink - how much item should shrink
    * @default 1
    */
   shrink?: number | undefined;
-  
+
   /**
    * Flex basis - initial size before free space is distributed
    * @example "auto", "100px", "50%", "0"
@@ -147,25 +165,25 @@ export interface FlexBaseProps extends Omit<React.HTMLAttributes<HTMLDivElement>
    * @default false
    */
   fullWidth?: boolean;
-  
+
   /**
    * Whether this flex container should fill available height
    * @default false
    */
   fullHeight?: boolean;
-  
+
   /**
    * Minimum height for the flex container
    * @example "100vh", "300px", "50%"
    */
   minHeight?: string | number | undefined;
-  
+
   /**
    * Maximum width for the flex container
    * @example "1200px", "100%", "50vw"
    */
   maxWidth?: string | number | undefined;
-    /**
+  /**
    * Test identifier for automated testing
    */
   'data-testid'?: string | undefined;
@@ -200,7 +218,11 @@ interface StyledFlexProps {
 /**
  * Calculate gap value based on spacing multiplier and theme
  */
-const getGapValue = (gap: FlexSpacing, theme: Theme, customGap?: string | number): string => {
+const getGapValue = (
+  gap: FlexSpacing,
+  theme: Theme,
+  customGap?: string | number
+): string => {
   if (customGap !== undefined) {
     return typeof customGap === 'number' ? `${customGap}px` : customGap;
   }
@@ -211,54 +233,71 @@ const StyledFlex = styled.div<StyledFlexProps>`
   /* Base flex container */
   display: flex;
   box-sizing: border-box;
-  
+
   /* Flex properties */
   flex-direction: ${props => props.$direction};
   flex-wrap: ${props => props.$wrap};
   justify-content: ${props => props.$justify};
   align-items: ${props => props.$align};
   align-content: ${props => props.$alignContent};
-  
+
   /* Gap between items */
   gap: ${props => getGapValue(props.$gap, props.theme, props.$customGap)};
-  
+
   /* Flex item properties (when this Flex is inside another flex container) */
   flex-grow: ${props => props.$grow};
   flex-shrink: ${props => props.$shrink};
-  flex-basis: ${props => typeof props.$basis === 'number' ? `${props.$basis}px` : props.$basis};
-  
+  flex-basis: ${props =>
+    typeof props.$basis === 'number' ? `${props.$basis}px` : props.$basis};
+
   /* Size control */
   ${props => props.$fullWidth && 'width: 100%;'}
   ${props => props.$fullHeight && 'height: 100%;'}
   
-  ${props => props.$minHeight && `min-height: ${
-    typeof props.$minHeight === 'number' ? `${props.$minHeight}px` : props.$minHeight
-  };`}
+  ${props =>
+    props.$minHeight &&
+    `min-height: ${
+      typeof props.$minHeight === 'number'
+        ? `${props.$minHeight}px`
+        : props.$minHeight
+    };`}
   
-  ${props => props.$maxWidth && `max-width: ${
-    typeof props.$maxWidth === 'number' ? `${props.$maxWidth}px` : props.$maxWidth
-  };`}
+  ${props =>
+    props.$maxWidth &&
+    `max-width: ${
+      typeof props.$maxWidth === 'number'
+        ? `${props.$maxWidth}px`
+        : props.$maxWidth
+    };`}
   
   /* Responsive direction changes */
-  ${props => props.$sm && `
+  ${props =>
+    props.$sm &&
+    `
     @media (min-width: 576px) {
       flex-direction: ${props.$sm};
     }
   `}
   
-  ${props => props.$md && `
+  ${props =>
+    props.$md &&
+    `
     @media (min-width: 768px) {
       flex-direction: ${props.$md};
     }
   `}
   
-  ${props => props.$lg && `
+  ${props =>
+    props.$lg &&
+    `
     @media (min-width: 992px) {
       flex-direction: ${props.$lg};
     }
   `}
   
-  ${props => props.$xl && `
+  ${props =>
+    props.$xl &&
+    `
     @media (min-width: 1200px) {
       flex-direction: ${props.$xl};
     }
@@ -267,11 +306,11 @@ const StyledFlex = styled.div<StyledFlexProps>`
 
 /**
  * A comprehensive flexbox component providing full control over flex properties.
- * 
+ *
  * More powerful than Stack for complex layouts requiring precise flexbox control.
  * Supports all flexbox properties, responsive direction changes, and flexible sizing.
  * Perfect for complex layouts, navigation bars, form layouts, and sophisticated arrangements.
- * 
+ *
  * @example
  * ```tsx
  * // Basic horizontal flex
@@ -279,19 +318,19 @@ const StyledFlex = styled.div<StyledFlexProps>`
  *   <div>Left content</div>
  *   <div>Right content</div>
  * </Flex>
- * 
+ *
  * // Vertical stack with gap
  * <Flex direction="column" gap={3}>
  *   <Card>Item 1</Card>
  *   <Card>Item 2</Card>
  *   <Card>Item 3</Card>
  * </Flex>
- * 
+ *
  * // Responsive navigation
- * <Flex 
- *   direction="column" 
- *   md="row" 
- *   justify="space-between" 
+ * <Flex
+ *   direction="column"
+ *   md="row"
+ *   justify="space-between"
  *   align="center"
  *   gap={2}
  * >
@@ -299,7 +338,7 @@ const StyledFlex = styled.div<StyledFlexProps>`
  *   <Navigation />
  *   <UserMenu />
  * </Flex>
- * 
+ *
  * // Flexible form layout
  * <Flex direction="column" gap={2} maxWidth="400px">
  *   <Input label="Email" />
@@ -309,14 +348,14 @@ const StyledFlex = styled.div<StyledFlexProps>`
  *     <Button fullWidth variant="filled">Login</Button>
  *   </Flex>
  * </Flex>
- * 
+ *
  * // Card grid with wrapping
  * <Flex wrap="wrap" gap={3} justify="center">
  *   <Card basis="300px">Card 1</Card>
  *   <Card basis="300px">Card 2</Card>
  *   <Card basis="300px">Card 3</Card>
  * </Flex>
- * 
+ *
  * // Complex layout with nesting
  * <Flex direction="column" fullHeight>
  *   <Header />

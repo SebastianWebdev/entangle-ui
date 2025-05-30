@@ -4,23 +4,23 @@ import type { IconProps } from '../primitives/Icon';
 
 /**
  * Calendar icon component for date and scheduling functionality.
- * 
+ *
  * A standard calendar icon commonly used for date pickers,
  * scheduling, and time-related features in editor interfaces.
- * 
+ *
  * @example
  * ```tsx
  * // Basic usage
  * <CalendarIcon />
- * 
+ *
  * // With custom size and color
  * <CalendarIcon size="lg" color="primary" />
- * 
+ *
  * // In a date picker
  * <Button icon={<CalendarIcon />}>Select Date</Button>
  * ```
  */
-export const CalendarIcon: React.FC<Omit<IconProps, 'children'>> = (props) => {
+export const CalendarIcon: React.FC<Omit<IconProps, 'children'>> = props => {
   return (
     <Icon {...props}>
       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
