@@ -1,442 +1,393 @@
 // src/components/primitives/Tooltip/Tooltip.tsx
-import React, {
-  useState,
-  useContext,
-  createContext,
-  isValidElement,
-  cloneElement,
-  useMemo,
-} from 'react';
+import React from 'react';
 import styled from '@emotion/styled';
-import {
-  useFloating,
-  autoUpdate,
-  offset,
-  flip,
-  shift,
-  useHover,
-  useFocus,
-  useDismiss,
-  useRole,
-  useInteractions,
-  useMergeRefs,
-  FloatingPortal,
-  arrow,
-  FloatingArrow,
-  safePolygon,
-} from '@floating-ui/react';
+import { Tooltip as BaseTooltip } from '@base-ui-components/react/tooltip';
 
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent } from '@/types/common';
-import type { Placement, FloatingContext } from '@floating-ui/react';
+import { processCss } from '@/utils/styledUtils';
 
-/**
- * Tooltip placement options following FloatingUI conventions
- */
-export type TooltipPlacement = Placement;
+import type {
+  CollisionAvoidance,
+  TooltipAnimation,
+  TooltipCollisionConfig,
+  TooltipCollisionStrategy,
+  TooltipPlacement,
+  TooltipPositioner,
+} from './types';
+import { parseCollisionStrategy, parsePlacement } from './utils';
 
-/**
- * Tooltip appearance variants
- */
-export type TooltipVariant = 'dark' | 'light';
+type BaseTooltipRootProps = BaseTooltip.Root.Props;
+type BaseTooltipPopupProps = Parameters<typeof BaseTooltip.Popup>[0];
+type BaseTooltipPositionerProps = Parameters<typeof BaseTooltip.Positioner>[0];
 
-/**
- * Options for the useTooltip hook
- */
-interface UseTooltipOptions {
-  initialOpen?: boolean;
-  placement?: TooltipPlacement;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  offset?: number;
-  delay?: number;
-  showArrow?: boolean;
-}
+type BaseUIClassName = NonNullable<BaseTooltipPopupProps['className']>;
 
-/**
- * Return type of the useTooltip hook
- */
-interface UseTooltipReturn {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  refs: {
-    setReference: (node: HTMLElement | null) => void;
-    setFloating: (node: HTMLElement | null) => void;
-    setArrow: (node: HTMLElement | null) => void;
-  };
-  floatingStyles: React.CSSProperties;
-  context: FloatingContext;
-  getReferenceProps: (
-    props?: React.HTMLProps<HTMLElement>
-  ) => Record<string, unknown>;
-  getFloatingProps: (
-    props?: React.HTMLProps<HTMLElement>
-  ) => Record<string, unknown>;
-  arrowRef: React.RefObject<HTMLElement | null>;
-  middlewareData: Record<string, unknown>;
-}
-
-/**
- * Custom hook for tooltip functionality
- */
-function useTooltip({
-  initialOpen = false,
-  placement = 'top',
-  open: controlledOpen,
-  onOpenChange: setControlledOpen,
-  offset: offsetValue = 8,
-  delay = 600,
-  showArrow = true,
-}: UseTooltipOptions = {}): UseTooltipReturn {
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(initialOpen);
-  const arrowRef = React.useRef<HTMLElement | null>(null);
-
-  const open = controlledOpen ?? uncontrolledOpen;
-  const setOpen = setControlledOpen ?? setUncontrolledOpen;
-
-  const data = useFloating({
-    placement,
-    open,
-    onOpenChange: setOpen,
-    whileElementsMounted: autoUpdate,
-    middleware: [
-      offset(offsetValue),
-      flip({
-        crossAxis: placement.includes('-'),
-        fallbackAxisSideDirection: 'start',
-        padding: 8,
-      }),
-      shift({ padding: 8 }),
-      ...(showArrow ? [arrow({ element: arrowRef })] : []),
-    ],
-  });
-
-  const context = data.context;
-
-  const hover = useHover(context, {
-    move: false,
-    enabled: controlledOpen == null,
-    delay: {
-      open: delay,
-      close: 0,
-    },
-    handleClose: safePolygon(),
-  });
-
-  const focus = useFocus(context, {
-    enabled: controlledOpen == null,
-  });
-
-  const dismiss = useDismiss(context);
-  const role = useRole(context, { role: 'tooltip' });
-
-  const interactions = useInteractions([hover, focus, dismiss, role]);
-
-  return useMemo(
-    () => ({
-      open,
-      setOpen,
-      arrowRef,
-      ...interactions,
-      ...data,
-      refs: {
-        ...data.refs,
-        setArrow: (node: HTMLElement | null) => {
-          arrowRef.current = node;
-        },
-      },
-    }),
-    [open, setOpen, interactions, data]
-  );
-}
-
-/**
- * Context for sharing tooltip state between components
- */
-const TooltipContext = createContext<UseTooltipReturn | null>(null);
-
-/**
- * Hook to access tooltip context
- */
-const useTooltipContext = () => {
-  const context = useContext(TooltipContext);
-
-  if (context == null) {
-    throw new Error('Tooltip components must be wrapped in <Tooltip />');
-  }
-
-  return context;
-};
-
-export interface TooltipProps extends UseTooltipOptions {
-  /**
-   * The tooltip components (TooltipTrigger and TooltipContent)
-   */
-  children: React.ReactNode;
-}
-
-/**
- * Root tooltip component that provides context
- */
-export function Tooltip({ children, ...options }: TooltipProps) {
-  const tooltip = useTooltip(options);
-
-  return (
-    <TooltipContext.Provider value={tooltip}>
-      {children}
-    </TooltipContext.Provider>
-  );
-}
-
-export interface TooltipTriggerProps extends React.HTMLProps<HTMLElement> {
-  /**
-   * Whether to render the trigger as the child element.
-   * When true, the child must be a single React element that can accept a ref.
-   * @default false
-   */
-  asChild?: boolean;
-  children: React.ReactNode;
-  ref?: React.Ref<HTMLElement>;
-}
-
-/**
- * Tooltip trigger component that handles interactions
- */
-export const TooltipTrigger: React.FC<TooltipTriggerProps> = ({
-  children,
-  asChild = false,
-  ref: propRef,
-  ...props
-}) => {
-  const context = useTooltipContext();
-  const childrenRef = isValidElement(children)
-    ? (children as React.ReactElement & { ref?: React.Ref<unknown> }).ref
-    : null;
-  const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
-
-  // `asChild` allows the user to pass any element as the anchor
-  if (asChild && isValidElement(children)) {
-    return cloneElement(
-      children as React.ReactElement<Record<string, unknown>>,
-      context.getReferenceProps({
-        ref,
-        ...props,
-        ...children.props,
-        'data-state': context.open ? 'open' : 'closed',
-      })
-    );
-  }
-
-  return (
-    <button
-      ref={ref}
-      type="button"
-      data-state={context.open ? 'open' : 'closed'}
-      {...context.getReferenceProps(props)}
-    >
-      {children}
-    </button>
-  );
-};
-
-interface StyledTooltipContentProps {
-  $variant: TooltipVariant;
-}
-
-const StyledTooltipContent = styled.div<StyledTooltipContentProps>`
-  /* Base styles */
-  position: relative;
-  max-width: 250px;
-  padding: ${props =>
-    `${props.theme.spacing.sm}px ${props.theme.spacing.md}px`};
-  border-radius: ${props => props.theme.borderRadius.md}px;
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  line-height: ${props => props.theme.typography.lineHeight.normal};
-  z-index: 1000;
-  pointer-events: none;
-  user-select: none;
-
-  /* Animation */
-  animation: fadeIn ${props => props.theme.transitions.fast};
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  /* Variant styles */
-  ${props => {
-    const { colors } = props.theme;
-
-    switch (props.$variant) {
-      case 'dark':
-        return `
-          background: ${colors.background.elevated};
-          color: ${colors.text.primary};
-          border: 1px solid ${colors.border.default};
-          box-shadow: ${props.theme.shadows.lg};
-        `;
-      case 'light':
-        return `
-          background: ${colors.surface.default};
-          color: ${colors.text.primary};
-          border: 1px solid ${colors.border.default};
-          box-shadow: ${props.theme.shadows.md};
-        `;
-      default:
-        return '';
-    }
-  }}
-`;
-
-const StyledArrow = styled(FloatingArrow)<StyledTooltipContentProps>`
-  fill: ${props => {
-    switch (props.$variant) {
-      case 'dark':
-        return props.theme.colors.background.elevated;
-      case 'light':
-        return props.theme.colors.surface.default;
-      default:
-        return props.theme.colors.background.elevated;
-    }
-  }};
-
-  [stroke] {
-    stroke: ${props => props.theme.colors.border.default};
-  }
-`;
-
-export interface TooltipContentBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'content' | 'style'> {
-  /**
-   * Visual variant of the tooltip
-   * - `dark`: Dark background with light text (default)
-   * - `light`: Light background with dark text
-   * @default "dark"
-   */
-  variant?: TooltipVariant;
+export interface TooltipBaseProps
+  extends Omit<BaseComponent, 'title' | 'className'> {
+  className?: BaseUIClassName | undefined;
 
   /**
-   * Whether to show an arrow pointing to the trigger element
-   * @default true
-   */
-  showArrow?: boolean;
-
-  /**
-   * Override styles for the floating element
-   */
-  style?: React.CSSProperties;
-
-  /**
-   * Tooltip content
-   */
-  children: React.ReactNode;
-}
-
-export type TooltipContentProps = Prettify<TooltipContentBaseProps>;
-
-/**
- * Tooltip content component that renders the floating element
- */
-export const TooltipContent: React.FC<TooltipContentProps> = ({
-  style,
-  variant = 'dark',
-  showArrow = true,
-  className,
-  testId,
-  children,
-  ref: propRef,
-  ...props
-}) => {
-  const context = useTooltipContext();
-  const ref = useMergeRefs([context.refs.setFloating, propRef]);
-
-  if (!context.open) return null;
-
-  return (
-    <FloatingPortal>
-      <StyledTooltipContent
-        ref={ref}
-        $variant={variant}
-        className={className}
-        data-testid={testId}
-        style={{
-          ...context.floatingStyles,
-          ...style,
-        }}
-        {...context.getFloatingProps(props)}
-      >
-        {children}
-        {showArrow && (
-          <StyledArrow
-            ref={
-              context.refs.setArrow as unknown as React.RefObject<SVGSVGElement>
-            }
-            context={context.context}
-            $variant={variant}
-            strokeWidth={1}
-          />
-        )}
-      </StyledTooltipContent>
-    </FloatingPortal>
-  );
-};
-
-/**
- * Simple tooltip wrapper for common use cases
- *
- * @example
- * ```tsx
- * <SimpleTooltip content="Save your work">
- *   <Button>Save</Button>
- * </SimpleTooltip>
- * ```
- */
-export interface SimpleTooltipProps extends Omit<TooltipProps, 'children'> {
-  /**
-   * Content to display in the tooltip
-   */
-  content: React.ReactNode;
-
-  /**
-   * The element that triggers the tooltip
+   * The trigger element that will show the tooltip on hover.
+   * Must be a single React element or component.
+   *
+   * @example
+   * <Button>Hover me</Button>
+   * <IconButton><SaveIcon /></IconButton>
    */
   children: React.ReactElement;
 
   /**
-   * Visual variant of the tooltip
-   * @default "dark"
+   * The content to display in the tooltip.
+   * Can be simple text or a complex React node for advanced customization.
+   *
+   * @example
+   * "Save file"
+   * <div><strong>Save</strong><br />Ctrl+S</div>
    */
-  variant?: TooltipVariant;
+  title: React.ReactNode;
+
+  /**
+   * Intuitive placement similar to MUI
+   * @default "top"
+   */
+  placement?: TooltipPlacement;
+
+  /**
+   * Collision handling strategy
+   * @default "smart"
+   */
+  collision?: TooltipCollisionStrategy;
+
+  /**
+   * Advanced collision configuration for power users
+   * When provided, overrides the collision strategy
+   */
+  collisionConfig?: TooltipCollisionConfig;
+
+  /**
+   * Advanced positioning configuration
+   */
+  positioner?: TooltipPositioner;
+
+  /**
+   * Animation configuration
+   */
+  animation?: TooltipAnimation;
+
+  /**
+   * Delay in milliseconds before showing the tooltip
+   * @default 600
+   */
+  delay?: number;
+
+  /**
+   * Delay in milliseconds before hiding the tooltip
+   * @default 0
+   */
+  closeDelay?: number;
+
+  /**
+   * Whether to show the arrow pointing to the trigger
+   * @default true
+   */
+  arrow?: boolean;
 
   /**
    * Whether the tooltip is disabled
+   * When true, tooltip will not appear
    * @default false
    */
   disabled?: boolean;
+
+  /**
+   * Direct props passed to Base UI Root component
+   * For power users who need full control
+   */
+  rootProps?: Partial<BaseTooltipRootProps>;
+
+  /**
+   * Direct props passed to Base UI Positioner component
+   * For power users who need full control
+   */
+  positionerProps?: Partial<BaseTooltipPositionerProps>;
 }
 
-export const SimpleTooltip: React.FC<SimpleTooltipProps> = ({
-  content,
+/**
+ * Props for the Tooltip component with prettified type for better IntelliSense
+ */
+export type TooltipProps = Prettify<TooltipBaseProps>;
+
+const StyledTooltipPositioner = styled(BaseTooltip.Positioner)`
+  /* Positioner handles positioning, no visual styles needed here */
+`;
+
+const StyledTooltipContent = styled(BaseTooltip.Popup)<{
+  $css?: TooltipProps['css'];
+  $animation?: TooltipAnimation;
+}>`
+  /* Base styles */
+  background: ${props => props.theme.colors.background.elevated};
+  color: ${props => props.theme.colors.text.primary};
+  border: 1px solid ${props => props.theme.colors.border.default};
+  border-radius: ${props => props.theme.borderRadius.md}px;
+  padding: ${props => props.theme.spacing.sm}px
+    ${props => props.theme.spacing.md}px;
+  font-size: ${props => props.theme.typography.fontSize.xs}px;
+  line-height: ${props => props.theme.typography.lineHeight.tight};
+  font-family: ${props => props.theme.typography.fontFamily.sans};
+  box-shadow: ${props => props.theme.shadows.lg};
+  z-index: 9999;
+  max-width: 320px;
+  word-wrap: break-word;
+
+  /* Animation */
+  ${props => {
+    const { $animation } = props;
+    const duration = $animation?.duration ?? 200;
+    const easing = $animation?.easing ?? 'ease-out';
+    const animated = $animation?.animated !== false;
+
+    if (!animated) {
+      return 'transition: none;';
+    }
+
+    return `
+      transition: opacity ${duration}ms ${easing}, transform ${duration}ms ${easing};
+      transform-origin: var(--transform-origin);
+    `;
+  }}
+
+  /* Entry/exit animations */
+  &[data-open] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &[data-closed] {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
+`;
+
+const StyledTooltipArrow = styled(BaseTooltip.Arrow)`
+  width: 8px;
+  height: 8px;
+  background: ${props => props.theme.colors.background.elevated};
+  border: 1px solid ${props => props.theme.colors.border.default};
+  border-right: none;
+  border-bottom: none;
+
+  &[data-side='top'] {
+    transform: rotate(45deg);
+  }
+
+  &[data-side='bottom'] {
+    transform: rotate(-135deg);
+  }
+
+  &[data-side='left'] {
+    transform: rotate(135deg);
+  }
+
+  &[data-side='right'] {
+    transform: rotate(-45deg);
+  }
+`;
+
+/**
+ * A tooltip component that displays contextual information on hover.
+ *
+ * Built on @base-ui-components/react for robust accessibility and positioning.
+ * Provides an intuitive API similar to MUI with advanced positioning and collision handling.
+ * Supports both simple text and complex React nodes for advanced tooltip content.
+ *
+ * @example
+ * ```tsx
+ * // Simple text tooltip
+ * <Tooltip title="Save your work">
+ *   <Button>Save</Button>
+ * </Tooltip>
+ *
+ * // Intuitive positioning (MUI-style)
+ * <Tooltip placement="bottom-start" title="Menu options">
+ *   <IconButton><MenuIcon /></IconButton>
+ * </Tooltip>
+ *
+ * // Intelligent collision handling (new default)
+ * <Tooltip collision="smart" title="Intelligent positioning">
+ *   <Button>Smart tooltip</Button>
+ * </Tooltip>
+ *
+ * // Advanced collision configuration
+ * <Tooltip
+ *   collisionConfig={{
+ *     side: 'flip',
+ *     align: 'shift',
+ *     fallbackAxisSide: 'start',
+ *     hideWhenDetached: true
+ *   }}
+ *   title="Custom collision handling"
+ * >
+ *   <Button>Advanced collision</Button>
+ * </Tooltip>
+ *
+ * // Advanced positioning
+ * <Tooltip
+ *   positioner={{
+ *     offset: 12,
+ *     padding: 10,
+ *     sticky: true,
+ *     boundary: '#container'
+ *   }}
+ *   title="Advanced positioning"
+ * >
+ *   <Button>Advanced</Button>
+ * </Tooltip>
+ *
+ * // Custom animations
+ * <Tooltip
+ *   animation={{
+ *     animated: true,
+ *     duration: 300,
+ *     easing: 'ease-in-out'
+ *   }}
+ *   title="Custom animation"
+ * >
+ *   <Button>Animated</Button>
+ * </Tooltip>
+ *
+ * // Interactive tooltip
+ * <Tooltip
+ *   hoverable={true}
+ *   closeDelay={300}
+ *   title={
+ *     <div>
+ *       <strong>Interactive Content</strong>
+ *       <br />
+ *       <button>Click me</button>
+ *     </div>
+ *   }
+ * >
+ *   <Button>Hoverable tooltip</Button>
+ * </Tooltip>
+ *
+ * // Full control with raw props
+ * <Tooltip
+ *   arrow={false}
+ *   rootProps={{ trackCursorAxis: 'x' }}
+ *   positionerProps={{ arrowPadding: 20 }}
+ *   title="Full control"
+ * >
+ *   <Button>Power user</Button>
+ * </Tooltip>
+ * ```
+ */
+export const Tooltip: React.FC<TooltipProps> = ({
   children,
-  variant = 'dark',
+  title,
+  placement = 'top',
+  collision = 'smart',
+  collisionConfig,
+  positioner = {},
+  animation = {},
+  delay = 600,
+  closeDelay = 0,
+  arrow = true,
   disabled = false,
-  ...tooltipProps
+  rootProps = {},
+  positionerProps = {},
+  className,
+  testId,
+  id,
+  style,
+  css,
+  ref,
+  ...htmlProps
 }) => {
+  // If disabled, return just the children without tooltip
   if (disabled) {
     return children;
   }
 
+  // Parse placement into side and align
+  const { side, align } = parsePlacement(placement);
+
+  // Parse collision strategy or use custom config
+  const collisionSettings = collisionConfig
+    ? {
+        collisionAvoidance: {
+          side: collisionConfig.side ?? 'flip',
+          align: collisionConfig.align ?? 'shift',
+          fallbackAxisSide: collisionConfig.fallbackAxisSide ?? 'none',
+        } as CollisionAvoidance,
+      }
+    : parseCollisionStrategy(collision);
+
+  // Prepare positioner configuration
+  const {
+    offset = 8,
+    padding = 8,
+    sticky = false,
+    boundary,
+    trackCursor,
+  } = positioner;
+
+  // Prepare final positioner props
+  const finalPositionerProps: Partial<BaseTooltipPositionerProps> = {
+    side,
+    align,
+    sideOffset: offset,
+    collisionPadding: padding,
+    sticky,
+    collisionAvoidance: collisionSettings.collisionAvoidance,
+    ...positionerProps,
+  };
+
+  // Handle boundary if specified
+  if (boundary) {
+    if (typeof boundary === 'string') {
+      const boundaryElement = document.querySelector(boundary);
+      if (boundaryElement) {
+        finalPositionerProps.collisionBoundary = boundaryElement as HTMLElement;
+      }
+    } else {
+      finalPositionerProps.collisionBoundary = boundary;
+    }
+  }
+
+  // Handle cursor tracking
+  if (trackCursor) {
+    rootProps.trackCursorAxis = trackCursor;
+  }
+
   return (
-    <Tooltip {...tooltipProps}>
-      <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent variant={variant}>{content}</TooltipContent>
-    </Tooltip>
+    <BaseTooltip.Provider delay={delay} closeDelay={closeDelay} {...rootProps}>
+      <BaseTooltip.Root>
+        <BaseTooltip.Trigger>{children}</BaseTooltip.Trigger>
+
+        <BaseTooltip.Portal>
+          <StyledTooltipPositioner {...finalPositionerProps}>
+            <StyledTooltipContent
+              className={className}
+              data-testid={testId}
+              id={id}
+              style={style}
+              $css={css}
+              $animation={animation}
+              ref={ref}
+              // Only pass HTML attributes, not Base UI specific props
+              {...(htmlProps as React.HTMLAttributes<HTMLDivElement>)}
+            >
+              {title}
+              {arrow && <StyledTooltipArrow />}
+            </StyledTooltipContent>
+          </StyledTooltipPositioner>
+        </BaseTooltip.Portal>
+      </BaseTooltip.Root>
+    </BaseTooltip.Provider>
   );
 };
