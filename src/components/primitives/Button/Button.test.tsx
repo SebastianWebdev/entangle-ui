@@ -1,5 +1,4 @@
 // src/primitives/Button/Button.test.tsx
-import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { renderWithTheme, styleAssertions } from '@/tests/testUtils';
