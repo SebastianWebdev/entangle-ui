@@ -58,7 +58,7 @@
     "react-dom": ">=19.1.0"
   },
   "dependencies": {
-    "@base-ui-components/react": "^1.0.0-alpha.8",
+    "@base-ui-components/react": "^1.0.0-beta.0",
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0"
   },
