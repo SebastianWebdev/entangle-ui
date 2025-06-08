@@ -14,15 +14,14 @@ import {
   TooltipCollisionStrategy,
   TooltipPlacement,
   TooltipPositioner,
+  BaseTooltipPositionerProps,
+  BaseTooltipRootProps,
 } from './types';
 
 import { ArrowSvg, StyledTooltipArrow } from './Arrow';
 import { parseCollisionStrategy, parsePlacement } from './utils';
 
-type BaseTooltipRootProps = BaseTooltip.Root.Props;
-type BaseTooltipPositionerProps = Parameters<typeof BaseTooltip.Positioner>[0];
-
-export interface TooltipBaseProps extends Omit<BaseComponent, 'title'> {
+interface TooltipBaseProps extends Omit<BaseComponent, 'title'> {
   /**
    * The trigger element that will show the tooltip on hover.
    * Must be a single React element or component.

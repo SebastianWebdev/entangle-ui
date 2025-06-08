@@ -1,9 +1,27 @@
-export { BaseButton } from './BaseButton/BaseButton';
-export { Button } from './Button/Button';
+export { BaseButton } from './BaseButton';
+export { Button } from './Button';
 export { Icon } from './Icon';
-export { Input } from './Input/Input';
+export { Input } from './Input';
+export { Tooltip } from './Tooltip';
+export { IconButton } from './IconButton';
 
-export type { BaseButtonProps } from './BaseButton/BaseButton';
-export type { ButtonProps, ButtonSize, ButtonVariant } from './Button/Button';
+export type { BaseButtonProps } from './BaseButton';
+export type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
 export type { IconProps, IconSize, IconColor } from './Icon';
-export type { InputProps } from './Input/Input';
+export type { InputProps, InputSize } from './Input';
+export type {
+  BaseTooltipRootProps,
+  BaseTooltipPopupProps,
+  BaseTooltipPositionerProps,
+  TooltipPlacement,
+  TooltipCollisionStrategy,
+  CollisionAvoidance,
+  TooltipCollisionConfig,
+  TooltipProps,
+} from './Tooltip';
+export type {
+  IconButtonProps,
+  IconButtonRadius,
+  IconButtonSize,
+  IconButtonVariant,
+} from './IconButton';
