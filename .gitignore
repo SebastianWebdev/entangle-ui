@@ -24,3 +24,5 @@ test_results/
 
 # Coverage reports (if separate from test_results)
 coverage/
+*storybook.log
+storybook-static

@@ -12,6 +12,7 @@ const preview: Preview = {
             backgroundColor: 'var(--background-primary, #1a1a1a)',
             color: 'var(--text-primary, #ffffff)',
             minHeight: '100vh',
+            width: '100%',
           }}
         >
           <Story />
