@@ -49,3 +49,5 @@ export { UserIcon } from './UserIcon';
 export { WarningIcon } from './WarningIcon';
 export { ZoomInIcon } from './ZoomInIcon';
 export { ZoomOutIcon } from './ZoomOutIcon';
+export { CheckIcon } from './CheckIcon';
+export { CircleIcon } from './CircleIcon';

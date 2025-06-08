@@ -57,6 +57,8 @@ import { UserIcon } from './UserIcon';
 import { WarningIcon } from './WarningIcon';
 import { ZoomInIcon } from './ZoomInIcon';
 import { ZoomOutIcon } from './ZoomOutIcon';
+import { CircleIcon } from './CircleIcon';
+import { CheckIcon } from './CheckIcon';
 
 /**
  * Storybook configuration for all Icon components
@@ -177,6 +179,8 @@ const statusIcons = [
   { Component: WarningIcon, name: 'WarningIcon' },
   { Component: ErrorIcon, name: 'ErrorIcon' },
   { Component: SuccessIcon, name: 'SuccessIcon' },
+  { Component: CircleIcon, name: 'CircleIcon' },
+  { Component: CheckIcon, name: 'CheckIcon' },
 ];
 
 const socialIcons = [

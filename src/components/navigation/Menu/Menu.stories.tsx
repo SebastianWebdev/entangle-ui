@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+
+import { Text } from '@/components/primitives/Text';
+import { Stack } from '@/components/layout/Stack';
 import {
   EditIcon,
   EyeIcon,
   SettingsIcon,
   StarIcon,
-  HeartIcon,
+  SaveIcon,
+  CheckIcon,
+  CircleIcon,
 } from '@/components/Icons';
-
-import { Stack } from '@/components/layout/Stack';
 
 import { ThemeProvider } from '@/theme';
 
-import { Menu, type MenuConfig, type MenuSelection } from './menu';
+import { Menu, type MenuConfig, type MenuSelection } from './Menu';
 
 /**
  * Storybook configuration for Menu component.
@@ -132,8 +135,8 @@ export const BasicActions: Story = {
     return (
       <Menu config={config}>
         <Stack spacing={1} direction="row" align="center">
-          <HeartIcon size="sm" />
-          File Menu
+          <SaveIcon size="sm" />
+          <Text variant="caption">File Menu</Text>
         </Stack>
       </Menu>
     );
@@ -178,29 +181,32 @@ export const RadioSelection: Story = {
     };
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <Stack spacing={4} direction="column">
         <Menu
           config={config}
           selectedItems={selectedItems}
           onChange={setSelectedItems}
-          radioIcon={<HeartIcon size="sm" />}
+          radioIcon={<CircleIcon size="sm" />}
         >
-          <Stack direction="row" align="center">
+          <Stack spacing={1} direction="row" align="center">
             <SettingsIcon size="sm" />
-            Theme Settings
+            <Text variant="caption">Theme Settings</Text>
           </Stack>
         </Menu>
         <div
           style={{
             padding: '12px',
-            background: '#f3f4f6',
+            background: '#2d2d2d',
             borderRadius: '6px',
             fontSize: '14px',
+            fontFamily: 'monospace',
           }}
         >
-          <strong>Selected:</strong> {JSON.stringify(selectedItems, null, 2)}
+          <Text variant="caption" color="muted">
+            <strong>Selected:</strong> {JSON.stringify(selectedItems, null, 2)}
+          </Text>
         </div>
-      </div>
+      </Stack>
     );
   },
 };
@@ -248,36 +254,32 @@ export const CheckboxSelection: Story = {
     };
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <Stack spacing={4} direction="column">
         <Menu
           config={config}
           selectedItems={selectedItems}
           onChange={setSelectedItems}
-          checkboxIcon={<EyeIcon size="sm" />}
+          checkboxIcon={<CheckIcon size="sm" />}
         >
-          <button
-            style={{
-              padding: '8px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
+          <Stack spacing={1} direction="row" align="center">
             <EyeIcon size="sm" />
-            View Options
-          </button>
+            <Text variant="caption">View Options</Text>
+          </Stack>
         </Menu>
         <div
           style={{
             padding: '12px',
-            background: '#f3f4f6',
+            background: '#2d2d2d',
             borderRadius: '6px',
             fontSize: '14px',
+            fontFamily: 'monospace',
           }}
         >
-          <strong>Selected:</strong> {JSON.stringify(selectedItems, null, 2)}
+          <Text variant="caption" color="muted">
+            <strong>Selected:</strong> {JSON.stringify(selectedItems, null, 2)}
+          </Text>
         </div>
-      </div>
+      </Stack>
     );
   },
 };
@@ -366,35 +368,31 @@ export const MultipleGroups: Story = {
     };
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <Stack spacing={4} direction="column">
         <Menu
           config={config}
           selectedItems={selectedItems}
           onChange={setSelectedItems}
         >
-          <button
-            style={{
-              padding: '8px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            <HeartIcon size="sm" />
-            Editor Options
-          </button>
+          <Stack spacing={1} direction="row" align="center">
+            <SettingsIcon size="sm" />
+            <Text variant="caption">Editor Options</Text>
+          </Stack>
         </Menu>
         <div
           style={{
             padding: '12px',
-            background: '#f3f4f6',
+            background: '#2d2d2d',
             borderRadius: '6px',
             fontSize: '14px',
+            fontFamily: 'monospace',
           }}
         >
-          <strong>Selected:</strong> {JSON.stringify(selectedItems, null, 2)}
+          <Text variant="caption" color="muted">
+            <strong>Selected:</strong> {JSON.stringify(selectedItems, null, 2)}
+          </Text>
         </div>
-      </div>
+      </Stack>
     );
   },
 };
@@ -485,35 +483,31 @@ export const NestedSubmenus: Story = {
     };
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <Stack spacing={4} direction="column">
         <Menu
           config={config}
           selectedItems={selectedItems}
           onChange={setSelectedItems}
         >
-          <button
-            style={{
-              padding: '8px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
+          <Stack spacing={1} direction="row" align="center">
             <EditIcon size="sm" />
-            Edit Menu
-          </button>
+            <Text variant="caption">Edit Menu</Text>
+          </Stack>
         </Menu>
         <div
           style={{
             padding: '12px',
-            background: '#f3f4f6',
+            background: '#2d2d2d',
             borderRadius: '6px',
             fontSize: '14px',
+            fontFamily: 'monospace',
           }}
         >
-          <strong>Selected:</strong> {JSON.stringify(selectedItems, null, 2)}
+          <Text variant="caption" color="muted">
+            <strong>Selected:</strong> {JSON.stringify(selectedItems, null, 2)}
+          </Text>
         </div>
-      </div>
+      </Stack>
     );
   },
 };
@@ -552,24 +546,17 @@ export const HoverMenu: Story = {
     };
 
     return (
-      <div style={{ padding: '20px' }}>
-        <p style={{ marginBottom: '16px', fontSize: '14px', color: '#6b7280' }}>
+      <Stack spacing={4} direction="column">
+        <Text variant="caption" color="muted">
           Hover over the button to open the menu
-        </p>
+        </Text>
         <Menu config={config}>
-          <button
-            style={{
-              padding: '8px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
+          <Stack spacing={1} direction="row" align="center">
             <StarIcon size="sm" />
-            Quick Actions
-          </button>
+            <Text variant="caption">Quick Actions</Text>
+          </Stack>
         </Menu>
-      </div>
+      </Stack>
     );
   },
 };
@@ -602,14 +589,14 @@ export const DisabledMenu: Story = {
     };
 
     return (
-      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+      <Stack spacing={4} direction="row" align="center">
         <Menu config={config} disabled={false}>
-          <button style={{ padding: '8px 12px' }}>Enabled Menu</button>
+          <Text variant="caption">Enabled Menu</Text>
         </Menu>
         <Menu config={config} disabled={true}>
-          <button style={{ padding: '8px 12px' }}>Disabled Menu</button>
+          <Text variant="caption">Disabled Menu</Text>
         </Menu>
-      </div>
+      </Stack>
     );
   },
 };
@@ -670,7 +657,7 @@ export const CustomIcons: Story = {
     };
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <Stack spacing={4} direction="column">
         <Menu
           config={config}
           selectedItems={selectedItems}
@@ -678,29 +665,25 @@ export const CustomIcons: Story = {
           radioIcon={<EyeIcon size="sm" />}
           checkboxIcon={<StarIcon size="sm" />}
         >
-          <button
-            style={{
-              padding: '8px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
+          <Stack spacing={1} direction="row" align="center">
             <SettingsIcon size="sm" />
-            Custom Icons
-          </button>
+            <Text variant="caption">Custom Icons</Text>
+          </Stack>
         </Menu>
         <div
           style={{
             padding: '12px',
-            background: '#f3f4f6',
+            background: '#2d2d2d',
             borderRadius: '6px',
             fontSize: '14px',
+            fontFamily: 'monospace',
           }}
         >
-          <strong>Selected:</strong> {JSON.stringify(selectedItems, null, 2)}
+          <Text variant="caption" color="muted">
+            <strong>Selected:</strong> {JSON.stringify(selectedItems, null, 2)}
+          </Text>
         </div>
-      </div>
+      </Stack>
     );
   },
 };

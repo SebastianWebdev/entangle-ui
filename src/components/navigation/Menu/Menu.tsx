@@ -2,8 +2,11 @@ import React, { useCallback, useMemo } from 'react';
 import { Menu as BaseMenu } from '@base-ui-components/react/menu';
 import styled from '@emotion/styled';
 
-import { HeartIcon } from '@/components/Icons';
+import type { Prettify } from '@/types/utilities';
+import type { BaseComponent } from '@/types/common';
+import { CheckIcon, CircleIcon } from '@/components/Icons';
 import { Button } from '@/components/primitives/Button';
+import { Text } from '@/components/primitives/Text';
 
 import type { Theme } from '@/theme';
 
@@ -66,9 +69,10 @@ export type MenuConfig = {
 export type MenuSelection = Record<string, string[]>;
 
 /**
- * Props for the Menu component.
+ * Base props for the Menu component.
  */
-export interface MenuProps {
+export interface MenuBaseProps
+  extends Omit<BaseComponent<HTMLElement>, 'onChange'> {
   /** Menu configuration object */
   config: MenuConfig;
   /** Currently selected items organized by group */
@@ -86,11 +90,15 @@ export interface MenuProps {
 }
 
 /**
+ * Props for the Menu component using Prettify utility type.
+ */
+export type MenuProps = Prettify<MenuBaseProps>;
+
+/**
  * Hook for managing menu selection state and interactions.
  * Handles radio/checkbox logic and state updates.
  */
 export const useMenu = (
-  config: MenuConfig,
   selectedItems: MenuSelection = {},
   onChange?: (selection: MenuSelection) => void
 ) => {
@@ -159,7 +167,7 @@ export const useMenu = (
  * };
  *
  * <Menu config={config}>
- *   <button>Options</button>
+ *   <Button>Options</Button>
  * </Menu>
  * ```
  */
@@ -168,15 +176,14 @@ export const Menu: React.FC<MenuProps> = ({
   selectedItems = {},
   onChange,
   children,
-  checkboxIcon = <HeartIcon size="sm" />,
-  radioIcon = <HeartIcon size="sm" />,
+  checkboxIcon = <CheckIcon size="sm" />,
+  radioIcon = <CircleIcon size="sm" />,
   disabled = false,
+  className,
+  testId: testId,
+  ...rest
 }) => {
-  const { handleItemClick, isItemSelected } = useMenu(
-    config,
-    selectedItems,
-    onChange
-  );
+  const { handleItemClick, isItemSelected } = useMenu(selectedItems, onChange);
 
   const menuItems = useMemo(() => {
     return config.groups.map((group, groupIndex) => {
@@ -201,10 +208,14 @@ export const Menu: React.FC<MenuProps> = ({
                 disabled={item.disabled}
                 onClick={handleClick}
               >
-                <BaseMenu.RadioItemIndicator>
-                  {isSelected && radioIcon}
-                </BaseMenu.RadioItemIndicator>
-                <StyledMenuItemLabel>{item.label}</StyledMenuItemLabel>
+                <StyledMenuItemContent>
+                  <BaseMenu.RadioItemIndicator>
+                    {isSelected && radioIcon}
+                  </BaseMenu.RadioItemIndicator>
+                  <Text variant="caption" color="primary">
+                    {item.label}
+                  </Text>
+                </StyledMenuItemContent>
                 {item.subMenu && (
                   <StyledSubmenu>
                     <Menu
@@ -233,7 +244,9 @@ export const Menu: React.FC<MenuProps> = ({
                   <BaseMenu.CheckboxItemIndicator>
                     {isSelected && checkboxIcon}
                   </BaseMenu.CheckboxItemIndicator>
-                  <StyledMenuItemLabel>{item.label}</StyledMenuItemLabel>
+                  <Text variant="caption" color="primary">
+                    {item.label}
+                  </Text>
                 </StyledMenuItemContent>
                 {item.subMenu && (
                   <StyledSubmenu>
@@ -260,7 +273,9 @@ export const Menu: React.FC<MenuProps> = ({
                 onClick={handleClick}
               >
                 <StyledMenuItemContent>
-                  <StyledMenuItemLabel>{item.label}</StyledMenuItemLabel>
+                  <Text variant="caption" color="primary">
+                    {item.label}
+                  </Text>
                 </StyledMenuItemContent>
                 {item.subMenu && (
                   <StyledSubmenu>
@@ -280,10 +295,16 @@ export const Menu: React.FC<MenuProps> = ({
         }
       });
 
-      // Wrap group items with optional label and separator
+      // Wrap group items with BaseMenu.Group structure
       const groupContent = (
-        <React.Fragment key={group.id}>
-          {group.label && <StyledGroupLabel>{group.label}</StyledGroupLabel>}
+        <BaseMenu.Group key={group.id}>
+          {group.label && (
+            <BaseMenu.GroupLabel>
+              <Text variant="caption" color="muted" weight="semibold">
+                {group.label}
+              </Text>
+            </BaseMenu.GroupLabel>
+          )}
           {group.itemSelectionType === 'radio' ? (
             <BaseMenu.RadioGroup value={selectedItems[group.id]?.[0] ?? ''}>
               {items}
@@ -294,7 +315,7 @@ export const Menu: React.FC<MenuProps> = ({
           {/* Add separator between groups, but not after the last one */}
           {groupIndex < config.groups.length - 1 &&
             config.groups.length > 1 && <BaseMenu.Separator />}
-        </React.Fragment>
+        </BaseMenu.Group>
       );
 
       return groupContent;
@@ -310,12 +331,21 @@ export const Menu: React.FC<MenuProps> = ({
 
   return (
     <BaseMenu.Root openOnHover={config.openOnHover}>
-      <BaseMenu.Trigger render={p => <Button {...p} />} disabled={disabled}>
+      <BaseMenu.Trigger
+        render={props => <Button {...props} />}
+        disabled={disabled}
+      >
         {children}
       </BaseMenu.Trigger>
       <BaseMenu.Portal>
         <BaseMenu.Positioner>
-          <StyledMenuContent>{menuItems}</StyledMenuContent>
+          <StyledMenuContent
+            className={className}
+            data-testid={testId}
+            {...rest}
+          >
+            {menuItems}
+          </StyledMenuContent>
         </BaseMenu.Positioner>
       </BaseMenu.Portal>
     </BaseMenu.Root>
@@ -329,12 +359,11 @@ interface StyledMenuItemProps {
 
 const StyledMenuContent = styled(BaseMenu.Popup)<{ theme?: Theme }>`
   min-width: 200px;
-  background: ${props => props.theme?.colors.background.primary ?? '#ffffff'};
-  border: 1px solid ${props => props.theme?.colors.border.default ?? '#e5e7eb'};
-  border-radius: ${props => props.theme?.borderRadius.md || 6}px;
-  box-shadow: ${props =>
-    props.theme?.shadows.md || '0 4px 6px -1px rgba(0, 0, 0, 0.1)'};
-  padding: ${props => props.theme?.spacing.xs || 4}px;
+  background: ${props => props.theme.colors.background.elevated};
+  border: 1px solid ${props => props.theme.colors.border.default};
+  border-radius: ${props => props.theme.borderRadius.md}px;
+  box-shadow: ${props => props.theme.shadows.md};
+  padding: ${props => props.theme.spacing.sm}px;
   z-index: 1000;
 `;
 
@@ -343,19 +372,16 @@ const StyledMenuItem = styled(BaseMenu.Item)<
 >`
   display: flex;
   align-items: center;
-  padding: ${props => props.theme?.spacing.xs || 4}px
-    ${props => props.theme?.spacing.sm || 8}px;
-  border-radius: ${props => props.theme?.borderRadius.sm || 4}px;
-  font-size: ${props => props.theme?.typography.fontSize.sm || 14}px;
-  line-height: 1.4;
+  padding: ${props => props.theme.spacing.sm}px;
+  border-radius: ${props => props.theme.borderRadius.sm}px;
   cursor: pointer;
   user-select: none;
   outline: none;
 
   color: ${props =>
     props.disabled
-      ? props.theme?.colors.text.disabled || '#9ca3af'
-      : props.theme?.colors.text.primary || '#111827'};
+      ? props.theme.colors.text.disabled
+      : props.theme.colors.text.primary};
 
   ${props =>
     props.disabled &&
@@ -365,14 +391,12 @@ const StyledMenuItem = styled(BaseMenu.Item)<
   `}
 
   &:hover:not([data-disabled]) {
-    background: ${props =>
-      props.theme?.colors.background.elevated ?? '#f3f4f6'};
+    background: ${props => props.theme.colors.surface.hover};
   }
 
   &:focus-visible {
-    background: ${props =>
-      props.theme?.colors.background.elevated ?? '#f3f4f6'};
-    outline: 2px solid ${props => props.theme?.colors.border.focus ?? '#3b82f6'};
+    background: ${props => props.theme.colors.surface.hover};
+    outline: 2px solid ${props => props.theme.colors.border.focus};
     outline-offset: -2px;
   }
 `;
@@ -380,26 +404,9 @@ const StyledMenuItem = styled(BaseMenu.Item)<
 const StyledMenuItemContent = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: ${props => props.theme.spacing.sm}px;
   flex: 1;
-`;
-
-const StyledMenuItemLabel = styled.span<{ theme?: Theme }>`
-  flex: 1;
-  font-size: ${props => props.theme?.typography.fontSize.xs ?? 12}px;
-  color: ${props => props.theme?.colors.text.secondary ?? '#6b7280'};
-  font-family: ${props => props.theme?.typography.fontFamily.sans};
-`;
-
-const StyledGroupLabel = styled.div<{ theme?: Theme }>`
-  padding: ${props => props.theme?.spacing.xs ?? 4}px
-    ${props => props.theme?.spacing.sm ?? 8}px;
-  font-size: ${props => props.theme?.typography.fontSize.xs ?? 12}px;
-  color: ${props => props.theme?.colors.text.secondary ?? '#6b7280'};
-  font-family: ${props => props.theme?.typography.fontFamily.sans};
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  min-height: 20px;
 `;
 
 const StyledSubmenu = styled.div`
