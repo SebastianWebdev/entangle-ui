@@ -88,9 +88,6 @@ export interface ButtonProps {
   'data-testid'?: string;
 }
 
-/**
- * Właściwości dla stylowanego komponentu przycisku
- */
 interface StyledButtonProps {
   $size: ButtonSize;
   $variant: ButtonVariant;
