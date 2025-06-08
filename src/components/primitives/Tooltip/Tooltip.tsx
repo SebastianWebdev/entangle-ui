@@ -1,13 +1,13 @@
 // src/components/primitives/Tooltip/Tooltip.tsx
-import React from 'react';
-import styled from '@emotion/styled';
 import { Tooltip as BaseTooltip } from '@base-ui-components/react/tooltip';
+import styled from '@emotion/styled';
+import React from 'react';
 
-import type { Prettify } from '@/types/utilities';
 import type { BaseComponent } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 import { processCss } from '@/utils/styledUtils';
 
-import type {
+import {
   CollisionAvoidance,
   TooltipAnimation,
   TooltipCollisionConfig,
@@ -15,18 +15,14 @@ import type {
   TooltipPlacement,
   TooltipPositioner,
 } from './types';
+
+import { ArrowSvg, StyledTooltipArrow } from './Arrow';
 import { parseCollisionStrategy, parsePlacement } from './utils';
 
 type BaseTooltipRootProps = BaseTooltip.Root.Props;
-type BaseTooltipPopupProps = Parameters<typeof BaseTooltip.Popup>[0];
 type BaseTooltipPositionerProps = Parameters<typeof BaseTooltip.Positioner>[0];
 
-type BaseUIClassName = NonNullable<BaseTooltipPopupProps['className']>;
-
-export interface TooltipBaseProps
-  extends Omit<BaseComponent, 'title' | 'className'> {
-  className?: BaseUIClassName | undefined;
-
+export interface TooltipBaseProps extends Omit<BaseComponent, 'title'> {
   /**
    * The trigger element that will show the tooltip on hover.
    * Must be a single React element or component.
@@ -122,14 +118,13 @@ const StyledTooltipPositioner = styled(BaseTooltip.Positioner)`
   /* Positioner handles positioning, no visual styles needed here */
 `;
 
-const StyledTooltipContent = styled(BaseTooltip.Popup)<{
+const StyledTooltipContent = styled.div<{
   $css?: TooltipProps['css'];
   $animation?: TooltipAnimation;
 }>`
   /* Base styles */
   background: ${props => props.theme.colors.background.elevated};
   color: ${props => props.theme.colors.text.primary};
-  border: 1px solid ${props => props.theme.colors.border.default};
   border-radius: ${props => props.theme.borderRadius.md}px;
   padding: ${props => props.theme.spacing.sm}px
     ${props => props.theme.spacing.md}px;
@@ -137,9 +132,13 @@ const StyledTooltipContent = styled(BaseTooltip.Popup)<{
   line-height: ${props => props.theme.typography.lineHeight.tight};
   font-family: ${props => props.theme.typography.fontFamily.sans};
   box-shadow: ${props => props.theme.shadows.lg};
-  z-index: 9999;
   max-width: 320px;
   word-wrap: break-word;
+  z-index: 1000; // Ensure tooltip is above other content
+  min-height: 25px; // Ensure minimum height for better UX
+  display: flex;
+  align-items: center; // Center content vertically
+  justify-content: center; // Center content horizontally
 
   /* Animation */
   ${props => {
@@ -173,29 +172,29 @@ const StyledTooltipContent = styled(BaseTooltip.Popup)<{
   ${props => processCss(props.$css, props.theme)}
 `;
 
-const StyledTooltipArrow = styled(BaseTooltip.Arrow)`
-  width: 8px;
-  height: 8px;
-  background: ${props => props.theme.colors.background.elevated};
-  border: 1px solid ${props => props.theme.colors.border.default};
-  border-right: none;
-  border-bottom: none;
-
-  &[data-side='top'] {
-    transform: rotate(45deg);
+const StyledTooltipTrigger = styled.div<{
+  $css?: TooltipProps['css'];
+}>`
+  /* Trigger styles */
+  display: inline-block;
+  cursor: pointer;
+  width: fit-content; // Allow trigger to size to content
+  height: fit-content; // Allow trigger to size to content
+  position: relative; // Required for tooltip positioning
+  z-index: 1; // Ensure trigger is above tooltip
+  /* Prevents pointer events on the tooltip trigger */
+  pointer-events: none;
+  /* Allows pointer events on the children */
+  & > * {
+    pointer-events: auto;
   }
-
-  &[data-side='bottom'] {
-    transform: rotate(-135deg);
+  /* Ensures the trigger is focusable */
+  &:focus {
+    outline: none; // Remove default focus outline
+    box-shadow: ${props => props.theme.shadows.focus}; // Custom focus style
   }
-
-  &[data-side='left'] {
-    transform: rotate(135deg);
-  }
-
-  &[data-side='right'] {
-    transform: rotate(-45deg);
-  }
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 /**
@@ -367,24 +366,36 @@ export const Tooltip: React.FC<TooltipProps> = ({
   return (
     <BaseTooltip.Provider delay={delay} closeDelay={closeDelay} {...rootProps}>
       <BaseTooltip.Root>
-        <BaseTooltip.Trigger>{children}</BaseTooltip.Trigger>
+        <BaseTooltip.Trigger
+          render={props => <StyledTooltipTrigger {...props} />}
+        >
+          {children}
+        </BaseTooltip.Trigger>
 
         <BaseTooltip.Portal>
           <StyledTooltipPositioner {...finalPositionerProps}>
-            <StyledTooltipContent
-              className={className}
-              data-testid={testId}
-              id={id}
-              style={style}
-              $css={css}
-              $animation={animation}
-              ref={ref}
-              // Only pass HTML attributes, not Base UI specific props
-              {...(htmlProps as React.HTMLAttributes<HTMLDivElement>)}
-            >
-              {title}
-              {arrow && <StyledTooltipArrow />}
-            </StyledTooltipContent>
+            <BaseTooltip.Popup
+              render={props => (
+                <StyledTooltipContent
+                  {...props}
+                  className={className}
+                  data-testid={testId}
+                  id={id}
+                  style={style}
+                  $css={css}
+                  $animation={animation}
+                  ref={ref}
+                  {...(htmlProps as React.HTMLAttributes<HTMLDivElement>)}
+                >
+                  {title}
+                  {arrow && (
+                    <StyledTooltipArrow>
+                      <ArrowSvg />
+                    </StyledTooltipArrow>
+                  )}
+                </StyledTooltipContent>
+              )}
+            />
           </StyledTooltipPositioner>
         </BaseTooltip.Portal>
       </BaseTooltip.Root>
