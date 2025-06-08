@@ -11,6 +11,7 @@ export {
   IconButton,
   Input,
   Tooltip,
+  Text,
 } from '@/components/primitives';
 export { NumberInput, Slider } from './components/controls';
 export { FormHelperText, FormLabel, InputWrapper } from './components/form';
@@ -40,6 +41,14 @@ export type {
   TooltipCollisionStrategy,
   TooltipPlacement,
   TooltipProps,
+  TextAlign,
+  TextColor,
+  TextElement,
+  TextLineHeight,
+  TextSize,
+  TextVariant,
+  TextWeight,
+  TextProps,
 } from '@/components/primitives';
 export type { NumberInputProps, SliderProps } from './components/controls';
 export type {

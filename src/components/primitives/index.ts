@@ -4,6 +4,7 @@ export { Icon } from './Icon';
 export { Input } from './Input';
 export { Tooltip } from './Tooltip';
 export { IconButton } from './IconButton';
+export { Text } from './Text';
 
 export type { BaseButtonProps } from './BaseButton';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
@@ -25,3 +26,13 @@ export type {
   IconButtonSize,
   IconButtonVariant,
 } from './IconButton';
+export type {
+  TextProps,
+  TextAlign,
+  TextColor,
+  TextElement,
+  TextLineHeight,
+  TextSize,
+  TextVariant,
+  TextWeight,
+} from './Text';
