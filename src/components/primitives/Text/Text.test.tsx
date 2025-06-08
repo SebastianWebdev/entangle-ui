@@ -1,15 +1,7 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { ThemeProvider } from '@/theme/ThemeProvider';
-import { Text } from './Text';
+import { renderWithTheme } from '@/tests/testUtils';
+import { screen } from '@testing-library/react';
 import type { TextProps } from './Text';
-
-/**
- * Test wrapper with ThemeProvider for consistent theming
- */
-const renderWithTheme = (ui: React.ReactElement, options?: any) => {
-  return render(<ThemeProvider>{ui}</ThemeProvider>, options);
-};
+import { Text } from './Text';
 
 /**
  * Test suite for Text component
