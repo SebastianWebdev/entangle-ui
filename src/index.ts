@@ -10,8 +10,9 @@ export {
   Icon,
   IconButton,
   Input,
-  Tooltip,
+  Paper,
   Text,
+  Tooltip,
 } from '@/components/primitives';
 export { NumberInput, Slider } from './components/controls';
 export { FormHelperText, FormLabel, InputWrapper } from './components/form';
@@ -37,18 +38,22 @@ export type {
   IconSize,
   InputProps,
   InputSize,
-  TooltipCollisionConfig,
-  TooltipCollisionStrategy,
-  TooltipPlacement,
-  TooltipProps,
+  PaperElevation,
+  PaperNestLevel,
+  PaperProps,
+  PaperSpacing,
   TextAlign,
   TextColor,
   TextElement,
   TextLineHeight,
+  TextProps,
   TextSize,
   TextVariant,
   TextWeight,
-  TextProps,
+  TooltipCollisionConfig,
+  TooltipCollisionStrategy,
+  TooltipPlacement,
+  TooltipProps,
 } from '@/components/primitives';
 export type { NumberInputProps, SliderProps } from './components/controls';
 export type {
