@@ -10,8 +10,13 @@ export interface SpacerBaseProps
    */
   ref?: React.Ref<HTMLDivElement> | undefined;
   /**
-   * Fixed size instead of auto-expanding
-   * When provided, spacer will have a fixed dimension instead of flexible growth
+   * Fixed size instead of auto-expanding.
+   * When provided, spacer will have a fixed dimension instead of flexible growth.
+   *
+   * Note: In fixed mode, both width and height are set to the same value.
+   * The parent flex container's direction determines which dimension is used —
+   * the cross-axis dimension is typically overridden by `align-items: stretch`.
+   *
    * @example "20px", "1rem", "2em", 40
    */
   size?: string | number | undefined;
@@ -48,7 +53,7 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
     min-height: 0;
   `}
 
-  /* Fixed size mode */
+  /* Fixed size mode — sets both width and height; flex layout uses the axis-aligned dimension */
   ${props =>
     props.$size &&
     `
