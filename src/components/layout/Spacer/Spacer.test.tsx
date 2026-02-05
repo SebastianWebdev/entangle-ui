@@ -1,5 +1,3 @@
-import React from 'react';
-
 // src/components/layout/Spacer/Spacer.test.tsx
 import { screen } from '@testing-library/react';
 import { renderWithTheme } from '@/tests/testUtils';
@@ -48,7 +46,7 @@ describe('Spacer', () => {
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
 
-      // jsdom może zwracać różne wartości dla flex, sprawdzamy tylko flexGrow
+      // jsdom may return different values for flex, checking only flexGrow
       expect(styles.flexGrow).toBe('1');
     });
 
@@ -179,7 +177,7 @@ describe('Spacer', () => {
       const spacer = screen.getByTestId('test-spacer');
       const styles = window.getComputedStyle(spacer);
 
-      // jsdom może zwracać różne wartości dla zerowych wymiarów, włącznie z pustym stringiem
+      // jsdom may return different values for zero dimensions, including empty string
       expect(['0', '0px', '']).toContain(styles.width);
       expect(['0', '0px', '']).toContain(styles.height);
       expect(styles.flexGrow).toBe('1');
@@ -301,7 +299,7 @@ describe('Spacer', () => {
 
       // Should expand to fill vertical space
       const styles = window.getComputedStyle(spacer);
-      // jsdom zwraca pełną wartość flex shorthand
+      // jsdom returns the full flex shorthand value
       expect(styles.flexGrow).toBe('1');
     });
 
@@ -319,7 +317,7 @@ describe('Spacer', () => {
 
       // Should expand to fill horizontal space
       const styles = window.getComputedStyle(spacer);
-      // jsdom zwraca pełną wartość flex shorthand
+      // jsdom returns the full flex shorthand value
       expect(styles.flexGrow).toBe('1');
     });
   });

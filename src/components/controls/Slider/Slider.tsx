@@ -446,6 +446,7 @@ export const Slider: React.FC<SliderProps> = ({
   onFocus,
   onBlur,
   onKeyDown,
+  ref,
   ...props
 }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -518,7 +519,7 @@ export const Slider: React.FC<SliderProps> = ({
       const percentage = clamp((clientX - rect.left) / rect.width, 0, 1);
       const newValue = min + percentage * (max - min);
 
-      // Używamy aktualnego kroku (zależnego od modyfikatorów klawiszy)
+      // Use the current step size (depends on keyboard modifiers)
       const currentStep = getStepSize();
 
       // Snap to step increments
@@ -539,7 +540,7 @@ export const Slider: React.FC<SliderProps> = ({
       setIsDragging(true);
       setShowTooltipState(showTooltip);
 
-      // Używamy aktualnego kroku (zależnego od modyfikatorów klawiszy)
+      // Use the current step size (depends on keyboard modifiers)
       const newValue = positionToValue(event.clientX);
       applyValue(newValue);
 
@@ -557,9 +558,9 @@ export const Slider: React.FC<SliderProps> = ({
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
       if (!isDragging || !dragStartRef.current) return;
-      // Używamy requestAnimationFrame dla płynniejszego działania
+      // Use requestAnimationFrame for smoother performance
       requestAnimationFrame(() => {
-        // Używamy aktualnego kroku (zależnego od modyfikatorów klawiszy)
+        // Use the current step size (depends on keyboard modifiers)
         const newValue = positionToValue(event.clientX);
         applyValue(newValue);
       });
@@ -669,6 +670,7 @@ export const Slider: React.FC<SliderProps> = ({
 
   return (
     <StyledSliderContainer
+      ref={ref}
       className={className}
       $size={size}
       $disabled={disabled}
@@ -750,3 +752,5 @@ export const Slider: React.FC<SliderProps> = ({
     </StyledSliderContainer>
   );
 };
+
+Slider.displayName = 'Slider';

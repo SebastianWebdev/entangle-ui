@@ -26,7 +26,7 @@ describe('Icon', () => {
   describe('Rendering', () => {
     it('renders with SVG children correctly', () => {
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -45,7 +45,7 @@ describe('Icon', () => {
 
     it('renders with default props', () => {
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -64,7 +64,7 @@ describe('Icon', () => {
 
     it('renders complex multi-element icons', () => {
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <TestComplexIcon />
         </Icon>
       );
@@ -93,7 +93,7 @@ describe('Icon', () => {
 
     it('applies custom className', () => {
       renderWithTheme(
-        <Icon className="custom-class" data-testid="test-icon">
+        <Icon className="custom-class" testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -104,7 +104,7 @@ describe('Icon', () => {
 
     it('applies data-testid correctly', () => {
       renderWithTheme(
-        <Icon data-testid="custom-icon">
+        <Icon testId="custom-icon">
           <TestPath />
         </Icon>
       );
@@ -116,7 +116,7 @@ describe('Icon', () => {
   describe('Size Variants', () => {
     it('applies small size correctly', () => {
       renderWithTheme(
-        <Icon size="sm" data-testid="test-icon">
+        <Icon size="sm" testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -130,7 +130,7 @@ describe('Icon', () => {
 
     it('applies medium size by default', () => {
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -144,7 +144,7 @@ describe('Icon', () => {
 
     it('applies large size correctly', () => {
       renderWithTheme(
-        <Icon size="lg" data-testid="test-icon">
+        <Icon size="lg" testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -162,7 +162,7 @@ describe('Icon', () => {
       sizes.forEach(size => {
         expect(() => {
           renderWithTheme(
-            <Icon size={size} data-testid={`icon-${size}`}>
+            <Icon size={size} testId={`icon-${size}`}>
               <TestPath />
             </Icon>
           );
@@ -176,7 +176,7 @@ describe('Icon', () => {
   describe('Color Variants', () => {
     it('applies primary color by default', () => {
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -191,7 +191,7 @@ describe('Icon', () => {
 
     it('applies secondary color correctly', () => {
       renderWithTheme(
-        <Icon color="secondary" data-testid="test-icon">
+        <Icon color="secondary" testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -206,7 +206,7 @@ describe('Icon', () => {
 
     it('applies accent color correctly', () => {
       renderWithTheme(
-        <Icon color="accent" data-testid="test-icon">
+        <Icon color="accent" testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -221,7 +221,7 @@ describe('Icon', () => {
 
     it('accepts custom color values', () => {
       renderWithTheme(
-        <Icon color="#ff6b6b" data-testid="test-icon">
+        <Icon color="#ff6b6b" testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -244,7 +244,7 @@ describe('Icon', () => {
       colors.forEach(color => {
         expect(() => {
           renderWithTheme(
-            <Icon color={color} data-testid={`icon-${color}`}>
+            <Icon color={color} testId={`icon-${color}`}>
               <TestPath />
             </Icon>
           );
@@ -258,7 +258,7 @@ describe('Icon', () => {
   describe('Accessibility', () => {
     it('includes title element when title prop is provided', () => {
       renderWithTheme(
-        <Icon title="Save file" data-testid="test-icon">
+        <Icon title="Save file" testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -273,7 +273,7 @@ describe('Icon', () => {
 
     it('sets aria-hidden when decorative is true', () => {
       renderWithTheme(
-        <Icon decorative data-testid="test-icon">
+        <Icon decorative testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -285,7 +285,7 @@ describe('Icon', () => {
 
     it('does not include title when decorative is true', () => {
       renderWithTheme(
-        <Icon title="Should not appear" decorative data-testid="test-icon">
+        <Icon title="Should not appear" decorative testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -298,7 +298,7 @@ describe('Icon', () => {
 
     it('provides proper ARIA attributes for meaningful icons', () => {
       renderWithTheme(
-        <Icon title="Settings" data-testid="test-icon">
+        <Icon title="Settings" testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -315,7 +315,7 @@ describe('Icon', () => {
 
     it('provides accessible name when title is present', () => {
       renderWithTheme(
-        <Icon title="Download" data-testid="test-icon">
+        <Icon title="Download" testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -326,7 +326,7 @@ describe('Icon', () => {
 
     it('handles decorative icons without accessible name', () => {
       renderWithTheme(
-        <Icon decorative data-testid="test-icon">
+        <Icon decorative testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -340,7 +340,7 @@ describe('Icon', () => {
   describe('SVG Structure', () => {
     it('creates valid SVG structure with children', () => {
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -355,7 +355,7 @@ describe('Icon', () => {
     });
 
     it('handles empty children gracefully', () => {
-      renderWithTheme(<Icon data-testid="test-icon">{null}</Icon>);
+      renderWithTheme(<Icon testId="test-icon">{null}</Icon>);
 
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
@@ -363,7 +363,7 @@ describe('Icon', () => {
     });
 
     it('handles undefined children gracefully', () => {
-      renderWithTheme(<Icon data-testid="test-icon">{undefined}</Icon>);
+      renderWithTheme(<Icon testId="test-icon">{undefined}</Icon>);
 
       const icon = screen.getByTestId('test-icon');
       expect(icon).toBeInTheDocument();
@@ -372,7 +372,7 @@ describe('Icon', () => {
 
     it('handles multiple child elements', () => {
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <path d="M12 2l3.09 6.26" />
           <circle cx="12" cy="12" r="3" />
           <rect x="9" y="9" width="6" height="6" />
@@ -387,7 +387,7 @@ describe('Icon', () => {
 
     it('maintains SVG attributes across different configurations', () => {
       renderWithTheme(
-        <Icon size="lg" color="accent" data-testid="test-icon">
+        <Icon size="lg" color="accent" testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -403,7 +403,7 @@ describe('Icon', () => {
     it('renders without errors when theme is provided', () => {
       expect(() => {
         renderWithTheme(
-          <Icon data-testid="test-icon">
+          <Icon testId="test-icon">
             <TestPath />
           </Icon>
         );
@@ -425,7 +425,7 @@ describe('Icon', () => {
 
       colors.forEach(color => {
         const { unmount } = renderWithTheme(
-          <Icon color={color} data-testid={`icon-${color}`}>
+          <Icon color={color} testId={`icon-${color}`}>
             <TestPath />
           </Icon>
         );
@@ -437,7 +437,7 @@ describe('Icon', () => {
 
     it('applies theme colors correctly', () => {
       renderWithTheme(
-        <Icon color="accent" data-testid="test-icon">
+        <Icon color="accent" testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -454,7 +454,7 @@ describe('Icon', () => {
   describe('Children Rendering', () => {
     it('renders SVG text elements correctly', () => {
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <text x="12" y="12">
             A
           </text>
@@ -473,7 +473,7 @@ describe('Icon', () => {
       const CustomPath = () => <path d="M0 0L24 24" />;
 
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <CustomPath />
         </Icon>
       );
@@ -486,7 +486,7 @@ describe('Icon', () => {
 
     it('handles mixed SVG element types', () => {
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <g>
             <path d="M12 2l3.09 6.26" />
             <circle cx="12" cy="12" r="3" />
@@ -506,7 +506,7 @@ describe('Icon', () => {
 
     it('renders React fragments as children', () => {
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <React.Fragment>
             <path d="M12 2l3.09 6.26" />
             <circle cx="12" cy="12" r="3" />
@@ -524,7 +524,7 @@ describe('Icon', () => {
     it('handles custom viewBox correctly', () => {
       // Note: Component doesn't expose viewBox prop, uses fixed "0 0 24 24"
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -535,7 +535,7 @@ describe('Icon', () => {
 
     it('maintains default fill attribute', () => {
       renderWithTheme(
-        <Icon data-testid="test-icon">
+        <Icon testId="test-icon">
           <TestPath />
         </Icon>
       );
@@ -551,7 +551,7 @@ describe('Icon', () => {
           color="accent"
           title="Complex Icon"
           className="custom-icon"
-          data-testid="test-icon"
+          testId="test-icon"
         >
           <TestComplexIcon />
         </Icon>
@@ -566,7 +566,7 @@ describe('Icon', () => {
 
     it('handles empty children gracefully', () => {
       expect(() => {
-        renderWithTheme(<Icon data-testid="test-icon">{null}</Icon>);
+        renderWithTheme(<Icon testId="test-icon">{null}</Icon>);
       }).not.toThrow();
 
       const icon = screen.getByTestId('test-icon');

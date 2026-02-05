@@ -2,8 +2,9 @@ import React from 'react';
 import styled from '@emotion/styled';
 import type { BaseComponent } from '@/types/common';
 import { processCss } from '@/utils/styledUtils';
+import { Prettify } from '@/types/utilities';
 
-export interface FormLabelProps extends BaseComponent<HTMLLabelElement> {
+export interface FormLabelBaseProps extends BaseComponent<HTMLLabelElement> {
   /**
    * Label content
    */
@@ -27,9 +28,11 @@ export interface FormLabelProps extends BaseComponent<HTMLLabelElement> {
   required?: boolean;
 }
 
+export type FormLabelProps = Prettify<FormLabelBaseProps>;
+
 const StyledLabel = styled.label<{
   $disabled: boolean;
-  $css?: FormLabelProps['css'];
+  $css?: FormLabelBaseProps['css'];
 }>`
   font-size: ${props => props.theme.typography.fontSize.sm}px;
   font-weight: ${props => props.theme.typography.fontWeight.medium};
@@ -64,27 +67,33 @@ const RequiredIndicator = styled.span`
  * <Input id="name-input" />
  * ```
  */
-export const FormLabel: React.FC<FormLabelProps> = ({
-  children,
-  htmlFor,
-  disabled = false,
-  required = false,
-  className,
-  style,
-  css,
-  ...rest
-}) => {
-  return (
-    <StyledLabel
-      htmlFor={htmlFor}
-      $disabled={disabled}
-      $css={css}
-      className={className}
-      style={style}
-      {...rest}
-    >
-      {children}
-      {required && <RequiredIndicator> *</RequiredIndicator>}
-    </StyledLabel>
-  );
-};
+export const FormLabel = React.memo<FormLabelProps>(
+  ({
+    children,
+    htmlFor,
+    disabled = false,
+    required = false,
+    className,
+    style,
+    css,
+    ref,
+    ...rest
+  }) => {
+    return (
+      <StyledLabel
+        ref={ref}
+        htmlFor={htmlFor}
+        $disabled={disabled}
+        $css={css}
+        className={className}
+        style={style}
+        {...rest}
+      >
+        {children}
+        {required && <RequiredIndicator> *</RequiredIndicator>}
+      </StyledLabel>
+    );
+  }
+);
+
+FormLabel.displayName = 'FormLabel';

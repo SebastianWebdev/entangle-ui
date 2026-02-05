@@ -1,26 +1,23 @@
 // src/components/layout/Spacer/Spacer.tsx
 import React from 'react';
 import styled from '@emotion/styled';
+import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import { processCss } from '@/utils/styledUtils';
 
 export interface SpacerBaseProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
+  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
   /**
-   * Fixed size instead of auto-expanding
-   * When provided, spacer will have a fixed dimension instead of flexible growth
+   * Fixed size instead of auto-expanding.
+   * When provided, spacer will have a fixed dimension instead of flexible growth.
+   *
+   * Note: In fixed mode, both width and height are set to the same value.
+   * The parent flex container's direction determines which dimension is used —
+   * the cross-axis dimension is typically overridden by `align-items: stretch`.
+   *
    * @example "20px", "1rem", "2em", 40
    */
   size?: string | number | undefined;
-
-  /**
-   * Additional CSS classes
-   */
-  className?: string | undefined;
-
-  /**
-   * Test identifier for automated testing
-   */
-  'data-testid'?: string | undefined;
 }
 
 /**
@@ -30,6 +27,7 @@ export type SpacerProps = Prettify<SpacerBaseProps>;
 
 interface StyledSpacerProps {
   $size?: string | number | undefined;
+  $css?: SpacerProps['css'];
 }
 
 const StyledSpacer = styled.div<StyledSpacerProps>`
@@ -44,7 +42,7 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
     min-height: 0;
   `}
 
-  /* Fixed size mode */
+  /* Fixed size mode — sets both width and height; flex layout uses the axis-aligned dimension */
   ${props =>
     props.$size &&
     `
@@ -59,6 +57,9 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
   /* Ensure it doesn't interfere with content */
   pointer-events: none;
   user-select: none;
+
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 /**
@@ -100,18 +101,20 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
  * </Stack>
  * ```
  */
-export const Spacer: React.FC<SpacerProps> = ({
-  size,
-  className,
-  'data-testid': testId,
-  ...htmlProps
-}) => {
-  return (
-    <StyledSpacer
-      className={className}
-      $size={size}
-      data-testid={testId}
-      {...htmlProps}
-    />
-  );
-};
+export const Spacer = React.memo<SpacerProps>(
+  ({ size, className, testId, css, style, ref, ...htmlProps }) => {
+    return (
+      <StyledSpacer
+        ref={ref}
+        className={className}
+        $size={size}
+        $css={css}
+        data-testid={testId}
+        style={style}
+        {...htmlProps}
+      />
+    );
+  }
+);
+
+Spacer.displayName = 'Spacer';

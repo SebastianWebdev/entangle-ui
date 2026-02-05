@@ -26,6 +26,34 @@ export interface EvaluationResult {
 }
 
 /**
+ * Blocked identifiers that must be rejected before evaluation.
+ * Defense-in-depth layer to prevent prototype pollution or code execution
+ * via dangerous JavaScript identifiers that pass character validation.
+ */
+const BLOCKED_IDENTIFIERS: ReadonlySet<string> = new Set([
+  'constructor',
+  'prototype',
+  '__proto__',
+  'this',
+  'self',
+  'window',
+  'document',
+  'globalThis',
+  'process',
+  'require',
+  'import',
+  'module',
+  'exports',
+  'eval',
+  'Function',
+  'Object',
+  'Array',
+  'Reflect',
+  'Proxy',
+  'Symbol',
+]);
+
+/**
  * Mathematical constants available in expressions
  */
 const MATH_CONSTANTS: Record<string, number> = {
@@ -109,6 +137,29 @@ function isValidExpression(expression: string): boolean {
 }
 
 /**
+ * Checks whether the expression contains any blocked identifiers or
+ * unknown alphabetic tokens. All word tokens must be either a known
+ * constant, a known function name, or part of "Math" (introduced by
+ * replaceConstantsAndFunctions). Any unrecognized identifier is rejected.
+ */
+function containsBlockedIdentifiers(expression: string): boolean {
+  const wordTokens = expression.match(/[a-zA-Z_][a-zA-Z0-9_]*/g);
+  if (!wordTokens) return false;
+
+  const allowedTokens = new Set([
+    ...Object.keys(MATH_CONSTANTS),
+    ...Object.keys(MATH_FUNCTIONS),
+  ]);
+
+  for (const token of wordTokens) {
+    if (BLOCKED_IDENTIFIERS.has(token)) return true;
+    if (!allowedTokens.has(token)) return true;
+  }
+
+  return false;
+}
+
+/**
  * Replaces mathematical constants and functions in the expression
  * with their JavaScript equivalents for safe evaluation.
  */
@@ -186,6 +237,15 @@ export function evaluateExpression(expression: string): EvaluationResult {
 
     // Validate the expression
     if (!isValidExpression(sanitized)) {
+      return {
+        success: false,
+        error: 'Expression contains invalid characters or syntax',
+        expression: originalExpression,
+      };
+    }
+
+    // Check for blocked or unknown identifiers (defense-in-depth)
+    if (containsBlockedIdentifiers(sanitized)) {
       return {
         success: false,
         error: 'Expression contains invalid characters or syntax',

@@ -545,5 +545,137 @@ describe('mathExpression', () => {
       const result = evaluateExpression('constructor');
       expect(result.success).toBe(false);
     });
+
+    describe('Blocked identifier rejection', () => {
+      it('rejects __proto__ identifier', () => {
+        const result = evaluateExpression('__proto__');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+
+      it('rejects prototype identifier', () => {
+        const result = evaluateExpression('prototype');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+
+      it('rejects this identifier', () => {
+        const result = evaluateExpression('this');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+
+      it('rejects globalThis identifier', () => {
+        const result = evaluateExpression('globalThis');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+
+      it('rejects eval identifier', () => {
+        const result = evaluateExpression('eval');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+
+      it('rejects Function identifier', () => {
+        const result = evaluateExpression('Function');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+
+      it('rejects Object identifier', () => {
+        const result = evaluateExpression('Object');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+
+      it('rejects require identifier', () => {
+        const result = evaluateExpression('require');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+
+      it('rejects self identifier', () => {
+        const result = evaluateExpression('self');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+    });
+
+    describe('Prototype chain and constructor access attempts', () => {
+      it('rejects constructor.constructor("return this")()', () => {
+        // Quotes are blocked by character validation
+        const result = evaluateExpression(
+          'constructor.constructor("return this")()'
+        );
+        expect(result.success).toBe(false);
+      });
+
+      it('rejects Math.constructor via dot notation', () => {
+        // Dot is allowed by char regex but "Math" and "constructor" are
+        // caught by the identifier blocklist
+        const result = evaluateExpression('Math.constructor');
+        expect(result.success).toBe(false);
+      });
+
+      it('rejects constructor embedded in arithmetic', () => {
+        const result = evaluateExpression('1+constructor+1');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+
+      it('rejects prototype in arithmetic context', () => {
+        const result = evaluateExpression('prototype+1');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+    });
+
+    describe('Unknown identifier rejection', () => {
+      it('rejects arbitrary unknown identifiers', () => {
+        const result = evaluateExpression('foo');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+
+      it('rejects unknown identifiers mixed with valid math', () => {
+        const result = evaluateExpression('sin(0)+unknown');
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression contains invalid characters or syntax'
+        );
+      });
+
+      it('still allows valid constants and functions', () => {
+        expect(evaluateExpression('pi').success).toBe(true);
+        expect(evaluateExpression('sin(0)').success).toBe(true);
+        expect(evaluateExpression('sqrt(16)+abs(-3)').success).toBe(true);
+        expect(evaluateExpression('e+tau+phi').success).toBe(true);
+      });
+    });
   });
 });

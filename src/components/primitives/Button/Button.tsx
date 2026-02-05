@@ -1,98 +1,94 @@
 // src/primitives/Button/Button.tsx
 import React from 'react';
 import styled from '@emotion/styled';
-import { Size, Variant } from '@/types/common';
+import type { BaseComponent, Size, Variant } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
+import { processCss } from '@/utils/styledUtils';
 
 /**
- * Rozmiary przycisku zoptymalizowane dla interfejsów edytora
+ * Button sizes optimized for editor interfaces
  */
 export type ButtonSize = Size;
 
 /**
- * Warianty wizualne przycisku
+ * Visual variants for the button
  */
 export type ButtonVariant = Variant;
 
 /**
- * Właściwości komponentu Button
+ * Base props for the Button component
  */
-export interface ButtonProps {
+export interface ButtonBaseProps extends BaseComponent<HTMLButtonElement> {
   /**
-   * Zawartość przycisku - tekst, ikony lub inne elementy React
-   * @example "Zapisz", <><SaveIcon /> Zapisz</>
+   * Button content — text, icons, or other React elements
+   * @example "Save", <><SaveIcon /> Save</>
    */
   children?: React.ReactNode;
 
   /**
-   * Dodatkowe klasy CSS
-   */
-  className?: string;
-
-  /**
-   * Wariant rozmiaru zoptymalizowany dla interfejsów edytora
-   * - `sm`: wysokość 24px, kompaktowy dla pasków narzędzi
-   * - `md`: wysokość 28px, standardowy dla paneli
-   * - `lg`: wysokość 32px, dla prominentnych akcji
+   * Size variant optimized for editor interfaces
+   * - `sm`: 20px height, compact for toolbars
+   * - `md`: 24px height, standard for panels
+   * - `lg`: 32px height, prominent actions
    * @default "md"
    */
   size?: ButtonSize;
 
   /**
-   * Wariant wizualny przycisku
-   * - `default`: Przezroczysty z obramowaniem, wypełnia się przy hover
-   * - `ghost`: Bez obramowania, subtelny stan hover
-   * - `filled`: Solidne tło z kolorem akcentu
+   * Visual variant of the button
+   * - `default`: Transparent with border, fills on hover
+   * - `ghost`: No border, subtle hover state
+   * - `filled`: Solid background with accent color
    * @default "default"
    */
   variant?: ButtonVariant;
 
   /**
-   * Czy przycisk jest wyłączony
-   * Gdy true, przycisk staje się nieinteraktywny z obniżoną przezroczystością
+   * Whether the button is disabled
+   * When true, button becomes non-interactive with reduced opacity
    * @default false
    */
   disabled?: boolean;
 
   /**
-   * Stan ładowania - pokazuje spinner i wyłącza interakcję
-   * Używaj dla operacji asynchronicznych jak zapisywanie, ładowanie danych
+   * Loading state — shows spinner and disables interaction
+   * Use for async operations like saving, loading data
    * @default false
    */
   loading?: boolean;
 
   /**
-   * Element ikony do wyświetlenia przed tekstem
-   * Powinien mieć rozmiar 16x16px dla optymalnego wyglądu
+   * Icon element to display before text
+   * Should be 16x16px for optimal appearance
    * @example <SaveIcon />, <PlayIcon />
    */
   icon?: React.ReactNode;
 
   /**
-   * Czy przycisk powinien zajmować pełną szerokość kontenera
-   * Przydatne dla akcji formularzy i przycisków modalnych
+   * Whether the button should take the full width of the container
+   * Useful for form actions and modal buttons
    * @default false
    */
   fullWidth?: boolean;
 
   /**
-   * Handler zdarzenia kliknięcia
-   * Wywoływany gdy przycisk jest kliknięty (nie gdy disabled/loading)
+   * Click event handler
+   * Called when button is clicked (not when disabled/loading)
    */
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-
-  /**
-   * Identyfikator testowy dla testów automatycznych
-   * Powinien następować wzorzec: component-action-context
-   * @example "button-save-project", "button-cancel-dialog"
-   */
-  'data-testid'?: string;
 }
+
+/**
+ * Props for the Button component with prettified type for better IntelliSense
+ */
+export type ButtonProps = Prettify<ButtonBaseProps>;
 
 interface StyledButtonProps {
   $size: ButtonSize;
   $variant: ButtonVariant;
   $loading: boolean;
   $fullWidth: boolean;
+  $css?: ButtonProps['css'];
 }
 
 const StyledButton = styled.button<StyledButtonProps>`
@@ -115,16 +111,16 @@ const StyledButton = styled.button<StyledButtonProps>`
   ${props => {
     const sizes = {
       sm: {
-        height: '24px',
-        padding: `0 ${props.theme.spacing.sm * 2}px`,
+        height: '20px',
+        padding: `0 ${props.theme.spacing.sm}px`,
         fontSize: `${props.theme.typography.fontSize.xs}px`,
         gap: `${props.theme.spacing.xs}px`,
       },
       md: {
-        height: '28px',
-        padding: `0 ${props.theme.spacing.md + props.theme.spacing.xs}px`,
+        height: '24px',
+        padding: `0 ${props.theme.spacing.md}px`,
         fontSize: `${props.theme.typography.fontSize.xs}px`,
-        gap: `${props.theme.spacing.sm + props.theme.spacing.xs}px`,
+        gap: `${props.theme.spacing.sm}px`,
       },
       lg: {
         height: '32px',
@@ -213,10 +209,13 @@ const StyledButton = styled.button<StyledButtonProps>`
   &:focus-visible {
     box-shadow: ${props => props.theme.shadows.focus};
   }
+
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 /**
- * Komponent spinnera ładowania
+ * Loading spinner component
  */
 const LoadingSpinner = styled.div`
   width: 16px;
@@ -234,7 +233,7 @@ const LoadingSpinner = styled.div`
 `;
 
 /**
- * Wrapper dla ikony
+ * Icon wrapper
  */
 const IconWrapper = styled.span`
   width: 16px;
@@ -245,28 +244,28 @@ const IconWrapper = styled.span`
 `;
 
 /**
- * Wszechstronny komponent przycisku dla interfejsów edytora.
+ * Versatile button component for editor interfaces.
  *
- * Obsługuje wiele wariantów, rozmiarów i stanów. Zoptymalizowany dla profesjonalnych
- * interfejsów edytora z kompaktowymi wymiarami i precyzyjnymi interakcjami.
+ * Supports multiple variants, sizes, and states. Optimized for professional
+ * editor interfaces with compact dimensions and precise interactions.
  *
  * @example
  * ```tsx
- * // Podstawowe użycie
- * <Button variant="default" size="md">Zapisz</Button>
+ * // Basic usage
+ * <Button variant="default" size="md">Save</Button>
  *
- * // Z ikoną i stanem ładowania
+ * // With icon and loading state
  * <Button
  *   icon={<SaveIcon />}
  *   loading={isSaving}
  *   onClick={handleSave}
  * >
- *   Zapisz Projekt
+ *   Save Project
  * </Button>
  *
- * // Przycisk pełnej szerokości
+ * // Full width button
  * <Button variant="filled" fullWidth>
- *   Potwierdź
+ *   Confirm
  * </Button>
  * ```
  */
@@ -280,19 +279,25 @@ export const Button: React.FC<ButtonProps> = ({
   icon,
   fullWidth = false,
   onClick,
-  'data-testid': testId,
+  testId,
+  style,
+  css,
+  ref,
   ...props
 }) => {
   return (
     <StyledButton
+      ref={ref}
       className={className}
       $size={size}
       $variant={variant}
       $loading={loading}
       $fullWidth={fullWidth}
+      $css={css}
       disabled={disabled || loading}
       onClick={onClick}
       data-testid={testId}
+      style={style}
       {...props}
     >
       {loading ? (
@@ -305,3 +310,5 @@ export const Button: React.FC<ButtonProps> = ({
     </StyledButton>
   );
 };
+
+Button.displayName = 'Button';

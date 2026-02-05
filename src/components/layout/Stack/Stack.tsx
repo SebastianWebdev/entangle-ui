@@ -1,7 +1,9 @@
 // src/components/layout/Stack/Stack.tsx
 import React from 'react';
 import styled from '@emotion/styled';
+import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import { processCss } from '@/utils/styledUtils';
 
 import type { Theme } from '@/theme/types';
 
@@ -42,7 +44,7 @@ export type StackAlign =
 export type StackSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export interface StackBaseProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
+  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
   /**
    * Stack content - any React elements
    */
@@ -123,16 +125,6 @@ export interface StackBaseProps
    * @default "flex-start"
    */
   align?: StackAlign | undefined;
-
-  /**
-   * Additional CSS classes
-   */
-  className?: string | undefined;
-
-  /**
-   * Test identifier for automated testing
-   */
-  'data-testid'?: string | undefined;
 }
 
 /**
@@ -152,6 +144,7 @@ interface StyledStackProps {
   $customGap?: string | number | undefined;
   $justify: StackJustify;
   $align: StackAlign;
+  $css?: StackProps['css'];
 }
 
 /**
@@ -226,6 +219,9 @@ const StyledStack = styled.div<StyledStackProps>`
       ${props.$expand && props.$xl === 'column' ? 'height: 100%; width: auto;' : ''}
     }
   `}
+
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 /**
@@ -302,11 +298,15 @@ export const Stack: React.FC<StackProps> = ({
   justify = 'flex-start',
   align = 'flex-start',
   className,
-  'data-testid': testId,
+  testId,
+  css,
+  style,
+  ref,
   ...htmlProps
 }) => {
   return (
     <StyledStack
+      ref={ref}
       className={className}
       $direction={direction}
       $sm={sm}
@@ -319,10 +319,14 @@ export const Stack: React.FC<StackProps> = ({
       $customGap={customGap}
       $justify={justify}
       $align={align}
+      $css={css}
       data-testid={testId}
+      style={style}
       {...htmlProps}
     >
       {children}
     </StyledStack>
   );
 };
+
+Stack.displayName = 'Stack';

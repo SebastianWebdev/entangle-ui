@@ -1,8 +1,10 @@
-// src/components/layout/Paper/Paper.tsx
+// src/components/primitives/Paper/Paper.tsx
 import React from 'react';
 import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
+import type { BaseComponent } from '@/types/common';
 import type { Theme } from '@/theme/types';
+import { processCss } from '@/utils/styledUtils';
 
 /**
  * Paper elevation levels (shadow intensity)
@@ -21,7 +23,7 @@ export type PaperNestLevel = 0 | 1 | 2 | 3;
 export type PaperSpacing = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl';
 
 export interface PaperBaseProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
+  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
   /**
    * Paper content - any React elements
    */
@@ -81,11 +83,6 @@ export interface PaperBaseProps
    * @example "8px", "50%", "0"
    */
   customRadius?: string | number;
-
-  /**
-   * Test identifier for automated testing
-   */
-  'data-testid'?: string;
 }
 
 /**
@@ -100,6 +97,7 @@ interface StyledPaperProps {
   $nestLevel: PaperNestLevel;
   $expand: boolean;
   $customRadius?: string | number;
+  $css?: PaperProps['css'];
 }
 
 /**
@@ -201,6 +199,9 @@ const StyledPaper = styled.div<StyledPaperProps>`
       };
     }
   `}
+
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 /**
@@ -251,31 +252,41 @@ const StyledPaper = styled.div<StyledPaperProps>`
  * </Paper>
  * ```
  */
-export const Paper: React.FC<PaperProps> = ({
-  children,
-  elevation = 1,
-  bordered = false,
-  padding = 'md',
-  nestLevel = 0,
-  expand = false,
-  customRadius,
-  className,
-  'data-testid': testId,
-  ...htmlProps
-}) => {
-  return (
-    <StyledPaper
-      className={className}
-      $elevation={elevation}
-      $bordered={bordered}
-      $padding={padding}
-      $nestLevel={nestLevel}
-      $expand={expand}
-      $customRadius={customRadius}
-      data-testid={testId}
-      {...htmlProps}
-    >
-      {children}
-    </StyledPaper>
-  );
-};
+export const Paper = React.memo<PaperProps>(
+  ({
+    children,
+    elevation = 1,
+    bordered = false,
+    padding = 'md',
+    nestLevel = 0,
+    expand = false,
+    customRadius,
+    className,
+    testId,
+    css,
+    style,
+    ref,
+    ...htmlProps
+  }) => {
+    return (
+      <StyledPaper
+        ref={ref}
+        className={className}
+        $elevation={elevation}
+        $bordered={bordered}
+        $padding={padding}
+        $nestLevel={nestLevel}
+        $expand={expand}
+        $customRadius={customRadius}
+        $css={css}
+        data-testid={testId}
+        style={style}
+        {...htmlProps}
+      >
+        {children}
+      </StyledPaper>
+    );
+  }
+);
+
+Paper.displayName = 'Paper';

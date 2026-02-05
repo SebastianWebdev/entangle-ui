@@ -2,8 +2,9 @@ import React from 'react';
 import styled from '@emotion/styled';
 import type { BaseComponent, Size } from '@/types/common';
 import { processCss } from '@/utils/styledUtils';
+import { Prettify } from '@/types/utilities';
 
-export interface InputWrapperProps extends BaseComponent<HTMLDivElement> {
+export interface InputWrapperBaseProps extends BaseComponent<HTMLDivElement> {
   /**
    * Input wrapper content
    */
@@ -37,15 +38,17 @@ export interface InputWrapperProps extends BaseComponent<HTMLDivElement> {
   focused?: boolean;
 }
 
-interface StyledInputWrapperProps {
+export type InputWrapperProps = Prettify<InputWrapperBaseProps>;
+
+export interface StyledInputWrapperProps {
   $size: Size;
   $error: boolean;
   $disabled: boolean;
   $focused: boolean;
-  $css?: InputWrapperProps['css'];
+  $css?: InputWrapperBaseProps['css'];
 }
 
-const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
+export const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
   position: relative;
   display: flex;
   align-items: center;
@@ -134,29 +137,35 @@ const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
  * </InputWrapper>
  * ```
  */
-export const InputWrapper: React.FC<InputWrapperProps> = ({
-  children,
-  size = 'md',
-  error = false,
-  disabled = false,
-  focused = false,
-  className,
-  style,
-  css,
-  ...rest
-}) => {
-  return (
-    <StyledInputWrapper
-      $size={size}
-      $error={error}
-      $disabled={disabled}
-      $focused={focused}
-      $css={css}
-      className={className}
-      style={style}
-      {...rest}
-    >
-      {children}
-    </StyledInputWrapper>
-  );
-};
+export const InputWrapper = React.memo<InputWrapperProps>(
+  ({
+    children,
+    size = 'md',
+    error = false,
+    disabled = false,
+    focused = false,
+    className,
+    style,
+    css,
+    ref,
+    ...rest
+  }) => {
+    return (
+      <StyledInputWrapper
+        ref={ref}
+        $size={size}
+        $error={error}
+        $disabled={disabled}
+        $focused={focused}
+        $css={css}
+        className={className}
+        style={style}
+        {...rest}
+      >
+        {children}
+      </StyledInputWrapper>
+    );
+  }
+);
+
+InputWrapper.displayName = 'InputWrapper';
