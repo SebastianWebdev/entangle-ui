@@ -2,8 +2,9 @@ import React from 'react';
 import styled from '@emotion/styled';
 import type { BaseComponent, Size } from '@/types/common';
 import { processCss } from '@/utils/styledUtils';
+import { Prettify } from '@/types/utilities';
 
-export interface InputWrapperProps extends BaseComponent<HTMLDivElement> {
+export interface InputWrapperBaseProps extends BaseComponent<HTMLDivElement> {
   /**
    * Input wrapper content
    */
@@ -37,12 +38,14 @@ export interface InputWrapperProps extends BaseComponent<HTMLDivElement> {
   focused?: boolean;
 }
 
+export type InputWrapperProps = Prettify<InputWrapperBaseProps>;
+
 export interface StyledInputWrapperProps {
   $size: Size;
   $error: boolean;
   $disabled: boolean;
   $focused: boolean;
-  $css?: InputWrapperProps['css'];
+  $css?: InputWrapperBaseProps['css'];
 }
 
 export const StyledInputWrapper = styled.div<StyledInputWrapperProps>`

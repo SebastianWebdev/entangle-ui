@@ -2,8 +2,9 @@ import React from 'react';
 import styled from '@emotion/styled';
 import type { BaseComponent } from '@/types/common';
 import { processCss } from '@/utils/styledUtils';
+import { Prettify } from '@/types/utilities';
 
-export interface FormHelperTextProps extends BaseComponent<HTMLDivElement> {
+export interface FormHelperTextBaseProps extends BaseComponent<HTMLDivElement> {
   /**
    * Helper text content
    */
@@ -16,9 +17,11 @@ export interface FormHelperTextProps extends BaseComponent<HTMLDivElement> {
   error?: boolean;
 }
 
+export type FormHelperTextProps = Prettify<FormHelperTextBaseProps>;
+
 const StyledHelperText = styled.div<{
   $error: boolean;
-  $css?: FormHelperTextProps['css'];
+  $css?: FormHelperTextBaseProps['css'];
 }>`
   font-size: ${props => props.theme.typography.fontSize.xs}px;
   line-height: ${props => props.theme.typography.lineHeight.tight};

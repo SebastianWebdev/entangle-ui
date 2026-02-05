@@ -1,14 +1,12 @@
 // src/components/layout/Spacer/Spacer.tsx
 import React from 'react';
 import styled from '@emotion/styled';
+import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import { processCss } from '@/utils/styledUtils';
 
 export interface SpacerBaseProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
-  /**
-   * Ref forwarded to the root DOM element
-   */
-  ref?: React.Ref<HTMLDivElement> | undefined;
+  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
   /**
    * Fixed size instead of auto-expanding.
    * When provided, spacer will have a fixed dimension instead of flexible growth.
@@ -20,16 +18,6 @@ export interface SpacerBaseProps
    * @example "20px", "1rem", "2em", 40
    */
   size?: string | number | undefined;
-
-  /**
-   * Additional CSS classes
-   */
-  className?: string | undefined;
-
-  /**
-   * Test identifier for automated testing
-   */
-  'data-testid'?: string | undefined;
 }
 
 /**
@@ -39,6 +27,7 @@ export type SpacerProps = Prettify<SpacerBaseProps>;
 
 interface StyledSpacerProps {
   $size?: string | number | undefined;
+  $css?: SpacerProps['css'];
 }
 
 const StyledSpacer = styled.div<StyledSpacerProps>`
@@ -68,6 +57,9 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
   /* Ensure it doesn't interfere with content */
   pointer-events: none;
   user-select: none;
+
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 /**
@@ -110,13 +102,15 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
  * ```
  */
 export const Spacer = React.memo<SpacerProps>(
-  ({ size, className, 'data-testid': testId, ref, ...htmlProps }) => {
+  ({ size, className, testId, css, style, ref, ...htmlProps }) => {
     return (
       <StyledSpacer
         ref={ref}
         className={className}
         $size={size}
+        $css={css}
         data-testid={testId}
+        style={style}
         {...htmlProps}
       />
     );

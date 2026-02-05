@@ -1,7 +1,9 @@
 // src/components/layout/Flex/Flex.tsx
 import React from 'react';
 import styled from '@emotion/styled';
+import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import { processCss } from '@/utils/styledUtils';
 
 import type { Theme } from '@/theme/types';
 
@@ -52,12 +54,7 @@ export type FlexAlignContent =
  */
 export type FlexSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-export interface FlexBaseProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
-  /**
-   * Ref forwarded to the root DOM element
-   */
-  ref?: React.Ref<HTMLDivElement> | undefined;
+export interface FlexBaseProps extends BaseComponent<HTMLDivElement> {
   /**
    * Flex content - any React elements
    */
@@ -187,10 +184,6 @@ export interface FlexBaseProps
    * @example "1200px", "100%", "50vw"
    */
   maxWidth?: string | number | undefined;
-  /**
-   * Test identifier for automated testing
-   */
-  'data-testid'?: string | undefined;
 }
 
 /**
@@ -217,6 +210,7 @@ interface StyledFlexProps {
   $fullHeight: boolean;
   $minHeight?: string | number | undefined;
   $maxWidth?: string | number | undefined;
+  $css?: FlexProps['css'];
 }
 
 /**
@@ -306,6 +300,9 @@ const StyledFlex = styled.div<StyledFlexProps>`
       flex-direction: ${props.$xl};
     }
   `}
+
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 /**
@@ -392,7 +389,9 @@ export const Flex: React.FC<FlexProps> = ({
   minHeight,
   maxWidth,
   className,
-  'data-testid': testId,
+  testId,
+  css,
+  style,
   ref,
   ...htmlProps
 }) => {
@@ -418,7 +417,9 @@ export const Flex: React.FC<FlexProps> = ({
       $fullHeight={fullHeight}
       $minHeight={minHeight}
       $maxWidth={maxWidth}
+      $css={css}
       data-testid={testId}
+      style={style}
       {...htmlProps}
     >
       {children}

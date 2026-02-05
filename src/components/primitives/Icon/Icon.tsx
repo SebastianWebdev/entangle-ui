@@ -3,6 +3,8 @@ import React from 'react';
 import styled from '@emotion/styled';
 import type { Prettify, LiteralUnion } from '@/types/utilities';
 import type { Size } from '@/types/common';
+import type { Theme } from '@/theme/types';
+import { processCss } from '@/utils/styledUtils';
 
 export type IconSize = Size;
 export type IconColor = LiteralUnion<
@@ -16,7 +18,21 @@ export interface IconBaseProps {
   className?: string;
   title?: string;
   decorative?: boolean;
-  'data-testid'?: string;
+
+  /**
+   * Custom CSS styles included in styled-components
+   * Can be an object of CSS properties or a function that receives theme and returns CSS properties
+   */
+  css?:
+    | React.CSSProperties
+    | ((theme: Theme) => React.CSSProperties)
+    | undefined;
+
+  /**
+   * Test identifier for automated testing
+   */
+  testId?: string;
+
   ref?: React.Ref<SVGSVGElement>;
 }
 
@@ -25,6 +41,7 @@ export type IconProps = Prettify<IconBaseProps>;
 interface StyledSVGProps {
   $size: IconSize;
   $color: IconColor;
+  $css?: IconProps['css'];
 }
 
 const StyledSVG = styled.svg<StyledSVGProps>`
@@ -78,6 +95,9 @@ const StyledSVG = styled.svg<StyledSVGProps>`
   
   /* Ensure crisp rendering */
   shape-rendering: geometricPrecision;
+
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 export const Icon = React.memo<IconProps>(
@@ -88,7 +108,8 @@ export const Icon = React.memo<IconProps>(
     className,
     title,
     decorative = false,
-    'data-testid': testId,
+    css,
+    testId,
     ref,
     ...props
   }) => {
@@ -98,6 +119,7 @@ export const Icon = React.memo<IconProps>(
         className={className}
         $size={size}
         $color={color}
+        $css={css}
         viewBox="0 0 24 24"
         fill="none"
         aria-hidden={decorative}

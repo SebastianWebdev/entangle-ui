@@ -3,7 +3,8 @@ import React from 'react';
 import styled from '@emotion/styled';
 
 import type { Prettify } from '@/types/utilities';
-import type { Size, Variant } from '@/types/common';
+import type { BaseComponent, Size, Variant } from '@/types/common';
+import { processCss } from '@/utils/styledUtils';
 
 /**
  * Standard size variants for IconButton using library sizing.
@@ -20,7 +21,8 @@ export type IconButtonVariant = Variant;
  */
 export type IconButtonRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
 
-export interface IconButtonBaseProps {
+export interface IconButtonBaseProps
+  extends Omit<BaseComponent<HTMLButtonElement>, 'children'> {
   /**
    * Icon component to display inside the button.
    * Should be an Icon component or similar icon element.
@@ -29,11 +31,6 @@ export interface IconButtonBaseProps {
    * @example <SaveIcon />, <AddIcon />
    */
   children: React.ReactNode;
-
-  /**
-   * Additional CSS classes for custom styling
-   */
-  className?: string;
 
   /**
    * Button size using standard library sizing
@@ -98,17 +95,6 @@ export interface IconButtonBaseProps {
    * Called when button is clicked (not when disabled/loading)
    */
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-
-  /**
-   * Test identifier for automated testing
-   * @example "icon-button-save", "icon-button-delete"
-   */
-  'data-testid'?: string;
-
-  /**
-   * Ref forwarded to the underlying button element
-   */
-  ref?: React.Ref<HTMLButtonElement>;
 }
 
 /**
@@ -122,6 +108,7 @@ interface StyledIconButtonProps {
   $radius: IconButtonRadius;
   $loading: boolean;
   $pressed: boolean;
+  $css?: IconButtonProps['css'];
 }
 
 const StyledIconButton = styled.button<StyledIconButtonProps>`
@@ -267,6 +254,9 @@ const StyledIconButton = styled.button<StyledIconButtonProps>`
     align-items: center;
     justify-content: center;
   }
+
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 const LoadingSpinner = styled.div<{ $size: IconButtonSize }>`
@@ -349,7 +339,9 @@ export const IconButton: React.FC<IconButtonProps> = ({
   pressed = false,
   onClick,
   'aria-label': ariaLabel,
-  'data-testid': testId,
+  testId,
+  css,
+  style,
   ref,
   ...props
 }) => {
@@ -362,11 +354,13 @@ export const IconButton: React.FC<IconButtonProps> = ({
       $radius={radius}
       $loading={loading}
       $pressed={pressed}
+      $css={css}
       disabled={disabled || loading}
       onClick={onClick}
       aria-label={ariaLabel}
       aria-pressed={pressed}
       data-testid={testId}
+      style={style}
       {...props}
     >
       {loading ? <LoadingSpinner $size={size} /> : children}

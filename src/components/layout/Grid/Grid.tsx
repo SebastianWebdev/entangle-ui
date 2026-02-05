@@ -1,7 +1,9 @@
 // src/components/layout/Grid/Grid.tsx
 import React from 'react';
 import styled from '@emotion/styled';
+import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import { processCss } from '@/utils/styledUtils';
 
 import type { Theme } from '@/theme/types';
 
@@ -30,11 +32,7 @@ export type GridSize =
 export type GridSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export interface GridBaseProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
-  /**
-   * Ref forwarded to the root DOM element
-   */
-  ref?: React.Ref<HTMLDivElement> | undefined;
+  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
   /**
    * Grid content - other Grid components or any React elements
    */
@@ -90,16 +88,6 @@ export interface GridBaseProps
    * @example "16px", "1rem", "2"
    */
   gap?: string | number | undefined;
-
-  /**
-   * Additional CSS classes
-   */
-  className?: string;
-
-  /**
-   * Test identifier for automated testing
-   */
-  'data-testid'?: string | undefined;
 }
 
 /**
@@ -118,6 +106,7 @@ interface StyledGridProps {
   $spacing: GridSpacing | undefined;
   $columns: number | undefined;
   $gap?: string | number | undefined;
+  $css?: GridProps['css'];
 }
 
 /**
@@ -192,6 +181,9 @@ const StyledGrid = styled.div<StyledGridProps>`
   
   /* Ensure proper box sizing for all grid items */
   box-sizing: border-box;
+
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 /**
@@ -248,7 +240,9 @@ export const Grid: React.FC<GridProps> = ({
   columns = 12,
   gap,
   className,
-  'data-testid': testId,
+  testId,
+  css,
+  style,
   ref,
   ...htmlProps
 }) => {
@@ -266,7 +260,9 @@ export const Grid: React.FC<GridProps> = ({
       $spacing={spacing}
       $columns={columns}
       $gap={gap}
+      $css={css}
       data-testid={testId}
+      style={style}
       {...htmlProps}
     >
       {children}

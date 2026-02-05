@@ -2,8 +2,9 @@ import React from 'react';
 import styled from '@emotion/styled';
 import type { BaseComponent } from '@/types/common';
 import { processCss } from '@/utils/styledUtils';
+import { Prettify } from '@/types/utilities';
 
-export interface FormLabelProps extends BaseComponent<HTMLLabelElement> {
+export interface FormLabelBaseProps extends BaseComponent<HTMLLabelElement> {
   /**
    * Label content
    */
@@ -27,9 +28,11 @@ export interface FormLabelProps extends BaseComponent<HTMLLabelElement> {
   required?: boolean;
 }
 
+export type FormLabelProps = Prettify<FormLabelBaseProps>;
+
 const StyledLabel = styled.label<{
   $disabled: boolean;
-  $css?: FormLabelProps['css'];
+  $css?: FormLabelBaseProps['css'];
 }>`
   font-size: ${props => props.theme.typography.fontSize.sm}px;
   font-weight: ${props => props.theme.typography.fontWeight.medium};
