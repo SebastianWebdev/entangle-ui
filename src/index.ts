@@ -14,8 +14,8 @@ export {
   Text,
   Tooltip,
 } from '@/components/primitives';
-export { NumberInput, Slider } from './components/controls';
-export { FormHelperText, FormLabel, InputWrapper } from './components/form';
+export { NumberInput, Slider } from '@/components/controls';
+export { FormHelperText, FormLabel, InputWrapper } from '@/components/form';
 
 export type {
   FlexAlign,
@@ -55,12 +55,12 @@ export type {
   TooltipPlacement,
   TooltipProps,
 } from '@/components/primitives';
-export type { NumberInputProps, SliderProps } from './components/controls';
+export type { NumberInputProps, SliderProps } from '@/components/controls';
 export type {
   FormHelperTextProps,
   FormLabelProps,
   InputWrapperProps,
-} from './components/form';
+} from '@/components/form';
 
 // Types
 export type { BaseComponent, Size, Variant } from '@/types/common';

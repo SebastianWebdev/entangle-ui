@@ -1,6 +1,6 @@
 // src/primitives/BaseButton/BaseButton.tsx
 import React, { forwardRef } from 'react';
-import { cn } from '../../../utils/cn';
+import { cn } from '@/utils/cn';
 
 export interface BaseButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -20,7 +20,7 @@ export const BaseButton = forwardRef<HTMLButtonElement, BaseButtonProps>(
       <button
         ref={ref}
         className={cn(
-          // Reset tylko niektóre style, nie wszystkie
+          // Reset only some styles, not all
           'bg-transparent p-0 m-0',
           // Base interactive styles
           'cursor-pointer select-none',

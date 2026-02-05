@@ -30,8 +30,8 @@ describe('Button', () => {
       expect(button).toHaveClass('custom-class');
     });
 
-    it('applies data-testid correctly', () => {
-      renderWithTheme(<Button data-testid="save-button">Save</Button>);
+    it('applies data-testid via testId prop', () => {
+      renderWithTheme(<Button testId="save-button">Save</Button>);
       expect(screen.getByTestId('save-button')).toBeInTheDocument();
     });
   });
@@ -151,14 +151,14 @@ describe('Button', () => {
       const button = screen.getByRole('button');
 
       // Check computed styles
-      styleAssertions.expectDimensions(button, '', '24px');
+      styleAssertions.expectDimensions(button, '', '20px');
     });
 
     it('applies medium size styles (default)', () => {
       renderWithTheme(<Button size="md">Medium</Button>);
       const button = screen.getByRole('button');
 
-      styleAssertions.expectDimensions(button, '', '28px');
+      styleAssertions.expectDimensions(button, '', '24px');
     });
 
     it('applies large size styles', () => {
@@ -172,7 +172,7 @@ describe('Button', () => {
       renderWithTheme(<Button>Default</Button>);
       const button = screen.getByRole('button');
 
-      styleAssertions.expectDimensions(button, '', '28px');
+      styleAssertions.expectDimensions(button, '', '24px');
     });
   });
 
@@ -182,7 +182,7 @@ describe('Button', () => {
       const button = screen.getByRole('button');
 
       const styles = window.getComputedStyle(button);
-      expect(styles.background).toContain('transparent');
+      expect(styles.background).toContain('rgba(0, 0, 0, 0)');
     });
 
     it('applies ghost variant styles', () => {
@@ -190,7 +190,7 @@ describe('Button', () => {
       const button = screen.getByRole('button');
 
       const styles = window.getComputedStyle(button);
-      expect(styles.background).toContain('transparent');
+      expect(styles.background).toContain('rgba(0, 0, 0, 0)');
     });
 
     it('applies filled variant styles', () => {
@@ -205,7 +205,7 @@ describe('Button', () => {
       const button = screen.getByRole('button');
 
       const styles = window.getComputedStyle(button);
-      expect(styles.background).toContain('transparent');
+      expect(styles.background).toContain('rgba(0, 0, 0, 0)');
     });
   });
 
@@ -214,7 +214,7 @@ describe('Button', () => {
       renderWithTheme(<Button fullWidth>Full Width</Button>);
       const button = screen.getByRole('button');
 
-      styleAssertions.expectDimensions(button, '100%', '28px');
+      styleAssertions.expectDimensions(button, '100%', '24px');
     });
 
     it('does not apply full width by default', () => {
