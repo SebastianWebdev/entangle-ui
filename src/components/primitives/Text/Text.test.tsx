@@ -109,6 +109,7 @@ describe('Text', () => {
 
         const textElement = screen.getByTestId(`${variant}-text`);
         expect(textElement).toBeInTheDocument();
+        expect(textElement).toHaveTextContent(`${variant} text`);
 
         // Verify variant-specific styling is applied
         const computedStyle = window.getComputedStyle(textElement);
@@ -117,8 +118,9 @@ describe('Text', () => {
           // Code variant should use monospace font
           expect(computedStyle.fontFamily).toContain('mono');
         } else if (variant !== 'inherit') {
-          // Non-inherit variants should have font family set
-          expect(computedStyle.fontFamily).toBeTruthy();
+          // Non-inherit variants should have fontSize set via theme tokens
+          // (fontFamily is set via Emotion <style> tags which jsdom cannot resolve via getComputedStyle)
+          expect(computedStyle.fontSize).toBeTruthy();
         }
       });
     });
