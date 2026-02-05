@@ -1,5 +1,8 @@
 // src/primitives/Input/Input.tsx
-import type { Size } from '@/types/common';
+import type { BaseComponent, Size } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
+import { StyledInputWrapper } from '@/components/form';
+import { processCss } from '@/utils/styledUtils';
 import styled from '@emotion/styled';
 import React from 'react';
 
@@ -8,7 +11,8 @@ import React from 'react';
  */
 export type InputSize = Size;
 
-export interface InputBaseProps {
+export interface InputBaseProps
+  extends Omit<BaseComponent<HTMLInputElement>, 'onChange'> {
   /**
    * Input value (controlled)
    */
@@ -96,11 +100,6 @@ export interface InputBaseProps {
   endIcon?: React.ReactNode;
 
   /**
-   * Additional CSS classes
-   */
-  className?: string;
-
-  /**
    * Change event handler
    */
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -119,34 +118,28 @@ export interface InputBaseProps {
    * Key down event handler
    */
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
-
-  /**
-   * Reference to the input element
-   */
-  ref?: React.Ref<HTMLInputElement> | undefined;
-
-  /**
-   * Test identifier for automated testing
-   */
-  'data-testid'?: string;
 }
 
 /**
  * Props for the Input component with prettified type for better IntelliSense
  */
-export type InputProps = InputBaseProps;
+export type InputProps = Prettify<InputBaseProps>;
 
 interface StyledInputContainerProps {
   $size: InputSize;
   $error: boolean;
   $disabled: boolean;
   $focused: boolean;
+  $css?: InputProps['css'];
 }
 
 const StyledInputContainer = styled.div<StyledInputContainerProps>`
   display: flex;
   flex-direction: column;
   gap: ${props => props.theme.spacing.xs}px;
+
+  /* Custom CSS */
+  ${props => processCss(props.$css, props.theme)}
 `;
 
 const StyledLabel = styled.label<{ $disabled: boolean }>`
@@ -157,73 +150,6 @@ const StyledLabel = styled.label<{ $disabled: boolean }>`
       ? props.theme.colors.text.disabled
       : props.theme.colors.text.secondary};
   line-height: ${props => props.theme.typography.lineHeight.tight};
-`;
-
-const StyledInputWrapper = styled.div<StyledInputContainerProps>`
-  position: relative;
-  display: flex;
-  align-items: center;
-  border: 1px solid;
-  border-radius: ${props => props.theme.borderRadius.md}px;
-  transition: all ${props => props.theme.transitions.normal};
-  background: ${props =>
-    props.$disabled
-      ? props.theme.colors.surface.disabled
-      : props.theme.colors.surface.default};
-
-  /* Size variants */
-  ${props => {
-    const sizes = {
-      sm: {
-        height: '20px',
-        padding: `0 ${props.theme.spacing.sm}px`,
-      },
-      md: {
-        height: '24px',
-        padding: `0 ${props.theme.spacing.md}px`,
-      },
-      lg: {
-        height: '32px',
-        padding: `0 ${props.theme.spacing.lg}px`,
-      },
-    };
-    const size = sizes[props.$size];
-    return `
-      height: ${size.height};
-      padding: ${size.padding};
-    `;
-  }}
-
-  /* Border color states */
-  border-color: ${props => {
-    if (props.$error) return props.theme.colors.border.error;
-    if (props.$focused) return props.theme.colors.border.focus;
-    return props.theme.colors.border.default;
-  }};
-
-  /* Focus ring */
-  ${props =>
-    props.$focused &&
-    !props.$error &&
-    `
-    box-shadow: 0 0 0 2px ${props.theme.colors.accent.primary}20;
-  `}
-
-  /* Disabled state */
-  ${props =>
-    props.$disabled &&
-    `
-    opacity: 0.5;
-    cursor: not-allowed;
-  `}
-  
-  /* Hover state */
-  &:hover:not(:focus-within) {
-    border-color: ${props => {
-      if (props.$disabled || props.$error) return 'inherit';
-      return props.theme.colors.border.focus;
-    }};
-  }
 `;
 
 const StyledInput = styled.input<{ $size: InputSize }>`
@@ -339,12 +265,14 @@ export const Input: React.FC<InputProps> = ({
   startIcon,
   endIcon,
   className,
-  ref,
+  style,
+  css,
   onChange,
   onFocus,
   onBlur,
   onKeyDown,
-  'data-testid': testId,
+  testId,
+  ref,
   ...props
 }) => {
   const [focused, setFocused] = React.useState(false);
@@ -363,10 +291,12 @@ export const Input: React.FC<InputProps> = ({
   return (
     <StyledInputContainer
       className={className}
+      style={style}
       $size={size}
       $error={error}
       $disabled={disabled}
       $focused={focused}
+      $css={css}
     >
       {label && (
         <StyledLabel htmlFor={inputId} $disabled={disabled}>
@@ -413,3 +343,5 @@ export const Input: React.FC<InputProps> = ({
     </StyledInputContainer>
   );
 };
+
+Input.displayName = 'Input';

@@ -282,10 +282,12 @@ export const Button: React.FC<ButtonProps> = ({
   testId,
   style,
   css,
+  ref,
   ...props
 }) => {
   return (
     <StyledButton
+      ref={ref}
       className={className}
       $size={size}
       $variant={variant}
@@ -308,3 +310,5 @@ export const Button: React.FC<ButtonProps> = ({
     </StyledButton>
   );
 };
+
+Button.displayName = 'Button';

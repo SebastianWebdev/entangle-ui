@@ -26,7 +26,7 @@ export const processCss = (
   return Object.entries(cssObj)
     .map(([key, value]) => {
       const kebabKey = camelToKebab(key);
-      // Dodaj 'px' do wartości liczbowych (z wyjątkiem 0)
+      // Append 'px' to numeric values (except 0)
       const formattedValue =
         typeof value === 'number' && value !== 0
           ? `${value}px`

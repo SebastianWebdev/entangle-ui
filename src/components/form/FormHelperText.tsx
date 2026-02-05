@@ -47,23 +47,21 @@ const StyledHelperText = styled.div<{
  * <FormHelperText error>{usernameError}</FormHelperText>
  * ```
  */
-export const FormHelperText: React.FC<FormHelperTextProps> = ({
-  children,
-  error = false,
-  className,
-  style,
-  css,
-  ...rest
-}) => {
-  return (
-    <StyledHelperText
-      $error={error}
-      $css={css}
-      className={className}
-      style={style}
-      {...rest}
-    >
-      {children}
-    </StyledHelperText>
-  );
-};
+export const FormHelperText = React.memo<FormHelperTextProps>(
+  ({ children, error = false, className, style, css, ref, ...rest }) => {
+    return (
+      <StyledHelperText
+        ref={ref}
+        $error={error}
+        $css={css}
+        className={className}
+        style={style}
+        {...rest}
+      >
+        {children}
+      </StyledHelperText>
+    );
+  }
+);
+
+FormHelperText.displayName = 'FormHelperText';

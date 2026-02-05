@@ -17,6 +17,7 @@ export interface IconBaseProps {
   title?: string;
   decorative?: boolean;
   'data-testid'?: string;
+  ref?: React.Ref<SVGSVGElement>;
 }
 
 export type IconProps = Prettify<IconBaseProps>;
@@ -79,30 +80,36 @@ const StyledSVG = styled.svg<StyledSVGProps>`
   shape-rendering: geometricPrecision;
 `;
 
-export const Icon: React.FC<IconProps> = ({
-  children,
-  size = 'md',
-  color = 'primary',
-  className,
-  title,
-  decorative = false,
-  'data-testid': testId,
-  ...props
-}) => {
-  return (
-    <StyledSVG
-      className={className}
-      $size={size}
-      $color={color}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden={decorative}
-      role={decorative ? 'presentation' : 'img'}
-      data-testid={testId}
-      {...props}
-    >
-      {title && !decorative && <title>{title}</title>}
-      {children}
-    </StyledSVG>
-  );
-};
+export const Icon = React.memo<IconProps>(
+  ({
+    children,
+    size = 'md',
+    color = 'primary',
+    className,
+    title,
+    decorative = false,
+    'data-testid': testId,
+    ref,
+    ...props
+  }) => {
+    return (
+      <StyledSVG
+        ref={ref}
+        className={className}
+        $size={size}
+        $color={color}
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden={decorative}
+        role={decorative ? 'presentation' : 'img'}
+        data-testid={testId}
+        {...props}
+      >
+        {title && !decorative && <title>{title}</title>}
+        {children}
+      </StyledSVG>
+    );
+  }
+);
+
+Icon.displayName = 'Icon';

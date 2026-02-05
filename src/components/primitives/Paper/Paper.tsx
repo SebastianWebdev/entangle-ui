@@ -86,6 +86,11 @@ export interface PaperBaseProps
    * Test identifier for automated testing
    */
   'data-testid'?: string;
+
+  /**
+   * Ref forwarded to the underlying div element
+   */
+  ref?: React.Ref<HTMLDivElement>;
 }
 
 /**
@@ -251,31 +256,37 @@ const StyledPaper = styled.div<StyledPaperProps>`
  * </Paper>
  * ```
  */
-export const Paper: React.FC<PaperProps> = ({
-  children,
-  elevation = 1,
-  bordered = false,
-  padding = 'md',
-  nestLevel = 0,
-  expand = false,
-  customRadius,
-  className,
-  'data-testid': testId,
-  ...htmlProps
-}) => {
-  return (
-    <StyledPaper
-      className={className}
-      $elevation={elevation}
-      $bordered={bordered}
-      $padding={padding}
-      $nestLevel={nestLevel}
-      $expand={expand}
-      $customRadius={customRadius}
-      data-testid={testId}
-      {...htmlProps}
-    >
-      {children}
-    </StyledPaper>
-  );
-};
+export const Paper = React.memo<PaperProps>(
+  ({
+    children,
+    elevation = 1,
+    bordered = false,
+    padding = 'md',
+    nestLevel = 0,
+    expand = false,
+    customRadius,
+    className,
+    'data-testid': testId,
+    ref,
+    ...htmlProps
+  }) => {
+    return (
+      <StyledPaper
+        ref={ref}
+        className={className}
+        $elevation={elevation}
+        $bordered={bordered}
+        $padding={padding}
+        $nestLevel={nestLevel}
+        $expand={expand}
+        $customRadius={customRadius}
+        data-testid={testId}
+        {...htmlProps}
+      >
+        {children}
+      </StyledPaper>
+    );
+  }
+);
+
+Paper.displayName = 'Paper';

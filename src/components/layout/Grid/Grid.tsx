@@ -32,6 +32,10 @@ export type GridSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 export interface GridBaseProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /**
+   * Ref forwarded to the root DOM element
+   */
+  ref?: React.Ref<HTMLDivElement> | undefined;
+  /**
    * Grid content - other Grid components or any React elements
    */
   children: React.ReactNode;
@@ -245,10 +249,12 @@ export const Grid: React.FC<GridProps> = ({
   gap,
   className,
   'data-testid': testId,
+  ref,
   ...htmlProps
 }) => {
   return (
     <StyledGrid
+      ref={ref}
       className={className}
       $container={container}
       $size={size}
@@ -267,3 +273,5 @@ export const Grid: React.FC<GridProps> = ({
     </StyledGrid>
   );
 };
+
+Grid.displayName = 'Grid';

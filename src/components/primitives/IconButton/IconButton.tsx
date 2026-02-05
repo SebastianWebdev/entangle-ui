@@ -104,6 +104,11 @@ export interface IconButtonBaseProps {
    * @example "icon-button-save", "icon-button-delete"
    */
   'data-testid'?: string;
+
+  /**
+   * Ref forwarded to the underlying button element
+   */
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
 /**
@@ -345,10 +350,12 @@ export const IconButton: React.FC<IconButtonProps> = ({
   onClick,
   'aria-label': ariaLabel,
   'data-testid': testId,
+  ref,
   ...props
 }) => {
   return (
     <StyledIconButton
+      ref={ref}
       className={className}
       $size={size}
       $variant={variant}
@@ -366,3 +373,5 @@ export const IconButton: React.FC<IconButtonProps> = ({
     </StyledIconButton>
   );
 };
+
+IconButton.displayName = 'IconButton';

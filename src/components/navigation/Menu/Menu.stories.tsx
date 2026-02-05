@@ -15,7 +15,7 @@ import {
 
 import { ThemeProvider } from '@/theme';
 
-import { Menu, type MenuConfig, type MenuSelection } from './Menu';
+import { Menu, type MenuConfig, type MenuSelection } from '.';
 
 /**
  * Storybook configuration for Menu component.

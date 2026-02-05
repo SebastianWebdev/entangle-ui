@@ -16,7 +16,7 @@ const TestIcon = () => <span data-testid="test-icon">🔍</span>;
 describe('Input', () => {
   describe('Rendering', () => {
     it('renders with default props', () => {
-      renderWithTheme(<Input data-testid="test-input" />);
+      renderWithTheme(<Input testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toBeInTheDocument();
@@ -24,9 +24,7 @@ describe('Input', () => {
     });
 
     it('renders with placeholder text', () => {
-      renderWithTheme(
-        <Input placeholder="Enter text" data-testid="test-input" />
-      );
+      renderWithTheme(<Input placeholder="Enter text" testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toHaveAttribute('placeholder', 'Enter text');
@@ -34,11 +32,7 @@ describe('Input', () => {
 
     it('renders with controlled value', () => {
       renderWithTheme(
-        <Input
-          value="test value"
-          onChange={() => {}}
-          data-testid="test-input"
-        />
+        <Input value="test value" onChange={() => {}} testId="test-input" />
       );
 
       const input = screen.getByTestId('test-input');
@@ -47,7 +41,7 @@ describe('Input', () => {
 
     it('renders with uncontrolled default value', () => {
       renderWithTheme(
-        <Input defaultValue="default text" data-testid="test-input" />
+        <Input defaultValue="default text" testId="test-input" />
       );
 
       const input = screen.getByTestId('test-input');
@@ -55,9 +49,7 @@ describe('Input', () => {
     });
 
     it('applies custom className', () => {
-      renderWithTheme(
-        <Input className="custom-input" data-testid="test-input" />
-      );
+      renderWithTheme(<Input className="custom-input" testId="test-input" />);
 
       // Find the container with custom className (may be wrapper or input itself)
       const input = screen.getByTestId('test-input');
@@ -65,15 +57,15 @@ describe('Input', () => {
       expect(container).toHaveClass('custom-input');
     });
 
-    it('applies data-testid correctly', () => {
-      renderWithTheme(<Input data-testid="custom-input" />);
+    it('applies data-testid via testId prop', () => {
+      renderWithTheme(<Input testId="custom-input" />);
       expect(screen.getByTestId('custom-input')).toBeInTheDocument();
     });
   });
 
   describe('Label and Helper Text', () => {
     it('renders with label', () => {
-      renderWithTheme(<Input label="Username" data-testid="test-input" />);
+      renderWithTheme(<Input label="Username" testId="test-input" />);
 
       const label = screen.getByText('Username');
       const input = screen.getByTestId('test-input');
@@ -83,9 +75,7 @@ describe('Input', () => {
     });
 
     it('renders required indicator with label', () => {
-      renderWithTheme(
-        <Input label="Username" required data-testid="test-input" />
-      );
+      renderWithTheme(<Input label="Username" required testId="test-input" />);
 
       expect(screen.getByText('Username')).toBeInTheDocument();
       expect(screen.getByText('*')).toBeInTheDocument();
@@ -93,7 +83,7 @@ describe('Input', () => {
 
     it('renders helper text', () => {
       renderWithTheme(
-        <Input helperText="Enter your username" data-testid="test-input" />
+        <Input helperText="Enter your username" testId="test-input" />
       );
 
       expect(screen.getByText('Enter your username')).toBeInTheDocument();
@@ -105,7 +95,7 @@ describe('Input', () => {
           error
           errorMessage="This field is required"
           helperText="Normal helper text"
-          data-testid="test-input"
+          testId="test-input"
         />
       );
 
@@ -119,7 +109,7 @@ describe('Input', () => {
           error={false}
           errorMessage="This field is required"
           helperText="Normal helper text"
-          data-testid="test-input"
+          testId="test-input"
         />
       );
 
@@ -132,17 +122,13 @@ describe('Input', () => {
 
   describe('Icon Support', () => {
     it('renders start icon', () => {
-      renderWithTheme(
-        <Input startIcon={<TestIcon />} data-testid="test-input" />
-      );
+      renderWithTheme(<Input startIcon={<TestIcon />} testId="test-input" />);
 
       expect(screen.getByTestId('test-icon')).toBeInTheDocument();
     });
 
     it('renders end icon', () => {
-      renderWithTheme(
-        <Input endIcon={<TestIcon />} data-testid="test-input" />
-      );
+      renderWithTheme(<Input endIcon={<TestIcon />} testId="test-input" />);
 
       expect(screen.getByTestId('test-icon')).toBeInTheDocument();
     });
@@ -152,7 +138,7 @@ describe('Input', () => {
         <Input
           startIcon={<span data-testid="start-icon">📧</span>}
           endIcon={<span data-testid="end-icon">✓</span>}
-          data-testid="test-input"
+          testId="test-input"
         />
       );
 
@@ -161,7 +147,7 @@ describe('Input', () => {
     });
 
     it('renders input without icons', () => {
-      renderWithTheme(<Input data-testid="test-input" />);
+      renderWithTheme(<Input testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toBeInTheDocument();
@@ -170,7 +156,7 @@ describe('Input', () => {
 
   describe('Size Variants', () => {
     it('applies small size styles', () => {
-      renderWithTheme(<Input size="sm" data-testid="test-input" />);
+      renderWithTheme(<Input size="sm" testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toBeInTheDocument();
@@ -184,7 +170,7 @@ describe('Input', () => {
     });
 
     it('applies medium size styles (default)', () => {
-      renderWithTheme(<Input size="md" data-testid="test-input" />);
+      renderWithTheme(<Input size="md" testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toBeInTheDocument();
@@ -198,7 +184,7 @@ describe('Input', () => {
     });
 
     it('applies large size styles', () => {
-      renderWithTheme(<Input size="lg" data-testid="test-input" />);
+      renderWithTheme(<Input size="lg" testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toBeInTheDocument();
@@ -212,7 +198,7 @@ describe('Input', () => {
     });
 
     it('uses medium size by default', () => {
-      renderWithTheme(<Input data-testid="test-input" />);
+      renderWithTheme(<Input testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       const container = input.parentElement;
@@ -237,7 +223,7 @@ describe('Input', () => {
 
     inputTypes.forEach(type => {
       it(`supports ${type} input type`, () => {
-        renderWithTheme(<Input type={type} data-testid={`input-${type}`} />);
+        renderWithTheme(<Input type={type} testId={`input-${type}`} />);
 
         const input = screen.getByTestId(`input-${type}`);
         expect(input).toHaveAttribute('type', type);
@@ -245,7 +231,7 @@ describe('Input', () => {
     });
 
     it('defaults to text type', () => {
-      renderWithTheme(<Input data-testid="test-input" />);
+      renderWithTheme(<Input testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toHaveAttribute('type', 'text');
@@ -254,28 +240,28 @@ describe('Input', () => {
 
   describe('Input States', () => {
     it('can be disabled', () => {
-      renderWithTheme(<Input disabled data-testid="test-input" />);
+      renderWithTheme(<Input disabled testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toBeDisabled();
     });
 
     it('can be read-only', () => {
-      renderWithTheme(<Input readOnly data-testid="test-input" />);
+      renderWithTheme(<Input readOnly testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toHaveAttribute('readonly');
     });
 
     it('can be required', () => {
-      renderWithTheme(<Input required data-testid="test-input" />);
+      renderWithTheme(<Input required testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toBeRequired();
     });
 
     it('applies error state styling', () => {
-      renderWithTheme(<Input error data-testid="test-input" />);
+      renderWithTheme(<Input error testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toBeInTheDocument();
@@ -286,7 +272,7 @@ describe('Input', () => {
     });
 
     it('applies loading state correctly', () => {
-      renderWithTheme(<Input data-testid="test-input" />);
+      renderWithTheme(<Input testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toBeInTheDocument();
@@ -299,9 +285,7 @@ describe('Input', () => {
   describe('Event Handling', () => {
     it('handles change events', () => {
       const handleChange = vi.fn();
-      renderWithTheme(
-        <Input onChange={handleChange} data-testid="test-input" />
-      );
+      renderWithTheme(<Input onChange={handleChange} testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       fireEvent.change(input, { target: { value: 'new value' } });
@@ -311,7 +295,7 @@ describe('Input', () => {
 
     it('handles focus events', () => {
       const handleFocus = vi.fn();
-      renderWithTheme(<Input onFocus={handleFocus} data-testid="test-input" />);
+      renderWithTheme(<Input onFocus={handleFocus} testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       fireEvent.focus(input);
@@ -321,7 +305,7 @@ describe('Input', () => {
 
     it('handles blur events', () => {
       const handleBlur = vi.fn();
-      renderWithTheme(<Input onBlur={handleBlur} data-testid="test-input" />);
+      renderWithTheme(<Input onBlur={handleBlur} testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       fireEvent.focus(input);
@@ -332,9 +316,7 @@ describe('Input', () => {
 
     it('handles keydown events', () => {
       const handleKeyDown = vi.fn();
-      renderWithTheme(
-        <Input onKeyDown={handleKeyDown} data-testid="test-input" />
-      );
+      renderWithTheme(<Input onKeyDown={handleKeyDown} testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       fireEvent.keyDown(input, { key: 'Enter' });
@@ -354,7 +336,7 @@ describe('Input', () => {
           disabled
           onChange={handleChange}
           onFocus={handleFocus}
-          data-testid="test-input"
+          testId="test-input"
         />
       );
 
@@ -374,7 +356,7 @@ describe('Input', () => {
 
   describe('Focus State Management', () => {
     it('manages internal focus state on focus and blur', () => {
-      renderWithTheme(<Input data-testid="test-input" />);
+      renderWithTheme(<Input testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
 
@@ -389,7 +371,7 @@ describe('Input', () => {
     });
 
     it('maintains focus state during typing', () => {
-      renderWithTheme(<Input data-testid="test-input" />);
+      renderWithTheme(<Input testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
 
@@ -403,7 +385,7 @@ describe('Input', () => {
 
   describe('Accessibility', () => {
     it('associates label with input correctly', () => {
-      renderWithTheme(<Input label="Username" data-testid="test-input" />);
+      renderWithTheme(<Input label="Username" testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       const label = screen.getByText('Username');
@@ -418,7 +400,7 @@ describe('Input', () => {
           label="Email"
           error
           errorMessage="Invalid email format"
-          data-testid="test-input"
+          testId="test-input"
         />
       );
 
@@ -439,7 +421,7 @@ describe('Input', () => {
         <Input
           label="Password"
           helperText="Must be at least 8 characters"
-          data-testid="test-input"
+          testId="test-input"
         />
       );
 
@@ -455,7 +437,7 @@ describe('Input', () => {
           aria-describedby="help-text"
           aria-invalid="true"
           aria-required="true"
-          data-testid="test-input"
+          testId="test-input"
         />
       );
 
@@ -467,7 +449,7 @@ describe('Input', () => {
 
     it('provides proper required field indication', () => {
       renderWithTheme(
-        <Input label="Required Field" required data-testid="test-input" />
+        <Input label="Required Field" required testId="test-input" />
       );
 
       const input = screen.getByTestId('test-input');
@@ -478,7 +460,7 @@ describe('Input', () => {
 
   describe('Visual States', () => {
     it('applies default variant styles', () => {
-      renderWithTheme(<Input data-testid="test-input" />);
+      renderWithTheme(<Input testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       const container = input.parentElement;
@@ -488,7 +470,7 @@ describe('Input', () => {
     });
 
     it('applies error variant styles', () => {
-      renderWithTheme(<Input error data-testid="test-input" />);
+      renderWithTheme(<Input error testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       const container = input.parentElement;
@@ -498,7 +480,7 @@ describe('Input', () => {
     });
 
     it('applies disabled variant styles', () => {
-      renderWithTheme(<Input disabled data-testid="test-input" />);
+      renderWithTheme(<Input disabled testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toBeDisabled();
@@ -509,7 +491,7 @@ describe('Input', () => {
     });
 
     it('applies focus styles correctly', () => {
-      renderWithTheme(<Input data-testid="test-input" />);
+      renderWithTheme(<Input testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       fireEvent.focus(input);
@@ -526,7 +508,7 @@ describe('Input', () => {
   describe('Edge Cases', () => {
     it('handles empty string value', () => {
       renderWithTheme(
-        <Input value="" onChange={() => {}} data-testid="test-input" />
+        <Input value="" onChange={() => {}} testId="test-input" />
       );
 
       const input = screen.getByTestId('test-input');
@@ -534,7 +516,7 @@ describe('Input', () => {
     });
 
     it('handles undefined value gracefully', () => {
-      renderWithTheme(<Input value={undefined} data-testid="test-input" />);
+      renderWithTheme(<Input value={undefined} testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       expect(input).toBeInTheDocument();
@@ -543,7 +525,7 @@ describe('Input', () => {
     it('handles very long text values', () => {
       const longValue = 'a'.repeat(1000);
       renderWithTheme(
-        <Input value={longValue} onChange={() => {}} data-testid="test-input" />
+        <Input value={longValue} onChange={() => {}} testId="test-input" />
       );
 
       const input = screen.getByTestId('test-input');
@@ -553,11 +535,7 @@ describe('Input', () => {
     it('handles special characters in value', () => {
       const specialValue = '!@#$%^&*()_+{}|:"<>?[];,./`~';
       renderWithTheme(
-        <Input
-          value={specialValue}
-          onChange={() => {}}
-          data-testid="test-input"
-        />
+        <Input value={specialValue} onChange={() => {}} testId="test-input" />
       );
 
       const input = screen.getByTestId('test-input');
@@ -567,7 +545,7 @@ describe('Input', () => {
     it('handles missing onChange in controlled mode gracefully', () => {
       // This should not throw an error, though it will trigger React warning
       expect(() => {
-        renderWithTheme(<Input value="controlled" data-testid="test-input" />);
+        renderWithTheme(<Input value="controlled" testId="test-input" />);
       }).not.toThrow();
     });
   });
@@ -575,12 +553,12 @@ describe('Input', () => {
   describe('Theme Integration', () => {
     it('renders without errors when theme is provided', () => {
       expect(() => {
-        renderWithTheme(<Input data-testid="test-input" />);
+        renderWithTheme(<Input testId="test-input" />);
       }).not.toThrow();
     });
 
     it('applies theme colors correctly', () => {
-      renderWithTheme(<Input data-testid="test-input" />);
+      renderWithTheme(<Input testId="test-input" />);
 
       const input = screen.getByTestId('test-input');
       const container = input.parentElement;
@@ -594,7 +572,7 @@ describe('Input', () => {
         <Input
           label="Test Label"
           helperText="Test helper text"
-          data-testid="test-input"
+          testId="test-input"
         />
       );
 

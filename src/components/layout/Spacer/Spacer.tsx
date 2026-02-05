@@ -6,6 +6,10 @@ import type { Prettify } from '@/types/utilities';
 export interface SpacerBaseProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /**
+   * Ref forwarded to the root DOM element
+   */
+  ref?: React.Ref<HTMLDivElement> | undefined;
+  /**
    * Fixed size instead of auto-expanding
    * When provided, spacer will have a fixed dimension instead of flexible growth
    * @example "20px", "1rem", "2em", 40
@@ -100,18 +104,18 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
  * </Stack>
  * ```
  */
-export const Spacer: React.FC<SpacerProps> = ({
-  size,
-  className,
-  'data-testid': testId,
-  ...htmlProps
-}) => {
-  return (
-    <StyledSpacer
-      className={className}
-      $size={size}
-      data-testid={testId}
-      {...htmlProps}
-    />
-  );
-};
+export const Spacer = React.memo<SpacerProps>(
+  ({ size, className, 'data-testid': testId, ref, ...htmlProps }) => {
+    return (
+      <StyledSpacer
+        ref={ref}
+        className={className}
+        $size={size}
+        data-testid={testId}
+        {...htmlProps}
+      />
+    );
+  }
+);
+
+Spacer.displayName = 'Spacer';

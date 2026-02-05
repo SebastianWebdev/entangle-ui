@@ -64,27 +64,33 @@ const RequiredIndicator = styled.span`
  * <Input id="name-input" />
  * ```
  */
-export const FormLabel: React.FC<FormLabelProps> = ({
-  children,
-  htmlFor,
-  disabled = false,
-  required = false,
-  className,
-  style,
-  css,
-  ...rest
-}) => {
-  return (
-    <StyledLabel
-      htmlFor={htmlFor}
-      $disabled={disabled}
-      $css={css}
-      className={className}
-      style={style}
-      {...rest}
-    >
-      {children}
-      {required && <RequiredIndicator> *</RequiredIndicator>}
-    </StyledLabel>
-  );
-};
+export const FormLabel = React.memo<FormLabelProps>(
+  ({
+    children,
+    htmlFor,
+    disabled = false,
+    required = false,
+    className,
+    style,
+    css,
+    ref,
+    ...rest
+  }) => {
+    return (
+      <StyledLabel
+        ref={ref}
+        htmlFor={htmlFor}
+        $disabled={disabled}
+        $css={css}
+        className={className}
+        style={style}
+        {...rest}
+      >
+        {children}
+        {required && <RequiredIndicator> *</RequiredIndicator>}
+      </StyledLabel>
+    );
+  }
+);
+
+FormLabel.displayName = 'FormLabel';

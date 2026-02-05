@@ -44,6 +44,10 @@ export type StackSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 export interface StackBaseProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /**
+   * Ref forwarded to the root DOM element
+   */
+  ref?: React.Ref<HTMLDivElement> | undefined;
+  /**
    * Stack content - any React elements
    */
   children: React.ReactNode;
@@ -303,10 +307,12 @@ export const Stack: React.FC<StackProps> = ({
   align = 'flex-start',
   className,
   'data-testid': testId,
+  ref,
   ...htmlProps
 }) => {
   return (
     <StyledStack
+      ref={ref}
       className={className}
       $direction={direction}
       $sm={sm}
@@ -326,3 +332,5 @@ export const Stack: React.FC<StackProps> = ({
     </StyledStack>
   );
 };
+
+Stack.displayName = 'Stack';

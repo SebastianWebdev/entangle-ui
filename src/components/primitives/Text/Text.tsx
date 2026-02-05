@@ -337,43 +337,49 @@ const StyledText = styled.span<StyledTextProps>`
  * <Text as="label" variant="caption">Form label</Text>
  * ```
  */
-export const Text: React.FC<TextProps> = ({
-  children,
-  as = 'span',
-  variant = 'body',
-  size,
-  weight,
-  color = 'primary',
-  lineHeight,
-  align,
-  truncate = false,
-  maxLines,
-  nowrap = false,
-  mono = false,
-  className,
-  style,
-  css,
-  ...rest
-}) => {
-  return (
-    <StyledText
-      as={as}
-      $variant={variant}
-      $size={size}
-      $weight={weight}
-      $color={color}
-      $lineHeight={lineHeight}
-      $align={align}
-      $truncate={truncate}
-      $maxLines={maxLines}
-      $nowrap={nowrap}
-      $mono={mono}
-      $css={css}
-      className={className}
-      style={style}
-      {...rest}
-    >
-      {children}
-    </StyledText>
-  );
-};
+export const Text = React.memo<TextProps>(
+  ({
+    children,
+    as = 'span',
+    variant = 'body',
+    size,
+    weight,
+    color = 'primary',
+    lineHeight,
+    align,
+    truncate = false,
+    maxLines,
+    nowrap = false,
+    mono = false,
+    className,
+    style,
+    css,
+    ref,
+    ...rest
+  }) => {
+    return (
+      <StyledText
+        ref={ref}
+        as={as}
+        $variant={variant}
+        $size={size}
+        $weight={weight}
+        $color={color}
+        $lineHeight={lineHeight}
+        $align={align}
+        $truncate={truncate}
+        $maxLines={maxLines}
+        $nowrap={nowrap}
+        $mono={mono}
+        $css={css}
+        className={className}
+        style={style}
+        {...rest}
+      >
+        {children}
+      </StyledText>
+    );
+  }
+);
+
+Text.displayName = 'Text';

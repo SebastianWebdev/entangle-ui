@@ -401,3 +401,5 @@ export const Tooltip: React.FC<TooltipProps> = ({
     </BaseTooltip.Provider>
   );
 };
+
+Tooltip.displayName = 'Tooltip';

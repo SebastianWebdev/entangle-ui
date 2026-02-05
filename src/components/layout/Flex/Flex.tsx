@@ -55,6 +55,10 @@ export type FlexSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 export interface FlexBaseProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /**
+   * Ref forwarded to the root DOM element
+   */
+  ref?: React.Ref<HTMLDivElement> | undefined;
+  /**
    * Flex content - any React elements
    */
   children?: React.ReactNode;
@@ -389,10 +393,12 @@ export const Flex: React.FC<FlexProps> = ({
   maxWidth,
   className,
   'data-testid': testId,
+  ref,
   ...htmlProps
 }) => {
   return (
     <StyledFlex
+      ref={ref}
       className={className}
       $direction={direction}
       $sm={sm}
@@ -419,3 +425,5 @@ export const Flex: React.FC<FlexProps> = ({
     </StyledFlex>
   );
 };
+
+Flex.displayName = 'Flex';

@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
+import { StyledInputWrapper } from '@/components/form';
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { useNumberInput, type UseNumberInputOptions } from './useNumberInput';
 
@@ -158,80 +159,6 @@ const StyledLabel = styled.label<{ $disabled: boolean }>`
       ? props.theme.colors.text.disabled
       : props.theme.colors.text.secondary};
   line-height: ${props => props.theme.typography.lineHeight.tight};
-`;
-
-interface StyledInputWrapperProps {
-  $size: Size;
-  $error: boolean;
-  $disabled: boolean;
-  $focused: boolean;
-}
-
-const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
-  position: relative;
-  display: flex;
-  align-items: center;
-  border: 1px solid;
-  border-radius: ${props => props.theme.borderRadius.md}px;
-  transition: all ${props => props.theme.transitions.normal};
-  background: ${props =>
-    props.$disabled
-      ? props.theme.colors.surface.disabled
-      : props.theme.colors.surface.default};
-
-  /* Size variants */
-  ${props => {
-    const sizes = {
-      sm: {
-        height: '20px',
-        padding: `0 ${props.theme.spacing.sm}px`,
-      },
-      md: {
-        height: '24px',
-        padding: `0 ${props.theme.spacing.md}px`,
-      },
-      lg: {
-        height: '32px',
-        padding: `0 ${props.theme.spacing.lg}px`,
-      },
-    };
-    const size = sizes[props.$size];
-    return `
-      height: ${size.height};
-      padding: ${size.padding};
-    `;
-  }}
-
-  /* Border color states */
-  border-color: ${props => {
-    if (props.$error) return props.theme.colors.border.error;
-    if (props.$focused) return props.theme.colors.border.focus;
-    return props.theme.colors.border.default;
-  }};
-
-  /* Focus ring */
-  ${props =>
-    props.$focused &&
-    !props.$error &&
-    `
-    box-shadow: 0 0 0 2px ${props.theme.colors.accent.primary}20;
-  `}
-
-  /* Disabled state */
-  ${props =>
-    props.$disabled &&
-    `
-    opacity: 0.5;
-    cursor: not-allowed;
-  `}
-  
-  /* Hover state */
-  &:hover:not(:focus-within) {
-    border-color: ${props => {
-      if (props.$disabled || props.$error) return 'inherit';
-      return props.theme.colors.border.focus;
-    }};
-  }
 `;
 
 interface StyledStepButtonProps {
