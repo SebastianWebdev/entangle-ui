@@ -1,5 +1,6 @@
 // src/primitives/Button/Button.test.tsx
 import { screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { renderWithTheme, styleAssertions } from '@/tests/testUtils';
 import { Button } from './Button';
@@ -253,6 +254,95 @@ describe('Button', () => {
       const button = screen.getByRole('button');
 
       expect(button).toBeDisabled();
+    });
+  });
+
+  describe('Keyboard Navigation', () => {
+    it('activates on Enter key press', async () => {
+      const handleClick = vi.fn();
+      const user = userEvent.setup();
+      renderWithTheme(<Button onClick={handleClick}>Click me</Button>);
+
+      await user.tab();
+      expect(screen.getByRole('button')).toHaveFocus();
+
+      await user.keyboard('{Enter}');
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('activates on Space key press', async () => {
+      const handleClick = vi.fn();
+      const user = userEvent.setup();
+      renderWithTheme(<Button onClick={handleClick}>Click me</Button>);
+
+      await user.tab();
+      expect(screen.getByRole('button')).toHaveFocus();
+
+      await user.keyboard('{ }');
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not activate when disabled and Enter is pressed', async () => {
+      const handleClick = vi.fn();
+      const user = userEvent.setup();
+      renderWithTheme(
+        <Button disabled onClick={handleClick}>
+          Click me
+        </Button>
+      );
+
+      const button = screen.getByRole('button');
+      button.focus();
+
+      await user.keyboard('{Enter}');
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('does not activate when disabled and Space is pressed', async () => {
+      const handleClick = vi.fn();
+      const user = userEvent.setup();
+      renderWithTheme(
+        <Button disabled onClick={handleClick}>
+          Click me
+        </Button>
+      );
+
+      const button = screen.getByRole('button');
+      button.focus();
+
+      await user.keyboard('{ }');
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('receives focus via Tab key', async () => {
+      const user = userEvent.setup();
+      renderWithTheme(<Button>Focusable</Button>);
+
+      await user.tab();
+      expect(screen.getByRole('button')).toHaveFocus();
+    });
+
+    it('does not receive focus when disabled', async () => {
+      const user = userEvent.setup();
+      renderWithTheme(<Button disabled>Disabled</Button>);
+
+      await user.tab();
+      expect(screen.getByRole('button')).not.toHaveFocus();
+    });
+
+    it('does not activate on other keys like "a" or "ArrowDown"', async () => {
+      const handleClick = vi.fn();
+      const user = userEvent.setup();
+      renderWithTheme(<Button onClick={handleClick}>Click me</Button>);
+
+      await user.tab();
+      expect(screen.getByRole('button')).toHaveFocus();
+
+      await user.keyboard('a');
+      expect(handleClick).not.toHaveBeenCalled();
+
+      await user.keyboard('{ArrowDown}');
+      expect(handleClick).not.toHaveBeenCalled();
     });
   });
 

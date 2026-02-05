@@ -1,6 +1,7 @@
 // src/primitives/Input/Input.test.tsx
 
 import { screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { renderWithTheme, styleAssertions } from '@/tests/testUtils';
 import { Input } from './Input';
@@ -380,6 +381,75 @@ describe('Input', () => {
 
       // Verify the value was set
       expect(input).toHaveValue('typing');
+    });
+  });
+
+  describe('Keyboard Navigation', () => {
+    it('receives focus via Tab key', async () => {
+      const user = userEvent.setup();
+      renderWithTheme(<Input testId="test-input" />);
+
+      await user.tab();
+
+      const input = screen.getByTestId('test-input');
+      expect(input).toHaveFocus();
+    });
+
+    it('accepts text input via keyboard', async () => {
+      const user = userEvent.setup();
+      renderWithTheme(<Input testId="test-input" />);
+
+      const input = screen.getByTestId('test-input');
+      await user.click(input);
+      await user.keyboard('Hello World');
+
+      expect(input).toHaveValue('Hello World');
+    });
+
+    it('fires onChange when typing', async () => {
+      const handleChange = vi.fn();
+      const user = userEvent.setup();
+      renderWithTheme(<Input onChange={handleChange} testId="test-input" />);
+
+      const input = screen.getByTestId('test-input');
+      await user.click(input);
+      await user.keyboard('abc');
+
+      expect(handleChange).toHaveBeenCalledTimes(3);
+    });
+
+    it('fires onKeyDown on Escape key press', async () => {
+      const handleKeyDown = vi.fn();
+      const user = userEvent.setup();
+      renderWithTheme(<Input onKeyDown={handleKeyDown} testId="test-input" />);
+
+      const input = screen.getByTestId('test-input');
+      await user.click(input);
+      await user.keyboard('{Escape}');
+
+      expect(handleKeyDown).toHaveBeenCalledWith(
+        expect.objectContaining({ key: 'Escape' })
+      );
+    });
+
+    it('supports Tab to move focus away (blur)', async () => {
+      const handleBlur = vi.fn();
+      const user = userEvent.setup();
+      renderWithTheme(
+        <>
+          <Input onBlur={handleBlur} testId="test-input" />
+          <button>Other element</button>
+        </>
+      );
+
+      await user.tab();
+
+      const input = screen.getByTestId('test-input');
+      expect(input).toHaveFocus();
+
+      await user.tab();
+      expect(input).not.toHaveFocus();
+      expect(handleBlur).toHaveBeenCalledTimes(1);
     });
   });
 
