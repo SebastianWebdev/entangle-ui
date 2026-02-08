@@ -33,6 +33,7 @@ interface CurveCanvasProps {
     y2: number;
   } | null;
   isDragging: boolean;
+  lockTangents: boolean;
   height: number;
   responsive: boolean;
   disabled: boolean;
@@ -97,6 +98,7 @@ export const CurveCanvas: React.FC<CurveCanvasProps> = ({
   hoveredElement,
   selectionBox,
   isDragging,
+  lockTangents,
   height,
   responsive,
   disabled,
@@ -136,6 +138,7 @@ export const CurveCanvas: React.FC<CurveCanvasProps> = ({
     selectionBox,
     disabled,
     isDragging,
+    lockTangents,
   });
 
   // Build screen reader summary

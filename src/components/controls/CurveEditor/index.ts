@@ -8,6 +8,7 @@ export type {
   TangentMode,
   CurvePreset,
   CurveBackgroundInfo,
+  CurveBottomBarInfo,
 } from './CurveEditor.types';
 
 export {

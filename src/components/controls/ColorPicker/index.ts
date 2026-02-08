@@ -2,7 +2,17 @@ export { ColorPicker } from './ColorPicker';
 export { ColorSwatch } from './ColorSwatch';
 export { EyeDropper } from './EyeDropper';
 export { ColorPalette } from './ColorPalette';
-export { MATERIAL_PALETTE, TAILWIND_PALETTE } from './palettes';
+export {
+  MATERIAL_PALETTE,
+  TAILWIND_PALETTE,
+  PASTEL_PALETTE,
+  EARTH_PALETTE,
+  NEON_PALETTE,
+  MONOCHROME_PALETTE,
+  SKIN_TONES_PALETTE,
+  VINTAGE_PALETTE,
+  PROFESSIONAL_PALETTES,
+} from './palettes';
 
 export type {
   ColorFormat,
@@ -11,6 +21,7 @@ export type {
   ColorPickerSize,
   ColorPreset,
   ColorSwatchPublicProps as ColorSwatchProps,
+  Palette,
   PaletteColor,
   PaletteShade,
 } from './ColorPicker.types';

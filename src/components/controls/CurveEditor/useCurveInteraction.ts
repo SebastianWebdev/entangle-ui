@@ -37,6 +37,7 @@ interface UseCurveInteractionOptions {
   clampY: boolean;
   snapToGrid: boolean;
   gridSubdivisions: number;
+  lockTangents: boolean;
   minKeyframeDistance: number;
   precision: number;
   onChange: (curve: CurveData) => void;
@@ -91,6 +92,7 @@ export function useCurveInteraction(
     allowDelete,
     maxKeyframes,
     lockEndpoints,
+    lockTangents,
     clampY,
     snapToGrid,
     gridSubdivisions,
@@ -205,7 +207,11 @@ export function useCurveInteraction(
         return;
       }
 
-      if ((hit.type === 'handleIn' || hit.type === 'handleOut') && !readOnly) {
+      if (
+        (hit.type === 'handleIn' || hit.type === 'handleOut') &&
+        !readOnly &&
+        !lockTangents
+      ) {
         const kf = curve.keyframes[hit.keyframeIndex];
         if (!kf?.id) return;
         updateSelection(new Set([kf.id]));
@@ -259,7 +265,10 @@ export function useCurveInteraction(
         // Cursor
         if (hit.type === 'keyframe') {
           canvas.style.cursor = 'pointer';
-        } else if (hit.type === 'handleIn' || hit.type === 'handleOut') {
+        } else if (
+          (hit.type === 'handleIn' || hit.type === 'handleOut') &&
+          !lockTangents
+        ) {
           canvas.style.cursor = 'crosshair';
         } else if (hit.type === 'curve') {
           canvas.style.cursor = 'pointer';
@@ -470,6 +479,7 @@ export function useCurveInteraction(
       const hit = hitTest(px, py, curve, viewport, w, h);
 
       if (hit.type === 'keyframe') {
+        if (lockTangents) return;
         // Cycle tangent mode
         const kf = curve.keyframes[hit.keyframeIndex];
         if (!kf) return;
@@ -580,7 +590,7 @@ export function useCurveInteraction(
         case '4':
         case '5':
         case '6': {
-          if (readOnly || selectedIds.size === 0) return;
+          if (readOnly || lockTangents || selectedIds.size === 0) return;
           e.preventDefault();
           const modeIndex = parseInt(e.key) - 1;
           const mode = TANGENT_CYCLE[modeIndex];
@@ -589,7 +599,7 @@ export function useCurveInteraction(
         }
       }
     },
-    [disabled, readOnly, allowDelete, selectedIds]
+    [disabled, readOnly, lockTangents, allowDelete, selectedIds]
   );
 
   // ─── Actions ───
@@ -635,7 +645,7 @@ export function useCurveInteraction(
 
   const setTangentModeFn = useCallback(
     (mode: TangentMode) => {
-      if (readOnly || selectedIds.size === 0) return;
+      if (readOnly || lockTangents || selectedIds.size === 0) return;
 
       const newKeyframes = curve.keyframes.map(kf => {
         if (!kf.id || !selectedIds.has(kf.id)) return kf;
@@ -659,6 +669,7 @@ export function useCurveInteraction(
       curve,
       selectedIds,
       readOnly,
+      lockTangents,
       onChange,
       onChangeComplete,
       applyAutoTangents,

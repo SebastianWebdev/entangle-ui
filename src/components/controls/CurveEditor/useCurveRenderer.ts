@@ -36,6 +36,7 @@ interface UseCurveRendererOptions {
   } | null;
   disabled: boolean;
   isDragging: boolean;
+  lockTangents: boolean;
 }
 
 export function useCurveRenderer(options: UseCurveRendererOptions): void {
@@ -130,17 +131,19 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
     drawCurveLine(ctx, curve, viewport, w, h, curveColor, curveWidth);
 
     // 6. Tangent handles (for selected keyframes)
-    drawTangentHandles(
-      ctx,
-      curve,
-      viewport,
-      w,
-      h,
-      selectedIds,
-      hoveredElement,
-      theme,
-      opacity
-    );
+    if (!options.lockTangents) {
+      drawTangentHandles(
+        ctx,
+        curve,
+        viewport,
+        w,
+        h,
+        selectedIds,
+        hoveredElement,
+        theme,
+        opacity
+      );
+    }
 
     // 7. Keyframe points
     drawKeyframes(

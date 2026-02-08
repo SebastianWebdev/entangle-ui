@@ -253,6 +253,31 @@ export interface CurveEditorBaseProps
     ctx: CanvasRenderingContext2D,
     info: CurveBackgroundInfo
   ) => void;
+
+  /**
+   * Render prop for custom content below the canvas.
+   * Use for channel selectors, coordinate displays, color space
+   * pickers, or any custom status bar content.
+   *
+   * The callback receives curve state so the bottom bar can display
+   * reactive data (selected keyframe coordinates, evaluated values, etc.).
+   */
+  renderBottomBar?: (info: CurveBottomBarInfo) => React.ReactNode;
+
+  /**
+   * Whether tangent editing is locked.
+   * When true:
+   * - Tangent mode buttons are hidden from the toolbar
+   * - Tangent handle lines/circles are not drawn on canvas
+   * - Handle dragging is disabled
+   * - Double-click on keyframes does not cycle tangent modes
+   * - Keyboard shortcuts 1-6 for tangent modes are ignored
+   *
+   * The curve still renders normally using each keyframe's existing
+   * tangentMode — this prop only locks UI-based changes.
+   * @default false
+   */
+  lockTangents?: boolean;
 }
 
 export type CurveEditorProps = Prettify<CurveEditorBaseProps>;
@@ -270,6 +295,24 @@ export interface CurvePreset {
   category?: string;
   /** Optional icon element */
   icon?: React.ReactNode;
+}
+
+/**
+ * Information passed to the `renderBottomBar` render prop.
+ */
+export interface CurveBottomBarInfo {
+  /** Current curve data */
+  curve: CurveData;
+  /** IDs of currently selected keyframes */
+  selectedIds: string[];
+  /** The actual selected keyframe objects */
+  selectedKeyframes: CurveKeyframe[];
+  /** Evaluate the curve at a given X position */
+  evaluate: (x: number) => number;
+  /** Whether the editor is disabled */
+  disabled: boolean;
+  /** Whether the editor is read-only */
+  readOnly: boolean;
 }
 
 /**

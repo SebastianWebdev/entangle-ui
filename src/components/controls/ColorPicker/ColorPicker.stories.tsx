@@ -216,12 +216,60 @@ export const ColorPaletteStandalone: Story = {
   render: () => (
     <div style={{ width: 300 }}>
       <ColorPalette
-        palette={MATERIAL_PALETTE}
+        palette={MATERIAL_PALETTE.colors}
         currentColor="#2196f3"
         onSelect={() => {}}
         title="Material Design"
         defaultExpanded
       />
+    </div>
+  ),
+};
+
+export const PastelPalette: Story = {
+  render: () => (
+    <div style={{ width: 240 }}>
+      <ColorPicker defaultValue="#f8b4c8" palette="pastel" inline />
+    </div>
+  ),
+};
+
+export const EarthTonesPalette: Story = {
+  render: () => (
+    <div style={{ width: 240 }}>
+      <ColorPicker defaultValue="#c0845c" palette="earth" inline />
+    </div>
+  ),
+};
+
+export const NeonPalette: Story = {
+  render: () => (
+    <div style={{ width: 240 }}>
+      <ColorPicker defaultValue="#00ccff" palette="neon" inline />
+    </div>
+  ),
+};
+
+export const MonochromePalette: Story = {
+  render: () => (
+    <div style={{ width: 240 }}>
+      <ColorPicker defaultValue="#808080" palette="monochrome" inline />
+    </div>
+  ),
+};
+
+export const SkinTonesPalette: Story = {
+  render: () => (
+    <div style={{ width: 240 }}>
+      <ColorPicker defaultValue="#d4a87c" palette="skin-tones" inline />
+    </div>
+  ),
+};
+
+export const VintagePalette: Story = {
+  render: () => (
+    <div style={{ width: 240 }}>
+      <ColorPicker defaultValue="#c0807a" palette="vintage" inline />
     </div>
   ),
 };

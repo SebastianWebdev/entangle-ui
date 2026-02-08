@@ -8,7 +8,7 @@ import type {
   CurveViewport,
   TangentMode,
 } from './CurveEditor.types';
-import { ensureKeyframeIds } from './curveUtils';
+import { ensureKeyframeIds, evaluateCurve } from './curveUtils';
 import { CURVE_PRESETS } from './curvePresets';
 import { CurveCanvas } from './CurveCanvas';
 import { CurveToolbar } from './CurveToolbar';
@@ -27,6 +27,13 @@ const StyledCurveEditor = styled.div<{
   overflow: hidden;
   background: ${p => p.theme.colors.background.secondary};
   opacity: ${p => (p.$disabled ? 0.6 : 1)};
+`;
+
+const StyledBottomBar = styled.div`
+  border-top: 1px solid ${p => p.theme.colors.border.default};
+  background: ${p => p.theme.colors.surface.default};
+  padding: ${p => p.theme.spacing.xs}px ${p => p.theme.spacing.sm}px;
+  flex-shrink: 0;
 `;
 
 export const CurveEditor: React.FC<CurveEditorProps> = ({
@@ -56,6 +63,8 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
   curveColor,
   curveWidth = 2,
   renderBackground,
+  renderBottomBar,
+  lockTangents = false,
   onChange,
   onChangeComplete,
   onSelectionChange,
@@ -138,6 +147,7 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
     allowDelete,
     maxKeyframes,
     lockEndpoints,
+    lockTangents,
     clampY,
     snapToGrid,
     gridSubdivisions,
@@ -195,6 +205,7 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
           onPresetSelect={handlePresetSelect}
           presets={allPresets}
           disabled={disabled}
+          lockTangents={lockTangents}
           size={size}
           testId={testId}
         />
@@ -215,6 +226,7 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
         hoveredElement={interaction.hoveredElement}
         selectionBox={interaction.selectionBox}
         isDragging={interaction.isDragging}
+        lockTangents={lockTangents}
         height={height}
         responsive={responsive}
         disabled={disabled}
@@ -222,6 +234,22 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
         handlers={interaction.handlers}
         testId={testId}
       />
+      {renderBottomBar && (
+        <StyledBottomBar
+          data-testid={testId ? `${testId}-bottom-bar` : undefined}
+        >
+          {renderBottomBar({
+            curve,
+            selectedIds: Array.from(interaction.selectedIds),
+            selectedKeyframes: curve.keyframes.filter(
+              kf => kf.id && interaction.selectedIds.has(kf.id)
+            ),
+            evaluate: (x: number) => evaluateCurve(curve, x),
+            disabled,
+            readOnly,
+          })}
+        </StyledBottomBar>
+      )}
     </StyledCurveEditor>
   );
 };

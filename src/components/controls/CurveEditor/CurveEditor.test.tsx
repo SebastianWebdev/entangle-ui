@@ -863,4 +863,158 @@ describe('CurveEditor', () => {
       expect(liveRegion).toBeInTheDocument();
     });
   });
+
+  describe('renderBottomBar', () => {
+    it('renders bottom bar container when renderBottomBar is provided', () => {
+      renderEditor({
+        testId: 'curve-editor',
+        renderBottomBar: () => <div>Bottom content</div>,
+      });
+      expect(screen.getByTestId('curve-editor-bottom-bar')).toBeInTheDocument();
+      expect(screen.getByText('Bottom content')).toBeInTheDocument();
+    });
+
+    it('does not render bottom bar when renderBottomBar is not provided', () => {
+      renderEditor({ testId: 'curve-editor' });
+      expect(
+        screen.queryByTestId('curve-editor-bottom-bar')
+      ).not.toBeInTheDocument();
+    });
+
+    it('passes correct curve info to renderBottomBar', () => {
+      const renderBottomBar = vi.fn(() => null);
+      const curve = createLinearCurve();
+      renderEditor({ renderBottomBar, value: curve });
+
+      expect(renderBottomBar).toHaveBeenCalled();
+      const call = renderBottomBar.mock.calls[0] as unknown as [
+        {
+          curve: CurveData;
+          selectedIds: string[];
+          selectedKeyframes: unknown[];
+          evaluate: (x: number) => number;
+          disabled: boolean;
+          readOnly: boolean;
+        },
+      ];
+      const info = call[0];
+      expect(info.curve.keyframes).toHaveLength(2);
+      expect(info.selectedIds).toEqual([]);
+      expect(info.selectedKeyframes).toEqual([]);
+      expect(info.disabled).toBe(false);
+      expect(info.readOnly).toBe(false);
+    });
+
+    it('provides working evaluate function', () => {
+      const renderBottomBar = vi.fn(() => null);
+      renderEditor({ renderBottomBar, value: createLinearCurve() });
+
+      const call = renderBottomBar.mock.calls[0] as unknown as [
+        { evaluate: (x: number) => number },
+      ];
+      const y = call[0].evaluate(0.5);
+      expect(y).toBeCloseTo(0.5, 2);
+    });
+
+    it('passes disabled and readOnly state', () => {
+      const renderBottomBar = vi.fn(() => null);
+      renderEditor({ renderBottomBar, disabled: true, readOnly: true });
+
+      const call = renderBottomBar.mock.calls[0] as unknown as [
+        { disabled: boolean; readOnly: boolean },
+      ];
+      expect(call[0].disabled).toBe(true);
+      expect(call[0].readOnly).toBe(true);
+    });
+  });
+
+  describe('lockTangents', () => {
+    it('hides tangent mode buttons when lockTangents is true', () => {
+      renderEditor({ showToolbar: true, lockTangents: true });
+      expect(
+        screen.queryByLabelText('Free tangent mode')
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Linear tangent mode')
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByLabelText('Step tangent mode')
+      ).not.toBeInTheDocument();
+    });
+
+    it('still shows preset selector when lockTangents is true', () => {
+      renderEditor({ showToolbar: true, lockTangents: true });
+      expect(screen.getByTestId('curve-editor-toolbar')).toBeInTheDocument();
+    });
+
+    it('blocks keyboard shortcuts 1-6 when lockTangents is true', () => {
+      const onChange = vi.fn();
+      const curve = createLinearCurve();
+      const kfStart = curve.keyframes[0];
+      if (kfStart) kfStart.id = 'kf-start';
+
+      renderEditor({ onChange, value: curve, lockTangents: true });
+      const canvas = getCanvas();
+
+      // Select a keyframe first
+      fireEvent.pointerDown(canvas, {
+        clientX: 2,
+        clientY: 198,
+        pointerId: 1,
+        button: 0,
+      });
+      fireEvent.pointerUp(canvas, {
+        clientX: 2,
+        clientY: 198,
+        pointerId: 1,
+        button: 0,
+      });
+
+      onChange.mockClear();
+
+      // Press '4' for auto tangent mode
+      fireEvent.keyDown(canvas, { key: '4' });
+
+      // Should not have called onChange for tangent mode change
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it('blocks tangent mode cycling on double-click when lockTangents is true', () => {
+      const onChange = vi.fn();
+      const curve = createLinearCurve();
+      const kfStart = curve.keyframes[0];
+      if (kfStart) kfStart.id = 'kf-start';
+
+      renderEditor({ onChange, value: curve, lockTangents: true });
+      const canvas = getCanvas();
+
+      // Double-click near first keyframe at (0, 0) -> canvas (0, 200)
+      fireEvent.doubleClick(canvas, { clientX: 2, clientY: 198 });
+
+      // Should not have changed tangent mode — no onChange call for mode cycling
+      const tangentChangeCalls = onChange.mock.calls.filter(call => {
+        const c = call[0] as CurveData | undefined;
+        return c && c.keyframes.length === 2; // Same count = tangent mode change
+      });
+      expect(tangentChangeCalls).toHaveLength(0);
+    });
+
+    it('still allows adding keyframes when lockTangents is true', () => {
+      const onChange = vi.fn();
+      renderEditor({ onChange, lockTangents: true, allowAdd: true });
+      const canvas = getCanvas();
+
+      // Double-click on empty area
+      fireEvent.doubleClick(canvas, { clientX: 160, clientY: 100 });
+
+      expect(onChange).toHaveBeenCalled();
+      const newCurve = onChange.mock.calls[0]?.[0] as CurveData | undefined;
+      expect(newCurve?.keyframes.length).toBe(3);
+    });
+
+    it('shows tangent mode buttons when lockTangents is false', () => {
+      renderEditor({ showToolbar: true, lockTangents: false });
+      expect(screen.getByLabelText('Free tangent mode')).toBeInTheDocument();
+    });
+  });
 });

@@ -5,6 +5,13 @@ export {
   ColorPalette,
   MATERIAL_PALETTE,
   TAILWIND_PALETTE,
+  PASTEL_PALETTE,
+  EARTH_PALETTE,
+  NEON_PALETTE,
+  MONOCHROME_PALETTE,
+  SKIN_TONES_PALETTE,
+  VINTAGE_PALETTE,
+  PROFESSIONAL_PALETTES,
 } from './ColorPicker';
 export { NumberInput } from './NumberInput';
 export { Select } from './Select';
@@ -27,6 +34,7 @@ export type {
   ColorPickerSize,
   ColorPreset,
   ColorSwatchProps,
+  Palette,
   PaletteColor,
   PaletteShade,
 } from './ColorPicker';
@@ -63,4 +71,5 @@ export type {
   TangentMode,
   CurvePreset,
   CurveBackgroundInfo,
+  CurveBottomBarInfo,
 } from './CurveEditor';
