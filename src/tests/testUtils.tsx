@@ -94,6 +94,40 @@ export const mockTheme: Theme = {
     normal: '200ms ease-out',
     slow: '300ms ease-out',
   },
+  shell: {
+    menuBar: {
+      height: 28,
+      bg: '#2d2d2d',
+      hoverBg: '#363636',
+      activeBg: '#005a9e',
+      text: '#ffffff',
+      shortcutText: '#888888',
+    },
+    toolbar: {
+      height: { sm: 32, md: 40 },
+      bg: '#2d2d2d',
+      separator: '#4a4a4a',
+    },
+    statusBar: {
+      height: 22,
+      bg: '#007acc',
+      text: '#ffffff',
+    },
+    dock: {
+      tabHeight: 28,
+      tabBg: '#2d2d2d',
+      tabActiveBg: '#1a1a1a',
+      tabHoverBg: '#363636',
+      tabText: '#cccccc',
+      tabActiveText: '#ffffff',
+      splitterSize: 4,
+      splitterColor: '#4a4a4a',
+      splitterHoverColor: '#007acc',
+      borderBarBg: '#2d2d2d',
+      borderBarSize: 28,
+      dropOverlay: 'rgba(0, 122, 204, 0.2)',
+    },
+  },
 } as const;
 
 /**
