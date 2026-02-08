@@ -8,23 +8,24 @@ Entangle UI is a React component library for professional editor interfaces (3D 
 
 ## Commands
 
-| Task | Command |
-|------|---------|
-| Dev (Storybook) | `yarn dev` or `yarn storybook` (port 6006) |
-| Build | `yarn build` (Rollup → CJS + ESM + DTS in `dist/`) |
-| Test | `yarn test` (Vitest, run mode) |
-| Test with UI | `yarn test:ui` |
-| Test coverage | `yarn test:coverage` (80% threshold for branches/functions/lines/statements) |
-| Run single test | `yarn vitest run src/components/primitives/Button/Button.test.tsx` |
-| Lint | `yarn lint` |
-| Lint fix | `yarn lint:fix` |
-| Type check | `yarn type-check` |
-| Format | `yarn format` |
-| Format check | `yarn format:check` |
+| Task            | Command                                                                     |
+| --------------- | --------------------------------------------------------------------------- |
+| Dev (Storybook) | `npm dev` or `npm storybook` (port 6006)                                    |
+| Build           | `npm build` (Rollup → CJS + ESM + DTS in `dist/`)                           |
+| Test            | `npm test` (Vitest, run mode)                                               |
+| Test with UI    | `npm test:ui`                                                               |
+| Test coverage   | `npm test:coverage` (80% threshold for branches/functions/lines/statements) |
+| Run single test | `npm vitest run src/components/primitives/Button/Button.test.tsx`           |
+| Lint            | `npm lint`                                                                  |
+| Lint fix        | `npm lint:fix`                                                              |
+| Type check      | `npm type-check`                                                            |
+| Format          | `npm format`                                                                |
+| Format check    | `npm format:check`                                                          |
 
 ## Architecture
 
 **Component categories** in `src/components/`:
+
 - `primitives/` — Button, Input, Paper, Text, Icon, IconButton, Tooltip
 - `layout/` — Flex, Grid, Stack, Spacer (responsive breakpoints: 576/768/992/1200px)
 - `controls/` — Slider, NumberInput
@@ -45,6 +46,7 @@ Entangle UI is a React component library for professional editor interfaces (3D 
 **Styled component props**: prefix with `$` (e.g., `$variant`, `$size`) to prevent DOM forwarding.
 
 **Type utilities** from `@/types/utilities`:
+
 - `Prettify<T>` — always use for exported intersection types
 - `LiteralUnion<T, U>` — only when values need to be extensible (colors, icons)
 - Strict unions for controlled APIs (e.g., `ButtonSize = 'sm' | 'md' | 'lg'`)

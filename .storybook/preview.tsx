@@ -8,11 +8,16 @@ const preview: Preview = {
         <div
           style={{
             fontFamily:
-              'var(--font-family-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
-            backgroundColor: 'var(--background-primary, #1a1a1a)',
-            color: 'var(--text-primary, #ffffff)',
-            minHeight: '100vh',
-            width: '100%',
+              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            backgroundColor: '#1a1a1a',
+            color: '#ffffff',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            overflow: 'auto',
+            padding: 24,
           }}
         >
           <Story />
@@ -21,13 +26,13 @@ const preview: Preview = {
     ),
   ],
   parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
     controls: {
       matchers: {
         color: /(background|color)$/i,
         date: /Date$/,
       },
     },
+    layout: 'fullscreen',
     docs: {
       theme: {
         base: 'dark',
@@ -36,17 +41,7 @@ const preview: Preview = {
       },
     },
     backgrounds: {
-      default: 'dark',
-      values: [
-        {
-          name: 'dark',
-          value: '#1a1a1a',
-        },
-        {
-          name: 'light',
-          value: '#ffffff',
-        },
-      ],
+      disable: true,
     },
   },
 };
