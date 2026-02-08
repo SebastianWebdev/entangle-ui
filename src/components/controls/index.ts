@@ -11,6 +11,14 @@ export { Select } from './Select';
 export { Slider } from './Slider';
 export { VectorInput } from './VectorInput';
 export { TreeView } from './TreeView';
+export {
+  CurveEditor,
+  CURVE_PRESETS,
+  evaluateCurve,
+  sampleCurve,
+  createLinearCurve,
+  domainToCanvas,
+} from './CurveEditor';
 
 export type {
   ColorFormat,
@@ -47,3 +55,12 @@ export type {
   TreeNodeState,
   TreeSelectionMode,
 } from './TreeView';
+export type {
+  CurveEditorProps,
+  CurveEditorSize,
+  CurveData,
+  CurveKeyframe,
+  TangentMode,
+  CurvePreset,
+  CurveBackgroundInfo,
+} from './CurveEditor';
