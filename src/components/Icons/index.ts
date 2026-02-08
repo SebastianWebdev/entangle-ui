@@ -15,6 +15,7 @@ export { CutIcon } from './CutIcon';
 export { DownloadIcon } from './DownloadIcon';
 export { EditIcon } from './EditIcon';
 export { ErrorIcon } from './ErrorIcon';
+export { EyeDropperIcon } from './EyeDropperIcon';
 export { EyeIcon } from './EyeIcon';
 export { FilterIcon } from './FilterIcon';
 export { FolderIcon } from './FolderIcon';

@@ -5,7 +5,7 @@ A powerful, configuration-driven menu component for editor interfaces with suppo
 ## Features
 
 - **🎯 Multiple Selection Types**: Radio, checkbox, or simple click handlers
-- **🔄 Nested Submenus**: Unlimited nesting with hover or click triggers  
+- **🔄 Nested Submenus**: Unlimited nesting with hover or click triggers
 - **⚡ Flexible Configuration**: JSON-based menu structure
 - **🎨 Customizable Icons**: Custom radio/checkbox indicators
 - **♿ Accessible**: Full keyboard navigation and ARIA support
@@ -40,7 +40,7 @@ const config = {
 
 <Menu config={config}>
   <Button>Options</Button>
-</Menu>
+</Menu>;
 ```
 
 ## Real-World Examples
@@ -90,8 +90,16 @@ const contextMenuConfig = {
                 id: 'rotateOptions',
                 items: [
                   { id: 'rotate90', label: '90°', onClick: () => rotate(90) },
-                  { id: 'rotate180', label: '180°', onClick: () => rotate(180) },
-                  { id: 'rotate270', label: '270°', onClick: () => rotate(270) },
+                  {
+                    id: 'rotate180',
+                    label: '180°',
+                    onClick: () => rotate(180),
+                  },
+                  {
+                    id: 'rotate270',
+                    label: '270°',
+                    onClick: () => rotate(270),
+                  },
                 ],
                 itemSelectionType: 'none',
               },
@@ -105,10 +113,8 @@ const contextMenuConfig = {
 };
 
 <Menu config={contextMenuConfig}>
-  <div onContextMenu={handleContextMenu}>
-    Right-click me
-  </div>
-</Menu>
+  <div onContextMenu={handleContextMenu}>Right-click me</div>
+</Menu>;
 ```
 
 ### Settings Panel with Radio Selection
@@ -141,7 +147,7 @@ const settingsConfig = {
   ],
 };
 
-<Menu 
+<Menu
   config={settingsConfig}
   selectedItems={viewSettings}
   onChange={setViewSettings}
@@ -149,15 +155,15 @@ const settingsConfig = {
   <IconButton>
     <SettingsIcon />
   </IconButton>
-</Menu>
+</Menu>;
 ```
 
 ### Multi-Select Filter Menu
 
 ```tsx
-const [filters, setFilters] = useState({ 
+const [filters, setFilters] = useState({
   fileTypes: ['images', 'documents'],
-  visibility: ['visible'] 
+  visibility: ['visible'],
 });
 
 const filterConfig = {
@@ -177,7 +183,11 @@ const filterConfig = {
       id: 'visibility',
       label: 'Visibility',
       items: [
-        { id: 'visible', label: 'Show Visible', onClick: handleVisibilityToggle },
+        {
+          id: 'visible',
+          label: 'Show Visible',
+          onClick: handleVisibilityToggle,
+        },
         { id: 'hidden', label: 'Show Hidden', onClick: handleVisibilityToggle },
         { id: 'system', label: 'Show System', onClick: handleVisibilityToggle },
       ],
@@ -186,7 +196,7 @@ const filterConfig = {
   ],
 };
 
-<Menu 
+<Menu
   config={filterConfig}
   selectedItems={filters}
   onChange={setFilters}
@@ -195,7 +205,7 @@ const filterConfig = {
   <Button variant="ghost">
     Filter <FilterIcon />
   </Button>
-</Menu>
+</Menu>;
 ```
 
 ### Complex Nested Navigation
@@ -217,9 +227,21 @@ const navigationConfig = {
                 id: 'newProject',
                 label: 'Project',
                 items: [
-                  { id: 'react', label: 'React App', onClick: () => createProject('react') },
-                  { id: 'vue', label: 'Vue App', onClick: () => createProject('vue') },
-                  { id: 'node', label: 'Node.js', onClick: () => createProject('node') },
+                  {
+                    id: 'react',
+                    label: 'React App',
+                    onClick: () => createProject('react'),
+                  },
+                  {
+                    id: 'vue',
+                    label: 'Vue App',
+                    onClick: () => createProject('vue'),
+                  },
+                  {
+                    id: 'node',
+                    label: 'Node.js',
+                    onClick: () => createProject('node'),
+                  },
                 ],
                 itemSelectionType: 'none',
               },
@@ -227,9 +249,21 @@ const navigationConfig = {
                 id: 'newFile',
                 label: 'File',
                 items: [
-                  { id: 'component', label: 'Component', onClick: () => createFile('component') },
-                  { id: 'hook', label: 'Custom Hook', onClick: () => createFile('hook') },
-                  { id: 'test', label: 'Test File', onClick: () => createFile('test') },
+                  {
+                    id: 'component',
+                    label: 'Component',
+                    onClick: () => createFile('component'),
+                  },
+                  {
+                    id: 'hook',
+                    label: 'Custom Hook',
+                    onClick: () => createFile('hook'),
+                  },
+                  {
+                    id: 'test',
+                    label: 'Test File',
+                    onClick: () => createFile('test'),
+                  },
                 ],
                 itemSelectionType: 'none',
               },
@@ -263,7 +297,7 @@ const navigationConfig = {
 
 <Menu config={navigationConfig}>
   <Button>File</Button>
-</Menu>
+</Menu>;
 ```
 
 ## API Reference
@@ -287,8 +321,8 @@ const navigationConfig = {
 
 ```typescript
 type MenuConfig = {
-  openOnHover?: boolean;    // Open menu on hover instead of click
-  groups: MenuGroup[];      // Array of menu groups
+  openOnHover?: boolean; // Open menu on hover instead of click
+  groups: MenuGroup[]; // Array of menu groups
 };
 ```
 
@@ -296,11 +330,11 @@ type MenuConfig = {
 
 ```typescript
 type MenuGroup = {
-  id: string;                          // Unique group identifier
-  label?: string;                      // Optional group label
-  items: MenuItem[];                   // Items in this group
+  id: string; // Unique group identifier
+  label?: string; // Optional group label
+  items: MenuItem[]; // Items in this group
   itemSelectionType: ItemSelectionType; // Selection behavior
-  closeOnItemClick?: boolean;          // Close menu when item clicked
+  closeOnItemClick?: boolean; // Close menu when item clicked
 };
 ```
 
@@ -308,11 +342,11 @@ type MenuGroup = {
 
 ```typescript
 type MenuItem = {
-  id: string;                    // Unique item identifier
-  label: string;                 // Display text
+  id: string; // Unique item identifier
+  label: string; // Display text
   onClick: (id: string, event: MouseEvent) => void; // Click handler
-  disabled?: boolean;            // Whether item is disabled
-  subMenu?: MenuConfig;          // Nested submenu configuration
+  disabled?: boolean; // Whether item is disabled
+  subMenu?: MenuConfig; // Nested submenu configuration
   submenuTrigger?: SubmenuTrigger; // How submenu opens
 };
 ```
@@ -331,7 +365,7 @@ type MenuItem = {
 - Automatically manages selection state
 - Use for: View modes, themes, single options
 
-#### `'checkbox'` - Multiple Selection  
+#### `'checkbox'` - Multiple Selection
 
 - Multiple items can be selected per group
 - Toggle behavior on click
@@ -360,9 +394,9 @@ type MenuSelection = Record<string, string[]>;
 
 // Example:
 const selection = {
-  'theme': ['dark'],           // Radio: single value in array
-  'fileTypes': ['images', 'docs'], // Checkbox: multiple values
-  'actions': [],               // None: empty array
+  theme: ['dark'], // Radio: single value in array
+  fileTypes: ['images', 'docs'], // Checkbox: multiple values
+  actions: [], // None: empty array
 };
 ```
 
@@ -376,22 +410,18 @@ const [menuState, setMenuState] = useState<MenuSelection>({
 
 const handleMenuChange = (newSelection: MenuSelection) => {
   setMenuState(newSelection);
-  
+
   // Apply changes to your application state
   if (newSelection.view?.[0]) {
     setViewMode(newSelection.view[0]);
   }
-  
+
   if (newSelection.filters) {
     applyFilters(newSelection.filters);
   }
 };
 
-<Menu 
-  config={config}
-  selectedItems={menuState}
-  onChange={handleMenuChange}
-/>
+<Menu config={config} selectedItems={menuState} onChange={handleMenuChange} />;
 ```
 
 ## Advanced Patterns
@@ -406,17 +436,25 @@ const createConditionalConfig = (user: User): MenuConfig => ({
       items: [
         { id: 'view', label: 'View', onClick: handleView },
         { id: 'edit', label: 'Edit', onClick: handleEdit },
-        ...(user.canDelete ? [{ 
-          id: 'delete', 
-          label: 'Delete', 
-          onClick: handleDelete 
-        }] : []),
-        ...(user.isAdmin ? [{
-          id: 'admin',
-          label: 'Admin Options',
-          onClick: handleAdmin,
-          subMenu: adminMenuConfig,
-        }] : []),
+        ...(user.canDelete
+          ? [
+              {
+                id: 'delete',
+                label: 'Delete',
+                onClick: handleDelete,
+              },
+            ]
+          : []),
+        ...(user.isAdmin
+          ? [
+              {
+                id: 'admin',
+                label: 'Admin Options',
+                onClick: handleAdmin,
+                subMenu: adminMenuConfig,
+              },
+            ]
+          : []),
       ],
       itemSelectionType: 'none',
     },
@@ -452,21 +490,21 @@ useEffect(() => {
 const CustomCheckIcon = () => (
   <div className="w-4 h-4 bg-green-500 rounded-sm flex items-center justify-center">
     <svg width="12" height="12" viewBox="0 0 12 12" fill="white">
-      <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2"/>
+      <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" />
     </svg>
   </div>
 );
 
-// Custom radio icon  
+// Custom radio icon
 const CustomRadioIcon = () => (
   <div className="w-4 h-4 bg-blue-500 rounded-full" />
 );
 
-<Menu 
+<Menu
   config={config}
   checkboxIcon={<CustomCheckIcon />}
   radioIcon={<CustomRadioIcon />}
-/>
+/>;
 ```
 
 ## Keyboard Navigation
@@ -474,7 +512,7 @@ const CustomRadioIcon = () => (
 The Menu component supports full keyboard accessibility:
 
 - **Tab**: Focus menu trigger
-- **Enter/Space**: Open menu  
+- **Enter/Space**: Open menu
 - **Arrow Keys**: Navigate menu items
 - **Enter/Space**: Select menu item
 - **Escape**: Close menu
@@ -484,7 +522,7 @@ The Menu component supports full keyboard accessibility:
 ## Accessibility Features
 
 - **ARIA Compliance**: Proper roles, states, and properties
-- **Screen Reader Support**: Descriptive labels and announcements  
+- **Screen Reader Support**: Descriptive labels and announcements
 - **Focus Management**: Logical focus flow and visual indicators
 - **Keyboard Navigation**: Full keyboard control
 - **High Contrast**: Works with system accessibility settings
@@ -502,13 +540,14 @@ For menus with many items, consider:
 ```tsx
 // Debounced selection handler
 const debouncedOnChange = useMemo(
-  () => debounce((selection: MenuSelection) => {
-    applyChanges(selection);
-  }, 300),
+  () =>
+    debounce((selection: MenuSelection) => {
+      applyChanges(selection);
+    }, 300),
   []
 );
 
-<Menu config={config} onChange={debouncedOnChange} />
+<Menu config={config} onChange={debouncedOnChange} />;
 ```
 
 ### Dynamic Content
@@ -522,7 +561,7 @@ For frequently changing menus:
 ```tsx
 const memoizedConfig = useMemo(() => createMenuConfig(data), [data]);
 
-<Menu config={memoizedConfig} />
+<Menu config={memoizedConfig} />;
 ```
 
 ## Common Patterns

@@ -4,20 +4,68 @@ export { createTheme, ThemeProvider, tokens } from '@/theme';
 export type { Theme, Tokens } from '@/theme';
 
 // Primitives
-export { Flex, Grid, Spacer, Stack } from '@/components/layout';
+export {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  Flex,
+  Grid,
+  ScrollArea,
+  Spacer,
+  SplitPane,
+  SplitPanePanel,
+  Stack,
+} from '@/components/layout';
 export {
   Button,
+  Checkbox,
+  CheckboxGroup,
+  Collapsible,
   Icon,
   IconButton,
   Input,
   Paper,
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+  Switch,
   Text,
   Tooltip,
 } from '@/components/primitives';
-export { NumberInput, Slider } from '@/components/controls';
+export {
+  ColorPicker,
+  ColorSwatch,
+  EyeDropper,
+  ColorPalette,
+  MATERIAL_PALETTE,
+  TAILWIND_PALETTE,
+  NumberInput,
+  Select,
+  Slider,
+  VectorInput,
+  TreeView,
+} from '@/components/controls';
+export { Tab, TabList, TabPanel, Tabs } from '@/components/navigation';
 export { FormHelperText, FormLabel, InputWrapper } from '@/components/form';
+export {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogFooter,
+  DialogHeader,
+  ToastProvider,
+  useToast,
+} from '@/components/feedback';
 
 export type {
+  AccordionContentProps,
+  AccordionItemProps,
+  AccordionProps,
+  AccordionSize,
+  AccordionTriggerProps,
+  AccordionVariant,
   FlexAlign,
   FlexAlignContent,
   FlexDirection,
@@ -28,11 +76,25 @@ export type {
   GridProps,
   GridSize,
   GridSpacing,
+  ScrollAreaDirection,
+  ScrollAreaProps,
+  ScrollbarVisibility,
+  SplitDirection,
+  SplitPanePanelProps,
+  SplitPaneProps,
+  PanelConfig,
+  PanelSize,
 } from '@/components/layout';
 export type {
   ButtonProps,
   ButtonSize,
   ButtonVariant,
+  CheckboxGroupProps,
+  CheckboxProps,
+  CheckboxSize,
+  CheckboxVariant,
+  CollapsibleProps,
+  CollapsibleSize,
   CollisionAvoidance,
   IconProps,
   IconSize,
@@ -42,6 +104,13 @@ export type {
   PaperNestLevel,
   PaperProps,
   PaperSpacing,
+  PopoverCloseProps,
+  PopoverContentProps,
+  PopoverPlacement,
+  PopoverProps,
+  PopoverTriggerProps,
+  SwitchProps,
+  SwitchSize,
   TextAlign,
   TextColor,
   TextElement,
@@ -55,12 +124,60 @@ export type {
   TooltipPlacement,
   TooltipProps,
 } from '@/components/primitives';
-export type { NumberInputProps, SliderProps } from '@/components/controls';
+export type {
+  ColorFormat,
+  ColorInputMode,
+  ColorPickerProps,
+  ColorPickerSize,
+  ColorPreset,
+  ColorSwatchProps,
+  EyeDropperProps,
+  ColorPaletteProps,
+  PaletteColor,
+  PaletteShade,
+  NumberInputProps,
+  SelectProps,
+  SelectSize,
+  SelectVariant,
+  SelectOptionItem,
+  SelectOptionGroup,
+  SliderProps,
+  VectorInputProps,
+  VectorInputSize,
+  VectorDimension,
+  VectorLabelPreset,
+  VectorColorPreset,
+  TreeViewProps,
+  TreeViewSize,
+  TreeNodeData,
+  TreeNodeState,
+  TreeSelectionMode,
+} from '@/components/controls';
+export type {
+  TabListProps,
+  TabPanelProps,
+  TabProps,
+  TabsProps,
+  TabsSize,
+  TabsVariant,
+} from '@/components/navigation';
 export type {
   FormHelperTextProps,
   FormLabelProps,
   InputWrapperProps,
 } from '@/components/form';
+export type {
+  DialogBodyProps,
+  DialogFooterProps,
+  DialogHeaderProps,
+  DialogProps,
+  DialogSize,
+  ToastData,
+  ToastPosition,
+  ToastProviderProps,
+  ToastSeverity,
+  UseToastReturn,
+} from '@/components/feedback';
 
 // Types
 export type { BaseComponent, Size, Variant } from '@/types/common';

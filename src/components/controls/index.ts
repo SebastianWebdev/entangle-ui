@@ -1,5 +1,49 @@
+export {
+  ColorPicker,
+  ColorSwatch,
+  EyeDropper,
+  ColorPalette,
+  MATERIAL_PALETTE,
+  TAILWIND_PALETTE,
+} from './ColorPicker';
 export { NumberInput } from './NumberInput';
+export { Select } from './Select';
 export { Slider } from './Slider';
+export { VectorInput } from './VectorInput';
+export { TreeView } from './TreeView';
 
+export type {
+  ColorFormat,
+  ColorInputMode,
+  ColorPickerProps,
+  ColorPickerSize,
+  ColorPreset,
+  ColorSwatchProps,
+  PaletteColor,
+  PaletteShade,
+} from './ColorPicker';
+export type { EyeDropperProps } from './ColorPicker';
+export type { ColorPaletteProps } from './ColorPicker';
 export type { NumberInputProps } from './NumberInput';
+export type {
+  SelectProps,
+  SelectSize,
+  SelectVariant,
+  SelectOptionItem,
+  SelectOptionGroup,
+} from './Select';
 export type { SliderProps } from './Slider';
+export type {
+  VectorInputProps,
+  VectorInputSize,
+  VectorDimension,
+  VectorLabelPreset,
+  VectorColorPreset,
+} from './VectorInput';
+export type {
+  TreeViewProps,
+  TreeViewSize,
+  TreeNodeData,
+  TreeNodeState,
+  TreeSelectionMode,
+} from './TreeView';
