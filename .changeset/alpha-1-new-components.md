@@ -1,5 +1,5 @@
 ---
-"entangle-ui": minor
+'entangle-ui': minor
 ---
 
 ### New Components
