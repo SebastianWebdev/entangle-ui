@@ -12,6 +12,8 @@ const StyledGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 3px;
+  overflow: hidden;
+  padding: 4px;
 `;
 
 interface StyledPresetProps {

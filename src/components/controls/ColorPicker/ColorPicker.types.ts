@@ -1,7 +1,7 @@
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
 import type { ColorFormat as ColorFormatBase } from './colorUtils';
-import type { PaletteColor } from './palettes';
+import type { Palette, PaletteColor } from './palettes';
 
 export type ColorFormat = ColorFormatBase;
 
@@ -14,7 +14,7 @@ export interface ColorPreset {
   label?: string;
 }
 
-export type { PaletteColor, PaletteShade } from './palettes';
+export type { Palette, PaletteColor, PaletteShade } from './palettes';
 
 export interface ColorPickerBaseProps
   extends Omit<BaseComponent, 'onChange' | 'value' | 'defaultValue'> {
@@ -115,9 +115,26 @@ export interface ColorPickerBaseProps
    * Built-in color palette or custom palette data.
    * - `'material'` — Material Design colors (19 hues × 10 shades)
    * - `'tailwind'` — Tailwind CSS colors (22 hues × 11 shades)
-   * - `PaletteColor[]` — custom palette data
+   * - `'pastel'` — Soft pastel colors
+   * - `'earth'` — Natural earth tones
+   * - `'neon'` — High-saturation neon colors
+   * - `'monochrome'` — Neutral, warm, and cool grays
+   * - `'skin-tones'` — Portrait/illustration skin palette
+   * - `'vintage'` — Desaturated retro film colors
+   * - `Palette` — custom palette with name
+   * - `PaletteColor[]` — custom palette data (legacy)
    */
-  palette?: 'material' | 'tailwind' | PaletteColor[];
+  palette?:
+    | 'material'
+    | 'tailwind'
+    | 'pastel'
+    | 'earth'
+    | 'neon'
+    | 'monochrome'
+    | 'skin-tones'
+    | 'vintage'
+    | Palette
+    | PaletteColor[];
 }
 
 export type ColorPickerProps = Prettify<ColorPickerBaseProps>;

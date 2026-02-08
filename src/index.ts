@@ -41,11 +41,24 @@ export {
   ColorPalette,
   MATERIAL_PALETTE,
   TAILWIND_PALETTE,
+  PASTEL_PALETTE,
+  EARTH_PALETTE,
+  NEON_PALETTE,
+  MONOCHROME_PALETTE,
+  SKIN_TONES_PALETTE,
+  VINTAGE_PALETTE,
+  PROFESSIONAL_PALETTES,
   NumberInput,
   Select,
   Slider,
   VectorInput,
   TreeView,
+  CurveEditor,
+  CURVE_PRESETS,
+  evaluateCurve,
+  sampleCurve,
+  createLinearCurve,
+  domainToCanvas,
 } from '@/components/controls';
 export { Tab, TabList, TabPanel, Tabs } from '@/components/navigation';
 export { FormHelperText, FormLabel, InputWrapper } from '@/components/form';
@@ -58,6 +71,13 @@ export {
   ToastProvider,
   useToast,
 } from '@/components/feedback';
+export {
+  PropertyGroup,
+  PropertyPanel,
+  PropertyRow,
+  PropertySection,
+  usePropertyUndo,
+} from '@/components/editor';
 
 export type {
   AccordionContentProps,
@@ -133,6 +153,7 @@ export type {
   ColorSwatchProps,
   EyeDropperProps,
   ColorPaletteProps,
+  Palette,
   PaletteColor,
   PaletteShade,
   NumberInputProps,
@@ -152,6 +173,14 @@ export type {
   TreeNodeData,
   TreeNodeState,
   TreeSelectionMode,
+  CurveEditorProps,
+  CurveEditorSize,
+  CurveData,
+  CurveKeyframe,
+  TangentMode,
+  CurvePreset,
+  CurveBackgroundInfo,
+  CurveBottomBarInfo,
 } from '@/components/controls';
 export type {
   TabListProps,
@@ -178,6 +207,16 @@ export type {
   ToastSeverity,
   UseToastReturn,
 } from '@/components/feedback';
+export type {
+  PropertyGroupProps,
+  PropertyInspectorSize,
+  PropertyPanelProps,
+  PropertyRowProps,
+  PropertySectionProps,
+  PropertyUndoEntry,
+  UsePropertyUndoOptions,
+  UsePropertyUndoReturn,
+} from '@/components/editor';
 
 // Types
 export type { BaseComponent, Size, Variant } from '@/types/common';

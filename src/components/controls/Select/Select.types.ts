@@ -133,6 +133,13 @@ export interface SelectBaseProps<T extends string = string>
   maxDropdownHeight?: number;
 
   /**
+   * Minimum width of the dropdown in pixels.
+   * When set, the dropdown will be at least this wide,
+   * even if the trigger is narrower.
+   */
+  minDropdownWidth?: number;
+
+  /**
    * Name attribute for form submission
    */
   name?: string;

@@ -19,6 +19,8 @@ const StyledPaletteContainer = styled.div`
   gap: ${props => props.theme.spacing.xs}px;
   max-height: 200px;
   overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px;
 
   &::-webkit-scrollbar {
     width: 4px;

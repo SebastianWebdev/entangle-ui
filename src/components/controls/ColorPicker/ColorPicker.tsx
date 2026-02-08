@@ -10,10 +10,19 @@ import { AlphaSlider } from './AlphaSlider';
 import { ColorInputs } from './ColorInputs';
 import { ColorPresets } from './ColorPresets';
 import { ColorPalette } from './ColorPalette';
-import { MATERIAL_PALETTE, TAILWIND_PALETTE } from './palettes';
+import {
+  MATERIAL_PALETTE,
+  TAILWIND_PALETTE,
+  PASTEL_PALETTE,
+  EARTH_PALETTE,
+  NEON_PALETTE,
+  MONOCHROME_PALETTE,
+  SKIN_TONES_PALETTE,
+  VINTAGE_PALETTE,
+} from './palettes';
 import { useColor } from './useColor';
 import type { ColorPickerProps } from './ColorPicker.types';
-import type { PaletteColor } from './palettes';
+import type { Palette, PaletteColor } from './palettes';
 
 // --- Styled ---
 
@@ -67,12 +76,29 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
     onChangeComplete,
   });
 
-  const resolvedPalette: PaletteColor[] | undefined =
-    palette === 'material'
-      ? MATERIAL_PALETTE
-      : palette === 'tailwind'
-        ? TAILWIND_PALETTE
-        : palette;
+  const PALETTE_MAP: Record<string, Palette> = {
+    material: MATERIAL_PALETTE,
+    tailwind: TAILWIND_PALETTE,
+    pastel: PASTEL_PALETTE,
+    earth: EARTH_PALETTE,
+    neon: NEON_PALETTE,
+    monochrome: MONOCHROME_PALETTE,
+    'skin-tones': SKIN_TONES_PALETTE,
+    vintage: VINTAGE_PALETTE,
+  };
+
+  const resolvedPalette: { colors: PaletteColor[]; title: string } | undefined =
+    (() => {
+      if (!palette) return undefined;
+      if (typeof palette === 'string') {
+        const found = PALETTE_MAP[palette];
+        return found ? { colors: found.colors, title: found.name } : undefined;
+      }
+      if (Array.isArray(palette)) {
+        return { colors: palette, title: 'Palette' };
+      }
+      return { colors: palette.colors, title: palette.name };
+    })();
 
   const pickerBody = (
     <StyledPickerBody data-testid={testId ? `${testId}-panel` : undefined}>
@@ -117,9 +143,10 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
       )}
       {resolvedPalette && (
         <ColorPalette
-          palette={resolvedPalette}
+          palette={resolvedPalette.colors}
           currentColor={colorState.hexString}
           onSelect={colorState.setFromString}
+          title={resolvedPalette.title}
         />
       )}
     </StyledPickerBody>

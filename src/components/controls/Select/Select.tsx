@@ -11,6 +11,7 @@ import styled from '@emotion/styled';
 import { processCss } from '@/utils/styledUtils';
 import { FormLabel } from '@/components/form';
 import { FormHelperText } from '@/components/form';
+import { ScrollArea } from '@/components/layout/ScrollArea';
 import type { Theme } from '@/theme';
 import type {
   SelectOptionItem,
@@ -231,6 +232,7 @@ const StyledDropdown = styled.div<StyledDropdownProps>`
   border-radius: ${props => props.theme.borderRadius.md}px;
   box-shadow: ${props => props.theme.shadows.lg};
   overflow: hidden;
+  font-family: ${props => props.theme.typography.fontFamily.sans};
   animation: selectDropdownIn ${props => props.theme.transitions.fast} forwards;
 
   @keyframes selectDropdownIn {
@@ -262,9 +264,8 @@ const StyledSearchInput = styled.input`
   }
 `;
 
-const StyledOptionsList = styled.div<{ $maxHeight: number }>`
-  max-height: ${props => props.$maxHeight}px;
-  overflow-y: auto;
+const StyledOptionsList = styled(ScrollArea)`
+  width: 100%;
 `;
 
 interface StyledOptionItemProps {
@@ -386,6 +387,7 @@ export function Select<T extends string = string>({
   required = false,
   clearable = false,
   maxDropdownHeight = 240,
+  minDropdownWidth,
   name,
   onChange,
   onOpenChange,
@@ -444,9 +446,14 @@ export function Select<T extends string = string>({
     const openAbove =
       spaceBelow < maxDropdownHeight + 8 && rect.top > spaceBelow;
 
+    const dropdownW =
+      minDropdownWidth !== undefined
+        ? Math.max(rect.width, minDropdownWidth)
+        : rect.width;
+
     setDropdownStyle({
       left: rect.left,
-      width: rect.width,
+      width: dropdownW,
       ...(openAbove
         ? {
             bottom: window.innerHeight - rect.top + 4,
@@ -454,7 +461,7 @@ export function Select<T extends string = string>({
           }
         : { top: rect.bottom + 4, transformOrigin: 'top' }),
     });
-  }, [maxDropdownHeight]);
+  }, [maxDropdownHeight, minDropdownWidth]);
 
   const open = useCallback(() => {
     if (disabled) return;
@@ -845,7 +852,10 @@ export function Select<T extends string = string>({
               />
             )}
             <StyledOptionsList
-              $maxHeight={maxDropdownHeight - (searchable ? 32 : 0)}
+              maxHeight={maxDropdownHeight - (searchable ? 32 : 0)}
+              scrollbarWidth={4}
+              scrollbarVisibility="auto"
+              hideDelay={600}
             >
               {renderOptions()}
             </StyledOptionsList>

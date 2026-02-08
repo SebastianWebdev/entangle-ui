@@ -1,9 +1,21 @@
 import { screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
 import { renderWithTheme } from '@/tests/testUtils';
 import { Select } from './Select';
 import type { SelectOptionItem, SelectOptionGroup } from './Select.types';
+
+// Mock ResizeObserver (not available in jsdom, needed by ScrollArea)
+class MockResizeObserver {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+}
+
+beforeEach(() => {
+  globalThis.ResizeObserver =
+    MockResizeObserver as unknown as typeof ResizeObserver;
+});
 
 const basicOptions: SelectOptionItem[] = [
   { value: 'normal', label: 'Normal' },

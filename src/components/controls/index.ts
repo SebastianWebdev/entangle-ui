@@ -5,12 +5,27 @@ export {
   ColorPalette,
   MATERIAL_PALETTE,
   TAILWIND_PALETTE,
+  PASTEL_PALETTE,
+  EARTH_PALETTE,
+  NEON_PALETTE,
+  MONOCHROME_PALETTE,
+  SKIN_TONES_PALETTE,
+  VINTAGE_PALETTE,
+  PROFESSIONAL_PALETTES,
 } from './ColorPicker';
 export { NumberInput } from './NumberInput';
 export { Select } from './Select';
 export { Slider } from './Slider';
 export { VectorInput } from './VectorInput';
 export { TreeView } from './TreeView';
+export {
+  CurveEditor,
+  CURVE_PRESETS,
+  evaluateCurve,
+  sampleCurve,
+  createLinearCurve,
+  domainToCanvas,
+} from './CurveEditor';
 
 export type {
   ColorFormat,
@@ -19,6 +34,7 @@ export type {
   ColorPickerSize,
   ColorPreset,
   ColorSwatchProps,
+  Palette,
   PaletteColor,
   PaletteShade,
 } from './ColorPicker';
@@ -47,3 +63,13 @@ export type {
   TreeNodeState,
   TreeSelectionMode,
 } from './TreeView';
+export type {
+  CurveEditorProps,
+  CurveEditorSize,
+  CurveData,
+  CurveKeyframe,
+  TangentMode,
+  CurvePreset,
+  CurveBackgroundInfo,
+  CurveBottomBarInfo,
+} from './CurveEditor';

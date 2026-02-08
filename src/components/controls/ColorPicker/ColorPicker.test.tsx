@@ -531,7 +531,7 @@ describe('ColorPalette', () => {
   it('renders Material palette without errors', () => {
     renderWithTheme(
       <ColorPalette
-        palette={MATERIAL_PALETTE}
+        palette={MATERIAL_PALETTE.colors}
         currentColor="#F44336"
         onSelect={vi.fn()}
         defaultExpanded
@@ -543,7 +543,7 @@ describe('ColorPalette', () => {
   it('renders Tailwind palette without errors', () => {
     renderWithTheme(
       <ColorPalette
-        palette={TAILWIND_PALETTE}
+        palette={TAILWIND_PALETTE.colors}
         currentColor="#EF4444"
         onSelect={vi.fn()}
         defaultExpanded
@@ -560,18 +560,18 @@ describe('ColorPalette', () => {
 describe('ColorPicker — palette integration', () => {
   it('renders palette header when palette="material"', () => {
     renderWithTheme(<ColorPicker testId="cp" inline palette="material" />);
-    expect(screen.getByText('Palette')).toBeInTheDocument();
+    expect(screen.getByText('Material Design')).toBeInTheDocument();
   });
 
   it('expands material palette on click', () => {
     renderWithTheme(<ColorPicker testId="cp" inline palette="material" />);
-    fireEvent.click(screen.getByText('Palette'));
+    fireEvent.click(screen.getByText('Material Design'));
     expect(screen.getByRole('radiogroup')).toBeInTheDocument();
   });
 
   it('renders tailwind palette header', () => {
     renderWithTheme(<ColorPicker testId="cp" inline palette="tailwind" />);
-    expect(screen.getByText('Palette')).toBeInTheDocument();
+    expect(screen.getByText('Tailwind CSS')).toBeInTheDocument();
   });
 
   it('renders custom palette', () => {
