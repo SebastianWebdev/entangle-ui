@@ -11,6 +11,7 @@ export {
   AccordionTrigger,
   Flex,
   Grid,
+  PanelSurface,
   ScrollArea,
   Spacer,
   SplitPane,
@@ -60,7 +61,16 @@ export {
   createLinearCurve,
   domainToCanvas,
 } from '@/components/controls';
-export { Tab, TabList, TabPanel, Tabs } from '@/components/navigation';
+export {
+  ContextMenu,
+  Menu,
+  useContextMenuTarget,
+  useMenu,
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
+} from '@/components/navigation';
 export { FormHelperText, FormLabel, InputWrapper } from '@/components/form';
 export {
   Dialog,
@@ -78,6 +88,15 @@ export {
   PropertySection,
   usePropertyUndo,
 } from '@/components/editor';
+export {
+  AppShell,
+  useAppShell,
+  FloatingManager,
+  FloatingPanel,
+  MenuBar,
+  StatusBar,
+  Toolbar,
+} from '@/components/shell';
 
 export type {
   AccordionContentProps,
@@ -96,6 +115,11 @@ export type {
   GridProps,
   GridSize,
   GridSpacing,
+  PanelSurfaceBodyProps,
+  PanelSurfaceFooterProps,
+  PanelSurfaceHeaderProps,
+  PanelSurfaceProps,
+  PanelSurfaceSize,
   ScrollAreaDirection,
   ScrollAreaProps,
   ScrollbarVisibility,
@@ -183,6 +207,19 @@ export type {
   CurveBottomBarInfo,
 } from '@/components/controls';
 export type {
+  ContextMenuBaseProps,
+  ContextMenuConfig,
+  ContextMenuProps,
+  ContextMenuTargetDetails,
+  UseContextMenuTargetResult,
+  MenuProps,
+  MenuBaseProps,
+  MenuConfig,
+  MenuGroup,
+  MenuItem,
+  MenuSelection,
+  ItemSelectionType,
+  SubmenuTrigger,
   TabListProps,
   TabPanelProps,
   TabProps,
@@ -217,6 +254,38 @@ export type {
   UsePropertyUndoOptions,
   UsePropertyUndoReturn,
 } from '@/components/editor';
+export type {
+  StatusBarProps,
+  StatusBarSize,
+  StatusBarVariant,
+  StatusBarSectionProps,
+  StatusBarSectionSide,
+  StatusBarItemProps,
+  ToolbarProps,
+  ToolbarOrientation,
+  ToolbarSize,
+  ToolbarButtonProps,
+  ToolbarButtonVariant,
+  ToolbarToggleProps,
+  ToolbarGroupProps,
+  ToolbarSeparatorProps,
+  ToolbarSpacerProps,
+  MenuBarProps,
+  MenuBarSize,
+  MenuBarMenuProps,
+  MenuBarItemProps,
+  MenuBarSubProps,
+  MenuBarSeparatorProps,
+  FloatingPanelProps,
+  FloatingManagerProps,
+  Position,
+  FloatingPanelSize,
+  AppShellProps,
+  AppShellSlotProps,
+  AppShellToolbarSlotProps,
+  AppShellContextValue,
+  ToolbarPosition,
+} from '@/components/shell';
 
 // Types
 export type { BaseComponent, Size, Variant } from '@/types/common';

@@ -24,21 +24,21 @@ const ROW_SIZE_MAP: Record<PropertyInspectorSize, RowSizeConfig> = {
     minHeight: 22,
     paddingVKey: 'xs',
     paddingHKey: 'sm',
-    fontKey: 'xs',
+    fontKey: 'md',
     resetIconSize: 10,
   },
   md: {
     minHeight: 26,
     paddingVKey: 'xs',
     paddingHKey: 'md',
-    fontKey: 'sm',
+    fontKey: 'md',
     resetIconSize: 12,
   },
   lg: {
     minHeight: 30,
     paddingVKey: 'sm',
     paddingHKey: 'lg',
-    fontKey: 'md',
+    fontKey: 'lg',
     resetIconSize: 14,
   },
 };
@@ -89,9 +89,7 @@ const StyledRowRoot = styled.div<StyledRowRootProps>`
   align-items: ${props => (props.$fullWidth ? 'stretch' : 'center')};
   position: relative;
   min-height: ${props => ROW_SIZE_MAP[props.$size].minHeight}px;
-  padding: ${props =>
-      props.theme.spacing[ROW_SIZE_MAP[props.$size].paddingVKey]}px
-    ${props => props.theme.spacing[ROW_SIZE_MAP[props.$size].paddingHKey]}px;
+  padding: 2px 8px;
   opacity: ${props => (props.$disabled ? 0.5 : 1)};
   pointer-events: ${props => (props.$disabled ? 'none' : 'auto')};
   transition: background ${props => props.theme.transitions.fast};
@@ -115,6 +113,8 @@ interface StyledRowLabelProps {
 
 const StyledRowLabel = styled.div<StyledRowLabelProps>`
   flex: 0 0 ${props => props.$splitRatio}%;
+  box-sizing: border-box;
+  min-width: 0;
   display: flex;
   align-items: center;
   font-size: ${props =>
@@ -163,15 +163,20 @@ interface StyledRowControlProps {
 
 const StyledRowControl = styled.div<StyledRowControlProps>`
   flex: 0 0 ${props => props.$splitRatio}%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   min-width: 0;
+  padding-right: ${props => props.theme.spacing.xs}px;
 `;
 
 const StyledFullWidthControl = styled.div`
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  width: 100%;
+  flex: 1 1 auto;
   min-width: 0;
+  padding-right: ${props => props.theme.spacing.xs}px;
 `;
 
 const StyledResetButton = styled.span`

@@ -20,6 +20,8 @@ export type MenuItem = {
   label: string;
   /** Click handler called with item id and event */
   onClick: (id: string, event: MouseEvent) => void;
+  /** Optional icon rendered before the label */
+  icon?: React.ReactNode;
   /** Whether the item is disabled */
   disabled?: boolean;
   /** Nested submenu configuration */

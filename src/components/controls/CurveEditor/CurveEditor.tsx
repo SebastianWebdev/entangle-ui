@@ -116,7 +116,9 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
 
   // Viewport — always matches domain with padding for labels (no user zoom/pan)
   const viewport = useMemo((): CurveViewport => {
-    const padding = 0.08;
+    const axisName = labelX ?? labelY;
+    const hasAxisNames = Boolean(axisName);
+    const padding = hasAxisNames && showAxisLabels ? 0.12 : 0.08;
     const [dxMin, dxMax] = curve.domainX;
     const [dyMin, dyMax] = curve.domainY;
     const xPad = (dxMax - dxMin) * padding;
@@ -128,7 +130,7 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
       panX: 0,
       panY: 0,
     };
-  }, [curve.domainX, curve.domainY]);
+  }, [curve.domainX, curve.domainY, labelX, labelY, showAxisLabels]);
 
   // Merge presets
   const allPresets = useMemo(

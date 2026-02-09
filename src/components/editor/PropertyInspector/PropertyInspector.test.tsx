@@ -64,6 +64,18 @@ describe('PropertyPanel', () => {
       renderWithTheme(<TestPanel />);
       expect(screen.getByTestId('panel')).toBeInTheDocument();
     });
+
+    it('applies custom top spacing for panel content', () => {
+      renderWithTheme(<TestPanel contentTopSpacing={12} />);
+      const section = screen.getByTestId('section-transform');
+      expect(section.parentElement).toHaveStyle({ paddingTop: '12px' });
+    });
+
+    it('applies custom bottom spacing for panel content', () => {
+      renderWithTheme(<TestPanel contentBottomSpacing={20} />);
+      const section = screen.getByTestId('section-transform');
+      expect(section.parentElement).toHaveStyle({ paddingBottom: '20px' });
+    });
   });
 
   describe('Search', () => {

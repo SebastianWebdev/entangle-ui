@@ -242,9 +242,9 @@ const StyledInput = styled.input<{
 
   ${props => {
     const fontSize = {
-      sm: props.theme.typography.fontSize.xs,
-      md: props.theme.typography.fontSize.sm,
-      lg: props.theme.typography.fontSize.md,
+      sm: props.theme.typography.fontSize.md,
+      md: props.theme.typography.fontSize.md,
+      lg: props.theme.typography.fontSize.lg,
     };
     return `font-size: ${fontSize[props.$size]}px;`;
   }}
@@ -285,9 +285,9 @@ const StyledValueDisplay = styled.div<{
 
   ${props => {
     const fontSize = {
-      sm: props.theme.typography.fontSize.xs,
-      md: props.theme.typography.fontSize.sm,
-      lg: props.theme.typography.fontSize.md,
+      sm: props.theme.typography.fontSize.md,
+      md: props.theme.typography.fontSize.md,
+      lg: props.theme.typography.fontSize.lg,
     };
     return `font-size: ${fontSize[props.$size]}px;`;
   }}

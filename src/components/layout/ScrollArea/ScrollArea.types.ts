@@ -82,6 +82,14 @@ export interface ScrollAreaBaseProps extends BaseComponent {
   maxWidth?: number | string;
 
   /**
+   * When true, the scroll area fills its parent container
+   * by setting width/height to 100%. Useful inside flex/grid layouts
+   * where the parent controls the size.
+   * @default false
+   */
+  autoFill?: boolean;
+
+  /**
    * Callback when scroll position changes
    */
   onScroll?: (event: React.UIEvent<HTMLDivElement>) => void;

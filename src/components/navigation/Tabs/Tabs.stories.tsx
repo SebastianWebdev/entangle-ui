@@ -26,6 +26,7 @@ const meta: Meta<typeof Tabs> = {
       options: ['horizontal', 'vertical'],
     },
     fullWidth: { control: 'boolean' },
+    pillsFrame: { control: 'boolean' },
   },
 };
 
@@ -405,6 +406,30 @@ export const OutputPanel: Story = {
             <div>[WARN] Deprecated API usage in script.js</div>
             <div>[WARN] Large texture detected (4096x4096)</div>
           </div>
+        </TabPanel>
+      </Tabs>
+    </div>
+  ),
+};
+
+export const PillsNoFrame: Story = {
+  name: 'Pills Without Frame',
+  render: () => (
+    <div style={{ width: 420 }}>
+      <Tabs defaultValue="tab1" variant="pills" pillsFrame={false}>
+        <TabList>
+          <Tab value="tab1">Overview</Tab>
+          <Tab value="tab2">Metrics</Tab>
+          <Tab value="tab3">Logs</Tab>
+        </TabList>
+        <TabPanel value="tab1">
+          <div style={{ padding: 12, color: '#ccc' }}>Overview content</div>
+        </TabPanel>
+        <TabPanel value="tab2">
+          <div style={{ padding: 12, color: '#ccc' }}>Metrics content</div>
+        </TabPanel>
+        <TabPanel value="tab3">
+          <div style={{ padding: 12, color: '#ccc' }}>Logs content</div>
         </TabPanel>
       </Tabs>
     </div>

@@ -1,27 +1,41 @@
 import type { Preview } from '@storybook/react';
+import { useTheme } from '@emotion/react';
+import type { ReactNode } from 'react';
 import { ThemeProvider } from '../src/theme';
+import type { Theme } from '../src/theme';
+
+const StorybookCanvas = ({ children }: { children: ReactNode }) => {
+  const theme = useTheme() as Theme;
+  const gradientEnd = theme.storybook.canvas.gradientEnd;
+
+  return (
+    <div
+      style={{
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        backgroundColor: gradientEnd,
+        color: '#ffffff',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: 'auto',
+        padding: 24,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
 
 const preview: Preview = {
   decorators: [
     Story => (
       <ThemeProvider>
-        <div
-          style={{
-            fontFamily:
-              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            backgroundColor: '#1a1a1a',
-            color: '#ffffff',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            overflow: 'auto',
-            padding: 24,
-          }}
-        >
+        <StorybookCanvas>
           <Story />
-        </div>
+        </StorybookCanvas>
       </ThemeProvider>
     ),
   ],

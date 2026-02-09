@@ -55,6 +55,20 @@ export interface PropertyPanelBaseProps extends BaseComponent {
   onSearchChange?: (query: string) => void;
 
   /**
+   * Top padding for the scrollable content area (in px).
+   * Use this to increase/decrease the space before the first property section.
+   * @default theme.spacing.sm
+   */
+  contentTopSpacing?: number;
+
+  /**
+   * Bottom padding for the scrollable content area (in px).
+   * Use this to increase/decrease the space after the last property section.
+   * @default theme.spacing.md
+   */
+  contentBottomSpacing?: number;
+
+  /**
    * Text displayed when no sections/rows match the search
    * @default "No matching properties"
    */
