@@ -62,7 +62,9 @@ export {
   domainToCanvas,
 } from '@/components/controls';
 export {
+  ContextMenu,
   Menu,
+  useContextMenuTarget,
   useMenu,
   Tab,
   TabList,
@@ -205,6 +207,11 @@ export type {
   CurveBottomBarInfo,
 } from '@/components/controls';
 export type {
+  ContextMenuBaseProps,
+  ContextMenuConfig,
+  ContextMenuProps,
+  ContextMenuTargetDetails,
+  UseContextMenuTargetResult,
   MenuProps,
   MenuBaseProps,
   MenuConfig,

@@ -110,7 +110,7 @@ const StyledHeader = styled.div`
 `;
 
 const StyledTitle = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   font-family: ${({ theme }) => theme.typography.fontFamily.sans};
   color: ${({ theme }) => theme.colors.text.primary};
   white-space: nowrap;
@@ -134,7 +134,7 @@ const StyledHeaderButton = styled.span`
   border-radius: ${({ theme }) => theme.borderRadius.sm}px;
   color: ${({ theme }) => theme.colors.text.secondary};
   cursor: pointer;
-  font-size: 12px;
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   line-height: 1;
 
   &:hover {

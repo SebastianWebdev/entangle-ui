@@ -25,7 +25,7 @@ const StyledEmptyState = styled.div`
   justify-content: center;
   padding: ${props => props.theme.spacing.md}px;
   color: ${props => props.theme.colors.text.muted};
-  font-size: ${props => props.theme.typography.fontSize.sm}px;
+  font-size: ${props => props.theme.typography.fontSize.md}px;
 `;
 
 /**

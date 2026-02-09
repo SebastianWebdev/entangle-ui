@@ -32,7 +32,7 @@ export const renderMenuItemContent = (
   <StyledMenuItemContent>
     {iconSlot && <StyledIconContainer>{iconSlot}</StyledIconContainer>}
     <Stack direction="row" justify="space-between" align="center" expand>
-      <Text variant="caption" color="primary">
+      <Text variant="caption" size="md" color="primary">
         {item.label}
       </Text>
       {item.subMenu && (
@@ -103,7 +103,12 @@ export const renderRegularItem = (
   clickHandler: (event: React.MouseEvent) => void
 ): React.ReactNode => (
   <StyledMenuItem key={item.id} disabled={item.disabled} onClick={clickHandler}>
-    {renderMenuItemContent(item)}
+    {renderMenuItemContent(
+      item,
+      item.icon ? (
+        <StyledIcon $visible={true}>{item.icon}</StyledIcon>
+      ) : undefined
+    )}
   </StyledMenuItem>
 );
 

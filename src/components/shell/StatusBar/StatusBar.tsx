@@ -40,7 +40,7 @@ const StyledStatusBar = styled.div<{
     }
   }};
   color: ${({ theme }) => theme.shell.statusBar.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   font-family: ${({ theme }) => theme.typography.fontFamily.sans};
   padding: 0 ${({ theme }) => theme.spacing.md}px;
   overflow: hidden;

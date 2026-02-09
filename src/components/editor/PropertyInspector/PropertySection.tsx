@@ -17,9 +17,9 @@ interface TriggerSizeConfig {
 }
 
 const TRIGGER_SIZE_MAP: Record<PropertyInspectorSize, TriggerSizeConfig> = {
-  sm: { height: 24, paddingKey: 'sm', fontKey: 'xs', chevronSize: 10 },
-  md: { height: 28, paddingKey: 'md', fontKey: 'sm', chevronSize: 12 },
-  lg: { height: 32, paddingKey: 'lg', fontKey: 'md', chevronSize: 14 },
+  sm: { height: 24, paddingKey: 'sm', fontKey: 'md', chevronSize: 10 },
+  md: { height: 28, paddingKey: 'md', fontKey: 'md', chevronSize: 12 },
+  lg: { height: 32, paddingKey: 'lg', fontKey: 'lg', chevronSize: 14 },
 };
 
 // --- Chevron icon ---

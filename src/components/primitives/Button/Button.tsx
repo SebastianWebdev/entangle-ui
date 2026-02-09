@@ -113,19 +113,19 @@ const StyledButton = styled.button<StyledButtonProps>`
       sm: {
         height: '20px',
         padding: `0 ${props.theme.spacing.sm}px`,
-        fontSize: `${props.theme.typography.fontSize.xs}px`,
+        fontSize: `${props.theme.typography.fontSize.md}px`,
         gap: `${props.theme.spacing.xs}px`,
       },
       md: {
         height: '24px',
         padding: `0 ${props.theme.spacing.md}px`,
-        fontSize: `${props.theme.typography.fontSize.xs}px`,
+        fontSize: `${props.theme.typography.fontSize.md}px`,
         gap: `${props.theme.spacing.sm}px`,
       },
       lg: {
         height: '32px',
         padding: `0 ${props.theme.spacing.xl}px`,
-        fontSize: `${props.theme.typography.fontSize.sm}px`,
+        fontSize: `${props.theme.typography.fontSize.lg}px`,
         gap: `${props.theme.spacing.md}px`,
       },
     };

@@ -21,6 +21,8 @@ import {
   createLinearCurve,
 } from '@/components/controls/CurveEditor';
 import { ScrollArea } from '@/components/layout/ScrollArea';
+import { ContextMenu } from '@/components/navigation/ContextMenu';
+import type { MenuConfig } from '@/components/navigation/Menu';
 import { Button } from '@/components/primitives/Button';
 import { Checkbox } from '@/components/primitives/Checkbox';
 import { Input } from '@/components/primitives/Input';
@@ -358,6 +360,86 @@ export const FullEditor: Story = {
     const [showFloating, setShowFloating] = useState(true);
     const [outlinerTab, setOutlinerTab] = useState('scene');
     const [bottomTab, setBottomTab] = useState('console');
+
+    const viewportContextMenu: MenuConfig = {
+      groups: [
+        {
+          id: 'selection',
+          itemSelectionType: 'none',
+          items: [
+            { id: 'select-all', label: 'Select All', icon: <GridIcon size="sm" />, onClick: () => {} },
+            { id: 'deselect', label: 'Deselect All', icon: <CutIcon size="sm" />, onClick: () => {} },
+            { id: 'invert', label: 'Invert Selection', icon: <UndoIcon size="sm" />, onClick: () => {} },
+          ],
+        },
+        {
+          id: 'add-object',
+          label: 'Add',
+          itemSelectionType: 'none',
+          items: [
+            {
+              id: 'add-mesh',
+              label: 'Mesh',
+              icon: <GridIcon size="sm" />,
+              onClick: () => {},
+              subMenu: {
+                groups: [{
+                  id: 'meshes',
+                  itemSelectionType: 'none',
+                  items: [
+                    { id: 'add-cube', label: 'Cube', onClick: () => {} },
+                    { id: 'add-sphere', label: 'Sphere', onClick: () => {} },
+                    { id: 'add-cylinder', label: 'Cylinder', onClick: () => {} },
+                    { id: 'add-plane', label: 'Plane', onClick: () => {} },
+                    { id: 'add-torus', label: 'Torus', onClick: () => {} },
+                  ],
+                }],
+              },
+            },
+            {
+              id: 'add-light',
+              label: 'Light',
+              icon: <PlayIcon size="sm" />,
+              onClick: () => {},
+              subMenu: {
+                groups: [{
+                  id: 'lights',
+                  itemSelectionType: 'none',
+                  items: [
+                    { id: 'add-point', label: 'Point Light', onClick: () => {} },
+                    { id: 'add-spot', label: 'Spot Light', onClick: () => {} },
+                    { id: 'add-dir', label: 'Directional Light', onClick: () => {} },
+                    { id: 'add-area', label: 'Area Light', onClick: () => {} },
+                  ],
+                }],
+              },
+            },
+            { id: 'add-camera', label: 'Camera', icon: <EyeIcon size="sm" />, onClick: () => {} },
+            { id: 'add-empty', label: 'Empty', icon: <AddIcon size="sm" />, onClick: () => {} },
+          ],
+        },
+        {
+          id: 'object',
+          itemSelectionType: 'none',
+          items: [
+            { id: 'duplicate', label: 'Duplicate', icon: <CopyIcon size="sm" />, onClick: () => {} },
+            { id: 'delete', label: 'Delete', icon: <TrashIcon size="sm" />, onClick: () => {} },
+            { id: 'hide', label: 'Hide Selected', icon: <EyeIcon size="sm" />, onClick: () => {} },
+            { id: 'lock', label: 'Lock Selected', icon: <LockIcon size="sm" />, onClick: () => {} },
+          ],
+        },
+        {
+          id: 'snapping',
+          label: 'Snap',
+          itemSelectionType: 'none',
+          items: [
+            { id: 'snap-cursor', label: 'Cursor to Selected', icon: <FullscreenIcon size="sm" />, onClick: () => {} },
+            { id: 'snap-origin', label: 'Origin to Geometry', icon: <GridIcon size="sm" />, onClick: () => {} },
+            { id: 'snap-ground', label: 'Snap to Ground', icon: <DownloadIcon size="sm" />, onClick: () => {} },
+          ],
+        },
+      ],
+    };
 
     const sceneTree = [
       {
@@ -924,6 +1006,7 @@ export const FullEditor: Story = {
                   dividerSize={3}
                 >
                   {/* 3D Viewport */}
+                  <ContextMenu config={viewportContextMenu}>
                   <ViewportCanvas>
                     <ViewportGrid />
                     <ViewportAxisX />
@@ -998,6 +1081,7 @@ export const FullEditor: Story = {
                       <ViewportBadge>60.0 fps</ViewportBadge>
                     </ViewportOverlay>
                   </ViewportCanvas>
+                  </ContextMenu>
 
                   {/* Bottom panel: Console / Output / Timeline */}
                   <PanelSurface bordered={false} css={panelGradientCss}>

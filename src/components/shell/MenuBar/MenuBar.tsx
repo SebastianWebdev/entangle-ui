@@ -47,7 +47,7 @@ const StyledMenuBar = styled.div<{
     $size === 'sm' ? '24px' : `${theme.shell.menuBar.height}px`};
   background: ${({ theme }) => theme.shell.menuBar.bg};
   color: ${({ theme }) => theme.shell.menuBar.text};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   font-family: ${({ theme }) => theme.typography.fontFamily.sans};
   padding: 0 ${({ theme }) => theme.spacing.sm}px;
   user-select: none;
@@ -118,7 +118,7 @@ const StyledItem = styled.button<{
   background: transparent;
   color: ${({ theme }) => theme.colors.text.primary};
   font: inherit;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm}px;
+  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
   cursor: pointer;
   white-space: nowrap;
   gap: ${({ theme }) => theme.spacing.md}px;

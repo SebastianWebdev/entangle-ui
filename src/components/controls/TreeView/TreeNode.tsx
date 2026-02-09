@@ -22,21 +22,21 @@ const sizeConfig: Record<
     rowHeight: 20,
     chevronSize: 10,
     iconSize: 12,
-    fontSizeKey: 'xs',
+    fontSizeKey: 'md',
     defaultIndent: 12,
   },
   md: {
     rowHeight: 24,
     chevronSize: 12,
     iconSize: 14,
-    fontSizeKey: 'sm',
+    fontSizeKey: 'md',
     defaultIndent: 16,
   },
   lg: {
     rowHeight: 32,
     chevronSize: 14,
     iconSize: 16,
-    fontSizeKey: 'md',
+    fontSizeKey: 'lg',
     defaultIndent: 20,
   },
 };
@@ -67,11 +67,8 @@ const StyledRow = styled.div<StyledRowProps>`
     props.$selected ? `${props.theme.colors.accent.primary}26` : 'transparent'};
 
   ${props =>
-    props.$selected &&
-    `border-left: 2px solid ${props.theme.colors.accent.primary};`}
-
-  ${props =>
     props.$focused &&
+    !props.$selected &&
     `box-shadow: inset 0 0 0 1px ${props.theme.colors.border.focus};`}
 
   &:hover {
@@ -125,7 +122,7 @@ const StyledLabel = styled.span<{ $size: TreeViewSize }>`
   font-size: ${props =>
     props.theme.typography.fontSize[sizeConfig[props.$size].fontSizeKey]}px;
   color: ${props => props.theme.colors.text.primary};
-  line-height: 1;
+  line-height: ${props => props.theme.typography.lineHeight.normal};
 `;
 
 const StyledActions = styled.span`

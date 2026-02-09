@@ -33,9 +33,9 @@ interface SearchInputSizeConfig {
 }
 
 const SEARCH_SIZE_MAP: Record<PropertyInspectorSize, SearchInputSizeConfig> = {
-  sm: { height: 20, fontKey: 'xs', paddingKey: 'sm' },
-  md: { height: 24, fontKey: 'sm', paddingKey: 'md' },
-  lg: { height: 28, fontKey: 'md', paddingKey: 'md' },
+  sm: { height: 20, fontKey: 'md', paddingKey: 'sm' },
+  md: { height: 24, fontKey: 'md', paddingKey: 'md' },
+  lg: { height: 28, fontKey: 'lg', paddingKey: 'md' },
 };
 
 // --- Styled ---
