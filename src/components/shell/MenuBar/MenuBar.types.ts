@@ -5,6 +5,8 @@ export type MenuBarSize = 'sm' | 'md';
 export interface MenuBarProps {
   /** Size of the menu bar */
   $size?: MenuBarSize;
+  /** Vertical gap in pixels between top-level trigger and dropdown */
+  menuOffset?: number;
   /** Children (MenuBar.Menu components) */
   children?: ReactNode;
   /** Additional CSS class */
@@ -55,6 +57,7 @@ export interface MenuBarSeparatorProps {
 
 export interface MenuBarContextValue {
   size: MenuBarSize;
+  menuOffset: number;
   openMenuId: string | null;
   setOpenMenuId: (id: string | null) => void;
   registerMenu: (id: string) => void;

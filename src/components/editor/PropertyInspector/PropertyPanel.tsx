@@ -97,9 +97,18 @@ const StyledSearchInput = styled.input<StyledSearchInputProps>`
   }
 `;
 
-const StyledPanelContent = styled.div`
+interface StyledPanelContentProps {
+  $contentTopSpacing?: number;
+  $contentBottomSpacing?: number;
+}
+
+const StyledPanelContent = styled.div<StyledPanelContentProps>`
   flex: 1;
   min-height: 0;
+  padding: ${props => props.$contentTopSpacing ?? props.theme.spacing.sm}px
+    ${props => props.theme.spacing.md}px
+    ${props => props.$contentBottomSpacing ?? props.theme.spacing.md}px;
+  box-sizing: border-box;
 `;
 
 const StyledPanelFooter = styled.div`
@@ -118,6 +127,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
   searchable = false,
   searchPlaceholder = 'Search properties...',
   onSearchChange,
+  contentTopSpacing,
+  contentBottomSpacing,
   css,
   className,
   style,
@@ -144,7 +155,14 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
   const hasHeader = header != null || searchable;
   const hasFooter = footer != null;
 
-  const content = <StyledPanelContent>{children}</StyledPanelContent>;
+  const content = (
+    <StyledPanelContent
+      $contentTopSpacing={contentTopSpacing}
+      $contentBottomSpacing={contentBottomSpacing}
+    >
+      {children}
+    </StyledPanelContent>
+  );
 
   return (
     <PropertyPanelContext.Provider value={contextValue}>

@@ -14,8 +14,16 @@ import { NumberInput } from '@/components/controls/NumberInput';
 import { Slider } from '@/components/controls/Slider';
 import { Select } from '@/components/controls/Select';
 import { ColorPicker } from '@/components/controls/ColorPicker';
+import {
+  CurveEditor,
+  createLinearCurve,
+} from '@/components/controls/CurveEditor';
 import { ScrollArea } from '@/components/layout/ScrollArea';
+import { Button } from '@/components/primitives/Button';
+import { Checkbox } from '@/components/primitives/Checkbox';
+import { Input } from '@/components/primitives/Input';
 import { Switch } from '@/components/primitives/Switch';
+import { Text } from '@/components/primitives/Text';
 import {
   Accordion,
   AccordionItem,
@@ -273,14 +281,23 @@ const PanelHeader = styled.div`
 `;
 
 const PanelBody = styled.div`
+  display: flex;
+  flex-direction: column;
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
+  box-sizing: border-box;
 `;
 
 const PanelContainer = styled.div`
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  min-height: 0;
   height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
   background: ${({ theme }) => theme.colors.background.secondary};
 `;
 
@@ -330,14 +347,21 @@ export const FullEditor: Story = {
     const [rotX, setRotX] = useState(0);
     const [rotY, setRotY] = useState(35);
     const [rotZ, setRotZ] = useState(0);
+    const [objectName, setObjectName] = useState('Cube.001');
+    const [tagFilter, setTagFilter] = useState('hero');
     const [scaleVal, setScaleVal] = useState(1);
     const [baseColor, setBaseColor] = useState('#4a9eff');
+    const [paletteColor, setPaletteColor] = useState('#4a9eff');
     const [roughness, setRoughness] = useState(0.45);
     const [metallic, setMetallic] = useState(0.8);
     const [emissionStrength, setEmissionStrength] = useState(0);
     const [castShadows, setCastShadows] = useState(true);
     const [receiveShadows, setReceiveShadows] = useState(true);
     const [visible, setVisible] = useState(true);
+    const [lockedInOutliner, setLockedInOutliner] = useState(false);
+    const [showBounds, setShowBounds] = useState(true);
+    const [curveData, setCurveData] = useState(() => createLinearCurve());
+    const [curvePreviewValue, setCurvePreviewValue] = useState(0.5);
     const [renderMode, setRenderMode] = useState<string>('solid');
     const [showFloating, setShowFloating] = useState(true);
     const [outlinerTab, setOutlinerTab] = useState('scene');
@@ -404,10 +428,10 @@ export const FullEditor: Story = {
 
     return (
       <KeyboardContextProvider>
-        <AppShell viewportLock>
+        <AppShell viewportLock topChromeSeparator="both">
           {/* ============ MENU BAR ============ */}
           <AppShell.MenuBar>
-            <MenuBar>
+            <MenuBar menuOffset={4}>
               <MenuBar.Menu label="File">
                 <MenuBar.Item
                   onClick={() => {}}
@@ -821,6 +845,7 @@ export const FullEditor: Story = {
                     variant="pills"
                     pillsFrame={false}
                     size="sm"
+                    style={{ flex: 1, minHeight: 0 }}
                   >
                     <TabList>
                       <Tab value="scene">Scene</Tab>
@@ -986,6 +1011,7 @@ export const FullEditor: Story = {
                       onChange={setBottomTab}
                       variant="enclosed"
                       size="sm"
+                      style={{ flex: 1, minHeight: 0 }}
                     >
                       <TabList>
                         <Tab value="console">Console</Tab>
@@ -1068,7 +1094,7 @@ export const FullEditor: Story = {
                 {/* ------------ RIGHT PANEL: Properties Inspector ------------ */}
                 <PanelContainer>
                   <PanelHeader>
-                    <span>Cube.001</span>
+                    <span>{objectName}</span>
                     <span
                       style={{
                         fontSize: 9,
@@ -1083,12 +1109,12 @@ export const FullEditor: Story = {
                     </span>
                   </PanelHeader>
                   <PanelBody>
-                    <ScrollArea
+                    <PropertyPanel
+                      size="sm"
                       maxHeight="100%"
-                      scrollbarVisibility="hover"
-                      style={{ height: '100%' }}
+                      contentTopSpacing={8}
+                      contentBottomSpacing={12}
                     >
-                      <PropertyPanel size="sm">
                         <PropertySection title="Transform">
                           <PropertyRow label="Position X" modified={posX !== 0}>
                             <NumberInput
@@ -1262,6 +1288,13 @@ export const FullEditor: Story = {
                               size="sm"
                             />
                           </PropertyRow>
+                          <PropertyRow label="Show Bounds">
+                            <Switch
+                              checked={showBounds}
+                              onChange={setShowBounds}
+                              size="sm"
+                            />
+                          </PropertyRow>
                           <PropertyRow label="Render Order">
                             <NumberInput
                               value={0}
@@ -1286,6 +1319,171 @@ export const FullEditor: Story = {
                               ]}
                               size="sm"
                               onChange={() => {}}
+                            />
+                          </PropertyRow>
+                        </PropertySection>
+
+                        <PropertySection title="Primitives Showcase">
+                          <PropertyRow
+                            label="Object Name"
+                            modified={objectName !== 'Cube.001'}
+                          >
+                            <Input
+                              size="sm"
+                              value={objectName}
+                              onChange={event =>
+                                setObjectName(event.target.value)
+                              }
+                            />
+                          </PropertyRow>
+                          <PropertyRow label="Tag Filter">
+                            <Input
+                              size="sm"
+                              type="search"
+                              value={tagFilter}
+                              startIcon={<SearchIcon size="sm" />}
+                              onChange={event =>
+                                setTagFilter(event.target.value)
+                              }
+                            />
+                          </PropertyRow>
+                          <PropertyRow label="Pinned in Outliner">
+                            <Checkbox
+                              size="sm"
+                              checked={lockedInOutliner}
+                              onChange={setLockedInOutliner}
+                            />
+                          </PropertyRow>
+                          <PropertyRow label="Inspector Preset">
+                            <Text size="xs" color="muted" mono>
+                              editor-showcase-v2
+                            </Text>
+                          </PropertyRow>
+                          <PropertyRow label="Actions" fullWidth>
+                            <div
+                              style={{
+                                display: 'flex',
+                                gap: 6,
+                                flexWrap: 'wrap',
+                              }}
+                            >
+                              <Button
+                                size="sm"
+                                variant="filled"
+                                icon={<SaveIcon size="sm" />}
+                                onClick={() => {}}
+                              >
+                                Apply
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                icon={<UndoIcon size="sm" />}
+                                onClick={() => {}}
+                              >
+                                Revert
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                icon={<TrashIcon size="sm" />}
+                                onClick={() => {}}
+                              >
+                                Reset
+                              </Button>
+                            </div>
+                          </PropertyRow>
+                        </PropertySection>
+
+                        <PropertySection title="Curve Editor">
+                          <PropertyRow label="Opacity Curve" fullWidth>
+                            <div style={{ width: '100%', minWidth: 0 }}>
+                              <CurveEditor
+                                value={curveData}
+                                onChange={setCurveData}
+                                responsive
+                                height={180}
+                                size="sm"
+                                showToolbar
+                                labelX="Time"
+                                labelY="Opacity"
+                                gridSubdivisions={5}
+                              />
+                            </div>
+                          </PropertyRow>
+                          <PropertyRow label="Preview Time">
+                            <Slider
+                              value={curvePreviewValue}
+                              onChange={setCurvePreviewValue}
+                              min={0}
+                              max={1}
+                              step={0.01}
+                              precision={2}
+                              size="sm"
+                            />
+                          </PropertyRow>
+                          <PropertyRow label="Preview Value">
+                            <Text size="xs" color="secondary" mono>
+                              t={curvePreviewValue.toFixed(2)}
+                            </Text>
+                          </PropertyRow>
+                        </PropertySection>
+
+                        <PropertySection title="Color Picker Standalone">
+                          <PropertyRow label="Palette (Material)" fullWidth>
+                            <ColorPicker
+                              value={paletteColor}
+                              onChange={setPaletteColor}
+                              inline
+                              showAlpha
+                              palette="material"
+                              pickerWidth={228}
+                            />
+                          </PropertyRow>
+                          <PropertyRow label="Quick Swatch">
+                            <ColorPicker
+                              value={paletteColor}
+                              onChange={setPaletteColor}
+                              size="sm"
+                            />
+                          </PropertyRow>
+                        </PropertySection>
+
+                        <PropertySection title="LOD and Streaming">
+                          <PropertyRow label="Active LOD">
+                            <Select
+                              value="lod1"
+                              options={[
+                                { value: 'lod0', label: 'LOD 0' },
+                                { value: 'lod1', label: 'LOD 1' },
+                                { value: 'lod2', label: 'LOD 2' },
+                                { value: 'lod3', label: 'LOD 3' },
+                              ]}
+                              size="sm"
+                              onChange={() => {}}
+                            />
+                          </PropertyRow>
+                          {Array.from({ length: 8 }).map((_, level) => (
+                            <PropertyRow
+                              key={`lod-distance-${level}`}
+                              label={`LOD ${level} Dist`}
+                            >
+                              <NumberInput
+                                value={level === 0 ? 0 : level * 12}
+                                onChange={() => {}}
+                                min={0}
+                                max={300}
+                                step={1}
+                                size="sm"
+                                unit="m"
+                              />
+                            </PropertyRow>
+                          ))}
+                          <PropertyRow label="Keep Resident">
+                            <Switch
+                              checked={true}
+                              onChange={() => {}}
+                              size="sm"
                             />
                           </PropertyRow>
                         </PropertySection>
@@ -1333,7 +1531,6 @@ export const FullEditor: Story = {
                           </PropertyRow>
                         </PropertySection>
                       </PropertyPanel>
-                    </ScrollArea>
                   </PanelBody>
                 </PanelContainer>
               </SplitPane>

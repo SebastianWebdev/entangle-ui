@@ -6,7 +6,12 @@ import type { TabPanelProps } from './Tabs.types';
 // --- Styled ---
 
 const StyledTabPanel = styled.div`
-  flex: 1;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   outline: none;
 `;
 

@@ -32,9 +32,12 @@ const StyledToolbar = styled.div<{
   $size: ToolbarSize;
 }>`
   display: flex;
+  box-sizing: border-box;
   align-items: center;
   flex-direction: ${({ $orientation }) =>
     $orientation === 'vertical' ? 'column' : 'row'};
+  min-width: 0;
+  min-height: 0;
   ${({ $orientation }) => $orientation === 'vertical' && 'height: 100%;'}
   background: ${({ theme }) => theme.shell.toolbar.bg};
   padding: ${({ theme }) => theme.spacing.xs}px;

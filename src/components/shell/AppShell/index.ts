@@ -5,5 +5,7 @@ export type {
   AppShellSlotProps,
   AppShellToolbarSlotProps,
   AppShellContextValue,
+  AppShellSideChromeSeparator,
+  AppShellTopChromeSeparator,
   ToolbarPosition,
 } from './AppShell.types';

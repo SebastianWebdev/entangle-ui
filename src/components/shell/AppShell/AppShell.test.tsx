@@ -56,6 +56,44 @@ describe('AppShell', () => {
       expect(screen.getByText('Content')).toBeInTheDocument();
       expect(screen.getByText('Status')).toBeInTheDocument();
     });
+
+    it('supports topChromeSeparator="none"', () => {
+      renderWithTheme(
+        <AppShell topChromeSeparator="none">
+          <AppShell.Toolbar>
+            <div data-testid="toolbar-top">Top Toolbar</div>
+          </AppShell.Toolbar>
+          <AppShell.Dock>Content</AppShell.Dock>
+        </AppShell>
+      );
+
+      const toolbarTopSlot = screen.getByTestId('toolbar-top').parentElement;
+      expect(toolbarTopSlot).toHaveStyle({ borderBottom: 'none' });
+      expect(toolbarTopSlot).toHaveStyle({ boxShadow: 'none' });
+    });
+
+    it('supports sideChromeSeparator="none"', () => {
+      renderWithTheme(
+        <AppShell sideChromeSeparator="none">
+          <AppShell.Toolbar position="left">
+            <div data-testid="toolbar-left">Left Toolbar</div>
+          </AppShell.Toolbar>
+          <AppShell.Dock>Content</AppShell.Dock>
+          <AppShell.Toolbar position="right">
+            <div data-testid="toolbar-right">Right Toolbar</div>
+          </AppShell.Toolbar>
+        </AppShell>
+      );
+
+      const toolbarLeftSlot = screen.getByTestId('toolbar-left').parentElement;
+      const toolbarRightSlot =
+        screen.getByTestId('toolbar-right').parentElement;
+
+      expect(toolbarLeftSlot).toHaveStyle({ borderRight: 'none' });
+      expect(toolbarLeftSlot).toHaveStyle({ boxShadow: 'none' });
+      expect(toolbarRightSlot).toHaveStyle({ borderLeft: 'none' });
+      expect(toolbarRightSlot).toHaveStyle({ boxShadow: 'none' });
+    });
   });
 
   describe('Semantic HTML', () => {

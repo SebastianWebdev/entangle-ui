@@ -23,6 +23,7 @@ import type {
 
 const MenuBarContext = createContext<MenuBarContextValue>({
   size: 'md',
+  menuOffset: 2,
   openMenuId: null,
   setOpenMenuId: () => {},
   registerMenu: () => {},
@@ -260,8 +261,13 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
   className,
 }) => {
   const menuId = useId();
-  const { openMenuId, setOpenMenuId, registerMenu, unregisterMenu } =
-    useMenuBar();
+  const {
+    openMenuId,
+    setOpenMenuId,
+    registerMenu,
+    unregisterMenu,
+    menuOffset,
+  } = useMenuBar();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isOpen = openMenuId === menuId;
@@ -374,6 +380,7 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
           role="menu"
           aria-label={label}
           onKeyDown={handleDropdownKeyDown}
+          style={{ top: `calc(100% + ${menuOffset}px)` }}
         >
           {children}
         </StyledDropdown>
@@ -388,11 +395,13 @@ MenuBarMenu.displayName = 'MenuBar.Menu';
 
 const MenuBarRoot: React.FC<MenuBarProps> = ({
   $size = 'md',
+  menuOffset = 2,
   children,
   className,
 }) => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuIdsRef = useRef<string[]>([]);
+  const safeMenuOffset = Math.max(0, menuOffset);
   const [, forceUpdate] = useState(0);
   const barRef = useRef<HTMLDivElement>(null);
 
@@ -447,6 +456,7 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
     <MenuBarContext.Provider
       value={{
         size: $size,
+        menuOffset: safeMenuOffset,
         openMenuId,
         setOpenMenuId,
         registerMenu,

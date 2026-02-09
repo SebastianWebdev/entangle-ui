@@ -6,6 +6,8 @@ import type {
   AppShellSlotProps,
   AppShellToolbarSlotProps,
   AppShellContextValue,
+  AppShellSideChromeSeparator,
+  AppShellTopChromeSeparator,
   ToolbarPosition,
 } from './AppShell.types';
 
@@ -14,6 +16,8 @@ import type {
 const AppShellContext = createContext<AppShellContextValue>({
   isToolbarVisible: () => true,
   setToolbarVisible: () => {},
+  topChromeSeparator: 'border',
+  sideChromeSeparator: 'border',
 });
 
 export const useAppShell = () => useContext(AppShellContext);
@@ -41,16 +45,55 @@ const StyledMenuBarSlot = styled.header`
   grid-area: menubar;
 `;
 
-const StyledToolbarTopSlot = styled.div`
+const StyledToolbarTopSlot = styled.div<{
+  $topChromeSeparator: AppShellTopChromeSeparator;
+}>`
   grid-area: toolbar-top;
+  border-bottom: ${({ $topChromeSeparator, theme }) =>
+    $topChromeSeparator === 'border' || $topChromeSeparator === 'both'
+      ? `1px solid ${theme.colors.border.default}`
+      : 'none'};
+  box-shadow: ${({ $topChromeSeparator }) =>
+    $topChromeSeparator === 'shadow' || $topChromeSeparator === 'both'
+      ? '0 1px 2px rgba(0, 0, 0, 0.18)'
+      : 'none'};
+  z-index: 1;
 `;
 
-const StyledToolbarLeftSlot = styled.aside`
+const StyledToolbarLeftSlot = styled.aside<{
+  $sideChromeSeparator: AppShellSideChromeSeparator;
+}>`
   grid-area: toolbar-left;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-right: ${({ $sideChromeSeparator, theme }) =>
+    $sideChromeSeparator === 'border' || $sideChromeSeparator === 'both'
+      ? `1px solid ${theme.colors.border.default}`
+      : 'none'};
+  box-shadow: ${({ $sideChromeSeparator }) =>
+    $sideChromeSeparator === 'shadow' || $sideChromeSeparator === 'both'
+      ? '1px 0 2px rgba(0, 0, 0, 0.18)'
+      : 'none'};
+  z-index: 1;
 `;
 
-const StyledToolbarRightSlot = styled.aside`
+const StyledToolbarRightSlot = styled.aside<{
+  $sideChromeSeparator: AppShellSideChromeSeparator;
+}>`
   grid-area: toolbar-right;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-left: ${({ $sideChromeSeparator, theme }) =>
+    $sideChromeSeparator === 'border' || $sideChromeSeparator === 'both'
+      ? `1px solid ${theme.colors.border.default}`
+      : 'none'};
+  box-shadow: ${({ $sideChromeSeparator }) =>
+    $sideChromeSeparator === 'shadow' || $sideChromeSeparator === 'both'
+      ? '-1px 0 2px rgba(0, 0, 0, 0.18)'
+      : 'none'};
+  z-index: 1;
 `;
 
 const StyledDockSlot = styled.main`
@@ -77,25 +120,35 @@ const ToolbarSlot: React.FC<AppShellToolbarSlotProps> = ({
   className,
   position = 'top',
 }) => {
-  const { isToolbarVisible } = useAppShell();
+  const { isToolbarVisible, topChromeSeparator, sideChromeSeparator } =
+    useAppShell();
   if (!isToolbarVisible(position)) return null;
 
   switch (position) {
     case 'left':
       return (
-        <StyledToolbarLeftSlot className={className}>
+        <StyledToolbarLeftSlot
+          className={className}
+          $sideChromeSeparator={sideChromeSeparator}
+        >
           {children}
         </StyledToolbarLeftSlot>
       );
     case 'right':
       return (
-        <StyledToolbarRightSlot className={className}>
+        <StyledToolbarRightSlot
+          className={className}
+          $sideChromeSeparator={sideChromeSeparator}
+        >
           {children}
         </StyledToolbarRightSlot>
       );
     default:
       return (
-        <StyledToolbarTopSlot className={className}>
+        <StyledToolbarTopSlot
+          className={className}
+          $topChromeSeparator={topChromeSeparator}
+        >
           {children}
         </StyledToolbarTopSlot>
       );
@@ -141,6 +194,8 @@ const ViewportLockStyles: React.FC = () => {
 
 const AppShellRoot: React.FC<AppShellProps> = ({
   viewportLock = false,
+  topChromeSeparator = 'border',
+  sideChromeSeparator = 'border',
   children,
   className,
 }) => {
@@ -165,7 +220,14 @@ const AppShellRoot: React.FC<AppShellProps> = ({
   );
 
   return (
-    <AppShellContext.Provider value={{ isToolbarVisible, setToolbarVisible }}>
+    <AppShellContext.Provider
+      value={{
+        isToolbarVisible,
+        setToolbarVisible,
+        topChromeSeparator,
+        sideChromeSeparator,
+      }}
+    >
       {viewportLock && <ViewportLockStyles />}
       <StyledAppShell className={className} role="application">
         {children}

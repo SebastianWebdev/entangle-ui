@@ -89,9 +89,7 @@ const StyledRowRoot = styled.div<StyledRowRootProps>`
   align-items: ${props => (props.$fullWidth ? 'stretch' : 'center')};
   position: relative;
   min-height: ${props => ROW_SIZE_MAP[props.$size].minHeight}px;
-  padding: ${props =>
-      props.theme.spacing[ROW_SIZE_MAP[props.$size].paddingVKey]}px
-    ${props => props.theme.spacing[ROW_SIZE_MAP[props.$size].paddingHKey]}px;
+  padding: 2px 8px;
   opacity: ${props => (props.$disabled ? 0.5 : 1)};
   pointer-events: ${props => (props.$disabled ? 'none' : 'auto')};
   transition: background ${props => props.theme.transitions.fast};
@@ -115,6 +113,8 @@ interface StyledRowLabelProps {
 
 const StyledRowLabel = styled.div<StyledRowLabelProps>`
   flex: 0 0 ${props => props.$splitRatio}%;
+  box-sizing: border-box;
+  min-width: 0;
   display: flex;
   align-items: center;
   font-size: ${props =>
@@ -163,15 +163,18 @@ interface StyledRowControlProps {
 
 const StyledRowControl = styled.div<StyledRowControlProps>`
   flex: 0 0 ${props => props.$splitRatio}%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   min-width: 0;
+  padding-right: ${props => props.theme.spacing.xs}px;
 `;
 
 const StyledFullWidthControl = styled.div`
   display: flex;
   align-items: center;
   min-width: 0;
+  padding-right: ${props => props.theme.spacing.xs}px;
 `;
 
 const StyledResetButton = styled.span`

@@ -135,6 +135,117 @@ function clampSizes(sizes: number[], panels: PanelConfig[]): number[] {
   });
 }
 
+/**
+ * Snap panel sizes to whole pixels while preserving total width/height.
+ * This avoids sub-pixel rounding gaps (often visible as a 1-2px seam).
+ */
+function snapSizesToWholePixels(
+  sizes: number[],
+  panels: PanelConfig[],
+  availableSpace: number
+): number[] {
+  const targetTotal = Math.max(0, Math.round(availableSpace));
+  const floored = sizes.map(size => Math.max(0, Math.floor(size)));
+  const fractions = sizes.map((size, i) => ({
+    index: i,
+    fraction: Math.max(0, size - (floored[i] ?? 0)),
+  }));
+  const snapped = [...floored];
+
+  let delta = targetTotal - snapped.reduce((sum, size) => sum + size, 0);
+
+  if (delta > 0) {
+    const growOrder = [...fractions].sort((a, b) => {
+      if (b.fraction !== a.fraction) return b.fraction - a.fraction;
+      return b.index - a.index;
+    });
+
+    while (delta > 0) {
+      let changed = false;
+      for (const { index } of growOrder) {
+        if (delta <= 0) break;
+        const max = panels[index]?.maxSize ?? Infinity;
+        const current = snapped[index] ?? 0;
+        if (current + 1 > max) continue;
+        snapped[index] = current + 1;
+        delta -= 1;
+        changed = true;
+      }
+      if (!changed) break;
+    }
+  } else if (delta < 0) {
+    delta = -delta;
+    const shrinkOrder = [...fractions].sort((a, b) => {
+      if (a.fraction !== b.fraction) return a.fraction - b.fraction;
+      return b.index - a.index;
+    });
+
+    while (delta > 0) {
+      let changed = false;
+      for (const { index } of shrinkOrder) {
+        if (delta <= 0) break;
+        const min = panels[index]?.minSize ?? 0;
+        const current = snapped[index] ?? 0;
+        if (current - 1 < min) continue;
+        snapped[index] = current - 1;
+        delta -= 1;
+        changed = true;
+      }
+      if (!changed) break;
+    }
+  }
+
+  return snapped;
+}
+
+/**
+ * Ensures panel sizes fill the available space exactly.
+ * Handles small floating-point drift and rounding leftovers by distributing
+ * the remaining pixels across panels that can still grow/shrink.
+ */
+function reconcileSizesToAvailableSpace(
+  sizes: number[],
+  panels: PanelConfig[],
+  availableSpace: number
+): number[] {
+  const adjusted = clampSizes(sizes, panels);
+  let remaining =
+    availableSpace - adjusted.reduce((sum, size) => sum + size, 0);
+
+  // Ignore tiny floating-point noise.
+  if (Math.abs(remaining) < 0.01) {
+    return snapSizesToWholePixels(adjusted, panels, availableSpace);
+  }
+
+  // Try to consume remainder from right to left so right-most panel
+  // naturally absorbs visual rounding leftovers.
+  for (let i = adjusted.length - 1; i >= 0; i--) {
+    if (Math.abs(remaining) < 0.01) break;
+
+    const cfg = panels[i];
+    const min = cfg?.minSize ?? 0;
+    const max = cfg?.maxSize ?? Infinity;
+    const current = adjusted[i] ?? 0;
+
+    if (remaining > 0) {
+      const room = max - current;
+      if (room <= 0) continue;
+      const delta = Math.min(room, remaining);
+      adjusted[i] = current + delta;
+      remaining -= delta;
+      continue;
+    }
+
+    const room = current - min;
+    if (room <= 0) continue;
+    const delta = Math.min(room, -remaining);
+    adjusted[i] = current - delta;
+    remaining += delta;
+  }
+
+  return snapSizesToWholePixels(adjusted, panels, availableSpace);
+}
+
 const KEYBOARD_STEP = 10;
 const KEYBOARD_LARGE_STEP = 50;
 
@@ -235,19 +346,37 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
           // Proportionally redistribute on container resize
           const prevTotal = prev.reduce((a, b) => a + b, 0);
           if (prevTotal <= 0) {
-            return computeInitialSizes(count, cfgs, availableSpace);
+            return reconcileSizesToAvailableSpace(
+              computeInitialSizes(count, cfgs, availableSpace),
+              cfgs,
+              availableSpace
+            );
           }
           const ratio = availableSpace / prevTotal;
           const newSizes = prev.map(s => s * ratio);
-          return clampSizes(newSizes, cfgs);
+          return reconcileSizesToAvailableSpace(newSizes, cfgs, availableSpace);
         }
-        return clampSizes(
+        return reconcileSizesToAvailableSpace(
           computeInitialSizes(count, cfgs, availableSpace),
-          cfgs
+          cfgs,
+          availableSpace
         );
       });
     }
   }, []);
+
+  const getAvailableSpace = useCallback((): number | null => {
+    const container = containerRef.current;
+    if (!container || panelCount < 2) return null;
+
+    const containerDim =
+      direction === 'horizontal'
+        ? container.clientWidth
+        : container.clientHeight;
+    if (containerDim <= 0) return null;
+    const totalDividerSpace = (panelCount - 1) * dividerSize;
+    return Math.max(0, containerDim - totalDividerSpace);
+  }, [direction, dividerSize, panelCount]);
 
   useEffect(() => {
     recalculate();
@@ -375,15 +504,25 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
       const newSizes = [...startSizes];
       newSizes[leftIndex] = newLeft;
       newSizes[rightIndex] = newRight;
+      const availableSpace = getAvailableSpace();
+      const nextSizes =
+        availableSpace !== null && availableSpace > 0
+          ? reconcileSizesToAvailableSpace(
+              newSizes,
+              panelConfigs,
+              availableSpace
+            )
+          : newSizes;
 
       if (!isControlled) {
-        setInternalSizes(newSizes);
+        setInternalSizes(nextSizes);
       }
-      onResize?.(newSizes);
+      onResize?.(nextSizes);
     },
     [
       draggingIndex,
       direction,
+      getAvailableSpace,
       panelConfigs,
       isControlled,
       onResize,
@@ -493,15 +632,25 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
 
       newSizes[leftIndex] = left;
       newSizes[rightIndex] = right;
+      const availableSpace = getAvailableSpace();
+      const nextSizes =
+        availableSpace !== null && availableSpace > 0
+          ? reconcileSizesToAvailableSpace(
+              newSizes,
+              panelConfigs,
+              availableSpace
+            )
+          : newSizes;
 
       if (!isControlled) {
-        setInternalSizes(newSizes);
+        setInternalSizes(nextSizes);
       }
-      onResize?.(newSizes);
+      onResize?.(nextSizes);
     },
     [
       direction,
       sizes,
+      getAvailableSpace,
       panelConfigs,
       isControlled,
       onResize,

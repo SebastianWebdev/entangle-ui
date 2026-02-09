@@ -118,6 +118,20 @@ describe('MenuBar', () => {
       const separators = screen.getAllByRole('separator');
       expect(separators.length).toBeGreaterThanOrEqual(1);
     });
+
+    it('applies configurable dropdown offset', () => {
+      renderWithTheme(
+        <MenuBar menuOffset={6}>
+          <MenuBar.Menu label="File">
+            <MenuBar.Item onClick={() => {}}>New</MenuBar.Item>
+          </MenuBar.Menu>
+        </MenuBar>
+      );
+
+      fireEvent.click(screen.getByText('File'));
+      const dropdown = screen.getByRole('menu', { name: 'File' });
+      expect(dropdown).toHaveStyle({ top: 'calc(100% + 6px)' });
+    });
   });
 
   describe('Submenu', () => {

@@ -26,6 +26,8 @@ const StyledTabsRoot = styled.div<StyledTabsRootProps>`
   display: flex;
   flex-direction: ${props =>
     props.$orientation === 'vertical' ? 'row' : 'column'};
+  min-width: 0;
+  min-height: 0;
 
   ${props => processCss(props.$css, props.theme)}
 `;

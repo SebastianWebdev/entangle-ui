@@ -111,6 +111,20 @@ export const WithDisabledMenu: Story = {
   ),
 };
 
+export const WithDropdownOffset: Story = {
+  render: () => (
+    <MenuBar menuOffset={6}>
+      <MenuBar.Menu label="File">
+        <MenuBar.Item onClick={() => {}}>New</MenuBar.Item>
+        <MenuBar.Item onClick={() => {}}>Open</MenuBar.Item>
+      </MenuBar.Menu>
+      <MenuBar.Menu label="Edit">
+        <MenuBar.Item onClick={() => {}}>Undo</MenuBar.Item>
+      </MenuBar.Menu>
+    </MenuBar>
+  ),
+};
+
 export const WithIcons: Story = {
   render: () => (
     <MenuBar>
