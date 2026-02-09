@@ -64,7 +64,8 @@ const StyledHeader = styled.div<StyledHeaderProps>`
   align-items: center;
   justify-content: space-between;
   min-height: ${({ $size }) => HEADER_SIZE_MAP[$size].minHeight}px;
-  padding: 0 ${({ $size, theme }) => theme.spacing[HEADER_SIZE_MAP[$size].paddingKey]}px;
+  padding: 0
+    ${({ $size, theme }) => theme.spacing[HEADER_SIZE_MAP[$size].paddingKey]}px;
   background: ${({ theme }) => theme.colors.background.secondary};
   color: ${({ theme }) => theme.colors.text.secondary};
   font-size: ${({ $size, theme }) =>
@@ -110,7 +111,8 @@ const StyledFooter = styled.div<StyledFooterProps>`
   display: flex;
   align-items: center;
   min-height: ${({ $size }) => HEADER_SIZE_MAP[$size].minHeight}px;
-  padding: 0 ${({ $size, theme }) => theme.spacing[HEADER_SIZE_MAP[$size].paddingKey]}px;
+  padding: 0
+    ${({ $size, theme }) => theme.spacing[HEADER_SIZE_MAP[$size].paddingKey]}px;
   border-top: 1px solid ${({ theme }) => theme.colors.border.default};
   background: ${({ theme }) => theme.colors.background.secondary};
   color: ${({ theme }) => theme.colors.text.secondary};

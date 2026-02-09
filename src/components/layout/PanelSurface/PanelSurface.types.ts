@@ -32,7 +32,8 @@ export interface PanelSurfaceBaseProps
 
 export type PanelSurfaceProps = Prettify<PanelSurfaceBaseProps>;
 
-export interface PanelSurfaceHeaderBaseProps extends BaseComponent<HTMLDivElement> {
+export interface PanelSurfaceHeaderBaseProps
+  extends BaseComponent<HTMLDivElement> {
   /**
    * Header content (title/label section).
    */
@@ -46,7 +47,8 @@ export interface PanelSurfaceHeaderBaseProps extends BaseComponent<HTMLDivElemen
 
 export type PanelSurfaceHeaderProps = Prettify<PanelSurfaceHeaderBaseProps>;
 
-export interface PanelSurfaceBodyBaseProps extends BaseComponent<HTMLDivElement> {
+export interface PanelSurfaceBodyBaseProps
+  extends BaseComponent<HTMLDivElement> {
   /**
    * Main panel content.
    */
@@ -67,7 +69,8 @@ export interface PanelSurfaceBodyBaseProps extends BaseComponent<HTMLDivElement>
 
 export type PanelSurfaceBodyProps = Prettify<PanelSurfaceBodyBaseProps>;
 
-export interface PanelSurfaceFooterBaseProps extends BaseComponent<HTMLDivElement> {
+export interface PanelSurfaceFooterBaseProps
+  extends BaseComponent<HTMLDivElement> {
   /**
    * Footer content.
    */

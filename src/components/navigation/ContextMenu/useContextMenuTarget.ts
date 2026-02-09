@@ -29,7 +29,9 @@ export function useContextMenuTarget<TPayload = unknown>(
   const onContextMenuCapture = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
       const target =
-        event.target instanceof HTMLElement ? event.target : event.currentTarget;
+        event.target instanceof HTMLElement
+          ? event.target
+          : event.currentTarget;
       updateContext(event.nativeEvent, target);
     },
     [updateContext]
@@ -43,7 +45,8 @@ export function useContextMenuTarget<TPayload = unknown>(
     if (!targetNode) return;
 
     const handleContextMenu = (event: MouseEvent) => {
-      const target = event.target instanceof HTMLElement ? event.target : targetNode;
+      const target =
+        event.target instanceof HTMLElement ? event.target : targetNode;
       updateContext(event, target);
     };
 

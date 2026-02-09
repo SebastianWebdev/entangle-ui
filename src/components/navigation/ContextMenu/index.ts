@@ -8,4 +8,3 @@ export type {
   ContextMenuTargetDetails,
   UseContextMenuTargetResult,
 } from './ContextMenu.types';
-

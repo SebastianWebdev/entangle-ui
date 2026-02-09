@@ -35,7 +35,8 @@ export interface ToolbarButtonBaseProps
 }
 export type ToolbarButtonProps = Prettify<ToolbarButtonBaseProps>;
 
-export interface ToolbarToggleBaseProps extends BaseComponent<HTMLButtonElement> {
+export interface ToolbarToggleBaseProps
+  extends BaseComponent<HTMLButtonElement> {
   /** Whether the toggle is pressed */
   pressed: boolean;
   /** Called when the pressed state changes */

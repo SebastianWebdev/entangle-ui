@@ -367,9 +367,24 @@ export const FullEditor: Story = {
           id: 'selection',
           itemSelectionType: 'none',
           items: [
-            { id: 'select-all', label: 'Select All', icon: <GridIcon size="sm" />, onClick: () => {} },
-            { id: 'deselect', label: 'Deselect All', icon: <CutIcon size="sm" />, onClick: () => {} },
-            { id: 'invert', label: 'Invert Selection', icon: <UndoIcon size="sm" />, onClick: () => {} },
+            {
+              id: 'select-all',
+              label: 'Select All',
+              icon: <GridIcon size="sm" />,
+              onClick: () => {},
+            },
+            {
+              id: 'deselect',
+              label: 'Deselect All',
+              icon: <CutIcon size="sm" />,
+              onClick: () => {},
+            },
+            {
+              id: 'invert',
+              label: 'Invert Selection',
+              icon: <UndoIcon size="sm" />,
+              onClick: () => {},
+            },
           ],
         },
         {
@@ -383,17 +398,23 @@ export const FullEditor: Story = {
               icon: <GridIcon size="sm" />,
               onClick: () => {},
               subMenu: {
-                groups: [{
-                  id: 'meshes',
-                  itemSelectionType: 'none',
-                  items: [
-                    { id: 'add-cube', label: 'Cube', onClick: () => {} },
-                    { id: 'add-sphere', label: 'Sphere', onClick: () => {} },
-                    { id: 'add-cylinder', label: 'Cylinder', onClick: () => {} },
-                    { id: 'add-plane', label: 'Plane', onClick: () => {} },
-                    { id: 'add-torus', label: 'Torus', onClick: () => {} },
-                  ],
-                }],
+                groups: [
+                  {
+                    id: 'meshes',
+                    itemSelectionType: 'none',
+                    items: [
+                      { id: 'add-cube', label: 'Cube', onClick: () => {} },
+                      { id: 'add-sphere', label: 'Sphere', onClick: () => {} },
+                      {
+                        id: 'add-cylinder',
+                        label: 'Cylinder',
+                        onClick: () => {},
+                      },
+                      { id: 'add-plane', label: 'Plane', onClick: () => {} },
+                      { id: 'add-torus', label: 'Torus', onClick: () => {} },
+                    ],
+                  },
+                ],
               },
             },
             {
@@ -402,30 +423,78 @@ export const FullEditor: Story = {
               icon: <PlayIcon size="sm" />,
               onClick: () => {},
               subMenu: {
-                groups: [{
-                  id: 'lights',
-                  itemSelectionType: 'none',
-                  items: [
-                    { id: 'add-point', label: 'Point Light', onClick: () => {} },
-                    { id: 'add-spot', label: 'Spot Light', onClick: () => {} },
-                    { id: 'add-dir', label: 'Directional Light', onClick: () => {} },
-                    { id: 'add-area', label: 'Area Light', onClick: () => {} },
-                  ],
-                }],
+                groups: [
+                  {
+                    id: 'lights',
+                    itemSelectionType: 'none',
+                    items: [
+                      {
+                        id: 'add-point',
+                        label: 'Point Light',
+                        onClick: () => {},
+                      },
+                      {
+                        id: 'add-spot',
+                        label: 'Spot Light',
+                        onClick: () => {},
+                      },
+                      {
+                        id: 'add-dir',
+                        label: 'Directional Light',
+                        onClick: () => {},
+                      },
+                      {
+                        id: 'add-area',
+                        label: 'Area Light',
+                        onClick: () => {},
+                      },
+                    ],
+                  },
+                ],
               },
             },
-            { id: 'add-camera', label: 'Camera', icon: <EyeIcon size="sm" />, onClick: () => {} },
-            { id: 'add-empty', label: 'Empty', icon: <AddIcon size="sm" />, onClick: () => {} },
+            {
+              id: 'add-camera',
+              label: 'Camera',
+              icon: <EyeIcon size="sm" />,
+              onClick: () => {},
+            },
+            {
+              id: 'add-empty',
+              label: 'Empty',
+              icon: <AddIcon size="sm" />,
+              onClick: () => {},
+            },
           ],
         },
         {
           id: 'object',
           itemSelectionType: 'none',
           items: [
-            { id: 'duplicate', label: 'Duplicate', icon: <CopyIcon size="sm" />, onClick: () => {} },
-            { id: 'delete', label: 'Delete', icon: <TrashIcon size="sm" />, onClick: () => {} },
-            { id: 'hide', label: 'Hide Selected', icon: <EyeIcon size="sm" />, onClick: () => {} },
-            { id: 'lock', label: 'Lock Selected', icon: <LockIcon size="sm" />, onClick: () => {} },
+            {
+              id: 'duplicate',
+              label: 'Duplicate',
+              icon: <CopyIcon size="sm" />,
+              onClick: () => {},
+            },
+            {
+              id: 'delete',
+              label: 'Delete',
+              icon: <TrashIcon size="sm" />,
+              onClick: () => {},
+            },
+            {
+              id: 'hide',
+              label: 'Hide Selected',
+              icon: <EyeIcon size="sm" />,
+              onClick: () => {},
+            },
+            {
+              id: 'lock',
+              label: 'Lock Selected',
+              icon: <LockIcon size="sm" />,
+              onClick: () => {},
+            },
           ],
         },
         {
@@ -433,9 +502,24 @@ export const FullEditor: Story = {
           label: 'Snap',
           itemSelectionType: 'none',
           items: [
-            { id: 'snap-cursor', label: 'Cursor to Selected', icon: <FullscreenIcon size="sm" />, onClick: () => {} },
-            { id: 'snap-origin', label: 'Origin to Geometry', icon: <GridIcon size="sm" />, onClick: () => {} },
-            { id: 'snap-ground', label: 'Snap to Ground', icon: <DownloadIcon size="sm" />, onClick: () => {} },
+            {
+              id: 'snap-cursor',
+              label: 'Cursor to Selected',
+              icon: <FullscreenIcon size="sm" />,
+              onClick: () => {},
+            },
+            {
+              id: 'snap-origin',
+              label: 'Origin to Geometry',
+              icon: <GridIcon size="sm" />,
+              onClick: () => {},
+            },
+            {
+              id: 'snap-ground',
+              label: 'Snap to Ground',
+              icon: <DownloadIcon size="sm" />,
+              onClick: () => {},
+            },
           ],
         },
       ],
@@ -1007,166 +1091,171 @@ export const FullEditor: Story = {
                 >
                   {/* 3D Viewport */}
                   <ContextMenu config={viewportContextMenu}>
-                  <ViewportCanvas>
-                    <ViewportGrid />
-                    <ViewportAxisX />
-                    <ViewportAxisZ />
+                    <ViewportCanvas>
+                      <ViewportGrid />
+                      <ViewportAxisX />
+                      <ViewportAxisZ />
 
-                    {/* Wireframe cube object */}
-                    <CubeWireframe>
-                      <CubeFace $transform="translateZ(60px)" $highlight />
-                      <CubeFace $transform="translateZ(-60px)" />
-                      <CubeFace $transform="rotateY(90deg) translateZ(60px)" />
-                      <CubeFace $transform="rotateY(-90deg) translateZ(60px)" />
-                      <CubeFace $transform="rotateX(90deg) translateZ(60px)" />
-                      <CubeFace $transform="rotateX(-90deg) translateZ(60px)" />
-                    </CubeWireframe>
-                    <SelectionDots>
-                      <SelectionCorner $x={-3} $y={-3} $z={65} />
-                      <SelectionCorner $x={123} $y={-3} $z={65} />
-                      <SelectionCorner $x={-3} $y={123} $z={65} />
-                      <SelectionCorner $x={123} $y={123} $z={65} />
-                    </SelectionDots>
+                      {/* Wireframe cube object */}
+                      <CubeWireframe>
+                        <CubeFace $transform="translateZ(60px)" $highlight />
+                        <CubeFace $transform="translateZ(-60px)" />
+                        <CubeFace $transform="rotateY(90deg) translateZ(60px)" />
+                        <CubeFace $transform="rotateY(-90deg) translateZ(60px)" />
+                        <CubeFace $transform="rotateX(90deg) translateZ(60px)" />
+                        <CubeFace $transform="rotateX(-90deg) translateZ(60px)" />
+                      </CubeWireframe>
+                      <SelectionDots>
+                        <SelectionCorner $x={-3} $y={-3} $z={65} />
+                        <SelectionCorner $x={123} $y={-3} $z={65} />
+                        <SelectionCorner $x={-3} $y={123} $z={65} />
+                        <SelectionCorner $x={123} $y={123} $z={65} />
+                      </SelectionDots>
 
-                    {/* Orientation gizmo */}
-                    <ViewportGizmo>
-                      <GizmoAxis $color="#f55" $rotation={0} />
-                      <GizmoAxis $color="#5f5" $rotation={90} />
-                      <GizmoAxis $color="#55f" $rotation={45} />
-                      <GizmoLabel $x={10} $y={8} $color="#f55">
-                        Y
-                      </GizmoLabel>
-                      <GizmoLabel $x={50} $y={40} $color="#5f5">
-                        X
-                      </GizmoLabel>
-                      <GizmoLabel $x={37} $y={14} $color="#55f">
-                        Z
-                      </GizmoLabel>
-                    </ViewportGizmo>
+                      {/* Orientation gizmo */}
+                      <ViewportGizmo>
+                        <GizmoAxis $color="#f55" $rotation={0} />
+                        <GizmoAxis $color="#5f5" $rotation={90} />
+                        <GizmoAxis $color="#55f" $rotation={45} />
+                        <GizmoLabel $x={10} $y={8} $color="#f55">
+                          Y
+                        </GizmoLabel>
+                        <GizmoLabel $x={50} $y={40} $color="#5f5">
+                          X
+                        </GizmoLabel>
+                        <GizmoLabel $x={37} $y={14} $color="#55f">
+                          Z
+                        </GizmoLabel>
+                      </ViewportGizmo>
 
-                    {/* Viewport mode selector */}
-                    <ViewportTopBar>
-                      <ViewportModeBtn
-                        $active={renderMode === 'wireframe'}
-                        onClick={() => setRenderMode('wireframe')}
-                      >
-                        Wireframe
-                      </ViewportModeBtn>
-                      <ViewportModeBtn
-                        $active={renderMode === 'solid'}
-                        onClick={() => setRenderMode('solid')}
-                      >
-                        Solid
-                      </ViewportModeBtn>
-                      <ViewportModeBtn
-                        $active={renderMode === 'material'}
-                        onClick={() => setRenderMode('material')}
-                      >
-                        Material
-                      </ViewportModeBtn>
-                      <ViewportModeBtn
-                        $active={renderMode === 'rendered'}
-                        onClick={() => setRenderMode('rendered')}
-                      >
-                        Rendered
-                      </ViewportModeBtn>
-                    </ViewportTopBar>
+                      {/* Viewport mode selector */}
+                      <ViewportTopBar>
+                        <ViewportModeBtn
+                          $active={renderMode === 'wireframe'}
+                          onClick={() => setRenderMode('wireframe')}
+                        >
+                          Wireframe
+                        </ViewportModeBtn>
+                        <ViewportModeBtn
+                          $active={renderMode === 'solid'}
+                          onClick={() => setRenderMode('solid')}
+                        >
+                          Solid
+                        </ViewportModeBtn>
+                        <ViewportModeBtn
+                          $active={renderMode === 'material'}
+                          onClick={() => setRenderMode('material')}
+                        >
+                          Material
+                        </ViewportModeBtn>
+                        <ViewportModeBtn
+                          $active={renderMode === 'rendered'}
+                          onClick={() => setRenderMode('rendered')}
+                        >
+                          Rendered
+                        </ViewportModeBtn>
+                      </ViewportTopBar>
 
-                    {/* Viewport info badges */}
-                    <ViewportOverlay>
-                      <ViewportBadge>
-                        Verts: 8 &middot; Faces: 6 &middot; Tris: 12
-                      </ViewportBadge>
-                      <ViewportBadge>Objects: 5 / 1 selected</ViewportBadge>
-                      <ViewportBadge>60.0 fps</ViewportBadge>
-                    </ViewportOverlay>
-                  </ViewportCanvas>
+                      {/* Viewport info badges */}
+                      <ViewportOverlay>
+                        <ViewportBadge>
+                          Verts: 8 &middot; Faces: 6 &middot; Tris: 12
+                        </ViewportBadge>
+                        <ViewportBadge>Objects: 5 / 1 selected</ViewportBadge>
+                        <ViewportBadge>60.0 fps</ViewportBadge>
+                      </ViewportOverlay>
+                    </ViewportCanvas>
                   </ContextMenu>
 
                   {/* Bottom panel: Console / Output / Timeline */}
                   <PanelSurface bordered={false} css={panelGradientCss}>
-                    <PanelSurface.Body padding={0} style={{ flex: 1, minHeight: 0 }}>
-                      <Tabs
-                      value={bottomTab}
-                      onChange={setBottomTab}
-                      variant="enclosed"
-                      size="sm"
+                    <PanelSurface.Body
+                      padding={0}
                       style={{ flex: 1, minHeight: 0 }}
                     >
-                      <TabList>
-                        <Tab value="console">Console</Tab>
-                        <Tab value="output">Output</Tab>
-                        <Tab value="timeline">Timeline</Tab>
-                      </TabList>
-                      <TabPanel value="console">
-                        <ScrollArea
-                          maxHeight="100%"
-                          scrollbarVisibility="hover"
-                          style={{ flex: 1 }}
-                        >
-                          <ConsoleEntry $type="info">
-                            <InfoIcon size="sm" />
-                            <TimeStamp>12:04:21</TimeStamp>
-                            <span>Scene loaded: 5 objects, 3 materials</span>
-                          </ConsoleEntry>
-                          <ConsoleEntry $type="success">
-                            <CheckIcon size="sm" />
-                            <TimeStamp>12:04:21</TimeStamp>
-                            <span>Shader compilation complete (245ms)</span>
-                          </ConsoleEntry>
-                          <ConsoleEntry $type="warn">
-                            <WarningIcon size="sm" />
-                            <TimeStamp>12:04:22</TimeStamp>
-                            <span>
-                              Texture &quot;brick_normal.png&quot; missing —
-                              using fallback
-                            </span>
-                          </ConsoleEntry>
-                          <ConsoleEntry $type="info">
-                            <InfoIcon size="sm" />
-                            <TimeStamp>12:04:23</TimeStamp>
-                            <span>
-                              Render engine: WebGPU (Hardware Accelerated)
-                            </span>
-                          </ConsoleEntry>
-                          <ConsoleEntry $type="info">
-                            <InfoIcon size="sm" />
-                            <TimeStamp>12:04:23</TimeStamp>
-                            <span>Viewport resolution: 1920 x 1080 @2x</span>
-                          </ConsoleEntry>
-                          <ConsoleEntry $type="success">
-                            <CheckIcon size="sm" />
-                            <TimeStamp>12:04:24</TimeStamp>
-                            <span>Auto-save: scene_v3_final.entangle</span>
-                          </ConsoleEntry>
-                        </ScrollArea>
-                      </TabPanel>
-                      <TabPanel value="output">
-                        <ScrollArea
-                          maxHeight="100%"
-                          scrollbarVisibility="hover"
-                          style={{ flex: 1 }}
-                        >
-                          <ConsoleEntry $type="info">
-                            <TimeStamp>12:04:21</TimeStamp>
-                            <span>Build output: dist/scene.gltf (2.4 MB)</span>
-                          </ConsoleEntry>
-                        </ScrollArea>
-                      </TabPanel>
-                      <TabPanel value="timeline">
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            height: '100%',
-                            color: '#555',
-                            fontSize: 11,
-                          }}
-                        >
-                          Timeline — Frame 1 / 250 &middot; 24 fps
-                        </div>
-                      </TabPanel>
+                      <Tabs
+                        value={bottomTab}
+                        onChange={setBottomTab}
+                        variant="enclosed"
+                        size="sm"
+                        style={{ flex: 1, minHeight: 0 }}
+                      >
+                        <TabList>
+                          <Tab value="console">Console</Tab>
+                          <Tab value="output">Output</Tab>
+                          <Tab value="timeline">Timeline</Tab>
+                        </TabList>
+                        <TabPanel value="console">
+                          <ScrollArea
+                            maxHeight="100%"
+                            scrollbarVisibility="hover"
+                            style={{ flex: 1 }}
+                          >
+                            <ConsoleEntry $type="info">
+                              <InfoIcon size="sm" />
+                              <TimeStamp>12:04:21</TimeStamp>
+                              <span>Scene loaded: 5 objects, 3 materials</span>
+                            </ConsoleEntry>
+                            <ConsoleEntry $type="success">
+                              <CheckIcon size="sm" />
+                              <TimeStamp>12:04:21</TimeStamp>
+                              <span>Shader compilation complete (245ms)</span>
+                            </ConsoleEntry>
+                            <ConsoleEntry $type="warn">
+                              <WarningIcon size="sm" />
+                              <TimeStamp>12:04:22</TimeStamp>
+                              <span>
+                                Texture &quot;brick_normal.png&quot; missing —
+                                using fallback
+                              </span>
+                            </ConsoleEntry>
+                            <ConsoleEntry $type="info">
+                              <InfoIcon size="sm" />
+                              <TimeStamp>12:04:23</TimeStamp>
+                              <span>
+                                Render engine: WebGPU (Hardware Accelerated)
+                              </span>
+                            </ConsoleEntry>
+                            <ConsoleEntry $type="info">
+                              <InfoIcon size="sm" />
+                              <TimeStamp>12:04:23</TimeStamp>
+                              <span>Viewport resolution: 1920 x 1080 @2x</span>
+                            </ConsoleEntry>
+                            <ConsoleEntry $type="success">
+                              <CheckIcon size="sm" />
+                              <TimeStamp>12:04:24</TimeStamp>
+                              <span>Auto-save: scene_v3_final.entangle</span>
+                            </ConsoleEntry>
+                          </ScrollArea>
+                        </TabPanel>
+                        <TabPanel value="output">
+                          <ScrollArea
+                            maxHeight="100%"
+                            scrollbarVisibility="hover"
+                            style={{ flex: 1 }}
+                          >
+                            <ConsoleEntry $type="info">
+                              <TimeStamp>12:04:21</TimeStamp>
+                              <span>
+                                Build output: dist/scene.gltf (2.4 MB)
+                              </span>
+                            </ConsoleEntry>
+                          </ScrollArea>
+                        </TabPanel>
+                        <TabPanel value="timeline">
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              height: '100%',
+                              color: '#555',
+                              fontSize: 11,
+                            }}
+                          >
+                            Timeline — Frame 1 / 250 &middot; 24 fps
+                          </div>
+                        </TabPanel>
                       </Tabs>
                     </PanelSurface.Body>
                   </PanelSurface>

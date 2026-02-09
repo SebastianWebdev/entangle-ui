@@ -323,9 +323,8 @@ const ToolbarRoot: React.FC<ToolbarProps> = ({
       if (typeof externalRef === 'function') {
         externalRef(node);
       } else if (externalRef && typeof externalRef === 'object') {
-        (
-          externalRef as React.MutableRefObject<HTMLDivElement | null>
-        ).current = node;
+        (externalRef as React.MutableRefObject<HTMLDivElement | null>).current =
+          node;
       }
     },
     [externalRef]

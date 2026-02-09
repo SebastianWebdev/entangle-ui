@@ -44,13 +44,12 @@ export const Default: Story = {
 export const GradientBackground: Story = {
   render: () => (
     <div style={{ width: 320, height: 260 }}>
-      <PanelSurface
-        background="linear-gradient(180deg, #2d3444 0%, #1b212d 100%)"
-      >
+      <PanelSurface background="linear-gradient(180deg, #2d3444 0%, #1b212d 100%)">
         <PanelSurface.Header>Gradient Panel</PanelSurface.Header>
         <PanelSurface.Body padding={10}>
           <Text size="xs" color="secondary">
-            PanelSurface supports gradient backgrounds via the `background` prop.
+            PanelSurface supports gradient backgrounds via the `background`
+            prop.
           </Text>
         </PanelSurface.Body>
       </PanelSurface>

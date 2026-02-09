@@ -17,7 +17,8 @@ export type StatusBarProps = Prettify<StatusBarBaseProps>;
 
 export type StatusBarSectionSide = 'left' | 'right';
 
-export interface StatusBarSectionBaseProps extends BaseComponent<HTMLDivElement> {
+export interface StatusBarSectionBaseProps
+  extends BaseComponent<HTMLDivElement> {
   /** Which side of the status bar */
   $side?: StatusBarSectionSide;
   /** Children (StatusBar.Item components) */

@@ -82,9 +82,7 @@ export interface UseContextMenuTargetResult<TPayload = unknown> {
   /**
    * Attach this to an element if you want to capture context manually.
    */
-  onContextMenuCapture: (
-    event: React.MouseEvent<HTMLElement>
-  ) => void;
+  onContextMenuCapture: (event: React.MouseEvent<HTMLElement>) => void;
 
   /**
    * Callback ref that captures native right-click interactions on a node.
@@ -92,4 +90,3 @@ export interface UseContextMenuTargetResult<TPayload = unknown> {
    */
   targetRef: (node: HTMLElement | null) => void;
 }
-
