@@ -14,7 +14,7 @@ const sizeConfig: Record<
     rowHeight: number;
     chevronSize: number;
     iconSize: number;
-    fontSizeKey: 'xs' | 'sm' | 'md';
+    fontSizeKey: 'xs' | 'sm' | 'md' | 'lg';
     defaultIndent: number;
   }
 > = {
