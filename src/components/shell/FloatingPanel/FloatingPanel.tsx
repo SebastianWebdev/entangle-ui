@@ -9,6 +9,7 @@ import React, {
   useMemo,
 } from 'react';
 import styled from '@emotion/styled';
+import { ScrollArea } from '@/components/layout/ScrollArea';
 import type {
   FloatingPanelProps,
   FloatingManagerProps,
@@ -139,9 +140,8 @@ const StyledHeaderButton = styled.span`
   }
 `;
 
-const StyledBody = styled.div<{ $collapsed: boolean }>`
-  overflow: auto;
-  ${({ $collapsed }) => ($collapsed ? 'max-height: 0; overflow: hidden;' : '')}
+const StyledCollapsible = styled.div<{ $collapsed: boolean }>`
+  ${({ $collapsed }) => ($collapsed ? 'display: none;' : 'display: flex; flex: 1; min-height: 0;')}
 `;
 
 const StyledResizeHandle = styled.div`
@@ -319,6 +319,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
         left: pos.x,
         top: pos.y,
         width: currentSize.width,
+        height: isCollapsed ? 'auto' : currentSize.height,
         zIndex,
       }}
     >
@@ -345,7 +346,11 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
           )}
         </StyledHeaderActions>
       </StyledHeader>
-      <StyledBody $collapsed={isCollapsed}>{children}</StyledBody>
+      <StyledCollapsible $collapsed={isCollapsed}>
+        <ScrollArea direction="both" scrollbarVisibility="auto" scrollbarWidth={5}>
+          {children}
+        </ScrollArea>
+      </StyledCollapsible>
       {resizable && !isCollapsed && (
         <StyledResizeHandle
           onPointerDown={handleResizeStart}

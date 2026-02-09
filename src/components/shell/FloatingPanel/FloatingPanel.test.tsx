@@ -1,7 +1,19 @@
 import { screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { beforeAll, describe, it, expect, vi } from 'vitest';
 import { renderWithTheme } from '@/tests/testUtils';
 import { FloatingPanel, FloatingManager } from './FloatingPanel';
+
+// Mock ResizeObserver (not available in jsdom, needed by ScrollArea)
+class MockResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+beforeAll(() => {
+  globalThis.ResizeObserver =
+    MockResizeObserver as unknown as typeof ResizeObserver;
+});
 
 describe('FloatingPanel', () => {
   describe('Rendering', () => {
