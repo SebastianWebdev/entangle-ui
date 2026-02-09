@@ -6,6 +6,7 @@ import React, {
   useRef,
   useEffect,
   useId,
+  useMemo,
 } from 'react';
 import styled from '@emotion/styled';
 import type {
@@ -28,24 +29,25 @@ export const FloatingManager: React.FC<FloatingManagerProps> = ({
   children,
 }) => {
   const stackRef = useRef<string[]>([]);
-  const [, forceUpdate] = useState(0);
+  const [revision, setRevision] = useState(0);
 
   const register = useCallback((id: string) => {
     if (!stackRef.current.includes(id)) {
       stackRef.current = [...stackRef.current, id];
-      forceUpdate(c => c + 1);
+      setRevision(c => c + 1);
     }
   }, []);
 
   const unregister = useCallback((id: string) => {
     stackRef.current = stackRef.current.filter(s => s !== id);
-    forceUpdate(c => c + 1);
+    setRevision(c => c + 1);
   }, []);
 
   const bringToFront = useCallback((id: string) => {
-    const filtered = stackRef.current.filter(s => s !== id);
-    stackRef.current = [...filtered, id];
-    forceUpdate(c => c + 1);
+    const stack = stackRef.current;
+    if (stack[stack.length - 1] === id) return; // already on top
+    stackRef.current = [...stack.filter(s => s !== id), id];
+    setRevision(c => c + 1);
   }, []);
 
   const getZIndex = useCallback(
@@ -56,10 +58,13 @@ export const FloatingManager: React.FC<FloatingManagerProps> = ({
     [baseZIndex]
   );
 
+  const contextValue = useMemo<FloatingManagerContextValue>(
+    () => ({ bringToFront, getZIndex, register, unregister }),
+    [revision, bringToFront, getZIndex, register, unregister]
+  );
+
   return (
-    <FloatingManagerContext.Provider
-      value={{ bringToFront, getZIndex, register, unregister }}
-    >
+    <FloatingManagerContext.Provider value={contextValue}>
       {children}
     </FloatingManagerContext.Provider>
   );
@@ -136,9 +141,7 @@ const StyledHeaderButton = styled.span`
 
 const StyledBody = styled.div<{ $collapsed: boolean }>`
   overflow: auto;
-  transition: max-height ${({ theme }) => theme.transitions.normal};
-  ${({ $collapsed }) =>
-    $collapsed ? 'max-height: 0; overflow: hidden;' : 'max-height: 9999px;'}
+  ${({ $collapsed }) => ($collapsed ? 'max-height: 0; overflow: hidden;' : '')}
 `;
 
 const StyledResizeHandle = styled.div`
@@ -202,7 +205,8 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   );
 
   // Size state
-  const [internalSize, setInternalSize] = useState<FloatingPanelSize>(defaultSize);
+  const [internalSize, setInternalSize] =
+    useState<FloatingPanelSize>(defaultSize);
   const currentSize = controlledSize ?? internalSize;
   const setSize = useCallback(
     (s: FloatingPanelSize) => {
@@ -221,15 +225,18 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
     onCollapsedChange?.(next);
   }, [isCollapsed, controlledCollapsed, onCollapsedChange]);
 
-  // FloatingManager registration
-  useEffect(() => {
-    manager?.register(id);
-    return () => manager?.unregister(id);
-  }, [id, manager]);
+  // FloatingManager registration — use stable id, run once
+  const managerRef = useRef(manager);
+  managerRef.current = manager;
 
-  const handleFocus = useCallback(() => {
-    manager?.bringToFront(id);
-  }, [id, manager]);
+  useEffect(() => {
+    managerRef.current?.register(id);
+    return () => managerRef.current?.unregister(id);
+  }, [id]);
+
+  const handleBringToFront = useCallback(() => {
+    managerRef.current?.bringToFront(id);
+  }, [id]);
 
   const zIndex = manager?.getZIndex(id) ?? 100;
 
@@ -251,7 +258,6 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
       const handleDragMove = (me: PointerEvent) => {
         const newX = me.clientX - dragOffsetRef.current.x;
         const newY = me.clientY - dragOffsetRef.current.y;
-        // Constrain to viewport
         const clampedX = Math.max(0, Math.min(newX, window.innerWidth - 50));
         const clampedY = Math.max(0, Math.min(newY, window.innerHeight - 30));
         setPos({ x: clampedX, y: clampedY });
@@ -308,8 +314,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
       aria-modal="false"
       aria-label={title}
       tabIndex={-1}
-      onFocus={handleFocus}
-      onPointerDown={handleFocus}
+      onPointerDown={handleBringToFront}
       style={{
         left: pos.x,
         top: pos.y,
