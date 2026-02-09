@@ -128,6 +128,13 @@ export const mockTheme: Theme = {
       dropOverlay: 'rgba(0, 122, 204, 0.2)',
     },
   },
+  storybook: {
+    canvas: {
+      gradientStart: '#061f21',
+      gradientMid: '#031a1a',
+      gradientEnd: '#091010',
+    },
+  },
 } as const;
 
 /**
@@ -244,6 +251,14 @@ export const createTestTheme = (overrides: Partial<Theme> = {}): Theme => {
       accent: {
         ...mockTheme.colors.accent,
         ...overrides.colors?.accent,
+      },
+    },
+    storybook: {
+      ...mockTheme.storybook,
+      ...overrides.storybook,
+      canvas: {
+        ...mockTheme.storybook.canvas,
+        ...overrides.storybook?.canvas,
       },
     },
   };

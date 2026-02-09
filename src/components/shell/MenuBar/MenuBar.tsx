@@ -7,8 +7,10 @@ import React, {
   useEffect,
   useId,
   KeyboardEvent,
+  useMemo,
 } from 'react';
 import styled from '@emotion/styled';
+import { processCss } from '@/utils/styledUtils';
 import type {
   MenuBarProps,
   MenuBarMenuProps,
@@ -35,7 +37,10 @@ const useMenuBar = () => useContext(MenuBarContext);
 
 // --- Styled Components ---
 
-const StyledMenuBar = styled.div<{ $size: MenuBarSize }>`
+const StyledMenuBar = styled.div<{
+  $size: MenuBarSize;
+  $css?: MenuBarProps['css'];
+}>`
   display: flex;
   align-items: center;
   height: ${({ $size, theme }) =>
@@ -47,6 +52,15 @@ const StyledMenuBar = styled.div<{ $size: MenuBarSize }>`
   padding: 0 ${({ theme }) => theme.spacing.sm}px;
   user-select: none;
   flex-shrink: 0;
+
+  ${({ $css, theme }) => processCss($css, theme)}
+`;
+
+const StyledMenuContainer = styled.div<{ $css?: MenuBarMenuProps['css'] }>`
+  position: relative;
+  height: 100%;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 const StyledTrigger = styled.button<{ $active: boolean }>`
@@ -92,7 +106,9 @@ const StyledDropdown = styled.div`
   z-index: 1000;
 `;
 
-const StyledItem = styled.button`
+const StyledItem = styled.button<{
+  $css?: MenuBarItemProps['css'];
+}>`
   display: flex;
   align-items: center;
   width: 100%;
@@ -122,6 +138,8 @@ const StyledItem = styled.button`
     opacity: 0.4;
     cursor: default;
   }
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 const StyledShortcut = styled.span`
@@ -130,10 +148,12 @@ const StyledShortcut = styled.span`
   font-size: ${({ theme }) => theme.typography.fontSize.xs}px;
 `;
 
-const StyledSeparator = styled.div`
+const StyledSeparator = styled.div<{ $css?: MenuBarSeparatorProps['css'] }>`
   height: 1px;
   margin: ${({ theme }) => theme.spacing.xs}px 0;
   background: ${({ theme }) => theme.colors.border.default};
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 const StyledSubTrigger = styled(StyledItem)`
@@ -153,6 +173,12 @@ const StyledSubDropdown = styled.div`
   z-index: 1001;
 `;
 
+const StyledSubContainer = styled.div<{ $css?: MenuBarSubProps['css'] }>`
+  position: relative;
+
+  ${({ $css, theme }) => processCss($css, theme)}
+`;
+
 const ChevronRight = () => (
   <span style={{ fontSize: '8px', lineHeight: 1 }}>&#x25B6;</span>
 );
@@ -166,6 +192,11 @@ const MenuBarItem: React.FC<MenuBarItemProps> = ({
   icon,
   children,
   className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
 }) => {
   const { setOpenMenuId } = useMenuBar();
 
@@ -182,8 +213,13 @@ const MenuBarItem: React.FC<MenuBarItemProps> = ({
       onClick={handleClick}
       disabled={disabled}
       className={className}
+      style={style}
+      data-testid={testId}
+      $css={css}
+      ref={ref}
       type="button"
       tabIndex={-1}
+      {...rest}
     >
       {icon && <span>{icon}</span>}
       <span>{children}</span>
@@ -199,6 +235,11 @@ const MenuBarSub: React.FC<MenuBarSubProps> = ({
   children,
   disabled = false,
   className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
 }) => {
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -222,32 +263,54 @@ const MenuBarSub: React.FC<MenuBarSubProps> = ({
   }, []);
 
   return (
-    <div
-      style={{ position: 'relative' }}
+    <StyledSubContainer
+      ref={ref}
+      className={className}
+      style={style}
+      data-testid={testId}
+      $css={css}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
+      {...rest}
     >
       <StyledSubTrigger
         role="menuitem"
         aria-haspopup="true"
         aria-expanded={open}
         disabled={disabled}
-        className={className}
         type="button"
         tabIndex={-1}
+        $css={css}
       >
         <span>{label}</span>
         <ChevronRight />
       </StyledSubTrigger>
       {open && <StyledSubDropdown role="menu">{children}</StyledSubDropdown>}
-    </div>
+    </StyledSubContainer>
   );
 };
 
 MenuBarSub.displayName = 'MenuBar.Sub';
 
-const MenuBarSeparator: React.FC<MenuBarSeparatorProps> = ({ className }) => {
-  return <StyledSeparator role="separator" className={className} />;
+const MenuBarSeparator: React.FC<MenuBarSeparatorProps> = ({
+  className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
+}) => {
+  return (
+    <StyledSeparator
+      role="separator"
+      className={className}
+      style={style}
+      data-testid={testId}
+      $css={css}
+      ref={ref}
+      {...rest}
+    />
+  );
 };
 
 MenuBarSeparator.displayName = 'MenuBar.Separator';
@@ -259,6 +322,11 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
   children,
   disabled = false,
   className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
 }) => {
   const menuId = useId();
   const {
@@ -357,7 +425,14 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
   }, [isOpen, setOpenMenuId]);
 
   return (
-    <div style={{ position: 'relative', height: '100%' }}>
+    <StyledMenuContainer
+      ref={ref}
+      className={className}
+      style={style}
+      data-testid={testId}
+      $css={css}
+      {...rest}
+    >
       <StyledTrigger
         ref={triggerRef}
         $active={isOpen}
@@ -365,7 +440,6 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
         onMouseEnter={handleMouseEnter}
         onKeyDown={handleKeyDown}
         disabled={disabled}
-        className={className}
         type="button"
         role="menuitem"
         aria-haspopup="true"
@@ -385,7 +459,7 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
           {children}
         </StyledDropdown>
       )}
-    </div>
+    </StyledMenuContainer>
   );
 };
 
@@ -398,12 +472,29 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
   menuOffset = 2,
   children,
   className,
+  style,
+  testId,
+  css,
+  ref: externalRef,
+  ...rest
 }) => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuIdsRef = useRef<string[]>([]);
   const safeMenuOffset = Math.max(0, menuOffset);
   const [, forceUpdate] = useState(0);
   const barRef = useRef<HTMLDivElement>(null);
+  const setBarRef = useMemo(
+    () => (node: HTMLDivElement | null) => {
+      barRef.current = node;
+      if (typeof externalRef === 'function') {
+        externalRef(node);
+      } else if (externalRef && typeof externalRef === 'object') {
+        (externalRef as React.MutableRefObject<HTMLDivElement | null>).current =
+          node;
+      }
+    },
+    [externalRef]
+  );
 
   const registerMenu = useCallback((id: string) => {
     if (!menuIdsRef.current.includes(id)) {
@@ -465,12 +556,16 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
       }}
     >
       <StyledMenuBar
-        ref={barRef}
+        ref={setBarRef}
         $size={$size}
         className={className}
+        style={style}
+        data-testid={testId}
+        $css={css}
         role="menubar"
         onKeyDown={handleBarKeyDown}
         tabIndex={0}
+        {...rest}
       >
         {children}
       </StyledMenuBar>

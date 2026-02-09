@@ -28,7 +28,13 @@ Peer dependencies:
 
 ```tsx
 import React from 'react';
-import { ThemeProvider, AppShell, MenuBar, Toolbar, StatusBar } from 'entangle-ui';
+import {
+  ThemeProvider,
+  AppShell,
+  MenuBar,
+  Toolbar,
+  StatusBar,
+} from 'entangle-ui';
 
 export function App() {
   return (

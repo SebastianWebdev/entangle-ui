@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import styled from '@emotion/styled';
+import { processCss } from '@/utils/styledUtils';
 import type {
   StatusBarProps,
   StatusBarSectionProps,
@@ -19,6 +20,7 @@ const useStatusBar = () => useContext(StatusBarContext);
 const StyledStatusBar = styled.div<{
   $variant: StatusBarVariant;
   $size: StatusBarSize;
+  $css?: StatusBarProps['css'];
 }>`
   display: flex;
   box-sizing: border-box;
@@ -44,9 +46,14 @@ const StyledStatusBar = styled.div<{
   overflow: hidden;
   flex-shrink: 0;
   user-select: none;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
-const StyledSection = styled.div<{ $side: StatusBarSectionSide }>`
+const StyledSection = styled.div<{
+  $side: StatusBarSectionSide;
+  $css?: StatusBarSectionProps['css'];
+}>`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm}px;
@@ -54,6 +61,8 @@ const StyledSection = styled.div<{ $side: StatusBarSectionSide }>`
   justify-content: ${({ $side }) =>
     $side === 'left' ? 'flex-start' : 'flex-end'};
   overflow: hidden;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 const itemStyles = `
@@ -73,7 +82,7 @@ const itemStyles = `
   position: relative;
 `;
 
-const StyledItemButton = styled.button`
+const StyledItemButton = styled.button<{ $css?: StatusBarItemProps['css'] }>`
   ${itemStyles}
   cursor: pointer;
   border-radius: ${({ theme }) => theme.borderRadius.sm}px;
@@ -94,10 +103,14 @@ const StyledItemButton = styled.button`
       background: transparent;
     }
   }
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
-const StyledItemSpan = styled.span`
+const StyledItemSpan = styled.span<{ $css?: StatusBarItemProps['css'] }>`
   ${itemStyles}
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 const StyledBadge = styled.span<{ $dot: boolean }>`
@@ -121,9 +134,22 @@ const StatusBarSection: React.FC<StatusBarSectionProps> = ({
   $side = 'left',
   children,
   className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
 }) => {
   return (
-    <StyledSection $side={$side} className={className}>
+    <StyledSection
+      ref={ref}
+      $side={$side}
+      className={className}
+      style={style}
+      data-testid={testId}
+      $css={css}
+      {...rest}
+    >
       {children}
     </StyledSection>
   );
@@ -139,6 +165,11 @@ const StatusBarItem: React.FC<StatusBarItemProps> = ({
   badge,
   disabled = false,
   className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
 }) => {
   useStatusBar();
 
@@ -161,7 +192,12 @@ const StatusBarItem: React.FC<StatusBarItemProps> = ({
         title={title}
         disabled={disabled}
         className={className}
+        style={style}
+        data-testid={testId}
+        $css={css}
+        ref={ref as React.Ref<HTMLButtonElement>}
         type="button"
+        {...rest}
       >
         {content}
       </StyledItemButton>
@@ -169,7 +205,15 @@ const StatusBarItem: React.FC<StatusBarItemProps> = ({
   }
 
   return (
-    <StyledItemSpan title={title} className={className}>
+    <StyledItemSpan
+      title={title}
+      className={className}
+      style={style}
+      data-testid={testId}
+      $css={css}
+      ref={ref as React.Ref<HTMLSpanElement>}
+      {...rest}
+    >
       {content}
     </StyledItemSpan>
   );
@@ -184,15 +228,25 @@ const StatusBarRoot: React.FC<StatusBarProps> = ({
   $variant = 'default',
   children,
   className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
 }) => {
   return (
     <StatusBarContext.Provider value={{ size: $size }}>
       <StyledStatusBar
+        ref={ref}
         $variant={$variant}
         $size={$size}
         className={className}
+        style={style}
+        data-testid={testId}
+        $css={css}
         role="status"
         aria-live="polite"
+        {...rest}
       >
         {children}
       </StyledStatusBar>

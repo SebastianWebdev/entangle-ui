@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import type { BaseComponent } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 export interface Position {
   x: number;
@@ -10,7 +12,8 @@ export interface FloatingPanelSize {
   height: number;
 }
 
-export interface FloatingPanelProps {
+export interface FloatingPanelBaseProps
+  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
   /** Panel title displayed in the header */
   title: string;
   /** Controlled position */
@@ -47,11 +50,10 @@ export interface FloatingPanelProps {
   resizable?: boolean;
   /** Panel content */
   children?: ReactNode;
-  /** Additional CSS class */
-  className?: string;
   /** Unique panel ID for FloatingManager z-index tracking */
   panelId?: string;
 }
+export type FloatingPanelProps = Prettify<FloatingPanelBaseProps>;
 
 export interface FloatingManagerContextValue {
   /** Bring a panel to the front */

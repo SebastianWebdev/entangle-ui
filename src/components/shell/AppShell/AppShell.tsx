@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import styled from '@emotion/styled';
 import { Global, css, useTheme } from '@emotion/react';
+import { processCss } from '@/utils/styledUtils';
 import type {
   AppShellProps,
   AppShellSlotProps,
@@ -24,7 +25,11 @@ export const useAppShell = () => useContext(AppShellContext);
 
 // --- Styled Components ---
 
-const StyledAppShell = styled.div`
+interface StyledAppShellProps {
+  $css?: AppShellProps['css'];
+}
+
+const StyledAppShell = styled.div<StyledAppShellProps>`
   display: grid;
   grid-template-rows: auto auto 1fr auto;
   grid-template-columns: auto 1fr auto;
@@ -39,14 +44,23 @@ const StyledAppShell = styled.div`
   background: ${({ theme }) => theme.colors.background.primary};
   color: ${({ theme }) => theme.colors.text.primary};
   font-family: ${({ theme }) => theme.typography.fontFamily.sans};
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
-const StyledMenuBarSlot = styled.header`
+interface StyledSlotProps {
+  $css?: AppShellSlotProps['css'];
+}
+
+const StyledMenuBarSlot = styled.header<StyledSlotProps>`
   grid-area: menubar;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 const StyledToolbarTopSlot = styled.div<{
   $topChromeSeparator: AppShellTopChromeSeparator;
+  $css?: AppShellToolbarSlotProps['css'];
 }>`
   grid-area: toolbar-top;
   border-bottom: ${({ $topChromeSeparator, theme }) =>
@@ -58,10 +72,13 @@ const StyledToolbarTopSlot = styled.div<{
       ? '0 1px 2px rgba(0, 0, 0, 0.18)'
       : 'none'};
   z-index: 1;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 const StyledToolbarLeftSlot = styled.aside<{
   $sideChromeSeparator: AppShellSideChromeSeparator;
+  $css?: AppShellToolbarSlotProps['css'];
 }>`
   grid-area: toolbar-left;
   min-width: 0;
@@ -76,10 +93,13 @@ const StyledToolbarLeftSlot = styled.aside<{
       ? '1px 0 2px rgba(0, 0, 0, 0.18)'
       : 'none'};
   z-index: 1;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 const StyledToolbarRightSlot = styled.aside<{
   $sideChromeSeparator: AppShellSideChromeSeparator;
+  $css?: AppShellToolbarSlotProps['css'];
 }>`
   grid-area: toolbar-right;
   min-width: 0;
@@ -94,31 +114,59 @@ const StyledToolbarRightSlot = styled.aside<{
       ? '-1px 0 2px rgba(0, 0, 0, 0.18)'
       : 'none'};
   z-index: 1;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
-const StyledDockSlot = styled.main`
+const StyledDockSlot = styled.main<StyledSlotProps>`
   grid-area: dock;
   position: relative;
   overflow: hidden;
   min-width: 0;
   min-height: 0;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
-const StyledStatusBarSlot = styled.footer`
+const StyledStatusBarSlot = styled.footer<StyledSlotProps>`
   grid-area: statusbar;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 // --- Slot Components ---
 
-const MenuBarSlot: React.FC<AppShellSlotProps> = ({ children, className }) => (
-  <StyledMenuBarSlot className={className}>{children}</StyledMenuBarSlot>
+const MenuBarSlot: React.FC<AppShellSlotProps> = ({
+  children,
+  className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
+}) => (
+  <StyledMenuBarSlot
+    ref={ref as React.Ref<HTMLElement>}
+    className={className}
+    style={style}
+    data-testid={testId}
+    $css={css}
+    {...rest}
+  >
+    {children}
+  </StyledMenuBarSlot>
 );
 MenuBarSlot.displayName = 'AppShell.MenuBar';
 
 const ToolbarSlot: React.FC<AppShellToolbarSlotProps> = ({
   children,
   className,
+  style,
+  testId,
+  css,
+  ref,
   position = 'top',
+  ...rest
 }) => {
   const { isToolbarVisible, topChromeSeparator, sideChromeSeparator } =
     useAppShell();
@@ -128,8 +176,13 @@ const ToolbarSlot: React.FC<AppShellToolbarSlotProps> = ({
     case 'left':
       return (
         <StyledToolbarLeftSlot
+          ref={ref as React.Ref<HTMLElement>}
           className={className}
+          style={style}
+          data-testid={testId}
           $sideChromeSeparator={sideChromeSeparator}
+          $css={css}
+          {...rest}
         >
           {children}
         </StyledToolbarLeftSlot>
@@ -137,8 +190,13 @@ const ToolbarSlot: React.FC<AppShellToolbarSlotProps> = ({
     case 'right':
       return (
         <StyledToolbarRightSlot
+          ref={ref as React.Ref<HTMLElement>}
           className={className}
+          style={style}
+          data-testid={testId}
           $sideChromeSeparator={sideChromeSeparator}
+          $css={css}
+          {...rest}
         >
           {children}
         </StyledToolbarRightSlot>
@@ -146,8 +204,13 @@ const ToolbarSlot: React.FC<AppShellToolbarSlotProps> = ({
     default:
       return (
         <StyledToolbarTopSlot
+          ref={ref as React.Ref<HTMLDivElement>}
           className={className}
+          style={style}
+          data-testid={testId}
           $topChromeSeparator={topChromeSeparator}
+          $css={css}
+          {...rest}
         >
           {children}
         </StyledToolbarTopSlot>
@@ -156,16 +219,47 @@ const ToolbarSlot: React.FC<AppShellToolbarSlotProps> = ({
 };
 ToolbarSlot.displayName = 'AppShell.Toolbar';
 
-const DockSlot: React.FC<AppShellSlotProps> = ({ children, className }) => (
-  <StyledDockSlot className={className}>{children}</StyledDockSlot>
+const DockSlot: React.FC<AppShellSlotProps> = ({
+  children,
+  className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
+}) => (
+  <StyledDockSlot
+    ref={ref as React.Ref<HTMLElement>}
+    className={className}
+    style={style}
+    data-testid={testId}
+    $css={css}
+    {...rest}
+  >
+    {children}
+  </StyledDockSlot>
 );
 DockSlot.displayName = 'AppShell.Dock';
 
 const StatusBarSlot: React.FC<AppShellSlotProps> = ({
   children,
   className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
 }) => (
-  <StyledStatusBarSlot className={className}>{children}</StyledStatusBarSlot>
+  <StyledStatusBarSlot
+    ref={ref as React.Ref<HTMLElement>}
+    className={className}
+    style={style}
+    data-testid={testId}
+    $css={css}
+    {...rest}
+  >
+    {children}
+  </StyledStatusBarSlot>
 );
 StatusBarSlot.displayName = 'AppShell.StatusBar';
 
@@ -198,6 +292,11 @@ const AppShellRoot: React.FC<AppShellProps> = ({
   sideChromeSeparator = 'border',
   children,
   className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
 }) => {
   const [toolbarVisibility, setToolbarVisibility] = useState<
     Record<ToolbarPosition, boolean>
@@ -229,7 +328,15 @@ const AppShellRoot: React.FC<AppShellProps> = ({
       }}
     >
       {viewportLock && <ViewportLockStyles />}
-      <StyledAppShell className={className} role="application">
+      <StyledAppShell
+        ref={ref}
+        className={className}
+        style={style}
+        data-testid={testId}
+        $css={css}
+        role="application"
+        {...rest}
+      >
         {children}
       </StyledAppShell>
     </AppShellContext.Provider>

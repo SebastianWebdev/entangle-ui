@@ -116,6 +116,13 @@ export const tokens = {
       dropOverlay: 'rgba(0, 122, 204, 0.2)', // colors.accent.primary with alpha
     },
   },
+  storybook: {
+    canvas: {
+      gradientStart: '#061f21',
+      gradientMid: '#031a1a',
+      gradientEnd: '#091010',
+    },
+  },
 } as const;
 
 export type Tokens = typeof tokens;

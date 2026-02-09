@@ -1,10 +1,13 @@
 import type { ReactNode } from 'react';
+import type { BaseComponent } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 export type ToolbarPosition = 'top' | 'left' | 'right';
 export type AppShellTopChromeSeparator = 'none' | 'border' | 'shadow' | 'both';
 export type AppShellSideChromeSeparator = 'none' | 'border' | 'shadow' | 'both';
 
-export interface AppShellProps {
+export interface AppShellBaseProps
+  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
   /** Lock the shell to the viewport (injects global html/body styles) */
   viewportLock?: boolean;
   /**
@@ -21,21 +24,21 @@ export interface AppShellProps {
   sideChromeSeparator?: AppShellSideChromeSeparator;
   /** Children (AppShell slot components) */
   children?: ReactNode;
-  /** Additional CSS class */
-  className?: string;
 }
+export type AppShellProps = Prettify<AppShellBaseProps>;
 
-export interface AppShellSlotProps {
+export interface AppShellSlotBaseProps
+  extends Omit<BaseComponent<HTMLElement>, 'children'> {
   /** Slot content */
   children?: ReactNode;
-  /** Additional CSS class */
-  className?: string;
 }
+export type AppShellSlotProps = Prettify<AppShellSlotBaseProps>;
 
-export interface AppShellToolbarSlotProps extends AppShellSlotProps {
+export interface AppShellToolbarSlotBaseProps extends AppShellSlotBaseProps {
   /** Toolbar position */
   position?: ToolbarPosition;
 }
+export type AppShellToolbarSlotProps = Prettify<AppShellToolbarSlotBaseProps>;
 
 export interface AppShellContextValue {
   /** Check if a toolbar position is visible */

@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react';
+import type { BaseComponent } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 export type ToolbarOrientation = 'horizontal' | 'vertical';
 export type ToolbarSize = 'sm' | 'md';
 export type ToolbarButtonVariant = 'default' | 'ghost' | 'filled';
 
-export interface ToolbarProps {
+export interface ToolbarBaseProps extends BaseComponent<HTMLDivElement> {
   /** Orientation of the toolbar */
   $orientation?: ToolbarOrientation;
   /** Size of toolbar items */
@@ -13,11 +15,11 @@ export interface ToolbarProps {
   children?: ReactNode;
   /** ARIA label for the toolbar */
   'aria-label'?: string;
-  /** Additional CSS class */
-  className?: string;
 }
+export type ToolbarProps = Prettify<ToolbarBaseProps>;
 
-export interface ToolbarButtonProps {
+export interface ToolbarButtonBaseProps
+  extends Omit<BaseComponent<HTMLButtonElement>, 'onClick'> {
   /** Click handler */
   onClick?: () => void;
   /** Icon to display */
@@ -30,11 +32,10 @@ export interface ToolbarButtonProps {
   $variant?: ToolbarButtonVariant;
   /** Disabled state */
   disabled?: boolean;
-  /** Additional CSS class */
-  className?: string;
 }
+export type ToolbarButtonProps = Prettify<ToolbarButtonBaseProps>;
 
-export interface ToolbarToggleProps {
+export interface ToolbarToggleBaseProps extends BaseComponent<HTMLButtonElement> {
   /** Whether the toggle is pressed */
   pressed: boolean;
   /** Called when the pressed state changes */
@@ -47,28 +48,20 @@ export interface ToolbarToggleProps {
   tooltip?: string;
   /** Disabled state */
   disabled?: boolean;
-  /** Additional CSS class */
-  className?: string;
 }
+export type ToolbarToggleProps = Prettify<ToolbarToggleBaseProps>;
 
-export interface ToolbarGroupProps {
+export interface ToolbarGroupBaseProps extends BaseComponent<HTMLDivElement> {
   /** Group label for accessibility */
   'aria-label'?: string;
   /** Children (Toolbar.Button, Toolbar.Toggle) */
   children?: ReactNode;
-  /** Additional CSS class */
-  className?: string;
 }
+export type ToolbarGroupProps = Prettify<ToolbarGroupBaseProps>;
 
-export interface ToolbarSeparatorProps {
-  /** Additional CSS class */
-  className?: string;
-}
+export type ToolbarSeparatorProps = Prettify<BaseComponent<HTMLDivElement>>;
 
-export interface ToolbarSpacerProps {
-  /** Additional CSS class */
-  className?: string;
-}
+export type ToolbarSpacerProps = Prettify<BaseComponent<HTMLDivElement>>;
 
 export interface ToolbarContextValue {
   orientation: ToolbarOrientation;

@@ -3,9 +3,11 @@ import React, {
   useContext,
   useRef,
   useCallback,
+  useMemo,
   KeyboardEvent,
 } from 'react';
 import styled from '@emotion/styled';
+import { processCss } from '@/utils/styledUtils';
 import type {
   ToolbarProps,
   ToolbarButtonProps,
@@ -30,6 +32,7 @@ const useToolbar = () => useContext(ToolbarContext);
 const StyledToolbar = styled.div<{
   $orientation: ToolbarOrientation;
   $size: ToolbarSize;
+  $css?: ToolbarProps['css'];
 }>`
   display: flex;
   box-sizing: border-box;
@@ -44,6 +47,8 @@ const StyledToolbar = styled.div<{
   gap: ${({ theme }) => theme.spacing.xs}px;
   flex-shrink: 0;
   user-select: none;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 const itemSize = (size: ToolbarSize) => (size === 'sm' ? 24 : 32);
@@ -52,6 +57,7 @@ const StyledButton = styled.button<{
   $variant: string;
   $active?: boolean;
   $size: ToolbarSize;
+  $css?: ToolbarButtonProps['css'];
 }>`
   display: inline-flex;
   align-items: center;
@@ -86,27 +92,41 @@ const StyledButton = styled.button<{
     opacity: 0.4;
     cursor: default;
   }
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
-const StyledGroup = styled.div<{ $orientation: ToolbarOrientation }>`
+const StyledGroup = styled.div<{
+  $orientation: ToolbarOrientation;
+  $css?: ToolbarGroupProps['css'];
+}>`
   display: flex;
   flex-direction: ${({ $orientation }) =>
     $orientation === 'vertical' ? 'column' : 'row'};
   align-items: center;
   gap: ${({ theme }) => theme.spacing.xs}px;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
-const StyledSeparator = styled.div<{ $orientation: ToolbarOrientation }>`
+const StyledSeparator = styled.div<{
+  $orientation: ToolbarOrientation;
+  $css?: ToolbarSeparatorProps['css'];
+}>`
   background: ${({ theme }) => theme.shell.toolbar.separator};
   flex-shrink: 0;
   ${({ $orientation }) =>
     $orientation === 'vertical'
       ? `width: 80%; height: 1px; margin: 2px auto;`
       : `width: 1px; height: 16px; margin: 0 2px;`}
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
-const StyledSpacer = styled.div`
+const StyledSpacer = styled.div<{ $css?: ToolbarSpacerProps['css'] }>`
   flex: 1 1 auto;
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 // --- Roving tabindex helper ---
@@ -129,6 +149,11 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({
   $variant = 'default',
   disabled = false,
   className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
 }) => {
   const { size } = useToolbar();
 
@@ -139,9 +164,14 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({
       $size={size}
       disabled={disabled}
       className={className}
+      style={style}
+      data-testid={testId}
+      $css={css}
+      ref={ref}
       title={tooltip}
       type="button"
       tabIndex={-1}
+      {...rest}
     >
       {icon}
       {!icon && children}
@@ -159,6 +189,11 @@ const ToolbarToggle: React.FC<ToolbarToggleProps> = ({
   tooltip,
   disabled = false,
   className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
 }) => {
   const { size } = useToolbar();
 
@@ -170,10 +205,15 @@ const ToolbarToggle: React.FC<ToolbarToggleProps> = ({
       $size={size}
       disabled={disabled}
       className={className}
+      style={style}
+      data-testid={testId}
+      $css={css}
+      ref={ref}
       title={tooltip}
       type="button"
       tabIndex={-1}
       aria-pressed={pressed}
+      {...rest}
     >
       {icon}
       {!icon && children}
@@ -186,6 +226,10 @@ ToolbarToggle.displayName = 'Toolbar.Toggle';
 const ToolbarGroup: React.FC<ToolbarGroupProps> = ({
   children,
   className,
+  style,
+  testId,
+  css,
+  ref,
   ...rest
 }) => {
   const { orientation } = useToolbar();
@@ -194,8 +238,12 @@ const ToolbarGroup: React.FC<ToolbarGroupProps> = ({
     <StyledGroup
       $orientation={orientation}
       className={className}
+      style={style}
+      data-testid={testId}
+      $css={css}
+      ref={ref}
       role="group"
-      aria-label={rest['aria-label']}
+      {...rest}
     >
       {children}
     </StyledGroup>
@@ -204,24 +252,52 @@ const ToolbarGroup: React.FC<ToolbarGroupProps> = ({
 
 ToolbarGroup.displayName = 'Toolbar.Group';
 
-const ToolbarSeparator: React.FC<ToolbarSeparatorProps> = ({ className }) => {
+const ToolbarSeparator: React.FC<ToolbarSeparatorProps> = ({
+  className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
+}) => {
   const { orientation } = useToolbar();
   return (
     <StyledSeparator
       $orientation={orientation}
       className={className}
+      style={style}
+      data-testid={testId}
+      $css={css}
+      ref={ref}
       role="separator"
       aria-orientation={
         orientation === 'horizontal' ? 'vertical' : 'horizontal'
       }
+      {...rest}
     />
   );
 };
 
 ToolbarSeparator.displayName = 'Toolbar.Separator';
 
-const ToolbarSpacer: React.FC<ToolbarSpacerProps> = ({ className }) => {
-  return <StyledSpacer className={className} />;
+const ToolbarSpacer: React.FC<ToolbarSpacerProps> = ({
+  className,
+  style,
+  testId,
+  css,
+  ref,
+  ...rest
+}) => {
+  return (
+    <StyledSpacer
+      className={className}
+      style={style}
+      data-testid={testId}
+      $css={css}
+      ref={ref}
+      {...rest}
+    />
+  );
 };
 
 ToolbarSpacer.displayName = 'Toolbar.Spacer';
@@ -233,13 +309,31 @@ const ToolbarRoot: React.FC<ToolbarProps> = ({
   $size = 'md',
   children,
   className,
+  style,
+  testId,
+  css,
+  ref: externalRef,
   ...rest
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const internalRef = useRef<HTMLDivElement>(null);
+
+  const setToolbarRef = useMemo(
+    () => (node: HTMLDivElement | null) => {
+      internalRef.current = node;
+      if (typeof externalRef === 'function') {
+        externalRef(node);
+      } else if (externalRef && typeof externalRef === 'object') {
+        (
+          externalRef as React.MutableRefObject<HTMLDivElement | null>
+        ).current = node;
+      }
+    },
+    [externalRef]
+  );
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
-      const container = ref.current;
+      const container = internalRef.current;
       if (!container) return;
 
       const items = focusableItems(container);
@@ -273,7 +367,7 @@ const ToolbarRoot: React.FC<ToolbarProps> = ({
   );
 
   const handleFocus = useCallback(() => {
-    const container = ref.current;
+    const container = internalRef.current;
     if (!container) return;
 
     // If focus lands on the toolbar container itself, move to first button
@@ -286,16 +380,19 @@ const ToolbarRoot: React.FC<ToolbarProps> = ({
   return (
     <ToolbarContext.Provider value={{ orientation: $orientation, size: $size }}>
       <StyledToolbar
-        ref={ref}
+        ref={setToolbarRef}
         $orientation={$orientation}
         $size={$size}
         className={className}
+        style={style}
+        data-testid={testId}
+        $css={css}
         role="toolbar"
         aria-orientation={$orientation}
-        aria-label={rest['aria-label']}
         tabIndex={0}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
+        {...rest}
       >
         {children}
       </StyledToolbar>

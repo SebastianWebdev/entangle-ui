@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import styled from '@emotion/styled';
 import { ScrollArea } from '@/components/layout/ScrollArea';
+import { processCss } from '@/utils/styledUtils';
 import type {
   FloatingPanelProps,
   FloatingManagerProps,
@@ -75,7 +76,7 @@ FloatingManager.displayName = 'FloatingManager';
 
 // --- Styled Components ---
 
-const StyledPanel = styled.div`
+const StyledPanel = styled.div<{ $css?: FloatingPanelProps['css'] }>`
   position: fixed;
   display: flex;
   flex-direction: column;
@@ -88,6 +89,8 @@ const StyledPanel = styled.div`
   &:focus-visible {
     outline: 1px solid ${({ theme }) => theme.colors.border.focus};
   }
+
+  ${({ $css, theme }) => processCss($css, theme)}
 `;
 
 const StyledHeader = styled.div`
@@ -188,6 +191,11 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   children,
   className,
   panelId,
+  style,
+  testId,
+  css,
+  ref: externalRef,
+  ...rest
 }) => {
   const generatedId = useId();
   const id = panelId ?? generatedId;
@@ -243,6 +251,18 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
 
   // --- Drag ---
   const panelRef = useRef<HTMLDivElement>(null);
+  const setPanelRef = useMemo(
+    () => (node: HTMLDivElement | null) => {
+      panelRef.current = node;
+      if (typeof externalRef === 'function') {
+        externalRef(node);
+      } else if (externalRef && typeof externalRef === 'object') {
+        (externalRef as React.MutableRefObject<HTMLDivElement | null>).current =
+          node;
+      }
+    },
+    [externalRef]
+  );
   const dragOffsetRef = useRef<Position>({ x: 0, y: 0 });
 
   const handleDragStart = useCallback(
@@ -309,20 +329,24 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
 
   return (
     <StyledPanel
-      ref={panelRef}
+      ref={setPanelRef}
       className={className}
+      data-testid={testId}
+      $css={css}
       role="dialog"
       aria-modal="false"
       aria-label={title}
       tabIndex={-1}
       onPointerDown={handleBringToFront}
       style={{
+        ...style,
         left: pos.x,
         top: pos.y,
         width: currentSize.width,
         height: isCollapsed ? 'auto' : currentSize.height,
         zIndex,
       }}
+      {...rest}
     >
       <StyledHeader onPointerDown={handleDragStart} data-testid="panel-header">
         <StyledTitle>{title}</StyledTitle>

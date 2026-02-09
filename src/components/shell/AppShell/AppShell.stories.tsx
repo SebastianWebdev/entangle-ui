@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styled from '@emotion/styled';
 import type { Meta, StoryObj } from '@storybook/react';
+import type { Theme } from '@/theme';
 import { AppShell } from './AppShell';
 import { MenuBar } from '../MenuBar';
 import { Toolbar } from '../Toolbar';
@@ -8,6 +9,7 @@ import { StatusBar } from '../StatusBar';
 import { FloatingPanel, FloatingManager } from '../FloatingPanel';
 import { KeyboardContextProvider } from '@/context/KeyboardContext';
 import { SplitPane } from '@/components/layout/SplitPane';
+import { PanelSurface } from '@/components/layout/PanelSurface';
 import { Tabs, TabList, Tab, TabPanel } from '@/components/navigation/Tabs';
 import { TreeView } from '@/components/controls/TreeView';
 import { NumberInput } from '@/components/controls/NumberInput';
@@ -79,6 +81,30 @@ const meta: Meta<typeof AppShell> = {
 
 export default meta;
 type Story = StoryObj<typeof AppShell>;
+
+const shellGradient = (theme: Theme): string =>
+  `radial-gradient(160% 130% at 100% 0%, ${theme.storybook.canvas.gradientStart} 0%, ${theme.storybook.canvas.gradientMid} 48%, ${theme.storybook.canvas.gradientEnd} 100%)`;
+
+const topToolbarGradient = (theme: Theme): string =>
+  `linear-gradient(90deg, #093236 0%, ${theme.storybook.canvas.gradientMid} 52%, ${theme.storybook.canvas.gradientEnd} 100%)`;
+
+const asideToolbarGradient = (theme: Theme): string =>
+  `linear-gradient(180deg, #093236 0%, ${theme.storybook.canvas.gradientMid} 52%, ${theme.storybook.canvas.gradientEnd} 100%)`;
+
+const topToolbarGradientCss = (theme: Theme) => ({
+  backgroundImage: topToolbarGradient(theme),
+  backgroundColor: theme.storybook.canvas.gradientEnd,
+});
+
+const asideToolbarGradientCss = (theme: Theme) => ({
+  backgroundImage: asideToolbarGradient(theme),
+  backgroundColor: theme.storybook.canvas.gradientEnd,
+});
+
+const panelGradientCss = (theme: Theme) => ({
+  backgroundImage: shellGradient(theme),
+  backgroundColor: theme.storybook.canvas.gradientEnd,
+});
 
 // ---------------------------------------------------------------------------
 // Styled helpers for the FullEditor story
@@ -265,40 +291,6 @@ const SelectionCorner = styled.div<{ $x: number; $y: number; $z: number }>`
     ${({ $y }) => $y}px,
     ${({ $z }) => $z}px
   );
-`;
-
-const PanelHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 10px;
-  font-size: 11px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.text.secondary};
-  background: ${({ theme }) => theme.colors.background.secondary};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border.default};
-  user-select: none;
-`;
-
-const PanelBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-  box-sizing: border-box;
-`;
-
-const PanelContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  height: 100%;
-  overflow: hidden;
-  box-sizing: border-box;
-  background: ${({ theme }) => theme.colors.background.secondary};
 `;
 
 const ConsoleEntry = styled.div<{
@@ -648,7 +640,7 @@ export const FullEditor: Story = {
 
           {/* ============ TOP TOOLBAR ============ */}
           <AppShell.Toolbar>
-            <Toolbar aria-label="Main toolbar">
+            <Toolbar aria-label="Main toolbar" css={topToolbarGradientCss}>
               <Toolbar.Group aria-label="File operations">
                 <Toolbar.Button
                   onClick={() => {}}
@@ -760,6 +752,7 @@ export const FullEditor: Story = {
               $orientation="vertical"
               aria-label="Tool palette"
               $size="sm"
+              css={asideToolbarGradientCss}
             >
               <Toolbar.Toggle
                 pressed={true}
@@ -838,89 +831,91 @@ export const FullEditor: Story = {
                 dividerSize={3}
               >
                 {/* ------------ LEFT PANEL: Scene Outliner ------------ */}
-                <PanelContainer>
-                  <Tabs
-                    value={outlinerTab}
-                    onChange={setOutlinerTab}
-                    variant="pills"
-                    pillsFrame={false}
-                    size="sm"
-                    style={{ flex: 1, minHeight: 0 }}
-                  >
-                    <TabList>
-                      <Tab value="scene">Scene</Tab>
-                      <Tab value="assets">Assets</Tab>
-                    </TabList>
-                    <TabPanel value="scene">
-                      <ScrollArea
-                        maxHeight="100%"
-                        scrollbarVisibility="hover"
-                        style={{ flex: 1 }}
-                      >
-                        <div style={{ padding: 4 }}>
-                          <TreeView
-                            nodes={sceneTree}
-                            defaultExpandedIds={['scene', 'cube']}
-                            defaultSelectedIds={['cube']}
-                            size="sm"
-                            showGuideLines
-                          />
-                        </div>
-                      </ScrollArea>
-                    </TabPanel>
-                    <TabPanel value="assets">
-                      <ScrollArea
-                        maxHeight="100%"
-                        scrollbarVisibility="hover"
-                        style={{ flex: 1 }}
-                      >
-                        <div style={{ padding: 8 }}>
-                          <TreeView
-                            nodes={[
-                              {
-                                id: 'materials',
-                                label: 'Materials',
-                                icon: <FolderIcon size="sm" />,
-                                children: [
-                                  {
-                                    id: 'mat-pbr',
-                                    label: 'PBR Standard',
-                                  },
-                                  {
-                                    id: 'mat-glass',
-                                    label: 'Glass',
-                                  },
-                                  {
-                                    id: 'mat-emissive',
-                                    label: 'Emissive',
-                                  },
-                                ],
-                              },
-                              {
-                                id: 'textures',
-                                label: 'Textures',
-                                icon: <FolderIcon size="sm" />,
-                                children: [
-                                  {
-                                    id: 'tex-brick',
-                                    label: 'brick_albedo.png',
-                                  },
-                                  {
-                                    id: 'tex-wood',
-                                    label: 'wood_diffuse.png',
-                                  },
-                                ],
-                              },
-                            ]}
-                            defaultExpandedIds={['materials']}
-                            size="sm"
-                            showGuideLines
-                          />
-                        </div>
-                      </ScrollArea>
-                    </TabPanel>
-                  </Tabs>
-                </PanelContainer>
+                <PanelSurface bordered={false} css={panelGradientCss}>
+                  <PanelSurface.Body padding={0} style={{ display: 'flex' }}>
+                    <Tabs
+                      value={outlinerTab}
+                      onChange={setOutlinerTab}
+                      variant="pills"
+                      pillsFrame={false}
+                      size="sm"
+                      style={{ flex: 1, minHeight: 0 }}
+                    >
+                      <TabList>
+                        <Tab value="scene">Scene</Tab>
+                        <Tab value="assets">Assets</Tab>
+                      </TabList>
+                      <TabPanel value="scene">
+                        <ScrollArea
+                          maxHeight="100%"
+                          scrollbarVisibility="hover"
+                          style={{ flex: 1 }}
+                        >
+                          <div style={{ padding: 4 }}>
+                            <TreeView
+                              nodes={sceneTree}
+                              defaultExpandedIds={['scene', 'cube']}
+                              defaultSelectedIds={['cube']}
+                              size="sm"
+                              showGuideLines
+                            />
+                          </div>
+                        </ScrollArea>
+                      </TabPanel>
+                      <TabPanel value="assets">
+                        <ScrollArea
+                          maxHeight="100%"
+                          scrollbarVisibility="hover"
+                          style={{ flex: 1 }}
+                        >
+                          <div style={{ padding: 8 }}>
+                            <TreeView
+                              nodes={[
+                                {
+                                  id: 'materials',
+                                  label: 'Materials',
+                                  icon: <FolderIcon size="sm" />,
+                                  children: [
+                                    {
+                                      id: 'mat-pbr',
+                                      label: 'PBR Standard',
+                                    },
+                                    {
+                                      id: 'mat-glass',
+                                      label: 'Glass',
+                                    },
+                                    {
+                                      id: 'mat-emissive',
+                                      label: 'Emissive',
+                                    },
+                                  ],
+                                },
+                                {
+                                  id: 'textures',
+                                  label: 'Textures',
+                                  icon: <FolderIcon size="sm" />,
+                                  children: [
+                                    {
+                                      id: 'tex-brick',
+                                      label: 'brick_albedo.png',
+                                    },
+                                    {
+                                      id: 'tex-wood',
+                                      label: 'wood_diffuse.png',
+                                    },
+                                  ],
+                                },
+                              ]}
+                              defaultExpandedIds={['materials']}
+                              size="sm"
+                              showGuideLines
+                            />
+                          </div>
+                        </ScrollArea>
+                      </TabPanel>
+                    </Tabs>
+                  </PanelSurface.Body>
+                </PanelSurface>
 
                 {/* ------------ CENTER: Viewport + Bottom Panel ------------ */}
                 <SplitPane
@@ -1005,8 +1000,9 @@ export const FullEditor: Story = {
                   </ViewportCanvas>
 
                   {/* Bottom panel: Console / Output / Timeline */}
-                  <PanelContainer>
-                    <Tabs
+                  <PanelSurface bordered={false} css={panelGradientCss}>
+                    <PanelSurface.Body padding={0} style={{ flex: 1, minHeight: 0 }}>
+                      <Tabs
                       value={bottomTab}
                       onChange={setBottomTab}
                       variant="enclosed"
@@ -1087,458 +1083,464 @@ export const FullEditor: Story = {
                           Timeline — Frame 1 / 250 &middot; 24 fps
                         </div>
                       </TabPanel>
-                    </Tabs>
-                  </PanelContainer>
+                      </Tabs>
+                    </PanelSurface.Body>
+                  </PanelSurface>
                 </SplitPane>
 
                 {/* ------------ RIGHT PANEL: Properties Inspector ------------ */}
-                <PanelContainer>
-                  <PanelHeader>
-                    <span>{objectName}</span>
-                    <span
-                      style={{
-                        fontSize: 9,
-                        padding: '1px 5px',
-                        background: 'rgba(0,122,204,0.2)',
-                        border: '1px solid rgba(0,122,204,0.3)',
-                        borderRadius: 3,
-                        color: '#6cb6ff',
-                      }}
-                    >
-                      Mesh
-                    </span>
-                  </PanelHeader>
-                  <PanelBody>
+                <PanelSurface bordered={false} css={panelGradientCss}>
+                  <PanelSurface.Header
+                    css={theme => ({
+                      backgroundColor: theme.storybook.canvas.gradientEnd,
+                      borderBottom: '1px solid rgba(111, 204, 182, 0.18)',
+                    })}
+                    actions={
+                      <span
+                        style={{
+                          fontSize: 9,
+                          padding: '1px 5px',
+                          background: 'rgba(0,122,204,0.2)',
+                          border: '1px solid rgba(0,122,204,0.3)',
+                          borderRadius: 3,
+                          color: '#6cb6ff',
+                        }}
+                      >
+                        Mesh
+                      </span>
+                    }
+                  >
+                    {objectName}
+                  </PanelSurface.Header>
+                  <PanelSurface.Body padding={0}>
                     <PropertyPanel
                       size="sm"
                       maxHeight="100%"
                       contentTopSpacing={8}
                       contentBottomSpacing={12}
+                      css={theme => ({
+                        background: theme.storybook.canvas.gradientEnd,
+                      })}
                     >
-                        <PropertySection title="Transform">
-                          <PropertyRow label="Position X" modified={posX !== 0}>
-                            <NumberInput
-                              value={posX}
-                              onChange={setPosX}
-                              step={0.1}
-                              precision={2}
-                              size="sm"
-                              unit="m"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Position Y" modified={posY !== 0}>
-                            <NumberInput
-                              value={posY}
-                              onChange={setPosY}
-                              step={0.1}
-                              precision={2}
-                              size="sm"
-                              unit="m"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Position Z" modified={posZ !== 0}>
-                            <NumberInput
-                              value={posZ}
-                              onChange={setPosZ}
-                              step={0.1}
-                              precision={2}
-                              size="sm"
-                              unit="m"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Rotation X" modified={rotX !== 0}>
-                            <NumberInput
-                              value={rotX}
-                              onChange={setRotX}
-                              step={1}
-                              precision={1}
-                              size="sm"
-                              unit="°"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Rotation Y" modified={rotY !== 0}>
-                            <NumberInput
-                              value={rotY}
-                              onChange={setRotY}
-                              step={1}
-                              precision={1}
-                              size="sm"
-                              unit="°"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Rotation Z" modified={rotZ !== 0}>
-                            <NumberInput
-                              value={rotZ}
-                              onChange={setRotZ}
-                              step={1}
-                              precision={1}
-                              size="sm"
-                              unit="°"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Scale" modified={scaleVal !== 1}>
-                            <Slider
-                              value={scaleVal}
-                              onChange={setScaleVal}
-                              min={0.01}
-                              max={10}
-                              step={0.01}
-                              precision={2}
-                              size="sm"
-                            />
-                          </PropertyRow>
-                        </PropertySection>
+                      <PropertySection title="Transform">
+                        <PropertyRow label="Position X" modified={posX !== 0}>
+                          <NumberInput
+                            value={posX}
+                            onChange={setPosX}
+                            step={0.1}
+                            precision={2}
+                            size="sm"
+                            unit="m"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Position Y" modified={posY !== 0}>
+                          <NumberInput
+                            value={posY}
+                            onChange={setPosY}
+                            step={0.1}
+                            precision={2}
+                            size="sm"
+                            unit="m"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Position Z" modified={posZ !== 0}>
+                          <NumberInput
+                            value={posZ}
+                            onChange={setPosZ}
+                            step={0.1}
+                            precision={2}
+                            size="sm"
+                            unit="m"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Rotation X" modified={rotX !== 0}>
+                          <NumberInput
+                            value={rotX}
+                            onChange={setRotX}
+                            step={1}
+                            precision={1}
+                            size="sm"
+                            unit="°"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Rotation Y" modified={rotY !== 0}>
+                          <NumberInput
+                            value={rotY}
+                            onChange={setRotY}
+                            step={1}
+                            precision={1}
+                            size="sm"
+                            unit="°"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Rotation Z" modified={rotZ !== 0}>
+                          <NumberInput
+                            value={rotZ}
+                            onChange={setRotZ}
+                            step={1}
+                            precision={1}
+                            size="sm"
+                            unit="°"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Scale" modified={scaleVal !== 1}>
+                          <Slider
+                            value={scaleVal}
+                            onChange={setScaleVal}
+                            min={0.01}
+                            max={10}
+                            step={0.01}
+                            precision={2}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                      </PropertySection>
 
-                        <PropertySection title="Material — PBR Standard">
-                          <PropertyRow label="Base Color">
-                            <ColorPicker
-                              value={baseColor}
-                              onChange={setBaseColor}
-                              size="sm"
-                            />
+                      <PropertySection title="Material — PBR Standard">
+                        <PropertyRow label="Base Color">
+                          <ColorPicker
+                            value={baseColor}
+                            onChange={setBaseColor}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Roughness">
+                          <Slider
+                            value={roughness}
+                            onChange={setRoughness}
+                            min={0}
+                            max={1}
+                            step={0.01}
+                            precision={2}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Metallic">
+                          <Slider
+                            value={metallic}
+                            onChange={setMetallic}
+                            min={0}
+                            max={1}
+                            step={0.01}
+                            precision={2}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Emission">
+                          <Slider
+                            value={emissionStrength}
+                            onChange={setEmissionStrength}
+                            min={0}
+                            max={10}
+                            step={0.1}
+                            precision={1}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                        <PropertyGroup title="Textures">
+                          <PropertyRow label="Albedo">
+                            <span
+                              style={{
+                                color: '#aaa',
+                                fontSize: 10,
+                              }}
+                            >
+                              brick_albedo.png
+                            </span>
+                          </PropertyRow>
+                          <PropertyRow label="Normal">
+                            <span
+                              style={{
+                                color: '#666',
+                                fontSize: 10,
+                                fontStyle: 'italic',
+                              }}
+                            >
+                              None
+                            </span>
                           </PropertyRow>
                           <PropertyRow label="Roughness">
-                            <Slider
-                              value={roughness}
-                              onChange={setRoughness}
-                              min={0}
-                              max={1}
-                              step={0.01}
-                              precision={2}
-                              size="sm"
-                            />
+                            <span
+                              style={{
+                                color: '#666',
+                                fontSize: 10,
+                                fontStyle: 'italic',
+                              }}
+                            >
+                              None
+                            </span>
                           </PropertyRow>
-                          <PropertyRow label="Metallic">
-                            <Slider
-                              value={metallic}
-                              onChange={setMetallic}
-                              min={0}
-                              max={1}
-                              step={0.01}
-                              precision={2}
-                              size="sm"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Emission">
-                            <Slider
-                              value={emissionStrength}
-                              onChange={setEmissionStrength}
-                              min={0}
-                              max={10}
-                              step={0.1}
-                              precision={1}
-                              size="sm"
-                            />
-                          </PropertyRow>
-                          <PropertyGroup title="Textures">
-                            <PropertyRow label="Albedo">
-                              <span
-                                style={{
-                                  color: '#aaa',
-                                  fontSize: 10,
-                                }}
-                              >
-                                brick_albedo.png
-                              </span>
-                            </PropertyRow>
-                            <PropertyRow label="Normal">
-                              <span
-                                style={{
-                                  color: '#666',
-                                  fontSize: 10,
-                                  fontStyle: 'italic',
-                                }}
-                              >
-                                None
-                              </span>
-                            </PropertyRow>
-                            <PropertyRow label="Roughness">
-                              <span
-                                style={{
-                                  color: '#666',
-                                  fontSize: 10,
-                                  fontStyle: 'italic',
-                                }}
-                              >
-                                None
-                              </span>
-                            </PropertyRow>
-                          </PropertyGroup>
-                        </PropertySection>
+                        </PropertyGroup>
+                      </PropertySection>
 
-                        <PropertySection title="Rendering">
-                          <PropertyRow label="Visible">
-                            <Switch
-                              checked={visible}
-                              onChange={setVisible}
+                      <PropertySection title="Rendering">
+                        <PropertyRow label="Visible">
+                          <Switch
+                            checked={visible}
+                            onChange={setVisible}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Cast Shadows">
+                          <Switch
+                            checked={castShadows}
+                            onChange={setCastShadows}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Recv Shadows">
+                          <Switch
+                            checked={receiveShadows}
+                            onChange={setReceiveShadows}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Show Bounds">
+                          <Switch
+                            checked={showBounds}
+                            onChange={setShowBounds}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Render Order">
+                          <NumberInput
+                            value={0}
+                            onChange={() => {}}
+                            min={-100}
+                            max={100}
+                            step={1}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Layer">
+                          <Select
+                            value="default"
+                            options={[
+                              { value: 'default', label: 'Default' },
+                              { value: 'ui', label: 'UI' },
+                              { value: 'fx', label: 'Effects' },
+                              {
+                                value: 'background',
+                                label: 'Background',
+                              },
+                            ]}
+                            size="sm"
+                            onChange={() => {}}
+                          />
+                        </PropertyRow>
+                      </PropertySection>
+
+                      <PropertySection title="Primitives Showcase">
+                        <PropertyRow
+                          label="Object Name"
+                          modified={objectName !== 'Cube.001'}
+                        >
+                          <Input
+                            size="sm"
+                            value={objectName}
+                            onChange={event =>
+                              setObjectName(event.target.value)
+                            }
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Tag Filter">
+                          <Input
+                            size="sm"
+                            type="search"
+                            value={tagFilter}
+                            startIcon={<SearchIcon size="sm" />}
+                            onChange={event => setTagFilter(event.target.value)}
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Pinned in Outliner">
+                          <Checkbox
+                            size="sm"
+                            checked={lockedInOutliner}
+                            onChange={setLockedInOutliner}
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Inspector Preset">
+                          <Text size="xs" color="muted" mono>
+                            editor-showcase-v2
+                          </Text>
+                        </PropertyRow>
+                        <PropertyRow label="Actions" fullWidth>
+                          <div
+                            style={{
+                              display: 'flex',
+                              gap: 6,
+                              flexWrap: 'wrap',
+                            }}
+                          >
+                            <Button
                               size="sm"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Cast Shadows">
-                            <Switch
-                              checked={castShadows}
-                              onChange={setCastShadows}
+                              variant="filled"
+                              icon={<SaveIcon size="sm" />}
+                              onClick={() => {}}
+                            >
+                              Apply
+                            </Button>
+                            <Button
                               size="sm"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Recv Shadows">
-                            <Switch
-                              checked={receiveShadows}
-                              onChange={setReceiveShadows}
+                              variant="ghost"
+                              icon={<UndoIcon size="sm" />}
+                              onClick={() => {}}
+                            >
+                              Revert
+                            </Button>
+                            <Button
                               size="sm"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Show Bounds">
-                            <Switch
-                              checked={showBounds}
-                              onChange={setShowBounds}
+                              variant="ghost"
+                              icon={<TrashIcon size="sm" />}
+                              onClick={() => {}}
+                            >
+                              Reset
+                            </Button>
+                          </div>
+                        </PropertyRow>
+                      </PropertySection>
+
+                      <PropertySection title="Curve Editor">
+                        <PropertyRow label="Opacity Curve" fullWidth>
+                          <div
+                            style={{
+                              display: 'flex',
+                              width: '100%',
+                              minWidth: 0,
+                            }}
+                          >
+                            <CurveEditor
+                              value={curveData}
+                              onChange={setCurveData}
+                              responsive
+                              height={180}
                               size="sm"
+                              showToolbar
+                              labelX="Time"
+                              labelY="Opacity"
+                              gridSubdivisions={5}
                             />
-                          </PropertyRow>
-                          <PropertyRow label="Render Order">
+                          </div>
+                        </PropertyRow>
+                        <PropertyRow label="Preview Time">
+                          <Slider
+                            value={curvePreviewValue}
+                            onChange={setCurvePreviewValue}
+                            min={0}
+                            max={1}
+                            step={0.01}
+                            precision={2}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Preview Value">
+                          <Text size="xs" color="secondary" mono>
+                            t={curvePreviewValue.toFixed(2)}
+                          </Text>
+                        </PropertyRow>
+                      </PropertySection>
+
+                      <PropertySection title="Color Picker Standalone">
+                        <PropertyRow label="Palette (Material)" fullWidth>
+                          <ColorPicker
+                            value={paletteColor}
+                            onChange={setPaletteColor}
+                            inline
+                            showAlpha
+                            palette="material"
+                            pickerWidth={228}
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Quick Swatch">
+                          <ColorPicker
+                            value={paletteColor}
+                            onChange={setPaletteColor}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                      </PropertySection>
+
+                      <PropertySection title="LOD and Streaming">
+                        <PropertyRow label="Active LOD">
+                          <Select
+                            value="lod1"
+                            options={[
+                              { value: 'lod0', label: 'LOD 0' },
+                              { value: 'lod1', label: 'LOD 1' },
+                              { value: 'lod2', label: 'LOD 2' },
+                              { value: 'lod3', label: 'LOD 3' },
+                            ]}
+                            size="sm"
+                            onChange={() => {}}
+                          />
+                        </PropertyRow>
+                        {Array.from({ length: 8 }).map((_, level) => (
+                          <PropertyRow
+                            key={`lod-distance-${level}`}
+                            label={`LOD ${level} Dist`}
+                          >
                             <NumberInput
-                              value={0}
+                              value={level === 0 ? 0 : level * 12}
                               onChange={() => {}}
-                              min={-100}
-                              max={100}
+                              min={0}
+                              max={300}
                               step={1}
                               size="sm"
+                              unit="m"
                             />
                           </PropertyRow>
-                          <PropertyRow label="Layer">
-                            <Select
-                              value="default"
-                              options={[
-                                { value: 'default', label: 'Default' },
-                                { value: 'ui', label: 'UI' },
-                                { value: 'fx', label: 'Effects' },
-                                {
-                                  value: 'background',
-                                  label: 'Background',
-                                },
-                              ]}
-                              size="sm"
-                              onChange={() => {}}
-                            />
-                          </PropertyRow>
-                        </PropertySection>
+                        ))}
+                        <PropertyRow label="Keep Resident">
+                          <Switch
+                            checked={true}
+                            onChange={() => {}}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                      </PropertySection>
 
-                        <PropertySection title="Primitives Showcase">
-                          <PropertyRow
-                            label="Object Name"
-                            modified={objectName !== 'Cube.001'}
-                          >
-                            <Input
-                              size="sm"
-                              value={objectName}
-                              onChange={event =>
-                                setObjectName(event.target.value)
-                              }
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Tag Filter">
-                            <Input
-                              size="sm"
-                              type="search"
-                              value={tagFilter}
-                              startIcon={<SearchIcon size="sm" />}
-                              onChange={event =>
-                                setTagFilter(event.target.value)
-                              }
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Pinned in Outliner">
-                            <Checkbox
-                              size="sm"
-                              checked={lockedInOutliner}
-                              onChange={setLockedInOutliner}
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Inspector Preset">
-                            <Text size="xs" color="muted" mono>
-                              editor-showcase-v2
-                            </Text>
-                          </PropertyRow>
-                          <PropertyRow label="Actions" fullWidth>
-                            <div
-                              style={{
-                                display: 'flex',
-                                gap: 6,
-                                flexWrap: 'wrap',
-                              }}
-                            >
-                              <Button
-                                size="sm"
-                                variant="filled"
-                                icon={<SaveIcon size="sm" />}
-                                onClick={() => {}}
-                              >
-                                Apply
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                icon={<UndoIcon size="sm" />}
-                                onClick={() => {}}
-                              >
-                                Revert
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                icon={<TrashIcon size="sm" />}
-                                onClick={() => {}}
-                              >
-                                Reset
-                              </Button>
-                            </div>
-                          </PropertyRow>
-                        </PropertySection>
-
-                        <PropertySection title="Curve Editor">
-                          <PropertyRow label="Opacity Curve" fullWidth>
-                            <div
-                              style={{
-                                display: 'flex',
-                                width: '100%',
-                                minWidth: 0,
-                              }}
-                            >
-                              <CurveEditor
-                                value={curveData}
-                                onChange={setCurveData}
-                                responsive
-                                height={180}
-                                size="sm"
-                                showToolbar
-                                labelX="Time"
-                                labelY="Opacity"
-                                gridSubdivisions={5}
-                              />
-                            </div>
-                          </PropertyRow>
-                          <PropertyRow label="Preview Time">
-                            <Slider
-                              value={curvePreviewValue}
-                              onChange={setCurvePreviewValue}
-                              min={0}
-                              max={1}
-                              step={0.01}
-                              precision={2}
-                              size="sm"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Preview Value">
-                            <Text size="xs" color="secondary" mono>
-                              t={curvePreviewValue.toFixed(2)}
-                            </Text>
-                          </PropertyRow>
-                        </PropertySection>
-
-                        <PropertySection title="Color Picker Standalone">
-                          <PropertyRow label="Palette (Material)" fullWidth>
-                            <ColorPicker
-                              value={paletteColor}
-                              onChange={setPaletteColor}
-                              inline
-                              showAlpha
-                              palette="material"
-                              pickerWidth={228}
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Quick Swatch">
-                            <ColorPicker
-                              value={paletteColor}
-                              onChange={setPaletteColor}
-                              size="sm"
-                            />
-                          </PropertyRow>
-                        </PropertySection>
-
-                        <PropertySection title="LOD and Streaming">
-                          <PropertyRow label="Active LOD">
-                            <Select
-                              value="lod1"
-                              options={[
-                                { value: 'lod0', label: 'LOD 0' },
-                                { value: 'lod1', label: 'LOD 1' },
-                                { value: 'lod2', label: 'LOD 2' },
-                                { value: 'lod3', label: 'LOD 3' },
-                              ]}
-                              size="sm"
-                              onChange={() => {}}
-                            />
-                          </PropertyRow>
-                          {Array.from({ length: 8 }).map((_, level) => (
-                            <PropertyRow
-                              key={`lod-distance-${level}`}
-                              label={`LOD ${level} Dist`}
-                            >
-                              <NumberInput
-                                value={level === 0 ? 0 : level * 12}
-                                onChange={() => {}}
-                                min={0}
-                                max={300}
-                                step={1}
-                                size="sm"
-                                unit="m"
-                              />
-                            </PropertyRow>
-                          ))}
-                          <PropertyRow label="Keep Resident">
-                            <Switch
-                              checked={true}
-                              onChange={() => {}}
-                              size="sm"
-                            />
-                          </PropertyRow>
-                        </PropertySection>
-
-                        <PropertySection
-                          title="Physics"
-                          defaultExpanded={false}
-                        >
-                          <PropertyRow label="Body Type">
-                            <Select
-                              value="static"
-                              options={[
-                                { value: 'static', label: 'Static' },
-                                { value: 'dynamic', label: 'Dynamic' },
-                                {
-                                  value: 'kinematic',
-                                  label: 'Kinematic',
-                                },
-                              ]}
-                              size="sm"
-                              onChange={() => {}}
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Mass">
-                            <NumberInput
-                              value={1}
-                              onChange={() => {}}
-                              min={0}
-                              max={10000}
-                              step={0.1}
-                              precision={2}
-                              unit="kg"
-                              size="sm"
-                            />
-                          </PropertyRow>
-                          <PropertyRow label="Friction">
-                            <Slider
-                              value={0.3}
-                              onChange={() => {}}
-                              min={0}
-                              max={1}
-                              step={0.01}
-                              size="sm"
-                            />
-                          </PropertyRow>
-                        </PropertySection>
-                      </PropertyPanel>
-                  </PanelBody>
-                </PanelContainer>
+                      <PropertySection title="Physics" defaultExpanded={false}>
+                        <PropertyRow label="Body Type">
+                          <Select
+                            value="static"
+                            options={[
+                              { value: 'static', label: 'Static' },
+                              { value: 'dynamic', label: 'Dynamic' },
+                              {
+                                value: 'kinematic',
+                                label: 'Kinematic',
+                              },
+                            ]}
+                            size="sm"
+                            onChange={() => {}}
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Mass">
+                          <NumberInput
+                            value={1}
+                            onChange={() => {}}
+                            min={0}
+                            max={10000}
+                            step={0.1}
+                            precision={2}
+                            unit="kg"
+                            size="sm"
+                          />
+                        </PropertyRow>
+                        <PropertyRow label="Friction">
+                          <Slider
+                            value={0.3}
+                            onChange={() => {}}
+                            min={0}
+                            max={1}
+                            step={0.01}
+                            size="sm"
+                          />
+                        </PropertyRow>
+                      </PropertySection>
+                    </PropertyPanel>
+                  </PanelSurface.Body>
+                </PanelSurface>
               </SplitPane>
 
               {/* ------------ FLOATING PANEL: Render Settings ------------ */}
