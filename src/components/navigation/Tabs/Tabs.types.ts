@@ -53,6 +53,13 @@ export interface TabsBaseProps extends Omit<BaseComponent, 'onChange'> {
   fullWidth?: boolean;
 
   /**
+   * Whether pills variant renders a framed tab-list container.
+   * When false, pills tabs render without surrounding border/background.
+   * @default true
+   */
+  pillsFrame?: boolean;
+
+  /**
    * Children: TabList + TabPanel components
    */
   children: React.ReactNode;
@@ -148,5 +155,6 @@ export interface TabsContextValue {
   size: TabsSize;
   orientation: 'horizontal' | 'vertical';
   fullWidth: boolean;
+  pillsFrame: boolean;
   tabsId: string;
 }

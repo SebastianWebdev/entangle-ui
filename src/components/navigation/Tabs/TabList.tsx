@@ -9,6 +9,7 @@ interface StyledTabListProps {
   $orientation: 'horizontal' | 'vertical';
   $variant: TabsVariant;
   $fullWidth: boolean;
+  $pillsFrame: boolean;
 }
 
 const StyledTabList = styled.div<StyledTabListProps>`
@@ -50,12 +51,19 @@ const StyledTabList = styled.div<StyledTabListProps>`
               padding: 0 ${props.theme.spacing.xs}px;
             `;
       case 'pills':
-        return `
-          padding: ${props.theme.spacing.xs}px;
-          border: 1px solid ${colors.border.default};
-          border-radius: ${props.theme.borderRadius.md}px;
-          background: ${colors.background.secondary};
-        `;
+        return props.$pillsFrame
+          ? `
+              padding: ${props.theme.spacing.xs}px;
+              border: 1px solid ${colors.border.default};
+              border-radius: ${props.theme.borderRadius.md}px;
+              background: ${colors.background.secondary};
+            `
+          : `
+              padding: 0;
+              border: none;
+              border-radius: 0;
+              background: transparent;
+            `;
       default:
         return '';
     }
@@ -72,7 +80,7 @@ export const TabList: React.FC<TabListProps> = ({
   ref,
   ...rest
 }) => {
-  const { orientation, variant, fullWidth } = useTabsContext();
+  const { orientation, variant, fullWidth, pillsFrame } = useTabsContext();
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const setListRef = useCallback(
@@ -140,6 +148,7 @@ export const TabList: React.FC<TabListProps> = ({
       $orientation={orientation}
       $variant={variant}
       $fullWidth={fullWidth}
+      $pillsFrame={pillsFrame}
       className={className}
       style={style}
       data-testid={testId}

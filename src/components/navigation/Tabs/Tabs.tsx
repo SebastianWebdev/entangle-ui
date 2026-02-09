@@ -56,6 +56,7 @@ export const Tabs: React.FC<TabsProps> = ({
   size = 'md',
   orientation = 'horizontal',
   fullWidth = false,
+  pillsFrame = true,
   children,
   onChange,
   className,
@@ -86,6 +87,7 @@ export const Tabs: React.FC<TabsProps> = ({
     size,
     orientation,
     fullWidth,
+    pillsFrame,
     tabsId,
   };
 

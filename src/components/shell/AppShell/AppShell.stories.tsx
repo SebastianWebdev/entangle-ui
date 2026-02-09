@@ -818,7 +818,8 @@ export const FullEditor: Story = {
                   <Tabs
                     value={outlinerTab}
                     onChange={setOutlinerTab}
-                    variant="enclosed"
+                    variant="pills"
+                    pillsFrame={false}
                     size="sm"
                   >
                     <TabList>
