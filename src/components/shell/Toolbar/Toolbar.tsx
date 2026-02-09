@@ -35,6 +35,7 @@ const StyledToolbar = styled.div<{
   align-items: center;
   flex-direction: ${({ $orientation }) =>
     $orientation === 'vertical' ? 'column' : 'row'};
+  ${({ $orientation }) => $orientation === 'vertical' && 'height: 100%;'}
   background: ${({ theme }) => theme.shell.toolbar.bg};
   padding: ${({ theme }) => theme.spacing.xs}px;
   gap: ${({ theme }) => theme.spacing.xs}px;

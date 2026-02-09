@@ -33,9 +33,9 @@ export interface TabsBaseProps extends Omit<BaseComponent, 'onChange'> {
 
   /**
    * Tab size
-   * - `sm`: 28px tab height, compact toolbars
-   * - `md`: 32px tab height, standard panels
-   * - `lg`: 38px tab height, prominent navigation
+   * - `sm`: 24px tab height, ultra-compact panels
+   * - `md`: 28px tab height, compact default
+   * - `lg`: 32px tab height, comfortable navigation
    * @default "md"
    */
   size?: TabsSize;

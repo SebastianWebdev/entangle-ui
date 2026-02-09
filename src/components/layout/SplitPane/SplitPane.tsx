@@ -302,10 +302,6 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
       const startLeft = startSizes[leftIndex] ?? 0;
       const startRight = startSizes[rightIndex] ?? 0;
 
-      let newLeft = startLeft + delta;
-      let newRight = startRight - delta;
-
-      // Clamp to min/max
       const leftCfg = panelConfigs[leftIndex];
       const rightCfg = panelConfigs[rightIndex];
 
@@ -314,37 +310,66 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
       const rightMin = rightCfg?.minSize ?? 0;
       const rightMax = rightCfg?.maxSize ?? Infinity;
 
-      // Collapse handling
+      const totalSize = startLeft + startRight;
+
+      // Raw sizes (unclamped) — used for collapse threshold detection
+      const rawLeft = startLeft + delta;
+      const rawRight = startRight - delta;
+
+      // Clamp to [0, totalSize] to prevent overflow
+      let newLeft = Math.max(0, Math.min(totalSize, rawLeft));
+      let newRight = totalSize - newLeft;
+
+      // Collapse / expand handling
+      let leftCollapsed = false;
+      let rightCollapsed = false;
+
       if (leftCfg?.collapsible) {
         const threshold = leftCfg.collapseThreshold ?? leftMin / 2;
-        if (newLeft < threshold && newLeft < leftMin) {
-          const leftWas = newLeft;
-          newLeft = 0;
-          newRight = startRight + startLeft - newLeft;
-          if (leftWas > 0) {
+        if (rawLeft < threshold) {
+          leftCollapsed = true;
+          if (startLeft > 0) {
             onCollapseChange?.(leftIndex, true);
           }
+        } else if (startLeft === 0 && rawLeft >= leftMin) {
+          // Expanding from collapsed state
+          onCollapseChange?.(leftIndex, false);
         }
       }
 
       if (rightCfg?.collapsible) {
         const threshold = rightCfg.collapseThreshold ?? rightMin / 2;
-        if (newRight < threshold && newRight < rightMin) {
-          const rightWas = newRight;
-          newRight = 0;
-          newLeft = startLeft + startRight - newRight;
-          if (rightWas > 0) {
+        if (rawRight < threshold) {
+          rightCollapsed = true;
+          if (startRight > 0) {
             onCollapseChange?.(rightIndex, true);
           }
+        } else if (startRight === 0 && rawRight >= rightMin) {
+          // Expanding from collapsed state
+          onCollapseChange?.(rightIndex, false);
         }
       }
 
-      // Apply min/max after collapse logic (but only if not collapsed to 0)
-      if (newLeft > 0) {
+      // Apply collapse or min/max with coupled clamping
+      if (leftCollapsed) {
+        newLeft = 0;
+        newRight = totalSize;
+      } else if (rightCollapsed) {
+        newRight = 0;
+        newLeft = totalSize;
+      } else {
+        // Clamp left, then recompute right
         newLeft = Math.max(leftMin, Math.min(leftMax, newLeft));
-      }
-      if (newRight > 0) {
-        newRight = Math.max(rightMin, Math.min(rightMax, newRight));
+        newRight = totalSize - newLeft;
+
+        // If right violates its constraints, clamp it and recompute left
+        if (newRight < rightMin) {
+          newRight = rightMin;
+          newLeft = totalSize - newRight;
+        } else if (newRight > rightMax) {
+          newRight = rightMax;
+          newLeft = totalSize - newRight;
+        }
       }
 
       const newSizes = [...startSizes];

@@ -71,7 +71,7 @@ describe('StatusBar', () => {
       expect(allSpans.length).toBeGreaterThanOrEqual(3);
       // Find the badge span (empty text content, which is the dot)
       const badgeSpan = Array.from(allSpans).find(
-        (s) => s.textContent === '' && s !== statusItem
+        s => s.textContent === '' && s !== statusItem
       );
       expect(badgeSpan).toBeDefined();
     });

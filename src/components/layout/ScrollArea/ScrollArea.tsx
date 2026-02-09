@@ -7,11 +7,19 @@ import type { ScrollAreaProps } from './ScrollArea.types';
 interface StyledRootProps {
   $maxHeight?: number | string;
   $maxWidth?: number | string;
+  $autoFill?: boolean;
 }
 
 const StyledRoot = styled.div<StyledRootProps>`
   position: relative;
   overflow: hidden;
+  ${props =>
+    props.$autoFill
+      ? `
+    width: 100%;
+    height: 100%;
+  `
+      : ''}
   ${props =>
     props.$maxHeight != null
       ? `max-height: ${typeof props.$maxHeight === 'number' ? `${props.$maxHeight}px` : props.$maxHeight};`
@@ -174,6 +182,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
   fadeMaskHeight = 24,
   maxHeight,
   maxWidth,
+  autoFill = false,
   onScroll,
   onScrollTop,
   onScrollBottom,
@@ -439,6 +448,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
     <StyledRoot
       $maxHeight={maxHeight}
       $maxWidth={maxWidth}
+      $autoFill={autoFill}
       className={className}
       style={style}
       data-testid={testId}

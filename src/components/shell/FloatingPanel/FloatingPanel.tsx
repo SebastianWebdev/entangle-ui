@@ -141,7 +141,8 @@ const StyledHeaderButton = styled.span`
 `;
 
 const StyledCollapsible = styled.div<{ $collapsed: boolean }>`
-  ${({ $collapsed }) => ($collapsed ? 'display: none;' : 'display: flex; flex: 1; min-height: 0;')}
+  ${({ $collapsed }) =>
+    $collapsed ? 'display: none;' : 'display: flex; flex: 1; min-height: 0;'}
 `;
 
 const StyledResizeHandle = styled.div`
@@ -347,7 +348,12 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
         </StyledHeaderActions>
       </StyledHeader>
       <StyledCollapsible $collapsed={isCollapsed}>
-        <ScrollArea direction="both" scrollbarVisibility="auto" scrollbarWidth={5}>
+        <ScrollArea
+          direction="both"
+          scrollbarVisibility="auto"
+          scrollbarWidth={5}
+          autoFill
+        >
           {children}
         </ScrollArea>
       </StyledCollapsible>
