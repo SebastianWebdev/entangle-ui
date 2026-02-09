@@ -1397,7 +1397,13 @@ export const FullEditor: Story = {
 
                         <PropertySection title="Curve Editor">
                           <PropertyRow label="Opacity Curve" fullWidth>
-                            <div style={{ width: '100%', minWidth: 0 }}>
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '100%',
+                                minWidth: 0,
+                              }}
+                            >
                               <CurveEditor
                                 value={curveData}
                                 onChange={setCurveData}

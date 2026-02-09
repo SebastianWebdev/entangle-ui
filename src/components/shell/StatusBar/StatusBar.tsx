@@ -21,6 +21,7 @@ const StyledStatusBar = styled.div<{
   $size: StatusBarSize;
 }>`
   display: flex;
+  box-sizing: border-box;
   align-items: center;
   justify-content: space-between;
   width: 100%;

@@ -56,7 +56,7 @@ const StyledCanvasContainer = styled.div<{
   position: relative;
   width: 100%;
   height: ${p => (p.$responsive ? '100%' : `${p.$height}px`)};
-  min-height: 100px;
+  min-height: ${p => `${p.$height}px`};
   overflow: hidden;
 `;
 

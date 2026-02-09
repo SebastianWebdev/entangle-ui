@@ -172,7 +172,9 @@ const StyledRowControl = styled.div<StyledRowControlProps>`
 
 const StyledFullWidthControl = styled.div`
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  width: 100%;
+  flex: 1 1 auto;
   min-width: 0;
   padding-right: ${props => props.theme.spacing.xs}px;
 `;
