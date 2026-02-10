@@ -1,5 +1,28 @@
 # entangle-ui
 
+## 0.3.0
+
+### Minor Changes
+
+- [#24](https://github.com/SebastianWebdev/entangle-ui/pull/24) [`7c350bb`](https://github.com/SebastianWebdev/entangle-ui/commit/7c350bb1ec812a4c4e3ab44c36bc280920aa61c0) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Switch to fully tree-shakeable ESM build with preserveModules
+
+  - Replace monolithic bundle with per-module ESM output (`dist/esm/`)
+  - Drop CJS output — ESM-only package
+  - Add `sideEffects: false` and `exports` field to package.json
+  - Fix externals: add @emotion/react, @emotion/styled, @floating-ui/react, react/jsx-runtime
+  - Fix wrong external name: @base-ui/react → @base-ui-components/react
+  - Remove @emotion/react and @emotion/styled from dependencies (keep in peerDependencies only)
+  - Add `/*#__PURE__*/` annotations for tree-shaking (Object.assign, createContext, React.memo, forwardRef)
+  - Add `entangle-ui/palettes` deep import entry point
+  - Add size-limit bundle size guards
+  - Create tsconfig.build.json (excludes tests/stories from build)
+
+### Patch Changes
+
+- [#23](https://github.com/SebastianWebdev/entangle-ui/pull/23) [`1e67018`](https://github.com/SebastianWebdev/entangle-ui/commit/1e6701877b283cdd954d61e726d323f98d59c56a) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Replace hardcoded rgba values with theme tokens (whiteOverlay, separator shadows, thumb) and deduplicate AppShell toolbar slots. Fix SplitPane panel collapse regression where collapsed panels were clamped back to minSize.
+
+- [#21](https://github.com/SebastianWebdev/entangle-ui/pull/21) [`df53065`](https://github.com/SebastianWebdev/entangle-ui/commit/df53065ac21a89a257ca5a66d7943c19399940a9) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Optimize new components: memoize context values, wrap leaf components with React.memo, replace hardcoded z-index/spacing with theme tokens, extract constants
+
 ## 0.2.0
 
 ### Minor Changes
