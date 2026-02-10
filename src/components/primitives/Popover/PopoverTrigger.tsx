@@ -7,7 +7,14 @@ import type { PopoverTriggerProps } from './Popover.types';
  * Clicking the trigger toggles the popover open/closed.
  */
 export const PopoverTrigger: React.FC<PopoverTriggerProps> = ({ children }) => {
-  const { toggle, isOpen, triggerRef, popoverId } = usePopoverContext();
+  const {
+    toggle,
+    isOpen,
+    triggerRef,
+    popoverId,
+    floatingRefs,
+    getReferenceProps,
+  } = usePopoverContext();
   const contentId = `popover-${popoverId}-content`;
 
   const handleClick = useCallback(
@@ -21,8 +28,9 @@ export const PopoverTrigger: React.FC<PopoverTriggerProps> = ({ children }) => {
   const setRef = useCallback(
     (node: HTMLElement | null) => {
       triggerRef.current = node;
+      floatingRefs.setReference(node);
     },
-    [triggerRef]
+    [triggerRef, floatingRefs]
   );
 
   // Clone the child element to add props
@@ -30,11 +38,15 @@ export const PopoverTrigger: React.FC<PopoverTriggerProps> = ({ children }) => {
     return null;
   }
 
+  const referenceProps = getReferenceProps({
+    onClick: handleClick,
+  });
+
   return React.cloneElement(
     children as React.ReactElement<Record<string, unknown>>,
     {
       ref: setRef,
-      onClick: handleClick,
+      ...referenceProps,
       'aria-haspopup': 'dialog',
       'aria-expanded': isOpen,
       'aria-controls': isOpen ? contentId : undefined,

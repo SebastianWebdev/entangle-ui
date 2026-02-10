@@ -41,7 +41,11 @@ export function useColor({
   );
 
   const isControlled = value !== undefined;
-  const hsva = isControlled ? parseColor(value) : internalHsva;
+  const parsedControlled = useMemo(
+    () => (value !== undefined ? parseColor(value) : null),
+    [value]
+  );
+  const hsva = parsedControlled ?? internalHsva;
 
   const updateColor = useCallback(
     (newHsva: ColorHSVA) => {

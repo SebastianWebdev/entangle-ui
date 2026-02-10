@@ -98,16 +98,21 @@ describe('Dialog', () => {
 
   describe('Keyboard interactions', () => {
     it('fires onClose on Escape press', () => {
-      const { onClose } = renderDialog();
+      const { onClose } = renderDialog({ testId: 'dialog' });
+      const dialog = screen.getByTestId('dialog');
 
-      fireEvent.keyDown(document, { key: 'Escape' });
+      fireEvent.keyDown(dialog, { key: 'Escape' });
       expect(onClose).toHaveBeenCalledTimes(1);
     });
 
     it('does NOT fire onClose on Escape when closeOnEscape is false', () => {
-      const { onClose } = renderDialog({ closeOnEscape: false });
+      const { onClose } = renderDialog({
+        closeOnEscape: false,
+        testId: 'dialog',
+      });
+      const dialog = screen.getByTestId('dialog');
 
-      fireEvent.keyDown(document, { key: 'Escape' });
+      fireEvent.keyDown(dialog, { key: 'Escape' });
       expect(onClose).not.toHaveBeenCalled();
     });
   });

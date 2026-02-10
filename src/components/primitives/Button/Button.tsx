@@ -269,46 +269,48 @@ const IconWrapper = styled.span`
  * </Button>
  * ```
  */
-export const Button: React.FC<ButtonProps> = ({
-  children,
-  className,
-  size = 'md',
-  variant = 'default',
-  disabled = false,
-  loading = false,
-  icon,
-  fullWidth = false,
-  onClick,
-  testId,
-  style,
-  css,
-  ref,
-  ...props
-}) => {
-  return (
-    <StyledButton
-      ref={ref}
-      className={className}
-      $size={size}
-      $variant={variant}
-      $loading={loading}
-      $fullWidth={fullWidth}
-      $css={css}
-      disabled={disabled || loading}
-      onClick={onClick}
-      data-testid={testId}
-      style={style}
-      {...props}
-    >
-      {loading ? (
-        <LoadingSpinner />
-      ) : icon ? (
-        <IconWrapper>{icon}</IconWrapper>
-      ) : null}
+export const Button = React.memo<ButtonProps>(
+  ({
+    children,
+    className,
+    size = 'md',
+    variant = 'default',
+    disabled = false,
+    loading = false,
+    icon,
+    fullWidth = false,
+    onClick,
+    testId,
+    style,
+    css,
+    ref,
+    ...props
+  }) => {
+    return (
+      <StyledButton
+        ref={ref}
+        className={className}
+        $size={size}
+        $variant={variant}
+        $loading={loading}
+        $fullWidth={fullWidth}
+        $css={css}
+        disabled={disabled || loading}
+        onClick={onClick}
+        data-testid={testId}
+        style={style}
+        {...props}
+      >
+        {loading ? (
+          <LoadingSpinner />
+        ) : icon ? (
+          <IconWrapper>{icon}</IconWrapper>
+        ) : null}
 
-      {children && <span>{children}</span>}
-    </StyledButton>
-  );
-};
+        {children && <span>{children}</span>}
+      </StyledButton>
+    );
+  }
+);
 
 Button.displayName = 'Button';

@@ -24,7 +24,7 @@ export const StyledMenuContent = styled(BaseMenu.Popup)<{ theme?: Theme }>`
   border-radius: ${props => props.theme.borderRadius.md}px;
   box-shadow: ${props => props.theme.shadows.md};
   padding: ${props => props.theme.spacing.sm}px;
-  z-index: 1000;
+  z-index: ${props => props.theme.zIndex.dropdown};
 `;
 
 /** Shared styles for interactive menu items */

@@ -333,7 +333,7 @@ const StyledTooltip = styled.div<StyledTooltipProps>`
   font-weight: ${props => props.theme.typography.fontWeight.medium};
   white-space: nowrap;
   pointer-events: none;
-  z-index: 1000;
+  z-index: ${props => props.theme.zIndex.tooltip};
 
   opacity: ${props => (props.$visible ? 1 : 0)};
   transform: translateX(-50%)

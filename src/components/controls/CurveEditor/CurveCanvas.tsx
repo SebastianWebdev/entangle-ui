@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import type {
   CurveData,
@@ -107,13 +107,14 @@ export const CurveCanvas: React.FC<CurveCanvasProps> = ({
   testId,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [resizeToken, setResizeToken] = useState(0);
 
   // ResizeObserver for responsive mode — triggers canvas re-render
   useEffect(() => {
     if (!responsive || !containerRef.current) return;
 
     const observer = new ResizeObserver(() => {
-      // Canvas renderer reads dimensions from getBoundingClientRect
+      setResizeToken(t => t + 1);
     });
 
     observer.observe(containerRef.current);
@@ -139,6 +140,7 @@ export const CurveCanvas: React.FC<CurveCanvasProps> = ({
     disabled,
     isDragging,
     lockTangents,
+    resizeToken,
   });
 
   // Build screen reader summary

@@ -1,4 +1,5 @@
 import type React from 'react';
+import type { UseFloatingReturn, FloatingContext } from '@floating-ui/react';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent } from '@/types/common';
 
@@ -152,4 +153,14 @@ export interface PopoverContextValue {
   portal: boolean;
   matchTriggerWidth: boolean;
   popoverId: string;
+  // Floating UI
+  floatingRefs: UseFloatingReturn['refs'];
+  floatingStyles: React.CSSProperties;
+  floatingContext: FloatingContext;
+  getReferenceProps: (
+    props?: React.HTMLProps<HTMLElement>
+  ) => Record<string, unknown>;
+  getFloatingProps: (
+    props?: React.HTMLProps<HTMLElement>
+  ) => Record<string, unknown>;
 }

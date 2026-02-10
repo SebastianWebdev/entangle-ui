@@ -1,108 +1,9 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { FloatingFocusManager } from '@floating-ui/react';
 import styled from '@emotion/styled';
 import { usePopoverContext } from './Popover';
 import type { PopoverContentProps } from './Popover.types';
-
-// --- Positioning ---
-
-interface Position {
-  top: number;
-  left: number;
-}
-
-function computePosition(
-  triggerEl: HTMLElement,
-  contentEl: HTMLDivElement,
-  placement: string,
-  offset: number
-): Position {
-  const triggerRect = triggerEl.getBoundingClientRect();
-  const contentRect = contentEl.getBoundingClientRect();
-  const scrollX = window.scrollX;
-  const scrollY = window.scrollY;
-
-  let top = 0;
-  let left = 0;
-
-  // Parse side and alignment
-  const [side, align = 'center'] = placement.split('-') as [string, string?];
-
-  switch (side) {
-    case 'bottom':
-      top = triggerRect.bottom + offset + scrollY;
-      break;
-    case 'top':
-      top = triggerRect.top - contentRect.height - offset + scrollY;
-      break;
-    case 'left':
-      left = triggerRect.left - contentRect.width - offset + scrollX;
-      break;
-    case 'right':
-      left = triggerRect.right + offset + scrollX;
-      break;
-  }
-
-  // Align (for top/bottom sides)
-  if (side === 'top' || side === 'bottom') {
-    switch (align) {
-      case 'start':
-        left = triggerRect.left + scrollX;
-        break;
-      case 'end':
-        left = triggerRect.right - contentRect.width + scrollX;
-        break;
-      default:
-        left =
-          triggerRect.left +
-          triggerRect.width / 2 -
-          contentRect.width / 2 +
-          scrollX;
-    }
-  }
-
-  // Align (for left/right sides)
-  if (side === 'left' || side === 'right') {
-    switch (align) {
-      case 'start':
-        top = triggerRect.top + scrollY;
-        break;
-      case 'end':
-        top = triggerRect.bottom - contentRect.height + scrollY;
-        break;
-      default:
-        top =
-          triggerRect.top +
-          triggerRect.height / 2 -
-          contentRect.height / 2 +
-          scrollY;
-    }
-  }
-
-  return { top, left };
-}
-
-// --- Transform origin map ---
-
-const TRANSFORM_ORIGIN_MAP: Record<string, string> = {
-  bottom: 'top center',
-  'bottom-start': 'top left',
-  'bottom-end': 'top right',
-  top: 'bottom center',
-  'top-start': 'bottom left',
-  'top-end': 'bottom right',
-  left: 'center right',
-  'left-start': 'top right',
-  'left-end': 'bottom right',
-  right: 'center left',
-  'right-start': 'top left',
-  'right-end': 'bottom left',
-};
 
 // --- Styled ---
 
@@ -111,7 +12,6 @@ interface StyledContentProps {
   $maxHeight?: number | string;
   $padding: 'none' | 'sm' | 'md' | 'lg';
   $visible: boolean;
-  $transformOrigin: string;
 }
 
 const PADDING_MAP = {
@@ -122,10 +22,7 @@ const PADDING_MAP = {
 } as const;
 
 const StyledContentPanel = styled.div<StyledContentProps>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1000;
+  z-index: ${props => props.theme.zIndex.popover};
 
   background: ${props => props.theme.colors.background.elevated};
   border: 1px solid ${props => props.theme.colors.border.default};
@@ -151,7 +48,6 @@ const StyledContentPanel = styled.div<StyledContentProps>`
       : ''}
 
   /* Animation */
-  transform-origin: ${props => props.$transformOrigin};
   transition:
     opacity ${props => props.theme.transitions.fast},
     transform ${props => props.theme.transitions.fast};
@@ -179,28 +75,24 @@ export const PopoverContent: React.FC<PopoverContentProps> = ({
 }) => {
   const {
     isOpen,
-    triggerRef,
     contentRef,
-    placement,
-    offset,
     portal,
     matchTriggerWidth,
     popoverId,
+    floatingRefs,
+    floatingStyles,
+    floatingContext,
+    getFloatingProps,
   } = usePopoverContext();
 
-  const [position, setPosition] = useState<Position>({ top: 0, left: 0 });
   const [visible, setVisible] = useState(false);
-  const [triggerWidth, setTriggerWidth] = useState<number | undefined>(
-    undefined
-  );
-
   const contentId = `popover-${popoverId}-content`;
-  const transformOrigin = TRANSFORM_ORIGIN_MAP[placement] ?? 'top left';
 
   // Set ref
   const setRef = useCallback(
     (node: HTMLDivElement | null) => {
       contentRef.current = node;
+      floatingRefs.setFloating(node);
       if (typeof externalRef === 'function') {
         externalRef(node);
       } else if (externalRef && typeof externalRef === 'object') {
@@ -208,83 +100,58 @@ export const PopoverContent: React.FC<PopoverContentProps> = ({
           node;
       }
     },
-    [contentRef, externalRef]
+    [contentRef, floatingRefs, externalRef]
   );
 
-  // Compute position when open
-  useLayoutEffect(() => {
-    if (!isOpen) {
-      setVisible(false);
-      return;
-    }
-
-    const trigger = triggerRef.current;
-    const content = contentRef.current;
-    if (!trigger || !content) return;
-
-    if (matchTriggerWidth) {
-      setTriggerWidth(trigger.offsetWidth);
-    }
-
-    const pos = computePosition(trigger, content, placement, offset);
-    setPosition(pos);
-
-    // Trigger enter animation on next frame
-    requestAnimationFrame(() => {
-      setVisible(true);
-    });
-  }, [isOpen, placement, offset, matchTriggerWidth, triggerRef, contentRef]);
-
-  // Focus first focusable element on open
+  // Trigger enter animation on next frame after open
   useEffect(() => {
-    if (!isOpen) return;
-
-    const timer = setTimeout(() => {
-      const content = contentRef.current;
-      if (!content) return;
-
-      const focusable = content.querySelector<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-      if (focusable) {
-        focusable.focus();
-      } else {
-        content.focus();
-      }
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [isOpen, contentRef]);
+    if (isOpen) {
+      requestAnimationFrame(() => {
+        setVisible(true);
+      });
+    } else {
+      setVisible(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) {
     return null;
   }
 
+  // Get trigger width for matchTriggerWidth
+  const triggerWidth = matchTriggerWidth
+    ? floatingRefs.reference.current
+      ? (floatingRefs.reference.current as HTMLElement).offsetWidth
+      : undefined
+    : undefined;
+
   const computedWidth = matchTriggerWidth ? triggerWidth : width;
 
+  const floatingProps = getFloatingProps();
+
   const contentElement = (
-    <StyledContentPanel
-      ref={setRef}
-      role="dialog"
-      id={contentId}
-      tabIndex={-1}
-      $width={computedWidth}
-      $maxHeight={maxHeight}
-      $padding={padding}
-      $visible={visible}
-      $transformOrigin={transformOrigin}
-      className={className}
-      style={{
-        ...style,
-        transform: `translate(${position.left}px, ${position.top}px) ${visible ? 'scale(1)' : 'scale(0.96)'}`,
-        top: 0,
-        left: 0,
-      }}
-      data-testid={testId}
-      {...rest}
-    >
-      {children}
-    </StyledContentPanel>
+    <FloatingFocusManager context={floatingContext} modal={false}>
+      <StyledContentPanel
+        ref={setRef}
+        role="dialog"
+        id={contentId}
+        tabIndex={-1}
+        $width={computedWidth}
+        $maxHeight={maxHeight}
+        $padding={padding}
+        $visible={visible}
+        className={className}
+        style={{
+          ...floatingStyles,
+          ...style,
+        }}
+        data-testid={testId}
+        {...floatingProps}
+        {...rest}
+      >
+        {children}
+      </StyledContentPanel>
+    </FloatingFocusManager>
   );
 
   if (portal) {

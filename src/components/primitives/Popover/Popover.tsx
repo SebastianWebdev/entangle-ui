@@ -2,11 +2,22 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
 } from 'react';
+import {
+  useFloating,
+  offset as offsetMiddleware,
+  flip,
+  shift,
+  autoUpdate,
+  useClick,
+  useDismiss,
+  useInteractions,
+  type Placement,
+} from '@floating-ui/react';
 import type { PopoverContextValue, PopoverProps } from './Popover.types';
 
 // --- Context ---
@@ -28,6 +39,9 @@ export function usePopoverContext(): PopoverContextValue {
 /**
  * Popover component — a floating content container for interactive content
  * anchored to a trigger element.
+ *
+ * Uses @floating-ui/react for robust positioning with collision detection,
+ * flip/shift behavior, and scroll-aware auto-updating.
  *
  * @example
  * ```tsx
@@ -62,22 +76,26 @@ export const Popover: React.FC<PopoverProps> = ({
   const isControlled = openProp !== undefined;
   const isOpen = isControlled ? openProp : internalOpen;
 
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (!isControlled) {
+        setInternalOpen(nextOpen);
+      }
+      onOpenChange?.(nextOpen);
+    },
+    [isControlled, onOpenChange]
+  );
+
   const openPopover = useCallback(() => {
-    if (!isControlled) {
-      setInternalOpen(true);
-    }
-    onOpenChange?.(true);
-  }, [isControlled, onOpenChange]);
+    handleOpenChange(true);
+  }, [handleOpenChange]);
 
   const closePopover = useCallback(() => {
-    if (!isControlled) {
-      setInternalOpen(false);
-    }
-    onOpenChange?.(false);
+    handleOpenChange(false);
     if (returnFocus) {
       triggerRef.current?.focus();
     }
-  }, [isControlled, onOpenChange, returnFocus]);
+  }, [handleOpenChange, returnFocus]);
 
   const toggle = useCallback(() => {
     if (isOpen) {
@@ -87,52 +105,64 @@ export const Popover: React.FC<PopoverProps> = ({
     }
   }, [isOpen, openPopover, closePopover]);
 
-  // Close on click outside
-  useEffect(() => {
-    if (!isOpen || !closeOnClickOutside) return;
+  // Floating UI setup
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: handleOpenChange,
+    placement: placement as Placement,
+    middleware: [offsetMiddleware(offset), flip(), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
+  });
 
-    const handleMouseDown = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (
-        !triggerRef.current?.contains(target) &&
-        !contentRef.current?.contains(target)
-      ) {
-        closePopover();
-      }
-    };
+  // Interactions
+  const click = useClick(context);
+  const dismiss = useDismiss(context, {
+    outsidePress: closeOnClickOutside,
+    escapeKey: closeOnEscape,
+  });
 
-    document.addEventListener('mousedown', handleMouseDown);
-    return () => document.removeEventListener('mousedown', handleMouseDown);
-  }, [isOpen, closeOnClickOutside, closePopover]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    click,
+    dismiss,
+  ]);
 
-  // Close on Escape
-  useEffect(() => {
-    if (!isOpen || !closeOnEscape) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        closePopover();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, closeOnEscape, closePopover]);
-
-  const contextValue: PopoverContextValue = {
-    isOpen,
-    open: openPopover,
-    close: closePopover,
-    toggle,
-    triggerRef,
-    contentRef,
-    placement,
-    offset,
-    portal,
-    matchTriggerWidth,
-    popoverId: autoId,
-  };
+  const contextValue: PopoverContextValue = useMemo(
+    () => ({
+      isOpen,
+      open: openPopover,
+      close: closePopover,
+      toggle,
+      triggerRef,
+      contentRef,
+      placement,
+      offset,
+      portal,
+      matchTriggerWidth,
+      popoverId: autoId,
+      // Floating UI context
+      floatingRefs: refs,
+      floatingStyles,
+      floatingContext: context,
+      getReferenceProps,
+      getFloatingProps,
+    }),
+    [
+      isOpen,
+      openPopover,
+      closePopover,
+      toggle,
+      placement,
+      offset,
+      portal,
+      matchTriggerWidth,
+      autoId,
+      refs,
+      floatingStyles,
+      context,
+      getReferenceProps,
+      getFloatingProps,
+    ]
+  );
 
   return (
     <PopoverContext.Provider value={contextValue}>

@@ -71,7 +71,8 @@ describe('Popover', () => {
     it('closes on click outside', () => {
       renderPopover({ defaultOpen: true });
       expect(screen.getByText('Popover content')).toBeInTheDocument();
-      fireEvent.mouseDown(document.body);
+      // @floating-ui/react useDismiss listens for pointerdown
+      fireEvent.pointerDown(document.body);
       expect(screen.queryByText('Popover content')).not.toBeInTheDocument();
     });
 

@@ -74,7 +74,7 @@ const StyledSmallInput = styled.input`
 `;
 
 const StyledLabel = styled.span`
-  font-size: 9px;
+  font-size: ${props => props.theme.typography.fontSize.xxs}px;
   color: ${props => props.theme.colors.text.disabled};
   text-align: center;
   display: block;

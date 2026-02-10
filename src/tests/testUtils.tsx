@@ -44,6 +44,7 @@ export const mockTheme: Theme = {
       warning: '#ff9800',
       error: '#f44336',
     },
+    backdrop: 'rgba(0, 0, 0, 0.6)',
   },
   spacing: {
     xs: 2,
@@ -56,6 +57,7 @@ export const mockTheme: Theme = {
   },
   typography: {
     fontSize: {
+      xxs: 9,
       xs: 10,
       sm: 11,
       md: 12,
@@ -87,12 +89,20 @@ export const mockTheme: Theme = {
     sm: '0 1px 2px rgba(0, 0, 0, 0.2)',
     md: '0 2px 4px rgba(0, 0, 0, 0.3)',
     lg: '0 4px 8px rgba(0, 0, 0, 0.4)',
+    xl: '0 8px 16px rgba(0, 0, 0, 0.5)',
     focus: '0 0 0 2px rgba(0, 122, 204, 0.4)',
   },
   transitions: {
     fast: '100ms ease-out',
     normal: '200ms ease-out',
     slow: '300ms ease-out',
+  },
+  zIndex: {
+    base: 1,
+    dropdown: 1000,
+    popover: 1000,
+    tooltip: 1000,
+    modal: 1100,
   },
 } as const;
 
