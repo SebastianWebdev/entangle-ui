@@ -103,7 +103,7 @@ const StyledDropdown = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius.md}px;
   box-shadow: ${({ theme }) => theme.shadows.lg};
   padding: ${({ theme }) => theme.spacing.xs}px 0;
-  z-index: 1000;
+  z-index: ${({ theme }) => theme.zIndex.dropdown};
 `;
 
 const StyledItem = styled.button<{
@@ -170,7 +170,7 @@ const StyledSubDropdown = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius.md}px;
   box-shadow: ${({ theme }) => theme.shadows.lg};
   padding: ${({ theme }) => theme.spacing.xs}px 0;
-  z-index: 1001;
+  z-index: ${({ theme }) => theme.zIndex.dropdown + 1};
 `;
 
 const StyledSubContainer = styled.div<{ $css?: MenuBarSubProps['css'] }>`
@@ -179,8 +179,19 @@ const StyledSubContainer = styled.div<{ $css?: MenuBarSubProps['css'] }>`
   ${({ $css, theme }) => processCss($css, theme)}
 `;
 
+const SUBMENU_CLOSE_DELAY = 150;
+
+const MENU_ITEM_SELECTOR = '[role="menuitem"]:not(:disabled)';
+
 const ChevronRight = () => (
-  <span style={{ fontSize: '8px', lineHeight: 1 }}>&#x25B6;</span>
+  <span
+    style={{
+      fontSize: '8px',
+      lineHeight: 1,
+    }}
+  >
+    &#x25B6;
+  </span>
 );
 
 // --- Sub-components ---
@@ -253,7 +264,7 @@ const MenuBarSub: React.FC<MenuBarSubProps> = ({
   }, [disabled]);
 
   const handleLeave = useCallback(() => {
-    closeTimer.current = setTimeout(() => setOpen(false), 150);
+    closeTimer.current = setTimeout(() => setOpen(false), SUBMENU_CLOSE_DELAY);
   }, []);
 
   useEffect(() => {
@@ -365,7 +376,7 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
         // Focus first item in dropdown after open
         setTimeout(() => {
           const firstItem = dropdownRef.current?.querySelector(
-            '[role="menuitem"]:not(:disabled)'
+            MENU_ITEM_SELECTOR
           ) as HTMLElement | null;
           firstItem?.focus();
         }, 0);
@@ -383,7 +394,7 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
     (e: KeyboardEvent<HTMLDivElement>) => {
       const items = Array.from(
         dropdownRef.current?.querySelectorAll<HTMLElement>(
-          '[role="menuitem"]:not(:disabled)'
+          MENU_ITEM_SELECTOR
         ) ?? []
       );
       const currentIndex = items.indexOf(document.activeElement as HTMLElement);
@@ -543,18 +554,28 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
     [openMenuId]
   );
 
+  const contextValue = useMemo(
+    () => ({
+      size: $size,
+      menuOffset: safeMenuOffset,
+      openMenuId,
+      setOpenMenuId,
+      registerMenu,
+      unregisterMenu,
+      menuIds: menuIdsRef.current,
+    }),
+    [
+      $size,
+      safeMenuOffset,
+      openMenuId,
+      setOpenMenuId,
+      registerMenu,
+      unregisterMenu,
+    ]
+  );
+
   return (
-    <MenuBarContext.Provider
-      value={{
-        size: $size,
-        menuOffset: safeMenuOffset,
-        openMenuId,
-        setOpenMenuId,
-        registerMenu,
-        unregisterMenu,
-        menuIds: menuIdsRef.current,
-      }}
-    >
+    <MenuBarContext.Provider value={contextValue}>
       <StyledMenuBar
         ref={setBarRef}
         $size={$size}

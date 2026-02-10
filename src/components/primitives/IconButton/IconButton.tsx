@@ -328,44 +328,46 @@ const LoadingSpinner = styled.div<{ $size: IconButtonSize }>`
  * </IconButton>
  * ```
  */
-export const IconButton: React.FC<IconButtonProps> = ({
-  children,
-  className,
-  size = 'md',
-  variant = 'ghost',
-  radius = 'md',
-  disabled = false,
-  loading = false,
-  pressed = false,
-  onClick,
-  'aria-label': ariaLabel,
-  testId,
-  css,
-  style,
-  ref,
-  ...props
-}) => {
-  return (
-    <StyledIconButton
-      ref={ref}
-      className={className}
-      $size={size}
-      $variant={variant}
-      $radius={radius}
-      $loading={loading}
-      $pressed={pressed}
-      $css={css}
-      disabled={disabled || loading}
-      onClick={onClick}
-      aria-label={ariaLabel}
-      aria-pressed={pressed}
-      data-testid={testId}
-      style={style}
-      {...props}
-    >
-      {loading ? <LoadingSpinner $size={size} /> : children}
-    </StyledIconButton>
-  );
-};
+export const IconButton = React.memo<IconButtonProps>(
+  ({
+    children,
+    className,
+    size = 'md',
+    variant = 'ghost',
+    radius = 'md',
+    disabled = false,
+    loading = false,
+    pressed = false,
+    onClick,
+    'aria-label': ariaLabel,
+    testId,
+    css,
+    style,
+    ref,
+    ...props
+  }) => {
+    return (
+      <StyledIconButton
+        ref={ref}
+        className={className}
+        $size={size}
+        $variant={variant}
+        $radius={radius}
+        $loading={loading}
+        $pressed={pressed}
+        $css={css}
+        disabled={disabled || loading}
+        onClick={onClick}
+        aria-label={ariaLabel}
+        aria-pressed={pressed}
+        data-testid={testId}
+        style={style}
+        {...props}
+      >
+        {loading ? <LoadingSpinner $size={size} /> : children}
+      </StyledIconButton>
+    );
+  }
+);
 
 IconButton.displayName = 'IconButton';

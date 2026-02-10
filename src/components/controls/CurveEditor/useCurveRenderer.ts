@@ -37,6 +37,7 @@ interface UseCurveRendererOptions {
   disabled: boolean;
   isDragging: boolean;
   lockTangents: boolean;
+  resizeToken?: number;
 }
 
 export function useCurveRenderer(options: UseCurveRendererOptions): void {

@@ -226,7 +226,7 @@ interface StyledDropdownProps {
 
 const StyledDropdown = styled.div<StyledDropdownProps>`
   position: fixed;
-  z-index: 9999;
+  z-index: ${props => props.theme.zIndex.dropdown};
   background: ${props => props.theme.colors.background.elevated};
   border: 1px solid ${props => props.theme.colors.border.default};
   border-radius: ${props => props.theme.borderRadius.md}px;

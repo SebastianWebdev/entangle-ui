@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useId, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useId,
+  useMemo,
+  useState,
+} from 'react';
 import styled from '@emotion/styled';
 import { processCss } from '@/utils/styledUtils';
 import type { TabsContextValue, TabsProps } from './Tabs.types';
@@ -75,23 +82,38 @@ export const Tabs: React.FC<TabsProps> = ({
   const isControlled = valueProp !== undefined;
   const activeValue = isControlled ? valueProp : internalValue;
 
-  const setActiveValue = (val: string) => {
-    if (!isControlled) {
-      setInternalValue(val);
-    }
-    onChange?.(val);
-  };
+  const setActiveValue = useCallback(
+    (val: string) => {
+      if (!isControlled) {
+        setInternalValue(val);
+      }
+      onChange?.(val);
+    },
+    [isControlled, onChange]
+  );
 
-  const contextValue: TabsContextValue = {
-    activeValue,
-    setActiveValue,
-    variant,
-    size,
-    orientation,
-    fullWidth,
-    pillsFrame,
-    tabsId,
-  };
+  const contextValue = useMemo<TabsContextValue>(
+    () => ({
+      activeValue,
+      setActiveValue,
+      variant,
+      size,
+      orientation,
+      fullWidth,
+      pillsFrame,
+      tabsId,
+    }),
+    [
+      activeValue,
+      setActiveValue,
+      variant,
+      size,
+      orientation,
+      fullWidth,
+      pillsFrame,
+      tabsId,
+    ]
+  );
 
   return (
     <TabsContext.Provider value={contextValue}>

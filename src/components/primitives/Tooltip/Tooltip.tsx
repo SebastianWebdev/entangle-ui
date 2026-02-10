@@ -133,7 +133,7 @@ const StyledTooltipContent = styled.div<{
   box-shadow: ${props => props.theme.shadows.lg};
   max-width: 320px;
   word-wrap: break-word;
-  z-index: 1000; // Ensure tooltip is above other content
+  z-index: ${props => props.theme.zIndex.tooltip};
   min-height: 25px; // Ensure minimum height for better UX
   display: flex;
   align-items: center; // Center content vertically

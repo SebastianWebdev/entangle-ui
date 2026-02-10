@@ -64,7 +64,8 @@
   "dependencies": {
     "@base-ui-components/react": "^1.0.0-beta.0",
     "@emotion/react": "^11.0.0",
-    "@emotion/styled": "^11.0.0"
+    "@emotion/styled": "^11.0.0",
+    "@floating-ui/react": "^0.27.17"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.2",

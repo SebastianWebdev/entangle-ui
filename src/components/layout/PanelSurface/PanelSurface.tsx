@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { processCss } from '@/utils/styledUtils';
 import type { Theme } from '@/theme';
@@ -225,8 +225,10 @@ const PanelSurfaceRoot: React.FC<PanelSurfaceProps> = ({
   ref,
   ...rest
 }) => {
+  const contextValue = useMemo(() => ({ size }), [size]);
+
   return (
-    <PanelSurfaceContext.Provider value={{ size }}>
+    <PanelSurfaceContext.Provider value={contextValue}>
       <StyledRoot
         ref={ref}
         className={className}

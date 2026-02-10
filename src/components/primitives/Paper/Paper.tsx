@@ -195,7 +195,7 @@ const StyledPaper = styled.div<StyledPaperProps>`
           ? props.theme.shadows.md
           : props.$elevation === 2
             ? props.theme.shadows.lg
-            : '0 8px 16px rgba(0, 0, 0, 0.5)'
+            : props.theme.shadows.xl
       };
     }
   `}

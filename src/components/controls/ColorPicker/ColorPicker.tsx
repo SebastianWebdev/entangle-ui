@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { Popover } from '@/components/primitives/Popover/Popover';
 import { PopoverTrigger } from '@/components/primitives/Popover/PopoverTrigger';
@@ -23,6 +23,19 @@ import {
 import { useColor } from './useColor';
 import type { ColorPickerProps } from './ColorPicker.types';
 import type { Palette, PaletteColor } from './palettes';
+
+// --- Constants ---
+
+const PALETTE_MAP: Record<string, Palette> = {
+  material: MATERIAL_PALETTE,
+  tailwind: TAILWIND_PALETTE,
+  pastel: PASTEL_PALETTE,
+  earth: EARTH_PALETTE,
+  neon: NEON_PALETTE,
+  monochrome: MONOCHROME_PALETTE,
+  'skin-tones': SKIN_TONES_PALETTE,
+  vintage: VINTAGE_PALETTE,
+};
 
 // --- Styled ---
 
@@ -76,29 +89,19 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
     onChangeComplete,
   });
 
-  const PALETTE_MAP: Record<string, Palette> = {
-    material: MATERIAL_PALETTE,
-    tailwind: TAILWIND_PALETTE,
-    pastel: PASTEL_PALETTE,
-    earth: EARTH_PALETTE,
-    neon: NEON_PALETTE,
-    monochrome: MONOCHROME_PALETTE,
-    'skin-tones': SKIN_TONES_PALETTE,
-    vintage: VINTAGE_PALETTE,
-  };
-
-  const resolvedPalette: { colors: PaletteColor[]; title: string } | undefined =
-    (() => {
-      if (!palette) return undefined;
-      if (typeof palette === 'string') {
-        const found = PALETTE_MAP[palette];
-        return found ? { colors: found.colors, title: found.name } : undefined;
-      }
-      if (Array.isArray(palette)) {
-        return { colors: palette, title: 'Palette' };
-      }
-      return { colors: palette.colors, title: palette.name };
-    })();
+  const resolvedPalette = useMemo<
+    { colors: PaletteColor[]; title: string } | undefined
+  >(() => {
+    if (!palette) return undefined;
+    if (typeof palette === 'string') {
+      const found = PALETTE_MAP[palette];
+      return found ? { colors: found.colors, title: found.name } : undefined;
+    }
+    if (Array.isArray(palette)) {
+      return { colors: palette, title: 'Palette' };
+    }
+    return { colors: palette.colors, title: palette.name };
+  }, [palette]);
 
   const pickerBody = (
     <StyledPickerBody data-testid={testId ? `${testId}-panel` : undefined}>

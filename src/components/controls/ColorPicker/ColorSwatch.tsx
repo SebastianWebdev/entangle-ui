@@ -67,38 +67,40 @@ const StyledSwatchColor = styled.span`
   border-radius: inherit;
 `;
 
-export const ColorSwatch: React.FC<ColorSwatchProps> = ({
-  color,
-  size = 'md',
-  shape = 'square',
-  disabled = false,
-  onClick,
-  className,
-  style,
-  testId,
-  ref,
-  ...rest
-}) => {
-  const pixelSize = SWATCH_SIZE_MAP[size];
+export const ColorSwatch = React.memo<ColorSwatchProps>(
+  ({
+    color,
+    size = 'md',
+    shape = 'square',
+    disabled = false,
+    onClick,
+    className,
+    style,
+    testId,
+    ref,
+    ...rest
+  }) => {
+    const pixelSize = SWATCH_SIZE_MAP[size];
 
-  return (
-    <StyledSwatch
-      ref={ref}
-      type="button"
-      $size={pixelSize}
-      $shape={shape}
-      $disabled={disabled}
-      disabled={disabled}
-      onClick={onClick}
-      className={className}
-      style={style}
-      data-testid={testId}
-      aria-label={rest['aria-label'] ?? `Color: ${color}`}
-      {...rest}
-    >
-      <StyledSwatchColor style={{ background: color }} />
-    </StyledSwatch>
-  );
-};
+    return (
+      <StyledSwatch
+        ref={ref}
+        type="button"
+        $size={pixelSize}
+        $shape={shape}
+        $disabled={disabled}
+        disabled={disabled}
+        onClick={onClick}
+        className={className}
+        style={style}
+        data-testid={testId}
+        aria-label={rest['aria-label'] ?? `Color: ${color}`}
+        {...rest}
+      >
+        <StyledSwatchColor style={{ background: color }} />
+      </StyledSwatch>
+    );
+  }
+);
 
 ColorSwatch.displayName = 'ColorSwatch';
