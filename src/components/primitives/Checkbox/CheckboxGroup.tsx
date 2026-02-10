@@ -9,7 +9,7 @@ import type {
 } from './Checkbox.types';
 
 export const CheckboxGroupContext =
-  createContext<CheckboxGroupContextValue | null>(null);
+  /*#__PURE__*/ createContext<CheckboxGroupContextValue | null>(null);
 
 interface StyledGroupProps {
   $direction: 'row' | 'column';

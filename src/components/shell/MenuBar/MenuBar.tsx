@@ -23,7 +23,7 @@ import type {
 
 // --- Context ---
 
-const MenuBarContext = createContext<MenuBarContextValue>({
+const MenuBarContext = /*#__PURE__*/ createContext<MenuBarContextValue>({
   size: 'md',
   menuOffset: 2,
   openMenuId: null,
@@ -598,7 +598,7 @@ MenuBarRoot.displayName = 'MenuBar';
 
 // --- Compound Component ---
 
-export const MenuBar = Object.assign(MenuBarRoot, {
+export const MenuBar = /*#__PURE__*/ Object.assign(MenuBarRoot, {
   Menu: MenuBarMenu,
   Item: MenuBarItem,
   Sub: MenuBarSub,

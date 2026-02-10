@@ -20,7 +20,7 @@ import type {
   ToolbarSize,
 } from './Toolbar.types';
 
-const ToolbarContext = createContext<ToolbarContextValue>({
+const ToolbarContext = /*#__PURE__*/ createContext<ToolbarContextValue>({
   orientation: 'horizontal',
   size: 'md',
 });
@@ -142,7 +142,7 @@ function focusableItems(container: HTMLElement): HTMLElement[] {
 
 // --- Sub-components ---
 
-const ToolbarButton = React.memo<ToolbarButtonProps>(
+const ToolbarButton = /*#__PURE__*/ React.memo<ToolbarButtonProps>(
   ({
     onClick,
     icon,
@@ -184,7 +184,7 @@ const ToolbarButton = React.memo<ToolbarButtonProps>(
 
 ToolbarButton.displayName = 'Toolbar.Button';
 
-const ToolbarToggle = React.memo<ToolbarToggleProps>(
+const ToolbarToggle = /*#__PURE__*/ React.memo<ToolbarToggleProps>(
   ({
     pressed,
     onPressedChange,
@@ -228,7 +228,7 @@ const ToolbarToggle = React.memo<ToolbarToggleProps>(
 
 ToolbarToggle.displayName = 'Toolbar.Toggle';
 
-const ToolbarGroup = React.memo<ToolbarGroupProps>(
+const ToolbarGroup = /*#__PURE__*/ React.memo<ToolbarGroupProps>(
   ({ children, className, style, testId, css, ref, ...rest }) => {
     const { orientation } = useToolbar();
 
@@ -251,7 +251,7 @@ const ToolbarGroup = React.memo<ToolbarGroupProps>(
 
 ToolbarGroup.displayName = 'Toolbar.Group';
 
-const ToolbarSeparator = React.memo<ToolbarSeparatorProps>(
+const ToolbarSeparator = /*#__PURE__*/ React.memo<ToolbarSeparatorProps>(
   ({ className, style, testId, css, ref, ...rest }) => {
     const { orientation } = useToolbar();
     return (
@@ -274,7 +274,7 @@ const ToolbarSeparator = React.memo<ToolbarSeparatorProps>(
 
 ToolbarSeparator.displayName = 'Toolbar.Separator';
 
-const ToolbarSpacer = React.memo<ToolbarSpacerProps>(
+const ToolbarSpacer = /*#__PURE__*/ React.memo<ToolbarSpacerProps>(
   ({ className, style, testId, css, ref, ...rest }) => {
     return (
       <StyledSpacer
@@ -397,7 +397,7 @@ ToolbarRoot.displayName = 'Toolbar';
 
 // --- Compound Component ---
 
-export const Toolbar = Object.assign(ToolbarRoot, {
+export const Toolbar = /*#__PURE__*/ Object.assign(ToolbarRoot, {
   Button: ToolbarButton,
   Toggle: ToolbarToggle,
   Group: ToolbarGroup,

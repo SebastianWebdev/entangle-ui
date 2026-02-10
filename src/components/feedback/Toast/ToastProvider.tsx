@@ -17,7 +17,8 @@ export interface ToastContextValue {
   defaultDuration: number;
 }
 
-export const ToastContext = createContext<ToastContextValue | null>(null);
+export const ToastContext =
+  /*#__PURE__*/ createContext<ToastContextValue | null>(null);
 
 // --- Reducer ---
 

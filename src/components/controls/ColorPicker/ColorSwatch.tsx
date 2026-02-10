@@ -67,7 +67,7 @@ const StyledSwatchColor = styled.span`
   border-radius: inherit;
 `;
 
-export const ColorSwatch = React.memo<ColorSwatchProps>(
+export const ColorSwatch = /*#__PURE__*/ React.memo<ColorSwatchProps>(
   ({
     color,
     size = 'md',

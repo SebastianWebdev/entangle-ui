@@ -15,10 +15,10 @@ import type {
 
 // --- Contexts ---
 
-const AccordionContext = createContext<AccordionContextValue | null>(null);
-const AccordionItemContext = createContext<AccordionItemContextValue | null>(
-  null
-);
+const AccordionContext =
+  /*#__PURE__*/ createContext<AccordionContextValue | null>(null);
+const AccordionItemContext =
+  /*#__PURE__*/ createContext<AccordionItemContextValue | null>(null);
 
 export function useAccordionContext(): AccordionContextValue {
   const ctx = useContext(AccordionContext);

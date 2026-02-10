@@ -16,9 +16,8 @@ import type {
 
 // --- Context ---
 
-const PropertyPanelContext = createContext<PropertyPanelContextValue | null>(
-  null
-);
+const PropertyPanelContext =
+  /*#__PURE__*/ createContext<PropertyPanelContextValue | null>(null);
 
 /**
  * Returns the PropertyPanel context value, or null if not inside a PropertyPanel.

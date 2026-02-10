@@ -100,7 +100,7 @@ const StyledSVG = styled.svg<StyledSVGProps>`
   ${props => processCss(props.$css, props.theme)}
 `;
 
-export const Icon = React.memo<IconProps>(
+export const Icon = /*#__PURE__*/ React.memo<IconProps>(
   ({
     children,
     size = 'md',

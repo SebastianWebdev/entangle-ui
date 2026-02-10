@@ -13,7 +13,9 @@ import { useFocusTrap } from './useFocusTrap';
 
 // --- Context ---
 
-const DialogContext = createContext<DialogContextValue | null>(null);
+const DialogContext = /*#__PURE__*/ createContext<DialogContextValue | null>(
+  null
+);
 
 export function useDialogContext(): DialogContextValue {
   const ctx = useContext(DialogContext);

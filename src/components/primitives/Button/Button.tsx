@@ -269,7 +269,7 @@ const IconWrapper = styled.span`
  * </Button>
  * ```
  */
-export const Button = React.memo<ButtonProps>(
+export const Button = /*#__PURE__*/ React.memo<ButtonProps>(
   ({
     children,
     className,

@@ -101,7 +101,7 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
  * </Stack>
  * ```
  */
-export const Spacer = React.memo<SpacerProps>(
+export const Spacer = /*#__PURE__*/ React.memo<SpacerProps>(
   ({ size, className, testId, css, style, ref, ...htmlProps }) => {
     return (
       <StyledSpacer

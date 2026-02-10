@@ -50,7 +50,7 @@ const StyledHelperText = styled.div<{
  * <FormHelperText error>{usernameError}</FormHelperText>
  * ```
  */
-export const FormHelperText = React.memo<FormHelperTextProps>(
+export const FormHelperText = /*#__PURE__*/ React.memo<FormHelperTextProps>(
   ({ children, error = false, className, style, css, ref, ...rest }) => {
     return (
       <StyledHelperText

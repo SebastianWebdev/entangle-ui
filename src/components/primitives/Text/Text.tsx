@@ -337,7 +337,7 @@ const StyledText = styled.span<StyledTextProps>`
  * <Text as="label" variant="caption">Form label</Text>
  * ```
  */
-export const Text = React.memo<TextProps>(
+export const Text = /*#__PURE__*/ React.memo<TextProps>(
   ({
     children,
     as = 'span',

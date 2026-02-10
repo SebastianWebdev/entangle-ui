@@ -12,7 +12,9 @@ import type {
   StatusBarSectionSide,
 } from './StatusBar.types';
 
-const StatusBarContext = createContext<StatusBarContextValue>({ size: 'sm' });
+const StatusBarContext = /*#__PURE__*/ createContext<StatusBarContextValue>({
+  size: 'sm',
+});
 
 const useStatusBar = () => useContext(StatusBarContext);
 
@@ -131,7 +133,7 @@ const StyledBadge = styled.span<{ $dot: boolean }>`
 
 // --- Sub-components ---
 
-const StatusBarSection = React.memo<StatusBarSectionProps>(
+const StatusBarSection = /*#__PURE__*/ React.memo<StatusBarSectionProps>(
   ({
     $side = 'left',
     children,
@@ -160,7 +162,7 @@ const StatusBarSection = React.memo<StatusBarSectionProps>(
 
 StatusBarSection.displayName = 'StatusBar.Section';
 
-const StatusBarItem = React.memo<StatusBarItemProps>(
+const StatusBarItem = /*#__PURE__*/ React.memo<StatusBarItemProps>(
   ({
     onClick,
     icon,
@@ -265,7 +267,7 @@ StatusBarRoot.displayName = 'StatusBar';
 
 // --- Compound Component ---
 
-export const StatusBar = Object.assign(StatusBarRoot, {
+export const StatusBar = /*#__PURE__*/ Object.assign(StatusBarRoot, {
   Section: StatusBarSection,
   Item: StatusBarItem,
 });

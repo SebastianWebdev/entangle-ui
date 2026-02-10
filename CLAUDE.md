@@ -11,7 +11,7 @@ Entangle UI is a React component library for professional editor interfaces (3D 
 | Task            | Command                                                                     |
 | --------------- | --------------------------------------------------------------------------- |
 | Dev (Storybook) | `npm dev` or `npm storybook` (port 6006)                                    |
-| Build           | `npm build` (Rollup → CJS + ESM + DTS in `dist/`)                           |
+| Build           | `npm build` (Rollup → ESM + DTS in `dist/`)                                 |
 | Test            | `npm test` (Vitest, run mode)                                               |
 | Test with UI    | `npm test:ui`                                                               |
 | Test coverage   | `npm test:coverage` (80% threshold for branches/functions/lines/statements) |
@@ -21,6 +21,7 @@ Entangle UI is a React component library for professional editor interfaces (3D 
 | Type check      | `npm type-check`                                                            |
 | Format          | `npm format`                                                                |
 | Format check    | `npm format:check`                                                          |
+| Bundle size     | `npm size` (size-limit)                                                     |
 
 ## Architecture
 
@@ -77,10 +78,15 @@ ComponentName/
 
 ## Build System
 
-- **Rollup** produces CJS (`dist/index.js`), ESM (`dist/index.esm.js`), and types (`dist/index.d.ts`)
+- **Rollup** produces ESM modules (`dist/esm/`) with `preserveModules` and types (`dist/types/`)
+- **No CJS output** — package is ESM-only (`"type": "module"`)
+- **Tree-shakeable**: `sideEffects: false` + `preserveModules` + `/*#__PURE__*/` annotations
+- **Build config**: `tsconfig.build.json` (extends `tsconfig.json`, excludes tests/stories)
 - **Vite** is only used for Storybook dev server, not library builds
-- Externals: react, react-dom, @base-ui/react
+- Externals: react, react-dom, react/jsx-runtime, @emotion/react, @emotion/styled, @base-ui-components/react, @floating-ui/react
 - Peer deps: React 19.1+, @emotion/react 11+, @emotion/styled 11+
+- Deep imports: `entangle-ui/palettes` available via `"exports"` field
+- Size guard: `npm run size` (size-limit)
 
 ## Storybook
 
