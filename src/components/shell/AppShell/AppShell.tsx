@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import styled from '@emotion/styled';
 import { Global, css, useTheme } from '@emotion/react';
 import { processCss } from '@/utils/styledUtils';
@@ -71,7 +77,7 @@ const StyledToolbarTopSlot = styled.div<{
     $topChromeSeparator === 'shadow' || $topChromeSeparator === 'both'
       ? '0 1px 2px rgba(0, 0, 0, 0.18)'
       : 'none'};
-  z-index: 1;
+  z-index: ${({ theme }) => theme.zIndex.base};
 
   ${({ $css, theme }) => processCss($css, theme)}
 `;
@@ -92,7 +98,7 @@ const StyledToolbarLeftSlot = styled.aside<{
     $sideChromeSeparator === 'shadow' || $sideChromeSeparator === 'both'
       ? '1px 0 2px rgba(0, 0, 0, 0.18)'
       : 'none'};
-  z-index: 1;
+  z-index: ${({ theme }) => theme.zIndex.base};
 
   ${({ $css, theme }) => processCss($css, theme)}
 `;
@@ -113,7 +119,7 @@ const StyledToolbarRightSlot = styled.aside<{
     $sideChromeSeparator === 'shadow' || $sideChromeSeparator === 'both'
       ? '-1px 0 2px rgba(0, 0, 0, 0.18)'
       : 'none'};
-  z-index: 1;
+  z-index: ${({ theme }) => theme.zIndex.base};
 
   ${({ $css, theme }) => processCss($css, theme)}
 `;
@@ -318,15 +324,23 @@ const AppShellRoot: React.FC<AppShellProps> = ({
     []
   );
 
+  const contextValue = useMemo(
+    () => ({
+      isToolbarVisible,
+      setToolbarVisible,
+      topChromeSeparator,
+      sideChromeSeparator,
+    }),
+    [
+      isToolbarVisible,
+      setToolbarVisible,
+      topChromeSeparator,
+      sideChromeSeparator,
+    ]
+  );
+
   return (
-    <AppShellContext.Provider
-      value={{
-        isToolbarVisible,
-        setToolbarVisible,
-        topChromeSeparator,
-        sideChromeSeparator,
-      }}
-    >
+    <AppShellContext.Provider value={contextValue}>
       {viewportLock && <ViewportLockStyles />}
       <StyledAppShell
         ref={ref}

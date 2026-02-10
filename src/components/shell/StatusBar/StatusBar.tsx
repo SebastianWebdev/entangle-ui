@@ -1,6 +1,7 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { processCss } from '@/utils/styledUtils';
+import type { Theme } from '@/theme';
 import type {
   StatusBarProps,
   StatusBarSectionProps,
@@ -65,15 +66,15 @@ const StyledSection = styled.div<{
   ${({ $css, theme }) => processCss($css, theme)}
 `;
 
-const itemStyles = `
+const itemStyles = (props: { theme: Theme }) => `
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: ${props.theme.spacing.sm}px;
   border: none;
   background: transparent;
   color: inherit;
   font: inherit;
-  padding: 0 4px;
+  padding: 0 ${props.theme.spacing.sm}px;
   height: 100%;
   white-space: nowrap;
   overflow: hidden;
@@ -83,7 +84,7 @@ const itemStyles = `
 `;
 
 const StyledItemButton = styled.button<{ $css?: StatusBarItemProps['css'] }>`
-  ${itemStyles}
+  ${props => itemStyles(props)}
   cursor: pointer;
   border-radius: ${({ theme }) => theme.borderRadius.sm}px;
 
@@ -108,7 +109,7 @@ const StyledItemButton = styled.button<{ $css?: StatusBarItemProps['css'] }>`
 `;
 
 const StyledItemSpan = styled.span<{ $css?: StatusBarItemProps['css'] }>`
-  ${itemStyles}
+  ${props => itemStyles(props)}
 
   ${({ $css, theme }) => processCss($css, theme)}
 `;
@@ -122,7 +123,7 @@ const StyledBadge = styled.span<{ $dot: boolean }>`
   border-radius: ${({ $dot }) => ($dot ? '50%' : '7px')};
   background: ${({ theme }) => theme.colors.accent.warning};
   color: ${({ theme }) => theme.colors.text.primary};
-  font-size: 9px;
+  font-size: ${({ theme }) => theme.typography.fontSize.xxs}px;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   padding: ${({ $dot }) => ($dot ? '0' : '0 3px')};
   line-height: 1;
@@ -130,94 +131,98 @@ const StyledBadge = styled.span<{ $dot: boolean }>`
 
 // --- Sub-components ---
 
-const StatusBarSection: React.FC<StatusBarSectionProps> = ({
-  $side = 'left',
-  children,
-  className,
-  style,
-  testId,
-  css,
-  ref,
-  ...rest
-}) => {
-  return (
-    <StyledSection
-      ref={ref}
-      $side={$side}
-      className={className}
-      style={style}
-      data-testid={testId}
-      $css={css}
-      {...rest}
-    >
-      {children}
-    </StyledSection>
-  );
-};
-
-StatusBarSection.displayName = 'StatusBar.Section';
-
-const StatusBarItem: React.FC<StatusBarItemProps> = ({
-  onClick,
-  icon,
-  children,
-  title,
-  badge,
-  disabled = false,
-  className,
-  style,
-  testId,
-  css,
-  ref,
-  ...rest
-}) => {
-  useStatusBar();
-
-  const content = (
-    <>
-      {icon}
-      {children && <span>{children}</span>}
-      {badge !== undefined && badge !== false && (
-        <StyledBadge $dot={badge === true}>
-          {typeof badge === 'number' ? badge : null}
-        </StyledBadge>
-      )}
-    </>
-  );
-
-  if (onClick) {
+const StatusBarSection = React.memo<StatusBarSectionProps>(
+  ({
+    $side = 'left',
+    children,
+    className,
+    style,
+    testId,
+    css,
+    ref,
+    ...rest
+  }) => {
     return (
-      <StyledItemButton
-        onClick={onClick}
-        title={title}
-        disabled={disabled}
+      <StyledSection
+        ref={ref}
+        $side={$side}
         className={className}
         style={style}
         data-testid={testId}
         $css={css}
-        ref={ref as React.Ref<HTMLButtonElement>}
-        type="button"
+        {...rest}
+      >
+        {children}
+      </StyledSection>
+    );
+  }
+);
+
+StatusBarSection.displayName = 'StatusBar.Section';
+
+const StatusBarItem = React.memo<StatusBarItemProps>(
+  ({
+    onClick,
+    icon,
+    children,
+    title,
+    badge,
+    disabled = false,
+    className,
+    style,
+    testId,
+    css,
+    ref,
+    ...rest
+  }) => {
+    useStatusBar();
+
+    const content = (
+      <>
+        {icon}
+        {children && <span>{children}</span>}
+        {badge !== undefined && badge !== false && (
+          <StyledBadge $dot={badge === true}>
+            {typeof badge === 'number' ? badge : null}
+          </StyledBadge>
+        )}
+      </>
+    );
+
+    if (onClick) {
+      return (
+        <StyledItemButton
+          onClick={onClick}
+          title={title}
+          disabled={disabled}
+          className={className}
+          style={style}
+          data-testid={testId}
+          $css={css}
+          ref={ref as React.Ref<HTMLButtonElement>}
+          type="button"
+          {...rest}
+        >
+          {content}
+        </StyledItemButton>
+      );
+    }
+
+    return (
+      <StyledItemSpan
+        title={title}
+        className={className}
+        style={style}
+        data-testid={testId}
+        $css={css}
+        ref={ref as React.Ref<HTMLSpanElement>}
         {...rest}
       >
         {content}
-      </StyledItemButton>
+      </StyledItemSpan>
     );
   }
-
-  return (
-    <StyledItemSpan
-      title={title}
-      className={className}
-      style={style}
-      data-testid={testId}
-      $css={css}
-      ref={ref as React.Ref<HTMLSpanElement>}
-      {...rest}
-    >
-      {content}
-    </StyledItemSpan>
-  );
-};
+);
 
 StatusBarItem.displayName = 'StatusBar.Item';
 
@@ -234,8 +239,10 @@ const StatusBarRoot: React.FC<StatusBarProps> = ({
   ref,
   ...rest
 }) => {
+  const contextValue = useMemo(() => ({ size: $size }), [$size]);
+
   return (
-    <StatusBarContext.Provider value={{ size: $size }}>
+    <StatusBarContext.Provider value={contextValue}>
       <StyledStatusBar
         ref={ref}
         $variant={$variant}

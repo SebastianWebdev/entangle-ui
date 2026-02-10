@@ -1,4 +1,10 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import styled from '@emotion/styled';
 import { processCss } from '@/utils/styledUtils';
 import { ScrollArea } from '@/components/layout/ScrollArea';
@@ -147,10 +153,13 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
     [onSearchChange]
   );
 
-  const contextValue: PropertyPanelContextValue = {
-    size,
-    searchQuery: searchQuery.toLowerCase(),
-  };
+  const contextValue = useMemo<PropertyPanelContextValue>(
+    () => ({
+      size,
+      searchQuery: searchQuery.toLowerCase(),
+    }),
+    [size, searchQuery]
+  );
 
   const hasHeader = header != null || searchable;
   const hasFooter = footer != null;
