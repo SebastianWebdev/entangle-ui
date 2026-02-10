@@ -24,6 +24,7 @@ export const mockTheme: Theme = {
       hover: '#363636',
       active: '#404040',
       disabled: '#1f1f1f',
+      whiteOverlay: 'rgba(255, 255, 255, 0.1)',
     },
     border: {
       default: '#4a4a4a',
@@ -91,6 +92,10 @@ export const mockTheme: Theme = {
     lg: '0 4px 8px rgba(0, 0, 0, 0.4)',
     xl: '0 8px 16px rgba(0, 0, 0, 0.5)',
     focus: '0 0 0 2px rgba(0, 122, 204, 0.4)',
+    separatorBottom: '0 1px 2px rgba(0, 0, 0, 0.18)',
+    separatorRight: '1px 0 2px rgba(0, 0, 0, 0.18)',
+    separatorLeft: '-1px 0 2px rgba(0, 0, 0, 0.18)',
+    thumb: '0 0 2px rgba(0, 0, 0, 0.5)',
   },
   transitions: {
     fast: '100ms ease-out',

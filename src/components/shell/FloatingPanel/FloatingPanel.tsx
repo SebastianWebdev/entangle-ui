@@ -138,7 +138,7 @@ const StyledHeaderButton = styled.span`
   line-height: 1;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: ${({ theme }) => theme.colors.surface.whiteOverlay};
     color: ${({ theme }) => theme.colors.text.primary};
   }
 `;
