@@ -1,117 +1,171 @@
-# ⚛️ Entangle UI
+# Entangle UI
 
-> Components quantumly entangled for professional editor interfaces
+React + TypeScript component library for building editor-style interfaces.
 
-[![npm version](https://badge.fury.io/js/entangle-ui.svg)](https://www.npmjs.com/package/entangle-ui)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+`entangle-ui` is focused on dense, keyboard-friendly UI patterns used in tools like 3D editors, node editors, scene inspectors, and technical dashboards.
 
-**🚧 ALPHA VERSION - In active development, not ready for production**
+## Status
 
-## 🌌 Philosophy
+This package is in alpha (`0.1.0-alpha.x`) and still evolving.
 
-Entangle UI brings quantum mechanics principles to interface design. Components are **quantumly entangled** - when one changes state, others respond instantly across your entire application. Built specifically for professional editor interfaces, 3D tools, and precision applications where every interaction matters.
+- API can change between alpha releases.
+- Use in production only if you are comfortable with rapid iteration.
 
-## ⚡ Features
-
-- **🔗 Quantum Entanglement**: Components synchronize instantly across your app
-- **🎯 Precision Controls**: Built for professional editor interfaces
-- **⚫ Minimal & Powerful**: Maximum functionality, minimal visual footprint
-- **📐 TypeScript First**: Complete type safety and IntelliSense support
-- **🌙 Dark Matter Theme**: Designed for professionals who build worlds
-- **🧪 Base UI Foundation**: Built on rock-solid headless components
-
-## 🚀 Quick Start
+## Installation
 
 ```bash
-# Install alpha version
 npm install entangle-ui@alpha
 ```
 
-```tsx
-import { Button, Input } from 'entangle-ui';
+Peer dependencies:
 
-function App() {
+- `react >= 19.1.0`
+- `react-dom >= 19.1.0`
+- `@emotion/react ^11`
+- `@emotion/styled ^11`
+
+## Quick Start
+
+```tsx
+import React from 'react';
+import {
+  ThemeProvider,
+  AppShell,
+  MenuBar,
+  Toolbar,
+  StatusBar,
+} from 'entangle-ui';
+
+export function App() {
   return (
-    <div>
-      <Button>Entangle Reality</Button>
-      <Input placeholder="Enter coordinates..." precision={3} />
-    </div>
+    <ThemeProvider>
+      <div style={{ width: '100vw', height: '100vh' }}>
+        <AppShell>
+          <AppShell.MenuBar>
+            <MenuBar>
+              <MenuBar.Menu label="File">
+                <MenuBar.Item onClick={() => {}}>New</MenuBar.Item>
+              </MenuBar.Menu>
+            </MenuBar>
+          </AppShell.MenuBar>
+
+          <AppShell.Toolbar>
+            <Toolbar aria-label="Main toolbar">
+              <Toolbar.Button onClick={() => {}}>Run</Toolbar.Button>
+            </Toolbar>
+          </AppShell.Toolbar>
+
+          <AppShell.Dock>
+            <div style={{ padding: 16 }}>Editor content</div>
+          </AppShell.Dock>
+
+          <AppShell.StatusBar>
+            <StatusBar>
+              <StatusBar.Section>
+                <StatusBar.Item>Ready</StatusBar.Item>
+              </StatusBar.Section>
+            </StatusBar>
+          </AppShell.StatusBar>
+        </AppShell>
+      </div>
+    </ThemeProvider>
   );
 }
 ```
 
-## 🎯 Built For
+## Theming
 
-- 🌍 **Planet generators** & procedural tools
-- 🎮 **Node-based editors** & visual programming
-- 🎨 **3D modeling interfaces** & CAD applications
-- ⚙️ **Parameter control systems** & scientific tools
-- 🔬 **Precision applications** requiring exact values
+Entangle UI ships with design tokens and an Emotion-based `ThemeProvider`.
 
-## 📚 Documentation
+```tsx
+import { ThemeProvider, createTheme } from 'entangle-ui';
 
-- **[GitHub](https://github.com/yourusername/entangle-ui)** - Source code and issues
+const theme = createTheme({
+  colors: {
+    accent: {
+      primary: '#2aa1ff',
+    },
+  },
+});
 
-## 🧪 Current Status (Alpha)
+export function Root({ children }: { children: React.ReactNode }) {
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+}
+```
 
-### ✅ Available Components
+## What Is Included
 
-- [ ] Button - Quantum interaction states
-- [ ] Input - Precision numeric controls
-- [ ] Slider - Fine-tuned value manipulation
-- [ ] Toggle - Binary state quantum switches
+### Primitives
 
-### 🚧 In Development
+- `Button`, `IconButton`
+- `Input`, `Text`, `Paper`, `Icon`
+- `Checkbox`, `CheckboxGroup`, `Switch`
+- `Tooltip`, `Popover`, `Collapsible`
 
-- Vector input controls
-- Color precision pickers
-- Node connection components
-- 3D viewport controls
+### Layout
 
-### 📋 Roadmap
+- `Stack`, `Flex`, `Grid`, `Spacer`
+- `Accordion`
+- `ScrollArea`
+- `SplitPane`, `SplitPanePanel`
 
-- Canvas integration helpers
-- Advanced theming system
-- Animation state management
-- Plugin architecture
+### Controls
 
-## 🛠️ Development
+- `NumberInput`, `Slider`, `Select`, `VectorInput`
+- `ColorPicker`, `ColorPalette`, `ColorSwatch`, `EyeDropper`
+- `TreeView`
+- `CurveEditor` + helpers (`evaluateCurve`, `sampleCurve`, `createLinearCurve`, `domainToCanvas`)
+
+### Navigation
+
+- `Menu`, `useMenu`
+- `Tabs`, `TabList`, `Tab`, `TabPanel`
+
+### Shell
+
+- `AppShell`, `useAppShell`
+- `MenuBar`
+- `Toolbar`
+- `StatusBar`
+- `FloatingPanel`, `FloatingManager`
+
+### Editor
+
+- `PropertyPanel`, `PropertySection`, `PropertyRow`, `PropertyGroup`
+- `usePropertyUndo`
+
+### Feedback and Form
+
+- `Dialog` primitives (`Dialog`, `DialogHeader`, `DialogBody`, `DialogFooter`, `DialogClose`)
+- `ToastProvider`, `useToast`
+- `FormLabel`, `FormHelperText`, `InputWrapper`
+
+## Development
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/entangle-ui.git
-cd entangle-ui
-
-# Install dependencies
 npm install
-
-# Start Storybook
-npm run dev
-
-# Run tests
-npm run test
-
-# Build library
+npm run dev            # Storybook
+npm run test           # Vitest
+npm run lint
+npm run type-check
 npm run build
 ```
 
-## 🤝 Contributing
+## Release Workflow
 
-Entangle UI is in active alpha development. We welcome:
+This repository uses Changesets.
 
-- 🐛 **Bug reports** - Help us squash quantum bugs
-- 💡 **Feature requests** - What components do you need?
-- 🔬 **Testing** - Try it in your editor projects
-- 📖 **Documentation** - Help us explain quantum principles
+```bash
+npm run changeset
+npm run version-packages
+npm run release
+```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+## Repository
 
-## 📄 License
+- Source: `https://github.com/SebastianWebdev/entangle-ui`
+- Issues: `https://github.com/SebastianWebdev/entangle-ui/issues`
 
-MIT © [Your Name](https://github.com/yourusername)
+## License
 
----
-
-> _"Spooky action at a distance, but for UI components"_ ⚛️
-
-**Built for creators who shape digital realities**
+MIT

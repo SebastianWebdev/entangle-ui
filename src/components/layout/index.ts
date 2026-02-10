@@ -6,6 +6,7 @@ export {
 } from './Accordion';
 export { Flex } from './Flex';
 export { Grid } from './Grid';
+export { PanelSurface } from './PanelSurface';
 export { ScrollArea } from './ScrollArea';
 export { Spacer } from './Spacer';
 export { SplitPane, SplitPanePanel } from './SplitPane';
@@ -29,6 +30,13 @@ export type {
   FlexWrap,
 } from './Flex';
 export type { GridProps, GridSize, GridSpacing } from './Grid';
+export type {
+  PanelSurfaceBodyProps,
+  PanelSurfaceFooterProps,
+  PanelSurfaceHeaderProps,
+  PanelSurfaceProps,
+  PanelSurfaceSize,
+} from './PanelSurface';
 export type {
   ScrollAreaDirection,
   ScrollAreaProps,

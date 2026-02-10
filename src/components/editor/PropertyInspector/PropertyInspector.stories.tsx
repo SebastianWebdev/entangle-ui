@@ -22,6 +22,7 @@ const meta: Meta<typeof PropertyPanel> = {
     },
     searchable: { control: 'boolean' },
     maxHeight: { control: 'text' },
+    contentTopSpacing: { control: 'number' },
   },
 };
 

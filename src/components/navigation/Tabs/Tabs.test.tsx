@@ -14,6 +14,7 @@ const BasicTabs = ({
   size,
   orientation,
   fullWidth,
+  pillsFrame,
 }: {
   value?: string;
   defaultValue?: string;
@@ -22,6 +23,7 @@ const BasicTabs = ({
   size?: 'sm' | 'md' | 'lg';
   orientation?: 'horizontal' | 'vertical';
   fullWidth?: boolean;
+  pillsFrame?: boolean;
 }) => (
   <Tabs
     value={value}
@@ -31,6 +33,7 @@ const BasicTabs = ({
     size={size}
     orientation={orientation}
     fullWidth={fullWidth}
+    pillsFrame={pillsFrame}
   >
     <TabList>
       <Tab value="tab1">Tab 1</Tab>
@@ -406,6 +409,17 @@ describe('Tabs', () => {
     it('renders pills variant', () => {
       renderWithTheme(<BasicTabs defaultValue="tab1" variant="pills" />);
       expect(screen.getByRole('tablist')).toBeInTheDocument();
+    });
+
+    it('renders pills variant without frame when pillsFrame is false', () => {
+      renderWithTheme(
+        <BasicTabs defaultValue="tab1" variant="pills" pillsFrame={false} />
+      );
+
+      expect(screen.getByRole('tablist')).toHaveStyle({
+        border: 'none',
+        background: 'transparent',
+      });
     });
 
     it('renders enclosed variant', () => {

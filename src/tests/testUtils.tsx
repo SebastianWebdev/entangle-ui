@@ -104,6 +104,47 @@ export const mockTheme: Theme = {
     tooltip: 1000,
     modal: 1100,
   },
+  shell: {
+    menuBar: {
+      height: 28,
+      bg: '#2d2d2d',
+      hoverBg: '#363636',
+      activeBg: '#005a9e',
+      text: '#ffffff',
+      shortcutText: '#888888',
+    },
+    toolbar: {
+      height: { sm: 32, md: 40 },
+      bg: '#2d2d2d',
+      separator: '#4a4a4a',
+    },
+    statusBar: {
+      height: 22,
+      bg: '#007acc',
+      text: '#ffffff',
+    },
+    dock: {
+      tabHeight: 28,
+      tabBg: '#2d2d2d',
+      tabActiveBg: '#1a1a1a',
+      tabHoverBg: '#363636',
+      tabText: '#cccccc',
+      tabActiveText: '#ffffff',
+      splitterSize: 4,
+      splitterColor: '#4a4a4a',
+      splitterHoverColor: '#007acc',
+      borderBarBg: '#2d2d2d',
+      borderBarSize: 28,
+      dropOverlay: 'rgba(0, 122, 204, 0.2)',
+    },
+  },
+  storybook: {
+    canvas: {
+      gradientStart: '#061f21',
+      gradientMid: '#031a1a',
+      gradientEnd: '#091010',
+    },
+  },
 } as const;
 
 /**
@@ -220,6 +261,14 @@ export const createTestTheme = (overrides: Partial<Theme> = {}): Theme => {
       accent: {
         ...mockTheme.colors.accent,
         ...overrides.colors?.accent,
+      },
+    },
+    storybook: {
+      ...mockTheme.storybook,
+      ...overrides.storybook,
+      canvas: {
+        ...mockTheme.storybook.canvas,
+        ...overrides.storybook?.canvas,
       },
     },
   };

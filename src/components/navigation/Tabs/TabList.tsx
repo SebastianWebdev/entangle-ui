@@ -9,17 +9,21 @@ interface StyledTabListProps {
   $orientation: 'horizontal' | 'vertical';
   $variant: TabsVariant;
   $fullWidth: boolean;
+  $pillsFrame: boolean;
 }
 
 const StyledTabList = styled.div<StyledTabListProps>`
   display: flex;
   flex-direction: ${props =>
     props.$orientation === 'vertical' ? 'column' : 'row'};
+  align-items: stretch;
   overflow-x: ${props =>
     props.$orientation === 'horizontal' ? 'auto' : 'visible'};
   overflow-y: ${props =>
     props.$orientation === 'vertical' ? 'auto' : 'visible'};
   flex-shrink: 0;
+  min-width: 0;
+  gap: ${props => props.theme.spacing.xs}px;
 
   /* Hide scrollbar */
   scrollbar-width: none;
@@ -38,13 +42,28 @@ const StyledTabList = styled.div<StyledTabListProps>`
           : `border-bottom: 1px solid ${colors.border.default};`;
       case 'enclosed':
         return props.$orientation === 'vertical'
-          ? `border-right: 1px solid ${colors.border.default};`
-          : `border-bottom: 1px solid ${colors.border.default};`;
+          ? `
+              border-right: 1px solid ${colors.border.default};
+              padding: ${props.theme.spacing.xs}px 0;
+            `
+          : `
+              border-bottom: 1px solid ${colors.border.default};
+              padding: 0 ${props.theme.spacing.xs}px;
+            `;
       case 'pills':
-        return `
-          gap: ${props.theme.spacing.xs}px;
-          padding: ${props.theme.spacing.xs}px;
-        `;
+        return props.$pillsFrame
+          ? `
+              padding: ${props.theme.spacing.xs}px;
+              border: 1px solid ${colors.border.default};
+              border-radius: ${props.theme.borderRadius.md}px;
+              background: ${colors.background.secondary};
+            `
+          : `
+              padding: 0;
+              border: none;
+              border-radius: 0;
+              background: transparent;
+            `;
       default:
         return '';
     }
@@ -61,7 +80,7 @@ export const TabList: React.FC<TabListProps> = ({
   ref,
   ...rest
 }) => {
-  const { orientation, variant, fullWidth } = useTabsContext();
+  const { orientation, variant, fullWidth, pillsFrame } = useTabsContext();
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const setListRef = useCallback(
@@ -129,6 +148,7 @@ export const TabList: React.FC<TabListProps> = ({
       $orientation={orientation}
       $variant={variant}
       $fullWidth={fullWidth}
+      $pillsFrame={pillsFrame}
       className={className}
       style={style}
       data-testid={testId}

@@ -161,6 +161,8 @@ const StyledSliderContainer = styled.div<StyledSliderContainerProps>`
   display: flex;
   flex-direction: column;
   gap: ${props => props.theme.spacing.xs}px;
+  width: 100%;
+  min-width: 0;
   opacity: ${props => (props.$disabled ? 0.5 : 1)};
   pointer-events: ${props => (props.$disabled ? 'none' : 'auto')};
 `;

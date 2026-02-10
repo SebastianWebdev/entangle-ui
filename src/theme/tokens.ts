@@ -92,6 +92,47 @@ export const tokens = {
     tooltip: 1000,
     modal: 1100,
   },
+  shell: {
+    menuBar: {
+      height: 28,
+      bg: '#2d2d2d', // colors.surface.default
+      hoverBg: '#363636', // colors.surface.hover
+      activeBg: '#005a9e', // colors.accent.secondary
+      text: '#ffffff', // colors.text.primary
+      shortcutText: '#888888', // colors.text.muted
+    },
+    toolbar: {
+      height: { sm: 32, md: 40 },
+      bg: '#2d2d2d', // colors.surface.default
+      separator: '#4a4a4a', // colors.border.default
+    },
+    statusBar: {
+      height: 22,
+      bg: '#007acc', // colors.accent.primary
+      text: '#ffffff', // colors.text.primary
+    },
+    dock: {
+      tabHeight: 28,
+      tabBg: '#2d2d2d', // colors.surface.default
+      tabActiveBg: '#1a1a1a', // colors.background.primary
+      tabHoverBg: '#363636', // colors.surface.hover
+      tabText: '#cccccc', // colors.text.secondary
+      tabActiveText: '#ffffff', // colors.text.primary
+      splitterSize: 4,
+      splitterColor: '#4a4a4a', // colors.border.default
+      splitterHoverColor: '#007acc', // colors.accent.primary
+      borderBarBg: '#2d2d2d', // colors.surface.default
+      borderBarSize: 28,
+      dropOverlay: 'rgba(0, 122, 204, 0.2)', // colors.accent.primary with alpha
+    },
+  },
+  storybook: {
+    canvas: {
+      gradientStart: '#061f21',
+      gradientMid: '#031a1a',
+      gradientEnd: '#091010',
+    },
+  },
 } as const;
 
 export type Tokens = typeof tokens;

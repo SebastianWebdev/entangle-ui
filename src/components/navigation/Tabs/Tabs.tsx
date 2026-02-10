@@ -26,6 +26,8 @@ const StyledTabsRoot = styled.div<StyledTabsRootProps>`
   display: flex;
   flex-direction: ${props =>
     props.$orientation === 'vertical' ? 'row' : 'column'};
+  min-width: 0;
+  min-height: 0;
 
   ${props => processCss(props.$css, props.theme)}
 `;
@@ -56,6 +58,7 @@ export const Tabs: React.FC<TabsProps> = ({
   size = 'md',
   orientation = 'horizontal',
   fullWidth = false,
+  pillsFrame = true,
   children,
   onChange,
   className,
@@ -86,6 +89,7 @@ export const Tabs: React.FC<TabsProps> = ({
     size,
     orientation,
     fullWidth,
+    pillsFrame,
     tabsId,
   };
 

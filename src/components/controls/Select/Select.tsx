@@ -255,7 +255,7 @@ const StyledSearchInput = styled.input`
   border-bottom: 1px solid ${props => props.theme.colors.border.default};
   background: transparent;
   color: ${props => props.theme.colors.text.primary};
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
+  font-size: ${props => props.theme.typography.fontSize.md}px;
   outline: none;
   font-family: inherit;
 
@@ -280,7 +280,7 @@ const StyledOptionItem = styled.div<StyledOptionItemProps>`
   padding: ${props => props.theme.spacing.sm}px
     ${props => props.theme.spacing.md}px;
   cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
+  font-size: ${props => props.theme.typography.fontSize.md}px;
   color: ${props =>
     props.$disabled
       ? props.theme.colors.text.disabled
@@ -315,7 +315,7 @@ const StyledEmptyMessage = styled.div`
   padding: ${props => props.theme.spacing.md}px;
   text-align: center;
   color: ${props => props.theme.colors.text.muted};
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
+  font-size: ${props => props.theme.typography.fontSize.md}px;
 `;
 
 const StyledCheckmark = styled.span`

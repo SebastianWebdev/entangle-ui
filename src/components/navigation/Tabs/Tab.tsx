@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import styled from '@emotion/styled';
 import { useTabsContext } from './Tabs';
 import type { TabProps, TabsSize, TabsVariant } from './Tabs.types';
+import { CloseIcon } from '@/components/Icons';
 import type { Theme } from '@/theme';
 
 // --- Size maps ---
@@ -11,30 +12,26 @@ interface TabSizeConfig {
   paddingKey: keyof Theme['spacing'];
   fontKey: keyof Theme['typography']['fontSize'];
   iconSize: number;
-  closeSize: number;
 }
 
 const TAB_SIZE_MAP: Record<TabsSize, TabSizeConfig> = {
   sm: {
-    height: 28,
-    paddingKey: 'md',
+    height: 24,
+    paddingKey: 'sm',
     fontKey: 'xs',
-    iconSize: 12,
-    closeSize: 10,
+    iconSize: 11,
   },
   md: {
-    height: 32,
-    paddingKey: 'lg',
+    height: 28,
+    paddingKey: 'md',
     fontKey: 'sm',
-    iconSize: 14,
-    closeSize: 12,
+    iconSize: 13,
   },
   lg: {
-    height: 38,
-    paddingKey: 'xl',
+    height: 32,
+    paddingKey: 'lg',
     fontKey: 'md',
-    iconSize: 16,
-    closeSize: 14,
+    iconSize: 15,
   },
 };
 
@@ -45,6 +42,7 @@ interface StyledTabProps {
   $disabled: boolean;
   $variant: TabsVariant;
   $size: TabsSize;
+  $orientation: 'horizontal' | 'vertical';
   $fullWidth: boolean;
 }
 
@@ -58,6 +56,7 @@ const StyledTab = styled.button<StyledTabProps>`
   user-select: none;
   white-space: nowrap;
   background: transparent;
+  border-radius: ${props => props.theme.borderRadius.sm}px;
 
   /* Layout */
   display: inline-flex;
@@ -74,7 +73,9 @@ const StyledTab = styled.button<StyledTabProps>`
   font-size: ${props =>
     props.theme.typography.fontSize[TAB_SIZE_MAP[props.$size].fontKey]}px;
   font-weight: ${props => props.theme.typography.fontWeight.medium};
+  line-height: ${props => props.theme.typography.lineHeight.tight};
   transition: all ${props => props.theme.transitions.fast};
+  min-width: 0;
 
   /* Full width */
   ${props => props.$fullWidth && 'flex: 1;'}
@@ -90,8 +91,38 @@ const StyledTab = styled.button<StyledTabProps>`
       case 'underline':
         return `
           color: ${props.$active ? colors.text.primary : colors.text.secondary};
-          border-bottom: 2px solid ${props.$active ? colors.accent.primary : 'transparent'};
-          margin-bottom: -1px;
+          background: ${props.$active ? colors.surface.active : 'transparent'};
+          ${
+            props.$active
+              ? props.$orientation === 'vertical'
+                ? 'margin-right: -1px;'
+                : 'margin-bottom: -1px;'
+              : ''
+          }
+
+          &::after {
+            content: '';
+            position: absolute;
+            border-radius: ${props.theme.borderRadius.sm}px;
+            background: ${colors.accent.primary};
+            opacity: ${props.$active ? 1 : 0};
+            transition: opacity ${props.theme.transitions.fast};
+            ${
+              props.$orientation === 'vertical'
+                ? `
+                  top: 0;
+                  bottom: 0;
+                  right: -1px;
+                  width: 2px;
+                `
+                : `
+                  left: 0;
+                  right: 0;
+                  bottom: -1px;
+                  height: 2px;
+                `
+            }
+          }
 
           &:hover:not(:disabled) {
             color: ${colors.text.primary};
@@ -101,7 +132,8 @@ const StyledTab = styled.button<StyledTabProps>`
       case 'pills':
         return `
           color: ${props.$active ? colors.text.primary : colors.text.secondary};
-          background: ${props.$active ? colors.surface.active : 'transparent'};
+          background: ${props.$active ? colors.surface.active : colors.background.secondary};
+          border: 1px solid ${props.$active ? colors.border.default : 'transparent'};
           border-radius: ${props.theme.borderRadius.md}px;
 
           &:hover:not(:disabled) {
@@ -115,18 +147,30 @@ const StyledTab = styled.button<StyledTabProps>`
             props.$active
               ? `
                 border: 1px solid ${colors.border.default};
-                border-bottom: 1px solid ${colors.background.primary};
                 background: ${colors.background.primary};
-                border-radius: ${props.theme.borderRadius.md}px ${props.theme.borderRadius.md}px 0 0;
-                margin-bottom: -1px;
+                ${
+                  props.$orientation === 'vertical'
+                    ? `
+                      border-right-color: ${colors.background.primary};
+                      border-radius: ${props.theme.borderRadius.md}px 0 0 ${props.theme.borderRadius.md}px;
+                      margin-right: -1px;
+                    `
+                    : `
+                      border-bottom-color: ${colors.background.primary};
+                      border-radius: ${props.theme.borderRadius.md}px ${props.theme.borderRadius.md}px 0 0;
+                      margin-bottom: -1px;
+                    `
+                }
               `
               : `
+                background: ${colors.surface.default};
                 border: 1px solid transparent;
               `
           }
 
           &:hover:not(:disabled) {
             color: ${colors.text.primary};
+            background: ${props.$active ? colors.background.primary : colors.surface.hover};
           }
         `;
       default:
@@ -153,7 +197,7 @@ const StyledTabIcon = styled.span<{ $size: number }>`
   }
 `;
 
-const StyledCloseButton = styled.span<{ $size: number }>`
+const StyledCloseButton = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,7 +206,8 @@ const StyledCloseButton = styled.span<{ $size: number }>`
   color: ${props => props.theme.colors.text.muted};
   border-radius: ${props => props.theme.borderRadius.sm}px;
   padding: 2px;
-  margin-left: ${props => props.theme.spacing.xs}px;
+  margin-left: ${props => props.theme.spacing.sm}px;
+  transition: all ${props => props.theme.transitions.fast};
 
   &:hover {
     color: ${props => props.theme.colors.text.primary};
@@ -170,8 +215,7 @@ const StyledCloseButton = styled.span<{ $size: number }>`
   }
 
   svg {
-    width: ${props => props.$size}px;
-    height: ${props => props.$size}px;
+    color: currentColor;
   }
 `;
 
@@ -190,10 +234,18 @@ export const Tab: React.FC<TabProps> = ({
   ref,
   ...rest
 }) => {
-  const { activeValue, setActiveValue, variant, size, fullWidth, tabsId } =
-    useTabsContext();
+  const {
+    activeValue,
+    setActiveValue,
+    variant,
+    size,
+    orientation,
+    fullWidth,
+    tabsId,
+  } = useTabsContext();
   const isActive = activeValue === value;
   const sizeConfig = TAB_SIZE_MAP[size];
+  const closeIconSize = size === 'lg' ? 'md' : 'sm';
 
   const tabId = `tabs-${tabsId}-tab-${value}`;
   const panelId = `tabs-${tabsId}-panel-${value}`;
@@ -244,6 +296,7 @@ export const Tab: React.FC<TabProps> = ({
       $disabled={disabled}
       $variant={variant}
       $size={size}
+      $orientation={orientation}
       $fullWidth={fullWidth}
       className={className}
       style={style}
@@ -259,16 +312,8 @@ export const Tab: React.FC<TabProps> = ({
           role="button"
           aria-label={`Close ${typeof children === 'string' ? children : value}`}
           onClick={handleClose}
-          $size={sizeConfig.closeSize}
         >
-          <svg viewBox="0 0 8 8" fill="none" aria-hidden="true">
-            <path
-              d="M1 1L7 7M7 1L1 7"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
+          <CloseIcon size={closeIconSize} decorative />
         </StyledCloseButton>
       )}
     </StyledTab>

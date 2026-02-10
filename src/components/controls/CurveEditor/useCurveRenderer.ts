@@ -336,8 +336,35 @@ function drawAxisLabels(
   ctx.fillStyle = theme.colors.text.muted;
   ctx.font = `${fontSize}px sans-serif`;
 
-  const padX = 4;
-  const bottomMargin = fontSize + 6;
+  const sidePadding = 4;
+  const axisGap = 6;
+
+  const { px: xAxisMin } = domainToCanvas(dxMin, 0, viewport, w, h);
+  const { px: xAxisMax } = domainToCanvas(dxMax, 0, viewport, w, h);
+  const { py: yAxisMin } = domainToCanvas(0, dyMin, viewport, w, h);
+  const { py: yAxisMax } = domainToCanvas(0, dyMax, viewport, w, h);
+
+  const xTickTop = clamp(
+    yAxisMin + axisGap,
+    yAxisMax + 2,
+    h - fontSize - (labelX ? fontSize + 8 : 2)
+  );
+  const xAxisLabelTop = labelX
+    ? clamp(xTickTop + fontSize + 4, 0, h - fontSize - 1)
+    : 0;
+
+  const yTickAnchorX = clamp(
+    xAxisMin - axisGap,
+    sidePadding + 1,
+    w - sidePadding
+  );
+  const yTickMinY = fontSize / 2 + 2;
+  const yTickMaxY = Math.max(yTickMinY, xTickTop - 2);
+  const yAxisLabelTop = clamp(
+    yAxisMax - fontSize - 4,
+    sidePadding,
+    Math.max(sidePadding, xTickTop - fontSize - 6)
+  );
 
   // ─── X axis labels (bottom, aligned to domain subdivisions) ───
   ctx.textBaseline = 'top';
@@ -346,31 +373,22 @@ function drawAxisLabels(
     const domX = dxMin + i * xStep;
     const { px } = domainToCanvas(domX, 0, viewport, w, h);
     const label = formatLabel(domX, dxRange);
-    const textWidth = ctx.measureText(label).width;
 
-    // Position: first label left-aligned, last right-aligned, rest centered
-    // Also offset first label right to avoid overlapping with Y-axis labels
+    // Anchor edge labels to domain bounds, center the inner labels.
     if (i === 0) {
       ctx.textAlign = 'left';
-      // Offset right so it doesn't overlap with Y axis labels
-      const yLabelWidth = ctx.measureText(formatLabel(dyMax, dyRange)).width;
-      const minX = yLabelWidth + padX + 4;
-      ctx.fillText(label, Math.max(minX, px - textWidth / 2), h - bottomMargin);
+      ctx.fillText(label, xAxisMin + 2, xTickTop);
     } else if (i === subdivisions) {
       ctx.textAlign = 'right';
-      ctx.fillText(
-        label,
-        Math.min(w - padX, px + textWidth / 2),
-        h - bottomMargin
-      );
+      ctx.fillText(label, xAxisMax - 2, xTickTop);
     } else {
       ctx.textAlign = 'center';
-      ctx.fillText(label, px, h - bottomMargin);
+      ctx.fillText(label, clamp(px, xAxisMin + 2, xAxisMax - 2), xTickTop);
     }
   }
 
   // ─── Y axis labels (left side, aligned to domain subdivisions) ───
-  ctx.textAlign = 'left';
+  ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   const yStep = dyRange / subdivisions;
   for (let i = 0; i <= subdivisions; i++) {
@@ -378,21 +396,28 @@ function drawAxisLabels(
     const { py } = domainToCanvas(0, domY, viewport, w, h);
     const label = formatLabel(domY, dyRange);
 
-    // Clamp vertically to keep within canvas
-    const clampedPy = clamp(py, fontSize / 2 + 2, h - bottomMargin - 2);
-    ctx.fillText(label, padX, clampedPy);
+    // Clamp vertically to keep labels above bottom axis labels.
+    const clampedPy = clamp(py, yTickMinY, yTickMaxY);
+    ctx.fillText(label, yTickAnchorX, clampedPy);
   }
 
   // ─── Axis name labels ───
   if (labelX) {
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(labelX, w - padX, h - 2);
-  }
-  if (labelY) {
+    const textWidth = ctx.measureText(labelX).width;
+    const x = clamp(
+      xAxisMax + axisGap,
+      sidePadding,
+      w - sidePadding - textWidth
+    );
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillText(labelY, padX, 4);
+    ctx.fillText(labelX, x, xAxisLabelTop);
+  }
+  if (labelY) {
+    const x = clamp(xAxisMin + axisGap, sidePadding, w - sidePadding);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(labelY, x, yAxisLabelTop);
   }
 }
 

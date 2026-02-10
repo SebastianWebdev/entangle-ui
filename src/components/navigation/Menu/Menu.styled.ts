@@ -25,6 +25,7 @@ export const StyledMenuContent = styled(BaseMenu.Popup)<{ theme?: Theme }>`
   box-shadow: ${props => props.theme.shadows.md};
   padding: ${props => props.theme.spacing.sm}px;
   z-index: ${props => props.theme.zIndex.dropdown};
+  outline: none;
 `;
 
 /** Shared styles for interactive menu items */
@@ -54,14 +55,8 @@ const interactiveItemStyles = (
       : ''
   }
 
-  &:hover:not([data-disabled]) {
+  &[data-highlighted] {
     background: ${props.theme.colors.surface.hover};
-  }
-
-  &:focus-visible {
-    background: ${props.theme.colors.surface.hover};
-    outline: 2px solid ${props.theme.colors.border.focus};
-    outline-offset: -2px;
   }
 `;
 
