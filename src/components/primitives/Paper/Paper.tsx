@@ -252,7 +252,7 @@ const StyledPaper = styled.div<StyledPaperProps>`
  * </Paper>
  * ```
  */
-export const Paper = React.memo<PaperProps>(
+export const Paper = /*#__PURE__*/ React.memo<PaperProps>(
   ({
     children,
     elevation = 1,

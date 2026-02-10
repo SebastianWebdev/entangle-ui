@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Single component (Button)",
+    "path": "dist/esm/components/primitives/Button/index.js",
+    "limit": "15 kB"
+  },
+  {
+    "name": "Theme only",
+    "path": "dist/esm/theme/index.js",
+    "limit": "5 kB"
+  },
+  {
+    "name": "Full library",
+    "path": "dist/esm/index.js",
+    "limit": "250 kB"
+  }
+]

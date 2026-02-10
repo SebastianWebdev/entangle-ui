@@ -22,7 +22,9 @@ import type { PopoverContextValue, PopoverProps } from './Popover.types';
 
 // --- Context ---
 
-const PopoverContext = createContext<PopoverContextValue | null>(null);
+const PopoverContext = /*#__PURE__*/ createContext<PopoverContextValue | null>(
+  null
+);
 
 export function usePopoverContext(): PopoverContextValue {
   const ctx = useContext(PopoverContext);

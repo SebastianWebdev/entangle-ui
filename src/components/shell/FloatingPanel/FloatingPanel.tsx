@@ -22,7 +22,7 @@ import type {
 // --- FloatingManager Context ---
 
 const FloatingManagerContext =
-  createContext<FloatingManagerContextValue | null>(null);
+  /*#__PURE__*/ createContext<FloatingManagerContextValue | null>(null);
 
 const useFloatingManager = () => useContext(FloatingManagerContext);
 

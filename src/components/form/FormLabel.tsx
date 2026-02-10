@@ -67,7 +67,7 @@ const RequiredIndicator = styled.span`
  * <Input id="name-input" />
  * ```
  */
-export const FormLabel = React.memo<FormLabelProps>(
+export const FormLabel = /*#__PURE__*/ React.memo<FormLabelProps>(
   ({
     children,
     htmlFor,

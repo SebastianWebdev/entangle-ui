@@ -328,7 +328,7 @@ const LoadingSpinner = styled.div<{ $size: IconButtonSize }>`
  * </IconButton>
  * ```
  */
-export const IconButton = React.memo<IconButtonProps>(
+export const IconButton = /*#__PURE__*/ React.memo<IconButtonProps>(
   ({
     children,
     className,

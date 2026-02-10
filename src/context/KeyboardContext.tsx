@@ -4,13 +4,13 @@ import { createContext, useContext, memo, useEffect, useCallback } from 'react';
 import { useKeyboard, isKeyPressed } from '@/hooks/useKeyboard';
 import type { KeyboardState, AllKeys } from '@/hooks/useKeyboard';
 
-const KeyboardContext = createContext<KeyboardState | null>(null);
+const KeyboardContext = /*#__PURE__*/ createContext<KeyboardState | null>(null);
 
 export interface KeyboardContextProviderProps {
   children: React.ReactNode;
 }
 
-export const KeyboardContextProvider = memo(
+export const KeyboardContextProvider = /*#__PURE__*/ memo(
   ({ children }: KeyboardContextProviderProps) => {
     const keyboardState = useKeyboard();
     return (

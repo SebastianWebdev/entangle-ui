@@ -20,7 +20,7 @@ import type {
 
 // --- Context ---
 
-const AppShellContext = createContext<AppShellContextValue>({
+const AppShellContext = /*#__PURE__*/ createContext<AppShellContextValue>({
   isToolbarVisible: () => true,
   setToolbarVisible: () => {},
   topChromeSeparator: 'border',
@@ -338,7 +338,7 @@ AppShellRoot.displayName = 'AppShell';
 
 // --- Compound Component ---
 
-export const AppShell = Object.assign(AppShellRoot, {
+export const AppShell = /*#__PURE__*/ Object.assign(AppShellRoot, {
   MenuBar: MenuBarSlot,
   Toolbar: ToolbarSlot,
   Dock: DockSlot,

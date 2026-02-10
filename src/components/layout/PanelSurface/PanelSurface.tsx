@@ -11,9 +11,10 @@ import type {
   PanelSurfaceSize,
 } from './PanelSurface.types';
 
-const PanelSurfaceContext = createContext<PanelSurfaceContextValue>({
-  size: 'md',
-});
+const PanelSurfaceContext =
+  /*#__PURE__*/ createContext<PanelSurfaceContextValue>({
+    size: 'md',
+  });
 
 const usePanelSurface = () => useContext(PanelSurfaceContext);
 
@@ -247,7 +248,7 @@ const PanelSurfaceRoot: React.FC<PanelSurfaceProps> = ({
 
 PanelSurfaceRoot.displayName = 'PanelSurface';
 
-export const PanelSurface = Object.assign(PanelSurfaceRoot, {
+export const PanelSurface = /*#__PURE__*/ Object.assign(PanelSurfaceRoot, {
   Header: PanelSurfaceHeader,
   Body: PanelSurfaceBody,
   Footer: PanelSurfaceFooter,

@@ -12,7 +12,7 @@ import type { TabsContextValue, TabsProps } from './Tabs.types';
 
 // --- Context ---
 
-const TabsContext = createContext<TabsContextValue | null>(null);
+const TabsContext = /*#__PURE__*/ createContext<TabsContextValue | null>(null);
 
 export function useTabsContext(): TabsContextValue {
   const ctx = useContext(TabsContext);

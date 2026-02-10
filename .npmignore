@@ -22,11 +22,16 @@ rollup.config.js
 vite.config.ts
 vitest.config.ts
 tsconfig.json
+tsconfig.build.json
 eslint.config.js
 prettier.config.js
+.size-limit.json
 
 # Misc
 .vscode/
 .idea/
+.claude/
+.changeset/
+tmp_tasks/
 *.log
 .DS_Store

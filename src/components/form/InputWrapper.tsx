@@ -137,7 +137,7 @@ export const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
  * </InputWrapper>
  * ```
  */
-export const InputWrapper = React.memo<InputWrapperProps>(
+export const InputWrapper = /*#__PURE__*/ React.memo<InputWrapperProps>(
   ({
     children,
     size = 'md',
