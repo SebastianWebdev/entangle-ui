@@ -89,7 +89,7 @@ const StyledItemButton = styled.button<{ $css?: StatusBarItemProps['css'] }>`
   border-radius: ${({ theme }) => theme.borderRadius.sm}px;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: ${({ theme }) => theme.colors.surface.whiteOverlay};
   }
 
   &:focus-visible {

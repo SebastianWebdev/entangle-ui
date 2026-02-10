@@ -124,12 +124,17 @@ function computeInitialSizes(
 /**
  * Clamp sizes to min/max constraints in the panel configs.
  */
-function clampSizes(sizes: number[], panels: PanelConfig[]): number[] {
+function clampSizes(
+  sizes: number[],
+  panels: PanelConfig[],
+  collapsed?: Set<number>
+): number[] {
   return sizes.map((size, i) => {
     const cfg = panels[i];
     if (!cfg) return size;
     let clamped = size;
-    if (cfg.minSize !== undefined) clamped = Math.max(clamped, cfg.minSize);
+    if (cfg.minSize !== undefined && !collapsed?.has(i))
+      clamped = Math.max(clamped, cfg.minSize);
     if (cfg.maxSize !== undefined) clamped = Math.min(clamped, cfg.maxSize);
     return clamped;
   });
@@ -206,9 +211,10 @@ function snapSizesToWholePixels(
 function reconcileSizesToAvailableSpace(
   sizes: number[],
   panels: PanelConfig[],
-  availableSpace: number
+  availableSpace: number,
+  collapsed?: Set<number>
 ): number[] {
-  const adjusted = clampSizes(sizes, panels);
+  const adjusted = clampSizes(sizes, panels, collapsed);
   let remaining =
     availableSpace - adjusted.reduce((sum, size) => sum + size, 0);
 
@@ -287,6 +293,7 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [internalSizes, setInternalSizes] = useState<number[]>([]);
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const collapsedRef = useRef<Set<number>>(new Set());
 
   // Refs for drag tracking
   const dragStartPos = useRef(0);
@@ -341,6 +348,7 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
     const availableSpace = Math.max(0, containerDim - totalDividerSpace);
 
     if (!ctrl) {
+      const collapsed = collapsedRef.current;
       setInternalSizes(prev => {
         if (prev.length === count && prev.length > 0) {
           // Proportionally redistribute on container resize
@@ -349,17 +357,26 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
             return reconcileSizesToAvailableSpace(
               computeInitialSizes(count, cfgs, availableSpace),
               cfgs,
-              availableSpace
+              availableSpace,
+              collapsed
             );
           }
           const ratio = availableSpace / prevTotal;
-          const newSizes = prev.map(s => s * ratio);
-          return reconcileSizesToAvailableSpace(newSizes, cfgs, availableSpace);
+          const newSizes = prev.map((s, i) =>
+            collapsed.has(i) ? 0 : s * ratio
+          );
+          return reconcileSizesToAvailableSpace(
+            newSizes,
+            cfgs,
+            availableSpace,
+            collapsed
+          );
         }
         return reconcileSizesToAvailableSpace(
           computeInitialSizes(count, cfgs, availableSpace),
           cfgs,
-          availableSpace
+          availableSpace,
+          collapsed
         );
       });
     }
@@ -501,6 +518,20 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
         }
       }
 
+      // Update collapsed tracking
+      const collapsed = new Set(collapsedRef.current);
+      if (leftCollapsed) {
+        collapsed.add(leftIndex);
+      } else {
+        collapsed.delete(leftIndex);
+      }
+      if (rightCollapsed) {
+        collapsed.add(rightIndex);
+      } else {
+        collapsed.delete(rightIndex);
+      }
+      collapsedRef.current = collapsed;
+
       const newSizes = [...startSizes];
       newSizes[leftIndex] = newLeft;
       newSizes[rightIndex] = newRight;
@@ -510,7 +541,8 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
           ? reconcileSizesToAvailableSpace(
               newSizes,
               panelConfigs,
-              availableSpace
+              availableSpace,
+              collapsed
             )
           : newSizes;
 
@@ -577,11 +609,18 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
             const restoreSize = leftCfg.minSize ?? 100;
             currentSizes[leftIndex] = restoreSize;
             currentSizes[rightIndex] = curRight - restoreSize;
+            collapsedRef.current = new Set(
+              [...collapsedRef.current].filter(i => i !== leftIndex)
+            );
             onCollapseChange?.(leftIndex, false);
           } else {
             // Collapse
             currentSizes[rightIndex] = curRight + curLeft;
             currentSizes[leftIndex] = 0;
+            collapsedRef.current = new Set([
+              ...collapsedRef.current,
+              leftIndex,
+            ]);
             onCollapseChange?.(leftIndex, true);
           }
 

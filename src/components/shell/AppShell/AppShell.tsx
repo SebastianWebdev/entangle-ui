@@ -73,52 +73,41 @@ const StyledToolbarTopSlot = styled.div<{
     $topChromeSeparator === 'border' || $topChromeSeparator === 'both'
       ? `1px solid ${theme.colors.border.default}`
       : 'none'};
-  box-shadow: ${({ $topChromeSeparator }) =>
+  box-shadow: ${({ $topChromeSeparator, theme }) =>
     $topChromeSeparator === 'shadow' || $topChromeSeparator === 'both'
-      ? '0 1px 2px rgba(0, 0, 0, 0.18)'
+      ? theme.shadows.separatorBottom
       : 'none'};
   z-index: ${({ theme }) => theme.zIndex.base};
 
   ${({ $css, theme }) => processCss($css, theme)}
 `;
 
-const StyledToolbarLeftSlot = styled.aside<{
+const StyledSideToolbarSlot = styled.aside<{
+  $side: 'left' | 'right';
   $sideChromeSeparator: AppShellSideChromeSeparator;
   $css?: AppShellToolbarSlotProps['css'];
 }>`
-  grid-area: toolbar-left;
+  grid-area: ${({ $side }) => `toolbar-${$side}`};
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  border-right: ${({ $sideChromeSeparator, theme }) =>
-    $sideChromeSeparator === 'border' || $sideChromeSeparator === 'both'
+  border-right: ${({ $side, $sideChromeSeparator, theme }) =>
+    $side === 'left' &&
+    ($sideChromeSeparator === 'border' || $sideChromeSeparator === 'both')
       ? `1px solid ${theme.colors.border.default}`
       : 'none'};
-  box-shadow: ${({ $sideChromeSeparator }) =>
-    $sideChromeSeparator === 'shadow' || $sideChromeSeparator === 'both'
-      ? '1px 0 2px rgba(0, 0, 0, 0.18)'
-      : 'none'};
-  z-index: ${({ theme }) => theme.zIndex.base};
-
-  ${({ $css, theme }) => processCss($css, theme)}
-`;
-
-const StyledToolbarRightSlot = styled.aside<{
-  $sideChromeSeparator: AppShellSideChromeSeparator;
-  $css?: AppShellToolbarSlotProps['css'];
-}>`
-  grid-area: toolbar-right;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-  border-left: ${({ $sideChromeSeparator, theme }) =>
-    $sideChromeSeparator === 'border' || $sideChromeSeparator === 'both'
+  border-left: ${({ $side, $sideChromeSeparator, theme }) =>
+    $side === 'right' &&
+    ($sideChromeSeparator === 'border' || $sideChromeSeparator === 'both')
       ? `1px solid ${theme.colors.border.default}`
       : 'none'};
-  box-shadow: ${({ $sideChromeSeparator }) =>
-    $sideChromeSeparator === 'shadow' || $sideChromeSeparator === 'both'
-      ? '-1px 0 2px rgba(0, 0, 0, 0.18)'
-      : 'none'};
+  box-shadow: ${({ $side, $sideChromeSeparator, theme }) => {
+    if ($sideChromeSeparator !== 'shadow' && $sideChromeSeparator !== 'both')
+      return 'none';
+    return $side === 'left'
+      ? theme.shadows.separatorRight
+      : theme.shadows.separatorLeft;
+  }};
   z-index: ${({ theme }) => theme.zIndex.base};
 
   ${({ $css, theme }) => processCss($css, theme)}
@@ -180,32 +169,20 @@ const ToolbarSlot: React.FC<AppShellToolbarSlotProps> = ({
 
   switch (position) {
     case 'left':
-      return (
-        <StyledToolbarLeftSlot
-          ref={ref as React.Ref<HTMLElement>}
-          className={className}
-          style={style}
-          data-testid={testId}
-          $sideChromeSeparator={sideChromeSeparator}
-          $css={css}
-          {...rest}
-        >
-          {children}
-        </StyledToolbarLeftSlot>
-      );
     case 'right':
       return (
-        <StyledToolbarRightSlot
+        <StyledSideToolbarSlot
           ref={ref as React.Ref<HTMLElement>}
           className={className}
           style={style}
           data-testid={testId}
+          $side={position}
           $sideChromeSeparator={sideChromeSeparator}
           $css={css}
           {...rest}
         >
           {children}
-        </StyledToolbarRightSlot>
+        </StyledSideToolbarSlot>
       );
     default:
       return (

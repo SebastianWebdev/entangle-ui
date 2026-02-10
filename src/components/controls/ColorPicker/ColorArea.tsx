@@ -39,7 +39,7 @@ const StyledThumb = styled.div`
   height: 12px;
   border-radius: 50%;
   border: 2px solid white;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+  box-shadow: ${({ theme }) => theme.shadows.thumb};
   transform: translate(-50%, -50%);
   pointer-events: none;
 `;
