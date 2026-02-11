@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback } from 'react';
 import { useAccordionContext, useAccordionItemContext } from './Accordion';
 import type { AccordionSize, AccordionTriggerProps } from './Accordion.types';

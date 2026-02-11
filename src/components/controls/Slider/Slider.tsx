@@ -1,3 +1,5 @@
+'use client';
+
 // src/components/controls/Slider/Slider.tsx
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';

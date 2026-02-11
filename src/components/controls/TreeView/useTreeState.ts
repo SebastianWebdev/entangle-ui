@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useMemo, useCallback } from 'react';
 import type { TreeNodeData, TreeSelectionMode } from './TreeView.types';
 

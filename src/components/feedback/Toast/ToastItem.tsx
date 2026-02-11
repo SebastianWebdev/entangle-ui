@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { ToastInternalData, ToastSeverity } from './Toast.types';

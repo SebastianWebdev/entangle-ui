@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback } from 'react';
 import { EyeDropperIcon } from '@/components/Icons/EyeDropperIcon';
 import type { Prettify } from '@/types/utilities';

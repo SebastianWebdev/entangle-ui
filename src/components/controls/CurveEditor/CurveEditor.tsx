@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { vars } from '@/theme/contract.css';

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useId, useContext, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { FormHelperText } from '@/components/form';

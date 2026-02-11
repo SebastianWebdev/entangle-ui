@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import type { ColorSwatchProps } from './ColorPicker.types';
 import { cx } from '@/utils/cx';

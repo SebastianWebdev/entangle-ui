@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useId } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { ChatInputProps } from './ChatPanel.types';

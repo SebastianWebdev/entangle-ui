@@ -2,289 +2,59 @@
 import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { expect } from 'vitest';
-import { ThemeProvider } from '@emotion/react';
-import type { Theme } from '@/theme';
 
 // Import dark theme to register VE CSS custom properties on :root
-// This enables migrated (VE) components to resolve CSS vars in tests
+// This enables components to resolve CSS vars in tests
 import '@/theme/darkTheme.css';
 
 /**
- * Mock theme for testing purposes
+ * Test wrapper component.
  *
- * Provides a complete theme structure that matches the actual theme tokens
- * to ensure styled components work correctly in test environment.
- */
-export const mockTheme: Theme = {
-  colors: {
-    background: {
-      primary: '#1a1a1a',
-      secondary: '#2d2d2d',
-      tertiary: '#3a3a3a',
-      elevated: '#404040',
-    },
-    surface: {
-      default: '#2d2d2d',
-      hover: '#363636',
-      active: '#404040',
-      disabled: '#1f1f1f',
-      whiteOverlay: 'rgba(255, 255, 255, 0.1)',
-    },
-    border: {
-      default: '#4a4a4a',
-      focus: '#007acc',
-      error: '#f44336',
-      success: '#4caf50',
-    },
-    text: {
-      primary: '#ffffff',
-      secondary: '#cccccc',
-      muted: '#888888',
-      disabled: '#555555',
-    },
-    accent: {
-      primary: '#007acc',
-      secondary: '#005a9e',
-      success: '#4caf50',
-      warning: '#ff9800',
-      error: '#f44336',
-    },
-    backdrop: 'rgba(0, 0, 0, 0.6)',
-  },
-  spacing: {
-    xs: 2,
-    sm: 4,
-    md: 8,
-    lg: 12,
-    xl: 16,
-    xxl: 24,
-    xxxl: 32,
-  },
-  typography: {
-    fontSize: {
-      xxs: 9,
-      xs: 10,
-      sm: 11,
-      md: 12,
-      lg: 14,
-      xl: 16,
-    },
-    fontWeight: {
-      normal: 400,
-      medium: 500,
-      semibold: 600,
-    },
-    lineHeight: {
-      tight: 1.2,
-      normal: 1.4,
-      relaxed: 1.6,
-    },
-    fontFamily: {
-      mono: 'SF Mono, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-      sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    },
-  },
-  borderRadius: {
-    none: 0,
-    sm: 2,
-    md: 4,
-    lg: 6,
-  },
-  shadows: {
-    sm: '0 1px 2px rgba(0, 0, 0, 0.2)',
-    md: '0 2px 4px rgba(0, 0, 0, 0.3)',
-    lg: '0 4px 8px rgba(0, 0, 0, 0.4)',
-    xl: '0 8px 16px rgba(0, 0, 0, 0.5)',
-    focus: '0 0 0 2px rgba(0, 122, 204, 0.4)',
-    separatorBottom: '0 1px 2px rgba(0, 0, 0, 0.18)',
-    separatorRight: '1px 0 2px rgba(0, 0, 0, 0.18)',
-    separatorLeft: '-1px 0 2px rgba(0, 0, 0, 0.18)',
-    thumb: '0 0 2px rgba(0, 0, 0, 0.5)',
-  },
-  transitions: {
-    fast: '100ms ease-out',
-    normal: '200ms ease-out',
-    slow: '300ms ease-out',
-  },
-  zIndex: {
-    base: 1,
-    dropdown: 1000,
-    popover: 1000,
-    tooltip: 1000,
-    modal: 1100,
-  },
-  shell: {
-    menuBar: {
-      height: 28,
-      bg: '#2d2d2d',
-      hoverBg: '#363636',
-      activeBg: '#005a9e',
-      text: '#ffffff',
-      shortcutText: '#888888',
-    },
-    toolbar: {
-      height: { sm: 32, md: 40 },
-      bg: '#2d2d2d',
-      separator: '#4a4a4a',
-    },
-    statusBar: {
-      height: 22,
-      bg: '#007acc',
-      text: '#ffffff',
-    },
-    dock: {
-      tabHeight: 28,
-      tabBg: '#2d2d2d',
-      tabActiveBg: '#1a1a1a',
-      tabHoverBg: '#363636',
-      tabText: '#cccccc',
-      tabActiveText: '#ffffff',
-      splitterSize: 4,
-      splitterColor: '#4a4a4a',
-      splitterHoverColor: '#007acc',
-      borderBarBg: '#2d2d2d',
-      borderBarSize: 28,
-      dropOverlay: 'rgba(0, 122, 204, 0.2)',
-    },
-  },
-  storybook: {
-    canvas: {
-      gradientStart: '#061f21',
-      gradientMid: '#031a1a',
-      gradientEnd: '#091010',
-    },
-  },
-} as const;
-
-/**
- * Test wrapper component that provides theme context
- *
- * Wraps components with the ThemeProvider to ensure all styled components
- * have access to theme tokens during testing.
- *
- * @param children - React components to wrap with theme provider
- * @param theme - Optional custom theme (defaults to mockTheme)
+ * With Vanilla Extract, themes are applied via CSS custom properties on :root.
+ * This wrapper exists for compatibility — it simply renders children.
  */
 interface TestWrapperProps {
   children: React.ReactNode;
-  theme?: Theme;
 }
 
-export const TestWrapper: React.FC<TestWrapperProps> = ({
-  children,
-  theme = mockTheme,
-}) => <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+export const TestWrapper: React.FC<TestWrapperProps> = ({ children }) => (
+  <>{children}</>
+);
 
 /**
- * Custom render function with theme provider
+ * Custom render function with theme context.
  *
- * Renders components with theme context automatically provided.
- * Use this instead of the default render function from @testing-library/react
- * for components that use styled-components with theme.
+ * Renders components with the dark theme CSS custom properties available.
+ * Use this instead of the default render function from @testing-library/react.
  *
  * @param ui - React element to render
- * @param options - Render options (can include custom theme)
- * @returns Render result with theme context
+ * @param options - Render options
+ * @returns Render result
  *
  * @example
  * ```tsx
  * // Basic usage
  * renderWithTheme(<Button>Test</Button>);
  *
- * // With custom theme
- * renderWithTheme(<Button>Test</Button>, {
- *   theme: customTheme
- * });
- *
  * // With additional render options
  * renderWithTheme(<Button>Test</Button>, {
- *   theme: customTheme,
  *   container: document.body
  * });
  * ```
  */
-interface RenderWithThemeOptions extends Omit<RenderOptions, 'wrapper'> {
-  theme?: Theme;
-}
-
 export const renderWithTheme = (
   ui: React.ReactElement,
-  options: RenderWithThemeOptions = {}
+  options: Omit<RenderOptions, 'wrapper'> = {}
 ) => {
-  const { theme = mockTheme, ...renderOptions } = options;
-
   const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <TestWrapper theme={theme}>{children}</TestWrapper>
+    <TestWrapper>{children}</TestWrapper>
   );
 
-  return render(ui, { wrapper: Wrapper, ...renderOptions });
+  return render(ui, { wrapper: Wrapper, ...options });
 };
 
 /**
- * Creates a custom theme for testing specific scenarios
- *
- * Allows partial theme overrides while maintaining the complete theme structure.
- * Useful for testing edge cases or specific theme configurations.
- *
- * @param overrides - Partial theme object to merge with mockTheme
- * @returns Complete theme with overrides applied
- *
- * @example
- * ```tsx
- * const customTheme = createTestTheme({
- *   colors: {
- *     accent: {
- *       primary: '#ff0000'
- *     }
- *   }
- * });
- *
- * renderWithTheme(<Button variant="filled">Test</Button>, {
- *   theme: customTheme
- * });
- * ```
- */
-export const createTestTheme = (overrides: Partial<Theme> = {}): Theme => {
-  return {
-    ...mockTheme,
-    ...overrides,
-    colors: {
-      ...mockTheme.colors,
-      ...overrides.colors,
-      background: {
-        ...mockTheme.colors.background,
-        ...overrides.colors?.background,
-      },
-      surface: {
-        ...mockTheme.colors.surface,
-        ...overrides.colors?.surface,
-      },
-      border: {
-        ...mockTheme.colors.border,
-        ...overrides.colors?.border,
-      },
-      text: {
-        ...mockTheme.colors.text,
-        ...overrides.colors?.text,
-      },
-      accent: {
-        ...mockTheme.colors.accent,
-        ...overrides.colors?.accent,
-      },
-    },
-    storybook: {
-      ...mockTheme.storybook,
-      ...overrides.storybook,
-      canvas: {
-        ...mockTheme.storybook.canvas,
-        ...overrides.storybook?.canvas,
-      },
-    },
-  };
-};
-
-/**
- * Common test assertions for styled components
+ * Common test assertions for styled components.
  *
  * Provides helper functions for frequently used style assertions
  * to reduce test boilerplate and improve consistency.
@@ -292,9 +62,6 @@ export const createTestTheme = (overrides: Partial<Theme> = {}): Theme => {
 export const styleAssertions = {
   /**
    * Asserts that an element has the expected background color
-   *
-   * @param element - DOM element to check
-   * @param expectedColor - Expected CSS color value (rgb, hex, etc.)
    */
   expectBackgroundColor: (element: Element, expectedColor: string) => {
     const styles = window.getComputedStyle(element);
@@ -303,9 +70,6 @@ export const styleAssertions = {
 
   /**
    * Asserts that an element has the expected text color
-   *
-   * @param element - DOM element to check
-   * @param expectedColor - Expected CSS color value (rgb, hex, etc.)
    */
   expectTextColor: (element: Element, expectedColor: string) => {
     const styles = window.getComputedStyle(element);
@@ -314,10 +78,6 @@ export const styleAssertions = {
 
   /**
    * Asserts that an element has the expected dimensions
-   *
-   * @param element - DOM element to check
-   * @param width - Expected width (e.g., '100px', '50%')
-   * @param height - Expected height (e.g., '32px', 'auto')
    */
   expectDimensions: (element: Element, width: string, height: string) => {
     const styles = window.getComputedStyle(element);
@@ -327,9 +87,6 @@ export const styleAssertions = {
 
   /**
    * Asserts that an element has the expected border radius
-   *
-   * @param element - DOM element to check
-   * @param expectedRadius - Expected border radius (e.g., '4px', '50%')
    */
   expectBorderRadius: (element: Element, expectedRadius: string) => {
     const styles = window.getComputedStyle(element);

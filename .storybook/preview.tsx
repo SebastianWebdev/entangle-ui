@@ -1,22 +1,17 @@
 import type { Preview } from '@storybook/react';
-import { useTheme } from '@emotion/react';
 import type { ReactNode } from 'react';
-import { ThemeProvider } from '../src/theme';
-import type { Theme } from '../src/theme';
+import { vars } from '../src/theme';
 
 // Import dark theme to register VE CSS custom properties on :root
 import '../src/theme/darkTheme.css';
 
 const StorybookCanvas = ({ children }: { children: ReactNode }) => {
-  const theme = useTheme() as Theme;
-  const gradientEnd = theme.storybook.canvas.gradientEnd;
-
   return (
     <div
       style={{
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        backgroundColor: gradientEnd,
+        backgroundColor: vars.storybook.canvas.gradientEnd,
         color: '#ffffff',
         position: 'absolute',
         top: 0,
@@ -35,11 +30,9 @@ const StorybookCanvas = ({ children }: { children: ReactNode }) => {
 const preview: Preview = {
   decorators: [
     Story => (
-      <ThemeProvider>
-        <StorybookCanvas>
-          <Story />
-        </StorybookCanvas>
-      </ThemeProvider>
+      <StorybookCanvas>
+        <Story />
+      </StorybookCanvas>
     ),
   ],
   parameters: {
@@ -58,7 +51,7 @@ const preview: Preview = {
       },
     },
     backgrounds: {
-      disable: true,
+      disabled: true,
     },
   },
 };

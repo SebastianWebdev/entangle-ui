@@ -1,3 +1,5 @@
+'use client';
+
 // src/controls/NumberInput/NumberInput.tsx
 import React, { useRef, useEffect } from 'react';
 import type { Prettify } from '@/types/utilities';

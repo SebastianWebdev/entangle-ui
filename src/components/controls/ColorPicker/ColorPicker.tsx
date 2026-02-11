@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo } from 'react';
 import { Popover } from '@/components/primitives/Popover/Popover';
 import { PopoverTrigger } from '@/components/primitives/Popover/PopoverTrigger';

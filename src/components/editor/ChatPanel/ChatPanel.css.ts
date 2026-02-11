@@ -31,10 +31,7 @@ export const chatPanelRecipe = recipe({
 
 // ─── ChatMessageList ─────────────────────────────────────────────
 
-export const messageListStyle = style({
-  flex: 1,
-  overflowY: 'auto',
-  overflowX: 'hidden',
+export const messageListContentStyle = style({
   display: 'flex',
   flexDirection: 'column',
   gap: vars.spacing.md,

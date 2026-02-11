@@ -1,3 +1,5 @@
+'use client';
+
 // src/primitives/Button/Button.tsx
 import React from 'react';
 import type { Prettify } from '@/types/utilities';

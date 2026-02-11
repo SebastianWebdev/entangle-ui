@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useCallback, useId, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { FormLabel } from '@/components/form';
@@ -52,8 +54,6 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
   onChange,
   className,
   style,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  css: _css,
   testId,
   ref,
   id: idProp,

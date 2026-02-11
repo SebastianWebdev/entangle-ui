@@ -4,7 +4,7 @@ Entangle UI ships with a dark-first theme designed for professional editor inter
 
 ## Architecture Overview
 
-The theme system has two layers:
+The theme system is built on CSS custom properties:
 
 ```
                     CSS Custom Properties (--etui-*)
@@ -15,15 +15,14 @@ The theme system has two layers:
                     └──────────────┬────────────────────┘
                                    │
               ┌────────────────────┼────────────────────┐
-              │                    │                     │
-     Vanilla Extract          Emotion               CSS Override
-     (compile-time)          (runtime)             (any selector)
-     import { vars }      <ThemeProvider>         --etui-*: value
+              │                                         │
+     Vanilla Extract                              CSS Override
+     (compile-time)                              (any selector)
+     import { vars }                             --etui-*: value
 ```
 
-- **Vanilla Extract** — primary system. Tokens compile to CSS custom properties at build time. Zero runtime cost.
-- **Emotion ThemeProvider** — secondary system for components that consume the theme as a JavaScript object at runtime.
-- **CSS Override** — any `--etui-*` custom property can be overridden with plain CSS.
+- **Vanilla Extract** — tokens compile to CSS custom properties at build time. Zero runtime cost. Access via `vars` object.
+- **CSS Override** — any `--etui-*` custom property can be overridden with plain CSS on any selector.
 
 ## Default Theme
 
@@ -211,48 +210,7 @@ Override any token for a subtree using plain CSS:
 </div>
 ```
 
-### 2. Emotion ThemeProvider (Runtime)
-
-Pass partial overrides that are deep-merged with the default tokens:
-
-```tsx
-import { ThemeProvider } from 'entangle-ui';
-
-<ThemeProvider
-  theme={{
-    colors: {
-      accent: {
-        primary: '#ff6600',
-        secondary: '#cc5200',
-      },
-    },
-  }}
->
-  <App />
-</ThemeProvider>;
-```
-
-### 3. createTheme (Full Object)
-
-Create a complete theme object for more control:
-
-```tsx
-import { createTheme, ThemeProvider } from 'entangle-ui';
-
-const myTheme = createTheme({
-  colors: {
-    accent: { primary: '#2aa1ff' },
-    background: { primary: '#0d1117' },
-  },
-  spacing: { md: 10 },
-});
-
-<ThemeProvider theme={myTheme}>
-  <App />
-</ThemeProvider>;
-```
-
-### 4. createCustomTheme (Vanilla Extract, Build-Time)
+### 2. createCustomTheme (Build-Time)
 
 Create a scoped theme that compiles to CSS at build time. This **must** be called in a `.css.ts` file:
 
@@ -295,7 +253,7 @@ Apply it:
 </div>
 ```
 
-### 5. VanillaThemeProvider (Scoped Override)
+### 3. VanillaThemeProvider (Scoped Override)
 
 Wrap a section with a className that carries theme overrides:
 
@@ -309,7 +267,7 @@ import { VanillaThemeProvider } from 'entangle-ui';
 
 ## Accessing Tokens in Code
 
-### Vanilla Extract (Recommended)
+### Vanilla Extract (`.css.ts` files)
 
 ```typescript
 import { vars } from 'entangle-ui';
@@ -330,28 +288,7 @@ export const card = style({
 });
 ```
 
-`vars` is fully typed — autocomplete guides you through the entire token tree.
-
-### Emotion (Runtime)
-
-```tsx
-import { useTheme } from '@emotion/react';
-
-function MyComponent() {
-  const theme = useTheme();
-
-  return (
-    <div
-      css={{
-        color: theme.colors.text.primary,
-        padding: theme.spacing.md,
-      }}
-    >
-      Content
-    </div>
-  );
-}
-```
+`vars` is fully typed -- autocomplete guides you through the entire token tree.
 
 ### Plain CSS
 
@@ -368,7 +305,6 @@ function MyComponent() {
 
 ```tsx
 import type {
-  Theme, // Full theme object shape (Emotion)
   Tokens, // Raw token definitions
   ThemeVars, // Vanilla Extract contract type (CSS variable references)
   DarkThemeValues, // Dark theme value map

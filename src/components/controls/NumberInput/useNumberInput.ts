@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 // src/controls/NumberInput/useNumberInput.ts

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useRef } from 'react';
 import { useTabsContext } from './Tabs';
 import type { TabListProps } from './Tabs.types';

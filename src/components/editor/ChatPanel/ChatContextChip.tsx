@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback } from 'react';
 import type { ChatContextChipProps } from './ChatPanel.types';
 import { cx } from '@/utils/cx';

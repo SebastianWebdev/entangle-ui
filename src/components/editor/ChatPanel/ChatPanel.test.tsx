@@ -143,12 +143,12 @@ describe('ChatMessageList', () => {
 
     it('has role="log" for accessibility', () => {
       renderWithTheme(<ChatMessageList messages={[]} testId="list" />);
-      expect(screen.getByTestId('list')).toHaveAttribute('role', 'log');
+      expect(screen.getByRole('log')).toBeInTheDocument();
     });
 
     it('has aria-live="polite"', () => {
       renderWithTheme(<ChatMessageList messages={[]} testId="list" />);
-      expect(screen.getByTestId('list')).toHaveAttribute('aria-live', 'polite');
+      expect(screen.getByRole('log')).toHaveAttribute('aria-live', 'polite');
     });
   });
 });
@@ -840,9 +840,8 @@ describe('useChatInput', () => {
 describe('Accessibility', () => {
   it('message list has role="log" and aria-live="polite"', () => {
     renderWithTheme(<ChatMessageList messages={[]} testId="list" />);
-    const list = screen.getByTestId('list');
-    expect(list).toHaveAttribute('role', 'log');
-    expect(list).toHaveAttribute('aria-live', 'polite');
+    const log = screen.getByRole('log');
+    expect(log).toHaveAttribute('aria-live', 'polite');
   });
 
   it('input has aria-keyshortcuts matching submitKey', () => {

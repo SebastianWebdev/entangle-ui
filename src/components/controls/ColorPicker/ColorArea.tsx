@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useRef } from 'react';
 import { hsvToRgb, rgbToHex } from './colorUtils';
 import {

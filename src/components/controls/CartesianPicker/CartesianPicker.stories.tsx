@@ -6,7 +6,6 @@ import type { Point2D } from '@/components/primitives/canvas';
 const meta: Meta<typeof CartesianPicker> = {
   title: 'Controls/CartesianPicker',
   component: CartesianPicker,
-  tags: ['autodocs'],
   argTypes: {
     domainX: { control: false },
     domainY: { control: false },

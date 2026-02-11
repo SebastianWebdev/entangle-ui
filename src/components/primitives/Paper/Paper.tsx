@@ -1,3 +1,5 @@
+'use client';
+
 // src/components/primitives/Paper/Paper.tsx
 import React from 'react';
 import type { Prettify } from '@/types/utilities';

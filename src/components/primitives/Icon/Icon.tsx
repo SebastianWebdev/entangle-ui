@@ -1,3 +1,5 @@
+'use client';
+
 // src/primitives/Icon/Icon.tsx
 import React from 'react';
 import type { Prettify, LiteralUnion } from '@/types/utilities';

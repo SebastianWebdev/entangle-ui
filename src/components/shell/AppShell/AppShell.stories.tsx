@@ -1,8 +1,28 @@
 import type { CSSProperties } from 'react';
 import { useState, useCallback } from 'react';
-import styled from '@emotion/styled';
 import type { Meta, StoryObj } from '@storybook/react';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { vars } from '@/theme';
+import {
+  viewportCanvasStyle,
+  viewportGridStyle,
+  viewportAxisXStyle,
+  viewportAxisZStyle,
+  viewportOverlayStyle,
+  viewportBadgeStyle,
+  viewportTopBarStyle,
+  viewportModeBtnRecipe,
+  cubeWireframeStyle,
+  cubeFaceTransformVar,
+  cubeFaceRecipe,
+  selectionDotsStyle,
+  selectionCornerStyle,
+  selectionCornerXVar,
+  selectionCornerYVar,
+  selectionCornerZVar,
+  consoleEntryRecipe,
+  timeStampStyle,
+} from './AppShell.stories.css';
 import { AppShell } from './AppShell';
 import { MenuBar } from '../MenuBar';
 import { Toolbar } from '../Toolbar';
@@ -128,172 +148,33 @@ const panelGradientStyles: CSSProperties = {
 };
 
 // ---------------------------------------------------------------------------
-// Styled helpers for the FullEditor story
+// Helper components for the FullEditor story
+// (styles in AppShell.stories.css.ts)
 // ---------------------------------------------------------------------------
 
-const ViewportCanvas = styled.div`
-  width: 100%;
-  height: 100%;
-  background: ${({ theme }) => theme.colors.background.primary};
-  position: relative;
-  overflow: hidden;
-`;
+const CubeFace = ({
+  transform,
+  highlight,
+}: {
+  transform: string;
+  highlight?: boolean;
+}) => (
+  <div
+    className={cubeFaceRecipe({ highlight: highlight ? true : false })}
+    style={assignInlineVars({ [cubeFaceTransformVar]: transform })}
+  />
+);
 
-const ViewportGrid = styled.div`
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-  background-position: center center;
-`;
-
-const ViewportAxisX = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(255, 80, 80, 0.25);
-`;
-
-const ViewportAxisZ = styled.div`
-  position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: rgba(80, 80, 255, 0.25);
-`;
-
-const ViewportOverlay = styled.div`
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-`;
-
-const ViewportBadge = styled.div`
-  padding: 3px 8px;
-  background: rgba(20, 20, 20, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
-  font-size: 10px;
-  color: ${({ theme }) => theme.colors.text.muted};
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  user-select: none;
-`;
-
-const ViewportTopBar = styled.div`
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  display: flex;
-  gap: 4px;
-`;
-
-const ViewportModeBtn = styled.button<{ $active?: boolean }>`
-  padding: 3px 10px;
-  font-size: 10px;
-  border: 1px solid
-    ${({ $active }) =>
-      $active ? 'rgba(0,122,204,0.6)' : 'rgba(255,255,255,0.08)'};
-  border-radius: 3px;
-  background: ${({ $active }) =>
-    $active ? 'rgba(0,122,204,0.2)' : 'rgba(20,20,20,0.8)'};
-  color: ${({ $active }) => ($active ? '#6cb6ff' : 'rgba(255,255,255,0.5)')};
-  cursor: pointer;
-  font-family: inherit;
-
-  &:hover {
-    border-color: rgba(0, 122, 204, 0.5);
-    color: rgba(255, 255, 255, 0.8);
-  }
-`;
-
-const CubeWireframe = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 120px;
-  height: 120px;
-  transform: translate(-50%, -50%) rotateX(-25deg) rotateY(35deg);
-  transform-style: preserve-3d;
-`;
-
-const CubeFace = styled.div<{ $transform: string; $highlight?: boolean }>`
-  position: absolute;
-  width: 120px;
-  height: 120px;
-  border: 1.5px solid
-    ${({ $highlight }) =>
-      $highlight ? 'rgba(0, 122, 204, 0.8)' : 'rgba(255, 255, 255, 0.15)'};
-  background: ${({ $highlight }) =>
-    $highlight ? 'rgba(0, 122, 204, 0.06)' : 'rgba(255, 255, 255, 0.01)'};
-  transform: ${({ $transform }) => $transform};
-  box-shadow: ${({ $highlight }) =>
-    $highlight ? '0 0 20px rgba(0, 122, 204, 0.15)' : 'none'};
-`;
-
-const SelectionDots = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 130px;
-  height: 130px;
-  transform: translate(-50%, -50%) rotateX(-25deg) rotateY(35deg);
-  transform-style: preserve-3d;
-`;
-
-const SelectionCorner = styled.div<{ $x: number; $y: number; $z: number }>`
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: #007acc;
-  border: 1px solid #fff;
-  border-radius: 1px;
-  transform: translate3d(
-    ${({ $x }) => $x}px,
-    ${({ $y }) => $y}px,
-    ${({ $z }) => $z}px
-  );
-`;
-
-const ConsoleEntry = styled.div<{
-  $type?: 'info' | 'warn' | 'error' | 'success';
-}>`
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 3px 10px;
-  font-size: 11px;
-  font-family: ${({ theme }) => theme.typography.fontFamily.mono};
-  color: ${({ $type, theme }) => {
-    switch ($type) {
-      case 'warn':
-        return theme.colors.accent.warning;
-      case 'error':
-        return theme.colors.accent.error;
-      case 'success':
-        return theme.colors.accent.success;
-      default:
-        return theme.colors.text.muted;
-    }
-  }};
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.02);
-  }
-`;
-
-const TimeStamp = styled.span`
-  color: ${({ theme }) => theme.colors.text.disabled};
-  flex-shrink: 0;
-`;
+const SelectionCorner = ({ x, y, z }: { x: number; y: number; z: number }) => (
+  <div
+    className={selectionCornerStyle}
+    style={assignInlineVars({
+      [selectionCornerXVar]: `${x}px`,
+      [selectionCornerYVar]: `${y}px`,
+      [selectionCornerZVar]: `${z}px`,
+    })}
+  />
+);
 
 // ---------------------------------------------------------------------------
 // FullEditor Story — jaw-dropping showcase of Entangle UI
@@ -1233,26 +1114,26 @@ export const FullEditor: Story = {
                 >
                   {/* 3D Viewport */}
                   <ContextMenu config={viewportContextMenu}>
-                    <ViewportCanvas>
-                      <ViewportGrid />
-                      <ViewportAxisX />
-                      <ViewportAxisZ />
+                    <div className={viewportCanvasStyle}>
+                      <div className={viewportGridStyle} />
+                      <div className={viewportAxisXStyle} />
+                      <div className={viewportAxisZStyle} />
 
                       {/* Wireframe cube object */}
-                      <CubeWireframe>
-                        <CubeFace $transform="translateZ(60px)" $highlight />
-                        <CubeFace $transform="translateZ(-60px)" />
-                        <CubeFace $transform="rotateY(90deg) translateZ(60px)" />
-                        <CubeFace $transform="rotateY(-90deg) translateZ(60px)" />
-                        <CubeFace $transform="rotateX(90deg) translateZ(60px)" />
-                        <CubeFace $transform="rotateX(-90deg) translateZ(60px)" />
-                      </CubeWireframe>
-                      <SelectionDots>
-                        <SelectionCorner $x={-3} $y={-3} $z={65} />
-                        <SelectionCorner $x={123} $y={-3} $z={65} />
-                        <SelectionCorner $x={-3} $y={123} $z={65} />
-                        <SelectionCorner $x={123} $y={123} $z={65} />
-                      </SelectionDots>
+                      <div className={cubeWireframeStyle}>
+                        <CubeFace transform="translateZ(60px)" highlight />
+                        <CubeFace transform="translateZ(-60px)" />
+                        <CubeFace transform="rotateY(90deg) translateZ(60px)" />
+                        <CubeFace transform="rotateY(-90deg) translateZ(60px)" />
+                        <CubeFace transform="rotateX(90deg) translateZ(60px)" />
+                        <CubeFace transform="rotateX(-90deg) translateZ(60px)" />
+                      </div>
+                      <div className={selectionDotsStyle}>
+                        <SelectionCorner x={-3} y={-3} z={65} />
+                        <SelectionCorner x={123} y={-3} z={65} />
+                        <SelectionCorner x={-3} y={123} z={65} />
+                        <SelectionCorner x={123} y={123} z={65} />
+                      </div>
 
                       {/* Orientation gizmo */}
                       <div
@@ -1274,42 +1155,52 @@ export const FullEditor: Story = {
                       </div>
 
                       {/* Viewport mode selector */}
-                      <ViewportTopBar>
-                        <ViewportModeBtn
-                          $active={renderMode === 'wireframe'}
+                      <div className={viewportTopBarStyle}>
+                        <button
+                          className={viewportModeBtnRecipe({
+                            active: renderMode === 'wireframe',
+                          })}
                           onClick={() => setRenderMode('wireframe')}
                         >
                           Wireframe
-                        </ViewportModeBtn>
-                        <ViewportModeBtn
-                          $active={renderMode === 'solid'}
+                        </button>
+                        <button
+                          className={viewportModeBtnRecipe({
+                            active: renderMode === 'solid',
+                          })}
                           onClick={() => setRenderMode('solid')}
                         >
                           Solid
-                        </ViewportModeBtn>
-                        <ViewportModeBtn
-                          $active={renderMode === 'material'}
+                        </button>
+                        <button
+                          className={viewportModeBtnRecipe({
+                            active: renderMode === 'material',
+                          })}
                           onClick={() => setRenderMode('material')}
                         >
                           Material
-                        </ViewportModeBtn>
-                        <ViewportModeBtn
-                          $active={renderMode === 'rendered'}
+                        </button>
+                        <button
+                          className={viewportModeBtnRecipe({
+                            active: renderMode === 'rendered',
+                          })}
                           onClick={() => setRenderMode('rendered')}
                         >
                           Rendered
-                        </ViewportModeBtn>
-                      </ViewportTopBar>
+                        </button>
+                      </div>
 
                       {/* Viewport info badges */}
-                      <ViewportOverlay>
-                        <ViewportBadge>
+                      <div className={viewportOverlayStyle}>
+                        <div className={viewportBadgeStyle}>
                           Verts: 8 &middot; Faces: 6 &middot; Tris: 12
-                        </ViewportBadge>
-                        <ViewportBadge>Objects: 5 / 1 selected</ViewportBadge>
-                        <ViewportBadge>60.0 fps</ViewportBadge>
-                      </ViewportOverlay>
-                    </ViewportCanvas>
+                        </div>
+                        <div className={viewportBadgeStyle}>
+                          Objects: 5 / 1 selected
+                        </div>
+                        <div className={viewportBadgeStyle}>60.0 fps</div>
+                      </div>
+                    </div>
                   </ContextMenu>
 
                   {/* Bottom panel: Console / Output / Timeline */}
@@ -1336,41 +1227,57 @@ export const FullEditor: Story = {
                             scrollbarVisibility="hover"
                             style={{ flex: 1 }}
                           >
-                            <ConsoleEntry $type="info">
+                            <div
+                              className={consoleEntryRecipe({ type: 'info' })}
+                            >
                               <InfoIcon size="sm" />
-                              <TimeStamp>12:04:21</TimeStamp>
+                              <span className={timeStampStyle}>12:04:21</span>
                               <span>Scene loaded: 5 objects, 3 materials</span>
-                            </ConsoleEntry>
-                            <ConsoleEntry $type="success">
+                            </div>
+                            <div
+                              className={consoleEntryRecipe({
+                                type: 'success',
+                              })}
+                            >
                               <CheckIcon size="sm" />
-                              <TimeStamp>12:04:21</TimeStamp>
+                              <span className={timeStampStyle}>12:04:21</span>
                               <span>Shader compilation complete (245ms)</span>
-                            </ConsoleEntry>
-                            <ConsoleEntry $type="warn">
+                            </div>
+                            <div
+                              className={consoleEntryRecipe({ type: 'warn' })}
+                            >
                               <WarningIcon size="sm" />
-                              <TimeStamp>12:04:22</TimeStamp>
+                              <span className={timeStampStyle}>12:04:22</span>
                               <span>
                                 Texture &quot;brick_normal.png&quot; missing —
                                 using fallback
                               </span>
-                            </ConsoleEntry>
-                            <ConsoleEntry $type="info">
+                            </div>
+                            <div
+                              className={consoleEntryRecipe({ type: 'info' })}
+                            >
                               <InfoIcon size="sm" />
-                              <TimeStamp>12:04:23</TimeStamp>
+                              <span className={timeStampStyle}>12:04:23</span>
                               <span>
                                 Render engine: WebGPU (Hardware Accelerated)
                               </span>
-                            </ConsoleEntry>
-                            <ConsoleEntry $type="info">
+                            </div>
+                            <div
+                              className={consoleEntryRecipe({ type: 'info' })}
+                            >
                               <InfoIcon size="sm" />
-                              <TimeStamp>12:04:23</TimeStamp>
+                              <span className={timeStampStyle}>12:04:23</span>
                               <span>Viewport resolution: 1920 x 1080 @2x</span>
-                            </ConsoleEntry>
-                            <ConsoleEntry $type="success">
+                            </div>
+                            <div
+                              className={consoleEntryRecipe({
+                                type: 'success',
+                              })}
+                            >
                               <CheckIcon size="sm" />
-                              <TimeStamp>12:04:24</TimeStamp>
+                              <span className={timeStampStyle}>12:04:24</span>
                               <span>Auto-save: scene_v3_final.entangle</span>
-                            </ConsoleEntry>
+                            </div>
                           </ScrollArea>
                         </TabPanel>
                         <TabPanel value="output">
@@ -1379,12 +1286,14 @@ export const FullEditor: Story = {
                             scrollbarVisibility="hover"
                             style={{ flex: 1 }}
                           >
-                            <ConsoleEntry $type="info">
-                              <TimeStamp>12:04:21</TimeStamp>
+                            <div
+                              className={consoleEntryRecipe({ type: 'info' })}
+                            >
+                              <span className={timeStampStyle}>12:04:21</span>
                               <span>
                                 Build output: dist/scene.gltf (2.4 MB)
                               </span>
-                            </ConsoleEntry>
+                            </div>
                           </ScrollArea>
                         </TabPanel>
                         <TabPanel value="timeline">

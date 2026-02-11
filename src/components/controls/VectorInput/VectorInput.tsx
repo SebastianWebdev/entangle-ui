@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useCallback, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { VectorInputProps } from './VectorInput.types';

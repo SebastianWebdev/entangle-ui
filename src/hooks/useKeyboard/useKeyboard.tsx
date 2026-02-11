@@ -1,3 +1,5 @@
+'use client';
+
 // src/hooks/useKeyboard.ts
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import type { KeyboardState, KeyboardInnerState, AllKeys } from './types';

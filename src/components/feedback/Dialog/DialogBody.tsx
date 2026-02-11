@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import type { DialogBodyProps } from './Dialog.types';
 import { cx } from '@/utils/cx';
