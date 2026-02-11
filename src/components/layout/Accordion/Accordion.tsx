@@ -5,13 +5,14 @@ import React, {
   useId,
   useState,
 } from 'react';
-import styled from '@emotion/styled';
-import { processCss } from '@/utils/styledUtils';
+import { cx } from '@/utils/cx';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type {
   AccordionContextValue,
   AccordionItemContextValue,
   AccordionProps,
 } from './Accordion.types';
+import { accordionRoot, accordionGapVar } from './Accordion.css';
 
 // --- Contexts ---
 
@@ -50,21 +51,6 @@ function normalizeValue(value: string | string[] | undefined): string[] {
   return [value];
 }
 
-// --- Styled ---
-
-interface StyledAccordionRootProps {
-  $gap: number;
-  $css?: AccordionProps['css'];
-}
-
-const StyledAccordionRoot = styled.div<StyledAccordionRootProps>`
-  display: flex;
-  flex-direction: column;
-  gap: ${props => props.$gap}px;
-
-  ${props => processCss(props.$css, props.theme)}
-`;
-
 // --- Component ---
 
 /**
@@ -96,7 +82,6 @@ export const Accordion: React.FC<AccordionProps> = ({
   onChange,
   className,
   style,
-  css,
   testId,
   ref,
   ...rest
@@ -150,19 +135,24 @@ export const Accordion: React.FC<AccordionProps> = ({
     accordionId: autoId,
   };
 
+  const mergedStyle: React.CSSProperties = {
+    ...assignInlineVars({
+      [accordionGapVar]: `${gap}px`,
+    }),
+    ...style,
+  };
+
   return (
     <AccordionContext.Provider value={contextValue}>
-      <StyledAccordionRoot
+      <div
         ref={ref}
-        $gap={gap}
-        $css={css}
-        className={className}
-        style={style}
+        className={cx(accordionRoot, className)}
+        style={mergedStyle}
         data-testid={testId}
         {...rest}
       >
         {children}
-      </StyledAccordionRoot>
+      </div>
     </AccordionContext.Provider>
   );
 };

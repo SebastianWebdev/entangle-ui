@@ -1,10 +1,21 @@
 import React, { useState, useRef, useCallback } from 'react';
-import styled from '@emotion/styled';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type {
   TreeNodeData,
   TreeNodeState,
   TreeViewSize,
 } from './TreeView.types';
+import {
+  rowRecipe,
+  chevronRecipe,
+  iconRecipe,
+  labelRecipe,
+  actionsStyle,
+  renameInputRecipe,
+  guideLineStyle,
+  paddingLeftVar,
+  guideLineLeftVar,
+} from './TreeNode.css';
 
 // --- Size configurations ---
 
@@ -40,129 +51,6 @@ const sizeConfig: Record<
     defaultIndent: 20,
   },
 };
-
-// --- Styled components ---
-
-interface StyledRowProps {
-  $size: TreeViewSize;
-  $selected: boolean;
-  $focused: boolean;
-  $disabled: boolean;
-  $depth: number;
-  $indent: number;
-}
-
-const StyledRow = styled.div<StyledRowProps>`
-  display: flex;
-  align-items: center;
-  height: ${props => sizeConfig[props.$size].rowHeight}px;
-  padding-left: ${props => props.$depth * props.$indent}px;
-  padding-right: ${props => props.theme.spacing.xs}px;
-  cursor: ${props => (props.$disabled ? 'default' : 'pointer')};
-  user-select: none;
-  opacity: ${props => (props.$disabled ? 0.5 : 1)};
-  position: relative;
-
-  background: ${props =>
-    props.$selected ? `${props.theme.colors.accent.primary}26` : 'transparent'};
-
-  ${props =>
-    props.$focused &&
-    !props.$selected &&
-    `box-shadow: inset 0 0 0 1px ${props.theme.colors.border.focus};`}
-
-  &:hover {
-    background: ${props =>
-      props.$selected
-        ? `${props.theme.colors.accent.primary}33`
-        : props.theme.colors.surface.hover};
-  }
-`;
-
-interface StyledChevronProps {
-  $expanded: boolean;
-  $size: TreeViewSize;
-  $visible: boolean;
-}
-
-const StyledChevron = styled.span<StyledChevronProps>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: ${props => sizeConfig[props.$size].chevronSize + 4}px;
-  height: ${props => sizeConfig[props.$size].chevronSize + 4}px;
-  flex-shrink: 0;
-  visibility: ${props => (props.$visible ? 'visible' : 'hidden')};
-  transition: transform ${props => props.theme.transitions.fast};
-  transform: rotate(${props => (props.$expanded ? '90deg' : '0deg')});
-  color: ${props => props.theme.colors.text.muted};
-
-  &:hover {
-    color: ${props => props.theme.colors.text.primary};
-  }
-`;
-
-const StyledIcon = styled.span<{ $size: TreeViewSize }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: ${props => sizeConfig[props.$size].iconSize}px;
-  height: ${props => sizeConfig[props.$size].iconSize}px;
-  flex-shrink: 0;
-  margin-right: ${props => props.theme.spacing.xs}px;
-  color: ${props => props.theme.colors.text.secondary};
-`;
-
-const StyledLabel = styled.span<{ $size: TreeViewSize }>`
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: ${props =>
-    props.theme.typography.fontSize[sizeConfig[props.$size].fontSizeKey]}px;
-  color: ${props => props.theme.colors.text.primary};
-  line-height: ${props => props.theme.typography.lineHeight.normal};
-`;
-
-const StyledActions = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-left: auto;
-  flex-shrink: 0;
-`;
-
-const StyledRenameInput = styled.input<{ $size: TreeViewSize }>`
-  flex: 1;
-  min-width: 0;
-  border: 1px solid ${props => props.theme.colors.border.focus};
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  background: ${props => props.theme.colors.surface.default};
-  color: ${props => props.theme.colors.text.primary};
-  font-size: ${props =>
-    props.theme.typography.fontSize[sizeConfig[props.$size].fontSizeKey]}px;
-  padding: 0 4px;
-  outline: none;
-  height: ${props => sizeConfig[props.$size].rowHeight - 4}px;
-`;
-
-// --- Guide line styled component ---
-
-interface StyledGuideLineProps {
-  $left: number;
-  $size: TreeViewSize;
-}
-
-const StyledGuideLine = styled.span<StyledGuideLineProps>`
-  position: absolute;
-  left: ${props => props.$left + sizeConfig[props.$size].defaultIndent / 2}px;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: ${props => props.theme.colors.border.default}4D;
-  pointer-events: none;
-`;
 
 // --- Chevron icon SVG ---
 
@@ -314,24 +202,33 @@ export const TreeNodeComponent = ({
   const guideLines =
     showGuideLines && depth > 0
       ? Array.from({ length: depth }, (_, i) => (
-          <StyledGuideLine key={i} $left={i * indent} $size={size} />
+          <span
+            key={i}
+            className={guideLineStyle}
+            style={assignInlineVars({
+              [guideLineLeftVar]: `${i * indent + config.defaultIndent / 2}px`,
+            })}
+          />
         ))
       : null;
 
   return (
-    <StyledRow
+    <div
       id={`treenode-${nodeId}`}
       role="treeitem"
       aria-expanded={isLeaf ? undefined : isExpanded}
       aria-selected={isSelected}
       aria-disabled={node.disabled ?? undefined}
       aria-level={depth + 1}
-      $size={size}
-      $selected={isSelected}
-      $focused={isFocused}
-      $disabled={node.disabled ?? false}
-      $depth={depth}
-      $indent={indent}
+      className={rowRecipe({
+        size,
+        selected: isSelected,
+        focused: isFocused,
+        disabled: node.disabled ?? false,
+      })}
+      style={assignInlineVars({
+        [paddingLeftVar]: `${depth * indent}px`,
+      })}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       onContextMenu={handleContextMenu}
@@ -341,15 +238,17 @@ export const TreeNodeComponent = ({
 
       {/* Chevron */}
       {showChevrons && (
-        <StyledChevron
-          $expanded={isExpanded}
-          $size={size}
-          $visible={!isLeaf}
+        <span
+          className={chevronRecipe({
+            expanded: isExpanded,
+            size,
+            visible: !isLeaf,
+          })}
           onClick={handleChevronClick}
           aria-hidden="true"
         >
           <ChevronSvg size={config.chevronSize} />
-        </StyledChevron>
+        </span>
       )}
 
       {/* Content */}
@@ -357,11 +256,13 @@ export const TreeNodeComponent = ({
         renderNode(node, state)
       ) : (
         <>
-          {node.icon && <StyledIcon $size={size}>{node.icon}</StyledIcon>}
+          {node.icon && (
+            <span className={iconRecipe({ size })}>{node.icon}</span>
+          )}
           {isRenaming ? (
-            <StyledRenameInput
+            <input
               ref={renameInputRef}
-              $size={size}
+              className={renameInputRecipe({ size })}
               value={renameValue}
               onChange={e => setRenameValue(e.target.value)}
               onKeyDown={handleRenameKeyDown}
@@ -370,18 +271,18 @@ export const TreeNodeComponent = ({
               onClick={e => e.stopPropagation()}
             />
           ) : (
-            <StyledLabel $size={size}>{node.label}</StyledLabel>
+            <span className={labelRecipe({ size })}>{node.label}</span>
           )}
         </>
       )}
 
       {/* Actions */}
       {renderActions && (
-        <StyledActions onClick={e => e.stopPropagation()}>
+        <span className={actionsStyle} onClick={e => e.stopPropagation()}>
           {renderActions(node, state)}
-        </StyledActions>
+        </span>
       )}
-    </StyledRow>
+    </div>
   );
 };
 

@@ -68,13 +68,18 @@ describe('PropertyPanel', () => {
     it('applies custom top spacing for panel content', () => {
       renderWithTheme(<TestPanel contentTopSpacing={12} />);
       const section = screen.getByTestId('section-transform');
-      expect(section.parentElement).toHaveStyle({ paddingTop: '12px' });
+      const parent = section.parentElement as HTMLElement;
+      // assignInlineVars sets the CSS custom property as inline style
+      // jsdom can't resolve CSS vars so we check the inline style attribute
+      expect(parent.style.cssText).toContain('12px');
     });
 
     it('applies custom bottom spacing for panel content', () => {
       renderWithTheme(<TestPanel contentBottomSpacing={20} />);
       const section = screen.getByTestId('section-transform');
-      expect(section.parentElement).toHaveStyle({ paddingBottom: '20px' });
+      const parent = section.parentElement as HTMLElement;
+      // assignInlineVars sets the CSS custom property as inline style
+      expect(parent.style.cssText).toContain('20px');
     });
   });
 

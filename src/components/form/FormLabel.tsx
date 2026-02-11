@@ -1,8 +1,8 @@
 import React from 'react';
-import styled from '@emotion/styled';
 import type { BaseComponent } from '@/types/common';
-import { processCss } from '@/utils/styledUtils';
 import { Prettify } from '@/types/utilities';
+import { cx } from '@/utils/cx';
+import { formLabelRecipe, requiredIndicatorStyle } from './FormLabel.css';
 
 export interface FormLabelBaseProps extends BaseComponent<HTMLLabelElement> {
   /**
@@ -30,29 +30,6 @@ export interface FormLabelBaseProps extends BaseComponent<HTMLLabelElement> {
 
 export type FormLabelProps = Prettify<FormLabelBaseProps>;
 
-const StyledLabel = styled.label<{
-  $disabled: boolean;
-  $css?: FormLabelBaseProps['css'];
-}>`
-  font-size: ${props => props.theme.typography.fontSize.sm}px;
-  font-weight: ${props => props.theme.typography.fontWeight.medium};
-  color: ${props =>
-    props.$disabled
-      ? props.theme.colors.text.disabled
-      : props.theme.colors.text.secondary};
-  line-height: ${props => props.theme.typography.lineHeight.tight};
-  margin-bottom: ${props => props.theme.spacing.xs}px;
-  display: inline-block;
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
-
-const RequiredIndicator = styled.span`
-  color: ${props => props.theme.colors.accent.error};
-  margin-left: 2px;
-`;
-
 /**
  * A standardized form label component for use with form controls.
  *
@@ -75,23 +52,20 @@ export const FormLabel = /*#__PURE__*/ React.memo<FormLabelProps>(
     required = false,
     className,
     style,
-    css,
     ref,
     ...rest
   }) => {
     return (
-      <StyledLabel
+      <label
         ref={ref}
         htmlFor={htmlFor}
-        $disabled={disabled}
-        $css={css}
-        className={className}
+        className={cx(formLabelRecipe({ disabled }), className)}
         style={style}
         {...rest}
       >
         {children}
-        {required && <RequiredIndicator> *</RequiredIndicator>}
-      </StyledLabel>
+        {required && <span className={requiredIndicatorStyle}> *</span>}
+      </label>
     );
   }
 );

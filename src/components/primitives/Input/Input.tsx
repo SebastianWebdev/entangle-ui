@@ -1,18 +1,27 @@
 // src/primitives/Input/Input.tsx
-import type { BaseComponent, Size } from '@/types/common';
+import type { Size } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
-import { StyledInputWrapper } from '@/components/form';
-import { processCss } from '@/utils/styledUtils';
-import styled from '@emotion/styled';
+import { inputWrapperRecipe } from '@/components/form/InputWrapper.css';
+import { cx } from '@/utils/cx';
 import React from 'react';
+import {
+  inputContainerStyle,
+  labelRecipe,
+  inputRecipe,
+  iconStartStyle,
+  iconEndStyle,
+  helperTextRecipe,
+} from './Input.css';
 
 /**
  * Standard input sizes using library sizing.
  */
 export type InputSize = Size;
 
-export interface InputBaseProps
-  extends Omit<BaseComponent<HTMLInputElement>, 'onChange'> {
+export interface InputBaseProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'onChange' | 'size' | 'css'
+> {
   /**
    * Input value (controlled)
    */
@@ -118,100 +127,19 @@ export interface InputBaseProps
    * Key down event handler
    */
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+
+  /**
+   * Test identifier for automated testing
+   */
+  testId?: string;
+
+  ref?: React.Ref<HTMLInputElement>;
 }
 
 /**
  * Props for the Input component with prettified type for better IntelliSense
  */
 export type InputProps = Prettify<InputBaseProps>;
-
-interface StyledInputContainerProps {
-  $size: InputSize;
-  $error: boolean;
-  $disabled: boolean;
-  $focused: boolean;
-  $css?: InputProps['css'];
-}
-
-const StyledInputContainer = styled.div<StyledInputContainerProps>`
-  display: flex;
-  flex-direction: column;
-  gap: ${props => props.theme.spacing.xs}px;
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
-
-const StyledLabel = styled.label<{ $disabled: boolean }>`
-  font-size: ${props => props.theme.typography.fontSize.sm}px;
-  font-weight: ${props => props.theme.typography.fontWeight.medium};
-  color: ${props =>
-    props.$disabled
-      ? props.theme.colors.text.disabled
-      : props.theme.colors.text.secondary};
-  line-height: ${props => props.theme.typography.lineHeight.tight};
-`;
-
-const StyledInput = styled.input<{ $size: InputSize }>`
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-family: inherit;
-  color: ${props => props.theme.colors.text.primary};
-
-  ${props => {
-    const fontSize = {
-      sm: props.theme.typography.fontSize.md,
-      md: props.theme.typography.fontSize.md,
-      lg: props.theme.typography.fontSize.lg,
-    };
-    return `font-size: ${fontSize[props.$size]}px;`;
-  }}
-
-  &::placeholder {
-    color: ${props => props.theme.colors.text.muted};
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-  }
-
-  /* Remove number input arrows */
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  &[type='number'] {
-    -moz-appearance: textfield;
-  }
-`;
-
-const StyledIcon = styled.div<{ $position: 'start' | 'end' }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${props => props.theme.colors.text.muted};
-
-  ${props =>
-    props.$position === 'start' ? 'margin-right: 6px;' : 'margin-left: 6px;'}
-
-  & > * {
-    width: 14px;
-    height: 14px;
-  }
-`;
-
-const StyledHelperText = styled.div<{ $error: boolean }>`
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  line-height: ${props => props.theme.typography.lineHeight.tight};
-  color: ${props =>
-    props.$error
-      ? props.theme.colors.accent.error
-      : props.theme.colors.text.muted};
-`;
 
 /**
  * A versatile input component for text entry in editor interfaces.
@@ -266,7 +194,6 @@ export const Input: React.FC<InputProps> = ({
   endIcon,
   className,
   style,
-  css,
   onChange,
   onFocus,
   onBlur,
@@ -289,31 +216,28 @@ export const Input: React.FC<InputProps> = ({
   };
 
   return (
-    <StyledInputContainer
-      className={className}
-      style={style}
-      $size={size}
-      $error={error}
-      $disabled={disabled}
-      $focused={focused}
-      $css={css}
-    >
+    <div className={cx(inputContainerStyle, className)} style={style}>
       {label && (
-        <StyledLabel htmlFor={inputId} $disabled={disabled}>
+        <label
+          htmlFor={inputId}
+          className={labelRecipe({ disabled: disabled || undefined })}
+        >
           {label}
           {required && <span style={{ color: 'var(--accent-error)' }}> *</span>}
-        </StyledLabel>
+        </label>
       )}
 
-      <StyledInputWrapper
-        $size={size}
-        $error={error}
-        $disabled={disabled}
-        $focused={focused}
+      <div
+        className={inputWrapperRecipe({
+          size,
+          error,
+          disabled,
+          focused,
+        })}
       >
-        {startIcon && <StyledIcon $position="start">{startIcon}</StyledIcon>}
+        {startIcon && <div className={iconStartStyle}>{startIcon}</div>}
 
-        <StyledInput
+        <input
           ref={ref}
           id={inputId}
           type={type}
@@ -323,7 +247,7 @@ export const Input: React.FC<InputProps> = ({
           disabled={disabled}
           required={required}
           readOnly={readOnly}
-          $size={size}
+          className={inputRecipe({ size })}
           onChange={onChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -332,15 +256,15 @@ export const Input: React.FC<InputProps> = ({
           {...props}
         />
 
-        {endIcon && <StyledIcon $position="end">{endIcon}</StyledIcon>}
-      </StyledInputWrapper>
+        {endIcon && <div className={iconEndStyle}>{endIcon}</div>}
+      </div>
 
       {(helperText ?? (error && errorMessage)) && (
-        <StyledHelperText $error={error}>
+        <div className={helperTextRecipe({ error: error || undefined })}>
           {error && errorMessage ? errorMessage : helperText}
-        </StyledHelperText>
+        </div>
       )}
-    </StyledInputContainer>
+    </div>
   );
 };
 

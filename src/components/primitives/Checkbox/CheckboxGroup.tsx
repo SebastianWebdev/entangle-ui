@@ -1,35 +1,21 @@
 import React, { createContext, useCallback, useId, useState } from 'react';
-import styled from '@emotion/styled';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { FormLabel } from '@/components/form';
 import { FormHelperText } from '@/components/form';
-import { processCss } from '@/utils/styledUtils';
+import { cx } from '@/utils/cx';
 import type {
   CheckboxGroupProps,
   CheckboxGroupContextValue,
 } from './Checkbox.types';
+import {
+  groupContainerStyle,
+  groupItemsStyle,
+  groupDirectionVar,
+  groupGapVar,
+} from './Checkbox.css';
 
 export const CheckboxGroupContext =
   /*#__PURE__*/ createContext<CheckboxGroupContextValue | null>(null);
-
-interface StyledGroupProps {
-  $direction: 'row' | 'column';
-  $gap: number;
-  $css?: CheckboxGroupProps['css'];
-}
-
-const StyledGroupContainer = styled.div<{ $css?: CheckboxGroupProps['css'] }>`
-  display: flex;
-  flex-direction: column;
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
-
-const StyledGroupItems = styled.div<StyledGroupProps>`
-  display: flex;
-  flex-direction: ${props => props.$direction};
-  gap: ${props => props.theme.spacing.md * props.$gap}px;
-`;
 
 /**
  * Groups multiple Checkbox components with shared state management.
@@ -66,7 +52,8 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
   onChange,
   className,
   style,
-  css,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  css: _css,
   testId,
   ref,
   id: idProp,
@@ -105,14 +92,13 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
   const showHelperText = error && errorMessage ? errorMessage : helperText;
 
   return (
-    <StyledGroupContainer
+    <div
       ref={ref}
       role="group"
       aria-labelledby={label ? labelId : undefined}
       aria-describedby={showHelperText ? helperId : undefined}
-      className={className}
+      className={cx(groupContainerStyle, className)}
       style={style}
-      $css={css}
       data-testid={testId}
       {...rest}
     >
@@ -122,16 +108,22 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
         </FormLabel>
       )}
       <CheckboxGroupContext.Provider value={contextValue}>
-        <StyledGroupItems $direction={direction} $gap={gap}>
+        <div
+          className={groupItemsStyle}
+          style={assignInlineVars({
+            [groupDirectionVar]: direction,
+            [groupGapVar]: `${8 * gap}px`,
+          })}
+        >
           {children}
-        </StyledGroupItems>
+        </div>
       </CheckboxGroupContext.Provider>
       {showHelperText && (
         <FormHelperText id={helperId} error={error}>
           {showHelperText}
         </FormHelperText>
       )}
-    </StyledGroupContainer>
+    </div>
   );
 };
 

@@ -128,8 +128,7 @@ export type PopoverContentProps = Prettify<PopoverContentBaseProps>;
 
 // --- PopoverClose ---
 
-export interface PopoverCloseBaseProps
-  extends BaseComponent<HTMLButtonElement> {
+export interface PopoverCloseBaseProps extends BaseComponent<HTMLButtonElement> {
   /**
    * Close button content
    * @default built-in x icon

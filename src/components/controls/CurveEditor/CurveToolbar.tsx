@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from '@emotion/styled';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { IconButton } from '@/components/primitives/IconButton';
 import { Select } from '@/components/controls/Select';
 import { Tooltip } from '@/components/primitives/Tooltip';
@@ -16,6 +16,12 @@ import type {
   CurvePreset,
   TangentMode,
 } from './CurveEditor.types';
+import {
+  toolbarStyle,
+  toolbarSectionStyle,
+  toolbarSeparatorStyle,
+  toolbarHeightVar,
+} from './CurveEditor.css';
 
 interface CurveToolbarProps {
   selectedTangentMode: TangentMode | null;
@@ -33,30 +39,6 @@ const TOOLBAR_HEIGHT: Record<CurveEditorSize, number> = {
   md: 32,
   lg: 36,
 };
-
-const StyledToolbar = styled.div<{ $size: CurveEditorSize }>`
-  display: flex;
-  align-items: center;
-  gap: ${p => p.theme.spacing.sm}px;
-  padding: 0 ${p => p.theme.spacing.sm}px;
-  height: ${p => TOOLBAR_HEIGHT[p.$size]}px;
-  background: ${p => p.theme.colors.surface.default};
-  border-bottom: 1px solid ${p => p.theme.colors.border.default};
-  flex-shrink: 0;
-`;
-
-const ToolbarSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${p => p.theme.spacing.xs}px;
-`;
-
-const Separator = styled.div`
-  width: 1px;
-  height: 16px;
-  background: ${p => p.theme.colors.border.default};
-  margin: 0 ${p => p.theme.spacing.xs}px;
-`;
 
 const TANGENT_MODES: Array<{
   mode: TangentMode;
@@ -126,12 +108,15 @@ export const CurveToolbar: React.FC<CurveToolbarProps> = ({
   const iconSize = size === 'lg' ? 'md' : 'sm';
 
   return (
-    <StyledToolbar
-      $size={size}
+    <div
+      className={toolbarStyle}
+      style={assignInlineVars({
+        [toolbarHeightVar]: `${TOOLBAR_HEIGHT[size]}px`,
+      })}
       data-testid={testId ? `${testId}-toolbar` : undefined}
     >
       {/* Preset selector */}
-      <ToolbarSection>
+      <div className={toolbarSectionStyle}>
         <Select
           options={presetOptions}
           onChange={handlePresetChange}
@@ -142,14 +127,14 @@ export const CurveToolbar: React.FC<CurveToolbarProps> = ({
           aria-label="Curve preset"
           minDropdownWidth={180}
         />
-      </ToolbarSection>
+      </div>
 
       {!lockTangents && (
         <>
-          <Separator />
+          <div className={toolbarSeparatorStyle} />
 
           {/* Tangent mode buttons */}
-          <ToolbarSection>
+          <div className={toolbarSectionStyle}>
             {TANGENT_MODES.map(({ mode, label, icon, shortcut }) => (
               <Tooltip
                 key={mode}
@@ -168,10 +153,10 @@ export const CurveToolbar: React.FC<CurveToolbarProps> = ({
                 </IconButton>
               </Tooltip>
             ))}
-          </ToolbarSection>
+          </div>
         </>
       )}
-    </StyledToolbar>
+    </div>
   );
 };
 

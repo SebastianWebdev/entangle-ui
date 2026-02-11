@@ -1,6 +1,7 @@
 import { screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, beforeEach } from 'vitest';
+import { vars } from '@/theme/contract.css';
 import { renderWithTheme } from '@/tests/testUtils';
 import { Select } from './Select';
 import type { SelectOptionItem, SelectOptionGroup } from './Select.types';
@@ -234,7 +235,9 @@ describe('Select', () => {
       fireEvent.keyDown(listbox, { key: 'ArrowDown' });
 
       const options = screen.getAllByRole('option');
-      expect(options[0]).toHaveStyle('background: rgb(54, 54, 54)'); // surface.hover
+      expect(options[0]).toHaveStyle(
+        `background: ${vars.colors.surface.hover}`
+      ); // surface.hover
     });
 
     it('selects option with Enter after navigation', () => {

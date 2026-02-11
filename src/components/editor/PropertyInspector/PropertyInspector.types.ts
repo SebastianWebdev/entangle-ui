@@ -79,8 +79,10 @@ export type PropertyPanelProps = Prettify<PropertyPanelBaseProps>;
 
 // --- PropertySection ---
 
-export interface PropertySectionBaseProps
-  extends Omit<BaseComponent, 'onChange'> {
+export interface PropertySectionBaseProps extends Omit<
+  BaseComponent,
+  'onChange'
+> {
   /**
    * Section title displayed in the collapsible header
    */

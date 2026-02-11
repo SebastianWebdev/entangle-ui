@@ -5,65 +5,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import styled from '@emotion/styled';
-import { processCss } from '@/utils/styledUtils';
-import type { Theme } from '@/theme/types';
-import type {
-  PanelConfig,
-  SplitDirection,
-  SplitPaneProps,
-} from './SplitPane.types';
-
-// ---------------------------------------------------------------------------
-// Styled components
-// ---------------------------------------------------------------------------
-
-interface StyledContainerProps {
-  $direction: SplitDirection;
-  $css?: SplitPaneProps['css'];
-}
-
-const StyledContainer = styled.div<StyledContainerProps>`
-  display: flex;
-  flex-direction: ${props =>
-    props.$direction === 'horizontal' ? 'row' : 'column'};
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  ${props => processCss(props.$css, props.theme as Theme)}
-`;
-
-interface StyledDividerProps {
-  $direction: SplitDirection;
-  $size: number;
-  $isDragging: boolean;
-}
-
-const StyledDivider = styled.div<StyledDividerProps>`
-  flex: 0 0 ${props => props.$size}px;
-  background: ${props => (props.theme as Theme).colors.border.default};
-  cursor: ${props =>
-    props.$direction === 'horizontal' ? 'col-resize' : 'row-resize'};
-  transition: background-color
-    ${props => (props.theme as Theme).transitions.fast};
-  user-select: none;
-  touch-action: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
-
-  &:hover,
-  &:focus-visible {
-    background: ${props => (props.theme as Theme).colors.accent.primary};
-    outline: none;
-  }
-
-  ${props =>
-    props.$isDragging &&
-    `background: ${(props.theme as Theme).colors.accent.primary};`}
-`;
+import { cx } from '@/utils/cx';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import type { PanelConfig, SplitPaneProps } from './SplitPane.types';
+import {
+  containerRecipe,
+  dividerRecipe,
+  dividerSizeVar,
+} from './SplitPane.css';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -285,7 +234,6 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
   onCollapseChange,
   className,
   testId,
-  css,
   style,
   ref,
   ...htmlProps
@@ -747,7 +695,7 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
       const leftCfg = panelConfigs[i];
 
       elements.push(
-        <StyledDivider
+        <div
           key={`divider-${i}`}
           role="separator"
           tabIndex={0}
@@ -759,9 +707,13 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
           aria-valuemax={leftCfg?.maxSize ?? undefined}
           aria-label="Panel divider"
           data-testid={testId ? `${testId}-divider-${i}` : undefined}
-          $direction={direction}
-          $size={dividerSize}
-          $isDragging={draggingIndex === i}
+          className={dividerRecipe({
+            direction,
+            isDragging: draggingIndex === i || undefined,
+          })}
+          style={assignInlineVars({
+            [dividerSizeVar]: `${dividerSize}px`,
+          })}
           onPointerDown={e => handlePointerDown(i, e)}
           onPointerMove={e => handlePointerMove(i, e)}
           onPointerUp={e => handlePointerUp(i, e)}
@@ -772,17 +724,15 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
   });
 
   return (
-    <StyledContainer
+    <div
       ref={setContainerRef}
-      className={className}
+      className={cx(containerRecipe({ direction }), className)}
       data-testid={testId}
-      $direction={direction}
-      $css={css}
       style={style}
       {...htmlProps}
     >
       {elements}
-    </StyledContainer>
+    </div>
   );
 };
 

@@ -182,7 +182,7 @@ export const AlertConfirm: Story = {
             <Button
               variant="filled"
               onClick={() => setOpen(false)}
-              css={{ background: '#f44336' }}
+              style={{ background: '#f44336' }}
             >
               Delete
             </Button>
@@ -355,7 +355,7 @@ export const EditorDeleteConfirmation: Story = {
             <Button
               variant="filled"
               onClick={() => setOpen(false)}
-              css={{ background: '#f44336' }}
+              style={{ background: '#f44336' }}
             >
               Delete (4 objects)
             </Button>

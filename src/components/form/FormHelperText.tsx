@@ -1,8 +1,8 @@
 import React from 'react';
-import styled from '@emotion/styled';
 import type { BaseComponent } from '@/types/common';
-import { processCss } from '@/utils/styledUtils';
 import { Prettify } from '@/types/utilities';
+import { cx } from '@/utils/cx';
+import { formHelperTextRecipe } from './FormHelperText.css';
 
 export interface FormHelperTextBaseProps extends BaseComponent<HTMLDivElement> {
   /**
@@ -18,22 +18,6 @@ export interface FormHelperTextBaseProps extends BaseComponent<HTMLDivElement> {
 }
 
 export type FormHelperTextProps = Prettify<FormHelperTextBaseProps>;
-
-const StyledHelperText = styled.div<{
-  $error: boolean;
-  $css?: FormHelperTextBaseProps['css'];
-}>`
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  line-height: ${props => props.theme.typography.lineHeight.tight};
-  color: ${props =>
-    props.$error
-      ? props.theme.colors.accent.error
-      : props.theme.colors.text.muted};
-  margin-top: ${props => props.theme.spacing.xs}px;
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
 
 /**
  * A standardized helper text component for use with form controls.
@@ -51,18 +35,16 @@ const StyledHelperText = styled.div<{
  * ```
  */
 export const FormHelperText = /*#__PURE__*/ React.memo<FormHelperTextProps>(
-  ({ children, error = false, className, style, css, ref, ...rest }) => {
+  ({ children, error = false, className, style, ref, ...rest }) => {
     return (
-      <StyledHelperText
+      <div
         ref={ref}
-        $error={error}
-        $css={css}
-        className={className}
+        className={cx(formHelperTextRecipe({ error }), className)}
         style={style}
         {...rest}
       >
         {children}
-      </StyledHelperText>
+      </div>
     );
   }
 );

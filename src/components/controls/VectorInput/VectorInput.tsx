@@ -1,10 +1,20 @@
 import React, { useState, useCallback, useRef } from 'react';
-import styled from '@emotion/styled';
-import type { Theme } from '@/theme';
-import type { VectorInputProps, VectorInputSize } from './VectorInput.types';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import type { VectorInputProps } from './VectorInput.types';
 import { NumberInput } from '@/components/controls/NumberInput';
 import { FormLabel } from '@/components/form/FormLabel';
 import { FormHelperText } from '@/components/form/FormHelperText';
+import { cx } from '@/utils/cx';
+import { vars } from '@/theme/contract.css';
+import {
+  vectorContainerStyle,
+  vectorRowRecipe,
+  axisInputStyle,
+  axisLabelRecipe,
+  axisColorVar,
+  linkButtonRecipe,
+  gapVar,
+} from './VectorInput.css';
 
 // --- Label presets ---
 
@@ -33,7 +43,7 @@ function getAxisColor(
   if (colorPreset === 'color') {
     return COLOR_COLORS[axisIndex] ?? null;
   }
-  // 'none' — will be resolved via theme in styled component
+  // 'none' — will be resolved via theme
   return null;
 }
 
@@ -51,119 +61,6 @@ function getAxisLabels(
   }
   return Array.from({ length: dimension }, (_, i) => String(i));
 }
-
-// --- Styled components ---
-
-const StyledVectorContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-interface StyledVectorRowProps {
-  $direction: 'row' | 'column';
-  $gap: number;
-}
-
-const StyledVectorRow = styled.div<StyledVectorRowProps>`
-  display: flex;
-  flex-direction: ${props => props.$direction};
-  gap: ${props => props.$gap}px;
-  align-items: ${props => (props.$direction === 'row' ? 'center' : 'stretch')};
-`;
-
-interface StyledAxisInputProps {
-  $direction: 'row' | 'column';
-}
-
-const StyledAxisInput = styled.div<StyledAxisInputProps>`
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 0;
-`;
-
-interface StyledAxisLabelProps {
-  $color: string | null;
-  $size: VectorInputSize;
-}
-
-const axisLabelSizes: Record<
-  VectorInputSize,
-  { width: string; fontSizeKey: keyof Theme['typography']['fontSize'] }
-> = {
-  sm: { width: '16px', fontSizeKey: 'xs' },
-  md: { width: '18px', fontSizeKey: 'xs' },
-  lg: { width: '22px', fontSizeKey: 'sm' },
-};
-
-const StyledAxisLabel = styled.div<StyledAxisLabelProps>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: ${props => axisLabelSizes[props.$size].width};
-  min-width: ${props => axisLabelSizes[props.$size].width};
-  height: ${props => axisLabelSizes[props.$size].width};
-  font-size: ${props =>
-    props.theme.typography.fontSize[axisLabelSizes[props.$size].fontSizeKey]}px;
-  font-weight: ${props => props.theme.typography.fontWeight.semibold};
-  color: ${props => props.$color ?? props.theme.colors.text.secondary};
-  background: ${props =>
-    props.$color
-      ? `${props.$color}33`
-      : `${props.theme.colors.text.secondary}33`};
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  user-select: none;
-  flex-shrink: 0;
-  margin-right: ${props => props.theme.spacing.xs}px;
-`;
-
-interface StyledLinkButtonProps {
-  $active: boolean;
-  $size: VectorInputSize;
-}
-
-const linkButtonSizes: Record<VectorInputSize, string> = {
-  sm: '20px',
-  md: '24px',
-  lg: '32px',
-};
-
-const StyledLinkButton = styled.button<StyledLinkButtonProps>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: ${props => linkButtonSizes[props.$size]};
-  height: ${props => linkButtonSizes[props.$size]};
-  min-width: ${props => linkButtonSizes[props.$size]};
-  border: 1px solid ${props => props.theme.colors.border.default};
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  background: ${props =>
-    props.$active ? `${props.theme.colors.accent.primary}22` : 'transparent'};
-  color: ${props =>
-    props.$active
-      ? props.theme.colors.accent.primary
-      : props.theme.colors.text.muted};
-  cursor: pointer;
-  padding: 0;
-  margin-left: ${props => props.theme.spacing.xs}px;
-  transition: all ${props => props.theme.transitions.fast};
-  flex-shrink: 0;
-
-  &:hover {
-    background: ${props => props.theme.colors.surface.hover};
-    color: ${props =>
-      props.$active
-        ? props.theme.colors.accent.primary
-        : props.theme.colors.text.secondary};
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
 
 // SVG icons for link/unlink
 const LinkIcon = ({ size }: { size: number }) => (
@@ -315,8 +212,8 @@ export const VectorInput = ({
   const iconSize = size === 'sm' ? 12 : size === 'md' ? 14 : 16;
 
   return (
-    <StyledVectorContainer
-      className={className}
+    <div
+      className={cx(vectorContainerStyle, className)}
       data-testid={testId}
       role="group"
       aria-label={label ?? 'Vector input'}
@@ -324,17 +221,25 @@ export const VectorInput = ({
     >
       {label && <FormLabel disabled={disabled}>{label}</FormLabel>}
 
-      <StyledVectorRow $direction={direction} $gap={gap}>
+      <div
+        className={vectorRowRecipe({ direction })}
+        style={assignInlineVars({ [gapVar]: `${gap}px` })}
+      >
         {Array.from({ length: dimension }, (_, i) => {
           const axisLabel = labels[i] ?? String(i);
           const axisValue = currentValue[i] ?? 0;
           const axisColor = getAxisColor(colorPreset, customAxisColors, i);
+          // Fallback to theme secondary text color when no axis color
+          const resolvedColor = axisColor ?? vars.colors.text.secondary;
 
           return (
-            <StyledAxisInput key={i} $direction={direction}>
-              <StyledAxisLabel $color={axisColor} $size={size}>
+            <div key={i} className={axisInputStyle}>
+              <div
+                className={axisLabelRecipe({ size })}
+                style={assignInlineVars({ [axisColorVar]: resolvedColor })}
+              >
                 {axisLabel}
-              </StyledAxisLabel>
+              </div>
               <NumberInput
                 value={axisValue}
                 onChange={(val: number) => handleAxisChange(i, val)}
@@ -351,15 +256,14 @@ export const VectorInput = ({
                 showStepButtons={false}
                 aria-label={`${axisLabel} axis`}
               />
-            </StyledAxisInput>
+            </div>
           );
         })}
 
         {showLink && (
-          <StyledLinkButton
+          <button
             type="button"
-            $active={isLinked}
-            $size={size}
+            className={linkButtonRecipe({ active: isLinked, size })}
             onClick={handleLinkToggle}
             disabled={disabled}
             aria-pressed={isLinked}
@@ -371,16 +275,16 @@ export const VectorInput = ({
             ) : (
               <UnlinkIcon size={iconSize} />
             )}
-          </StyledLinkButton>
+          </button>
         )}
-      </StyledVectorRow>
+      </div>
 
       {(error && errorMessage) || helperText ? (
         <FormHelperText error={error && !!errorMessage}>
           {error && errorMessage ? errorMessage : helperText}
         </FormHelperText>
       ) : null}
-    </StyledVectorContainer>
+    </div>
   );
 };
 

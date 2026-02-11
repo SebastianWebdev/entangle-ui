@@ -1,14 +1,15 @@
 import React, { useMemo } from 'react';
-import { Menu as BaseMenu } from '@base-ui-components/react/menu';
+import { Menu as BaseMenu } from '@base-ui/react/menu';
 
 import { CheckIcon, CircleIcon } from '@/components/Icons';
 import { Button } from '@/components/primitives/Button';
 import { Text } from '@/components/primitives/Text';
+import { cx } from '@/utils/cx';
 
 import type { MenuProps } from './Menu.types';
 import { useMenu, createItemClickHandler } from './useMenu';
 import { renderItemWithSubmenu } from './Menu.helpers';
-import { StyledMenuContent, StyledSeparator } from './Menu.styled';
+import { menuContentStyle, separatorStyle } from './Menu.css';
 
 /**
  * A configuration-driven menu component for editor interfaces.
@@ -110,7 +111,7 @@ export const Menu: React.FC<MenuProps> = ({
               items
             )}
           </BaseMenu.Group>
-          {showSeparator && <StyledSeparator />}
+          {showSeparator && <BaseMenu.Separator className={separatorStyle} />}
         </React.Fragment>
       );
     });
@@ -131,7 +132,7 @@ export const Menu: React.FC<MenuProps> = ({
   }
 
   return (
-    <BaseMenu.Root openOnHover={config.openOnHover}>
+    <BaseMenu.Root>
       <BaseMenu.Trigger
         render={props => <Button {...props} />}
         disabled={disabled}
@@ -141,13 +142,13 @@ export const Menu: React.FC<MenuProps> = ({
 
       <BaseMenu.Portal>
         <BaseMenu.Positioner>
-          <StyledMenuContent
-            className={className}
+          <BaseMenu.Popup
+            className={cx(menuContentStyle, className)}
             data-testid={testId}
             {...rest}
           >
             {menuItems}
-          </StyledMenuContent>
+          </BaseMenu.Popup>
         </BaseMenu.Positioner>
       </BaseMenu.Portal>
     </BaseMenu.Root>

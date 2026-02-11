@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import styled from '@emotion/styled';
 import { Popover } from '@/components/primitives/Popover/Popover';
 import { PopoverTrigger } from '@/components/primitives/Popover/PopoverTrigger';
 import { PopoverContent } from '@/components/primitives/Popover/PopoverContent';
@@ -23,6 +22,11 @@ import {
 import { useColor } from './useColor';
 import type { ColorPickerProps } from './ColorPicker.types';
 import type { Palette, PaletteColor } from './palettes';
+import {
+  pickerBodyStyle,
+  triggerRowStyle,
+  labelStyle,
+} from './ColorPicker.css';
 
 // --- Constants ---
 
@@ -36,25 +40,6 @@ const PALETTE_MAP: Record<string, Palette> = {
   'skin-tones': SKIN_TONES_PALETTE,
   vintage: VINTAGE_PALETTE,
 };
-
-// --- Styled ---
-
-const StyledPickerBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${props => props.theme.spacing.lg}px;
-`;
-
-const StyledTriggerRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.spacing.sm}px;
-`;
-
-const StyledLabel = styled.span`
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  color: ${props => props.theme.colors.text.secondary};
-`;
 
 // --- Component ---
 
@@ -104,7 +89,10 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   }, [palette]);
 
   const pickerBody = (
-    <StyledPickerBody data-testid={testId ? `${testId}-panel` : undefined}>
+    <div
+      className={pickerBodyStyle}
+      data-testid={testId ? `${testId}-panel` : undefined}
+    >
       <ColorArea
         hue={colorState.hsva.h}
         saturation={colorState.hsva.s}
@@ -152,7 +140,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           title={resolvedPalette.title}
         />
       )}
-    </StyledPickerBody>
+    </div>
   );
 
   if (inline) {
@@ -171,12 +159,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   return (
     <Popover>
       <PopoverTrigger>
-        <StyledTriggerRow
-          className={className}
-          style={style}
-          data-testid={testId}
-          {...rest}
-        >
+        <div className={triggerRowStyle} data-testid={testId} {...rest}>
           <ColorSwatch
             color={colorState.hexString}
             size={size}
@@ -184,8 +167,8 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
             disabled={disabled}
             testId={testId ? `${testId}-swatch` : undefined}
           />
-          {label && <StyledLabel>{label}</StyledLabel>}
-        </StyledTriggerRow>
+          {label && <span className={labelStyle}>{label}</span>}
+        </div>
       </PopoverTrigger>
       <PopoverContent width={pickerWidth} padding="md">
         {pickerBody}

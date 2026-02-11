@@ -1,9 +1,15 @@
 import React, { useCallback, useState } from 'react';
-import styled from '@emotion/styled';
 import { hsvToRgb, hsvToHsl, rgbToHex, rgbToHsv, hslToHsv } from './colorUtils';
 import { EyeDropper } from './EyeDropper';
 import type { ColorHSVA } from './colorUtils';
 import type { ColorInputMode } from './ColorPicker.types';
+import {
+  inputsRowStyle,
+  modeToggleStyle,
+  smallInputStyle,
+  inputLabelStyle,
+  inputColStyle,
+} from './ColorPicker.css';
 
 interface ColorInputsProps {
   hsva: ColorHSVA;
@@ -17,77 +23,6 @@ interface ColorInputsProps {
   onSetHue: (h: number) => void;
   onSetSaturationValue: (s: number, v: number) => void;
 }
-
-const StyledInputsRow = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: ${props => props.theme.spacing.md}px;
-`;
-
-const StyledModeToggle = styled.button`
-  /* Reset */
-  margin: 0;
-  padding: 2px 6px;
-  border: 1px solid ${props => props.theme.colors.border.default};
-  background: transparent;
-  font-family: inherit;
-  outline: none;
-  cursor: pointer;
-
-  flex-shrink: 0;
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  color: ${props => props.theme.colors.text.muted};
-  transition:
-    background ${props => props.theme.transitions.fast},
-    color ${props => props.theme.transitions.fast};
-
-  &:hover {
-    background: ${props => props.theme.colors.surface.hover};
-    color: ${props => props.theme.colors.text.primary};
-  }
-
-  &:focus-visible {
-    box-shadow: ${props => props.theme.shadows.focus};
-  }
-`;
-
-const StyledSmallInput = styled.input`
-  /* Reset */
-  margin: 0;
-  border: 1px solid ${props => props.theme.colors.border.default};
-  outline: none;
-  font-family: inherit;
-
-  background: ${props => props.theme.colors.surface.default};
-  color: ${props => props.theme.colors.text.primary};
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  padding: 2px 4px;
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  width: 100%;
-  min-width: 0;
-  text-align: center;
-
-  &:focus {
-    border-color: ${props => props.theme.colors.border.focus};
-  }
-`;
-
-const StyledLabel = styled.span`
-  font-size: ${props => props.theme.typography.fontSize.xxs}px;
-  color: ${props => props.theme.colors.text.disabled};
-  text-align: center;
-  display: block;
-  margin-top: 1px;
-`;
-
-const StyledInputCol = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  min-width: 0;
-`;
 
 export const ColorInputs: React.FC<ColorInputsProps> = ({
   hsva,
@@ -172,16 +107,17 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
 
   return (
     <div>
-      <StyledInputsRow>
+      <div className={inputsRowStyle}>
         {inputModes.length > 1 && (
-          <StyledModeToggle type="button" onClick={cycleMode}>
+          <button type="button" className={modeToggleStyle} onClick={cycleMode}>
             {mode.toUpperCase()}
-          </StyledModeToggle>
+          </button>
         )}
 
         {mode === 'hex' && (
-          <StyledInputCol>
-            <StyledSmallInput
+          <div className={inputColStyle}>
+            <input
+              className={smallInputStyle}
               defaultValue={hex}
               key={hex}
               maxLength={6}
@@ -189,14 +125,15 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
               onBlur={handleHexBlur}
               aria-label="Hex color"
             />
-            <StyledLabel>HEX</StyledLabel>
-          </StyledInputCol>
+            <span className={inputLabelStyle}>HEX</span>
+          </div>
         )}
 
         {mode === 'rgb' && (
           <>
-            <StyledInputCol>
-              <StyledSmallInput
+            <div className={inputColStyle}>
+              <input
+                className={smallInputStyle}
                 type="number"
                 min={0}
                 max={255}
@@ -204,10 +141,11 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 onChange={e => handleRgbChange('r', e.target.value)}
                 aria-label="Red"
               />
-              <StyledLabel>R</StyledLabel>
-            </StyledInputCol>
-            <StyledInputCol>
-              <StyledSmallInput
+              <span className={inputLabelStyle}>R</span>
+            </div>
+            <div className={inputColStyle}>
+              <input
+                className={smallInputStyle}
                 type="number"
                 min={0}
                 max={255}
@@ -215,10 +153,11 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 onChange={e => handleRgbChange('g', e.target.value)}
                 aria-label="Green"
               />
-              <StyledLabel>G</StyledLabel>
-            </StyledInputCol>
-            <StyledInputCol>
-              <StyledSmallInput
+              <span className={inputLabelStyle}>G</span>
+            </div>
+            <div className={inputColStyle}>
+              <input
+                className={smallInputStyle}
                 type="number"
                 min={0}
                 max={255}
@@ -226,15 +165,16 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 onChange={e => handleRgbChange('b', e.target.value)}
                 aria-label="Blue"
               />
-              <StyledLabel>B</StyledLabel>
-            </StyledInputCol>
+              <span className={inputLabelStyle}>B</span>
+            </div>
           </>
         )}
 
         {mode === 'hsl' && (
           <>
-            <StyledInputCol>
-              <StyledSmallInput
+            <div className={inputColStyle}>
+              <input
+                className={smallInputStyle}
                 type="number"
                 min={0}
                 max={360}
@@ -242,10 +182,11 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 onChange={e => handleHslChange('h', e.target.value)}
                 aria-label="Hue"
               />
-              <StyledLabel>H</StyledLabel>
-            </StyledInputCol>
-            <StyledInputCol>
-              <StyledSmallInput
+              <span className={inputLabelStyle}>H</span>
+            </div>
+            <div className={inputColStyle}>
+              <input
+                className={smallInputStyle}
                 type="number"
                 min={0}
                 max={100}
@@ -253,10 +194,11 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 onChange={e => handleHslChange('s', e.target.value)}
                 aria-label="Saturation"
               />
-              <StyledLabel>S</StyledLabel>
-            </StyledInputCol>
-            <StyledInputCol>
-              <StyledSmallInput
+              <span className={inputLabelStyle}>S</span>
+            </div>
+            <div className={inputColStyle}>
+              <input
+                className={smallInputStyle}
                 type="number"
                 min={0}
                 max={100}
@@ -264,14 +206,15 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 onChange={e => handleHslChange('l', e.target.value)}
                 aria-label="Lightness"
               />
-              <StyledLabel>L</StyledLabel>
-            </StyledInputCol>
+              <span className={inputLabelStyle}>L</span>
+            </div>
           </>
         )}
 
         {showAlpha && (
-          <StyledInputCol>
-            <StyledSmallInput
+          <div className={inputColStyle}>
+            <input
+              className={smallInputStyle}
               type="number"
               min={0}
               max={100}
@@ -279,8 +222,8 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
               onChange={e => handleAlphaChange(e.target.value)}
               aria-label="Alpha"
             />
-            <StyledLabel>A</StyledLabel>
-          </StyledInputCol>
+            <span className={inputLabelStyle}>A</span>
+          </div>
         )}
 
         {showEyeDropper && (
@@ -290,7 +233,7 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
             disabled={disabled}
           />
         )}
-      </StyledInputsRow>
+      </div>
     </div>
   );
 };

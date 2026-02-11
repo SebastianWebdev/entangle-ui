@@ -1,11 +1,10 @@
 // src/components/layout/Stack/Stack.tsx
 import React from 'react';
-import styled from '@emotion/styled';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
-import { processCss } from '@/utils/styledUtils';
-
-import type { Theme } from '@/theme/types';
+import { cx } from '@/utils/cx';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { stackRecipe, gapVar } from './Stack.css';
 
 /**
  * Stack direction options
@@ -43,8 +42,10 @@ export type StackAlign =
  */
 export type StackSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-export interface StackBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
+export interface StackBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'children'
+> {
   /**
    * Stack content - any React elements
    */
@@ -132,97 +133,21 @@ export interface StackBaseProps
  */
 export type StackProps = Prettify<StackBaseProps>;
 
-interface StyledStackProps {
-  $direction: StackDirection;
-  $sm?: StackDirection | undefined;
-  $md?: StackDirection | undefined;
-  $lg?: StackDirection | undefined;
-  $xl?: StackDirection | undefined;
-  $wrap: StackWrap;
-  $expand: boolean;
-  $spacing: StackSpacing;
-  $customGap?: string | number | undefined;
-  $justify: StackJustify;
-  $align: StackAlign;
-  $css?: StackProps['css'];
-}
+/** Base spacing unit in px */
+const SPACING_UNIT = 4;
 
 /**
- * Calculate gap value based on spacing multiplier and theme
+ * Calculate gap value based on spacing multiplier
  */
 const getGapValue = (
   spacing: StackSpacing,
-  theme: Theme,
   customGap?: string | number
 ): string => {
   if (customGap !== undefined) {
     return typeof customGap === 'number' ? `${customGap}px` : customGap;
   }
-  return `${spacing * theme.spacing.sm}px`;
+  return `${spacing * SPACING_UNIT}px`;
 };
-
-const StyledStack = styled.div<StyledStackProps>`
-  /* Base stack container */
-  display: flex;
-  box-sizing: border-box;
-
-  /* Flex properties */
-  flex-direction: ${props => props.$direction};
-  flex-wrap: ${props => props.$wrap};
-  justify-content: ${props => props.$justify};
-  align-items: ${props => props.$align};
-
-  /* Gap between items */
-  gap: ${props => getGapValue(props.$spacing, props.theme, props.$customGap)};
-
-  /* Expand behavior based on direction */
-  ${props => props.$expand && props.$direction === 'row' && 'width: 100%;'}
-  ${props => props.$expand && props.$direction === 'column' && 'height: 100%;'}
-  
-  /* Responsive direction changes */
-  ${props =>
-    props.$sm &&
-    `
-    @media (min-width: 576px) {
-      flex-direction: ${props.$sm};
-      ${props.$expand && props.$sm === 'row' ? 'width: 100%; height: auto;' : ''}
-      ${props.$expand && props.$sm === 'column' ? 'height: 100%; width: auto;' : ''}
-    }
-  `}
-  
-  ${props =>
-    props.$md &&
-    `
-    @media (min-width: 768px) {
-      flex-direction: ${props.$md};
-      ${props.$expand && props.$md === 'row' ? 'width: 100%; height: auto;' : ''}
-      ${props.$expand && props.$md === 'column' ? 'height: 100%; width: auto;' : ''}
-    }
-  `}
-  
-  ${props =>
-    props.$lg &&
-    `
-    @media (min-width: 992px) {
-      flex-direction: ${props.$lg};
-      ${props.$expand && props.$lg === 'row' ? 'width: 100%; height: auto;' : ''}
-      ${props.$expand && props.$lg === 'column' ? 'height: 100%; width: auto;' : ''}
-    }
-  `}
-  
-  ${props =>
-    props.$xl &&
-    `
-    @media (min-width: 1200px) {
-      flex-direction: ${props.$xl};
-      ${props.$expand && props.$xl === 'row' ? 'width: 100%; height: auto;' : ''}
-      ${props.$expand && props.$xl === 'column' ? 'height: 100%; width: auto;' : ''}
-    }
-  `}
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
 
 /**
  * A flexible stacking component for arranging elements vertically or horizontally.
@@ -299,33 +224,46 @@ export const Stack: React.FC<StackProps> = ({
   align = 'flex-start',
   className,
   testId,
-  css,
   style,
   ref,
   ...htmlProps
 }) => {
+  const mergedStyle: React.CSSProperties = {
+    ...assignInlineVars({
+      [gapVar]: getGapValue(spacing, customGap),
+    }),
+    ...style,
+  };
+
+  // Build data attributes for responsive direction overrides
+  const dataAttrs: Record<string, string> = {};
+  if (sm) dataAttrs['data-sm-dir'] = sm;
+  if (md) dataAttrs['data-md-dir'] = md;
+  if (lg) dataAttrs['data-lg-dir'] = lg;
+  if (xl) dataAttrs['data-xl-dir'] = xl;
+  if (expand) dataAttrs['data-expand'] = 'true';
+
   return (
-    <StyledStack
+    <div
       ref={ref}
-      className={className}
-      $direction={direction}
-      $sm={sm}
-      $md={md}
-      $lg={lg}
-      $xl={xl}
-      $wrap={wrap}
-      $expand={expand}
-      $spacing={spacing}
-      $customGap={customGap}
-      $justify={justify}
-      $align={align}
-      $css={css}
+      className={cx(
+        stackRecipe({
+          direction,
+          wrap,
+          justify,
+          align,
+          expandRow: expand && direction === 'row' ? true : undefined,
+          expandColumn: expand && direction === 'column' ? true : undefined,
+        }),
+        className
+      )}
       data-testid={testId}
-      style={style}
+      style={mergedStyle}
+      {...dataAttrs}
       {...htmlProps}
     >
       {children}
-    </StyledStack>
+    </div>
   );
 };
 

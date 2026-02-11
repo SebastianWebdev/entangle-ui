@@ -1,6 +1,11 @@
 import React, { useCallback, useRef } from 'react';
-import styled from '@emotion/styled';
 import { hsvToRgb, rgbToHex } from './colorUtils';
+import {
+  colorAreaStyle,
+  saturationGradientStyle,
+  valueGradientStyle,
+  colorAreaThumbStyle,
+} from './ColorPicker.css';
 
 interface ColorAreaProps {
   hue: number;
@@ -9,40 +14,6 @@ interface ColorAreaProps {
   onChange: (s: number, v: number) => void;
   onChangeComplete?: () => void;
 }
-
-const StyledArea = styled.div`
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  cursor: crosshair;
-  user-select: none;
-  touch-action: none;
-  overflow: hidden;
-`;
-
-const StyledSaturationGradient = styled.div`
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to right, #ffffff, transparent);
-`;
-
-const StyledValueGradient = styled.div`
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, #000000, transparent);
-`;
-
-const StyledThumb = styled.div`
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: ${({ theme }) => theme.shadows.thumb};
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-`;
 
 export const ColorArea: React.FC<ColorAreaProps> = ({
   hue,
@@ -124,8 +95,9 @@ export const ColorArea: React.FC<ColorAreaProps> = ({
   const thumbY = `${100 - value}%`;
 
   return (
-    <StyledArea
+    <div
       ref={areaRef}
+      className={colorAreaStyle}
       role="slider"
       tabIndex={0}
       aria-label="Color saturation and brightness"
@@ -136,10 +108,13 @@ export const ColorArea: React.FC<ColorAreaProps> = ({
       onPointerUp={handlePointerUp}
       onKeyDown={handleKeyDown}
     >
-      <StyledSaturationGradient />
-      <StyledValueGradient />
-      <StyledThumb style={{ left: thumbX, top: thumbY }} />
-    </StyledArea>
+      <div className={saturationGradientStyle} />
+      <div className={valueGradientStyle} />
+      <div
+        className={colorAreaThumbStyle}
+        style={{ left: thumbX, top: thumbY }}
+      />
+    </div>
   );
 };
 

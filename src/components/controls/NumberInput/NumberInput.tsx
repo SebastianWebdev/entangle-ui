@@ -1,18 +1,30 @@
 // src/controls/NumberInput/NumberInput.tsx
 import React, { useRef, useEffect } from 'react';
-import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
-import { StyledInputWrapper } from '@/components/form';
+import { inputWrapperRecipe } from '@/components/form/InputWrapper.css';
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { useNumberInput, type UseNumberInputOptions } from './useNumberInput';
+import { cx } from '@/utils/cx';
+import {
+  numberInputContainerStyle,
+  containerHoveredStyle,
+  containerDraggingStyle,
+  labelRecipe,
+  stepButtonRecipe,
+  stepButtonIconLeftStyle,
+  stepButtonIconRightStyle,
+  inputRecipe,
+  valueDisplayRecipe,
+  unitLabelStyle,
+  helperTextRecipe,
+} from './NumberInput.css';
 
 /**
  * Props specific to NumberInput component
  */
 export interface NumberInputBaseProps
-  extends Omit<BaseComponent, 'onChange'>,
-    UseNumberInputOptions {
+  extends Omit<BaseComponent, 'onChange'>, UseNumberInputOptions {
   /**
    * Current numeric value
    */
@@ -120,199 +132,6 @@ export interface NumberInputBaseProps
  * Props for the NumberInput component with prettified type for better IntelliSense
  */
 export type NumberInputProps = Prettify<NumberInputBaseProps>;
-
-interface StyledContainerProps {
-  $isHovered: boolean;
-  $isDragging: boolean;
-  $disabled: boolean;
-  $size: Size;
-}
-
-const StyledNumberInputContainer = styled.div<StyledContainerProps>`
-  display: flex;
-  flex-direction: column;
-  gap: ${props => props.theme.spacing.xs}px;
-
-  /* Drag cursor when hovering and not disabled */
-  ${props =>
-    props.$isHovered &&
-    !props.$disabled &&
-    !props.$isDragging &&
-    `
-    cursor: ew-resize;
-  `}
-
-  /* Different cursor when actively dragging */
-  ${props =>
-    props.$isDragging &&
-    `
-    cursor: ew-resize;
-    user-select: none;
-  `}
-`;
-
-const StyledLabel = styled.label<{ $disabled: boolean }>`
-  font-size: ${props => props.theme.typography.fontSize.sm}px;
-  font-weight: ${props => props.theme.typography.fontWeight.medium};
-  color: ${props =>
-    props.$disabled
-      ? props.theme.colors.text.disabled
-      : props.theme.colors.text.secondary};
-  line-height: ${props => props.theme.typography.lineHeight.tight};
-`;
-
-interface StyledStepButtonProps {
-  $position: 'left' | 'right';
-  $size: Size;
-  $visible: boolean;
-}
-
-const StyledStepButton = styled.button<StyledStepButtonProps>`
-  position: absolute;
-  top: 1px;
-  bottom: 1px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  z-index: 1;
-
-  /* Position */
-  ${props => (props.$position === 'left' ? 'left: 1px;' : 'right: 1px;')}
-
-  /* Size variants */
-  ${props => {
-    const sizes = {
-      sm: { width: '18px' },
-      md: { width: '22px' },
-      lg: { width: '28px' },
-    };
-    const size = sizes[props.$size];
-    return `
-      width: ${size.width};
-    `;
-  }}
-  
-  /* Visibility */
-  opacity: ${props => (props.$visible ? 1 : 0)};
-  pointer-events: ${props => (props.$visible ? 'auto' : 'none')};
-  transition: opacity ${props => props.theme.transitions.fast};
-
-  /* Hover state */
-  &:hover {
-    background: ${props => props.theme.colors.surface.hover};
-    border-radius: ${props => props.theme.borderRadius.sm}px;
-  }
-
-  /* Active state */
-  &:active {
-    background: ${props => props.theme.colors.surface.active};
-  }
-
-  /* Icon rotation */
-  svg {
-    ${props =>
-      props.$position === 'left'
-        ? 'transform: rotate(90deg);'
-        : 'transform: rotate(-90deg);'}
-    color: ${props => props.theme.colors.text.muted};
-    transition: color ${props => props.theme.transitions.fast};
-  }
-
-  &:hover svg {
-    color: ${props => props.theme.colors.text.primary};
-  }
-`;
-
-const StyledInput = styled.input<{
-  $size: Size;
-  $hasStepButtons: boolean;
-  $hasUnit: boolean;
-}>`
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-family: inherit;
-  color: ${props => props.theme.colors.text.primary};
-  text-align: center;
-
-  ${props => {
-    const fontSize = {
-      sm: props.theme.typography.fontSize.md,
-      md: props.theme.typography.fontSize.md,
-      lg: props.theme.typography.fontSize.lg,
-    };
-    return `font-size: ${fontSize[props.$size]}px;`;
-  }}
-
-  &::placeholder {
-    color: ${props => props.theme.colors.text.muted};
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-  }
-
-  /* Remove number input arrows */
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  &[type='number'] {
-    -moz-appearance: textfield;
-  }
-`;
-
-const StyledValueDisplay = styled.div<{
-  $size: Size;
-  $hasStepButtons: boolean;
-}>`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: ${props => props.theme.colors.text.primary};
-
-  ${props => {
-    const fontSize = {
-      sm: props.theme.typography.fontSize.md,
-      md: props.theme.typography.fontSize.md,
-      lg: props.theme.typography.fontSize.lg,
-    };
-    return `font-size: ${fontSize[props.$size]}px;`;
-  }}
-
-  /* Adjust for step buttons */
-  ${props =>
-    props.$hasStepButtons &&
-    `
-    max-width: calc(100% - ${props.$size === 'sm' ? '40px' : props.$size === 'md' ? '48px' : '60px'});
-  `}
-`;
-
-const StyledUnitLabel = styled.span`
-  color: ${props => props.theme.colors.text.muted};
-  white-space: nowrap;
-`;
-
-const StyledHelperText = styled.div<{ $error: boolean }>`
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  line-height: ${props => props.theme.typography.lineHeight.tight};
-  color: ${props =>
-    props.$error
-      ? props.theme.colors.accent.error
-      : props.theme.colors.text.muted};
-`;
 
 /**
  * A specialized number input component with Blender-like functionality.
@@ -596,13 +415,14 @@ export const NumberInput = ({
   const inputId = React.useId();
 
   return (
-    <StyledNumberInputContainer
+    <div
       ref={containerRef}
-      className={className}
-      $isHovered={isHovered}
-      $isDragging={isDragging}
-      $disabled={disabled}
-      $size={size}
+      className={cx(
+        numberInputContainerStyle,
+        isHovered && !disabled && !isDragging && containerHoveredStyle,
+        isDragging && containerDraggingStyle,
+        className
+      )}
       onMouseEnter={handleContainerMouseEnter}
       onMouseLeave={handleContainerMouseLeave}
       onMouseDown={handleMouseDown}
@@ -611,36 +431,42 @@ export const NumberInput = ({
       data-testid={testId}
     >
       {label && (
-        <StyledLabel htmlFor={inputId} $disabled={disabled}>
+        <label htmlFor={inputId} className={labelRecipe({ disabled })}>
           {label}
           {required && <span style={{ color: 'var(--accent-error)' }}> *</span>}
-        </StyledLabel>
+        </label>
       )}
 
-      <StyledInputWrapper
-        $size={size}
-        $error={effectiveError}
-        $disabled={disabled}
-        $focused={focused}
+      <div
+        className={inputWrapperRecipe({
+          size,
+          error: effectiveError,
+          disabled,
+          focused,
+        })}
       >
         {/* Decrement button */}
         {showStepButtons && (
-          <StyledStepButton
+          <button
             type="button"
-            $position="left"
-            $size={size}
-            $visible={shouldShowStepButtons}
+            className={stepButtonRecipe({
+              position: 'left',
+              size,
+              visible: shouldShowStepButtons,
+            })}
             onClick={handleDecrementClick}
             disabled={disabled}
             tabIndex={-1}
             aria-label="Decrement value"
           >
-            <ChevronDownIcon size={size === 'sm' ? 'sm' : 'md'} />
-          </StyledStepButton>
+            <span className={stepButtonIconLeftStyle}>
+              <ChevronDownIcon size={size === 'sm' ? 'sm' : 'md'} />
+            </span>
+          </button>
         )}
 
         {/* Input field - hidden when not editing */}
-        <StyledInput
+        <input
           {...props}
           ref={inputRef}
           id={inputId}
@@ -654,9 +480,7 @@ export const NumberInput = ({
           disabled={disabled}
           required={required}
           readOnly={readOnly}
-          $size={size}
-          $hasStepButtons={shouldShowStepButtons}
-          $hasUnit={!!unitDisplay}
+          className={inputRecipe({ size })}
           style={{
             opacity: isEditing ? 1 : 0,
             pointerEvents: isEditing ? 'auto' : 'none',
@@ -665,40 +489,48 @@ export const NumberInput = ({
 
         {/* Value display - shown when not editing */}
         {!isEditing && (
-          <StyledValueDisplay
-            $size={size}
-            $hasStepButtons={shouldShowStepButtons}
+          <div
+            className={valueDisplayRecipe({
+              size,
+              hasStepButtons: shouldShowStepButtons,
+            })}
           >
             <span>{formattedValue}</span>
-            {unitDisplay && <StyledUnitLabel>{unitDisplay}</StyledUnitLabel>}
-          </StyledValueDisplay>
+            {unitDisplay && (
+              <span className={unitLabelStyle}>{unitDisplay}</span>
+            )}
+          </div>
         )}
 
         {/* Increment button */}
         {showStepButtons && (
-          <StyledStepButton
+          <button
             type="button"
-            $position="right"
-            $size={size}
-            $visible={shouldShowStepButtons}
+            className={stepButtonRecipe({
+              position: 'right',
+              size,
+              visible: shouldShowStepButtons,
+            })}
             onClick={handleIncrementClick}
             disabled={disabled}
             tabIndex={-1}
             aria-label="Increment value"
           >
-            <ChevronDownIcon size={size === 'sm' ? 'sm' : 'md'} />
-          </StyledStepButton>
+            <span className={stepButtonIconRightStyle}>
+              <ChevronDownIcon size={size === 'sm' ? 'sm' : 'md'} />
+            </span>
+          </button>
         )}
-      </StyledInputWrapper>
+      </div>
 
       {(helperText ?? (effectiveError && effectiveErrorMessage)) && (
-        <StyledHelperText $error={effectiveError}>
+        <div className={helperTextRecipe({ error: effectiveError })}>
           {effectiveError && effectiveErrorMessage
             ? effectiveErrorMessage
             : helperText}
-        </StyledHelperText>
+        </div>
       )}
-    </StyledNumberInputContainer>
+    </div>
   );
 };
 

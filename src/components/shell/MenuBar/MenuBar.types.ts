@@ -24,8 +24,10 @@ export interface MenuBarMenuBaseProps extends BaseComponent<HTMLDivElement> {
 }
 export type MenuBarMenuProps = Prettify<MenuBarMenuBaseProps>;
 
-export interface MenuBarItemBaseProps
-  extends Omit<BaseComponent<HTMLButtonElement>, 'onClick'> {
+export interface MenuBarItemBaseProps extends Omit<
+  BaseComponent<HTMLButtonElement>,
+  'onClick'
+> {
   /** Click handler */
   onClick?: () => void;
   /** Keyboard shortcut display text (not bound) */

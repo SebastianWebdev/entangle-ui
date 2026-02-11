@@ -733,7 +733,7 @@ describe('CurveEditor', () => {
       // Since we're near a keyframe, it should cycle tangent mode
       if (onChange.mock.calls.length > 0) {
         const newCurve = onChange.mock.calls[0]?.[0] as CurveData | undefined;
-        if (newCurve && newCurve.keyframes.length === 2) {
+        if (newCurve?.keyframes.length === 2) {
           // Tangent mode was cycled (not added keyframe)
           expect(newCurve.keyframes[0]?.tangentMode).not.toBe('linear');
         }
@@ -994,7 +994,7 @@ describe('CurveEditor', () => {
       // Should not have changed tangent mode — no onChange call for mode cycling
       const tangentChangeCalls = onChange.mock.calls.filter(call => {
         const c = call[0] as CurveData | undefined;
-        return c && c.keyframes.length === 2; // Same count = tangent mode change
+        return c?.keyframes.length === 2; // Same count = tangent mode change
       });
       expect(tangentChangeCalls).toHaveLength(0);
     });

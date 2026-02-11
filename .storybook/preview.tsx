@@ -4,6 +4,9 @@ import type { ReactNode } from 'react';
 import { ThemeProvider } from '../src/theme';
 import type { Theme } from '../src/theme';
 
+// Import dark theme to register VE CSS custom properties on :root
+import '../src/theme/darkTheme.css';
+
 const StorybookCanvas = ({ children }: { children: ReactNode }) => {
   const theme = useTheme() as Theme;
   const gradientEnd = theme.storybook.canvas.gradientEnd;

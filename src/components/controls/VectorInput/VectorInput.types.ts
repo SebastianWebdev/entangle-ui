@@ -26,8 +26,10 @@ export type VectorLabelPreset = 'xyz' | 'rgba' | 'uvw' | 'custom';
  */
 export type VectorColorPreset = 'spatial' | 'color' | 'none' | 'custom';
 
-export interface VectorInputBaseProps
-  extends Omit<BaseComponent, 'onChange' | 'value' | 'defaultValue'> {
+export interface VectorInputBaseProps extends Omit<
+  BaseComponent,
+  'onChange' | 'value' | 'defaultValue'
+> {
   /**
    * Current vector value (controlled).
    * Array length must match `dimension`.

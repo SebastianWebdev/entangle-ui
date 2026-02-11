@@ -1,12 +1,14 @@
 // src/components/layout/Spacer/Spacer.tsx
 import React from 'react';
-import styled from '@emotion/styled';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
-import { processCss } from '@/utils/styledUtils';
+import { cx } from '@/utils/cx';
+import { spacerBase, spacerFixed, spacerFlexible } from './Spacer.css';
 
-export interface SpacerBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
+export interface SpacerBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'children'
+> {
   /**
    * Fixed size instead of auto-expanding.
    * When provided, spacer will have a fixed dimension instead of flexible growth.
@@ -24,43 +26,6 @@ export interface SpacerBaseProps
  * Props for the Spacer component with prettified type for better IntelliSense
  */
 export type SpacerProps = Prettify<SpacerBaseProps>;
-
-interface StyledSpacerProps {
-  $size?: string | number | undefined;
-  $css?: SpacerProps['css'];
-}
-
-const StyledSpacer = styled.div<StyledSpacerProps>`
-  /* Auto-expanding behavior by default */
-  ${props =>
-    !props.$size &&
-    `
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: auto;
-    min-width: 0;
-    min-height: 0;
-  `}
-
-  /* Fixed size mode — sets both width and height; flex layout uses the axis-aligned dimension */
-  ${props =>
-    props.$size &&
-    `
-    flex: none;
-    ${
-      typeof props.$size === 'number'
-        ? `width: ${props.$size}px; height: ${props.$size}px;`
-        : `width: ${props.$size}; height: ${props.$size};`
-    }
-  `}
-  
-  /* Ensure it doesn't interfere with content */
-  pointer-events: none;
-  user-select: none;
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
 
 /**
  * A flexible spacer component that expands to fill available space.
@@ -102,15 +67,29 @@ const StyledSpacer = styled.div<StyledSpacerProps>`
  * ```
  */
 export const Spacer = /*#__PURE__*/ React.memo<SpacerProps>(
-  ({ size, className, testId, css, style, ref, ...htmlProps }) => {
+  ({ size, className, testId, style, ref, ...htmlProps }) => {
+    const sizeValue =
+      size !== undefined
+        ? typeof size === 'number'
+          ? `${size}px`
+          : size
+        : undefined;
+
+    const inlineStyle: React.CSSProperties | undefined =
+      sizeValue !== undefined
+        ? { ...style, width: sizeValue, height: sizeValue }
+        : style;
+
     return (
-      <StyledSpacer
+      <div
         ref={ref}
-        className={className}
-        $size={size}
-        $css={css}
+        className={cx(
+          spacerBase,
+          size !== undefined ? spacerFixed : spacerFlexible,
+          className
+        )}
         data-testid={testId}
-        style={style}
+        style={inlineStyle}
         {...htmlProps}
       />
     );

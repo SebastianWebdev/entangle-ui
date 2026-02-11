@@ -1,7 +1,15 @@
 import React from 'react';
-import styled from '@emotion/styled';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { cx } from '@/utils/cx';
 import type { ToastInternalData, ToastPosition } from './Toast.types';
 import { ToastItem } from './ToastItem';
+import {
+  gapVar,
+  zIndexVar,
+  container,
+  containerReverse,
+  containerNormal,
+} from './ToastContainer.css';
 
 // --- Position style map ---
 
@@ -13,23 +21,6 @@ const POSITION_STYLES: Record<ToastPosition, React.CSSProperties> = {
   'bottom-left': { bottom: 16, left: 16 },
   'bottom-center': { bottom: 16, left: '50%', transform: 'translateX(-50%)' },
 };
-
-// --- Styled container ---
-
-interface StyledContainerProps {
-  $gap: number;
-  $zIndex: number;
-  $isBottom: boolean;
-}
-
-const StyledContainer = styled.div<StyledContainerProps>`
-  position: fixed;
-  display: flex;
-  flex-direction: ${props => (props.$isBottom ? 'column-reverse' : 'column')};
-  gap: ${props => props.$gap}px;
-  z-index: ${props => props.$zIndex};
-  pointer-events: none;
-`;
 
 // --- Props ---
 
@@ -55,19 +46,25 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
   const isBottom = position.startsWith('bottom');
   const positionStyle = POSITION_STYLES[position];
 
+  const inlineVars = assignInlineVars({
+    [gapVar]: `${gap}px`,
+    [zIndexVar]: String(zIndex),
+  });
+
   return (
-    <StyledContainer
-      $gap={gap}
-      $zIndex={zIndex}
-      $isBottom={isBottom}
-      style={positionStyle}
+    <div
+      className={cx(container, isBottom ? containerReverse : containerNormal)}
+      style={{
+        ...positionStyle,
+        ...inlineVars,
+      }}
       aria-label="Notifications"
       role="region"
     >
       {toasts.map(toast => (
         <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
       ))}
-    </StyledContainer>
+    </div>
   );
 };
 

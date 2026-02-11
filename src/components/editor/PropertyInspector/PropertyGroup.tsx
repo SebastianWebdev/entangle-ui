@@ -1,49 +1,15 @@
 import React from 'react';
-import styled from '@emotion/styled';
-import { processCss } from '@/utils/styledUtils';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { cx } from '@/utils/cx';
+import { vars } from '@/theme/contract.css';
 import type { PropertyGroupProps } from './PropertyInspector.types';
-
-// --- Styled ---
-
-interface StyledGroupRootProps {
-  $indent: number;
-  $disabled: boolean;
-  $css?: PropertyGroupProps['css'];
-}
-
-const StyledGroupRoot = styled.div<StyledGroupRootProps>`
-  display: flex;
-  flex-direction: column;
-  padding-left: ${props => props.$indent * props.theme.spacing.xl}px;
-  opacity: ${props => (props.$disabled ? 0.5 : 1)};
-  pointer-events: ${props => (props.$disabled ? 'none' : 'auto')};
-
-  ${props => processCss(props.$css, props.theme)}
-`;
-
-const StyledGroupDivider = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.spacing.md}px;
-  padding: ${props => props.theme.spacing.sm}px
-    ${props => props.theme.spacing.md}px;
-`;
-
-const StyledGroupTitle = styled.span`
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  color: ${props => props.theme.colors.text.muted};
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: ${props => props.theme.typography.fontWeight.medium};
-  white-space: nowrap;
-  flex-shrink: 0;
-`;
-
-const StyledGroupLine = styled.span`
-  flex: 1;
-  height: 1px;
-  background: ${props => props.theme.colors.border.default};
-`;
+import {
+  groupRoot,
+  groupDivider,
+  groupTitle,
+  groupLine,
+  indentVar,
+} from './PropertyGroup.css';
 
 // --- Component ---
 
@@ -52,7 +18,7 @@ export const PropertyGroup: React.FC<PropertyGroupProps> = ({
   children,
   indent = 0,
   disabled = false,
-  css,
+
   className,
   style,
   testId,
@@ -60,25 +26,29 @@ export const PropertyGroup: React.FC<PropertyGroupProps> = ({
   ...rest
 }) => {
   return (
-    <StyledGroupRoot
+    <div
       ref={ref}
-      $indent={indent}
-      $disabled={disabled}
-      $css={css}
-      className={className}
-      style={style}
+      className={cx(groupRoot, className)}
+      style={{
+        ...style,
+        ...assignInlineVars({
+          [indentVar]: `calc(${indent} * ${vars.spacing.xl})`,
+        }),
+        opacity: disabled ? 0.5 : 1,
+        pointerEvents: disabled ? 'none' : 'auto',
+      }}
       data-testid={testId}
       {...rest}
     >
       {title != null && (
-        <StyledGroupDivider>
-          <StyledGroupLine />
-          <StyledGroupTitle>{title}</StyledGroupTitle>
-          <StyledGroupLine />
-        </StyledGroupDivider>
+        <div className={groupDivider}>
+          <span className={groupLine} />
+          <span className={groupTitle}>{title}</span>
+          <span className={groupLine} />
+        </div>
       )}
       {children}
-    </StyledGroupRoot>
+    </div>
   );
 };
 

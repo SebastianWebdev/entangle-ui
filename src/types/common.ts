@@ -3,8 +3,10 @@ import React from 'react';
 // src/types/common.ts
 import type { Theme } from '@/theme';
 
-export interface BaseComponent<T = HTMLDivElement>
-  extends Omit<React.HTMLAttributes<T>, 'css'> {
+export interface BaseComponent<T = HTMLDivElement> extends Omit<
+  React.HTMLAttributes<T>,
+  'css'
+> {
   /** Unique identifier for the component */
   id?: string | undefined;
 

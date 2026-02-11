@@ -7,19 +7,30 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
-import styled from '@emotion/styled';
-import { processCss } from '@/utils/styledUtils';
 import { FormLabel } from '@/components/form';
 import { FormHelperText } from '@/components/form';
 import { ScrollArea } from '@/components/layout/ScrollArea';
-import type { Theme } from '@/theme';
+import { cx } from '@/utils/cx';
 import type {
   SelectOptionItem,
   SelectOptionGroup,
   SelectProps,
   SelectSize,
-  SelectVariant,
 } from './Select.types';
+import {
+  selectContainerStyle,
+  triggerRecipe,
+  triggerContentStyle,
+  chevronRecipe,
+  clearButtonStyle,
+  dropdownStyle,
+  searchInputStyle,
+  optionsListStyle,
+  optionItemRecipe,
+  groupLabelStyle,
+  emptyMessageStyle,
+  checkmarkStyle,
+} from './Select.css';
 
 // --- Helpers ---
 
@@ -53,278 +64,11 @@ function defaultFilter<T extends string>(
 
 // --- Size maps ---
 
-const TRIGGER_SIZES: Record<
-  SelectSize,
-  {
-    height: number;
-    paddingKey: keyof Theme['spacing'];
-    fontKey: keyof Theme['typography']['fontSize'];
-    chevronSize: number;
-  }
-> = {
-  sm: { height: 20, paddingKey: 'sm', fontKey: 'xs', chevronSize: 10 },
-  md: { height: 24, paddingKey: 'md', fontKey: 'xs', chevronSize: 12 },
-  lg: { height: 32, paddingKey: 'xl', fontKey: 'sm', chevronSize: 14 },
+const CHEVRON_SIZES: Record<SelectSize, number> = {
+  sm: 10,
+  md: 12,
+  lg: 14,
 };
-
-// --- Styled components ---
-
-const StyledSelectContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  position: relative;
-`;
-
-interface StyledTriggerProps {
-  $size: SelectSize;
-  $variant: SelectVariant;
-  $open: boolean;
-  $disabled: boolean;
-  $error: boolean;
-  $hasValue: boolean;
-  $css?: SelectProps['css'];
-}
-
-const StyledTrigger = styled.button<StyledTriggerProps>`
-  /* Reset */
-  margin: 0;
-  font-family: inherit;
-  cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
-  user-select: none;
-  outline: none;
-
-  /* Layout */
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: ${props => props.theme.typography.fontWeight.normal};
-  border-radius: ${props => props.theme.borderRadius.md}px;
-  transition: all ${props => props.theme.transitions.fast};
-  text-align: left;
-
-  /* Sizing */
-  height: ${props => TRIGGER_SIZES[props.$size].height}px;
-  padding: 0
-    ${props => props.theme.spacing[TRIGGER_SIZES[props.$size].paddingKey]}px;
-  font-size: ${props =>
-    props.theme.typography.fontSize[TRIGGER_SIZES[props.$size].fontKey]}px;
-  gap: ${props => props.theme.spacing.sm}px;
-
-  /* Variant styles */
-  ${props => {
-    const { colors } = props.theme;
-
-    const borderColor = props.$error
-      ? colors.accent.error
-      : props.$open
-        ? colors.border.focus
-        : colors.border.default;
-
-    switch (props.$variant) {
-      case 'ghost':
-        return `
-          background: transparent;
-          border: 1px solid transparent;
-          color: ${props.$hasValue ? colors.text.primary : colors.text.muted};
-          &:hover:not(:disabled) {
-            background: ${colors.surface.hover};
-          }
-        `;
-      case 'filled':
-        return `
-          background: ${colors.surface.default};
-          border: 1px solid ${borderColor};
-          color: ${props.$hasValue ? colors.text.primary : colors.text.muted};
-          &:hover:not(:disabled) {
-            border-color: ${colors.border.focus};
-          }
-        `;
-      default:
-        return `
-          background: transparent;
-          border: 1px solid ${borderColor};
-          color: ${props.$hasValue ? colors.text.primary : colors.text.muted};
-          &:hover:not(:disabled) {
-            background: ${colors.surface.hover};
-            border-color: ${props.$error ? colors.accent.error : 'transparent'};
-          }
-        `;
-    }
-  }}
-
-  /* Open state */
-  ${props => props.$open && `box-shadow: ${props.theme.shadows.focus};`}
-
-  /* Disabled */
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Focus visible */
-  &:focus-visible {
-    box-shadow: ${props => props.theme.shadows.focus};
-  }
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
-
-const StyledTriggerContent = styled.span`
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.spacing.sm}px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-  flex: 1;
-`;
-
-interface StyledChevronProps {
-  $open: boolean;
-  $size: number;
-}
-
-const StyledChevron = styled.span<StyledChevronProps>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: transform ${props => props.theme.transitions.fast};
-  transform: ${props => (props.$open ? 'rotate(180deg)' : 'rotate(0deg)')};
-  color: ${props => props.theme.colors.text.muted};
-
-  svg {
-    width: ${props => props.$size}px;
-    height: ${props => props.$size}px;
-  }
-`;
-
-const StyledClearButton = styled.span`
-  /* Reset */
-  padding: 0;
-  margin: 0;
-  border: none;
-  background: none;
-  outline: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${props => props.theme.colors.text.muted};
-  flex-shrink: 0;
-
-  &:hover {
-    color: ${props => props.theme.colors.text.primary};
-  }
-`;
-
-interface StyledDropdownProps {
-  $maxHeight: number;
-}
-
-const StyledDropdown = styled.div<StyledDropdownProps>`
-  position: fixed;
-  z-index: ${props => props.theme.zIndex.dropdown};
-  background: ${props => props.theme.colors.background.elevated};
-  border: 1px solid ${props => props.theme.colors.border.default};
-  border-radius: ${props => props.theme.borderRadius.md}px;
-  box-shadow: ${props => props.theme.shadows.lg};
-  overflow: hidden;
-  font-family: ${props => props.theme.typography.fontFamily.sans};
-  animation: selectDropdownIn ${props => props.theme.transitions.fast} forwards;
-
-  @keyframes selectDropdownIn {
-    from {
-      opacity: 0;
-      transform: scaleY(0.96);
-    }
-    to {
-      opacity: 1;
-      transform: scaleY(1);
-    }
-  }
-`;
-
-const StyledSearchInput = styled.input`
-  width: 100%;
-  padding: ${props => props.theme.spacing.sm}px
-    ${props => props.theme.spacing.md}px;
-  border: none;
-  border-bottom: 1px solid ${props => props.theme.colors.border.default};
-  background: transparent;
-  color: ${props => props.theme.colors.text.primary};
-  font-size: ${props => props.theme.typography.fontSize.md}px;
-  outline: none;
-  font-family: inherit;
-
-  &::placeholder {
-    color: ${props => props.theme.colors.text.muted};
-  }
-`;
-
-const StyledOptionsList = styled(ScrollArea)`
-  width: 100%;
-`;
-
-interface StyledOptionItemProps {
-  $highlighted: boolean;
-  $selected: boolean;
-  $disabled: boolean;
-}
-
-const StyledOptionItem = styled.div<StyledOptionItemProps>`
-  display: flex;
-  align-items: center;
-  padding: ${props => props.theme.spacing.sm}px
-    ${props => props.theme.spacing.md}px;
-  cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
-  font-size: ${props => props.theme.typography.fontSize.md}px;
-  color: ${props =>
-    props.$disabled
-      ? props.theme.colors.text.disabled
-      : props.theme.colors.text.primary};
-  background: ${props => {
-    if (props.$highlighted) return props.theme.colors.surface.hover;
-    if (props.$selected) return props.theme.colors.surface.active;
-    return 'transparent';
-  }};
-  gap: ${props => props.theme.spacing.sm}px;
-  opacity: ${props => (props.$disabled ? 0.5 : 1)};
-  transition: background ${props => props.theme.transitions.fast};
-
-  &:hover {
-    ${props =>
-      !props.$disabled && `background: ${props.theme.colors.surface.hover};`}
-  }
-`;
-
-const StyledGroupLabel = styled.div`
-  padding: ${props => props.theme.spacing.sm}px
-    ${props => props.theme.spacing.md}px;
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  color: ${props => props.theme.colors.text.muted};
-  text-transform: uppercase;
-  font-weight: ${props => props.theme.typography.fontWeight.medium};
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid ${props => props.theme.colors.border.default};
-`;
-
-const StyledEmptyMessage = styled.div`
-  padding: ${props => props.theme.spacing.md}px;
-  text-align: center;
-  color: ${props => props.theme.colors.text.muted};
-  font-size: ${props => props.theme.typography.fontSize.md}px;
-`;
-
-const StyledCheckmark = styled.span`
-  margin-left: auto;
-  flex-shrink: 0;
-  color: ${props => props.theme.colors.accent.primary};
-  display: flex;
-  align-items: center;
-`;
 
 // --- Chevron icon ---
 
@@ -393,7 +137,6 @@ export function Select<T extends string = string>({
   onOpenChange,
   className,
   style,
-  css,
   testId,
   ref,
   id: idProp,
@@ -415,7 +158,8 @@ export function Select<T extends string = string>({
   );
   const [searchQuery, setSearchQuery] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
+  const [dropdownStyleState, setDropdownStyleState] =
+    useState<React.CSSProperties>({});
 
   const isControlled = valueProp !== undefined;
   const currentValue = isControlled ? valueProp : internalValue;
@@ -451,7 +195,7 @@ export function Select<T extends string = string>({
         ? Math.max(rect.width, minDropdownWidth)
         : rect.width;
 
-    setDropdownStyle({
+    setDropdownStyleState({
       left: rect.left,
       width: dropdownW,
       ...(openAbove
@@ -644,7 +388,7 @@ export function Select<T extends string = string>({
   );
 
   const showHelperText = error && errorMessage ? errorMessage : helperText;
-  const sizeConfig = TRIGGER_SIZES[size];
+  const chevronSize = CHEVRON_SIZES[size];
 
   // Assign ref
   const setTriggerRef = useCallback(
@@ -663,7 +407,7 @@ export function Select<T extends string = string>({
   // Render options list
   const renderOptions = () => {
     if (filteredOptions.length === 0) {
-      return <StyledEmptyMessage>{emptyMessage}</StyledEmptyMessage>;
+      return <div className={emptyMessageStyle}>{emptyMessage}</div>;
     }
 
     // If options are grouped, render with group headers
@@ -679,7 +423,7 @@ export function Select<T extends string = string>({
 
           return (
             <div key={`group-${groupIdx}`} role="group" aria-label={item.label}>
-              <StyledGroupLabel>{item.label}</StyledGroupLabel>
+              <div className={groupLabelStyle}>{item.label}</div>
               {groupOptions.map((opt, optIdx) => {
                 const idx = startIdx + optIdx;
                 return renderOptionItem(opt, idx);
@@ -702,14 +446,16 @@ export function Select<T extends string = string>({
     const isHighlighted = index === highlightedIndex;
 
     return (
-      <StyledOptionItem
+      <div
         key={opt.value}
         role="option"
         aria-selected={isSelected}
         aria-disabled={opt.disabled ?? undefined}
-        $highlighted={isHighlighted}
-        $selected={isSelected}
-        $disabled={opt.disabled ?? false}
+        className={optionItemRecipe({
+          highlighted: isHighlighted,
+          selected: isSelected,
+          disabled: opt.disabled ?? false,
+        })}
         onClick={() => {
           if (!opt.disabled) {
             selectValue(opt.value);
@@ -724,7 +470,7 @@ export function Select<T extends string = string>({
         {opt.icon && <span>{opt.icon}</span>}
         <span>{opt.label ?? opt.value}</span>
         {isSelected && (
-          <StyledCheckmark>
+          <span className={checkmarkStyle}>
             <svg
               width="10"
               height="10"
@@ -740,14 +486,14 @@ export function Select<T extends string = string>({
                 strokeLinejoin="round"
               />
             </svg>
-          </StyledCheckmark>
+          </span>
         )}
-      </StyledOptionItem>
+      </div>
     );
   };
 
   return (
-    <StyledSelectContainer className={className} style={style}>
+    <div className={cx(selectContainerStyle, className)} style={style}>
       {label && (
         <FormLabel
           id={labelId}
@@ -759,7 +505,7 @@ export function Select<T extends string = string>({
         </FormLabel>
       )}
 
-      <StyledTrigger
+      <button
         ref={setTriggerRef}
         type="button"
         role="combobox"
@@ -773,17 +519,18 @@ export function Select<T extends string = string>({
         disabled={disabled}
         onClick={() => (isOpen ? close() : open())}
         onKeyDown={handleTriggerKeyDown}
-        $size={size}
-        $variant={variant}
-        $open={isOpen}
-        $disabled={disabled}
-        $error={error}
-        $hasValue={currentValue !== null}
-        $css={css}
+        className={triggerRecipe({
+          size,
+          variant,
+          open: isOpen,
+          disabled,
+          error,
+          hasValue: currentValue !== null,
+        })}
         data-testid={testId}
         {...rest}
       >
-        <StyledTriggerContent>
+        <span className={triggerContentStyle}>
           {selectedOption ? (
             <>
               {selectedOption.icon && <span>{selectedOption.icon}</span>}
@@ -792,10 +539,11 @@ export function Select<T extends string = string>({
           ) : (
             <span>{placeholder}</span>
           )}
-        </StyledTriggerContent>
+        </span>
 
         {clearable && currentValue !== null && (
-          <StyledClearButton
+          <span
+            className={clearButtonStyle}
             role="button"
             onClick={handleClear}
             aria-label="Clear selection"
@@ -815,30 +563,30 @@ export function Select<T extends string = string>({
                 strokeLinecap="round"
               />
             </svg>
-          </StyledClearButton>
+          </span>
         )}
 
-        <StyledChevron $open={isOpen} $size={sizeConfig.chevronSize}>
-          <ChevronDownIcon size={sizeConfig.chevronSize} />
-        </StyledChevron>
-      </StyledTrigger>
+        <span className={chevronRecipe({ open: isOpen })}>
+          <ChevronDownIcon size={chevronSize} />
+        </span>
+      </button>
 
       {name && <input type="hidden" name={name} value={currentValue ?? ''} />}
 
       {isOpen &&
         createPortal(
-          <StyledDropdown
+          <div
             ref={dropdownRef}
             role="listbox"
             id={listboxId}
             aria-labelledby={label ? labelId : undefined}
-            $maxHeight={maxDropdownHeight}
-            style={dropdownStyle}
+            className={dropdownStyle}
+            style={dropdownStyleState}
             onKeyDown={handleDropdownKeyDown}
             tabIndex={-1}
           >
             {searchable && (
-              <StyledSearchInput
+              <input
                 ref={searchRef}
                 type="text"
                 placeholder={searchPlaceholder}
@@ -848,18 +596,20 @@ export function Select<T extends string = string>({
                   setHighlightedIndex(-1);
                 }}
                 onKeyDown={handleDropdownKeyDown}
+                className={searchInputStyle}
                 aria-label="Search options"
               />
             )}
-            <StyledOptionsList
+            <ScrollArea
+              className={optionsListStyle}
               maxHeight={maxDropdownHeight - (searchable ? 32 : 0)}
               scrollbarWidth={4}
               scrollbarVisibility="auto"
               hideDelay={600}
             >
               {renderOptions()}
-            </StyledOptionsList>
-          </StyledDropdown>,
+            </ScrollArea>
+          </div>,
           document.body
         )}
 
@@ -868,7 +618,7 @@ export function Select<T extends string = string>({
           {showHelperText}
         </FormHelperText>
       )}
-    </StyledSelectContainer>
+    </div>
   );
 }
 

@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
-import { ContextMenu as BaseContextMenu } from '@base-ui-components/react/context-menu';
+import { ContextMenu as BaseContextMenu } from '@base-ui/react/context-menu';
 import { CheckIcon, CircleIcon } from '@/components/Icons';
 import { Text } from '@/components/primitives/Text';
+import { cx } from '@/utils/cx';
 import { Menu } from '../Menu/Menu';
 import { useMenu, createItemClickHandler } from '../Menu/useMenu';
 import { renderItemWithSubmenu } from '../Menu/Menu.helpers';
-import { StyledMenuContent, StyledSeparator } from '../Menu/Menu.styled';
+import { menuContentStyle, separatorStyle } from '../Menu/Menu.css';
 import type { ContextMenuProps } from './ContextMenu.types';
 import { useContextMenuTarget } from './useContextMenuTarget';
 
@@ -82,7 +83,9 @@ export function ContextMenu<TPayload = unknown>({
               items
             )}
           </BaseContextMenu.Group>
-          {showSeparator && <StyledSeparator />}
+          {showSeparator && (
+            <BaseContextMenu.Separator className={separatorStyle} />
+          )}
         </React.Fragment>
       );
     });
@@ -107,15 +110,15 @@ export function ContextMenu<TPayload = unknown>({
       </BaseContextMenu.Trigger>
       <BaseContextMenu.Portal>
         <BaseContextMenu.Positioner>
-          <StyledMenuContent
+          <BaseContextMenu.Popup
             ref={ref as React.Ref<HTMLDivElement>}
-            className={className}
+            className={cx(menuContentStyle, className)}
             style={style}
             data-testid={testId}
             {...rest}
           >
             {menuItems}
-          </StyledMenuContent>
+          </BaseContextMenu.Popup>
         </BaseContextMenu.Positioner>
       </BaseContextMenu.Portal>
     </BaseContextMenu.Root>

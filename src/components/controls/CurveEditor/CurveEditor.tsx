@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
-import styled from '@emotion/styled';
-import { useTheme } from '@emotion/react';
-import type { Theme } from '@/theme';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { vars } from '@/theme/contract.css';
+import { cx } from '@/utils/cx';
 import type {
   CurveEditorProps,
   CurveData,
@@ -13,28 +13,11 @@ import { CURVE_PRESETS } from './curvePresets';
 import { CurveCanvas } from './CurveCanvas';
 import { CurveToolbar } from './CurveToolbar';
 import { useCurveInteraction } from './useCurveInteraction';
-
-const StyledCurveEditor = styled.div<{
-  $disabled: boolean;
-  $width: number;
-  $responsive: boolean;
-}>`
-  display: flex;
-  flex-direction: column;
-  width: ${p => (p.$responsive ? '100%' : `${p.$width}px`)};
-  border: 1px solid ${p => p.theme.colors.border.default};
-  border-radius: ${p => p.theme.borderRadius.md}px;
-  overflow: hidden;
-  background: ${p => p.theme.colors.background.secondary};
-  opacity: ${p => (p.$disabled ? 0.6 : 1)};
-`;
-
-const StyledBottomBar = styled.div`
-  border-top: 1px solid ${p => p.theme.colors.border.default};
-  background: ${p => p.theme.colors.surface.default};
-  padding: ${p => p.theme.spacing.xs}px ${p => p.theme.spacing.sm}px;
-  flex-shrink: 0;
-`;
+import {
+  curveEditorRecipe,
+  editorWidthVar,
+  bottomBarStyle,
+} from './CurveEditor.css';
 
 export const CurveEditor: React.FC<CurveEditorProps> = ({
   value,
@@ -74,11 +57,13 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
   style,
   ...rest
 }) => {
-  const theme = useTheme() as Theme;
-  const effectiveCurveColor = curveColor ?? theme.colors.accent.primary;
+  // For curveColor fallback, use the CSS variable reference directly.
+  // At runtime, getComputedStyle on the canvas element will resolve it.
+  // We pass the raw CSS var reference string which will be resolved by the canvas renderer.
+  const effectiveCurveColor = curveColor ?? vars.colors.accent.primary;
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Controlled / uncontrolled — defaults to ease-in-out
+  // Controlled / uncontrolled -- defaults to ease-in-out
   const [internalValue, setInternalValue] = useState<CurveData>(() => {
     const easeInOut = CURVE_PRESETS.find(p => p.id === 'ease-in-out');
     const initial = defaultValue ??
@@ -114,7 +99,7 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
     [onChangeComplete]
   );
 
-  // Viewport — always matches domain with padding for labels (no user zoom/pan)
+  // Viewport -- always matches domain with padding for labels (no user zoom/pan)
   const viewport = useMemo((): CurveViewport => {
     const axisName = labelX ?? labelY;
     const hasAxisNames = Boolean(axisName);
@@ -190,14 +175,16 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
   );
 
   return (
-    <StyledCurveEditor
-      className={className}
-      $disabled={disabled}
-      $width={width}
-      $responsive={responsive}
+    <div
+      className={cx(curveEditorRecipe({ disabled, responsive }), className)}
+      style={{
+        ...style,
+        ...(!responsive
+          ? assignInlineVars({ [editorWidthVar]: `${width}px` })
+          : {}),
+      }}
       data-testid={testId}
       id={id}
-      style={style}
       {...rest}
     >
       {showToolbar && (
@@ -237,7 +224,8 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
         testId={testId}
       />
       {renderBottomBar && (
-        <StyledBottomBar
+        <div
+          className={bottomBarStyle}
           data-testid={testId ? `${testId}-bottom-bar` : undefined}
         >
           {renderBottomBar({
@@ -250,9 +238,9 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
             disabled,
             readOnly,
           })}
-        </StyledBottomBar>
+        </div>
       )}
-    </StyledCurveEditor>
+    </div>
   );
 };
 

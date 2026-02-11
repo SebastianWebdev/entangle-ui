@@ -1,10 +1,10 @@
 // src/primitives/IconButton/IconButton.tsx
 import React from 'react';
-import styled from '@emotion/styled';
 
 import type { Prettify } from '@/types/utilities';
-import type { BaseComponent, Size, Variant } from '@/types/common';
-import { processCss } from '@/utils/styledUtils';
+import type { Size, Variant } from '@/types/common';
+import { cx } from '@/utils/cx';
+import { iconButtonRecipe, loadingSpinnerRecipe } from './IconButton.css';
 
 /**
  * Standard size variants for IconButton using library sizing.
@@ -21,8 +21,10 @@ export type IconButtonVariant = Variant;
  */
 export type IconButtonRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
 
-export interface IconButtonBaseProps
-  extends Omit<BaseComponent<HTMLButtonElement>, 'children'> {
+export interface IconButtonBaseProps extends Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  'css' | 'children'
+> {
   /**
    * Icon component to display inside the button.
    * Should be an Icon component or similar icon element.
@@ -95,194 +97,19 @@ export interface IconButtonBaseProps
    * Called when button is clicked (not when disabled/loading)
    */
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+
+  /**
+   * Test identifier for automated testing
+   */
+  testId?: string;
+
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
 /**
  * Props for the IconButton component with prettified type for better IntelliSense
  */
 export type IconButtonProps = Prettify<IconButtonBaseProps>;
-
-interface StyledIconButtonProps {
-  $size: IconButtonSize;
-  $variant: IconButtonVariant;
-  $radius: IconButtonRadius;
-  $loading: boolean;
-  $pressed: boolean;
-  $css?: IconButtonProps['css'];
-}
-
-const StyledIconButton = styled.button<StyledIconButtonProps>`
-  /* Reset */
-  margin: 0;
-  padding: 0;
-  font-family: inherit;
-  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
-  user-select: none;
-
-  /* Layout */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all ${props => props.theme.transitions.normal};
-  outline: none;
-  position: relative;
-
-  /* Size variants - square buttons scaled to icon size */
-  ${props => {
-    const sizes = {
-      sm: {
-        width: '20px', // Compact for 12px icons
-        height: '20px',
-        padding: '4px',
-      },
-      md: {
-        width: '24px', // Standard for 16px icons
-        height: '24px',
-        padding: '4px',
-      },
-      lg: {
-        width: '32px', // Larger for 20px icons
-        height: '32px',
-        padding: '6px',
-      },
-    };
-    const size = sizes[props.$size];
-    return `
-      width: ${size.width};
-      height: ${size.height};
-      padding: ${size.padding};
-    `;
-  }}
-
-  /* Border radius variants */
-  ${props => {
-    const radiusMap = {
-      none: '0px',
-      sm: `${props.theme.borderRadius.sm}px`,
-      md: `${props.theme.borderRadius.md}px`,
-      lg: `${props.theme.borderRadius.lg}px`,
-      full: '50%',
-    };
-    return `border-radius: ${radiusMap[props.$radius]};`;
-  }}
-  
-  /* Variant styles */
-  ${props => {
-    const { colors } = props.theme;
-
-    switch (props.$variant) {
-      case 'default':
-        return `
-          background: transparent;
-          border: 1px solid ${colors.border.default};
-          color: ${colors.text.primary};
-          
-          &:hover:not(:disabled) {
-            background: ${colors.surface.hover};
-            border-color: ${colors.border.focus};
-          }
-          
-          &:active:not(:disabled) {
-            background: ${colors.surface.active};
-          }
-        `;
-
-      case 'ghost':
-        return `
-          background: transparent;
-          border: 1px solid transparent;
-          color: ${colors.text.secondary};
-          
-          &:hover:not(:disabled) {
-            background: ${colors.surface.hover};
-            color: ${colors.text.primary};
-          }
-          
-          &:active:not(:disabled) {
-            background: ${colors.surface.active};
-          }
-        `;
-
-      case 'filled':
-        return `
-          background: ${colors.accent.primary};
-          border: 1px solid ${colors.accent.primary};
-          color: white;
-          
-          &:hover:not(:disabled) {
-            background: ${colors.accent.secondary};
-            border-color: ${colors.accent.secondary};
-          }
-          
-          &:active:not(:disabled) {
-            background: ${colors.accent.secondary};
-          }
-        `;
-
-      default:
-        return '';
-    }
-  }}
-  
-  /* Pressed state */
-  ${props =>
-    props.$pressed &&
-    `
-    background: ${props.theme.colors.surface.active} !important;
-    border-color: ${props.theme.colors.border.focus} !important;
-  `}
-  
-  /* Disabled state */
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Focus visible */
-  &:focus-visible {
-    box-shadow: ${props => props.theme.shadows.focus};
-  }
-
-  /* Active press effect */
-  &:active:not(:disabled) {
-    transform: translateY(0.5px);
-  }
-
-  /* Icon container - centers icon properly */
-  & > * {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
-
-const LoadingSpinner = styled.div<{ $size: IconButtonSize }>`
-  border: 2px solid currentColor;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-
-  ${props => {
-    const sizes = {
-      sm: '12px',
-      md: '16px',
-      lg: '20px',
-    };
-    return `
-      width: ${sizes[props.$size]};
-      height: ${sizes[props.$size]};
-    `;
-  }}
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`;
 
 /**
  * A specialized square button component for displaying icons in editor interfaces.
@@ -341,21 +168,22 @@ export const IconButton = /*#__PURE__*/ React.memo<IconButtonProps>(
     onClick,
     'aria-label': ariaLabel,
     testId,
-    css,
     style,
     ref,
     ...props
   }) => {
     return (
-      <StyledIconButton
+      <button
         ref={ref}
-        className={className}
-        $size={size}
-        $variant={variant}
-        $radius={radius}
-        $loading={loading}
-        $pressed={pressed}
-        $css={css}
+        className={cx(
+          iconButtonRecipe({
+            size,
+            variant,
+            radius,
+            pressed: pressed || undefined,
+          }),
+          className
+        )}
         disabled={disabled || loading}
         onClick={onClick}
         aria-label={ariaLabel}
@@ -364,8 +192,12 @@ export const IconButton = /*#__PURE__*/ React.memo<IconButtonProps>(
         style={style}
         {...props}
       >
-        {loading ? <LoadingSpinner $size={size} /> : children}
-      </StyledIconButton>
+        {loading ? (
+          <div className={loadingSpinnerRecipe({ size })} />
+        ) : (
+          children
+        )}
+      </button>
     );
   }
 );

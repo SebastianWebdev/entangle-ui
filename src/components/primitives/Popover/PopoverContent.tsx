@@ -1,64 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { FloatingFocusManager } from '@floating-ui/react';
-import styled from '@emotion/styled';
 import { usePopoverContext } from './Popover';
 import type { PopoverContentProps } from './Popover.types';
-
-// --- Styled ---
-
-interface StyledContentProps {
-  $width?: number | string;
-  $maxHeight?: number | string;
-  $padding: 'none' | 'sm' | 'md' | 'lg';
-  $visible: boolean;
-}
-
-const PADDING_MAP = {
-  none: '0',
-  sm: 'sm',
-  md: 'md',
-  lg: 'lg',
-} as const;
-
-const StyledContentPanel = styled.div<StyledContentProps>`
-  z-index: ${props => props.theme.zIndex.popover};
-
-  background: ${props => props.theme.colors.background.elevated};
-  border: 1px solid ${props => props.theme.colors.border.default};
-  border-radius: ${props => props.theme.borderRadius.lg}px;
-  box-shadow: ${props => props.theme.shadows.lg};
-  color: ${props => props.theme.colors.text.primary};
-  font-size: ${props => props.theme.typography.fontSize.sm}px;
-  font-family: ${props => props.theme.typography.fontFamily.sans};
-
-  padding: ${props => {
-    const key = PADDING_MAP[props.$padding];
-    if (key === '0') return '0';
-    return `${props.theme.spacing[key]}px`;
-  }};
-
-  ${props =>
-    props.$width != null
-      ? `width: ${typeof props.$width === 'number' ? `${props.$width}px` : props.$width};`
-      : ''}
-  ${props =>
-    props.$maxHeight != null
-      ? `max-height: ${typeof props.$maxHeight === 'number' ? `${props.$maxHeight}px` : props.$maxHeight}; overflow-y: auto;`
-      : ''}
-
-  /* Animation */
-  transition:
-    opacity ${props => props.theme.transitions.fast},
-    transform ${props => props.theme.transitions.fast};
-  opacity: ${props => (props.$visible ? 1 : 0)};
-  transform: ${props => (props.$visible ? 'scale(1)' : 'scale(0.96)')};
-  pointer-events: ${props => (props.$visible ? 'auto' : 'none')};
-
-  &:focus {
-    outline: none;
-  }
-`;
+import { cx } from '@/utils/cx';
+import { contentPanelRecipe } from './Popover.css';
 
 // --- Component ---
 
@@ -129,20 +75,35 @@ export const PopoverContent: React.FC<PopoverContentProps> = ({
 
   const floatingProps = getFloatingProps();
 
+  // Build dimension styles
+  const dimensionStyles: React.CSSProperties = {};
+  if (computedWidth != null) {
+    dimensionStyles.width =
+      typeof computedWidth === 'number' ? `${computedWidth}px` : computedWidth;
+  }
+  if (maxHeight != null) {
+    dimensionStyles.maxHeight =
+      typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight;
+    dimensionStyles.overflowY = 'auto';
+  }
+
   const contentElement = (
     <FloatingFocusManager context={floatingContext} modal={false}>
-      <StyledContentPanel
+      <div
         ref={setRef}
         role="dialog"
         id={contentId}
         tabIndex={-1}
-        $width={computedWidth}
-        $maxHeight={maxHeight}
-        $padding={padding}
-        $visible={visible}
-        className={className}
+        className={cx(
+          contentPanelRecipe({
+            padding,
+            visible: visible || undefined,
+          }),
+          className
+        )}
         style={{
           ...floatingStyles,
+          ...dimensionStyles,
           ...style,
         }}
         data-testid={testId}
@@ -150,7 +111,7 @@ export const PopoverContent: React.FC<PopoverContentProps> = ({
         {...rest}
       >
         {children}
-      </StyledContentPanel>
+      </div>
     </FloatingFocusManager>
   );
 

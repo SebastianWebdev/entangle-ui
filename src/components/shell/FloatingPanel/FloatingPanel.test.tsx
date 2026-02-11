@@ -147,9 +147,15 @@ describe('FloatingPanel', () => {
       // Click panel A to bring to front
       fireEvent.pointerDown(panelA);
 
-      // Panel A should now have a higher z-index than Panel B
-      const panelAZ = parseInt(panelA.style.zIndex, 10);
-      const panelBZ = parseInt((dialogs[1] as HTMLElement).style.zIndex, 10);
+      // z-index is set via CSS custom property (assignInlineVars).
+      // Extract the z-index value from the inline style's CSS var.
+      const getZFromStyle = (el: HTMLElement) => {
+        const cssText = el.style.cssText;
+        const match = cssText.match(/--panelZIndexVar[^:]*:\s*(\d+)/);
+        return match?.[1] ? parseInt(match[1], 10) : 0;
+      };
+      const panelAZ = getZFromStyle(panelA);
+      const panelBZ = getZFromStyle(dialogs[1] as HTMLElement);
       expect(panelAZ).toBeGreaterThan(panelBZ);
     });
   });

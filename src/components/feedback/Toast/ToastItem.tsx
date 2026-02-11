@@ -1,20 +1,18 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import styled from '@emotion/styled';
-import { keyframes } from '@emotion/react';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { ToastInternalData, ToastSeverity } from './Toast.types';
-import type { Theme } from '@/theme';
-
-// --- Severity color map ---
-
-const SEVERITY_COLOR_MAP: Record<
-  ToastSeverity,
-  keyof Theme['colors']['accent']
-> = {
-  info: 'primary',
-  success: 'success',
-  warning: 'warning',
-  error: 'error',
-};
+import {
+  progressDurationVar,
+  toast,
+  content,
+  iconWrapper,
+  textContent,
+  titleStyle,
+  message,
+  closeButton,
+  actionButton,
+  progressBar,
+} from './ToastItem.css';
 
 // --- Severity icons (inline SVGs) ---
 
@@ -109,162 +107,6 @@ const SeverityIcon: React.FC<{ severity: ToastSeverity; color: string }> = ({
   }
 };
 
-// --- Animations ---
-
-const slideIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-`;
-
-const progressShrink = keyframes`
-  from {
-    width: 100%;
-  }
-  to {
-    width: 0%;
-  }
-`;
-
-// --- Styled components ---
-
-interface StyledToastProps {
-  $severity: ToastSeverity;
-}
-
-const StyledToast = styled.div<StyledToastProps>`
-  width: 360px;
-  background: ${props => props.theme.colors.background.elevated};
-  border: 1px solid ${props => props.theme.colors.border.default};
-  border-left: 3px solid
-    ${props => props.theme.colors.accent[SEVERITY_COLOR_MAP[props.$severity]]};
-  border-radius: ${props => props.theme.borderRadius.lg}px;
-  box-shadow: ${props => props.theme.shadows.md};
-  padding: ${props => props.theme.spacing.md}px;
-  pointer-events: auto;
-  position: relative;
-  overflow: hidden;
-  animation: ${slideIn} ${props => props.theme.transitions.normal} forwards;
-`;
-
-const StyledContent = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: ${props => props.theme.spacing.md}px;
-`;
-
-const StyledIconWrapper = styled.div`
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  padding-top: 1px;
-`;
-
-const StyledTextContent = styled.div`
-  flex: 1;
-  min-width: 0;
-`;
-
-const StyledTitle = styled.div`
-  font-weight: ${props => props.theme.typography.fontWeight.semibold};
-  color: ${props => props.theme.colors.text.primary};
-  font-size: ${props => props.theme.typography.fontSize.sm}px;
-  line-height: ${props => props.theme.typography.lineHeight.normal};
-`;
-
-const StyledMessage = styled.div`
-  color: ${props => props.theme.colors.text.secondary};
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  line-height: ${props => props.theme.typography.lineHeight.normal};
-  margin-top: ${props => props.theme.spacing.xs}px;
-`;
-
-const StyledCloseButton = styled.button`
-  /* Reset */
-  padding: 0;
-  margin: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  outline: none;
-
-  /* Layout */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  color: ${props => props.theme.colors.text.muted};
-  transition:
-    color ${props => props.theme.transitions.fast},
-    background ${props => props.theme.transitions.fast};
-
-  &:hover {
-    color: ${props => props.theme.colors.text.primary};
-    background: ${props => props.theme.colors.surface.hover};
-  }
-
-  &:focus-visible {
-    box-shadow: ${props => props.theme.shadows.focus};
-  }
-`;
-
-interface StyledActionButtonProps {
-  $severity: ToastSeverity;
-}
-
-const StyledActionButton = styled.button<StyledActionButtonProps>`
-  /* Reset */
-  padding: ${props => props.theme.spacing.xs}px
-    ${props => props.theme.spacing.sm}px;
-  margin: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  outline: none;
-
-  /* Styling */
-  color: ${props =>
-    props.theme.colors.accent[SEVERITY_COLOR_MAP[props.$severity]]};
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  font-weight: ${props => props.theme.typography.fontWeight.medium};
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  transition: background ${props => props.theme.transitions.fast};
-  margin-top: ${props => props.theme.spacing.sm}px;
-
-  &:hover {
-    background: ${props => props.theme.colors.surface.hover};
-  }
-
-  &:focus-visible {
-    box-shadow: ${props => props.theme.shadows.focus};
-  }
-`;
-
-interface StyledProgressBarProps {
-  $severity: ToastSeverity;
-  $duration: number;
-  $paused: boolean;
-}
-
-const StyledProgressBar = styled.div<StyledProgressBarProps>`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 2px;
-  background: ${props =>
-    props.theme.colors.accent[SEVERITY_COLOR_MAP[props.$severity]]};
-  animation: ${progressShrink} ${props => props.$duration}ms linear forwards;
-  animation-play-state: ${props => (props.$paused ? 'paused' : 'running')};
-`;
-
 // --- ToastItem component ---
 
 interface ToastItemProps {
@@ -280,18 +122,21 @@ interface ToastItemProps {
  * - warning/error: role="alert", aria-live="assertive"
  * - Auto-dismiss pauses on hover
  */
-export const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
+export const ToastItem: React.FC<ToastItemProps> = ({
+  toast: toastData,
+  onDismiss,
+}) => {
   const {
     id,
     title,
-    message,
+    message: msg,
     severity,
     duration,
     closable,
     showProgress,
     icon,
     action,
-  } = toast;
+  } = toastData;
 
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -337,33 +182,34 @@ export const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
   }, [startTimer, clearTimer]);
 
   return (
-    <StyledToast
-      $severity={severity}
+    <div
+      className={toast({ severity })}
       role={role}
       aria-live={ariaLive}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       data-testid={`toast-${id}`}
     >
-      <StyledContent>
-        <StyledIconWrapper>
+      <div className={content}>
+        <div className={iconWrapper}>
           {icon ?? <SeverityIcon severity={severity} color="currentColor" />}
-        </StyledIconWrapper>
-        <StyledTextContent>
-          {title && <StyledTitle>{title}</StyledTitle>}
-          <StyledMessage>{message}</StyledMessage>
+        </div>
+        <div className={textContent}>
+          {title && <div className={titleStyle}>{title}</div>}
+          <div className={message}>{msg}</div>
           {action && (
-            <StyledActionButton
-              $severity={severity}
+            <button
+              className={actionButton({ severity })}
               onClick={action.onClick}
               type="button"
             >
               {action.label}
-            </StyledActionButton>
+            </button>
           )}
-        </StyledTextContent>
+        </div>
         {closable && (
-          <StyledCloseButton
+          <button
+            className={closeButton}
             onClick={() => onDismiss(id)}
             aria-label="Dismiss notification"
             type="button"
@@ -394,18 +240,19 @@ export const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
                 strokeLinecap="round"
               />
             </svg>
-          </StyledCloseButton>
+          </button>
         )}
-      </StyledContent>
+      </div>
       {showProgress && duration > 0 && (
-        <StyledProgressBar
-          $severity={severity}
-          $duration={duration}
-          $paused={paused}
+        <div
+          className={progressBar({ severity, paused })}
+          style={assignInlineVars({
+            [progressDurationVar]: `${duration}ms`,
+          })}
           data-testid={`toast-progress-${id}`}
         />
       )}
-    </StyledToast>
+    </div>
   );
 };
 
