@@ -1,13 +1,19 @@
 import type React from 'react';
 import { useEffect, useRef, useCallback } from 'react';
-import { vars } from '@/theme/contract.css';
 import type {
   CurveData,
   CurveViewport,
   CurveHitTest,
   CurveBackgroundInfo,
 } from './CurveEditor.types';
-import { clamp } from '@/utils/mathUtils';
+import type { CanvasThemeColors } from '@/components/primitives/canvas';
+import {
+  drawGrid as sharedDrawGrid,
+  drawDomainBounds as sharedDrawDomainBounds,
+  drawAxisLabels as sharedDrawAxisLabels,
+  resolveCanvasTheme,
+  resolveVarValue,
+} from '@/components/primitives/canvas';
 import { domainToCanvas, sampleCurve } from './curveUtils';
 
 interface UseCurveRendererOptions {
@@ -39,44 +45,7 @@ interface UseCurveRendererOptions {
   resizeToken?: number;
 }
 
-/**
- * Resolved theme colors for canvas rendering.
- * CSS variables are resolved to actual color strings via getComputedStyle.
- */
-interface CanvasThemeColors {
-  backgroundSecondary: string;
-  borderDefault: string;
-  textMuted: string;
-  textPrimary: string;
-  textSecondary: string;
-  fontSizeXs: number;
-}
-
-/**
- * Resolve CSS variable references (e.g., `var(--etui-color-text-primary)`)
- * to their computed values via getComputedStyle.
- */
-function resolveVar(element: Element, cssVar: string): string {
-  // vars.colors.text.primary is a string like "var(--etui-color-text-primary)"
-  // Extract the variable name from the var() wrapper
-  const match = cssVar.match(/var\(([^)]+)\)/);
-  if (!match) return cssVar;
-  const varName = match[1];
-  if (!varName) return cssVar;
-  return getComputedStyle(element).getPropertyValue(varName).trim() || cssVar;
-}
-
-function resolveTheme(canvas: HTMLCanvasElement): CanvasThemeColors {
-  return {
-    backgroundSecondary: resolveVar(canvas, vars.colors.background.secondary),
-    borderDefault: resolveVar(canvas, vars.colors.border.default),
-    textMuted: resolveVar(canvas, vars.colors.text.muted),
-    textPrimary: resolveVar(canvas, vars.colors.text.primary),
-    textSecondary: resolveVar(canvas, vars.colors.text.secondary),
-    fontSizeXs:
-      parseFloat(resolveVar(canvas, vars.typography.fontSize.xs)) || 10,
-  };
-}
+// CanvasThemeColors and resolveCanvasTheme are now imported from shared canvas primitives
 
 export function useCurveRenderer(options: UseCurveRendererOptions): void {
   const rafRef = useRef<number>(0);
@@ -88,7 +57,7 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const theme = resolveTheme(canvas);
+    const theme = resolveCanvasTheme(canvas);
 
     const dpr =
       typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
@@ -124,7 +93,7 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
 
     // Resolve curveColor if it's a CSS variable reference
     const curveColor = rawCurveColor.startsWith('var(')
-      ? resolveVar(canvas, rawCurveColor)
+      ? resolveVarValue(canvas, rawCurveColor)
       : rawCurveColor;
 
     const opacity = disabled ? 0.4 : 1;
@@ -149,26 +118,35 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
 
     // 2. Grid lines -- based on domain values, not viewport
     if (showGrid) {
-      drawGrid(ctx, curve, viewport, w, h, gridSubdivisions, theme, opacity);
+      sharedDrawGrid(ctx, w, h, theme, {
+        subdivisions: gridSubdivisions,
+        domain: { domainX: curve.domainX, domainY: curve.domainY },
+        viewport,
+        opacity,
+      });
     }
 
     // 3. Domain boundary axes (stronger lines at domain min/max)
-    drawDomainBounds(ctx, curve, viewport, w, h, theme, opacity);
+    sharedDrawDomainBounds(
+      ctx,
+      w,
+      h,
+      theme,
+      { domainX: curve.domainX, domainY: curve.domainY },
+      viewport,
+      opacity
+    );
 
     // 4. Axis labels -- based on domain values
     if (showAxisLabels) {
-      drawAxisLabels(
-        ctx,
-        curve,
+      sharedDrawAxisLabels(ctx, w, h, theme, {
+        subdivisions: gridSubdivisions,
+        domain: { domainX: curve.domainX, domainY: curve.domainY },
         viewport,
-        w,
-        h,
-        gridSubdivisions,
-        theme,
         opacity,
         labelX,
-        labelY
-      );
+        labelY,
+      });
     }
 
     // 5. Curve line
@@ -229,241 +207,8 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
   }, [draw, options.isDragging]);
 }
 
-/**
- * Format a number for axis labels.
- * Integers show as "0", "1". Clean fractions show as "0.25", "0.5".
- * Others show with minimal decimals needed.
- */
-function formatLabel(value: number, domainRange: number): string {
-  // Round to avoid floating-point artifacts
-  const rounded = Math.round(value * 1e10) / 1e10;
-  if (Number.isInteger(rounded)) return rounded.toFixed(0);
-
-  // For small ranges, show more precision
-  if (domainRange <= 1) {
-    // Check if it's a clean fraction (0.25, 0.5, 0.75, etc.)
-    const str = rounded.toFixed(2);
-    if (str.endsWith('0')) return rounded.toFixed(1);
-    return str;
-  }
-
-  // For larger ranges
-  if (domainRange <= 10) return rounded.toFixed(1);
-  return rounded.toFixed(0);
-}
-
-/**
- * Draw grid lines at clean domain values (not viewport values).
- * Grid lines subdivide the domain range into equal parts.
- */
-function drawGrid(
-  ctx: CanvasRenderingContext2D,
-  curve: CurveData,
-  viewport: CurveViewport,
-  w: number,
-  h: number,
-  subdivisions: number,
-  theme: CanvasThemeColors,
-  opacity: number
-): void {
-  const [dxMin, dxMax] = curve.domainX;
-  const [dyMin, dyMax] = curve.domainY;
-  const dxRange = dxMax - dxMin || 1;
-  const dyRange = dyMax - dyMin || 1;
-
-  ctx.lineWidth = 1;
-
-  // Vertical grid lines (subdivide domain X)
-  const xStep = dxRange / subdivisions;
-  for (let i = 0; i <= subdivisions; i++) {
-    const domX = dxMin + i * xStep;
-    const { px } = domainToCanvas(domX, 0, viewport, w, h);
-
-    // Domain bounds drawn stronger
-    const isBound = i === 0 || i === subdivisions;
-    ctx.globalAlpha = opacity * (isBound ? 0.25 : 0.12);
-    ctx.strokeStyle = theme.borderDefault;
-    ctx.beginPath();
-    ctx.moveTo(Math.round(px) + 0.5, 0);
-    ctx.lineTo(Math.round(px) + 0.5, h);
-    ctx.stroke();
-  }
-
-  // Horizontal grid lines (subdivide domain Y)
-  const yStep = dyRange / subdivisions;
-  for (let i = 0; i <= subdivisions; i++) {
-    const domY = dyMin + i * yStep;
-    const { py } = domainToCanvas(0, domY, viewport, w, h);
-
-    const isBound = i === 0 || i === subdivisions;
-    ctx.globalAlpha = opacity * (isBound ? 0.25 : 0.12);
-    ctx.strokeStyle = theme.borderDefault;
-    ctx.beginPath();
-    ctx.moveTo(0, Math.round(py) + 0.5);
-    ctx.lineTo(w, Math.round(py) + 0.5);
-    ctx.stroke();
-  }
-}
-
-/**
- * Draw stronger lines at the domain boundaries (min/max on both axes).
- */
-function drawDomainBounds(
-  ctx: CanvasRenderingContext2D,
-  curve: CurveData,
-  viewport: CurveViewport,
-  w: number,
-  h: number,
-  theme: CanvasThemeColors,
-  opacity: number
-): void {
-  const [dxMin, dxMax] = curve.domainX;
-  const [dyMin, dyMax] = curve.domainY;
-
-  ctx.globalAlpha = opacity * 0.35;
-  ctx.strokeStyle = theme.borderDefault;
-  ctx.lineWidth = 1.5;
-
-  // Left bound (X min)
-  const { px: pxMin } = domainToCanvas(dxMin, 0, viewport, w, h);
-  ctx.beginPath();
-  ctx.moveTo(Math.round(pxMin) + 0.5, 0);
-  ctx.lineTo(Math.round(pxMin) + 0.5, h);
-  ctx.stroke();
-
-  // Right bound (X max)
-  const { px: pxMax } = domainToCanvas(dxMax, 0, viewport, w, h);
-  ctx.beginPath();
-  ctx.moveTo(Math.round(pxMax) + 0.5, 0);
-  ctx.lineTo(Math.round(pxMax) + 0.5, h);
-  ctx.stroke();
-
-  // Bottom bound (Y min)
-  const { py: pyMin } = domainToCanvas(0, dyMin, viewport, w, h);
-  ctx.beginPath();
-  ctx.moveTo(0, Math.round(pyMin) + 0.5);
-  ctx.lineTo(w, Math.round(pyMin) + 0.5);
-  ctx.stroke();
-
-  // Top bound (Y max)
-  const { py: pyMax } = domainToCanvas(0, dyMax, viewport, w, h);
-  ctx.beginPath();
-  ctx.moveTo(0, Math.round(pyMax) + 0.5);
-  ctx.lineTo(w, Math.round(pyMax) + 0.5);
-  ctx.stroke();
-}
-
-/**
- * Draw axis labels at clean domain values.
- * Y labels on the left side, X labels at the bottom.
- * Labels correspond to domain subdivisions (e.g. 0, 0.25, 0.5, 0.75, 1).
- */
-function drawAxisLabels(
-  ctx: CanvasRenderingContext2D,
-  curve: CurveData,
-  viewport: CurveViewport,
-  w: number,
-  h: number,
-  subdivisions: number,
-  theme: CanvasThemeColors,
-  opacity: number,
-  labelX?: string,
-  labelY?: string
-): void {
-  const [dxMin, dxMax] = curve.domainX;
-  const [dyMin, dyMax] = curve.domainY;
-  const dxRange = dxMax - dxMin || 1;
-  const dyRange = dyMax - dyMin || 1;
-
-  const fontSize = theme.fontSizeXs;
-  ctx.globalAlpha = opacity * 0.7;
-  ctx.fillStyle = theme.textMuted;
-  ctx.font = `${fontSize}px sans-serif`;
-
-  const sidePadding = 4;
-  const axisGap = 6;
-
-  const { px: xAxisMin } = domainToCanvas(dxMin, 0, viewport, w, h);
-  const { px: xAxisMax } = domainToCanvas(dxMax, 0, viewport, w, h);
-  const { py: yAxisMin } = domainToCanvas(0, dyMin, viewport, w, h);
-  const { py: yAxisMax } = domainToCanvas(0, dyMax, viewport, w, h);
-
-  const xTickTop = clamp(
-    yAxisMin + axisGap,
-    yAxisMax + 2,
-    h - fontSize - (labelX ? fontSize + 8 : 2)
-  );
-  const xAxisLabelTop = labelX
-    ? clamp(xTickTop + fontSize + 4, 0, h - fontSize - 1)
-    : 0;
-
-  const yTickAnchorX = clamp(
-    xAxisMin - axisGap,
-    sidePadding + 1,
-    w - sidePadding
-  );
-  const yTickMinY = fontSize / 2 + 2;
-  const yTickMaxY = Math.max(yTickMinY, xTickTop - 2);
-  const yAxisLabelTop = clamp(
-    yAxisMax - fontSize - 4,
-    sidePadding,
-    Math.max(sidePadding, xTickTop - fontSize - 6)
-  );
-
-  // X axis labels (bottom, aligned to domain subdivisions)
-  ctx.textBaseline = 'top';
-  const xStep = dxRange / subdivisions;
-  for (let i = 0; i <= subdivisions; i++) {
-    const domX = dxMin + i * xStep;
-    const { px } = domainToCanvas(domX, 0, viewport, w, h);
-    const label = formatLabel(domX, dxRange);
-
-    // Anchor edge labels to domain bounds, center the inner labels.
-    if (i === 0) {
-      ctx.textAlign = 'left';
-      ctx.fillText(label, xAxisMin + 2, xTickTop);
-    } else if (i === subdivisions) {
-      ctx.textAlign = 'right';
-      ctx.fillText(label, xAxisMax - 2, xTickTop);
-    } else {
-      ctx.textAlign = 'center';
-      ctx.fillText(label, clamp(px, xAxisMin + 2, xAxisMax - 2), xTickTop);
-    }
-  }
-
-  // Y axis labels (left side, aligned to domain subdivisions)
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'middle';
-  const yStep = dyRange / subdivisions;
-  for (let i = 0; i <= subdivisions; i++) {
-    const domY = dyMin + i * yStep;
-    const { py } = domainToCanvas(0, domY, viewport, w, h);
-    const label = formatLabel(domY, dyRange);
-
-    // Clamp vertically to keep labels above bottom axis labels.
-    const clampedPy = clamp(py, yTickMinY, yTickMaxY);
-    ctx.fillText(label, yTickAnchorX, clampedPy);
-  }
-
-  // Axis name labels
-  if (labelX) {
-    const textWidth = ctx.measureText(labelX).width;
-    const x = clamp(
-      xAxisMax + axisGap,
-      sidePadding,
-      w - sidePadding - textWidth
-    );
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    ctx.fillText(labelX, x, xAxisLabelTop);
-  }
-  if (labelY) {
-    const x = clamp(xAxisMin + axisGap, sidePadding, w - sidePadding);
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    ctx.fillText(labelY, x, yAxisLabelTop);
-  }
-}
+// drawGrid, drawDomainBounds, drawAxisLabels, and formatLabel are now
+// provided by shared canvas primitives and called in the draw() function above.
 
 function drawCurveLine(
   ctx: CanvasRenderingContext2D,

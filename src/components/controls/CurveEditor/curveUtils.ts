@@ -1,4 +1,9 @@
 import { clamp } from '@/utils/mathUtils';
+import {
+  domainToCanvas as sharedDomainToCanvas,
+  canvasToDomain as sharedCanvasToDomain,
+} from '@/components/primitives/canvas';
+import type { CanvasViewport } from '@/components/primitives/canvas';
 import type {
   CurveData,
   CurveKeyframe,
@@ -379,48 +384,36 @@ export function wrapX(
 
 /**
  * Convert domain coordinates to canvas pixel coordinates.
+ * Re-exported from shared canvas primitives for backward compatibility.
  */
 export function domainToCanvas(
   domainX: number,
   domainY: number,
-  viewport: CurveViewport,
+  viewport: CurveViewport | CanvasViewport,
   canvasWidth: number,
   canvasHeight: number
 ): { px: number; py: number } {
-  const [vxMin, vxMax] = viewport.viewX;
-  const [vyMin, vyMax] = viewport.viewY;
-
-  const vw = vxMax - vxMin || 1;
-  const vh = vyMax - vyMin || 1;
-
-  const px = ((domainX - vxMin) / vw) * canvasWidth;
-  // Y is flipped — canvas Y goes down, domain Y goes up
-  const py = ((vyMax - domainY) / vh) * canvasHeight;
-
-  return { px, py };
+  return sharedDomainToCanvas(
+    domainX,
+    domainY,
+    viewport,
+    canvasWidth,
+    canvasHeight
+  );
 }
 
 /**
  * Convert canvas pixel coordinates to domain coordinates.
+ * Re-exported from shared canvas primitives for backward compatibility.
  */
 export function canvasToDomain(
   px: number,
   py: number,
-  viewport: CurveViewport,
+  viewport: CurveViewport | CanvasViewport,
   canvasWidth: number,
   canvasHeight: number
 ): { x: number; y: number } {
-  const [vxMin, vxMax] = viewport.viewX;
-  const [vyMin, vyMax] = viewport.viewY;
-
-  const vw = vxMax - vxMin || 1;
-  const vh = vyMax - vyMin || 1;
-
-  const x = vxMin + (px / canvasWidth) * vw;
-  // Y is flipped
-  const y = vyMax - (py / canvasHeight) * vh;
-
-  return { x, y };
+  return sharedCanvasToDomain(px, py, viewport, canvasWidth, canvasHeight);
 }
 
 /**

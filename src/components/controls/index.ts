@@ -73,3 +73,11 @@ export type {
   CurveBackgroundInfo,
   CurveBottomBarInfo,
 } from './CurveEditor';
+
+export { CartesianPicker } from './CartesianPicker';
+
+export type {
+  CartesianPickerProps,
+  CartesianPickerSize,
+  CartesianPickerInfo,
+} from './CartesianPicker';
