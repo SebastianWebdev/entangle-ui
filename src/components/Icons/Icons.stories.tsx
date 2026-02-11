@@ -59,6 +59,8 @@ import { ZoomInIcon } from './ZoomInIcon';
 import { ZoomOutIcon } from './ZoomOutIcon';
 import { CircleIcon } from './CircleIcon';
 import { CheckIcon } from './CheckIcon';
+import { AiSparklesIcon } from './AiSparklesIcon';
+import { RobotIcon } from './RobotIcon';
 
 /**
  * Storybook configuration for all Icon components
@@ -194,6 +196,11 @@ const socialIcons = [
   { Component: LinkIcon, name: 'LinkIcon' },
 ];
 
+const aiIcons = [
+  { Component: AiSparklesIcon, name: 'AiSparklesIcon' },
+  { Component: RobotIcon, name: 'RobotIcon' },
+];
+
 const IconGrid = ({
   icons,
   title,
@@ -268,7 +275,8 @@ export const AllIcons: Story = {
           navigationIcons.length +
           viewIcons.length +
           statusIcons.length +
-          socialIcons.length}{' '}
+          socialIcons.length +
+          aiIcons.length}{' '}
         Icons)
       </h2>
 
@@ -279,6 +287,7 @@ export const AllIcons: Story = {
       <IconGrid icons={viewIcons} title="View Controls" {...args} />
       <IconGrid icons={statusIcons} title="Status & Feedback" {...args} />
       <IconGrid icons={socialIcons} title="Social & Metadata" {...args} />
+      <IconGrid icons={aiIcons} title="AI & Automation" {...args} />
     </div>
   ),
   args: {

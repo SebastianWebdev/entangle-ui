@@ -129,7 +129,7 @@ export const messageTimestampStyle = style({
 });
 
 export const messageTextStyle = style({
-  fontSize: vars.typography.fontSize.sm,
+  fontSize: vars.typography.fontSize.md,
   lineHeight: vars.typography.lineHeight.normal,
   whiteSpace: 'pre-wrap',
   wordBreak: 'break-word',
@@ -141,7 +141,7 @@ export const bubbleRecipe = recipe({
   base: {
     padding: `${vars.spacing.md} ${vars.spacing.lg}`,
     borderRadius: vars.borderRadius.lg,
-    fontSize: vars.typography.fontSize.sm,
+    fontSize: vars.typography.fontSize.md,
     lineHeight: vars.typography.lineHeight.normal,
     wordBreak: 'break-word',
     whiteSpace: 'pre-wrap',
@@ -250,7 +250,7 @@ export const inputTextareaStyle = style({
   background: 'transparent',
   color: vars.colors.text.primary,
   fontFamily: vars.typography.fontFamily.sans,
-  fontSize: vars.typography.fontSize.sm,
+  fontSize: vars.typography.fontSize.md,
   lineHeight: vars.typography.lineHeight.normal,
   padding: `${vars.spacing.sm} ${vars.spacing.md}`,
   maxHeight: inputMaxHeightVar,

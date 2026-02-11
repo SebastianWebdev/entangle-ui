@@ -372,9 +372,9 @@ export const FullEditor: Story = {
     const [showFloating, setShowFloating] = useState(true);
     const [outlinerTab, setOutlinerTab] = useState('scene');
     const [bottomTab, setBottomTab] = useState('console');
-    const [leftPanelMode, setRightPanelMode] = useState<
-      'properties' | 'chat'
-    >('properties');
+    const [leftPanelMode, setRightPanelMode] = useState<'properties' | 'chat'>(
+      'properties'
+    );
 
     // AI Chat state
     let chatNextId = 100;
@@ -1071,166 +1071,174 @@ export const FullEditor: Story = {
                 {/* ------------ LEFT PANEL: Scene Outliner / AI Chat ------------ */}
                 <PanelSurface bordered={false} style={panelGradientStyles}>
                   {leftPanelMode === 'properties' ? (
-                  <PanelSurface.Body padding={0} style={{ display: 'flex' }}>
-                    <Tabs
-                      value={outlinerTab}
-                      onChange={setOutlinerTab}
-                      variant="pills"
-                      pillsFrame={false}
-                      size="sm"
-                      style={{ flex: 1, minHeight: 0 }}
-                    >
-                      <TabList>
-                        <Tab value="scene">Scene</Tab>
-                        <Tab value="assets">Assets</Tab>
-                      </TabList>
-                      <TabPanel value="scene">
-                        <ScrollArea
-                          maxHeight="100%"
-                          scrollbarVisibility="hover"
-                          style={{ flex: 1 }}
-                        >
-                          <div style={{ padding: 4 }}>
-                            <TreeView
-                              nodes={sceneTree}
-                              defaultExpandedIds={['scene', 'cube']}
-                              defaultSelectedIds={['cube']}
-                              size="sm"
-                              showGuideLines
-                            />
-                          </div>
-                        </ScrollArea>
-                      </TabPanel>
-                      <TabPanel value="assets">
-                        <ScrollArea
-                          maxHeight="100%"
-                          scrollbarVisibility="hover"
-                          style={{ flex: 1 }}
-                        >
-                          <div style={{ padding: 8 }}>
-                            <TreeView
-                              nodes={[
-                                {
-                                  id: 'materials',
-                                  label: 'Materials',
-                                  icon: <FolderIcon size="sm" />,
-                                  children: [
-                                    {
-                                      id: 'mat-pbr',
-                                      label: 'PBR Standard',
-                                    },
-                                    {
-                                      id: 'mat-glass',
-                                      label: 'Glass',
-                                    },
-                                    {
-                                      id: 'mat-emissive',
-                                      label: 'Emissive',
-                                    },
-                                  ],
-                                },
-                                {
-                                  id: 'textures',
-                                  label: 'Textures',
-                                  icon: <FolderIcon size="sm" />,
-                                  children: [
-                                    {
-                                      id: 'tex-brick',
-                                      label: 'brick_albedo.png',
-                                    },
-                                    {
-                                      id: 'tex-wood',
-                                      label: 'wood_diffuse.png',
-                                    },
-                                  ],
-                                },
-                              ]}
-                              defaultExpandedIds={['materials']}
-                              size="sm"
-                              showGuideLines
-                            />
-                          </div>
-                        </ScrollArea>
-                      </TabPanel>
-                    </Tabs>
-                  </PanelSurface.Body>
-                  ) : (
-                  <>
-                    <PanelSurface.Header
-                      style={{
-                        backgroundColor: vars.storybook.canvas.gradientEnd,
-                        borderBottom: '1px solid rgba(111, 204, 182, 0.18)',
-                      }}
-                      actions={
-                        <span
-                          style={{
-                            fontSize: 9,
-                            padding: '1px 5px',
-                            background: 'rgba(111, 204, 182, 0.2)',
-                            border: '1px solid rgba(111, 204, 182, 0.3)',
-                            borderRadius: 3,
-                            color: '#6fc',
-                          }}
-                        >
-                          <AiSparklesIcon size="sm" />
-                        </span>
-                      }
-                    >
-                      AI Assistant
-                    </PanelSurface.Header>
-                    <PanelSurface.Body padding={0} style={{ flex: 1, minHeight: 0 }}>
-                      <ChatPanel density="compact">
-                        <ChatMessageList
-                          messages={chat.messages}
-                          renderMessage={msg => (
-                            <ChatMessage
-                              key={msg.id}
-                              message={msg}
-                              showAvatar
-                              actions={
-                                msg.role === 'assistant' && msg.status === 'complete' ? (
-                                  <ChatActionBar>
-                                    <Button size="sm" variant="ghost">
-                                      Copy
-                                    </Button>
-                                    <Button size="sm" variant="ghost">
-                                      Apply
-                                    </Button>
-                                  </ChatActionBar>
-                                ) : undefined
-                              }
-                            />
-                          )}
-                          emptyState={
-                            <ChatEmptyState
-                              title="AI Assistant"
-                              description="Ask me anything about your scene."
-                              suggestions={[
-                                'Optimize materials',
-                                'Explain selection',
-                                'Fix errors',
-                              ]}
-                              onSuggestionClick={handleChatSend}
-                            />
-                          }
-                        />
-                        <ChatTypingIndicator visible={isChatStreaming} />
-                        <ChatInput
-                          onSubmit={text => handleChatSend(text)}
-                          onStop={() => setIsChatStreaming(false)}
-                          streaming={isChatStreaming}
-                          placeholder="Ask about your scene..."
-                          toolbar={
-                            <ChatInputToolbar>
-                              <Button size="sm" variant="ghost" icon={<UploadIcon size="sm" />}>
-                                Attach
-                              </Button>
-                            </ChatInputToolbar>
-                          }
-                        />
-                      </ChatPanel>
+                    <PanelSurface.Body padding={0} style={{ display: 'flex' }}>
+                      <Tabs
+                        value={outlinerTab}
+                        onChange={setOutlinerTab}
+                        variant="pills"
+                        pillsFrame={false}
+                        size="sm"
+                        style={{ flex: 1, minHeight: 0 }}
+                      >
+                        <TabList>
+                          <Tab value="scene">Scene</Tab>
+                          <Tab value="assets">Assets</Tab>
+                        </TabList>
+                        <TabPanel value="scene">
+                          <ScrollArea
+                            maxHeight="100%"
+                            scrollbarVisibility="hover"
+                            style={{ flex: 1 }}
+                          >
+                            <div style={{ padding: 4 }}>
+                              <TreeView
+                                nodes={sceneTree}
+                                defaultExpandedIds={['scene', 'cube']}
+                                defaultSelectedIds={['cube']}
+                                size="sm"
+                                showGuideLines
+                              />
+                            </div>
+                          </ScrollArea>
+                        </TabPanel>
+                        <TabPanel value="assets">
+                          <ScrollArea
+                            maxHeight="100%"
+                            scrollbarVisibility="hover"
+                            style={{ flex: 1 }}
+                          >
+                            <div style={{ padding: 8 }}>
+                              <TreeView
+                                nodes={[
+                                  {
+                                    id: 'materials',
+                                    label: 'Materials',
+                                    icon: <FolderIcon size="sm" />,
+                                    children: [
+                                      {
+                                        id: 'mat-pbr',
+                                        label: 'PBR Standard',
+                                      },
+                                      {
+                                        id: 'mat-glass',
+                                        label: 'Glass',
+                                      },
+                                      {
+                                        id: 'mat-emissive',
+                                        label: 'Emissive',
+                                      },
+                                    ],
+                                  },
+                                  {
+                                    id: 'textures',
+                                    label: 'Textures',
+                                    icon: <FolderIcon size="sm" />,
+                                    children: [
+                                      {
+                                        id: 'tex-brick',
+                                        label: 'brick_albedo.png',
+                                      },
+                                      {
+                                        id: 'tex-wood',
+                                        label: 'wood_diffuse.png',
+                                      },
+                                    ],
+                                  },
+                                ]}
+                                defaultExpandedIds={['materials']}
+                                size="sm"
+                                showGuideLines
+                              />
+                            </div>
+                          </ScrollArea>
+                        </TabPanel>
+                      </Tabs>
                     </PanelSurface.Body>
-                  </>
+                  ) : (
+                    <>
+                      <PanelSurface.Header
+                        style={{
+                          backgroundColor: vars.storybook.canvas.gradientEnd,
+                          borderBottom: '1px solid rgba(111, 204, 182, 0.18)',
+                        }}
+                        actions={
+                          <span
+                            style={{
+                              fontSize: 9,
+                              padding: '1px 5px',
+                              background: 'rgba(111, 204, 182, 0.2)',
+                              border: '1px solid rgba(111, 204, 182, 0.3)',
+                              borderRadius: 3,
+                              color: '#6fc',
+                            }}
+                          >
+                            <AiSparklesIcon size="sm" />
+                          </span>
+                        }
+                      >
+                        AI Assistant
+                      </PanelSurface.Header>
+                      <PanelSurface.Body
+                        padding={0}
+                        style={{ flex: 1, minHeight: 0 }}
+                      >
+                        <ChatPanel density="compact">
+                          <ChatMessageList
+                            messages={chat.messages}
+                            renderMessage={msg => (
+                              <ChatMessage
+                                key={msg.id}
+                                message={msg}
+                                showAvatar
+                                actions={
+                                  msg.role === 'assistant' &&
+                                  msg.status === 'complete' ? (
+                                    <ChatActionBar>
+                                      <Button size="sm" variant="ghost">
+                                        Copy
+                                      </Button>
+                                      <Button size="sm" variant="ghost">
+                                        Apply
+                                      </Button>
+                                    </ChatActionBar>
+                                  ) : undefined
+                                }
+                              />
+                            )}
+                            emptyState={
+                              <ChatEmptyState
+                                title="AI Assistant"
+                                description="Ask me anything about your scene."
+                                suggestions={[
+                                  'Optimize materials',
+                                  'Explain selection',
+                                  'Fix errors',
+                                ]}
+                                onSuggestionClick={handleChatSend}
+                              />
+                            }
+                          />
+                          <ChatTypingIndicator visible={isChatStreaming} />
+                          <ChatInput
+                            onSubmit={text => handleChatSend(text)}
+                            onStop={() => setIsChatStreaming(false)}
+                            streaming={isChatStreaming}
+                            placeholder="Ask about your scene..."
+                            toolbar={
+                              <ChatInputToolbar>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  icon={<UploadIcon size="sm" />}
+                                >
+                                  Attach
+                                </Button>
+                              </ChatInputToolbar>
+                            }
+                          />
+                        </ChatPanel>
+                      </PanelSurface.Body>
+                    </>
                   )}
                 </PanelSurface>
 
