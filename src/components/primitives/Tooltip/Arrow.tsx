@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { cx } from '@/utils/cx';
 import { arrowFillStyle, tooltipArrowStyle } from './Tooltip.css';
 

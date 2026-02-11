@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ContextMenu as BaseContextMenu } from '@base-ui-components/react/context-menu';
+import { ContextMenu as BaseContextMenu } from '@base-ui/react/context-menu';
 import { CheckIcon, CircleIcon } from '@/components/Icons';
 import { Text } from '@/components/primitives/Text';
 import { cx } from '@/utils/cx';

@@ -1,5 +1,5 @@
 // src/components/primitives/Tooltip/Tooltip.tsx
-import { Tooltip as BaseTooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import React from 'react';
 
 import type { Prettify } from '@/types/utilities';
@@ -123,7 +123,7 @@ export type TooltipProps = Prettify<TooltipBaseProps>;
 /**
  * A tooltip component that displays contextual information on hover.
  *
- * Built on @base-ui-components/react for robust accessibility and positioning.
+ * Built on @base-ui/react for robust accessibility and positioning.
  * Provides an intuitive API similar to MUI with advanced positioning and collision handling.
  * Supports both simple text and complex React nodes for advanced tooltip content.
  *

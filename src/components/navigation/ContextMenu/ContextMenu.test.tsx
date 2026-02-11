@@ -8,7 +8,7 @@ import type { ContextMenuTargetDetails } from './ContextMenu.types';
 
 // Mock Base UI ContextMenu to avoid @floating-ui positioning loops in jsdom.
 // Positioner uses floating-ui which infinite-loops when getBoundingClientRect returns zeros.
-vi.mock('@base-ui-components/react/context-menu', async () => {
+vi.mock('@base-ui/react/context-menu', async () => {
   const { createElement, Fragment, forwardRef } = await import('react');
   const F = ({ children }: { children?: React.ReactNode }) =>
     createElement(Fragment, null, children);
@@ -47,7 +47,7 @@ vi.mock('@base-ui-components/react/context-menu', async () => {
 
 // ContextMenu reuses Menu styled components which wrap BaseMenu sub-components.
 // Since BaseContextMenu.Item === BaseMenu.Item (same underlying module), we mock both.
-vi.mock('@base-ui-components/react/menu', async () => {
+vi.mock('@base-ui/react/menu', async () => {
   const { createElement, Fragment, forwardRef } = await import('react');
   const F = ({ children }: { children?: React.ReactNode }) =>
     createElement(Fragment, null, children);

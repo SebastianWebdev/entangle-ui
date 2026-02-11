@@ -20,7 +20,7 @@ const EXTERNAL_PACKAGES = [
   '@emotion/react',
   '@emotion/styled',
   '@emotion/react/jsx-runtime',
-  '@base-ui-components/react',
+  '@base-ui/react',
   '@floating-ui/react',
 ];
 

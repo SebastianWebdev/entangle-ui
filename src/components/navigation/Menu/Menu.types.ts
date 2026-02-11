@@ -76,7 +76,7 @@ export type MenuSelection = Record<string, string[]>;
  * Base props for the Menu component.
  */
 export interface MenuBaseProps
-  extends Omit<BaseComponent<HTMLElement>, 'onChange'> {
+  extends Omit<BaseComponent<HTMLDivElement>, 'onChange'> {
   /** Menu configuration object */
   config: MenuConfig;
   /** Currently selected items organized by group */
