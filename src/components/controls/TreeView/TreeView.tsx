@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { TreeViewProps, TreeNodeData } from './TreeView.types';

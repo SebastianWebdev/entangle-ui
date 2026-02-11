@@ -1,3 +1,5 @@
+'use client';
+
 import type React from 'react';
 import { useState, useCallback, useRef } from 'react';
 import { clamp, roundToPrecision } from '@/utils/mathUtils';

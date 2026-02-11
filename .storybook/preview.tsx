@@ -58,7 +58,7 @@ const preview: Preview = {
       },
     },
     backgrounds: {
-      disable: true,
+      disabled: true,
     },
   },
 };

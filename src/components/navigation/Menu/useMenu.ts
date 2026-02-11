@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback } from 'react';
 
 import type { MenuItem, MenuGroup, MenuSelection } from './Menu.types';

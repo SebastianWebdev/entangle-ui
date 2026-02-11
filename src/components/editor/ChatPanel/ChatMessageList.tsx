@@ -1,9 +1,14 @@
+'use client';
+
 import React from 'react';
 import type { ChatMessageListProps } from './ChatPanel.types';
-import { cx } from '@/utils/cx';
 import { useChatScroll } from './useChatScroll';
 import { ChatMessage } from './ChatMessage';
-import { messageListStyle, newMessagesBannerStyle } from './ChatPanel.css';
+import { ScrollArea } from '@/components/layout/ScrollArea';
+import {
+  messageListContentStyle,
+  newMessagesBannerStyle,
+} from './ChatPanel.css';
 
 export const ChatMessageList = /*#__PURE__*/ React.memo<ChatMessageListProps>(
   ({
@@ -23,7 +28,7 @@ export const ChatMessageList = /*#__PURE__*/ React.memo<ChatMessageListProps>(
         enabled: autoScroll,
       });
 
-    // Merge refs
+    // Merge refs — ScrollArea forwards ref to its viewport div
     const mergedRef = React.useCallback(
       (node: HTMLDivElement | null) => {
         (
@@ -40,50 +45,56 @@ export const ChatMessageList = /*#__PURE__*/ React.memo<ChatMessageListProps>(
 
     if (messages.length === 0 && emptyState) {
       return (
-        <div
+        <ScrollArea
           ref={mergedRef}
-          className={cx(messageListStyle, className)}
+          autoFill
+          className={className}
           style={style}
-          data-testid={testId}
-          role="log"
-          aria-live="polite"
+          testId={testId}
           {...rest}
         >
-          {emptyState}
-        </div>
+          <div
+            className={messageListContentStyle}
+            role="log"
+            aria-live="polite"
+          >
+            {emptyState}
+          </div>
+        </ScrollArea>
       );
     }
 
     return (
-      <div
+      <ScrollArea
         ref={mergedRef}
-        className={cx(messageListStyle, className)}
+        autoFill
+        className={className}
         style={style}
-        data-testid={testId}
-        role="log"
-        aria-live="polite"
+        testId={testId}
         {...rest}
       >
-        {messages.map((message, index) =>
-          renderMessage ? (
-            <React.Fragment key={message.id}>
-              {renderMessage(message, index)}
-            </React.Fragment>
-          ) : (
-            <ChatMessage key={message.id} message={message} />
-          )
-        )}
+        <div className={messageListContentStyle} role="log" aria-live="polite">
+          {messages.map((message, index) =>
+            renderMessage ? (
+              <React.Fragment key={message.id}>
+                {renderMessage(message, index)}
+              </React.Fragment>
+            ) : (
+              <ChatMessage key={message.id} message={message} />
+            )
+          )}
 
-        {hasNewMessages && (
-          <button
-            className={newMessagesBannerStyle}
-            onClick={() => scrollToBottom('smooth')}
-            type="button"
-          >
-            New messages
-          </button>
-        )}
-      </div>
+          {hasNewMessages && (
+            <button
+              className={newMessagesBannerStyle}
+              onClick={() => scrollToBottom('smooth')}
+              type="button"
+            >
+              New messages
+            </button>
+          )}
+        </div>
+      </ScrollArea>
     );
   }
 );

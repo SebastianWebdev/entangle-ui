@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import type { ChatMessageProps } from './ChatPanel.types';
 import { cx } from '@/utils/cx';

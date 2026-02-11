@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { ScrollAreaProps } from './ScrollArea.types';
 import { cx } from '@/utils/cx';

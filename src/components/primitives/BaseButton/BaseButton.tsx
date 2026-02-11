@@ -1,3 +1,5 @@
+'use client';
+
 // src/primitives/BaseButton/BaseButton.tsx
 import React, { forwardRef } from 'react';
 import { cn } from '@/utils/cn';

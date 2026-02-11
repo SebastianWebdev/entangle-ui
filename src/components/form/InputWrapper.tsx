@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import type { BaseComponent, Size } from '@/types/common';
 import { Prettify } from '@/types/utilities';

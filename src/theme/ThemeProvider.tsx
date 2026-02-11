@@ -1,3 +1,5 @@
+'use client';
+
 // src/theme/ThemeProvider.tsx
 import React from 'react';
 import { ThemeProvider as EmotionThemeProvider } from '@emotion/react';

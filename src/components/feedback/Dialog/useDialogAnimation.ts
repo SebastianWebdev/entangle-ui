@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { FOCUSABLE_SELECTOR } from './useFocusTrap';
 import { DIALOG_ANIMATION_MS } from './Dialog.css';

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useId, useState } from 'react';
 import { cx } from '@/utils/cx';
 import { usePropertyPanelContext } from './PropertyPanel';

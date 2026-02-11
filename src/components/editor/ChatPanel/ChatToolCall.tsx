@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useCallback } from 'react';
 import type { ChatToolCallProps } from './ChatPanel.types';
 import { cx } from '@/utils/cx';

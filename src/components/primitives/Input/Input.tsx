@@ -1,3 +1,5 @@
+'use client';
+
 // src/primitives/Input/Input.tsx
 import type { Size } from '@/types/common';
 import type { Prettify } from '@/types/utilities';

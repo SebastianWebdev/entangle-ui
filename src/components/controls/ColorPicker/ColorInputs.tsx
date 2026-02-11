@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useState } from 'react';
 import { hsvToRgb, hsvToHsl, rgbToHex, rgbToHsv, hslToHsv } from './colorUtils';
 import { EyeDropper } from './EyeDropper';

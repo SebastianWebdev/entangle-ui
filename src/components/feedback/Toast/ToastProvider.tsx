@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useReducer, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import type { ToastProviderProps, ToastInternalData } from './Toast.types';

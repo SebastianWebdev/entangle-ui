@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback } from 'react';
 import type { ColorPreset } from './ColorPicker.types';
 import {

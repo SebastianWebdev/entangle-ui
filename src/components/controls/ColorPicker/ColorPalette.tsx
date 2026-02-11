@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback } from 'react';
 import { Collapsible } from '@/components/primitives/Collapsible';
 import type { PaletteColor } from './palettes';

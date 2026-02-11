@@ -1,3 +1,5 @@
+'use client';
+
 // src/components/layout/Stack/Stack.tsx
 import React from 'react';
 import type { BaseComponent } from '@/types/common';

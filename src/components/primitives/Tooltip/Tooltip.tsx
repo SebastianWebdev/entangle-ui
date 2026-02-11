@@ -1,3 +1,5 @@
+'use client';
+
 // src/components/primitives/Tooltip/Tooltip.tsx
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import React from 'react';

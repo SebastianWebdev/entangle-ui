@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useCallback, useId, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { FormLabel } from '@/components/form';

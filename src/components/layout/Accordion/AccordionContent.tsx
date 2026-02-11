@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { useAccordionContext, useAccordionItemContext } from './Accordion';
 import type { AccordionContentProps } from './Accordion.types';

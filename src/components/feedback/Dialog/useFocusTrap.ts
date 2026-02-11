@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, type RefObject, type KeyboardEvent } from 'react';
 
 const FOCUSABLE_SELECTOR = [

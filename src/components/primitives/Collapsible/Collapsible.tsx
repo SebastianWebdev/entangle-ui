@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useCallback, useId, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { CollapsibleProps, CollapsibleSize } from './Collapsible.types';
