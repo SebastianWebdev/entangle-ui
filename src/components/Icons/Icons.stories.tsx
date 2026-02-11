@@ -59,6 +59,7 @@ import { ZoomInIcon } from './ZoomInIcon';
 import { ZoomOutIcon } from './ZoomOutIcon';
 import { CircleIcon } from './CircleIcon';
 import { CheckIcon } from './CheckIcon';
+import { AiChatIcon } from './AiChatIcon';
 import { AiSparklesIcon } from './AiSparklesIcon';
 import { RobotIcon } from './RobotIcon';
 
@@ -197,6 +198,7 @@ const socialIcons = [
 ];
 
 const aiIcons = [
+  { Component: AiChatIcon, name: 'AiChatIcon' },
   { Component: AiSparklesIcon, name: 'AiSparklesIcon' },
   { Component: RobotIcon, name: 'RobotIcon' },
 ];

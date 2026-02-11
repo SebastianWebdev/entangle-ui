@@ -1,4 +1,5 @@
 export { AddIcon } from './AddIcon';
+export { AiChatIcon } from './AiChatIcon';
 export { AiSparklesIcon } from './AiSparklesIcon';
 export { ArrowDownIcon } from './ArrowDownIcon';
 export { ArrowLeftIcon } from './ArrowLeftIcon';
