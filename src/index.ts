@@ -68,6 +68,7 @@ export {
   sampleCurve,
   createLinearCurve,
   domainToCanvas,
+  CartesianPicker,
 } from '@/components/controls';
 export {
   ContextMenu,
@@ -95,6 +96,14 @@ export {
   PropertyRow,
   PropertySection,
   usePropertyUndo,
+  ViewportGizmo,
+  eulerToRotationMatrix,
+  projectToCanvas,
+  projectAxes,
+  gizmoHitTest,
+  presetViewToOrientation,
+  quaternionToEuler,
+  axisToPresetView,
 } from '@/components/editor';
 export {
   AppShell,
@@ -213,6 +222,9 @@ export type {
   CurvePreset,
   CurveBackgroundInfo,
   CurveBottomBarInfo,
+  CartesianPickerProps,
+  CartesianPickerSize,
+  CartesianPickerInfo,
 } from '@/components/controls';
 export type {
   ContextMenuBaseProps,
@@ -261,6 +273,17 @@ export type {
   PropertyUndoEntry,
   UsePropertyUndoOptions,
   UsePropertyUndoReturn,
+  ViewportGizmoProps,
+  ViewportGizmoSize,
+  GizmoOrientation,
+  GizmoAxisColorPreset,
+  GizmoUpAxis,
+  GizmoAxisConfig,
+  GizmoPresetView,
+  OrbitDelta,
+  GizmoHitRegion,
+  Vec3,
+  ProjectedArm,
 } from '@/components/editor';
 export type {
   StatusBarProps,

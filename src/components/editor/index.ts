@@ -17,3 +17,28 @@ export type {
   UsePropertyUndoOptions,
   UsePropertyUndoReturn,
 } from './PropertyInspector';
+
+export {
+  ViewportGizmo,
+  eulerToRotationMatrix,
+  projectToCanvas,
+  projectAxes,
+  gizmoHitTest,
+  presetViewToOrientation,
+  quaternionToEuler,
+  axisToPresetView,
+} from './ViewportGizmo';
+
+export type {
+  ViewportGizmoProps,
+  ViewportGizmoSize,
+  GizmoOrientation,
+  GizmoAxisColorPreset,
+  GizmoUpAxis,
+  GizmoAxisConfig,
+  GizmoPresetView,
+  OrbitDelta,
+  GizmoHitRegion,
+  Vec3,
+  ProjectedArm,
+} from './ViewportGizmo';

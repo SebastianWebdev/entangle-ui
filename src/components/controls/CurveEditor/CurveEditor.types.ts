@@ -1,6 +1,10 @@
 import type React from 'react';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
+import type {
+  CanvasViewport,
+  CanvasBackgroundInfo,
+} from '@/components/primitives/canvas';
 
 export type CurveEditorSize = Size;
 
@@ -319,26 +323,17 @@ export interface CurveBottomBarInfo {
 
 /**
  * Information passed to the `renderBackground` callback.
+ * Extends the shared CanvasBackgroundInfo — structurally identical,
+ * with CurveViewport (which has zoom/pan) instead of CanvasViewport.
  */
-export interface CurveBackgroundInfo {
-  /** Canvas width in CSS pixels */
-  width: number;
-  /** Canvas height in CSS pixels */
-  height: number;
+export interface CurveBackgroundInfo extends CanvasBackgroundInfo {
   /** Current viewport mapping (use with `domainToCanvas`) */
   viewport: CurveViewport;
-  /** Domain X range — e.g. [0, 1] or [0, 255] */
-  domainX: [number, number];
-  /** Domain Y range */
-  domainY: [number, number];
 }
 
 // ─── Internal types (not exported from index) ───
 
-export interface CurveViewport {
-  /** Visible domain range */
-  viewX: [number, number];
-  viewY: [number, number];
+export interface CurveViewport extends CanvasViewport {
   /** Zoom level (1 = fit to bounds) */
   zoom: number;
   /** Pan offset in domain units */

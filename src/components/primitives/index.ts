@@ -67,3 +67,35 @@ export type {
   TooltipPlacement,
   TooltipProps,
 } from './Tooltip';
+
+// Canvas primitives
+export {
+  CanvasContainer,
+  domainToCanvas as canvasDomainToCanvas,
+  canvasToDomain,
+  hitTestPoint,
+  getCanvasPointerPosition,
+  drawGrid,
+  drawDomainBounds,
+  drawAxisLabels,
+  drawCrosshair,
+  drawPointMarker,
+  drawOriginAxes,
+  resolveCanvasTheme,
+  resolveVarValue,
+  useCanvasRenderer,
+} from './canvas';
+
+export type {
+  Point2D,
+  CanvasViewport,
+  DomainBounds,
+  CanvasSize,
+  CanvasBackgroundInfo,
+  CanvasThemeColors,
+  GridOptions,
+  AxisLabelOptions,
+  CrosshairOptions,
+  PointMarkerOptions,
+  CanvasContainerProps,
+} from './canvas';
