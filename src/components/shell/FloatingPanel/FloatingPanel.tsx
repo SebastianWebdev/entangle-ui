@@ -11,6 +11,9 @@ import React, {
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { cx } from '@/utils/cx';
 import { ScrollArea } from '@/components/layout/ScrollArea';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
+import { ChevronUpIcon } from '@/components/Icons/ChevronUpIcon';
+import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import type {
   FloatingPanelProps,
   FloatingManagerProps,
@@ -286,7 +289,11 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
             onClick={toggleCollapse}
             aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
           >
-            {isCollapsed ? '\u25BC' : '\u25B2'}
+            {isCollapsed ? (
+              <ChevronDownIcon size="sm" color="secondary" decorative />
+            ) : (
+              <ChevronUpIcon size="sm" color="secondary" decorative />
+            )}
           </span>
           {closable && onClose && (
             <span
@@ -296,7 +303,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
               onClick={onClose}
               aria-label="Close panel"
             >
-              \u2715
+              <CloseIcon size="sm" color="secondary" decorative />
             </span>
           )}
         </div>
