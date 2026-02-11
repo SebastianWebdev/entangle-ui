@@ -24,9 +24,9 @@ import type { IconProps } from '../primitives/Icon';
 export const AiSparklesIcon: React.FC<Omit<IconProps, 'children'>> = props => {
   return (
     <Icon {...props}>
-      <path d="M10 2l1.5 5.5L17 9l-5.5 1.5L10 16l-1.5-5.5L3 9l5.5-1.5Z" />
-      <path d="M19 2l.75 2.25L22 5l-2.25.75L19 8l-.75-2.25L16 5l2.25-.75Z" />
-      <path d="M18 16l.5 1.5L20 18l-1.5.5L18 20l-.5-1.5L16 18l1.5-.5Z" />
+      <path d="M9 1l2 6L17 9l-6 2L9 17l-2-6L1 9l6-2Z" />
+      <path d="M19 1l1 3L23 5l-3 1L19 9l-1-3L15 5l3-1Z" />
+      <path d="M19 15l.75 2.25L22 18l-2.25.75L19 21l-.75-2.25L16 18l2.25-.75Z" />
     </Icon>
   );
 };
