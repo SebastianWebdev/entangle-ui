@@ -179,6 +179,30 @@ export const bubbleRecipe = recipe({
   },
 });
 
+export const bubbleErrorStyle = style({
+  backgroundColor: `color-mix(in srgb, ${vars.colors.accent.error} 10%, ${vars.colors.background.secondary})`,
+  borderColor: `color-mix(in srgb, ${vars.colors.accent.error} 35%, transparent)`,
+});
+
+export const messageErrorCaptionStyle = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.xs,
+  fontSize: vars.typography.fontSize.xxs,
+  color: vars.colors.accent.error,
+  paddingLeft: vars.spacing.xs,
+  paddingRight: vars.spacing.xs,
+});
+
+export const messageErrorIconStyle = style({
+  width: '12px',
+  height: '12px',
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
 // ─── ChatInput ───────────────────────────────────────────────────
 
 export const inputMaxHeightVar = createVar();
