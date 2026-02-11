@@ -119,6 +119,7 @@ export const darkThemeValues = {
     },
     statusBar: {
       height: '22px',
+      heightMd: '26px',
       bg: '#007acc',
       text: '#ffffff',
     },

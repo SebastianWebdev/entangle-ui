@@ -134,6 +134,7 @@ export const vars = createGlobalThemeContract({
     },
     statusBar: {
       height: 'etui-shell-statusbar-height',
+      heightMd: 'etui-shell-statusbar-height-md',
       bg: 'etui-shell-statusbar-bg',
       text: 'etui-shell-statusbar-text',
     },

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -21,11 +23,15 @@ import type { IconProps } from '../primitives/Icon';
  * <Toolbar.Toggle icon={<AiChatIcon size="sm" />} tooltip="AI Chat" />
  * ```
  */
-export const AiChatIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-      <path d="M14.5 7l.5 1.5L16.5 9l-1.5.5L14.5 11l-.5-1.5L12.5 9l1.5-.5Z" />
-    </Icon>
-  );
-};
+export const AiChatIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        <path d="M14.5 7l.5 1.5L16.5 9l-1.5.5L14.5 11l-.5-1.5L12.5 9l1.5-.5Z" />
+      </Icon>
+    );
+  }
+);
+
+AiChatIcon.displayName = 'AiChatIcon';

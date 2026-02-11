@@ -1,10 +1,12 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
-export const TangentAlignedIcon: React.FC<
+export const TangentAlignedIcon = /*#__PURE__*/ React.memo<
   Omit<IconProps, 'children'>
-> = props => {
+>(props => {
   return (
     <Icon {...props}>
       <g strokeWidth="2.25">
@@ -13,4 +15,6 @@ export const TangentAlignedIcon: React.FC<
       <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
     </Icon>
   );
-};
+});
+
+TangentAlignedIcon.displayName = 'TangentAlignedIcon';

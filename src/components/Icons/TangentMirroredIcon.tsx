@@ -1,10 +1,12 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
-export const TangentMirroredIcon: React.FC<
+export const TangentMirroredIcon = /*#__PURE__*/ React.memo<
   Omit<IconProps, 'children'>
-> = props => {
+>(props => {
   return (
     <Icon {...props}>
       <g strokeWidth="2.25">
@@ -15,4 +17,6 @@ export const TangentMirroredIcon: React.FC<
       <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
     </Icon>
   );
-};
+});
+
+TangentMirroredIcon.displayName = 'TangentMirroredIcon';

@@ -15,12 +15,12 @@ type Story = StoryObj<typeof StatusBar>;
 export const Default: Story = {
   render: () => (
     <StatusBar>
-      <StatusBar.Section $side="left">
+      <StatusBar.Section side="left">
         <StatusBar.Item onClick={() => {}}>main</StatusBar.Item>
         <StatusBar.Item icon={<span>&#x2713;</span>}>0 errors</StatusBar.Item>
         <StatusBar.Item icon={<span>&#x26A0;</span>}>2 warnings</StatusBar.Item>
       </StatusBar.Section>
-      <StatusBar.Section $side="right">
+      <StatusBar.Section side="right">
         <StatusBar.Item onClick={() => {}}>Ln 42, Col 5</StatusBar.Item>
         <StatusBar.Item onClick={() => {}}>UTF-8</StatusBar.Item>
         <StatusBar.Item onClick={() => {}}>TypeScript</StatusBar.Item>
@@ -31,13 +31,13 @@ export const Default: Story = {
 
 export const ErrorVariant: Story = {
   render: () => (
-    <StatusBar $variant="error">
-      <StatusBar.Section $side="left">
+    <StatusBar variant="error">
+      <StatusBar.Section side="left">
         <StatusBar.Item icon={<span>&#x2717;</span>}>
           Build failed
         </StatusBar.Item>
       </StatusBar.Section>
-      <StatusBar.Section $side="right">
+      <StatusBar.Section side="right">
         <StatusBar.Item badge={3}>Errors</StatusBar.Item>
       </StatusBar.Section>
     </StatusBar>
@@ -47,12 +47,12 @@ export const ErrorVariant: Story = {
 export const WithBadges: Story = {
   render: () => (
     <StatusBar>
-      <StatusBar.Section $side="left">
+      <StatusBar.Section side="left">
         <StatusBar.Item badge={12}>Errors</StatusBar.Item>
         <StatusBar.Item badge={3}>Warnings</StatusBar.Item>
         <StatusBar.Item badge={true}>Live</StatusBar.Item>
       </StatusBar.Section>
-      <StatusBar.Section $side="right">
+      <StatusBar.Section side="right">
         <StatusBar.Item onClick={() => {}}>Prettier</StatusBar.Item>
       </StatusBar.Section>
     </StatusBar>
@@ -61,12 +61,12 @@ export const WithBadges: Story = {
 
 export const MediumSize: Story = {
   render: () => (
-    <StatusBar $size="md">
-      <StatusBar.Section $side="left">
+    <StatusBar size="md">
+      <StatusBar.Section side="left">
         <StatusBar.Item onClick={() => {}}>main</StatusBar.Item>
         <StatusBar.Item>Ready</StatusBar.Item>
       </StatusBar.Section>
-      <StatusBar.Section $side="right">
+      <StatusBar.Section side="right">
         <StatusBar.Item onClick={() => {}}>UTF-8</StatusBar.Item>
       </StatusBar.Section>
     </StatusBar>
@@ -76,7 +76,7 @@ export const MediumSize: Story = {
 export const LeftOnly: Story = {
   render: () => (
     <StatusBar>
-      <StatusBar.Section $side="left">
+      <StatusBar.Section side="left">
         <StatusBar.Item>Connected</StatusBar.Item>
         <StatusBar.Item>Port 3000</StatusBar.Item>
       </StatusBar.Section>
@@ -87,7 +87,7 @@ export const LeftOnly: Story = {
 export const Disabled: Story = {
   render: () => (
     <StatusBar>
-      <StatusBar.Section $side="left">
+      <StatusBar.Section side="left">
         <StatusBar.Item onClick={() => {}} disabled>
           Offline
         </StatusBar.Item>

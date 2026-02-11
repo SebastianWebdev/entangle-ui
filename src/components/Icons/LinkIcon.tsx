@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -20,11 +22,15 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<LinkIcon />}>Add Link</Button>
  * ```
  */
-export const LinkIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-    </Icon>
-  );
-};
+export const LinkIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+      </Icon>
+    );
+  }
+);
+
+LinkIcon.displayName = 'LinkIcon';

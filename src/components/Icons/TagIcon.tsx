@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/TagIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,11 +23,15 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<TagIcon />}>Add Tag</Button>
  * ```
  */
-export const TagIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-      <line x1="7" y1="7" x2="7.01" y2="7" />
-    </Icon>
-  );
-};
+export const TagIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+        <line x1="7" y1="7" x2="7.01" y2="7" />
+      </Icon>
+    );
+  }
+);
+
+TagIcon.displayName = 'TagIcon';

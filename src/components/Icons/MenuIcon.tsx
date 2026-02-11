@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/MenuIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,12 +23,16 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<MenuIcon />}>Menu</Button>
  * ```
  */
-export const MenuIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <line x1="3" y1="6" x2="21" y2="6" />
-      <line x1="3" y1="12" x2="21" y2="12" />
-      <line x1="3" y1="18" x2="21" y2="18" />
-    </Icon>
-  );
-};
+export const MenuIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </Icon>
+    );
+  }
+);
+
+MenuIcon.displayName = 'MenuIcon';

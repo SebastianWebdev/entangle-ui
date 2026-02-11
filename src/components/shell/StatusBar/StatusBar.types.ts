@@ -7,9 +7,9 @@ export type StatusBarVariant = 'default' | 'error' | 'accent';
 
 export interface StatusBarBaseProps extends BaseComponent<HTMLDivElement> {
   /** Size of the status bar */
-  $size?: StatusBarSize;
+  size?: StatusBarSize;
   /** Visual variant */
-  $variant?: StatusBarVariant;
+  variant?: StatusBarVariant;
   /** Children (StatusBar.Section components) */
   children?: ReactNode;
 }
@@ -19,7 +19,7 @@ export type StatusBarSectionSide = 'left' | 'right';
 
 export interface StatusBarSectionBaseProps extends BaseComponent<HTMLDivElement> {
   /** Which side of the status bar */
-  $side?: StatusBarSectionSide;
+  side?: StatusBarSectionSide;
   /** Children (StatusBar.Item components) */
   children?: ReactNode;
 }

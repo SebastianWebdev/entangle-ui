@@ -8,9 +8,9 @@ export type ToolbarButtonVariant = 'default' | 'ghost' | 'filled';
 
 export interface ToolbarBaseProps extends BaseComponent<HTMLDivElement> {
   /** Orientation of the toolbar */
-  $orientation?: ToolbarOrientation;
+  orientation?: ToolbarOrientation;
   /** Size of toolbar items */
-  $size?: ToolbarSize;
+  size?: ToolbarSize;
   /** Children (Toolbar.Button, Toolbar.Group, Toolbar.Separator, etc.) */
   children?: ReactNode;
   /** ARIA label for the toolbar */
@@ -31,7 +31,7 @@ export interface ToolbarButtonBaseProps extends Omit<
   /** Tooltip text */
   tooltip?: string;
   /** Visual variant */
-  $variant?: ToolbarButtonVariant;
+  variant?: ToolbarButtonVariant;
   /** Disabled state */
   disabled?: boolean;
 }

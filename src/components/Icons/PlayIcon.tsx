@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/PlayIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,10 +23,14 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<PlayIcon />}>Play</Button>
  * ```
  */
-export const PlayIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <polygon points="5,3 19,12 5,21" />
-    </Icon>
-  );
-};
+export const PlayIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <polygon points="5,3 19,12 5,21" />
+      </Icon>
+    );
+  }
+);
+
+PlayIcon.displayName = 'PlayIcon';

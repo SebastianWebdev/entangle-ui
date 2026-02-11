@@ -840,9 +840,9 @@ export const FullEditor: Story = {
           {/* ============ LEFT TOOLBAR — tool palette ============ */}
           <AppShell.Toolbar position="left">
             <Toolbar
-              $orientation="vertical"
+              orientation="vertical"
               aria-label="Tool palette"
-              $size="sm"
+              size="sm"
               style={asideToolbarGradientStyles}
             >
               <Toolbar.Toggle
@@ -1930,7 +1930,7 @@ export const FullEditor: Story = {
           {/* ============ STATUS BAR ============ */}
           <AppShell.StatusBar>
             <StatusBar>
-              <StatusBar.Section $side="left">
+              <StatusBar.Section side="left">
                 <StatusBar.Item
                   icon={<CheckIcon size="sm" />}
                   onClick={() => {}}
@@ -1942,7 +1942,7 @@ export const FullEditor: Story = {
                 </StatusBar.Item>
                 <StatusBar.Item>Verts: 8 &middot; Faces: 6</StatusBar.Item>
               </StatusBar.Section>
-              <StatusBar.Section $side="right">
+              <StatusBar.Section side="right">
                 <StatusBar.Item
                   icon={<WarningIcon size="sm" />}
                   badge={1}
@@ -2004,7 +2004,7 @@ export const DockAndStatusBar: Story = {
       </AppShell.Dock>
       <AppShell.StatusBar>
         <StatusBar>
-          <StatusBar.Section $side="left">
+          <StatusBar.Section side="left">
             <StatusBar.Item>Connected</StatusBar.Item>
           </StatusBar.Section>
         </StatusBar>
@@ -2038,7 +2038,7 @@ export const WithViewportLock: Story = {
       </AppShell.Dock>
       <AppShell.StatusBar>
         <StatusBar>
-          <StatusBar.Section $side="left">
+          <StatusBar.Section side="left">
             <StatusBar.Item>Viewport Locked</StatusBar.Item>
           </StatusBar.Section>
         </StatusBar>

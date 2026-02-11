@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -20,11 +22,15 @@ import type { IconProps } from '../primitives/Icon';
  * <IconButton icon={<CloseIcon />} aria-label="Close" />
  * ```
  */
-export const CloseIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </Icon>
-  );
-};
+export const CloseIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </Icon>
+    );
+  }
+);
+
+CloseIcon.displayName = 'CloseIcon';

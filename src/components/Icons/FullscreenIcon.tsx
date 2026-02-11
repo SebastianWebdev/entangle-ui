@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -20,10 +22,14 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<FullscreenIcon />}>Fullscreen</Button>
  * ```
  */
-export const FullscreenIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const FullscreenIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
     </Icon>
   );
-};
+});
+
+FullscreenIcon.displayName = 'FullscreenIcon';

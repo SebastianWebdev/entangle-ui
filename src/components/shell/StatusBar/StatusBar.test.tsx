@@ -20,10 +20,10 @@ describe('StatusBar', () => {
     it('renders left and right sections', () => {
       renderWithTheme(
         <StatusBar>
-          <StatusBar.Section $side="left">
+          <StatusBar.Section side="left">
             <StatusBar.Item>Left</StatusBar.Item>
           </StatusBar.Section>
-          <StatusBar.Section $side="right">
+          <StatusBar.Section side="right">
             <StatusBar.Item>Right</StatusBar.Item>
           </StatusBar.Section>
         </StatusBar>
@@ -142,7 +142,7 @@ describe('StatusBar', () => {
   describe('Variants', () => {
     it('renders error variant', () => {
       const { container } = renderWithTheme(
-        <StatusBar $variant="error">
+        <StatusBar variant="error">
           <StatusBar.Section>
             <StatusBar.Item>Error</StatusBar.Item>
           </StatusBar.Section>
@@ -154,7 +154,7 @@ describe('StatusBar', () => {
 
     it('renders accent variant', () => {
       const { container } = renderWithTheme(
-        <StatusBar $variant="accent">
+        <StatusBar variant="accent">
           <StatusBar.Section>
             <StatusBar.Item>Accent</StatusBar.Item>
           </StatusBar.Section>

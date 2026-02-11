@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/ZoomOutIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,7 +23,9 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<ZoomOutIcon />}>Zoom Out</Button>
  * ```
  */
-export const ZoomOutIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const ZoomOutIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <circle cx="11" cy="11" r="8" />
@@ -29,4 +33,6 @@ export const ZoomOutIcon: React.FC<Omit<IconProps, 'children'>> = props => {
       <line x1="8" y1="11" x2="14" y2="11" />
     </Icon>
   );
-};
+});
+
+ZoomOutIcon.displayName = 'ZoomOutIcon';

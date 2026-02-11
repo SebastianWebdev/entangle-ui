@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -20,7 +22,9 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<DownloadIcon />}>Download</Button>
  * ```
  */
-export const DownloadIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const DownloadIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -28,4 +32,6 @@ export const DownloadIcon: React.FC<Omit<IconProps, 'children'>> = props => {
       <line x1="12" y1="15" x2="12" y2="3" />
     </Icon>
   );
-};
+});
+
+DownloadIcon.displayName = 'DownloadIcon';

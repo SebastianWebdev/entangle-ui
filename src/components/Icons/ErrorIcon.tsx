@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/ErrorIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,12 +23,16 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<ErrorIcon />}>Error</Button>
  * ```
  */
-export const ErrorIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="12" r="10" />
-      <line x1="15" y1="9" x2="9" y2="15" />
-      <line x1="9" y1="9" x2="15" y2="15" />
-    </Icon>
-  );
-};
+export const ErrorIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <circle cx="12" cy="12" r="10" />
+        <line x1="15" y1="9" x2="9" y2="15" />
+        <line x1="9" y1="9" x2="15" y2="15" />
+      </Icon>
+    );
+  }
+);
+
+ErrorIcon.displayName = 'ErrorIcon';

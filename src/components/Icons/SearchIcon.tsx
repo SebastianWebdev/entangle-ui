@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/SearchIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,11 +23,15 @@ import type { IconProps } from '../primitives/Icon';
  * <Input startIcon={<SearchIcon />} placeholder="Search..." />
  * ```
  */
-export const SearchIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <circle cx="11" cy="11" r="8" />
-      <path d="M21 21l-4.35-4.35" />
-    </Icon>
-  );
-};
+export const SearchIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <circle cx="11" cy="11" r="8" />
+        <path d="M21 21l-4.35-4.35" />
+      </Icon>
+    );
+  }
+);
+
+SearchIcon.displayName = 'SearchIcon';

@@ -52,7 +52,7 @@ const ToolbarButton = /*#__PURE__*/ React.memo<ToolbarButtonProps>(
     icon,
     children,
     tooltip,
-    $variant = 'default',
+    variant = 'default',
     disabled = false,
 
     className,
@@ -68,7 +68,7 @@ const ToolbarButton = /*#__PURE__*/ React.memo<ToolbarButtonProps>(
         onClick={onClick}
         disabled={disabled}
         className={cx(
-          toolbarButton({ size, variant: $variant, active: false }),
+          toolbarButton({ size, variant, active: false }),
           className
         )}
         style={style}
@@ -192,8 +192,8 @@ ToolbarSpacerComp.displayName = 'Toolbar.Spacer';
 // --- Root Component ---
 
 const ToolbarRoot: React.FC<ToolbarProps> = ({
-  $orientation = 'horizontal',
-  $size = 'md',
+  orientation = 'horizontal',
+  size = 'md',
   children,
 
   className,
@@ -228,9 +228,8 @@ const ToolbarRoot: React.FC<ToolbarProps> = ({
       const current = document.activeElement as HTMLElement;
       const currentIndex = items.indexOf(current);
 
-      const nextKey =
-        $orientation === 'horizontal' ? 'ArrowRight' : 'ArrowDown';
-      const prevKey = $orientation === 'horizontal' ? 'ArrowLeft' : 'ArrowUp';
+      const nextKey = orientation === 'horizontal' ? 'ArrowRight' : 'ArrowDown';
+      const prevKey = orientation === 'horizontal' ? 'ArrowLeft' : 'ArrowUp';
 
       if (e.key === nextKey) {
         e.preventDefault();
@@ -249,7 +248,7 @@ const ToolbarRoot: React.FC<ToolbarProps> = ({
         items[items.length - 1]?.focus();
       }
     },
-    [$orientation]
+    [orientation]
   );
 
   const handleFocus = useCallback(() => {
@@ -264,19 +263,19 @@ const ToolbarRoot: React.FC<ToolbarProps> = ({
   }, []);
 
   const toolbarContextValue = useMemo(
-    () => ({ orientation: $orientation, size: $size }),
-    [$orientation, $size]
+    () => ({ orientation, size }),
+    [orientation, size]
   );
 
   return (
     <ToolbarContext.Provider value={toolbarContextValue}>
       <div
         ref={setToolbarRef}
-        className={cx(toolbarRoot({ orientation: $orientation }), className)}
+        className={cx(toolbarRoot({ orientation }), className)}
         style={style}
         data-testid={testId}
         role="toolbar"
-        aria-orientation={$orientation}
+        aria-orientation={orientation}
         tabIndex={0}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}

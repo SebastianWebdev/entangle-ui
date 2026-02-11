@@ -34,7 +34,7 @@ export const statusBarRoot = recipe({
         height: vars.shell.statusBar.height,
       },
       md: {
-        height: '26px',
+        height: vars.shell.statusBar.heightMd,
       },
     },
   },

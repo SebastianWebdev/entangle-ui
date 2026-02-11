@@ -82,7 +82,7 @@ export const Default: Story = {
 
 export const SmallSize: Story = {
   render: () => (
-    <MenuBar $size="sm">
+    <MenuBar size="sm">
       <MenuBar.Menu label="File">
         <MenuBar.Item onClick={() => {}}>New</MenuBar.Item>
         <MenuBar.Item onClick={() => {}}>Open</MenuBar.Item>

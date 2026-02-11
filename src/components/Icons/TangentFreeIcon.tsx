@@ -1,8 +1,12 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
-export const TangentFreeIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const TangentFreeIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <g strokeWidth="2.25">
@@ -12,4 +16,6 @@ export const TangentFreeIcon: React.FC<Omit<IconProps, 'children'>> = props => {
       <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
     </Icon>
   );
-};
+});
+
+TangentFreeIcon.displayName = 'TangentFreeIcon';

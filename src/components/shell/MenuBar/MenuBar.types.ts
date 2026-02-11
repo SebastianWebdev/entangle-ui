@@ -6,7 +6,7 @@ export type MenuBarSize = 'sm' | 'md';
 
 export interface MenuBarBaseProps extends BaseComponent<HTMLDivElement> {
   /** Size of the menu bar */
-  $size?: MenuBarSize;
+  size?: MenuBarSize;
   /** Vertical gap in pixels between top-level trigger and dropdown */
   menuOffset?: number;
   /** Children (MenuBar.Menu components) */
