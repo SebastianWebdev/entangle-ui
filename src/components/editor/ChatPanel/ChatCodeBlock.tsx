@@ -81,12 +81,15 @@ export const ChatCodeBlock = /*#__PURE__*/ React.memo<ChatCodeBlockProps>(
     const [copied, setCopied] = useState(false);
 
     const handleCopy = useCallback(() => {
-      navigator.clipboard.writeText(code).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }).catch(() => {
-        // Fallback: older browsers — no-op
-      });
+      navigator.clipboard
+        .writeText(code)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch(() => {
+          // Fallback: older browsers — no-op
+        });
     }, [code]);
 
     const lines = code.split('\n');

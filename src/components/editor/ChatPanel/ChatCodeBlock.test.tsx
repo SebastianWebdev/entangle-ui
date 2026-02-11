@@ -76,9 +76,7 @@ describe('ChatCodeBlock', () => {
       renderWithTheme(<ChatCodeBlock code="hello world" />);
       fireEvent.click(screen.getByLabelText('Copy code'));
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-        'hello world'
-      );
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('hello world');
     });
 
     it('shows check icon after successful copy', async () => {
@@ -108,30 +106,20 @@ describe('ChatCodeBlock', () => {
   describe('Line Numbers', () => {
     it('shows line numbers when lineNumbers is true', () => {
       renderWithTheme(
-        <ChatCodeBlock
-          code={'line1\nline2\nline3'}
-          lineNumbers
-          testId="cb"
-        />
+        <ChatCodeBlock code={'line1\nline2\nline3'} lineNumbers testId="cb" />
       );
       const lineNumbers = screen.getByTestId('cb-line-numbers');
       expect(lineNumbers).toBeInTheDocument();
     });
 
     it('hides line numbers when lineNumbers is false (default)', () => {
-      renderWithTheme(
-        <ChatCodeBlock code={'line1\nline2'} testId="cb" />
-      );
+      renderWithTheme(<ChatCodeBlock code={'line1\nline2'} testId="cb" />);
       expect(screen.queryByTestId('cb-line-numbers')).not.toBeInTheDocument();
     });
 
     it('renders correct count of line numbers', () => {
       renderWithTheme(
-        <ChatCodeBlock
-          code={'a\nb\nc\nd\ne'}
-          lineNumbers
-          testId="cb"
-        />
+        <ChatCodeBlock code={'a\nb\nc\nd\ne'} lineNumbers testId="cb" />
       );
       const lineNumbers = screen.getByTestId('cb-line-numbers');
       expect(lineNumbers).toHaveTextContent('1');
@@ -173,9 +161,7 @@ describe('ChatCodeBlock', () => {
     });
 
     it('renders nothing when actions is undefined', () => {
-      renderWithTheme(
-        <ChatCodeBlock code="code" language="js" testId="cb" />
-      );
+      renderWithTheme(<ChatCodeBlock code="code" language="js" testId="cb" />);
       // No custom action buttons
       expect(screen.queryByTestId('insert-btn')).not.toBeInTheDocument();
     });
