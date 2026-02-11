@@ -1,43 +1,11 @@
 import React, { useCallback, useRef } from 'react';
-import styled from '@emotion/styled';
+import { hueTrackStyle, hueThumbStyle } from './ColorPicker.css';
 
 interface HueSliderProps {
   hue: number;
   onChange: (hue: number) => void;
   onChangeComplete?: () => void;
 }
-
-const StyledTrack = styled.div`
-  position: relative;
-  width: 100%;
-  height: 4px;
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  background: linear-gradient(
-    to right,
-    hsl(0, 100%, 50%),
-    hsl(60, 100%, 50%),
-    hsl(120, 100%, 50%),
-    hsl(180, 100%, 50%),
-    hsl(240, 100%, 50%),
-    hsl(300, 100%, 50%),
-    hsl(360, 100%, 50%)
-  );
-  cursor: pointer;
-  user-select: none;
-  touch-action: none;
-`;
-
-const StyledThumb = styled.div`
-  position: absolute;
-  top: 50%;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: ${props => props.theme.shadows.sm};
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-`;
 
 export const HueSlider: React.FC<HueSliderProps> = ({
   hue,
@@ -106,8 +74,9 @@ export const HueSlider: React.FC<HueSliderProps> = ({
   const thumbPosition = `${(hue / 360) * 100}%`;
 
   return (
-    <StyledTrack
+    <div
       ref={trackRef}
+      className={hueTrackStyle}
       role="slider"
       tabIndex={0}
       aria-label="Hue"
@@ -119,13 +88,14 @@ export const HueSlider: React.FC<HueSliderProps> = ({
       onPointerUp={handlePointerUp}
       onKeyDown={handleKeyDown}
     >
-      <StyledThumb
+      <div
+        className={hueThumbStyle}
         style={{
           left: thumbPosition,
           backgroundColor: `hsl(${hue}, 100%, 50%)`,
         }}
       />
-    </StyledTrack>
+    </div>
   );
 };
 

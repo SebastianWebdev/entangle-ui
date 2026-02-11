@@ -1,7 +1,6 @@
 import type React from 'react';
 import { useEffect, useRef, useCallback } from 'react';
-import { useTheme } from '@emotion/react';
-import type { Theme } from '@/theme';
+import { vars } from '@/theme/contract.css';
 import type {
   CurveData,
   CurveViewport,
@@ -40,8 +39,45 @@ interface UseCurveRendererOptions {
   resizeToken?: number;
 }
 
+/**
+ * Resolved theme colors for canvas rendering.
+ * CSS variables are resolved to actual color strings via getComputedStyle.
+ */
+interface CanvasThemeColors {
+  backgroundSecondary: string;
+  borderDefault: string;
+  textMuted: string;
+  textPrimary: string;
+  textSecondary: string;
+  fontSizeXs: number;
+}
+
+/**
+ * Resolve CSS variable references (e.g., `var(--etui-color-text-primary)`)
+ * to their computed values via getComputedStyle.
+ */
+function resolveVar(element: Element, cssVar: string): string {
+  // vars.colors.text.primary is a string like "var(--etui-color-text-primary)"
+  // Extract the variable name from the var() wrapper
+  const match = cssVar.match(/var\(([^)]+)\)/);
+  if (!match) return cssVar;
+  const varName = match[1];
+  if (!varName) return cssVar;
+  return getComputedStyle(element).getPropertyValue(varName).trim() || cssVar;
+}
+
+function resolveTheme(canvas: HTMLCanvasElement): CanvasThemeColors {
+  return {
+    backgroundSecondary: resolveVar(canvas, vars.colors.background.secondary),
+    borderDefault: resolveVar(canvas, vars.colors.border.default),
+    textMuted: resolveVar(canvas, vars.colors.text.muted),
+    textPrimary: resolveVar(canvas, vars.colors.text.primary),
+    textSecondary: resolveVar(canvas, vars.colors.text.secondary),
+    fontSizeXs: parseFloat(resolveVar(canvas, vars.typography.fontSize.xs)) || 10,
+  };
+}
+
 export function useCurveRenderer(options: UseCurveRendererOptions): void {
-  const theme = useTheme() as Theme;
   const rafRef = useRef<number>(0);
 
   const draw = useCallback(() => {
@@ -50,6 +86,8 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    const theme = resolveTheme(canvas);
 
     const dpr =
       typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
@@ -74,7 +112,7 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
       showAxisLabels,
       labelX,
       labelY,
-      curveColor,
+      curveColor: rawCurveColor,
       curveWidth,
       renderBackground,
       selectedIds,
@@ -83,11 +121,16 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
       disabled,
     } = options;
 
+    // Resolve curveColor if it's a CSS variable reference
+    const curveColor = rawCurveColor.startsWith('var(')
+      ? resolveVar(canvas, rawCurveColor)
+      : rawCurveColor;
+
     const opacity = disabled ? 0.4 : 1;
 
     // 1. Clear background
     ctx.globalAlpha = 1;
-    ctx.fillStyle = theme.colors.background.secondary;
+    ctx.fillStyle = theme.backgroundSecondary;
     ctx.fillRect(0, 0, w, h);
 
     // 1b. Custom background (histograms, gradients, etc.)
@@ -103,7 +146,7 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
       ctx.restore();
     }
 
-    // 2. Grid lines — based on domain values, not viewport
+    // 2. Grid lines -- based on domain values, not viewport
     if (showGrid) {
       drawGrid(ctx, curve, viewport, w, h, gridSubdivisions, theme, opacity);
     }
@@ -111,7 +154,7 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
     // 3. Domain boundary axes (stronger lines at domain min/max)
     drawDomainBounds(ctx, curve, viewport, w, h, theme, opacity);
 
-    // 4. Axis labels — based on domain values
+    // 4. Axis labels -- based on domain values
     if (showAxisLabels) {
       drawAxisLabels(
         ctx,
@@ -166,7 +209,7 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
     }
 
     ctx.globalAlpha = 1;
-  }, [options, theme]);
+  }, [options]);
 
   // Redraw on state changes
   useEffect(() => {
@@ -219,7 +262,7 @@ function drawGrid(
   w: number,
   h: number,
   subdivisions: number,
-  theme: Theme,
+  theme: CanvasThemeColors,
   opacity: number
 ): void {
   const [dxMin, dxMax] = curve.domainX;
@@ -238,7 +281,7 @@ function drawGrid(
     // Domain bounds drawn stronger
     const isBound = i === 0 || i === subdivisions;
     ctx.globalAlpha = opacity * (isBound ? 0.25 : 0.12);
-    ctx.strokeStyle = theme.colors.border.default;
+    ctx.strokeStyle = theme.borderDefault;
     ctx.beginPath();
     ctx.moveTo(Math.round(px) + 0.5, 0);
     ctx.lineTo(Math.round(px) + 0.5, h);
@@ -253,7 +296,7 @@ function drawGrid(
 
     const isBound = i === 0 || i === subdivisions;
     ctx.globalAlpha = opacity * (isBound ? 0.25 : 0.12);
-    ctx.strokeStyle = theme.colors.border.default;
+    ctx.strokeStyle = theme.borderDefault;
     ctx.beginPath();
     ctx.moveTo(0, Math.round(py) + 0.5);
     ctx.lineTo(w, Math.round(py) + 0.5);
@@ -270,14 +313,14 @@ function drawDomainBounds(
   viewport: CurveViewport,
   w: number,
   h: number,
-  theme: Theme,
+  theme: CanvasThemeColors,
   opacity: number
 ): void {
   const [dxMin, dxMax] = curve.domainX;
   const [dyMin, dyMax] = curve.domainY;
 
   ctx.globalAlpha = opacity * 0.35;
-  ctx.strokeStyle = theme.colors.border.default;
+  ctx.strokeStyle = theme.borderDefault;
   ctx.lineWidth = 1.5;
 
   // Left bound (X min)
@@ -321,7 +364,7 @@ function drawAxisLabels(
   w: number,
   h: number,
   subdivisions: number,
-  theme: Theme,
+  theme: CanvasThemeColors,
   opacity: number,
   labelX?: string,
   labelY?: string
@@ -331,9 +374,9 @@ function drawAxisLabels(
   const dxRange = dxMax - dxMin || 1;
   const dyRange = dyMax - dyMin || 1;
 
-  const fontSize = theme.typography.fontSize.xs;
+  const fontSize = theme.fontSizeXs;
   ctx.globalAlpha = opacity * 0.7;
-  ctx.fillStyle = theme.colors.text.muted;
+  ctx.fillStyle = theme.textMuted;
   ctx.font = `${fontSize}px sans-serif`;
 
   const sidePadding = 4;
@@ -366,7 +409,7 @@ function drawAxisLabels(
     Math.max(sidePadding, xTickTop - fontSize - 6)
   );
 
-  // ─── X axis labels (bottom, aligned to domain subdivisions) ───
+  // X axis labels (bottom, aligned to domain subdivisions)
   ctx.textBaseline = 'top';
   const xStep = dxRange / subdivisions;
   for (let i = 0; i <= subdivisions; i++) {
@@ -387,7 +430,7 @@ function drawAxisLabels(
     }
   }
 
-  // ─── Y axis labels (left side, aligned to domain subdivisions) ───
+  // Y axis labels (left side, aligned to domain subdivisions)
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   const yStep = dyRange / subdivisions;
@@ -401,7 +444,7 @@ function drawAxisLabels(
     ctx.fillText(label, yTickAnchorX, clampedPy);
   }
 
-  // ─── Axis name labels ───
+  // Axis name labels
   if (labelX) {
     const textWidth = ctx.measureText(labelX).width;
     const x = clamp(
@@ -464,7 +507,7 @@ function drawTangentHandles(
   h: number,
   selectedIds: Set<string>,
   hoveredElement: CurveHitTest | null,
-  theme: Theme,
+  theme: CanvasThemeColors,
   opacity: number
 ): void {
   const { keyframes } = curve;
@@ -488,7 +531,7 @@ function drawTangentHandles(
     );
 
     ctx.globalAlpha = opacity * (isAutoMode ? 0.4 : 0.7);
-    ctx.strokeStyle = theme.colors.text.muted;
+    ctx.strokeStyle = theme.textMuted;
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 3]);
     ctx.beginPath();
@@ -503,8 +546,8 @@ function drawTangentHandles(
       hoveredElement?.type === 'handleIn' && hoveredElement.keyframeIndex === i;
     ctx.globalAlpha = opacity;
     ctx.fillStyle = isHInHovered
-      ? theme.colors.text.primary
-      : theme.colors.text.secondary;
+      ? theme.textPrimary
+      : theme.textSecondary;
     ctx.beginPath();
     ctx.arc(
       hIn.px,
@@ -525,7 +568,7 @@ function drawTangentHandles(
     );
 
     ctx.globalAlpha = opacity * (isAutoMode ? 0.4 : 0.7);
-    ctx.strokeStyle = theme.colors.text.muted;
+    ctx.strokeStyle = theme.textMuted;
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 3]);
     ctx.beginPath();
@@ -541,8 +584,8 @@ function drawTangentHandles(
       hoveredElement.keyframeIndex === i;
     ctx.globalAlpha = opacity;
     ctx.fillStyle = isHOutHovered
-      ? theme.colors.text.primary
-      : theme.colors.text.secondary;
+      ? theme.textPrimary
+      : theme.textSecondary;
     ctx.beginPath();
     ctx.arc(
       hOut.px,
@@ -564,7 +607,7 @@ function drawKeyframes(
   curveColor: string,
   selectedIds: Set<string>,
   hoveredElement: CurveHitTest | null,
-  theme: Theme,
+  theme: CanvasThemeColors,
   opacity: number
 ): void {
   const { keyframes } = curve;
@@ -600,11 +643,11 @@ function drawKeyframes(
     if (isSelected) {
       ctx.fillStyle = curveColor;
       ctx.fill();
-      ctx.strokeStyle = theme.colors.text.primary;
+      ctx.strokeStyle = theme.textPrimary;
       ctx.lineWidth = 2;
       ctx.stroke();
     } else {
-      ctx.fillStyle = theme.colors.text.primary;
+      ctx.fillStyle = theme.textPrimary;
       ctx.fill();
       ctx.strokeStyle = curveColor;
       ctx.lineWidth = 1.5;

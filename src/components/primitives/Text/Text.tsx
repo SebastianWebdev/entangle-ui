@@ -1,8 +1,11 @@
 import React from 'react';
-import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
-import type { BaseComponent } from '@/types/common';
-import { processCss } from '@/utils/styledUtils';
+import { cx } from '@/utils/cx';
+import {
+  textRecipe,
+  truncateSingleLineStyle,
+  truncateMultiLineStyle,
+} from './Text.css';
 
 /**
  * HTML element types that Text component can render as
@@ -70,7 +73,8 @@ export type TextLineHeight = 'tight' | 'normal' | 'relaxed';
 /**
  * Base props for Text component
  */
-export interface TextBaseProps extends BaseComponent<HTMLElement> {
+export interface TextBaseProps
+  extends Omit<React.HTMLAttributes<HTMLElement>, 'css' | 'color'> {
   /**
    * Text content
    */
@@ -153,157 +157,19 @@ export interface TextBaseProps extends BaseComponent<HTMLElement> {
    * Additional CSS class name
    */
   className?: string;
+
+  /**
+   * Test identifier for automated testing
+   */
+  testId?: string;
+
+  ref?: React.Ref<HTMLElement>;
 }
 
 /**
  * Props for the Text component with prettified type for better IntelliSense
  */
 export type TextProps = Prettify<TextBaseProps>;
-
-interface StyledTextProps {
-  $variant: TextVariant;
-  $size?: TextSize;
-  $weight?: TextWeight;
-  $color: TextColor;
-  $lineHeight?: TextLineHeight;
-  $align?: TextAlign;
-  $truncate: boolean;
-  $maxLines?: number;
-  $nowrap: boolean;
-  $mono: boolean;
-  $css?: TextProps['css'];
-}
-
-const StyledText = styled.span<StyledTextProps>`
-  /* Reset */
-  margin: 0;
-  padding: 0;
-
-  /* Font family */
-  font-family: ${props =>
-    props.$mono || props.$variant === 'code'
-      ? props.theme.typography.fontFamily.mono
-      : props.theme.typography.fontFamily.sans};
-
-  /* Variant-based styling */
-  ${props => {
-    if (props.$variant === 'inherit') {
-      return '';
-    }
-
-    const variants = {
-      display: {
-        fontSize: props.theme.typography.fontSize.xl,
-        fontWeight: props.theme.typography.fontWeight.semibold,
-        lineHeight: props.theme.typography.lineHeight.tight,
-      },
-      heading: {
-        fontSize: props.theme.typography.fontSize.lg,
-        fontWeight: props.theme.typography.fontWeight.medium,
-        lineHeight: props.theme.typography.lineHeight.tight,
-      },
-      subheading: {
-        fontSize: props.theme.typography.fontSize.md,
-        fontWeight: props.theme.typography.fontWeight.medium,
-        lineHeight: props.theme.typography.lineHeight.normal,
-      },
-      body: {
-        fontSize: props.theme.typography.fontSize.sm,
-        fontWeight: props.theme.typography.fontWeight.normal,
-        lineHeight: props.theme.typography.lineHeight.normal,
-      },
-      caption: {
-        fontSize: props.theme.typography.fontSize.xs,
-        fontWeight: props.theme.typography.fontWeight.normal,
-        lineHeight: props.theme.typography.lineHeight.tight,
-      },
-      code: {
-        fontSize: props.theme.typography.fontSize.sm,
-        fontWeight: props.theme.typography.fontWeight.normal,
-        lineHeight: props.theme.typography.lineHeight.normal,
-      },
-    };
-
-    const variant = variants[props.$variant];
-    if (!variant) return '';
-
-    return `
-      font-size: ${variant.fontSize}px;
-      font-weight: ${variant.fontWeight};
-      line-height: ${variant.lineHeight};
-    `;
-  }}
-
-  /* Size override */
-  ${props =>
-    props.$size &&
-    props.$variant !== 'inherit' &&
-    `
-    font-size: ${props.theme.typography.fontSize[props.$size]}px;
-  `}
-
-  /* Weight override */
-  ${props =>
-    props.$weight &&
-    props.$variant !== 'inherit' &&
-    `
-    font-weight: ${props.theme.typography.fontWeight[props.$weight]};
-  `}
-
-  /* Line height override */
-  ${props =>
-    props.$lineHeight &&
-    props.$variant !== 'inherit' &&
-    `
-    line-height: ${props.theme.typography.lineHeight[props.$lineHeight]};
-  `}
-
-  /* Color */
-  color: ${props => {
-    const colorMap = {
-      primary: props.theme.colors.text.primary,
-      secondary: props.theme.colors.text.secondary,
-      muted: props.theme.colors.text.muted,
-      disabled: props.theme.colors.text.disabled,
-      accent: props.theme.colors.accent.primary,
-      success: props.theme.colors.accent.success,
-      warning: props.theme.colors.accent.warning,
-      error: props.theme.colors.accent.error,
-    };
-    return colorMap[props.$color];
-  }};
-
-  /* Text alignment */
-  ${props => props.$align && `text-align: ${props.$align};`}
-
-  /* No wrap */
-  ${props => props.$nowrap && 'white-space: nowrap;'}
-
-  /* Truncation */
-  ${props =>
-    props.$truncate &&
-    !props.$maxLines &&
-    `
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  `}
-
-  /* Multi-line truncation */
-  ${props =>
-    props.$truncate &&
-    props.$maxLines &&
-    `
-    display: -webkit-box;
-    -webkit-line-clamp: ${props.$maxLines};
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  `}
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
 
 /**
  * A versatile text component for consistent typography in editor interfaces.
@@ -340,7 +206,7 @@ const StyledText = styled.span<StyledTextProps>`
 export const Text = /*#__PURE__*/ React.memo<TextProps>(
   ({
     children,
-    as = 'span',
+    as: Component = 'span',
     variant = 'body',
     size,
     weight,
@@ -353,31 +219,46 @@ export const Text = /*#__PURE__*/ React.memo<TextProps>(
     mono = false,
     className,
     style,
-    css,
+    testId,
     ref,
     ...rest
   }) => {
+    // Only pass size/weight/lineHeight overrides when variant is not 'inherit'
+    const sizeVariant = size && variant !== 'inherit' ? size : undefined;
+    const weightVariant = weight && variant !== 'inherit' ? weight : undefined;
+    const lineHeightVariant =
+      lineHeight && variant !== 'inherit' ? lineHeight : undefined;
+
+    const truncateStyle =
+      truncate && maxLines
+        ? { WebkitLineClamp: maxLines }
+        : undefined;
+
     return (
-      <StyledText
-        ref={ref}
-        as={as}
-        $variant={variant}
-        $size={size}
-        $weight={weight}
-        $color={color}
-        $lineHeight={lineHeight}
-        $align={align}
-        $truncate={truncate}
-        $maxLines={maxLines}
-        $nowrap={nowrap}
-        $mono={mono}
-        $css={css}
-        className={className}
-        style={style}
+      <Component
+        ref={ref as React.Ref<never>}
+        className={cx(
+          textRecipe({
+            variant,
+            color,
+            size: sizeVariant,
+            weight: weightVariant,
+            lineHeight: lineHeightVariant,
+            align,
+            nowrap: nowrap || undefined,
+            mono: (mono || variant === 'code') ? true : undefined,
+            truncate: truncate || undefined,
+          }),
+          truncate && !maxLines && truncateSingleLineStyle,
+          truncate && maxLines ? truncateMultiLineStyle : undefined,
+          className,
+        )}
+        style={{ ...truncateStyle, ...style }}
+        data-testid={testId}
         {...rest}
       >
         {children}
-      </StyledText>
+      </Component>
     );
   }
 );

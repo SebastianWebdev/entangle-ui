@@ -1,11 +1,10 @@
 // src/components/layout/Grid/Grid.tsx
 import React from 'react';
-import styled from '@emotion/styled';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
-import { processCss } from '@/utils/styledUtils';
-
-import type { Theme } from '@/theme/types';
+import { cx } from '@/utils/cx';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { gridContainer, gridItem, gapVar, columnsVar } from './Grid.css';
 
 /**
  * Grid size variants from 1-12 columns or auto-sizing
@@ -95,96 +94,21 @@ export interface GridBaseProps
  */
 export type GridProps = Prettify<GridBaseProps>;
 
-interface StyledGridProps {
-  $container: boolean;
-  $size?: GridSize | undefined;
-  $xs?: GridSize | undefined;
-  $sm?: GridSize | undefined;
-  $md?: GridSize | undefined;
-  $lg?: GridSize | undefined;
-  $xl?: GridSize | undefined;
-  $spacing: GridSpacing | undefined;
-  $columns: number | undefined;
-  $gap?: string | number | undefined;
-  $css?: GridProps['css'];
-}
+/** Base spacing unit in px */
+const SPACING_UNIT = 4;
 
 /**
- * Calculate gap value based on spacing multiplier and theme
+ * Calculate gap value based on spacing multiplier
  */
 const getGapValue = (
   spacing: GridSpacing,
-  theme: Theme,
   customGap?: string | number
 ): string => {
   if (customGap !== undefined) {
     return typeof customGap === 'number' ? `${customGap}px` : customGap;
   }
-  return `${spacing * theme.spacing.sm}px`;
+  return `${spacing * SPACING_UNIT}px`;
 };
-
-const StyledGrid = styled.div<StyledGridProps>`
-  /* Container styles - creates CSS Grid layout */
-  ${props =>
-    props.$container &&
-    `
-    display: grid;
-    grid-template-columns: repeat(${props.$columns}, 1fr);
-    width: 100%;
-    box-sizing: border-box;
-    gap: ${getGapValue(props.$spacing ?? 2, props.theme, props.$gap)};
-  `}
-
-  /* Item styles - defines how this grid item behaves */
-  ${props =>
-    !props.$container &&
-    props.$size &&
-    `
-    grid-column: span ${props.$size === 'auto' ? 'auto' : props.$size};
-  `}
-  
-  /* Responsive grid item sizes */
-  ${props =>
-    !props.$container &&
-    `
-    /* Base size */
-    ${props.$size && `grid-column: span ${props.$size === 'auto' ? 'auto' : props.$size};`}
-    
-    /* Extra small screens and up */
-    ${
-      props.$xs &&
-      `
-      grid-column: span ${props.$xs === 'auto' ? 'auto' : props.$xs};
-    `
-    }
-    
-    /* Small screens and up (576px) */
-    @media (min-width: 576px) {
-      ${props.$sm && `grid-column: span ${props.$sm === 'auto' ? 'auto' : props.$sm};`}
-    }
-    
-    /* Medium screens and up (768px) */
-    @media (min-width: 768px) {
-      ${props.$md && `grid-column: span ${props.$md === 'auto' ? 'auto' : props.$md};`}
-    }
-    
-    /* Large screens and up (992px) */
-    @media (min-width: 992px) {
-      ${props.$lg && `grid-column: span ${props.$lg === 'auto' ? 'auto' : props.$lg};`}
-    }
-    
-    /* Extra large screens and up (1200px) */
-    @media (min-width: 1200px) {
-      ${props.$xl && `grid-column: span ${props.$xl === 'auto' ? 'auto' : props.$xl};`}
-    }
-  `}
-  
-  /* Ensure proper box sizing for all grid items */
-  box-sizing: border-box;
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
 
 /**
  * A flexible 12-column grid system component for creating responsive layouts.
@@ -241,32 +165,61 @@ export const Grid: React.FC<GridProps> = ({
   gap,
   className,
   testId,
-  css,
   style,
   ref,
   ...htmlProps
 }) => {
+  if (container) {
+    const containerStyle: React.CSSProperties = {
+      ...assignInlineVars({
+        [gapVar]: getGapValue(spacing, gap),
+        [columnsVar]: String(columns),
+      }),
+      ...style,
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={cx(gridContainer, className)}
+        data-testid={testId}
+        style={containerStyle}
+        {...htmlProps}
+      >
+        {children}
+      </div>
+    );
+  }
+
+  // Item mode — use data attributes for responsive grid-column spans
+  const dataAttrs: Record<string, string> = {};
+  if (size !== undefined) {
+    // Base size applied via inline style for simplicity
+  }
+  if (xs !== undefined) dataAttrs['data-xs'] = String(xs);
+  if (sm !== undefined) dataAttrs['data-sm'] = String(sm);
+  if (md !== undefined) dataAttrs['data-md'] = String(md);
+  if (lg !== undefined) dataAttrs['data-lg'] = String(lg);
+  if (xl !== undefined) dataAttrs['data-xl'] = String(xl);
+
+  const itemStyle: React.CSSProperties = {
+    ...(size !== undefined
+      ? { gridColumn: `span ${size === 'auto' ? 'auto' : size}` }
+      : undefined),
+    ...style,
+  };
+
   return (
-    <StyledGrid
+    <div
       ref={ref}
-      className={className}
-      $container={container}
-      $size={size}
-      $xs={xs}
-      $sm={sm}
-      $md={md}
-      $lg={lg}
-      $xl={xl}
-      $spacing={spacing}
-      $columns={columns}
-      $gap={gap}
-      $css={css}
+      className={cx(gridItem, className)}
       data-testid={testId}
-      style={style}
+      style={itemStyle}
+      {...dataAttrs}
       {...htmlProps}
     >
       {children}
-    </StyledGrid>
+    </div>
   );
 };
 

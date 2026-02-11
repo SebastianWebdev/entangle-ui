@@ -1,32 +1,14 @@
 import React, { useCallback, useRef } from 'react';
-import styled from '@emotion/styled';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { TreeViewProps, TreeNodeData } from './TreeView.types';
 import { useTreeState } from './useTreeState';
 import { TreeNodeComponent } from './TreeNode';
-
-// --- Styled components ---
-
-interface StyledTreeContainerProps {
-  $maxHeight?: number | string;
-}
-
-const StyledTreeContainer = styled.div<StyledTreeContainerProps>`
-  display: flex;
-  flex-direction: column;
-  ${props =>
-    props.$maxHeight
-      ? `max-height: ${typeof props.$maxHeight === 'number' ? `${props.$maxHeight}px` : props.$maxHeight}; overflow-y: auto;`
-      : ''}
-`;
-
-const StyledEmptyState = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: ${props => props.theme.spacing.md}px;
-  color: ${props => props.theme.colors.text.muted};
-  font-size: ${props => props.theme.typography.fontSize.md}px;
-`;
+import { cx } from '@/utils/cx';
+import {
+  treeContainerStyle,
+  emptyStateStyle,
+  maxHeightVar,
+} from './TreeView.css';
 
 /**
  * A hierarchical collapsible tree for displaying and managing nested data.
@@ -257,25 +239,32 @@ export const TreeView = ({
     }
   }, [focusedId]);
 
+  const containerInlineVars = maxHeight
+    ? assignInlineVars({
+        [maxHeightVar]: typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
+      })
+    : undefined;
+
   if (nodes.length === 0) {
     return (
-      <StyledTreeContainer
+      <div
         ref={treeRef}
-        className={className}
+        className={cx(treeContainerStyle, className)}
         data-testid={testId}
         role="tree"
         aria-label="Empty tree"
+        style={containerInlineVars}
         {...rest}
       >
-        <StyledEmptyState>{emptyContent ?? 'No items'}</StyledEmptyState>
-      </StyledTreeContainer>
+        <div className={emptyStateStyle}>{emptyContent ?? 'No items'}</div>
+      </div>
     );
   }
 
   return (
-    <StyledTreeContainer
+    <div
       ref={treeRef}
-      className={className}
+      className={cx(treeContainerStyle, className)}
       data-testid={testId}
       role="tree"
       aria-label="Tree"
@@ -283,7 +272,7 @@ export const TreeView = ({
       aria-activedescendant={focusedId ? `treenode-${focusedId}` : undefined}
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      $maxHeight={maxHeight}
+      style={containerInlineVars}
       {...rest}
     >
       {visibleNodes.map((flatNode, idx) => {
@@ -314,7 +303,7 @@ export const TreeView = ({
           />
         );
       })}
-    </StyledTreeContainer>
+    </div>
   );
 };
 

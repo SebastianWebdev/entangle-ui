@@ -8,9 +8,9 @@ import React, {
   useId,
   useMemo,
 } from 'react';
-import styled from '@emotion/styled';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { cx } from '@/utils/cx';
 import { ScrollArea } from '@/components/layout/ScrollArea';
-import { processCss } from '@/utils/styledUtils';
 import type {
   FloatingPanelProps,
   FloatingManagerProps,
@@ -18,6 +18,21 @@ import type {
   Position,
   FloatingPanelSize,
 } from './FloatingPanel.types';
+import {
+  posXVar,
+  posYVar,
+  panelWidthVar,
+  panelHeightVar,
+  panelZIndexVar,
+  panel,
+  header,
+  title,
+  headerActions,
+  headerButton,
+  collapsibleVisible,
+  collapsibleHidden,
+  resizeHandle,
+} from './FloatingPanel.css';
 
 // --- FloatingManager Context ---
 
@@ -74,104 +89,10 @@ export const FloatingManager: React.FC<FloatingManagerProps> = ({
 
 FloatingManager.displayName = 'FloatingManager';
 
-// --- Styled Components ---
-
-const StyledPanel = styled.div<{ $css?: FloatingPanelProps['css'] }>`
-  position: fixed;
-  display: flex;
-  flex-direction: column;
-  background: ${({ theme }) => theme.colors.background.secondary};
-  border: 1px solid ${({ theme }) => theme.colors.border.default};
-  border-radius: ${({ theme }) => theme.borderRadius.md}px;
-  box-shadow: ${({ theme }) => theme.shadows.lg};
-  overflow: hidden;
-
-  &:focus-visible {
-    outline: 1px solid ${({ theme }) => theme.colors.border.focus};
-  }
-
-  ${({ $css, theme }) => processCss($css, theme)}
-`;
-
-const StyledHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 28px;
-  padding: 0 ${({ theme }) => theme.spacing.md}px;
-  background: ${({ theme }) => theme.colors.background.tertiary};
-  cursor: grab;
-  user-select: none;
-  flex-shrink: 0;
-
-  &:active {
-    cursor: grabbing;
-  }
-`;
-
-const StyledTitle = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
-  font-family: ${({ theme }) => theme.typography.fontFamily.sans};
-  color: ${({ theme }) => theme.colors.text.primary};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const StyledHeaderActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing.xs}px;
-  margin-left: ${({ theme }) => theme.spacing.md}px;
-`;
-
-const StyledHeaderButton = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: ${({ theme }) => theme.borderRadius.sm}px;
-  color: ${({ theme }) => theme.colors.text.secondary};
-  cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.fontSize.md}px;
-  line-height: 1;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.surface.whiteOverlay};
-    color: ${({ theme }) => theme.colors.text.primary};
-  }
-`;
-
-const StyledCollapsible = styled.div<{ $collapsed: boolean }>`
-  ${({ $collapsed }) =>
-    $collapsed ? 'display: none;' : 'display: flex; flex: 1; min-height: 0;'}
-`;
-
-const StyledResizeHandle = styled.div`
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 12px;
-  height: 12px;
-  cursor: se-resize;
-
-  &::after {
-    content: '';
-    position: absolute;
-    right: 2px;
-    bottom: 2px;
-    width: 6px;
-    height: 6px;
-    border-right: 2px solid ${({ theme }) => theme.colors.text.muted};
-    border-bottom: 2px solid ${({ theme }) => theme.colors.text.muted};
-  }
-`;
-
 // --- FloatingPanel Component ---
 
 export const FloatingPanel: React.FC<FloatingPanelProps> = ({
-  title,
+  title: panelTitle,
   position: controlledPosition,
   defaultPosition = { x: 100, y: 100 },
   onPositionChange,
@@ -189,11 +110,11 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   closable = true,
   resizable = true,
   children,
+
   className,
   panelId,
   style,
   testId,
-  css,
   ref: externalRef,
   ...rest
 }) => {
@@ -234,7 +155,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
     onCollapsedChange?.(next);
   }, [isCollapsed, controlledCollapsed, onCollapsedChange]);
 
-  // FloatingManager registration — use stable id, run once
+  // FloatingManager registration -- use stable id, run once
   const managerRef = useRef(manager);
   managerRef.current = manager;
 
@@ -327,51 +248,56 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
     [currentSize, minWidth, minHeight, maxWidth, maxHeight, setSize]
   );
 
+  const inlineVars = assignInlineVars({
+    [posXVar]: `${pos.x}px`,
+    [posYVar]: `${pos.y}px`,
+    [panelWidthVar]: `${currentSize.width}px`,
+    [panelHeightVar]: isCollapsed ? 'auto' : `${currentSize.height}px`,
+    [panelZIndexVar]: String(zIndex),
+  });
+
   return (
-    <StyledPanel
+    <div
       ref={setPanelRef}
-      className={className}
+      className={cx(panel, className)}
       data-testid={testId}
-      $css={css}
       role="dialog"
       aria-modal="false"
-      aria-label={title}
+      aria-label={panelTitle}
       tabIndex={-1}
       onPointerDown={handleBringToFront}
       style={{
         ...style,
-        left: pos.x,
-        top: pos.y,
-        width: currentSize.width,
-        height: isCollapsed ? 'auto' : currentSize.height,
-        zIndex,
+        ...inlineVars,
       }}
       {...rest}
     >
-      <StyledHeader onPointerDown={handleDragStart} data-testid="panel-header">
-        <StyledTitle>{title}</StyledTitle>
-        <StyledHeaderActions>
-          <StyledHeaderButton
+      <div className={header} onPointerDown={handleDragStart} data-testid="panel-header">
+        <span className={title}>{panelTitle}</span>
+        <div className={headerActions}>
+          <span
+            className={headerButton}
             role="button"
             tabIndex={0}
             onClick={toggleCollapse}
             aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
           >
-            {isCollapsed ? '▼' : '▲'}
-          </StyledHeaderButton>
+            {isCollapsed ? '\u25BC' : '\u25B2'}
+          </span>
           {closable && onClose && (
-            <StyledHeaderButton
+            <span
+              className={headerButton}
               role="button"
               tabIndex={0}
               onClick={onClose}
               aria-label="Close panel"
             >
-              ✕
-            </StyledHeaderButton>
+              \u2715
+            </span>
           )}
-        </StyledHeaderActions>
-      </StyledHeader>
-      <StyledCollapsible $collapsed={isCollapsed}>
+        </div>
+      </div>
+      <div className={isCollapsed ? collapsibleHidden : collapsibleVisible}>
         <ScrollArea
           direction="both"
           scrollbarVisibility="auto"
@@ -380,14 +306,15 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
         >
           {children}
         </ScrollArea>
-      </StyledCollapsible>
+      </div>
       {resizable && !isCollapsed && (
-        <StyledResizeHandle
+        <div
+          className={resizeHandle}
           onPointerDown={handleResizeStart}
           data-testid="resize-handle"
         />
       )}
-    </StyledPanel>
+    </div>
   );
 };
 

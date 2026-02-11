@@ -1,172 +1,30 @@
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
-import styled from '@emotion/styled';
 import type { ScrollAreaProps } from './ScrollArea.types';
-
-// --- Styled ---
-
-interface StyledRootProps {
-  $maxHeight?: number | string;
-  $maxWidth?: number | string;
-  $autoFill?: boolean;
-}
-
-const StyledRoot = styled.div<StyledRootProps>`
-  position: relative;
-  overflow: hidden;
-  ${props =>
-    props.$autoFill
-      ? `
-    width: 100%;
-    height: 100%;
-  `
-      : ''}
-  ${props =>
-    props.$maxHeight != null
-      ? `max-height: ${typeof props.$maxHeight === 'number' ? `${props.$maxHeight}px` : props.$maxHeight};`
-      : ''}
-  ${props =>
-    props.$maxWidth != null
-      ? `max-width: ${typeof props.$maxWidth === 'number' ? `${props.$maxWidth}px` : props.$maxWidth};`
-      : ''}
-`;
-
-interface StyledViewportProps {
-  $direction: 'vertical' | 'horizontal' | 'both';
-}
-
-const StyledViewport = styled.div<StyledViewportProps>`
-  width: 100%;
-  height: 100%;
-  max-height: inherit;
-  max-width: inherit;
-  overflow-x: ${props =>
-    props.$direction === 'horizontal' || props.$direction === 'both'
-      ? 'scroll'
-      : 'hidden'};
-  overflow-y: ${props =>
-    props.$direction === 'vertical' || props.$direction === 'both'
-      ? 'scroll'
-      : 'hidden'};
-
-  /* Hide native scrollbars */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
-  &::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
-  }
-
-  &:focus {
-    outline: none;
-  }
-
-  &:focus-visible {
-    box-shadow: ${props => props.theme.shadows.focus};
-  }
-`;
-
-interface StyledScrollbarProps {
-  $direction: 'vertical' | 'horizontal';
-  $width: number;
-  $padding: number;
-  $visible: boolean;
-}
-
-const StyledScrollbar = styled.div<StyledScrollbarProps>`
-  position: absolute;
-  z-index: 1;
-  ${props =>
-    props.$direction === 'vertical'
-      ? `
-    right: ${props.$padding}px;
-    top: ${props.$padding}px;
-    bottom: ${props.$padding}px;
-    width: ${props.$width}px;
-  `
-      : `
-    bottom: ${props.$padding}px;
-    left: ${props.$padding}px;
-    right: ${props.$padding}px;
-    height: ${props.$width}px;
-  `}
-  border-radius: ${props => props.$width}px;
-  opacity: ${props => (props.$visible ? 1 : 0)};
-  transition: opacity ${props => props.theme.transitions.fast};
-  pointer-events: ${props => (props.$visible ? 'auto' : 'none')};
-`;
-
-interface StyledThumbProps {
-  $direction: 'vertical' | 'horizontal';
-  $isDragging: boolean;
-}
-
-const StyledThumb = styled.div<StyledThumbProps>`
-  position: absolute;
-  ${props =>
-    props.$direction === 'vertical'
-      ? `
-    width: 100%;
-    left: 0;
-  `
-      : `
-    height: 100%;
-    top: 0;
-  `}
-  border-radius: inherit;
-  background: ${props => props.theme.colors.text.disabled};
-  transition: background ${props => props.theme.transitions.fast};
-  cursor: pointer;
-
-  &:hover {
-    background: ${props => props.theme.colors.text.muted};
-  }
-
-  ${props =>
-    props.$isDragging
-      ? `background: ${props.theme.colors.text.secondary};`
-      : ''}
-`;
-
-interface StyledFadeMaskProps {
-  $position: 'top' | 'bottom' | 'left' | 'right';
-  $size: number;
-  $visible: boolean;
-}
-
-const StyledFadeMask = styled.div<StyledFadeMaskProps>`
-  position: absolute;
-  z-index: 1;
-  pointer-events: none;
-  opacity: ${props => (props.$visible ? 1 : 0)};
-  transition: opacity ${props => props.theme.transitions.fast};
-
-  ${props => {
-    const { $position, $size } = props;
-    const bgBase = props.theme.colors.background.primary;
-
-    switch ($position) {
-      case 'top':
-        return `
-          top: 0; left: 0; right: 0; height: ${$size}px;
-          background: linear-gradient(to bottom, ${bgBase}, transparent);
-        `;
-      case 'bottom':
-        return `
-          bottom: 0; left: 0; right: 0; height: ${$size}px;
-          background: linear-gradient(to top, ${bgBase}, transparent);
-        `;
-      case 'left':
-        return `
-          top: 0; left: 0; bottom: 0; width: ${$size}px;
-          background: linear-gradient(to right, ${bgBase}, transparent);
-        `;
-      case 'right':
-        return `
-          top: 0; right: 0; bottom: 0; width: ${$size}px;
-          background: linear-gradient(to left, ${bgBase}, transparent);
-        `;
-    }
-  }}
-`;
+import { cx } from '@/utils/cx';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import {
+  rootStyle,
+  rootAutoFill,
+  viewportRecipe,
+  scrollbarVertical,
+  scrollbarHorizontal,
+  scrollbarVisible,
+  scrollbarHidden,
+  thumbBase,
+  thumbVertical,
+  thumbHorizontal,
+  thumbDragging,
+  fadeMaskBase,
+  fadeMaskVisible,
+  fadeMaskHiddenStyle,
+  fadeMaskTop,
+  fadeMaskBottom,
+  fadeMaskLeft,
+  fadeMaskRight,
+  scrollbarWidthVar,
+  scrollbarPaddingVar,
+  fadeMaskSizeVar,
+} from './ScrollArea.css';
 
 // --- Component ---
 
@@ -205,7 +63,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
   const [hasHOverflow, setHasHOverflow] = useState(false);
 
   // Visibility state
-  const [scrollbarVisible, setScrollbarVisible] = useState(
+  const [scrollbarVisibleState, setScrollbarVisibleState] = useState(
     scrollbarVisibility === 'always'
   );
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -269,7 +127,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
     if (scrollbarVisibility === 'never') return;
     if (scrollbarVisibility === 'always') return;
 
-    setScrollbarVisible(true);
+    setScrollbarVisibleState(true);
     if (hideTimerRef.current) {
       clearTimeout(hideTimerRef.current);
     }
@@ -277,7 +135,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
     if (scrollbarVisibility === 'auto') {
       hideTimerRef.current = setTimeout(() => {
         if (!isDragging) {
-          setScrollbarVisible(false);
+          setScrollbarVisibleState(false);
         }
       }, hideDelay);
     }
@@ -304,7 +162,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
   // Handle hover
   const handleMouseEnter = useCallback(() => {
     if (scrollbarVisibility === 'hover' || scrollbarVisibility === 'auto') {
-      setScrollbarVisible(true);
+      setScrollbarVisibleState(true);
       if (hideTimerRef.current) {
         clearTimeout(hideTimerRef.current);
         hideTimerRef.current = null;
@@ -314,10 +172,10 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
 
   const handleMouseLeave = useCallback(() => {
     if (scrollbarVisibility === 'hover') {
-      setScrollbarVisible(false);
+      setScrollbarVisibleState(false);
     } else if (scrollbarVisibility === 'auto' && !isDragging) {
       hideTimerRef.current = setTimeout(() => {
-        setScrollbarVisible(false);
+        setScrollbarVisibleState(false);
       }, hideDelay);
     }
   }, [scrollbarVisibility, isDragging, hideDelay]);
@@ -442,70 +300,96 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
   );
 
   const isScrollbarShown =
-    scrollbarVisibility === 'never' ? false : scrollbarVisible;
+    scrollbarVisibility === 'never' ? false : scrollbarVisibleState;
+
+  const rootInlineStyle: React.CSSProperties = {
+    ...assignInlineVars({
+      [scrollbarWidthVar]: `${scrollbarWidth}px`,
+      [scrollbarPaddingVar]: `${scrollbarPadding}px`,
+      [fadeMaskSizeVar]: `${fadeMaskHeight}px`,
+    }),
+    ...(maxHeight != null
+      ? {
+          maxHeight:
+            typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
+        }
+      : undefined),
+    ...(maxWidth != null
+      ? {
+          maxWidth:
+            typeof maxWidth === 'number' ? `${maxWidth}px` : maxWidth,
+        }
+      : undefined),
+    ...style,
+  };
 
   return (
-    <StyledRoot
-      $maxHeight={maxHeight}
-      $maxWidth={maxWidth}
-      $autoFill={autoFill}
-      className={className}
-      style={style}
+    <div
+      className={cx(rootStyle, autoFill && rootAutoFill, className)}
+      style={rootInlineStyle}
       data-testid={testId}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       {...rest}
     >
-      <StyledViewport
+      <div
         ref={setViewportRef}
         id={viewportId}
         role="region"
         tabIndex={0}
-        $direction={direction}
+        className={viewportRecipe({ direction })}
         onScroll={handleScroll}
       >
         {children}
-      </StyledViewport>
+      </div>
 
       {/* Fade masks */}
       {fadeMask && showV && (
         <>
-          <StyledFadeMask
-            $position="top"
-            $size={fadeMaskHeight}
-            $visible={!atTop}
+          <div
+            className={cx(
+              fadeMaskBase,
+              fadeMaskTop,
+              !atTop ? fadeMaskVisible : fadeMaskHiddenStyle,
+            )}
             data-testid={testId ? `${testId}-fade-top` : undefined}
           />
-          <StyledFadeMask
-            $position="bottom"
-            $size={fadeMaskHeight}
-            $visible={!atBottom}
+          <div
+            className={cx(
+              fadeMaskBase,
+              fadeMaskBottom,
+              !atBottom ? fadeMaskVisible : fadeMaskHiddenStyle,
+            )}
             data-testid={testId ? `${testId}-fade-bottom` : undefined}
           />
         </>
       )}
       {fadeMask && showH && (
         <>
-          <StyledFadeMask
-            $position="left"
-            $size={fadeMaskHeight}
-            $visible={!atLeft}
+          <div
+            className={cx(
+              fadeMaskBase,
+              fadeMaskLeft,
+              !atLeft ? fadeMaskVisible : fadeMaskHiddenStyle,
+            )}
           />
-          <StyledFadeMask
-            $position="right"
-            $size={fadeMaskHeight}
-            $visible={!atRight}
+          <div
+            className={cx(
+              fadeMaskBase,
+              fadeMaskRight,
+              !atRight ? fadeMaskVisible : fadeMaskHiddenStyle,
+            )}
           />
         </>
       )}
 
       {/* Vertical scrollbar */}
       {showV && hasVOverflow && (
-        <StyledScrollbar
-          $direction="vertical"
-          $width={scrollbarWidth}
-          $padding={scrollbarPadding}
-          $visible={isScrollbarShown}
+        <div
+          className={cx(
+            scrollbarVertical,
+            isScrollbarShown ? scrollbarVisible : scrollbarHidden,
+          )}
           role="scrollbar"
           aria-controls={viewportId}
           aria-orientation="vertical"
@@ -525,9 +409,12 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
           data-testid={testId ? `${testId}-scrollbar-v` : undefined}
           onClick={e => handleTrackClick('vertical', e)}
         >
-          <StyledThumb
-            $direction="vertical"
-            $isDragging={isDragging && dragAxisRef.current === 'vertical'}
+          <div
+            className={cx(
+              thumbBase,
+              thumbVertical,
+              isDragging && dragAxisRef.current === 'vertical' && thumbDragging,
+            )}
             style={{
               height: `${vThumbSize}px`,
               transform: `translateY(${vThumbOffset}px)`,
@@ -537,16 +424,16 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             onPointerUp={handleThumbPointerUp}
             data-testid={testId ? `${testId}-thumb-v` : undefined}
           />
-        </StyledScrollbar>
+        </div>
       )}
 
       {/* Horizontal scrollbar */}
       {showH && hasHOverflow && (
-        <StyledScrollbar
-          $direction="horizontal"
-          $width={scrollbarWidth}
-          $padding={scrollbarPadding}
-          $visible={isScrollbarShown}
+        <div
+          className={cx(
+            scrollbarHorizontal,
+            isScrollbarShown ? scrollbarVisible : scrollbarHidden,
+          )}
           role="scrollbar"
           aria-controls={viewportId}
           aria-orientation="horizontal"
@@ -566,9 +453,12 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
           data-testid={testId ? `${testId}-scrollbar-h` : undefined}
           onClick={e => handleTrackClick('horizontal', e)}
         >
-          <StyledThumb
-            $direction="horizontal"
-            $isDragging={isDragging && dragAxisRef.current === 'horizontal'}
+          <div
+            className={cx(
+              thumbBase,
+              thumbHorizontal,
+              isDragging && dragAxisRef.current === 'horizontal' && thumbDragging,
+            )}
             style={{
               width: `${hThumbSize}px`,
               transform: `translateX(${hThumbOffset}px)`,
@@ -578,9 +468,9 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             onPointerUp={handleThumbPointerUp}
             data-testid={testId ? `${testId}-thumb-h` : undefined}
           />
-        </StyledScrollbar>
+        </div>
       )}
-    </StyledRoot>
+    </div>
   );
 };
 

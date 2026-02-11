@@ -1,74 +1,8 @@
 import React, { useCallback, useRef } from 'react';
-import styled from '@emotion/styled';
 import { useTabsContext } from './Tabs';
-import type { TabListProps, TabsVariant } from './Tabs.types';
-
-// --- Styled ---
-
-interface StyledTabListProps {
-  $orientation: 'horizontal' | 'vertical';
-  $variant: TabsVariant;
-  $fullWidth: boolean;
-  $pillsFrame: boolean;
-}
-
-const StyledTabList = styled.div<StyledTabListProps>`
-  display: flex;
-  flex-direction: ${props =>
-    props.$orientation === 'vertical' ? 'column' : 'row'};
-  align-items: stretch;
-  overflow-x: ${props =>
-    props.$orientation === 'horizontal' ? 'auto' : 'visible'};
-  overflow-y: ${props =>
-    props.$orientation === 'vertical' ? 'auto' : 'visible'};
-  flex-shrink: 0;
-  min-width: 0;
-  gap: ${props => props.theme.spacing.xs}px;
-
-  /* Hide scrollbar */
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Variant-specific styles */
-  ${props => {
-    const { colors } = props.theme;
-
-    switch (props.$variant) {
-      case 'underline':
-        return props.$orientation === 'vertical'
-          ? `border-right: 1px solid ${colors.border.default};`
-          : `border-bottom: 1px solid ${colors.border.default};`;
-      case 'enclosed':
-        return props.$orientation === 'vertical'
-          ? `
-              border-right: 1px solid ${colors.border.default};
-              padding: ${props.theme.spacing.xs}px 0;
-            `
-          : `
-              border-bottom: 1px solid ${colors.border.default};
-              padding: 0 ${props.theme.spacing.xs}px;
-            `;
-      case 'pills':
-        return props.$pillsFrame
-          ? `
-              padding: ${props.theme.spacing.xs}px;
-              border: 1px solid ${colors.border.default};
-              border-radius: ${props.theme.borderRadius.md}px;
-              background: ${colors.background.secondary};
-            `
-          : `
-              padding: 0;
-              border: none;
-              border-radius: 0;
-              background: transparent;
-            `;
-      default:
-        return '';
-    }
-  }}
-`;
+import type { TabListProps } from './Tabs.types';
+import { cx } from '@/utils/cx';
+import { tabListRecipe } from './Tabs.css';
 
 // --- Component ---
 
@@ -80,7 +14,7 @@ export const TabList: React.FC<TabListProps> = ({
   ref,
   ...rest
 }) => {
-  const { orientation, variant, fullWidth, pillsFrame } = useTabsContext();
+  const { orientation, variant, pillsFrame } = useTabsContext();
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const setListRef = useCallback(
@@ -141,22 +75,21 @@ export const TabList: React.FC<TabListProps> = ({
   );
 
   return (
-    <StyledTabList
+    <div
       ref={setListRef}
       role="tablist"
       aria-orientation={orientation}
-      $orientation={orientation}
-      $variant={variant}
-      $fullWidth={fullWidth}
-      $pillsFrame={pillsFrame}
-      className={className}
+      className={cx(
+        tabListRecipe({ orientation, variant, pillsFrame }),
+        className
+      )}
       style={style}
       data-testid={testId}
       onKeyDown={handleKeyDown}
       {...rest}
     >
       {children}
-    </StyledTabList>
+    </div>
   );
 };
 

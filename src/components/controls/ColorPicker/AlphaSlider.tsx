@@ -1,5 +1,9 @@
 import React, { useCallback, useRef } from 'react';
-import styled from '@emotion/styled';
+import {
+  alphaTrackStyle,
+  alphaGradientStyle,
+  alphaThumbStyle,
+} from './ColorPicker.css';
 
 interface AlphaSliderProps {
   alpha: number;
@@ -7,47 +11,6 @@ interface AlphaSliderProps {
   onChange: (alpha: number) => void;
   onChangeComplete?: () => void;
 }
-
-const StyledTrack = styled.div`
-  position: relative;
-  width: 100%;
-  height: 4px;
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  cursor: pointer;
-  user-select: none;
-  touch-action: none;
-
-  /* Checkerboard for transparency */
-  background-image:
-    linear-gradient(45deg, #ccc 25%, transparent 25%),
-    linear-gradient(-45deg, #ccc 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #ccc 75%),
-    linear-gradient(-45deg, transparent 75%, #ccc 75%);
-  background-size: 8px 8px;
-  background-position:
-    0 0,
-    0 4px,
-    4px -4px,
-    -4px 0px;
-`;
-
-const StyledGradient = styled.div`
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-`;
-
-const StyledThumb = styled.div`
-  position: absolute;
-  top: 50%;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: ${props => props.theme.shadows.sm};
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-`;
 
 export const AlphaSlider: React.FC<AlphaSliderProps> = ({
   alpha,
@@ -117,8 +80,9 @@ export const AlphaSlider: React.FC<AlphaSliderProps> = ({
   const thumbPosition = `${alpha * 100}%`;
 
   return (
-    <StyledTrack
+    <div
       ref={trackRef}
+      className={alphaTrackStyle}
       role="slider"
       tabIndex={0}
       aria-label="Opacity"
@@ -130,13 +94,14 @@ export const AlphaSlider: React.FC<AlphaSliderProps> = ({
       onPointerUp={handlePointerUp}
       onKeyDown={handleKeyDown}
     >
-      <StyledGradient
+      <div
+        className={alphaGradientStyle}
         style={{
           background: `linear-gradient(to right, transparent, ${color})`,
         }}
       />
-      <StyledThumb style={{ left: thumbPosition }} />
-    </StyledTrack>
+      <div className={alphaThumbStyle} style={{ left: thumbPosition }} />
+    </div>
   );
 };
 

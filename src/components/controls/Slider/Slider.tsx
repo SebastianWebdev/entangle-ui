@@ -1,10 +1,24 @@
 // src/components/controls/Slider/Slider.tsx
 import React, { useRef, useCallback, useState, useEffect } from 'react';
-import styled from '@emotion/styled';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
 import { useKeyboardContext } from '@/context/KeyboardContext';
 import { FormLabel, FormHelperText, InputWrapper } from '@/components/form';
+import { cx } from '@/utils/cx';
+import {
+  sliderContainerRecipe,
+  sliderWrapperStyle,
+  trackRecipe,
+  fillRecipe,
+  fillPercentageVar,
+  thumbRecipe,
+  thumbPercentageVar,
+  ticksStyle,
+  tickStyle,
+  tooltipRecipe,
+  tooltipPercentageVar,
+} from './Slider.css';
 
 /**
  * Props specific to Slider component
@@ -151,210 +165,6 @@ export interface SliderBaseProps extends Omit<BaseComponent, 'onChange'> {
  * Props for the Slider component with prettified type for better IntelliSense
  */
 export type SliderProps = Prettify<SliderBaseProps>;
-
-interface StyledSliderContainerProps {
-  $size: Size;
-  $disabled: boolean;
-}
-
-const StyledSliderContainer = styled.div<StyledSliderContainerProps>`
-  display: flex;
-  flex-direction: column;
-  gap: ${props => props.theme.spacing.xs}px;
-  width: 100%;
-  min-width: 0;
-  opacity: ${props => (props.$disabled ? 0.5 : 1)};
-  pointer-events: ${props => (props.$disabled ? 'none' : 'auto')};
-`;
-
-const StyledSliderWrapper = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  user-select: none;
-  padding: 0px 0;
-  width: 100%;
-`;
-
-interface StyledTrackProps {
-  $size: Size;
-  $error: boolean;
-}
-
-const StyledTrack = styled.div<StyledTrackProps>`
-  position: relative;
-  flex: 1;
-  background: ${props =>
-    props.$error
-      ? props.theme.colors.accent.error
-      : props.theme.colors.surface.default};
-  border: 1px solid
-    ${props =>
-      props.$error
-        ? props.theme.colors.border.error
-        : props.theme.colors.border.default};
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  overflow: hidden;
-
-  ${props => {
-    const sizes = {
-      sm: '4px',
-      md: '6px',
-      lg: '8px',
-    };
-    return `height: ${sizes[props.$size]};`;
-  }}
-
-  &:hover {
-    border-color: ${props =>
-      props.$error
-        ? props.theme.colors.border.error
-        : props.theme.colors.border.focus};
-  }
-`;
-
-interface StyledFillProps {
-  $percentage: number;
-  $error: boolean;
-  $isDragging: boolean;
-}
-
-const StyledFill = styled.div<StyledFillProps>`
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: ${props => props.$percentage}%;
-  background: ${props =>
-    props.$error
-      ? props.theme.colors.accent.error
-      : props.theme.colors.accent.primary};
-  transition: ${props => (props.$isDragging ? 'none' : 'width 0.1s ease-out')};
-`;
-
-interface StyledThumbProps {
-  $size: Size;
-  $percentage: number;
-  $isDragging: boolean;
-  $error: boolean;
-}
-
-const StyledThumb = styled.div<StyledThumbProps>`
-  position: absolute;
-  top: 50%;
-  left: ${props => props.$percentage}%;
-  transform: translate(-50%, -50%);
-  background: ${props =>
-    props.$error
-      ? props.theme.colors.accent.error
-      : props.theme.colors.accent.primary};
-  border: 2px solid ${props => props.theme.colors.background.primary};
-  border-radius: 50%;
-  cursor: grab;
-  transition: ${props =>
-    props.$isDragging ? 'none' : `all ${props.theme.transitions.fast}`};
-  box-shadow: ${props => props.theme.shadows.sm};
-
-  ${props => {
-    const sizes = {
-      sm: '12px',
-      md: '16px',
-      lg: '20px',
-    };
-    return `
-      width: ${sizes[props.$size]};
-      height: ${sizes[props.$size]};
-    `;
-  }}
-
-  &:hover {
-    transform: translate(-50%, -50%) scale(1.1);
-    box-shadow: ${props => props.theme.shadows.md};
-  }
-
-  ${props =>
-    props.$isDragging &&
-    `
-    cursor: grabbing;
-    transform: translate(-50%, -50%) scale(1.15);
-    box-shadow: ${props.theme.shadows.lg};
-  `}
-`;
-
-interface StyledTicksProps {
-  $tickCount: number;
-  $size: Size;
-}
-
-const StyledTicks = styled.div<StyledTicksProps>`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  height: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  pointer-events: none;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: ${props => props.theme.colors.border.default};
-  }
-`;
-
-const StyledTick = styled.div`
-  width: 1px;
-  height: 4px;
-  background: ${props => props.theme.colors.text.muted};
-  margin-top: 2px;
-`;
-
-interface StyledTooltipProps {
-  $percentage: number;
-  $visible: boolean;
-}
-
-const StyledTooltip = styled.div<StyledTooltipProps>`
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: ${props => props.$percentage}%;
-  transform: translateX(-50%);
-  background: ${props => props.theme.colors.background.elevated};
-  color: ${props => props.theme.colors.text.primary};
-  border: 1px solid ${props => props.theme.colors.border.default};
-  border-radius: ${props => props.theme.borderRadius.sm}px;
-  padding: 4px 8px;
-  font-size: ${props => props.theme.typography.fontSize.xs}px;
-  font-weight: ${props => props.theme.typography.fontWeight.medium};
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: ${props => props.theme.zIndex.tooltip};
-
-  opacity: ${props => (props.$visible ? 1 : 0)};
-  transform: translateX(-50%)
-    ${props => (props.$visible ? 'translateY(0)' : 'translateY(4px)')};
-  transition: all ${props => props.theme.transitions.fast};
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 4px solid ${props => props.theme.colors.border.default};
-  }
-`;
 
 /**
  * Clamps a value between min and max bounds
@@ -671,11 +481,9 @@ export const Slider: React.FC<SliderProps> = ({
   const sliderId = React.useId();
 
   return (
-    <StyledSliderContainer
+    <div
       ref={ref}
-      className={className}
-      $size={size}
-      $disabled={disabled}
+      className={cx(sliderContainerRecipe({ disabled }), className)}
       data-testid={testId}
       {...props}
     >
@@ -690,15 +498,16 @@ export const Slider: React.FC<SliderProps> = ({
         error={error}
         disabled={disabled}
         focused={isFocused}
-        css={{
+        style={{
           border: 'none',
           background: 'transparent',
           padding: 0,
           height: 5,
         }}
       >
-        <StyledSliderWrapper
+        <div
           ref={sliderRef}
+          className={sliderWrapperStyle}
           onMouseDown={handleMouseDown}
           tabIndex={disabled ? -1 : 0}
           role="slider"
@@ -715,35 +524,44 @@ export const Slider: React.FC<SliderProps> = ({
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
         >
-          <StyledTrack ref={trackRef} $size={size} $error={error}>
-            <StyledFill
-              $percentage={percentage}
-              $error={error}
-              $isDragging={isDragging}
+          <div
+            ref={trackRef}
+            className={trackRecipe({ size, error })}
+          >
+            <div
+              className={fillRecipe({ error, isDragging })}
+              style={assignInlineVars({
+                [fillPercentageVar]: `${percentage}%`,
+              })}
             />
-          </StyledTrack>
+          </div>
 
-          <StyledThumb
-            $size={size}
-            $percentage={percentage}
-            $isDragging={isDragging}
-            $error={error}
+          <div
+            className={thumbRecipe({ size, error, isDragging })}
+            style={assignInlineVars({
+              [thumbPercentageVar]: `${percentage}%`,
+            })}
           />
 
           {showTicks && (
-            <StyledTicks $tickCount={tickCount} $size={size}>
+            <div className={ticksStyle}>
               {ticks.map(i => (
-                <StyledTick key={i} />
+                <div key={i} className={tickStyle} />
               ))}
-            </StyledTicks>
+            </div>
           )}
 
           {showTooltip && (
-            <StyledTooltip $percentage={percentage} $visible={showTooltipState}>
+            <div
+              className={tooltipRecipe({ visible: showTooltipState })}
+              style={assignInlineVars({
+                [tooltipPercentageVar]: `${percentage}%`,
+              })}
+            >
               {displayValue}
-            </StyledTooltip>
+            </div>
           )}
-        </StyledSliderWrapper>
+        </div>
       </InputWrapper>
 
       {(helperText ?? (error && errorMessage)) && (
@@ -751,7 +569,7 @@ export const Slider: React.FC<SliderProps> = ({
           {error && errorMessage ? errorMessage : helperText}
         </FormHelperText>
       )}
-    </StyledSliderContainer>
+    </div>
   );
 };
 

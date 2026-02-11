@@ -6,9 +6,9 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import styled from '@emotion/styled';
-import { processCss } from '@/utils/styledUtils';
+import { cx } from '@/utils/cx';
 import type { TabsContextValue, TabsProps } from './Tabs.types';
+import { tabsRootRecipe } from './Tabs.css';
 
 // --- Context ---
 
@@ -21,23 +21,6 @@ export function useTabsContext(): TabsContextValue {
   }
   return ctx;
 }
-
-// --- Styled ---
-
-interface StyledTabsRootProps {
-  $orientation: 'horizontal' | 'vertical';
-  $css?: TabsProps['css'];
-}
-
-const StyledTabsRoot = styled.div<StyledTabsRootProps>`
-  display: flex;
-  flex-direction: ${props =>
-    props.$orientation === 'vertical' ? 'row' : 'column'};
-  min-width: 0;
-  min-height: 0;
-
-  ${props => processCss(props.$css, props.theme)}
-`;
 
 // --- Component ---
 
@@ -70,7 +53,6 @@ export const Tabs: React.FC<TabsProps> = ({
   onChange,
   className,
   style,
-  css,
   testId,
   ref,
   ...rest
@@ -117,17 +99,15 @@ export const Tabs: React.FC<TabsProps> = ({
 
   return (
     <TabsContext.Provider value={contextValue}>
-      <StyledTabsRoot
+      <div
         ref={ref}
-        $orientation={orientation}
-        $css={css}
-        className={className}
+        className={cx(tabsRootRecipe({ orientation }), className)}
         style={style}
         data-testid={testId}
         {...rest}
       >
         {children}
-      </StyledTabsRoot>
+      </div>
     </TabsContext.Provider>
   );
 };

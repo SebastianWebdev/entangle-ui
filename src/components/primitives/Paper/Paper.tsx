@@ -1,10 +1,8 @@
 // src/components/primitives/Paper/Paper.tsx
 import React from 'react';
-import styled from '@emotion/styled';
 import type { Prettify } from '@/types/utilities';
-import type { BaseComponent } from '@/types/common';
-import type { Theme } from '@/theme/types';
-import { processCss } from '@/utils/styledUtils';
+import { cx } from '@/utils/cx';
+import { paperRecipe } from './Paper.css';
 
 /**
  * Paper elevation levels (shadow intensity)
@@ -23,7 +21,7 @@ export type PaperNestLevel = 0 | 1 | 2 | 3;
 export type PaperSpacing = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl';
 
 export interface PaperBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'css'> {
   /**
    * Paper content - any React elements
    */
@@ -83,126 +81,19 @@ export interface PaperBaseProps
    * @example "8px", "50%", "0"
    */
   customRadius?: string | number;
+
+  /**
+   * Test identifier for automated testing
+   */
+  testId?: string;
+
+  ref?: React.Ref<HTMLDivElement>;
 }
 
 /**
  * Props for the Paper component with prettified type for better IntelliSense
  */
 export type PaperProps = Prettify<PaperBaseProps>;
-
-interface StyledPaperProps {
-  $elevation: PaperElevation;
-  $bordered: boolean;
-  $padding: PaperSpacing;
-  $nestLevel: PaperNestLevel;
-  $expand: boolean;
-  $customRadius?: string | number;
-  $css?: PaperProps['css'];
-}
-
-/**
- * Get background color based on nesting level
- */
-const getBackgroundColor = (
-  nestLevel: PaperNestLevel,
-  theme: Theme
-): string | undefined => {
-  const backgroundLevels = [
-    theme.colors.background.primary, // Level 0 - darkest
-    theme.colors.background.secondary, // Level 1
-    theme.colors.background.tertiary, // Level 2
-    theme.colors.background.elevated, // Level 3 - lightest
-  ];
-
-  return backgroundLevels[nestLevel] ?? backgroundLevels[0];
-};
-
-/**
- * Get box shadow based on elevation level
- */
-const getElevationShadow = (
-  elevation: PaperElevation,
-  theme: Theme
-): string => {
-  const shadowLevels = [
-    'none', // Level 0 - no shadow
-    theme.shadows.sm, // Level 1 - small shadow
-    theme.shadows.md, // Level 2 - medium shadow
-    theme.shadows.lg, // Level 3 - large shadow
-  ];
-
-  return shadowLevels[elevation] ?? 'none';
-};
-
-/**
- * Get padding value from theme spacing tokens
- */
-const getPaddingValue = (spacing: PaperSpacing, theme: Theme): string => {
-  return `${theme.spacing[spacing]}px`;
-};
-
-const StyledPaper = styled.div<StyledPaperProps>`
-  /* Base styles */
-  box-sizing: border-box;
-  position: relative;
-
-  /* Background based on nesting level */
-  background-color: ${props =>
-    getBackgroundColor(props.$nestLevel, props.theme)};
-
-  /* Border radius */
-  border-radius: ${props => {
-    if (props.$customRadius !== undefined) {
-      return typeof props.$customRadius === 'number'
-        ? `${props.$customRadius}px`
-        : props.$customRadius;
-    }
-    return `${props.theme.borderRadius.md}px`;
-  }};
-
-  /* Border */
-  ${props =>
-    props.$bordered &&
-    `
-    border: 1px solid ${props.theme.colors.border.default};
-  `}
-
-  /* Elevation shadow */
-  box-shadow: ${props => getElevationShadow(props.$elevation, props.theme)};
-
-  /* Padding */
-  padding: ${props => getPaddingValue(props.$padding, props.theme)};
-
-  /* Expansion */
-  ${props =>
-    props.$expand &&
-    `
-    width: 100%;
-    height: 100%;
-  `}
-
-  /* Smooth transitions for interactive states */
-  transition: box-shadow ${props => props.theme.transitions.normal},
-              background-color ${props => props.theme.transitions.normal};
-
-  /* Hover enhancement for elevated papers */
-  ${props =>
-    props.$elevation > 0 &&
-    `
-    &:hover {
-      box-shadow: ${
-        props.$elevation === 1
-          ? props.theme.shadows.md
-          : props.$elevation === 2
-            ? props.theme.shadows.lg
-            : props.theme.shadows.xl
-      };
-    }
-  `}
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
 
 /**
  * A versatile paper component providing surface elevation and visual hierarchy.
@@ -263,28 +154,38 @@ export const Paper = /*#__PURE__*/ React.memo<PaperProps>(
     customRadius,
     className,
     testId,
-    css,
     style,
     ref,
     ...htmlProps
   }) => {
+    const customRadiusStyle = customRadius !== undefined
+      ? {
+          borderRadius:
+            typeof customRadius === 'number'
+              ? `${customRadius}px`
+              : customRadius,
+        }
+      : undefined;
+
     return (
-      <StyledPaper
+      <div
         ref={ref}
-        className={className}
-        $elevation={elevation}
-        $bordered={bordered}
-        $padding={padding}
-        $nestLevel={nestLevel}
-        $expand={expand}
-        $customRadius={customRadius}
-        $css={css}
+        className={cx(
+          paperRecipe({
+            elevation,
+            bordered: bordered || undefined,
+            padding,
+            nestLevel,
+            expand: expand || undefined,
+          }),
+          className,
+        )}
         data-testid={testId}
-        style={style}
+        style={{ ...customRadiusStyle, ...style }}
         {...htmlProps}
       >
         {children}
-      </StyledPaper>
+      </div>
     );
   }
 );

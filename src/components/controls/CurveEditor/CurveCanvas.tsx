@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import styled from '@emotion/styled';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type {
   CurveData,
   CurveViewport,
@@ -8,6 +8,12 @@ import type {
   CurveBackgroundInfo,
 } from './CurveEditor.types';
 import { useCurveRenderer } from './useCurveRenderer';
+import {
+  canvasContainerRecipe,
+  canvasRecipe,
+  ariaLiveRegionStyle,
+  canvasHeightVar,
+} from './CurveEditor.css';
 
 interface CurveCanvasProps {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -49,39 +55,6 @@ interface CurveCanvasProps {
   testId?: string;
 }
 
-const StyledCanvasContainer = styled.div<{
-  $height: number;
-  $responsive: boolean;
-}>`
-  position: relative;
-  width: 100%;
-  height: ${p => (p.$responsive ? '100%' : `${p.$height}px`)};
-  min-height: ${p => `${p.$height}px`};
-  overflow: hidden;
-`;
-
-const StyledCanvas = styled.canvas<{ $disabled: boolean }>`
-  display: block;
-  width: 100%;
-  height: 100%;
-  outline: none;
-  border: none;
-  opacity: ${p => (p.$disabled ? 0.5 : 1)};
-
-  &:focus-visible {
-    box-shadow: ${p => p.theme.shadows.focus};
-  }
-`;
-
-const AriaLiveRegion = styled.div`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-`;
-
 export const CurveCanvas: React.FC<CurveCanvasProps> = ({
   canvasRef,
   curve,
@@ -109,7 +82,7 @@ export const CurveCanvas: React.FC<CurveCanvasProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [resizeToken, setResizeToken] = useState(0);
 
-  // ResizeObserver for responsive mode — triggers canvas re-render
+  // ResizeObserver for responsive mode -- triggers canvas re-render
   useEffect(() => {
     if (!responsive || !containerRef.current) return;
 
@@ -160,14 +133,17 @@ export const CurveCanvas: React.FC<CurveCanvasProps> = ({
       : '';
 
   return (
-    <StyledCanvasContainer
+    <div
       ref={containerRef}
-      $height={height}
-      $responsive={responsive}
+      className={canvasContainerRecipe({ responsive })}
+      style={{
+        ...assignInlineVars({ [canvasHeightVar]: `${height}px` }),
+        minHeight: `${height}px`,
+      }}
     >
-      <StyledCanvas
+      <canvas
         ref={canvasRef}
-        $disabled={disabled}
+        className={canvasRecipe({ disabled })}
         role="application"
         aria-label={ariaLabel ?? 'Curve editor'}
         aria-roledescription={`curve editor with ${kfCount} keyframes`}
@@ -179,10 +155,10 @@ export const CurveCanvas: React.FC<CurveCanvasProps> = ({
         onDoubleClick={handlers.onDoubleClick}
         onKeyDown={handlers.onKeyDown}
       />
-      <AriaLiveRegion aria-live="polite" role="status">
+      <div className={ariaLiveRegionStyle} aria-live="polite" role="status">
         {srSummary}. {selectionAnnouncement}
-      </AriaLiveRegion>
-    </StyledCanvasContainer>
+      </div>
+    </div>
   );
 };
 

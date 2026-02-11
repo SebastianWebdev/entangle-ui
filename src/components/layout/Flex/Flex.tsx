@@ -1,11 +1,10 @@
 // src/components/layout/Flex/Flex.tsx
 import React from 'react';
-import styled from '@emotion/styled';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
-import { processCss } from '@/utils/styledUtils';
-
-import type { Theme } from '@/theme/types';
+import { cx } from '@/utils/cx';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { flexRecipe, gapVar, growVar, shrinkVar, basisVar } from './Flex.css';
 
 /**
  * Flex direction options
@@ -191,119 +190,21 @@ export interface FlexBaseProps extends BaseComponent<HTMLDivElement> {
  */
 export type FlexProps = Prettify<FlexBaseProps>;
 
-interface StyledFlexProps {
-  $direction: FlexDirection;
-  $sm?: FlexDirection | undefined;
-  $md?: FlexDirection | undefined;
-  $lg?: FlexDirection | undefined;
-  $xl?: FlexDirection | undefined;
-  $wrap: FlexWrap;
-  $justify: FlexJustify;
-  $align: FlexAlign;
-  $alignContent: FlexAlignContent;
-  $gap: FlexSpacing;
-  $customGap?: string | number | undefined;
-  $grow: number;
-  $shrink: number;
-  $basis: string | number | undefined;
-  $fullWidth: boolean;
-  $fullHeight: boolean;
-  $minHeight?: string | number | undefined;
-  $maxWidth?: string | number | undefined;
-  $css?: FlexProps['css'];
-}
+/** Base spacing unit in px */
+const SPACING_UNIT = 4;
 
 /**
- * Calculate gap value based on spacing multiplier and theme
+ * Calculate gap value based on spacing multiplier
  */
 const getGapValue = (
   gap: FlexSpacing,
-  theme: Theme,
   customGap?: string | number
 ): string => {
   if (customGap !== undefined) {
     return typeof customGap === 'number' ? `${customGap}px` : customGap;
   }
-  return `${gap * theme.spacing.sm}px`;
+  return `${gap * SPACING_UNIT}px`;
 };
-
-const StyledFlex = styled.div<StyledFlexProps>`
-  /* Base flex container */
-  display: flex;
-  box-sizing: border-box;
-
-  /* Flex properties */
-  flex-direction: ${props => props.$direction};
-  flex-wrap: ${props => props.$wrap};
-  justify-content: ${props => props.$justify};
-  align-items: ${props => props.$align};
-  align-content: ${props => props.$alignContent};
-
-  /* Gap between items */
-  gap: ${props => getGapValue(props.$gap, props.theme, props.$customGap)};
-
-  /* Flex item properties (when this Flex is inside another flex container) */
-  flex-grow: ${props => props.$grow};
-  flex-shrink: ${props => props.$shrink};
-  flex-basis: ${props =>
-    typeof props.$basis === 'number' ? `${props.$basis}px` : props.$basis};
-
-  /* Size control */
-  ${props => props.$fullWidth && 'width: 100%;'}
-  ${props => props.$fullHeight && 'height: 100%;'}
-  
-  ${props =>
-    props.$minHeight &&
-    `min-height: ${
-      typeof props.$minHeight === 'number'
-        ? `${props.$minHeight}px`
-        : props.$minHeight
-    };`}
-  
-  ${props =>
-    props.$maxWidth &&
-    `max-width: ${
-      typeof props.$maxWidth === 'number'
-        ? `${props.$maxWidth}px`
-        : props.$maxWidth
-    };`}
-  
-  /* Responsive direction changes */
-  ${props =>
-    props.$sm &&
-    `
-    @media (min-width: 576px) {
-      flex-direction: ${props.$sm};
-    }
-  `}
-  
-  ${props =>
-    props.$md &&
-    `
-    @media (min-width: 768px) {
-      flex-direction: ${props.$md};
-    }
-  `}
-  
-  ${props =>
-    props.$lg &&
-    `
-    @media (min-width: 992px) {
-      flex-direction: ${props.$lg};
-    }
-  `}
-  
-  ${props =>
-    props.$xl &&
-    `
-    @media (min-width: 1200px) {
-      flex-direction: ${props.$xl};
-    }
-  `}
-
-  /* Custom CSS */
-  ${props => processCss(props.$css, props.theme)}
-`;
 
 /**
  * A comprehensive flexbox component providing full control over flex properties.
@@ -390,40 +291,58 @@ export const Flex: React.FC<FlexProps> = ({
   maxWidth,
   className,
   testId,
-  css,
   style,
   ref,
   ...htmlProps
 }) => {
+  const basisValue =
+    typeof basis === 'number' ? `${basis}px` : basis;
+
+  const dynamicStyle: React.CSSProperties = {
+    ...assignInlineVars({
+      [gapVar]: getGapValue(gap, customGap),
+      [growVar]: String(grow),
+      [shrinkVar]: String(shrink),
+      [basisVar]: basisValue,
+    }),
+    ...(minHeight !== undefined
+      ? { minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight }
+      : undefined),
+    ...(maxWidth !== undefined
+      ? { maxWidth: typeof maxWidth === 'number' ? `${maxWidth}px` : maxWidth }
+      : undefined),
+    ...style,
+  };
+
+  // Build data attributes for responsive direction overrides
+  const dataAttrs: Record<string, string> = {};
+  if (sm) dataAttrs['data-sm-dir'] = sm;
+  if (md) dataAttrs['data-md-dir'] = md;
+  if (lg) dataAttrs['data-lg-dir'] = lg;
+  if (xl) dataAttrs['data-xl-dir'] = xl;
+
   return (
-    <StyledFlex
+    <div
       ref={ref}
-      className={className}
-      $direction={direction}
-      $sm={sm}
-      $md={md}
-      $lg={lg}
-      $xl={xl}
-      $wrap={wrap}
-      $justify={justify}
-      $align={align}
-      $alignContent={alignContent}
-      $gap={gap}
-      $customGap={customGap}
-      $grow={grow}
-      $shrink={shrink}
-      $basis={basis}
-      $fullWidth={fullWidth}
-      $fullHeight={fullHeight}
-      $minHeight={minHeight}
-      $maxWidth={maxWidth}
-      $css={css}
+      className={cx(
+        flexRecipe({
+          direction,
+          wrap,
+          justify,
+          align,
+          alignContent,
+          fullWidth: fullWidth || undefined,
+          fullHeight: fullHeight || undefined,
+        }),
+        className,
+      )}
       data-testid={testId}
-      style={style}
+      style={dynamicStyle}
+      {...dataAttrs}
       {...htmlProps}
     >
       {children}
-    </StyledFlex>
+    </div>
   );
 };
 

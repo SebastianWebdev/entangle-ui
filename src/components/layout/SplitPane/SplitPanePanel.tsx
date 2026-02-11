@@ -1,17 +1,7 @@
 import React from 'react';
-import styled from '@emotion/styled';
-import { processCss } from '@/utils/styledUtils';
 import type { SplitPanePanelProps } from './SplitPane.types';
-import type { Theme } from '@/theme/types';
-
-interface StyledPanelProps {
-  $css?: SplitPanePanelProps['css'];
-}
-
-const StyledPanel = styled.div<StyledPanelProps>`
-  overflow: auto;
-  ${props => processCss(props.$css, props.theme as Theme)}
-`;
+import { cx } from '@/utils/cx';
+import { panelStyle } from './SplitPane.css';
 
 /**
  * A panel within a SplitPane layout.
@@ -31,23 +21,21 @@ export const SplitPanePanel: React.FC<SplitPanePanelProps> = ({
   children,
   className,
   testId,
-  css,
   style,
   ref,
   ...htmlProps
 }) => {
   return (
-    <StyledPanel
+    <div
       ref={ref}
-      className={className}
+      className={cx(panelStyle, className)}
       data-testid={testId}
       data-splitpane-panel=""
-      $css={css}
       style={style}
       {...htmlProps}
     >
       {children}
-    </StyledPanel>
+    </div>
   );
 };
 

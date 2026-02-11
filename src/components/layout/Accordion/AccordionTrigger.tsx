@@ -1,136 +1,30 @@
 import React, { useCallback } from 'react';
-import styled from '@emotion/styled';
 import { useAccordionContext, useAccordionItemContext } from './Accordion';
 import type {
   AccordionSize,
   AccordionTriggerProps,
-  AccordionVariant,
 } from './Accordion.types';
-import type { Theme } from '@/theme';
+import { cx } from '@/utils/cx';
+import {
+  triggerButton,
+  chevronStyle,
+  chevronExpanded,
+  chevronCollapsed,
+  actionsArea,
+  iconArea,
+} from './Accordion.css';
 
 // --- Size maps ---
 
-interface TriggerSizeConfig {
-  height: number;
-  paddingKey: keyof Theme['spacing'];
-  fontKey: keyof Theme['typography']['fontSize'];
+interface ChevronSizeConfig {
   chevronSize: number;
 }
 
-const TRIGGER_SIZE_MAP: Record<AccordionSize, TriggerSizeConfig> = {
-  sm: { height: 28, paddingKey: 'md', fontKey: 'xs', chevronSize: 10 },
-  md: { height: 32, paddingKey: 'lg', fontKey: 'sm', chevronSize: 12 },
-  lg: { height: 38, paddingKey: 'xl', fontKey: 'md', chevronSize: 14 },
+const CHEVRON_SIZE_MAP: Record<AccordionSize, ChevronSizeConfig> = {
+  sm: { chevronSize: 10 },
+  md: { chevronSize: 12 },
+  lg: { chevronSize: 14 },
 };
-
-// --- Styled ---
-
-interface StyledTriggerButtonProps {
-  $variant: AccordionVariant;
-  $size: AccordionSize;
-  $expanded: boolean;
-  $disabled: boolean;
-}
-
-const StyledTriggerButton = styled.button<StyledTriggerButtonProps>`
-  /* Reset */
-  margin: 0;
-  border: none;
-  font-family: inherit;
-  outline: none;
-  cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
-  user-select: none;
-  width: 100%;
-  text-align: left;
-
-  /* Layout */
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.spacing.sm}px;
-
-  /* Sizing */
-  height: ${props => TRIGGER_SIZE_MAP[props.$size].height}px;
-  padding: 0
-    ${props => props.theme.spacing[TRIGGER_SIZE_MAP[props.$size].paddingKey]}px;
-  font-size: ${props =>
-    props.theme.typography.fontSize[TRIGGER_SIZE_MAP[props.$size].fontKey]}px;
-  font-weight: ${props => props.theme.typography.fontWeight.medium};
-  color: ${props => props.theme.colors.text.primary};
-  transition: background ${props => props.theme.transitions.fast};
-
-  /* Disabled */
-  opacity: ${props => (props.$disabled ? 0.5 : 1)};
-
-  /* Variant styles */
-  ${props => {
-    const { colors } = props.theme;
-
-    switch (props.$variant) {
-      case 'ghost':
-        return `
-          background: transparent;
-          border-bottom: 1px solid ${colors.border.default};
-          &:hover:not(:disabled) {
-            background: ${colors.surface.hover};
-          }
-        `;
-      case 'filled':
-        return `
-          background: ${colors.background.tertiary};
-          &:hover:not(:disabled) {
-            background: ${colors.surface.hover};
-          }
-        `;
-      default:
-        return `
-          background: ${colors.surface.default};
-          border-bottom: 1px solid ${colors.border.default};
-          &:hover:not(:disabled) {
-            background: ${colors.surface.hover};
-          }
-        `;
-    }
-  }}
-
-  /* Focus visible */
-  &:focus-visible {
-    box-shadow: ${props => props.theme.shadows.focus};
-    z-index: 1;
-  }
-`;
-
-interface StyledChevronProps {
-  $expanded: boolean;
-  $size: number;
-}
-
-const StyledChevron = styled.span<StyledChevronProps>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: transform ${props => props.theme.transitions.fast};
-  transform: rotate(${props => (props.$expanded ? '90deg' : '0deg')});
-  color: ${props => props.theme.colors.text.muted};
-
-  svg {
-    width: ${props => props.$size}px;
-    height: ${props => props.$size}px;
-  }
-`;
-
-const StyledActionsArea = styled.span`
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  gap: ${props => props.theme.spacing.xs}px;
-`;
-
-const StyledIconArea = styled.span`
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-`;
 
 // --- Chevron icon ---
 
@@ -167,7 +61,7 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = ({
 }) => {
   const { toggleItem, variant, size, accordionId } = useAccordionContext();
   const { value, isExpanded, isDisabled } = useAccordionItemContext();
-  const sizeConfig = TRIGGER_SIZE_MAP[size];
+  const sizeConfig = CHEVRON_SIZE_MAP[size];
 
   const triggerId = `accordion-${accordionId}-trigger-${value}`;
   const contentId = `accordion-${accordionId}-content-${value}`;
@@ -185,7 +79,7 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = ({
   const showIndicator = indicator !== null;
 
   return (
-    <StyledTriggerButton
+    <button
       ref={ref}
       type="button"
       id={triggerId}
@@ -194,28 +88,36 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = ({
       aria-disabled={isDisabled || undefined}
       disabled={isDisabled}
       onClick={handleClick}
-      $variant={variant}
-      $size={size}
-      $expanded={isExpanded}
-      $disabled={isDisabled}
-      className={className}
+      className={cx(
+        triggerButton({ variant, size, disabled: isDisabled }),
+        className,
+      )}
       style={style}
       data-testid={testId}
       {...rest}
     >
       {showIndicator && (
-        <StyledChevron $expanded={isExpanded} $size={sizeConfig.chevronSize}>
+        <span
+          className={cx(
+            chevronStyle,
+            isExpanded ? chevronExpanded : chevronCollapsed,
+          )}
+          style={{
+            width: `${sizeConfig.chevronSize}px`,
+            height: `${sizeConfig.chevronSize}px`,
+          }}
+        >
           {indicator ?? <ChevronRightIcon size={sizeConfig.chevronSize} />}
-        </StyledChevron>
+        </span>
       )}
-      {icon && <StyledIconArea>{icon}</StyledIconArea>}
+      {icon && <span className={iconArea}>{icon}</span>}
       <span>{children}</span>
       {actions && (
-        <StyledActionsArea onClick={handleActionsClick}>
+        <span className={actionsArea} onClick={handleActionsClick}>
           {actions}
-        </StyledActionsArea>
+        </span>
       )}
-    </StyledTriggerButton>
+    </button>
   );
 };
 

@@ -141,9 +141,12 @@ describe('Stack', () => {
       renderWithTheme(<Stack data-testid="test-stack">Content</Stack>);
 
       const stack = screen.getByTestId('test-stack');
-      const styles = window.getComputedStyle(stack);
 
-      expect(styles.gap).toBe('0px');
+      // VE uses assignInlineVars to set gapVar on the element's inline style.
+      // The CSS `gap: var(--gapVar)` won't resolve in jsdom, so we check the
+      // inline CSS variable value instead.
+      const inlineStyle = stack.getAttribute('style') ?? '';
+      expect(inlineStyle).toContain('0px');
     });
 
     it('applies spacing based on theme multiplier', () => {
@@ -157,11 +160,12 @@ describe('Stack', () => {
         );
 
         const stack = screen.getByTestId(`stack-${spacing}`);
-        const styles = window.getComputedStyle(stack);
 
-        // Each spacing unit = 4px (theme.spacing.sm)
+        // Each spacing unit = 4px (SPACING_UNIT)
         const expectedGap = `${spacing * 4}px`;
-        expect(styles.gap).toBe(expectedGap);
+        // The gap value is set via assignInlineVars on the inline style
+        const inlineStyle = stack.getAttribute('style') ?? '';
+        expect(inlineStyle).toContain(expectedGap);
 
         unmount();
       });
@@ -175,9 +179,8 @@ describe('Stack', () => {
       );
 
       const stack = screen.getByTestId('test-stack');
-      const styles = window.getComputedStyle(stack);
-
-      expect(styles.gap).toBe('24px');
+      const inlineStyle = stack.getAttribute('style') ?? '';
+      expect(inlineStyle).toContain('24px');
     });
 
     it('custom gap overrides spacing prop', () => {
@@ -188,9 +191,9 @@ describe('Stack', () => {
       );
 
       const stack = screen.getByTestId('test-stack');
-      const styles = window.getComputedStyle(stack);
-
-      expect(styles.gap).toBe('10px');
+      // customGap should override spacing; inline var should contain 10px
+      const inlineStyle = stack.getAttribute('style') ?? '';
+      expect(inlineStyle).toContain('10px');
     });
 
     it('handles numeric custom gap', () => {
@@ -201,9 +204,8 @@ describe('Stack', () => {
       );
 
       const stack = screen.getByTestId('test-stack');
-      const styles = window.getComputedStyle(stack);
-
-      expect(styles.gap).toBe('20px');
+      const inlineStyle = stack.getAttribute('style') ?? '';
+      expect(inlineStyle).toContain('20px');
     });
 
     it('handles complex gap values', () => {
@@ -214,9 +216,8 @@ describe('Stack', () => {
       );
 
       const stack = screen.getByTestId('test-stack');
-      const styles = window.getComputedStyle(stack);
-
-      expect(styles.gap).toBe('1rem 0.5rem');
+      const inlineStyle = stack.getAttribute('style') ?? '';
+      expect(inlineStyle).toContain('1rem 0.5rem');
     });
   });
 
@@ -391,7 +392,9 @@ describe('Stack', () => {
 
       expect(styles.flexDirection).toBe('row');
       expect(styles.width).toBe('100%');
-      expect(styles.gap).toBe('12px'); // 3 * 4px
+      // Gap is set via assignInlineVars (CSS var); check inline style
+      const inlineStyle = stack.getAttribute('style') ?? '';
+      expect(inlineStyle).toContain('12px'); // 3 * 4px
       expect(styles.justifyContent).toBe('space-between');
       expect(styles.alignItems).toBe('center');
       expect(styles.flexWrap).toBe('wrap');
@@ -434,10 +437,10 @@ describe('Stack', () => {
       );
 
       const stack = screen.getByTestId('test-stack');
-      const styles = window.getComputedStyle(stack);
 
-      // Should use theme.spacing.sm (4px) * 2 = 8px
-      expect(styles.gap).toBe('8px');
+      // Should use SPACING_UNIT (4px) * 2 = 8px, set via assignInlineVars
+      const inlineStyle = stack.getAttribute('style') ?? '';
+      expect(inlineStyle).toContain('8px');
     });
   });
 
@@ -483,9 +486,10 @@ describe('Stack', () => {
       );
 
       const stack = screen.getByTestId('test-stack');
-      const styles = window.getComputedStyle(stack);
 
-      expect(styles.gap).toBe('32px'); // 8 * 4px
+      // 8 * 4px = 32px, set via assignInlineVars
+      const inlineStyle = stack.getAttribute('style') ?? '';
+      expect(inlineStyle).toContain('32px');
     });
 
     it('handles boolean props correctly', () => {

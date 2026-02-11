@@ -4,6 +4,7 @@ import { Menu as BaseMenu } from '@base-ui-components/react/menu';
 import { ChevronUpIcon } from '@/components/Icons';
 import { Text } from '@/components/primitives/Text';
 import { Stack } from '@/components/layout/Stack';
+import { cx } from '@/utils/cx';
 
 import type {
   MenuItem,
@@ -12,15 +13,17 @@ import type {
   MenuProps,
 } from './Menu.types';
 import {
-  StyledMenuContent,
-  StyledMenuItem,
-  StyledRadioItem,
-  StyledCheckboxItem,
-  StyledMenuItemContent,
-  StyledIconContainer,
-  StyledIcon,
-  StyledChevronIcon,
-} from './Menu.styled';
+  menuContentStyle,
+  menuItemStyle,
+  menuItemDisabledStyle,
+  radioItemStyle,
+  checkboxItemStyle,
+  menuItemContentStyle,
+  iconContainerStyle,
+  iconVisibleStyle,
+  iconHiddenStyle,
+  chevronIconStyle,
+} from './Menu.css';
 
 /**
  * Helper function to render menu item content with consistent structure.
@@ -29,19 +32,19 @@ export const renderMenuItemContent = (
   item: MenuItem,
   iconSlot?: React.ReactNode
 ): React.ReactNode => (
-  <StyledMenuItemContent>
-    {iconSlot && <StyledIconContainer>{iconSlot}</StyledIconContainer>}
+  <div className={menuItemContentStyle}>
+    {iconSlot && <div className={iconContainerStyle}>{iconSlot}</div>}
     <Stack direction="row" justify="space-between" align="center" expand>
       <Text variant="caption" size="md" color="primary">
         {item.label}
       </Text>
       {item.subMenu && (
-        <StyledChevronIcon>
+        <div className={chevronIconStyle}>
           <ChevronUpIcon size="sm" />
-        </StyledChevronIcon>
+        </div>
       )}
     </Stack>
-  </StyledMenuItemContent>
+  </div>
 );
 
 /**
@@ -54,19 +57,22 @@ export const renderRadioItem = (
   radioIcon: React.ReactNode,
   clickHandler: (event: React.MouseEvent) => void
 ): React.ReactNode => (
-  <StyledRadioItem
+  <BaseMenu.RadioItem
     key={item.id}
     value={item.id}
     disabled={item.disabled}
     onClick={clickHandler}
+    className={cx(radioItemStyle, item.disabled && menuItemDisabledStyle)}
   >
     {renderMenuItemContent(
       item,
       <BaseMenu.RadioItemIndicator>
-        <StyledIcon $visible={isSelected}>{radioIcon}</StyledIcon>
+        <div className={isSelected ? iconVisibleStyle : iconHiddenStyle}>
+          {radioIcon}
+        </div>
       </BaseMenu.RadioItemIndicator>
     )}
-  </StyledRadioItem>
+  </BaseMenu.RadioItem>
 );
 
 /**
@@ -79,19 +85,22 @@ export const renderCheckboxItem = (
   checkboxIcon: React.ReactNode,
   clickHandler: (event: React.MouseEvent) => void
 ): React.ReactNode => (
-  <StyledCheckboxItem
+  <BaseMenu.CheckboxItem
     key={item.id}
     checked={isSelected}
     disabled={item.disabled}
     onClick={clickHandler}
+    className={cx(checkboxItemStyle, item.disabled && menuItemDisabledStyle)}
   >
     {renderMenuItemContent(
       item,
       <BaseMenu.CheckboxItemIndicator>
-        <StyledIcon $visible={isSelected}>{checkboxIcon}</StyledIcon>
+        <div className={isSelected ? iconVisibleStyle : iconHiddenStyle}>
+          {checkboxIcon}
+        </div>
       </BaseMenu.CheckboxItemIndicator>
     )}
-  </StyledCheckboxItem>
+  </BaseMenu.CheckboxItem>
 );
 
 /**
@@ -102,14 +111,19 @@ export const renderRegularItem = (
   _group: MenuGroup,
   clickHandler: (event: React.MouseEvent) => void
 ): React.ReactNode => (
-  <StyledMenuItem key={item.id} disabled={item.disabled} onClick={clickHandler}>
+  <BaseMenu.Item
+    key={item.id}
+    disabled={item.disabled}
+    onClick={clickHandler}
+    className={cx(menuItemStyle, item.disabled && menuItemDisabledStyle)}
+  >
     {renderMenuItemContent(
       item,
       item.icon ? (
-        <StyledIcon $visible={true}>{item.icon}</StyledIcon>
+        <div className={iconVisibleStyle}>{item.icon}</div>
       ) : undefined
     )}
-  </StyledMenuItem>
+  </BaseMenu.Item>
 );
 
 /**
@@ -173,7 +187,7 @@ export const renderItemWithSubmenu = (
         <BaseMenu.SubmenuTrigger>{menuItem}</BaseMenu.SubmenuTrigger>
         <BaseMenu.Portal>
           <BaseMenu.Positioner>
-            <StyledMenuContent>
+            <BaseMenu.Popup className={menuContentStyle}>
               <MenuComponent
                 isSubmenu
                 config={item.subMenu}
@@ -182,7 +196,7 @@ export const renderItemWithSubmenu = (
                 checkboxIcon={checkboxIcon}
                 radioIcon={radioIcon}
               />
-            </StyledMenuContent>
+            </BaseMenu.Popup>
           </BaseMenu.Positioner>
         </BaseMenu.Portal>
       </BaseMenu.Root>

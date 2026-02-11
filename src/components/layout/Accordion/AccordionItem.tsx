@@ -1,17 +1,11 @@
 import React from 'react';
-import styled from '@emotion/styled';
 import { useAccordionContext, AccordionItemContext } from './Accordion';
 import type {
   AccordionItemContextValue,
   AccordionItemProps,
 } from './Accordion.types';
-
-// --- Styled ---
-
-const StyledAccordionItem = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
+import { cx } from '@/utils/cx';
+import { accordionItem } from './Accordion.css';
 
 // --- Component ---
 
@@ -36,15 +30,15 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({
 
   return (
     <AccordionItemContext.Provider value={itemContext}>
-      <StyledAccordionItem
+      <div
         ref={ref}
-        className={className}
+        className={cx(accordionItem, className)}
         style={style}
         data-testid={testId}
         {...rest}
       >
         {children}
-      </StyledAccordionItem>
+      </div>
     </AccordionItemContext.Provider>
   );
 };

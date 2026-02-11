@@ -1,32 +1,47 @@
 import React, { useCallback, useId, useState } from 'react';
-import styled from '@emotion/styled';
-import type { Theme } from '@/theme';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { CollapsibleProps, CollapsibleSize } from './Collapsible.types';
+import { cx } from '@/utils/cx';
+import {
+  collapsibleRootStyle,
+  triggerRecipe,
+  triggerHeightVar,
+  triggerPaddingVar,
+  triggerFontSizeVar,
+  chevronRecipe,
+  chevronSizeVar,
+  contentWrapperRecipe,
+  contentInnerStyle,
+  contentBodyStyle,
+  contentPaddingVVar,
+  contentPaddingHVar,
+} from './Collapsible.css';
+import { vars } from '@/theme/contract.css';
 
 // --- Size maps ---
 
 interface TriggerSizeConfig {
-  height: number;
-  paddingKey: keyof Theme['spacing'];
-  fontKey: keyof Theme['typography']['fontSize'];
+  height: string;
+  padding: string;
+  fontSize: string;
   chevronSize: number;
 }
 
 const TRIGGER_SIZE_MAP: Record<CollapsibleSize, TriggerSizeConfig> = {
-  sm: { height: 24, paddingKey: 'md', fontKey: 'xs', chevronSize: 10 },
-  md: { height: 28, paddingKey: 'md', fontKey: 'sm', chevronSize: 12 },
-  lg: { height: 32, paddingKey: 'lg', fontKey: 'md', chevronSize: 14 },
+  sm: { height: '24px', padding: vars.spacing.md, fontSize: vars.typography.fontSize.xs, chevronSize: 10 },
+  md: { height: '28px', padding: vars.spacing.md, fontSize: vars.typography.fontSize.sm, chevronSize: 12 },
+  lg: { height: '32px', padding: vars.spacing.lg, fontSize: vars.typography.fontSize.md, chevronSize: 14 },
 };
 
 interface ContentSizeConfig {
-  paddingVKey: keyof Theme['spacing'];
-  paddingHKey: keyof Theme['spacing'];
+  paddingV: string;
+  paddingH: string;
 }
 
 const CONTENT_SIZE_MAP: Record<CollapsibleSize, ContentSizeConfig> = {
-  sm: { paddingVKey: 'sm', paddingHKey: 'md' },
-  md: { paddingVKey: 'md', paddingHKey: 'lg' },
-  lg: { paddingVKey: 'lg', paddingHKey: 'xl' },
+  sm: { paddingV: vars.spacing.sm, paddingH: vars.spacing.md },
+  md: { paddingV: vars.spacing.md, paddingH: vars.spacing.lg },
+  lg: { paddingV: vars.spacing.lg, paddingH: vars.spacing.xl },
 };
 
 // --- Chevron icon ---
@@ -48,109 +63,6 @@ const ChevronRightIcon: React.FC<{ size: number }> = ({ size }) => (
     />
   </svg>
 );
-
-// --- Styled ---
-
-const StyledRoot = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-interface StyledTriggerProps {
-  $size: CollapsibleSize;
-  $disabled: boolean;
-}
-
-const StyledTrigger = styled.button<StyledTriggerProps>`
-  /* Reset */
-  margin: 0;
-  border: none;
-  font-family: inherit;
-  outline: none;
-  user-select: none;
-  width: 100%;
-  text-align: left;
-
-  /* Layout */
-  display: flex;
-  align-items: center;
-  gap: ${props => props.theme.spacing.sm}px;
-
-  /* Sizing */
-  height: ${props => TRIGGER_SIZE_MAP[props.$size].height}px;
-  padding: 0
-    ${props => props.theme.spacing[TRIGGER_SIZE_MAP[props.$size].paddingKey]}px;
-  font-size: ${props =>
-    props.theme.typography.fontSize[TRIGGER_SIZE_MAP[props.$size].fontKey]}px;
-  font-weight: ${props => props.theme.typography.fontWeight.medium};
-
-  /* Colors */
-  background: transparent;
-  color: ${props => props.theme.colors.text.muted};
-  cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
-  opacity: ${props => (props.$disabled ? 0.5 : 1)};
-  transition:
-    color ${props => props.theme.transitions.fast},
-    background ${props => props.theme.transitions.fast};
-
-  &:hover {
-    color: ${props =>
-      props.$disabled
-        ? props.theme.colors.text.muted
-        : props.theme.colors.text.primary};
-  }
-
-  &:focus-visible {
-    box-shadow: ${props => props.theme.shadows.focus};
-    border-radius: ${props => props.theme.borderRadius.sm}px;
-    z-index: 1;
-  }
-`;
-
-interface StyledChevronProps {
-  $open: boolean;
-  $size: number;
-}
-
-const StyledChevron = styled.span<StyledChevronProps>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: transform ${props => props.theme.transitions.fast};
-  transform: rotate(${props => (props.$open ? '90deg' : '0deg')});
-  color: currentColor;
-
-  svg {
-    width: ${props => props.$size}px;
-    height: ${props => props.$size}px;
-  }
-`;
-
-interface StyledContentWrapperProps {
-  $open: boolean;
-}
-
-const StyledContentWrapper = styled.div<StyledContentWrapperProps>`
-  display: grid;
-  grid-template-rows: ${props => (props.$open ? '1fr' : '0fr')};
-  transition: grid-template-rows ${props => props.theme.transitions.normal};
-`;
-
-const StyledContentInner = styled.div`
-  overflow: hidden;
-  min-height: 0;
-`;
-
-interface StyledContentBodyProps {
-  $size: CollapsibleSize;
-}
-
-const StyledContentBody = styled.div<StyledContentBodyProps>`
-  padding: ${props =>
-      props.theme.spacing[CONTENT_SIZE_MAP[props.$size].paddingVKey]}px
-    ${props => props.theme.spacing[CONTENT_SIZE_MAP[props.$size].paddingHKey]}px;
-`;
 
 // --- Component ---
 
@@ -192,16 +104,28 @@ export const Collapsible: React.FC<CollapsibleProps> = ({
 
   const showIndicator = indicator !== null;
   const sizeConfig = TRIGGER_SIZE_MAP[size];
+  const contentConfig = CONTENT_SIZE_MAP[size];
+
+  const triggerInlineVars = assignInlineVars({
+    [triggerHeightVar]: sizeConfig.height,
+    [triggerPaddingVar]: sizeConfig.padding,
+    [triggerFontSizeVar]: sizeConfig.fontSize,
+  });
+
+  const contentInlineVars = assignInlineVars({
+    [contentPaddingVVar]: contentConfig.paddingV,
+    [contentPaddingHVar]: contentConfig.paddingH,
+  });
 
   return (
-    <StyledRoot
+    <div
       ref={ref}
-      className={className}
+      className={cx(collapsibleRootStyle, className)}
       style={style}
       data-testid={testId}
       {...rest}
     >
-      <StyledTrigger
+      <button
         type="button"
         id={triggerId}
         aria-expanded={resolvedOpen}
@@ -209,31 +133,44 @@ export const Collapsible: React.FC<CollapsibleProps> = ({
         aria-disabled={disabled || undefined}
         disabled={disabled}
         onClick={handleToggle}
-        $size={size}
-        $disabled={disabled}
+        className={triggerRecipe({
+          disabled: disabled || undefined,
+        })}
+        style={triggerInlineVars}
       >
         {showIndicator && (
-          <StyledChevron $open={resolvedOpen} $size={sizeConfig.chevronSize}>
+          <span
+            className={chevronRecipe({
+              open: resolvedOpen || undefined,
+            })}
+            style={assignInlineVars({
+              [chevronSizeVar]: `${sizeConfig.chevronSize}px`,
+            })}
+          >
             {indicator ?? <ChevronRightIcon size={sizeConfig.chevronSize} />}
-          </StyledChevron>
+          </span>
         )}
         <span>{trigger}</span>
-      </StyledTrigger>
+      </button>
 
       {(resolvedOpen || keepMounted) && (
-        <StyledContentWrapper
-          $open={resolvedOpen}
+        <div
+          className={contentWrapperRecipe({
+            open: resolvedOpen || undefined,
+          })}
           role="region"
           id={contentId}
           aria-labelledby={triggerId}
           hidden={!resolvedOpen || undefined}
         >
-          <StyledContentInner>
-            <StyledContentBody $size={size}>{children}</StyledContentBody>
-          </StyledContentInner>
-        </StyledContentWrapper>
+          <div className={contentInnerStyle}>
+            <div className={contentBodyStyle} style={contentInlineVars}>
+              {children}
+            </div>
+          </div>
+        </div>
       )}
-    </StyledRoot>
+    </div>
   );
 };
 

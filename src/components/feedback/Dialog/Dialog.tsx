@@ -7,9 +7,10 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import type { DialogContextValue, DialogProps } from './Dialog.types';
-import { StyledOverlay, StyledDialogPanel } from './Dialog.styled';
+import { overlayRecipe, dialogPanelRecipe } from './Dialog.css';
 import { useDialogAnimation } from './useDialogAnimation';
 import { useFocusTrap } from './useFocusTrap';
+import { cx } from '@/utils/cx';
 
 // --- Context ---
 
@@ -63,7 +64,6 @@ export const Dialog: React.FC<DialogProps> = ({
   children,
   className,
   style,
-  css,
   testId,
   id,
   ref,
@@ -119,13 +119,13 @@ export const Dialog: React.FC<DialogProps> = ({
   const dialogContent = (
     <DialogContext.Provider value={contextValue}>
       {showOverlay && (
-        <StyledOverlay
-          $closing={closing}
+        <div
+          className={overlayRecipe({ closing })}
           onClick={handleOverlayClick}
           data-testid={testId ? `${testId}-overlay` : undefined}
         />
       )}
-      <StyledDialogPanel
+      <div
         ref={(node: HTMLDivElement | null) => {
           (panelRef as React.MutableRefObject<HTMLDivElement | null>).current =
             node;
@@ -141,10 +141,7 @@ export const Dialog: React.FC<DialogProps> = ({
         aria-labelledby={title ? titleId : undefined}
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
-        $size={size}
-        $closing={closing}
-        $css={css}
-        className={className}
+        className={cx(dialogPanelRecipe({ size, closing }), className)}
         style={style}
         id={id}
         data-testid={testId}
@@ -163,7 +160,7 @@ export const Dialog: React.FC<DialogProps> = ({
           </span>
         )}
         {children}
-      </StyledDialogPanel>
+      </div>
     </DialogContext.Provider>
   );
 

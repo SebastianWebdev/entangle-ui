@@ -39,9 +39,12 @@ describe('PanelSurface', () => {
       </PanelSurface>
     );
 
-    expect(screen.getByTestId('gradient-panel')).toHaveStyle({
-      background: 'linear-gradient(180deg, #2f3442 0%, #1b202a 100%)',
-    });
+    // assignInlineVars sets the gradient value as a CSS custom property.
+    // jsdom can't resolve CSS vars, so verify the inline style contains the value.
+    const panel = screen.getByTestId('gradient-panel');
+    expect(panel.style.cssText).toContain(
+      'linear-gradient(180deg, #2f3442 0%, #1b202a 100%)'
+    );
   });
 
   it('supports scrollable body mode', () => {

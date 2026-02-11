@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
-import styled from '@emotion/styled';
 import { EyeDropperIcon } from '@/components/Icons/EyeDropperIcon';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
+import { eyeDropperRecipe } from './ColorPicker.css';
 
 // ---------- EyeDropper API types (not yet in TypeScript lib) ----------
 
@@ -28,55 +28,6 @@ interface EyeDropperBaseProps
 
 type EyeDropperProps = Prettify<EyeDropperBaseProps>;
 
-// ---------- Size map ----------
-
-const SIZE_MAP: Record<Size, number> = {
-  sm: 20,
-  md: 24,
-  lg: 28,
-};
-
-// ---------- Styled components ----------
-
-const StyledButton = styled.button<{ $size: number; $disabled: boolean }>`
-  margin: 0;
-  padding: 0;
-  border: 1px solid ${({ theme }) => theme.colors.border.default};
-  background: transparent;
-  outline: none;
-  cursor: pointer;
-
-  width: ${({ $size }) => $size}px;
-  height: ${({ $size }) => $size}px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: ${({ theme }) => theme.borderRadius.sm}px;
-  color: ${({ theme }) => theme.colors.text.muted};
-  transition:
-    background ${({ theme }) => theme.transitions.fast},
-    color ${({ theme }) => theme.transitions.fast},
-    border-color ${({ theme }) => theme.transitions.fast};
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.surface.hover};
-    color: ${({ theme }) => theme.colors.text.primary};
-  }
-
-  &:focus-visible {
-    box-shadow: ${({ theme }) => theme.shadows.focus};
-  }
-
-  ${({ $disabled }) =>
-    $disabled &&
-    `
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-  `}
-`;
-
 // ---------- Component ----------
 
 /**
@@ -95,7 +46,6 @@ const EyeDropper: React.FC<EyeDropperProps> = ({
   size = 'md',
   disabled = false,
   testId,
-  css: cssProp,
   ...rest
 }) => {
   const isAvailable = typeof window !== 'undefined' && 'EyeDropper' in window;
@@ -121,26 +71,18 @@ const EyeDropper: React.FC<EyeDropperProps> = ({
     return null;
   }
 
-  const pixelSize = SIZE_MAP[size];
-
   return (
-    <StyledButton
+    <button
       type="button"
-      $size={pixelSize}
-      $disabled={disabled}
+      className={eyeDropperRecipe({ size, disabled })}
       disabled={disabled}
       onClick={handleClick}
       data-testid={testId}
-      style={
-        typeof cssProp === 'function'
-          ? undefined
-          : (cssProp as React.CSSProperties)
-      }
       aria-label="Pick color from screen"
       {...rest}
     >
       <EyeDropperIcon size="sm" />
-    </StyledButton>
+    </button>
   );
 };
 
