@@ -6,7 +6,7 @@ React + TypeScript component library for building editor-style interfaces.
 
 ## Status
 
-This package is in alpha (`0.1.0-alpha.x`) and still evolving.
+This package is in alpha and still evolving.
 
 - API can change between alpha releases.
 - Use in production only if you are comfortable with rapid iteration.
@@ -27,70 +27,108 @@ Peer dependencies:
 ## Quick Start
 
 ```tsx
-import React from 'react';
-import {
-  ThemeProvider,
-  AppShell,
-  MenuBar,
-  Toolbar,
-  StatusBar,
-} from 'entangle-ui';
+import 'entangle-ui/darkTheme.css'; // registers --etui-* CSS custom properties on :root
+
+import { AppShell, MenuBar, Toolbar, StatusBar } from 'entangle-ui';
 
 export function App() {
   return (
-    <ThemeProvider>
-      <div style={{ width: '100vw', height: '100vh' }}>
-        <AppShell>
-          <AppShell.MenuBar>
-            <MenuBar>
-              <MenuBar.Menu label="File">
-                <MenuBar.Item onClick={() => {}}>New</MenuBar.Item>
-              </MenuBar.Menu>
-            </MenuBar>
-          </AppShell.MenuBar>
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <AppShell>
+        <AppShell.MenuBar>
+          <MenuBar>
+            <MenuBar.Menu label="File">
+              <MenuBar.Item onClick={() => {}}>New</MenuBar.Item>
+            </MenuBar.Menu>
+          </MenuBar>
+        </AppShell.MenuBar>
 
-          <AppShell.Toolbar>
-            <Toolbar aria-label="Main toolbar">
-              <Toolbar.Button onClick={() => {}}>Run</Toolbar.Button>
-            </Toolbar>
-          </AppShell.Toolbar>
+        <AppShell.Toolbar>
+          <Toolbar aria-label="Main toolbar">
+            <Toolbar.Button onClick={() => {}}>Run</Toolbar.Button>
+          </Toolbar>
+        </AppShell.Toolbar>
 
-          <AppShell.Dock>
-            <div style={{ padding: 16 }}>Editor content</div>
-          </AppShell.Dock>
+        <AppShell.Dock>
+          <div style={{ padding: 16 }}>Editor content</div>
+        </AppShell.Dock>
 
-          <AppShell.StatusBar>
-            <StatusBar>
-              <StatusBar.Section>
-                <StatusBar.Item>Ready</StatusBar.Item>
-              </StatusBar.Section>
-            </StatusBar>
-          </AppShell.StatusBar>
-        </AppShell>
-      </div>
-    </ThemeProvider>
+        <AppShell.StatusBar>
+          <StatusBar>
+            <StatusBar.Section>
+              <StatusBar.Item>Ready</StatusBar.Item>
+            </StatusBar.Section>
+          </StatusBar>
+        </AppShell.StatusBar>
+      </AppShell>
+    </div>
   );
 }
 ```
 
 ## Theming
 
-Entangle UI ships with design tokens and an Emotion-based `ThemeProvider`.
+Entangle UI uses [Vanilla Extract](https://vanilla-extract.style/) for zero-runtime styling. All theme tokens are exposed as stable CSS custom properties prefixed with `--etui-*`.
 
-```tsx
-import { ThemeProvider, createTheme } from 'entangle-ui';
+### Default dark theme
 
-const theme = createTheme({
+Import the dark theme CSS to register all `--etui-*` variables on `:root`:
+
+```ts
+import 'entangle-ui/darkTheme.css';
+```
+
+### Custom themes
+
+Override tokens with plain CSS — no build tools required:
+
+```css
+.my-theme {
+  --etui-color-accent-primary: #2aa1ff;
+  --etui-color-bg-primary: #0d1117;
+  --etui-spacing-md: 10px;
+}
+```
+
+Or use the `createCustomTheme` helper in a `.css.ts` file for type-safe overrides:
+
+```ts
+// myTheme.css.ts
+import { createCustomTheme } from 'entangle-ui';
+
+createCustomTheme('.my-theme', {
   colors: {
-    accent: {
-      primary: '#2aa1ff',
-    },
+    accent: { primary: '#2aa1ff' },
+    background: { primary: '#0d1117' },
   },
 });
+```
 
-export function Root({ children }: { children: React.ReactNode }) {
-  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
-}
+Then wrap your app:
+
+```tsx
+import { VanillaThemeProvider } from 'entangle-ui';
+import './myTheme.css';
+
+<VanillaThemeProvider className="my-theme">
+  <App />
+</VanillaThemeProvider>;
+```
+
+### Theme contract
+
+Access theme tokens programmatically in `.css.ts` files via the `vars` object:
+
+```ts
+import { style } from '@vanilla-extract/css';
+import { vars } from 'entangle-ui';
+
+export const card = style({
+  background: vars.colors.surface.default,
+  padding: vars.spacing.md,
+  borderRadius: vars.borderRadius.md,
+  color: vars.colors.text.primary,
+});
 ```
 
 ## What Is Included
@@ -139,6 +177,14 @@ export function Root({ children }: { children: React.ReactNode }) {
 - `Dialog` primitives (`Dialog`, `DialogHeader`, `DialogBody`, `DialogFooter`, `DialogClose`)
 - `ToastProvider`, `useToast`
 - `FormLabel`, `FormHelperText`, `InputWrapper`
+
+### Utilities
+
+- `vars` — Theme contract object mapping to `--etui-*` CSS custom properties
+- `darkThemeValues` — Default dark theme token values
+- `createCustomTheme(selector, overrides)` — Type-safe custom theme helper
+- `VanillaThemeProvider` — Scoped theme wrapper component
+- `cx(...classes)` — Class name composition utility
 
 ## Development
 
