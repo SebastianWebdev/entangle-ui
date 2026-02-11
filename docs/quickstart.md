@@ -16,14 +16,14 @@ Entangle UI requires the following peer dependencies:
 npm install react react-dom @emotion/react @emotion/styled @base-ui/react @floating-ui/react
 ```
 
-| Package              | Version     |
-| -------------------- | ----------- |
-| `react`              | `>=19.1.0`  |
-| `react-dom`          | `>=19.1.0`  |
-| `@emotion/react`     | `^11.0.0`   |
-| `@emotion/styled`    | `^11.0.0`   |
-| `@base-ui/react`     | `^1.1.0`    |
-| `@floating-ui/react` | `^0.27.17`  |
+| Package              | Version    |
+| -------------------- | ---------- |
+| `react`              | `>=19.1.0` |
+| `react-dom`          | `>=19.1.0` |
+| `@emotion/react`     | `^11.0.0`  |
+| `@emotion/styled`    | `^11.0.0`  |
+| `@base-ui/react`     | `^1.1.0`   |
+| `@floating-ui/react` | `^0.27.17` |
 
 > Entangle UI is ESM-only (`"type": "module"`). Make sure your bundler supports ES modules.
 
@@ -89,98 +89,98 @@ function Welcome() {
 
 Basic building blocks for any interface.
 
-| Component        | Description                                         |
-| ---------------- | --------------------------------------------------- |
-| `Button`         | Primary action trigger with `default`, `ghost`, `filled` variants |
-| `IconButton`     | Square button optimized for icon-only actions       |
-| `Input`          | Text input with label, icons, error states          |
-| `Text`           | Typography component with semantic variants         |
-| `Paper`          | Surface container with elevation and nesting        |
-| `Icon`           | SVG icon wrapper with consistent sizing             |
-| `Checkbox`       | Toggle control with indeterminate state             |
-| `CheckboxGroup`  | Managed group of checkboxes                         |
-| `Switch`         | Binary toggle switch                                |
-| `Tooltip`        | Accessible hover/focus tooltip                      |
-| `Popover`        | Floating content anchored to a trigger              |
-| `Collapsible`    | Expandable/collapsible content section              |
-| `Accordion`      | Multiple collapsible sections with single/multi mode |
+| Component       | Description                                                       |
+| --------------- | ----------------------------------------------------------------- |
+| `Button`        | Primary action trigger with `default`, `ghost`, `filled` variants |
+| `IconButton`    | Square button optimized for icon-only actions                     |
+| `Input`         | Text input with label, icons, error states                        |
+| `Text`          | Typography component with semantic variants                       |
+| `Paper`         | Surface container with elevation and nesting                      |
+| `Icon`          | SVG icon wrapper with consistent sizing                           |
+| `Checkbox`      | Toggle control with indeterminate state                           |
+| `CheckboxGroup` | Managed group of checkboxes                                       |
+| `Switch`        | Binary toggle switch                                              |
+| `Tooltip`       | Accessible hover/focus tooltip                                    |
+| `Popover`       | Floating content anchored to a trigger                            |
+| `Collapsible`   | Expandable/collapsible content section                            |
+| `Accordion`     | Multiple collapsible sections with single/multi mode              |
 
 ### Layout
 
 Composable layout primitives with responsive breakpoints.
 
-| Component        | Description                                |
-| ---------------- | ------------------------------------------ |
-| `Stack`          | Flex-based stacking with spacing multiplier |
-| `Flex`           | Full flexbox control with responsive direction |
-| `Grid`           | CSS Grid layout                            |
-| `Spacer`         | Empty spacing element                      |
-| `ScrollArea`     | Custom-styled scrollbar container          |
-| `SplitPane`      | Resizable split panel                      |
-| `PanelSurface`   | Panel with header/body/footer slots        |
+| Component      | Description                                    |
+| -------------- | ---------------------------------------------- |
+| `Stack`        | Flex-based stacking with spacing multiplier    |
+| `Flex`         | Full flexbox control with responsive direction |
+| `Grid`         | CSS Grid layout                                |
+| `Spacer`       | Empty spacing element                          |
+| `ScrollArea`   | Custom-styled scrollbar container              |
+| `SplitPane`    | Resizable split panel                          |
+| `PanelSurface` | Panel with header/body/footer slots            |
 
 ### Controls
 
 Advanced interactive controls for editor workflows.
 
-| Component        | Description                                     |
-| ---------------- | ----------------------------------------------- |
-| `Slider`         | Value slider with keyboard and modifier support |
-| `NumberInput`    | Numeric input with increment/decrement          |
-| `Select`         | Dropdown with groups and search                 |
-| `VectorInput`    | Multi-axis numeric input (2D/3D vectors)        |
-| `ColorPicker`    | Full color picker with modes and palettes       |
-| `ColorSwatch`    | Small color preview                             |
-| `ColorPalette`   | Color grid with predefined palette sets         |
-| `TreeView`       | Hierarchical data with expand/collapse          |
-| `CurveEditor`    | Bezier curve editor with keyframe manipulation  |
+| Component      | Description                                     |
+| -------------- | ----------------------------------------------- |
+| `Slider`       | Value slider with keyboard and modifier support |
+| `NumberInput`  | Numeric input with increment/decrement          |
+| `Select`       | Dropdown with groups and search                 |
+| `VectorInput`  | Multi-axis numeric input (2D/3D vectors)        |
+| `ColorPicker`  | Full color picker with modes and palettes       |
+| `ColorSwatch`  | Small color preview                             |
+| `ColorPalette` | Color grid with predefined palette sets         |
+| `TreeView`     | Hierarchical data with expand/collapse          |
+| `CurveEditor`  | Bezier curve editor with keyframe manipulation  |
 
 ### Navigation
 
-| Component        | Description                          |
-| ---------------- | ------------------------------------ |
-| `Menu`           | Config-driven dropdown menu          |
-| `ContextMenu`    | Right-click context menu             |
-| `Tabs`           | Tab navigation with `TabList`, `Tab`, `TabPanel` |
+| Component     | Description                                      |
+| ------------- | ------------------------------------------------ |
+| `Menu`        | Config-driven dropdown menu                      |
+| `ContextMenu` | Right-click context menu                         |
+| `Tabs`        | Tab navigation with `TabList`, `Tab`, `TabPanel` |
 
 ### Form
 
-| Component        | Description                            |
-| ---------------- | -------------------------------------- |
-| `FormLabel`      | Styled form field label                |
-| `FormHelperText` | Helper or error message below inputs   |
-| `InputWrapper`   | Container for input styling states     |
+| Component        | Description                          |
+| ---------------- | ------------------------------------ |
+| `FormLabel`      | Styled form field label              |
+| `FormHelperText` | Helper or error message below inputs |
+| `InputWrapper`   | Container for input styling states   |
 
 ### Feedback
 
-| Component        | Description                          |
-| ---------------- | ------------------------------------ |
-| `Dialog`         | Modal dialog with header/body/footer |
-| `ToastProvider`  | Toast notification system            |
-| `useToast`       | Hook to show toasts programmatically |
+| Component       | Description                          |
+| --------------- | ------------------------------------ |
+| `Dialog`        | Modal dialog with header/body/footer |
+| `ToastProvider` | Toast notification system            |
+| `useToast`      | Hook to show toasts programmatically |
 
 ### Shell (Application Layout)
 
 Full-application layout components designed for professional editor interfaces.
 
-| Component         | Description                                  |
-| ----------------- | -------------------------------------------- |
+| Component         | Description                                                    |
+| ----------------- | -------------------------------------------------------------- |
 | `AppShell`        | Root layout with `.MenuBar`, `.Toolbar`, `.Dock`, `.StatusBar` |
-| `MenuBar`         | Top-level application menu bar               |
-| `Toolbar`         | Action toolbar with buttons, toggles, groups |
-| `StatusBar`       | Bottom information bar                       |
-| `FloatingPanel`   | Draggable, resizable floating window         |
-| `FloatingManager` | Coordinator for multiple floating panels     |
+| `MenuBar`         | Top-level application menu bar                                 |
+| `Toolbar`         | Action toolbar with buttons, toggles, groups                   |
+| `StatusBar`       | Bottom information bar                                         |
+| `FloatingPanel`   | Draggable, resizable floating window                           |
+| `FloatingManager` | Coordinator for multiple floating panels                       |
 
 ### Editor
 
-| Component          | Description                            |
-| ------------------ | -------------------------------------- |
-| `PropertyPanel`    | Inspector panel for object properties  |
-| `PropertySection`  | Collapsible section within the panel   |
-| `PropertyRow`      | Single property key-value display      |
-| `PropertyGroup`    | Grouped properties                     |
-| `usePropertyUndo`  | Undo/redo hook for property changes    |
+| Component         | Description                           |
+| ----------------- | ------------------------------------- |
+| `PropertyPanel`   | Inspector panel for object properties |
+| `PropertySection` | Collapsible section within the panel  |
+| `PropertyRow`     | Single property key-value display     |
+| `PropertyGroup`   | Grouped properties                    |
+| `usePropertyUndo` | Undo/redo hook for property changes   |
 
 ## Common Patterns
 
@@ -214,12 +214,12 @@ Most components support a consistent `size` prop:
 </Stack>
 ```
 
-| Breakpoint | Width    |
-| ---------- | -------- |
-| `sm`       | 576px    |
-| `md`       | 768px    |
-| `lg`       | 992px    |
-| `xl`       | 1200px   |
+| Breakpoint | Width  |
+| ---------- | ------ |
+| `sm`       | 576px  |
+| `md`       | 768px  |
+| `lg`       | 992px  |
+| `xl`       | 1200px |
 
 ### Form Inputs
 
@@ -234,7 +234,7 @@ Combine `Input` with form components for labeled fields with validation:
   errorMessage={nameError}
   required
   value={name}
-  onChange={(e) => setName(e.target.value)}
+  onChange={e => setName(e.target.value)}
 />
 ```
 
@@ -243,7 +243,13 @@ Combine `Input` with form components for labeled fields with validation:
 Build a complete editor layout:
 
 ```tsx
-import { AppShell, MenuBar, Toolbar, StatusBar, useAppShell } from 'entangle-ui';
+import {
+  AppShell,
+  MenuBar,
+  Toolbar,
+  StatusBar,
+  useAppShell,
+} from 'entangle-ui';
 
 function Editor() {
   const appShell = useAppShell();
@@ -287,7 +293,7 @@ Available palettes: `MATERIAL_PALETTE`, `TAILWIND_PALETTE`, `PASTEL_PALETTE`, `E
 import { cx, cn } from 'entangle-ui';
 
 // cx — join class names, filtering out falsy values
-<div className={cx('base', isActive && 'active', className)} />
+<div className={cx('base', isActive && 'active', className)} />;
 ```
 
 ## TypeScript

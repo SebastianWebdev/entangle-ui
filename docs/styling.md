@@ -192,7 +192,12 @@ export const thumb = style({
 ```tsx
 // Slider.tsx
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { fillPercentageVar, thumbPositionVar, trackFill, thumb } from './Slider.css';
+import {
+  fillPercentageVar,
+  thumbPositionVar,
+  trackFill,
+  thumb,
+} from './Slider.css';
 
 export const Slider = ({ value, min, max }) => {
   const pct = ((value - min) / (max - min)) * 100;
@@ -361,12 +366,12 @@ import { cn } from 'entangle-ui';
 
 ### Breakpoints
 
-| Name | Width    | Data Attribute   |
-| ---- | -------- | ---------------- |
-| `sm` | 576px    | `data-sm-dir`    |
-| `md` | 768px    | `data-md-dir`    |
-| `lg` | 992px    | `data-lg-dir`    |
-| `xl` | 1200px   | `data-xl-dir`    |
+| Name | Width  | Data Attribute |
+| ---- | ------ | -------------- |
+| `sm` | 576px  | `data-sm-dir`  |
+| `md` | 768px  | `data-md-dir`  |
+| `lg` | 992px  | `data-lg-dir`  |
+| `xl` | 1200px | `data-xl-dir`  |
 
 ### Responsive Direction (Stack / Flex)
 
@@ -473,7 +478,7 @@ Entangle UI ships pre-compiled CSS. No Vanilla Extract build plugin is needed in
 ```tsx
 import { Button } from 'entangle-ui';
 
-<Button variant="filled">Works out of the box</Button>
+<Button variant="filled">Works out of the box</Button>;
 ```
 
 ### For Library Contributors

@@ -33,7 +33,7 @@ The dark theme is applied globally on `:root` at build time. No provider is need
 import { Button } from 'entangle-ui';
 
 // Works out of the box — dark theme is already active
-<Button variant="filled">Save</Button>
+<Button variant="filled">Save</Button>;
 ```
 
 ## Token Reference
@@ -42,8 +42,8 @@ import { Button } from 'entangle-ui';
 
 #### Background
 
-| Token                     | CSS Property                 | Value       |
-| ------------------------- | ---------------------------- | ----------- |
+| Token                         | CSS Property                | Value     |
+| ----------------------------- | --------------------------- | --------- |
 | `colors.background.primary`   | `--etui-color-bg-primary`   | `#1a1a1a` |
 | `colors.background.secondary` | `--etui-color-bg-secondary` | `#2d2d2d` |
 | `colors.background.tertiary`  | `--etui-color-bg-tertiary`  | `#3a3a3a` |
@@ -51,12 +51,12 @@ import { Button } from 'entangle-ui';
 
 #### Surface (Interactive Elements)
 
-| Token                      | CSS Property                   | Value                    |
-| -------------------------- | ------------------------------ | ------------------------ |
-| `colors.surface.default`   | `--etui-color-surface-default` | `#2d2d2d`              |
-| `colors.surface.hover`     | `--etui-color-surface-hover`   | `#363636`              |
-| `colors.surface.active`    | `--etui-color-surface-active`  | `#404040`              |
-| `colors.surface.disabled`  | `--etui-color-surface-disabled`| `#1f1f1f`              |
+| Token                         | CSS Property                        | Value                   |
+| ----------------------------- | ----------------------------------- | ----------------------- |
+| `colors.surface.default`      | `--etui-color-surface-default`      | `#2d2d2d`               |
+| `colors.surface.hover`        | `--etui-color-surface-hover`        | `#363636`               |
+| `colors.surface.active`       | `--etui-color-surface-active`       | `#404040`               |
+| `colors.surface.disabled`     | `--etui-color-surface-disabled`     | `#1f1f1f`               |
 | `colors.surface.whiteOverlay` | `--etui-color-surface-whiteOverlay` | `rgba(255,255,255,0.1)` |
 
 #### Border
@@ -70,49 +70,49 @@ import { Button } from 'entangle-ui';
 
 #### Text
 
-| Token                  | CSS Property                 | Value     |
-| ---------------------- | ---------------------------- | --------- |
-| `colors.text.primary`  | `--etui-color-text-primary`  | `#ffffff` |
-| `colors.text.secondary`| `--etui-color-text-secondary`| `#cccccc` |
-| `colors.text.muted`    | `--etui-color-text-muted`    | `#888888` |
-| `colors.text.disabled` | `--etui-color-text-disabled` | `#555555` |
+| Token                   | CSS Property                  | Value     |
+| ----------------------- | ----------------------------- | --------- |
+| `colors.text.primary`   | `--etui-color-text-primary`   | `#ffffff` |
+| `colors.text.secondary` | `--etui-color-text-secondary` | `#cccccc` |
+| `colors.text.muted`     | `--etui-color-text-muted`     | `#888888` |
+| `colors.text.disabled`  | `--etui-color-text-disabled`  | `#555555` |
 
 #### Accent
 
-| Token                    | CSS Property                    | Value     |
-| ------------------------ | ------------------------------- | --------- |
-| `colors.accent.primary`  | `--etui-color-accent-primary`  | `#007acc` |
-| `colors.accent.secondary`| `--etui-color-accent-secondary`| `#005a9e` |
-| `colors.accent.success`  | `--etui-color-accent-success`  | `#4caf50` |
-| `colors.accent.warning`  | `--etui-color-accent-warning`  | `#ff9800` |
-| `colors.accent.error`    | `--etui-color-accent-error`    | `#f44336` |
+| Token                     | CSS Property                    | Value     |
+| ------------------------- | ------------------------------- | --------- |
+| `colors.accent.primary`   | `--etui-color-accent-primary`   | `#007acc` |
+| `colors.accent.secondary` | `--etui-color-accent-secondary` | `#005a9e` |
+| `colors.accent.success`   | `--etui-color-accent-success`   | `#4caf50` |
+| `colors.accent.warning`   | `--etui-color-accent-warning`   | `#ff9800` |
+| `colors.accent.error`     | `--etui-color-accent-error`     | `#f44336` |
 
 ### Spacing
 
 All spacing values in pixels. `md` (8px) is the base unit.
 
-| Token   | CSS Property        | Value |
-| ------- | ------------------- | ----- |
-| `xs`    | `--etui-spacing-xs`  | 2px   |
-| `sm`    | `--etui-spacing-sm`  | 4px   |
-| `md`    | `--etui-spacing-md`  | 8px   |
-| `lg`    | `--etui-spacing-lg`  | 12px  |
-| `xl`    | `--etui-spacing-xl`  | 16px  |
-| `xxl`   | `--etui-spacing-xxl` | 24px  |
-| `xxxl`  | `--etui-spacing-xxxl`| 32px  |
+| Token  | CSS Property          | Value |
+| ------ | --------------------- | ----- |
+| `xs`   | `--etui-spacing-xs`   | 2px   |
+| `sm`   | `--etui-spacing-sm`   | 4px   |
+| `md`   | `--etui-spacing-md`   | 8px   |
+| `lg`   | `--etui-spacing-lg`   | 12px  |
+| `xl`   | `--etui-spacing-xl`   | 16px  |
+| `xxl`  | `--etui-spacing-xxl`  | 24px  |
+| `xxxl` | `--etui-spacing-xxxl` | 32px  |
 
 ### Typography
 
 #### Font Sizes
 
-| Token | CSS Property             | Value |
-| ----- | ------------------------ | ----- |
-| `xxs` | `--etui-font-size-xxs`   | 9px   |
-| `xs`  | `--etui-font-size-xs`    | 10px  |
-| `sm`  | `--etui-font-size-sm`    | 11px  |
-| `md`  | `--etui-font-size-md`    | 12px  |
-| `lg`  | `--etui-font-size-lg`    | 14px  |
-| `xl`  | `--etui-font-size-xl`    | 16px  |
+| Token | CSS Property           | Value |
+| ----- | ---------------------- | ----- |
+| `xxs` | `--etui-font-size-xxs` | 9px   |
+| `xs`  | `--etui-font-size-xs`  | 10px  |
+| `sm`  | `--etui-font-size-sm`  | 11px  |
+| `md`  | `--etui-font-size-md`  | 12px  |
+| `lg`  | `--etui-font-size-lg`  | 14px  |
+| `xl`  | `--etui-font-size-xl`  | 16px  |
 
 #### Font Weights
 
@@ -124,73 +124,73 @@ All spacing values in pixels. `md` (8px) is the base unit.
 
 #### Line Heights
 
-| Token     | CSS Property                   | Value |
-| --------- | ------------------------------ | ----- |
-| `tight`   | `--etui-line-height-tight`     | 1.2   |
-| `normal`  | `--etui-line-height-normal`    | 1.4   |
-| `relaxed` | `--etui-line-height-relaxed`   | 1.6   |
+| Token     | CSS Property                 | Value |
+| --------- | ---------------------------- | ----- |
+| `tight`   | `--etui-line-height-tight`   | 1.2   |
+| `normal`  | `--etui-line-height-normal`  | 1.4   |
+| `relaxed` | `--etui-line-height-relaxed` | 1.6   |
 
 #### Font Families
 
-| Token  | CSS Property                | Value                                                |
-| ------ | --------------------------- | ---------------------------------------------------- |
-| `mono` | `--etui-font-family-mono`   | SF Mono, Monaco, Consolas, "Liberation Mono", monospace |
-| `sans` | `--etui-font-family-sans`   | -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif |
+| Token  | CSS Property              | Value                                                             |
+| ------ | ------------------------- | ----------------------------------------------------------------- |
+| `mono` | `--etui-font-family-mono` | SF Mono, Monaco, Consolas, "Liberation Mono", monospace           |
+| `sans` | `--etui-font-family-sans` | -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif |
 
 ### Border Radius
 
-| Token  | CSS Property            | Value |
-| ------ | ----------------------- | ----- |
-| `none` | `--etui-radius-none`    | 0px   |
-| `sm`   | `--etui-radius-sm`      | 2px   |
-| `md`   | `--etui-radius-md`      | 4px   |
-| `lg`   | `--etui-radius-lg`      | 6px   |
+| Token  | CSS Property         | Value |
+| ------ | -------------------- | ----- |
+| `none` | `--etui-radius-none` | 0px   |
+| `sm`   | `--etui-radius-sm`   | 2px   |
+| `md`   | `--etui-radius-md`   | 4px   |
+| `lg`   | `--etui-radius-lg`   | 6px   |
 
 ### Shadows
 
-| Token              | CSS Property                       | Value                                  |
-| ------------------ | ---------------------------------- | -------------------------------------- |
-| `sm`               | `--etui-shadow-sm`                 | `0 1px 2px rgba(0,0,0,0.2)`           |
-| `md`               | `--etui-shadow-md`                 | `0 2px 4px rgba(0,0,0,0.3)`           |
-| `lg`               | `--etui-shadow-lg`                 | `0 4px 8px rgba(0,0,0,0.4)`           |
-| `xl`               | `--etui-shadow-xl`                 | `0 8px 16px rgba(0,0,0,0.5)`          |
-| `focus`            | `--etui-shadow-focus`              | `0 0 0 2px rgba(0,122,204,0.4)`       |
-| `separatorBottom`  | `--etui-shadow-separatorBottom`    | `0 1px 2px rgba(0,0,0,0.18)`          |
-| `separatorRight`   | `--etui-shadow-separatorRight`     | `1px 0 2px rgba(0,0,0,0.18)`          |
-| `separatorLeft`    | `--etui-shadow-separatorLeft`      | `-1px 0 2px rgba(0,0,0,0.18)`         |
-| `thumb`            | `--etui-shadow-thumb`              | `0 0 2px rgba(0,0,0,0.5)`             |
+| Token             | CSS Property                    | Value                           |
+| ----------------- | ------------------------------- | ------------------------------- |
+| `sm`              | `--etui-shadow-sm`              | `0 1px 2px rgba(0,0,0,0.2)`     |
+| `md`              | `--etui-shadow-md`              | `0 2px 4px rgba(0,0,0,0.3)`     |
+| `lg`              | `--etui-shadow-lg`              | `0 4px 8px rgba(0,0,0,0.4)`     |
+| `xl`              | `--etui-shadow-xl`              | `0 8px 16px rgba(0,0,0,0.5)`    |
+| `focus`           | `--etui-shadow-focus`           | `0 0 0 2px rgba(0,122,204,0.4)` |
+| `separatorBottom` | `--etui-shadow-separatorBottom` | `0 1px 2px rgba(0,0,0,0.18)`    |
+| `separatorRight`  | `--etui-shadow-separatorRight`  | `1px 0 2px rgba(0,0,0,0.18)`    |
+| `separatorLeft`   | `--etui-shadow-separatorLeft`   | `-1px 0 2px rgba(0,0,0,0.18)`   |
+| `thumb`           | `--etui-shadow-thumb`           | `0 0 2px rgba(0,0,0,0.5)`       |
 
 ### Transitions
 
-| Token    | CSS Property                | Value              |
-| -------- | --------------------------- | ------------------ |
-| `fast`   | `--etui-transition-fast`    | `100ms ease-out`   |
-| `normal` | `--etui-transition-normal`  | `200ms ease-out`   |
-| `slow`   | `--etui-transition-slow`    | `300ms ease-out`   |
+| Token    | CSS Property               | Value            |
+| -------- | -------------------------- | ---------------- |
+| `fast`   | `--etui-transition-fast`   | `100ms ease-out` |
+| `normal` | `--etui-transition-normal` | `200ms ease-out` |
+| `slow`   | `--etui-transition-slow`   | `300ms ease-out` |
 
 ### Z-Index
 
-| Token      | CSS Property           | Value |
-| ---------- | ---------------------- | ----- |
-| `base`     | `--etui-z-base`        | 1     |
-| `dropdown` | `--etui-z-dropdown`    | 1000  |
-| `popover`  | `--etui-z-popover`     | 1000  |
-| `tooltip`  | `--etui-z-tooltip`     | 1000  |
-| `modal`    | `--etui-z-modal`       | 1100  |
+| Token      | CSS Property        | Value |
+| ---------- | ------------------- | ----- |
+| `base`     | `--etui-z-base`     | 1     |
+| `dropdown` | `--etui-z-dropdown` | 1000  |
+| `popover`  | `--etui-z-popover`  | 1000  |
+| `tooltip`  | `--etui-z-tooltip`  | 1000  |
+| `modal`    | `--etui-z-modal`    | 1100  |
 
 ### Shell Tokens
 
 Specialized tokens for application layout components:
 
-| Token                     | CSS Property                          | Value     |
-| ------------------------- | ------------------------------------- | --------- |
-| `shell.menuBar.height`    | `--etui-shell-menubar-height`         | 28px      |
-| `shell.toolbar.height.sm` | `--etui-shell-toolbar-height-sm`      | 32px      |
-| `shell.toolbar.height.md` | `--etui-shell-toolbar-height-md`      | 40px      |
-| `shell.statusBar.height`  | `--etui-shell-statusbar-height`       | 22px      |
-| `shell.statusBar.bg`      | `--etui-shell-statusbar-bg`           | `#007acc` |
-| `shell.dock.tabHeight`    | `--etui-shell-dock-tabHeight`         | 28px      |
-| `shell.dock.splitterSize` | `--etui-shell-dock-splitterSize`      | 4px       |
+| Token                     | CSS Property                     | Value     |
+| ------------------------- | -------------------------------- | --------- |
+| `shell.menuBar.height`    | `--etui-shell-menubar-height`    | 28px      |
+| `shell.toolbar.height.sm` | `--etui-shell-toolbar-height-sm` | 32px      |
+| `shell.toolbar.height.md` | `--etui-shell-toolbar-height-md` | 40px      |
+| `shell.statusBar.height`  | `--etui-shell-statusbar-height`  | 22px      |
+| `shell.statusBar.bg`      | `--etui-shell-statusbar-bg`      | `#007acc` |
+| `shell.dock.tabHeight`    | `--etui-shell-dock-tabHeight`    | 28px      |
+| `shell.dock.splitterSize` | `--etui-shell-dock-splitterSize` | 4px       |
 
 ## Customization
 
@@ -229,7 +229,7 @@ import { ThemeProvider } from 'entangle-ui';
   }}
 >
   <App />
-</ThemeProvider>
+</ThemeProvider>;
 ```
 
 ### 3. createTheme (Full Object)
@@ -249,7 +249,7 @@ const myTheme = createTheme({
 
 <ThemeProvider theme={myTheme}>
   <App />
-</ThemeProvider>
+</ThemeProvider>;
 ```
 
 ### 4. createCustomTheme (Vanilla Extract, Build-Time)
@@ -304,7 +304,7 @@ import { VanillaThemeProvider } from 'entangle-ui';
 
 <VanillaThemeProvider className="light-theme">
   <SettingsPanel />
-</VanillaThemeProvider>
+</VanillaThemeProvider>;
 ```
 
 ## Accessing Tokens in Code
@@ -368,12 +368,12 @@ function MyComponent() {
 
 ```tsx
 import type {
-  Theme,          // Full theme object shape (Emotion)
-  Tokens,         // Raw token definitions
-  ThemeVars,      // Vanilla Extract contract type (CSS variable references)
-  DarkThemeValues,// Dark theme value map
-  ThemeValues,    // Alias for DarkThemeValues (used in createCustomTheme)
-  DeepPartial,    // Recursive Partial<T> for theme overrides
+  Theme, // Full theme object shape (Emotion)
+  Tokens, // Raw token definitions
+  ThemeVars, // Vanilla Extract contract type (CSS variable references)
+  DarkThemeValues, // Dark theme value map
+  ThemeValues, // Alias for DarkThemeValues (used in createCustomTheme)
+  DeepPartial, // Recursive Partial<T> for theme overrides
 } from 'entangle-ui';
 ```
 
