@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import type { ChatContextChipProps } from './ChatPanel.types';
 import { cx } from '@/utils/cx';
 import {
@@ -10,17 +10,7 @@ import {
   contextChipItemsStyle,
   contextChipDismissStyle,
 } from './ChatPanel.css';
-
-const CloseIcon: React.FC = () => (
-  <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
-    <path
-      d="M1 1l6 6M7 1L1 7"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-  </svg>
-);
+import { MiniCloseIcon } from './ChatIcons';
 
 export const ChatContextChip = /*#__PURE__*/ React.memo<ChatContextChipProps>(
   ({
@@ -34,10 +24,6 @@ export const ChatContextChip = /*#__PURE__*/ React.memo<ChatContextChipProps>(
     ref,
     ...rest
   }) => {
-    const handleDismiss = useCallback(() => {
-      onDismiss?.();
-    }, [onDismiss]);
-
     return (
       <div
         ref={ref}
@@ -53,10 +39,10 @@ export const ChatContextChip = /*#__PURE__*/ React.memo<ChatContextChipProps>(
           <button
             type="button"
             className={contextChipDismissStyle}
-            onClick={handleDismiss}
+            onClick={onDismiss}
             aria-label={`Dismiss ${label}`}
           >
-            <CloseIcon />
+            <MiniCloseIcon />
           </button>
         )}
       </div>
