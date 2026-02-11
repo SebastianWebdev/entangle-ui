@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/CircleIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,10 +23,14 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<CircleIcon />}>Option</Button>
  * ```
  */
-export const CircleIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="12" r="10" />
-    </Icon>
-  );
-};
+export const CircleIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <circle cx="12" cy="12" r="10" />
+      </Icon>
+    );
+  }
+);
+
+CircleIcon.displayName = 'CircleIcon';

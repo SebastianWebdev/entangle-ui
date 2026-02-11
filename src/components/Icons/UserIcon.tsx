@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/UserIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,11 +23,15 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<UserIcon />}>Profile</Button>
  * ```
  */
-export const UserIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </Icon>
-  );
-};
+export const UserIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </Icon>
+    );
+  }
+);
+
+UserIcon.displayName = 'UserIcon';

@@ -1,8 +1,12 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
 
-export const TangentStepIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const TangentStepIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <g strokeWidth="2.25">
@@ -10,4 +14,6 @@ export const TangentStepIcon: React.FC<Omit<IconProps, 'children'>> = props => {
       </g>
     </Icon>
   );
-};
+});
+
+TangentStepIcon.displayName = 'TangentStepIcon';

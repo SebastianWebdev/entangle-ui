@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/RefreshIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,7 +23,9 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<RefreshIcon />}>Refresh</Button>
  * ```
  */
-export const RefreshIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const RefreshIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
@@ -30,4 +34,6 @@ export const RefreshIcon: React.FC<Omit<IconProps, 'children'>> = props => {
       <path d="M3 21v-5h5" />
     </Icon>
   );
-};
+});
+
+RefreshIcon.displayName = 'RefreshIcon';

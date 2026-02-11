@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -20,11 +22,15 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<ClockIcon />}>Set Time</Button>
  * ```
  */
-export const ClockIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12,6 12,12 16,14" />
-    </Icon>
-  );
-};
+export const ClockIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12,6 12,12 16,14" />
+      </Icon>
+    );
+  }
+);
+
+ClockIcon.displayName = 'ClockIcon';

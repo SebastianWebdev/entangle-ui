@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/LockIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,11 +23,15 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<LockIcon />}>Lock</Button>
  * ```
  */
-export const LockIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </Icon>
-  );
-};
+export const LockIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </Icon>
+    );
+  }
+);
+
+LockIcon.displayName = 'LockIcon';

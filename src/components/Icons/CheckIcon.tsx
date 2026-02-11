@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/CheckIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,10 +23,14 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<CheckIcon />}>Confirm</Button>
  * ```
  */
-export const CheckIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <polyline points="20,6 9,17 4,12" />
-    </Icon>
-  );
-};
+export const CheckIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <polyline points="20,6 9,17 4,12" />
+      </Icon>
+    );
+  }
+);
+
+CheckIcon.displayName = 'CheckIcon';

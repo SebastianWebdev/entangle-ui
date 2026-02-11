@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -20,10 +22,14 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<ArrowDownIcon />}>Expand</Button>
  * ```
  */
-export const ArrowDownIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const ArrowDownIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <path d="M7 10l5 5 5-5z" />
     </Icon>
   );
-};
+});
+
+ArrowDownIcon.displayName = 'ArrowDownIcon';

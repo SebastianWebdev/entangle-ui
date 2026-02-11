@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -20,10 +22,14 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<ArrowLeftIcon />}>Back</Button>
  * ```
  */
-export const ArrowLeftIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const ArrowLeftIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <path d="M14 7l-5 5 5 5V7z" />
     </Icon>
   );
-};
+});
+
+ArrowLeftIcon.displayName = 'ArrowLeftIcon';

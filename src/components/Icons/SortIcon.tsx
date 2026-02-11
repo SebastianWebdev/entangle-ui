@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/SortIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,12 +23,16 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<SortIcon />}>Sort</Button>
  * ```
  */
-export const SortIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <path d="M3 6h18" />
-      <path d="M7 12h10" />
-      <path d="M10 18h4" />
-    </Icon>
-  );
-};
+export const SortIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <path d="M3 6h18" />
+        <path d="M7 12h10" />
+        <path d="M10 18h4" />
+      </Icon>
+    );
+  }
+);
+
+SortIcon.displayName = 'SortIcon';

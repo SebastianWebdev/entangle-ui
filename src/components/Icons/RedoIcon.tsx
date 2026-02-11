@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/RedoIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,11 +23,15 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<RedoIcon />}>Redo</Button>
  * ```
  */
-export const RedoIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <path d="M21 7v6h-6" />
-      <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
-    </Icon>
-  );
-};
+export const RedoIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <path d="M21 7v6h-6" />
+        <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+      </Icon>
+    );
+  }
+);
+
+RedoIcon.displayName = 'RedoIcon';

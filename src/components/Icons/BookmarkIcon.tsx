@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -20,10 +22,14 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<BookmarkIcon />}>Bookmark</Button>
  * ```
  */
-export const BookmarkIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const BookmarkIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
     </Icon>
   );
-};
+});
+
+BookmarkIcon.displayName = 'BookmarkIcon';

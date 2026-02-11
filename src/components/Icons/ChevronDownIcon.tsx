@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -20,10 +22,14 @@ import type { IconProps } from '../primitives/Icon';
  * <Select icon={<ChevronDownIcon />}>Options</Select>
  * ```
  */
-export const ChevronDownIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const ChevronDownIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <polyline points="6,9 12,15 18,9" />
     </Icon>
   );
-};
+});
+
+ChevronDownIcon.displayName = 'ChevronDownIcon';

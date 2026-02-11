@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -20,7 +22,9 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<CalendarIcon />}>Select Date</Button>
  * ```
  */
-export const CalendarIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const CalendarIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -29,4 +33,6 @@ export const CalendarIcon: React.FC<Omit<IconProps, 'children'>> = props => {
       <line x1="3" y1="10" x2="21" y2="10" />
     </Icon>
   );
-};
+});
+
+CalendarIcon.displayName = 'CalendarIcon';

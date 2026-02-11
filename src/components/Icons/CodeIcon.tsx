@@ -1,3 +1,5 @@
+'use client';
+
 // src/icons/CodeIcon.tsx
 import React from 'react';
 import { Icon } from '../primitives/Icon';
@@ -21,11 +23,15 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<CodeIcon />}>View Code</Button>
  * ```
  */
-export const CodeIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <polyline points="16,18 22,12 16,6" />
-      <polyline points="8,6 2,12 8,18" />
-    </Icon>
-  );
-};
+export const CodeIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <polyline points="16,18 22,12 16,6" />
+        <polyline points="8,6 2,12 8,18" />
+      </Icon>
+    );
+  }
+);
+
+CodeIcon.displayName = 'CodeIcon';

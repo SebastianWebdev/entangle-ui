@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -20,10 +22,14 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<FilterIcon />}>Filter</Button>
  * ```
  */
-export const FilterIcon: React.FC<Omit<IconProps, 'children'>> = props => {
-  return (
-    <Icon {...props}>
-      <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" />
-    </Icon>
-  );
-};
+export const FilterIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
+  props => {
+    return (
+      <Icon {...props}>
+        <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" />
+      </Icon>
+    );
+  }
+);
+
+FilterIcon.displayName = 'FilterIcon';

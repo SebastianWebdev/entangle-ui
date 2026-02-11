@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Icon } from '../primitives/Icon';
 import type { IconProps } from '../primitives/Icon';
@@ -21,7 +23,9 @@ import type { IconProps } from '../primitives/Icon';
  * <Button icon={<AiSparklesIcon />}>Generate</Button>
  * ```
  */
-export const AiSparklesIcon: React.FC<Omit<IconProps, 'children'>> = props => {
+export const AiSparklesIcon = /*#__PURE__*/ React.memo<
+  Omit<IconProps, 'children'>
+>(props => {
   return (
     <Icon {...props}>
       <path d="M9 1l2 6L17 9l-6 2L9 17l-2-6L1 9l6-2Z" />
@@ -29,4 +33,6 @@ export const AiSparklesIcon: React.FC<Omit<IconProps, 'children'>> = props => {
       <path d="M19 15l.75 2.25L22 18l-2.25.75L19 21l-.75-2.25L16 18l2.25-.75Z" />
     </Icon>
   );
-};
+});
+
+AiSparklesIcon.displayName = 'AiSparklesIcon';
