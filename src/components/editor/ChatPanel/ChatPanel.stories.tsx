@@ -10,6 +10,7 @@ import { ChatCodeBlock } from './ChatCodeBlock';
 import { ChatContextChip } from './ChatContextChip';
 import { ChatEmptyState } from './ChatEmptyState';
 import { ChatActionBar } from './ChatActionBar';
+import { ChatInputToolbar } from './ChatInputToolbar';
 import { useChatMessages } from './useChatMessages';
 import { Button } from '@/components/primitives/Button';
 import { Text } from '@/components/primitives/Text';
@@ -346,6 +347,49 @@ export const WithAttachments: Story = {
   },
 };
 
+// ─── With Toolbar ───────────────────────────────────────────────
+
+export const WithToolbar: Story = {
+  render: () => {
+    const messages: ChatMessageData[] = [
+      createMsg('user', 'Analyze this scene file'),
+      createMsg(
+        'assistant',
+        'I can see the scene contains 12 objects with 3 materials. Would you like me to optimize anything?'
+      ),
+    ];
+
+    return (
+      <div style={{ width: 400, height: 500 }}>
+        <ChatPanel>
+          <ChatMessageList
+            messages={messages}
+            renderMessage={msg => (
+              <ChatMessage key={msg.id} message={msg} showAvatar />
+            )}
+          />
+          <ChatInput
+            placeholder="Ask about your project..."
+            toolbar={
+              <ChatInputToolbar>
+                <Button size="sm" variant="ghost">
+                  Attach file
+                </Button>
+                <Button size="sm" variant="ghost">
+                  Add context
+                </Button>
+                <Button size="sm" variant="ghost">
+                  Templates
+                </Button>
+              </ChatInputToolbar>
+            }
+          />
+        </ChatPanel>
+      </div>
+    );
+  },
+};
+
 // ─── Compact Density ─────────────────────────────────────────────
 
 export const CompactDensity: Story = {
@@ -495,6 +539,16 @@ export const FullIntegration: Story = {
               onStop={() => setIsStreaming(false)}
               streaming={isStreaming}
               placeholder="Ask about your project..."
+              toolbar={
+                <ChatInputToolbar>
+                  <Button size="sm" variant="ghost">
+                    Attach file
+                  </Button>
+                  <Button size="sm" variant="ghost">
+                    Add context
+                  </Button>
+                </ChatInputToolbar>
+              }
             />
           </ChatPanel>
         </div>

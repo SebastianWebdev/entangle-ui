@@ -205,12 +205,11 @@ export const inputPrefixStyle = style({
 
 export const inputWrapperStyle = style({
   display: 'flex',
-  alignItems: 'flex-end',
-  gap: vars.spacing.sm,
+  flexDirection: 'column',
   backgroundColor: vars.colors.background.secondary,
   border: `1px solid ${vars.colors.border.default}`,
   borderRadius: vars.borderRadius.md,
-  padding: vars.spacing.sm,
+  overflow: 'hidden',
   transition: `border-color ${vars.transitions.normal}`,
   selectors: {
     '&:focus-within': {
@@ -220,7 +219,7 @@ export const inputWrapperStyle = style({
 });
 
 export const inputTextareaStyle = style({
-  flex: 1,
+  width: '100%',
   resize: 'none',
   border: 'none',
   outline: 'none',
@@ -229,9 +228,12 @@ export const inputTextareaStyle = style({
   fontFamily: vars.typography.fontFamily.sans,
   fontSize: vars.typography.fontSize.sm,
   lineHeight: vars.typography.lineHeight.normal,
-  padding: vars.spacing.xs,
+  padding: `${vars.spacing.sm} ${vars.spacing.md}`,
   maxHeight: inputMaxHeightVar,
   overflowY: 'auto',
+  scrollbarWidth: 'thin',
+  scrollbarColor: `${vars.colors.text.disabled} transparent`,
+  boxSizing: 'border-box',
   selectors: {
     '&::placeholder': {
       color: vars.colors.text.disabled,
@@ -240,11 +242,25 @@ export const inputTextareaStyle = style({
       opacity: 0.5,
       cursor: 'not-allowed',
     },
+    '&::-webkit-scrollbar': {
+      width: '4px',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'transparent',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      borderRadius: '4px',
+      background: vars.colors.text.disabled,
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+      background: vars.colors.text.muted,
+    },
   },
 });
 
 export const inputButtonStyle = style({
   flexShrink: 0,
+  marginLeft: 'auto',
   width: '28px',
   height: '28px',
   display: 'flex',
@@ -270,6 +286,7 @@ export const inputButtonStyle = style({
 
 export const inputStopButtonStyle = style({
   flexShrink: 0,
+  marginLeft: 'auto',
   width: '28px',
   height: '28px',
   display: 'flex',
@@ -287,6 +304,23 @@ export const inputStopButtonStyle = style({
       backgroundColor: vars.colors.surface.hover,
     },
   },
+});
+
+// ─── ChatInput Bottom Bar ───────────────────────────────────────
+
+export const inputBottomBarStyle = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.sm,
+  padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
+});
+
+export const inputToolbarStyle = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.sm,
+  flex: 1,
+  minWidth: 0,
 });
 
 // ─── ChatTypingIndicator ─────────────────────────────────────────

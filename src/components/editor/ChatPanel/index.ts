@@ -11,6 +11,7 @@ export { ChatAttachmentChip } from './ChatAttachment';
 export { ChatContextChip } from './ChatContextChip';
 export { ChatEmptyState } from './ChatEmptyState';
 export { ChatActionBar } from './ChatActionBar';
+export { ChatInputToolbar } from './ChatInputToolbar';
 
 // Hooks
 export { useChatMessages } from './useChatMessages';
@@ -38,6 +39,7 @@ export type {
   ChatContextChipProps,
   ChatEmptyStateProps,
   ChatActionBarProps,
+  ChatInputToolbarProps,
   UseChatMessagesOptions,
   UseChatMessagesReturn,
   UseChatInputOptions,

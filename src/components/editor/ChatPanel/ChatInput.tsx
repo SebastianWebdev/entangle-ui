@@ -13,6 +13,7 @@ import {
   inputButtonStyle,
   inputStopButtonStyle,
   inputMaxHeightVar,
+  inputBottomBarStyle,
 } from './ChatPanel.css';
 
 // ─── Icons ───────────────────────────────────────────────────────
@@ -64,6 +65,7 @@ export const ChatInput = /*#__PURE__*/ React.memo<ChatInputProps>(
     onRemoveAttachment,
     prefix,
     suffix,
+    toolbar,
     className,
     style,
     testId,
@@ -179,26 +181,30 @@ export const ChatInput = /*#__PURE__*/ React.memo<ChatInputProps>(
 
           {suffix}
 
-          {streaming ? (
-            <button
-              type="button"
-              className={inputStopButtonStyle}
-              onClick={onStop}
-              aria-label="Stop generating"
-            >
-              <StopIcon />
-            </button>
-          ) : (
-            <button
-              type="button"
-              className={inputButtonStyle}
-              onClick={handleSendClick}
-              disabled={disabled || !currentValue.trim()}
-              aria-label="Send message"
-            >
-              <SendIcon />
-            </button>
-          )}
+          <div className={inputBottomBarStyle}>
+            {toolbar}
+
+            {streaming ? (
+              <button
+                type="button"
+                className={inputStopButtonStyle}
+                onClick={onStop}
+                aria-label="Stop generating"
+              >
+                <StopIcon />
+              </button>
+            ) : (
+              <button
+                type="button"
+                className={inputButtonStyle}
+                onClick={handleSendClick}
+                disabled={disabled || !currentValue.trim()}
+                aria-label="Send message"
+              >
+                <SendIcon />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );

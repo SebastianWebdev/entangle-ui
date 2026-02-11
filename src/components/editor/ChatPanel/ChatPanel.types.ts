@@ -241,6 +241,12 @@ interface ChatInputBaseProps extends Omit<
   prefix?: React.ReactNode;
   /** Content rendered after the textarea (e.g., additional action buttons) */
   suffix?: React.ReactNode;
+  /**
+   * Toolbar rendered below the input area.
+   * Use `ChatInputToolbar` as a layout wrapper for action buttons
+   * (e.g., file upload, menus, formatting options).
+   */
+  toolbar?: React.ReactNode;
 }
 
 export type ChatInputProps = Prettify<ChatInputBaseProps>;
@@ -384,6 +390,15 @@ interface ChatActionBarBaseProps extends BaseComponent {
 }
 
 export type ChatActionBarProps = Prettify<ChatActionBarBaseProps>;
+
+// --- ChatInputToolbar ---
+
+interface ChatInputToolbarBaseProps extends BaseComponent {
+  /** Action buttons rendered in a horizontal row below the input */
+  children: React.ReactNode;
+}
+
+export type ChatInputToolbarProps = Prettify<ChatInputToolbarBaseProps>;
 
 // ─── Hook Types ──────────────────────────────────────────────────
 
