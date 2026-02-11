@@ -5,6 +5,10 @@ import { expect } from 'vitest';
 import { ThemeProvider } from '@emotion/react';
 import type { Theme } from '@/theme';
 
+// Import dark theme to register VE CSS custom properties on :root
+// This enables migrated (VE) components to resolve CSS vars in tests
+import '@/theme/darkTheme.css';
+
 /**
  * Mock theme for testing purposes
  *

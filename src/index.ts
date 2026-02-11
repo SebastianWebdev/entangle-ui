@@ -1,7 +1,11 @@
 // src/index.ts
-// Theme system
+// Theme system (Emotion — for non-migrated components)
 export { createTheme, ThemeProvider, tokens } from '@/theme';
 export type { Theme, Tokens } from '@/theme';
+
+// Theme system (Vanilla Extract)
+export { vars, darkThemeValues, VanillaThemeProvider } from '@/theme';
+export type { ThemeVars, DarkThemeValues, VanillaThemeProviderProps } from '@/theme';
 
 // Primitives
 export {
@@ -306,3 +310,4 @@ export type {
 
 // Utilities
 export { cn } from '@/utils/cn';
+export { cx } from '@/utils/cx';

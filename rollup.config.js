@@ -5,6 +5,7 @@ import alias from '@rollup/plugin-alias';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import preserveDirectives from 'rollup-plugin-preserve-directives';
 import dts from 'rollup-plugin-dts';
+import { vanillaExtractPlugin } from '@vanilla-extract/rollup-plugin';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
@@ -53,6 +54,7 @@ export default [
     },
     external: isExternal,
     plugins: [
+      vanillaExtractPlugin(),
       aliasPlugin,
       nodeResolve({ extensions: ['.ts', '.tsx', '.js', '.jsx'] }),
       typescript({

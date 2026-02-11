@@ -1,7 +1,6 @@
 // src/primitives/Button/Button.stories.tsx
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from './Button';
-import { ThemeProvider } from '../../../theme';
 
 // Example icons for stories
 const PlayIcon = () => (
@@ -28,26 +27,12 @@ const DownloadIcon = () => (
 const meta: Meta<typeof Button> = {
   title: 'Primitives/Button',
   component: Button,
-  decorators: [
-    Story => (
-      <ThemeProvider>
-        <div
-          style={{
-            padding: '1rem',
-            backgroundColor: 'var(--background-primary)',
-          }}
-        >
-          <Story />
-        </div>
-      </ThemeProvider>
-    ),
-  ],
   parameters: {
     layout: 'centered',
     docs: {
       description: {
         component:
-          'A versatile button component built on our BaseButton primitive.',
+          'A versatile button component for editor interfaces. Uses Vanilla Extract for zero-runtime styles.',
       },
     },
   },
