@@ -69,19 +69,19 @@
     "url": "https://github.com/SebastianWebdev/entangle-ui/issues"
   },
   "peerDependencies": {
+    "@base-ui-components/react": "^1.0.0-beta.0",
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
+    "@floating-ui/react": "^0.27.17",
     "react": ">=19.1.0",
     "react-dom": ">=19.1.0"
   },
   "dependencies": {
-    "@base-ui-components/react": "^1.0.0-beta.0",
-    "@floating-ui/react": "^0.27.17",
-    "@vanilla-extract/css": "^1.18.0",
     "@vanilla-extract/dynamic": "^2.1.5",
     "@vanilla-extract/recipes": "^0.5.7"
   },
   "devDependencies": {
+    "@vanilla-extract/css": "^1.18.0",
     "@changesets/changelog-github": "^0.5.2",
     "@changesets/cli": "^2.29.8",
     "@eslint/js": "^9.27.0",
