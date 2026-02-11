@@ -2,6 +2,7 @@ import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 import typescript from '@rollup/plugin-typescript';
 import alias from '@rollup/plugin-alias';
+import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import preserveDirectives from 'rollup-plugin-preserve-directives';
 import dts from 'rollup-plugin-dts';
@@ -57,6 +58,7 @@ export default [
       vanillaExtractPlugin(),
       aliasPlugin,
       nodeResolve({ extensions: ['.ts', '.tsx', '.js', '.jsx'] }),
+      commonjs(),
       typescript({
         tsconfig: './tsconfig.build.json',
         declaration: false,
