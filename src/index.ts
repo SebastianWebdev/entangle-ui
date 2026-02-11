@@ -5,7 +5,11 @@ export type { Theme, Tokens } from '@/theme';
 
 // Theme system (Vanilla Extract)
 export { vars, darkThemeValues, VanillaThemeProvider } from '@/theme';
-export type { ThemeVars, DarkThemeValues, VanillaThemeProviderProps } from '@/theme';
+export type {
+  ThemeVars,
+  DarkThemeValues,
+  VanillaThemeProviderProps,
+} from '@/theme';
 
 // Primitives
 export {

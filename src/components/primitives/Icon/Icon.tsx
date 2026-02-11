@@ -62,10 +62,17 @@ export const Icon = /*#__PURE__*/ React.memo<IconProps>(
           iconRecipe({
             size,
             color: isStandardColor
-              ? (color as 'primary' | 'secondary' | 'muted' | 'accent' | 'success' | 'warning' | 'error')
+              ? (color as
+                  | 'primary'
+                  | 'secondary'
+                  | 'muted'
+                  | 'accent'
+                  | 'success'
+                  | 'warning'
+                  | 'error')
               : undefined,
           }),
-          className,
+          className
         )}
         style={!isStandardColor ? { color } : undefined}
         viewBox="0 0 24 24"

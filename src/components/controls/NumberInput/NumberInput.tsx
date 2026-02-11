@@ -450,7 +450,11 @@ export const NumberInput = ({
         {showStepButtons && (
           <button
             type="button"
-            className={stepButtonRecipe({ position: 'left', size, visible: shouldShowStepButtons })}
+            className={stepButtonRecipe({
+              position: 'left',
+              size,
+              visible: shouldShowStepButtons,
+            })}
             onClick={handleDecrementClick}
             disabled={disabled}
             tabIndex={-1}
@@ -486,9 +490,16 @@ export const NumberInput = ({
 
         {/* Value display - shown when not editing */}
         {!isEditing && (
-          <div className={valueDisplayRecipe({ size, hasStepButtons: shouldShowStepButtons })}>
+          <div
+            className={valueDisplayRecipe({
+              size,
+              hasStepButtons: shouldShowStepButtons,
+            })}
+          >
             <span>{formattedValue}</span>
-            {unitDisplay && <span className={unitLabelStyle}>{unitDisplay}</span>}
+            {unitDisplay && (
+              <span className={unitLabelStyle}>{unitDisplay}</span>
+            )}
           </div>
         )}
 
@@ -496,7 +507,11 @@ export const NumberInput = ({
         {showStepButtons && (
           <button
             type="button"
-            className={stepButtonRecipe({ position: 'right', size, visible: shouldShowStepButtons })}
+            className={stepButtonRecipe({
+              position: 'right',
+              size,
+              visible: shouldShowStepButtons,
+            })}
             onClick={handleIncrementClick}
             disabled={disabled}
             tabIndex={-1}

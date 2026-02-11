@@ -77,11 +77,7 @@ const PanelSurfaceBody: React.FC<PanelSurfaceBodyProps> = ({
   return (
     <div
       ref={ref}
-      className={cx(
-        bodyStyle,
-        scroll ? bodyScrollable : bodyHidden,
-        className,
-      )}
+      className={cx(bodyStyle, scroll ? bodyScrollable : bodyHidden, className)}
       style={mergedStyle}
       data-testid={testId}
       {...rest}
@@ -145,7 +141,7 @@ const PanelSurfaceRoot: React.FC<PanelSurfaceProps> = ({
         className={cx(
           rootStyle,
           bordered ? rootBordered : rootNoBorder,
-          className,
+          className
         )}
         style={mergedStyle}
         data-testid={testId}

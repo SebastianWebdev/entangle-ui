@@ -160,7 +160,11 @@ const MenuBarSub: React.FC<MenuBarSubProps> = ({
         <span>{label}</span>
         <ChevronRight />
       </button>
-      {open && <div className={subDropdown} role="menu">{children}</div>}
+      {open && (
+        <div className={subDropdown} role="menu">
+          {children}
+        </div>
+      )}
     </div>
   );
 };
@@ -168,7 +172,6 @@ const MenuBarSub: React.FC<MenuBarSubProps> = ({
 MenuBarSub.displayName = 'MenuBar.Sub';
 
 const MenuBarSeparator: React.FC<MenuBarSeparatorProps> = ({
-
   className,
   style,
   testId,

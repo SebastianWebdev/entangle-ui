@@ -7,11 +7,12 @@ import React, {
 } from 'react';
 import { cx } from '@/utils/cx';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import type {
-  PanelConfig,
-  SplitPaneProps,
-} from './SplitPane.types';
-import { containerRecipe, dividerRecipe, dividerSizeVar } from './SplitPane.css';
+import type { PanelConfig, SplitPaneProps } from './SplitPane.types';
+import {
+  containerRecipe,
+  dividerRecipe,
+  dividerSizeVar,
+} from './SplitPane.css';
 
 // ---------------------------------------------------------------------------
 // Helpers

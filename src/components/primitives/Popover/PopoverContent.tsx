@@ -99,7 +99,7 @@ export const PopoverContent: React.FC<PopoverContentProps> = ({
             padding,
             visible: visible || undefined,
           }),
-          className,
+          className
         )}
         style={{
           ...floatingStyles,

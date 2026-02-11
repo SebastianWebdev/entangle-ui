@@ -27,7 +27,11 @@ export const ColorPresets: React.FC<ColorPresetsProps> = ({
   const normalizedCurrent = currentColor.toLowerCase();
 
   return (
-    <div className={presetsGridStyle} role="radiogroup" aria-label="Color presets">
+    <div
+      className={presetsGridStyle}
+      role="radiogroup"
+      aria-label="Color presets"
+    >
       {presets.map((preset, i) => (
         <button
           key={`${preset.color}-${i}`}
@@ -41,7 +45,10 @@ export const ColorPresets: React.FC<ColorPresetsProps> = ({
           })}
           onClick={() => handleClick(preset.color)}
         >
-          <span className={presetColorStyle} style={{ background: preset.color }} />
+          <span
+            className={presetColorStyle}
+            style={{ background: preset.color }}
+          />
         </button>
       ))}
     </div>

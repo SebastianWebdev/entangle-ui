@@ -1,9 +1,6 @@
 import React, { useCallback } from 'react';
 import { useAccordionContext, useAccordionItemContext } from './Accordion';
-import type {
-  AccordionSize,
-  AccordionTriggerProps,
-} from './Accordion.types';
+import type { AccordionSize, AccordionTriggerProps } from './Accordion.types';
 import { cx } from '@/utils/cx';
 import {
   triggerButton,
@@ -90,7 +87,7 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = ({
       onClick={handleClick}
       className={cx(
         triggerButton({ variant, size, disabled: isDisabled }),
-        className,
+        className
       )}
       style={style}
       data-testid={testId}
@@ -100,7 +97,7 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = ({
         <span
           className={cx(
             chevronStyle,
-            isExpanded ? chevronExpanded : chevronCollapsed,
+            isExpanded ? chevronExpanded : chevronCollapsed
           )}
           style={{
             width: `${sizeConfig.chevronSize}px`,

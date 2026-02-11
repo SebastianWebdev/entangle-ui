@@ -30,11 +30,11 @@ export type ThemeValues = DarkThemeValues;
  */
 export function createCustomTheme(
   selector: string,
-  overrides: DeepPartial<ThemeValues>,
+  overrides: DeepPartial<ThemeValues>
 ) {
   const merged = mergeDeep(
     darkThemeValues as unknown as Record<string, unknown>,
-    overrides as unknown as DeepPartial<Record<string, unknown>>,
+    overrides as unknown as DeepPartial<Record<string, unknown>>
   ) as ThemeValues;
   createGlobalTheme(selector, vars, merged);
 }

@@ -158,14 +158,15 @@ export const Paper = /*#__PURE__*/ React.memo<PaperProps>(
     ref,
     ...htmlProps
   }) => {
-    const customRadiusStyle = customRadius !== undefined
-      ? {
-          borderRadius:
-            typeof customRadius === 'number'
-              ? `${customRadius}px`
-              : customRadius,
-        }
-      : undefined;
+    const customRadiusStyle =
+      customRadius !== undefined
+        ? {
+            borderRadius:
+              typeof customRadius === 'number'
+                ? `${customRadius}px`
+                : customRadius,
+          }
+        : undefined;
 
     return (
       <div
@@ -178,7 +179,7 @@ export const Paper = /*#__PURE__*/ React.memo<PaperProps>(
             nestLevel,
             expand: expand || undefined,
           }),
-          className,
+          className
         )}
         data-testid={testId}
         style={{ ...customRadiusStyle, ...style }}

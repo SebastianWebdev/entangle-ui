@@ -28,9 +28,24 @@ interface TriggerSizeConfig {
 }
 
 const TRIGGER_SIZE_MAP: Record<CollapsibleSize, TriggerSizeConfig> = {
-  sm: { height: '24px', padding: vars.spacing.md, fontSize: vars.typography.fontSize.xs, chevronSize: 10 },
-  md: { height: '28px', padding: vars.spacing.md, fontSize: vars.typography.fontSize.sm, chevronSize: 12 },
-  lg: { height: '32px', padding: vars.spacing.lg, fontSize: vars.typography.fontSize.md, chevronSize: 14 },
+  sm: {
+    height: '24px',
+    padding: vars.spacing.md,
+    fontSize: vars.typography.fontSize.xs,
+    chevronSize: 10,
+  },
+  md: {
+    height: '28px',
+    padding: vars.spacing.md,
+    fontSize: vars.typography.fontSize.sm,
+    chevronSize: 12,
+  },
+  lg: {
+    height: '32px',
+    padding: vars.spacing.lg,
+    fontSize: vars.typography.fontSize.md,
+    chevronSize: 14,
+  },
 };
 
 interface ContentSizeConfig {

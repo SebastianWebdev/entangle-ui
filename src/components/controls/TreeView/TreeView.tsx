@@ -241,7 +241,8 @@ export const TreeView = ({
 
   const containerInlineVars = maxHeight
     ? assignInlineVars({
-        [maxHeightVar]: typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
+        [maxHeightVar]:
+          typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
       })
     : undefined;
 

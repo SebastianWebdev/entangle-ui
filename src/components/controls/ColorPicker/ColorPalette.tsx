@@ -37,10 +37,16 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
 
   return (
     <Collapsible trigger={title} defaultOpen={defaultExpanded} size="sm">
-      <div className={paletteContainerStyle} role="radiogroup" aria-label="Color palette">
+      <div
+        className={paletteContainerStyle}
+        role="radiogroup"
+        aria-label="Color palette"
+      >
         {palette.map(color => (
           <div className={paletteRowStyle} key={color.name}>
-            <span className={paletteRowLabelStyle}>{color.name.slice(0, 2)}</span>
+            <span className={paletteRowLabelStyle}>
+              {color.name.slice(0, 2)}
+            </span>
             {color.shades.map(shade => (
               <button
                 key={shade.color}
@@ -54,7 +60,10 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
                 })}
                 onClick={() => handleSelect(shade.color)}
               >
-                <span className={paletteShadeColorStyle} style={{ background: shade.color }} />
+                <span
+                  className={paletteShadeColorStyle}
+                  style={{ background: shade.color }}
+                />
               </button>
             ))}
           </div>

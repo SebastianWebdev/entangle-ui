@@ -230,9 +230,7 @@ export const Text = /*#__PURE__*/ React.memo<TextProps>(
       lineHeight && variant !== 'inherit' ? lineHeight : undefined;
 
     const truncateStyle =
-      truncate && maxLines
-        ? { WebkitLineClamp: maxLines }
-        : undefined;
+      truncate && maxLines ? { WebkitLineClamp: maxLines } : undefined;
 
     return (
       <Component
@@ -246,12 +244,12 @@ export const Text = /*#__PURE__*/ React.memo<TextProps>(
             lineHeight: lineHeightVariant,
             align,
             nowrap: nowrap || undefined,
-            mono: (mono || variant === 'code') ? true : undefined,
+            mono: mono || variant === 'code' ? true : undefined,
             truncate: truncate || undefined,
           }),
           truncate && !maxLines && truncateSingleLineStyle,
           truncate && maxLines ? truncateMultiLineStyle : undefined,
-          className,
+          className
         )}
         style={{ ...truncateStyle, ...style }}
         data-testid={testId}

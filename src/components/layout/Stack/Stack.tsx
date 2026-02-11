@@ -253,7 +253,7 @@ export const Stack: React.FC<StackProps> = ({
           expandRow: expand && direction === 'row' ? true : undefined,
           expandColumn: expand && direction === 'column' ? true : undefined,
         }),
-        className,
+        className
       )}
       data-testid={testId}
       style={mergedStyle}

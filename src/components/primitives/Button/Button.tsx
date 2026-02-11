@@ -142,7 +142,7 @@ export const Button = /*#__PURE__*/ React.memo<ButtonProps>(
         ref={ref}
         className={cx(
           buttonRecipe({ variant, size, fullWidth: fullWidth || undefined }),
-          className,
+          className
         )}
         disabled={disabled || loading}
         onClick={onClick}
@@ -159,7 +159,7 @@ export const Button = /*#__PURE__*/ React.memo<ButtonProps>(
         {children && <span>{children}</span>}
       </button>
     );
-  },
+  }
 );
 
 Button.displayName = 'Button';

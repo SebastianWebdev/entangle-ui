@@ -235,7 +235,9 @@ describe('Select', () => {
       fireEvent.keyDown(listbox, { key: 'ArrowDown' });
 
       const options = screen.getAllByRole('option');
-      expect(options[0]).toHaveStyle(`background: ${vars.colors.surface.hover}`); // surface.hover
+      expect(options[0]).toHaveStyle(
+        `background: ${vars.colors.surface.hover}`
+      ); // surface.hover
     });
 
     it('selects option with Enter after navigation', () => {

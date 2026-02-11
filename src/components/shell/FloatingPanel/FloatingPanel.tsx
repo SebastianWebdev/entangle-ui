@@ -272,7 +272,11 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
       }}
       {...rest}
     >
-      <div className={header} onPointerDown={handleDragStart} data-testid="panel-header">
+      <div
+        className={header}
+        onPointerDown={handleDragStart}
+        data-testid="panel-header"
+      >
         <span className={title}>{panelTitle}</span>
         <div className={headerActions}>
           <span

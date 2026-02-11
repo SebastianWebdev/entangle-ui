@@ -19,7 +19,10 @@ import {
 export type InputSize = Size;
 
 export interface InputBaseProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'css'> {
+  extends Omit<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    'onChange' | 'size' | 'css'
+  > {
   /**
    * Input value (controlled)
    */
@@ -214,10 +217,7 @@ export const Input: React.FC<InputProps> = ({
   };
 
   return (
-    <div
-      className={cx(inputContainerStyle, className)}
-      style={style}
-    >
+    <div className={cx(inputContainerStyle, className)} style={style}>
       {label && (
         <label
           htmlFor={inputId}

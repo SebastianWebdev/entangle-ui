@@ -22,7 +22,10 @@ export type IconButtonVariant = Variant;
 export type IconButtonRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
 
 export interface IconButtonBaseProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'css' | 'children'> {
+  extends Omit<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    'css' | 'children'
+  > {
   /**
    * Icon component to display inside the button.
    * Should be an Icon component or similar icon element.
@@ -180,7 +183,7 @@ export const IconButton = /*#__PURE__*/ React.memo<IconButtonProps>(
             radius,
             pressed: pressed || undefined,
           }),
-          className,
+          className
         )}
         disabled={disabled || loading}
         onClick={onClick}

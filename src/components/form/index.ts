@@ -7,7 +7,4 @@ export type {
   FormHelperTextBaseProps,
   FormHelperTextProps,
 } from './FormHelperText';
-export type {
-  InputWrapperBaseProps,
-  InputWrapperProps,
-} from './InputWrapper';
+export type { InputWrapperBaseProps, InputWrapperProps } from './InputWrapper';

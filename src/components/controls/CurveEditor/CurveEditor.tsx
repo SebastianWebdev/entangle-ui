@@ -176,13 +176,12 @@ export const CurveEditor: React.FC<CurveEditorProps> = ({
 
   return (
     <div
-      className={cx(
-        curveEditorRecipe({ disabled, responsive }),
-        className
-      )}
+      className={cx(curveEditorRecipe({ disabled, responsive }), className)}
       style={{
         ...style,
-        ...(!responsive ? assignInlineVars({ [editorWidthVar]: `${width}px` }) : {}),
+        ...(!responsive
+          ? assignInlineVars({ [editorWidthVar]: `${width}px` })
+          : {}),
       }}
       data-testid={testId}
       id={id}

@@ -316,8 +316,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
       : undefined),
     ...(maxWidth != null
       ? {
-          maxWidth:
-            typeof maxWidth === 'number' ? `${maxWidth}px` : maxWidth,
+          maxWidth: typeof maxWidth === 'number' ? `${maxWidth}px` : maxWidth,
         }
       : undefined),
     ...style,
@@ -350,7 +349,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             className={cx(
               fadeMaskBase,
               fadeMaskTop,
-              !atTop ? fadeMaskVisible : fadeMaskHiddenStyle,
+              !atTop ? fadeMaskVisible : fadeMaskHiddenStyle
             )}
             data-testid={testId ? `${testId}-fade-top` : undefined}
           />
@@ -358,7 +357,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             className={cx(
               fadeMaskBase,
               fadeMaskBottom,
-              !atBottom ? fadeMaskVisible : fadeMaskHiddenStyle,
+              !atBottom ? fadeMaskVisible : fadeMaskHiddenStyle
             )}
             data-testid={testId ? `${testId}-fade-bottom` : undefined}
           />
@@ -370,14 +369,14 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             className={cx(
               fadeMaskBase,
               fadeMaskLeft,
-              !atLeft ? fadeMaskVisible : fadeMaskHiddenStyle,
+              !atLeft ? fadeMaskVisible : fadeMaskHiddenStyle
             )}
           />
           <div
             className={cx(
               fadeMaskBase,
               fadeMaskRight,
-              !atRight ? fadeMaskVisible : fadeMaskHiddenStyle,
+              !atRight ? fadeMaskVisible : fadeMaskHiddenStyle
             )}
           />
         </>
@@ -388,7 +387,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
         <div
           className={cx(
             scrollbarVertical,
-            isScrollbarShown ? scrollbarVisible : scrollbarHidden,
+            isScrollbarShown ? scrollbarVisible : scrollbarHidden
           )}
           role="scrollbar"
           aria-controls={viewportId}
@@ -413,7 +412,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             className={cx(
               thumbBase,
               thumbVertical,
-              isDragging && dragAxisRef.current === 'vertical' && thumbDragging,
+              isDragging && dragAxisRef.current === 'vertical' && thumbDragging
             )}
             style={{
               height: `${vThumbSize}px`,
@@ -432,7 +431,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
         <div
           className={cx(
             scrollbarHorizontal,
-            isScrollbarShown ? scrollbarVisible : scrollbarHidden,
+            isScrollbarShown ? scrollbarVisible : scrollbarHidden
           )}
           role="scrollbar"
           aria-controls={viewportId}
@@ -457,7 +456,9 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             className={cx(
               thumbBase,
               thumbHorizontal,
-              isDragging && dragAxisRef.current === 'horizontal' && thumbDragging,
+              isDragging &&
+                dragAxisRef.current === 'horizontal' &&
+                thumbDragging
             )}
             style={{
               width: `${hThumbSize}px`,

@@ -108,7 +108,11 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   );
 
   const modifiedDotEl = modified ? (
-    <span className={modifiedDot} aria-label="Modified" data-testid="modified-dot" />
+    <span
+      className={modifiedDot}
+      aria-label="Modified"
+      data-testid="modified-dot"
+    />
   ) : null;
 
   const labelText = <span>{label}</span>;
@@ -179,9 +183,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
           >
             {labelElement}
           </div>
-          <div className={rowControl}>
-            {children}
-          </div>
+          <div className={rowControl}>{children}</div>
         </>
       )}
 

@@ -35,7 +35,7 @@ export const AccordionContent: React.FC<AccordionContentProps> = ({
     <div
       className={cx(
         contentWrapper,
-        isExpanded ? contentWrapperExpanded : contentWrapperCollapsed,
+        isExpanded ? contentWrapperExpanded : contentWrapperCollapsed
       )}
       role="region"
       id={contentId}

@@ -24,4 +24,6 @@ export const formHelperTextRecipe = recipe({
   },
 });
 
-export type FormHelperTextVariants = RecipeVariants<typeof formHelperTextRecipe>;
+export type FormHelperTextVariants = RecipeVariants<
+  typeof formHelperTextRecipe
+>;

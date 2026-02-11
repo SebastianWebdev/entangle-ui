@@ -110,7 +110,10 @@ export const ColorArea: React.FC<ColorAreaProps> = ({
     >
       <div className={saturationGradientStyle} />
       <div className={valueGradientStyle} />
-      <div className={colorAreaThumbStyle} style={{ left: thumbX, top: thumbY }} />
+      <div
+        className={colorAreaThumbStyle}
+        style={{ left: thumbX, top: thumbY }}
+      />
     </div>
   );
 };

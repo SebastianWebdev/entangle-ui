@@ -84,7 +84,7 @@ export const Spacer = /*#__PURE__*/ React.memo<SpacerProps>(
         className={cx(
           spacerBase,
           size !== undefined ? spacerFixed : spacerFlexible,
-          className,
+          className
         )}
         data-testid={testId}
         style={inlineStyle}

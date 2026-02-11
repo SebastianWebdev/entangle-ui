@@ -196,10 +196,7 @@ const SPACING_UNIT = 4;
 /**
  * Calculate gap value based on spacing multiplier
  */
-const getGapValue = (
-  gap: FlexSpacing,
-  customGap?: string | number
-): string => {
+const getGapValue = (gap: FlexSpacing, customGap?: string | number): string => {
   if (customGap !== undefined) {
     return typeof customGap === 'number' ? `${customGap}px` : customGap;
   }
@@ -295,8 +292,7 @@ export const Flex: React.FC<FlexProps> = ({
   ref,
   ...htmlProps
 }) => {
-  const basisValue =
-    typeof basis === 'number' ? `${basis}px` : basis;
+  const basisValue = typeof basis === 'number' ? `${basis}px` : basis;
 
   const dynamicStyle: React.CSSProperties = {
     ...assignInlineVars({
@@ -306,7 +302,10 @@ export const Flex: React.FC<FlexProps> = ({
       [basisVar]: basisValue,
     }),
     ...(minHeight !== undefined
-      ? { minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight }
+      ? {
+          minHeight:
+            typeof minHeight === 'number' ? `${minHeight}px` : minHeight,
+        }
       : undefined),
     ...(maxWidth !== undefined
       ? { maxWidth: typeof maxWidth === 'number' ? `${maxWidth}px` : maxWidth }
@@ -334,7 +333,7 @@ export const Flex: React.FC<FlexProps> = ({
           fullWidth: fullWidth || undefined,
           fullHeight: fullHeight || undefined,
         }),
-        className,
+        className
       )}
       data-testid={testId}
       style={dynamicStyle}

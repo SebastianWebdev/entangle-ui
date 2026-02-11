@@ -1,10 +1,7 @@
 import React, { useCallback, useId, useContext, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { FormHelperText } from '@/components/form';
-import type {
-  CheckboxProps,
-  CheckboxSize,
-} from './Checkbox.types';
+import type { CheckboxProps, CheckboxSize } from './Checkbox.types';
 import { CheckboxGroupContext } from './CheckboxGroup';
 import { cx } from '@/utils/cx';
 import {

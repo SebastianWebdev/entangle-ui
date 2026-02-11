@@ -9,7 +9,7 @@ const config: StorybookConfig = {
     '@storybook/addon-themes',
   ],
   framework: '@storybook/react-vite',
-  viteFinal: (config) => {
+  viteFinal: config => {
     config.plugins = config.plugins || [];
     config.plugins.push(vanillaExtractPlugin());
     return config;

@@ -81,7 +81,7 @@ const ToolbarSlot: React.FC<AppShellToolbarSlotProps> = ({
               side: position,
               separator: sideChromeSeparator,
             }),
-            className,
+            className
           )}
           style={style}
           data-testid={testId}
@@ -96,7 +96,7 @@ const ToolbarSlot: React.FC<AppShellToolbarSlotProps> = ({
           ref={ref as React.Ref<HTMLDivElement>}
           className={cx(
             toolbarTopSlot({ separator: topChromeSeparator }),
-            className,
+            className
           )}
           style={style}
           data-testid={testId}
@@ -175,14 +175,14 @@ const AppShellRoot: React.FC<AppShellProps> = ({
 
   const isToolbarVisible = useCallback(
     (position: ToolbarPosition) => toolbarVisibility[position] ?? true,
-    [toolbarVisibility],
+    [toolbarVisibility]
   );
 
   const setToolbarVisible = useCallback(
     (position: ToolbarPosition, visible: boolean) => {
       setToolbarVisibility(prev => ({ ...prev, [position]: visible }));
     },
-    [],
+    []
   );
 
   const contextValue = useMemo(
@@ -197,18 +197,14 @@ const AppShellRoot: React.FC<AppShellProps> = ({
       setToolbarVisible,
       topChromeSeparator,
       sideChromeSeparator,
-    ],
+    ]
   );
 
   return (
     <AppShellContext.Provider value={contextValue}>
       <div
         ref={ref}
-        className={cx(
-          shellRoot,
-          viewportLock && viewportLockClass,
-          className,
-        )}
+        className={cx(shellRoot, viewportLock && viewportLockClass, className)}
         style={style}
         data-testid={testId}
         role="application"

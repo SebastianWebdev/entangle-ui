@@ -158,7 +158,8 @@ export function Select<T extends string = string>({
   );
   const [searchQuery, setSearchQuery] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const [dropdownStyleState, setDropdownStyleState] = useState<React.CSSProperties>({});
+  const [dropdownStyleState, setDropdownStyleState] =
+    useState<React.CSSProperties>({});
 
   const isControlled = valueProp !== undefined;
   const currentValue = isControlled ? valueProp : internalValue;

@@ -132,7 +132,10 @@ const StatusBarRoot: React.FC<StatusBarProps> = ({
     <StatusBarContext.Provider value={contextValue}>
       <div
         ref={ref}
-        className={cx(statusBarRoot({ variant: $variant, size: $size }), className)}
+        className={cx(
+          statusBarRoot({ variant: $variant, size: $size }),
+          className
+        )}
         style={style}
         data-testid={testId}
         role="status"

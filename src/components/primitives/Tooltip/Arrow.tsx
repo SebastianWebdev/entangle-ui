@@ -32,7 +32,10 @@ export const StyledTooltipArrow = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <Tooltip.Arrow
     ref={ref}
-    className={cx(tooltipArrowStyle, typeof className === 'string' ? className : undefined)}
+    className={cx(
+      tooltipArrowStyle,
+      typeof className === 'string' ? className : undefined
+    )}
     {...props}
   />
 ));

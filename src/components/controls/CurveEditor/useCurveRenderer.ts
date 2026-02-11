@@ -73,7 +73,8 @@ function resolveTheme(canvas: HTMLCanvasElement): CanvasThemeColors {
     textMuted: resolveVar(canvas, vars.colors.text.muted),
     textPrimary: resolveVar(canvas, vars.colors.text.primary),
     textSecondary: resolveVar(canvas, vars.colors.text.secondary),
-    fontSizeXs: parseFloat(resolveVar(canvas, vars.typography.fontSize.xs)) || 10,
+    fontSizeXs:
+      parseFloat(resolveVar(canvas, vars.typography.fontSize.xs)) || 10,
   };
 }
 
@@ -545,9 +546,7 @@ function drawTangentHandles(
     const isHInHovered =
       hoveredElement?.type === 'handleIn' && hoveredElement.keyframeIndex === i;
     ctx.globalAlpha = opacity;
-    ctx.fillStyle = isHInHovered
-      ? theme.textPrimary
-      : theme.textSecondary;
+    ctx.fillStyle = isHInHovered ? theme.textPrimary : theme.textSecondary;
     ctx.beginPath();
     ctx.arc(
       hIn.px,
@@ -583,9 +582,7 @@ function drawTangentHandles(
       hoveredElement?.type === 'handleOut' &&
       hoveredElement.keyframeIndex === i;
     ctx.globalAlpha = opacity;
-    ctx.fillStyle = isHOutHovered
-      ? theme.textPrimary
-      : theme.textSecondary;
+    ctx.fillStyle = isHOutHovered ? theme.textPrimary : theme.textSecondary;
     ctx.beginPath();
     ctx.arc(
       hOut.px,

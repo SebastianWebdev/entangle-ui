@@ -89,7 +89,10 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   }, [palette]);
 
   const pickerBody = (
-    <div className={pickerBodyStyle} data-testid={testId ? `${testId}-panel` : undefined}>
+    <div
+      className={pickerBodyStyle}
+      data-testid={testId ? `${testId}-panel` : undefined}
+    >
       <ColorArea
         hue={colorState.hsva.h}
         saturation={colorState.hsva.s}
@@ -156,11 +159,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   return (
     <Popover>
       <PopoverTrigger>
-        <div
-          className={triggerRowStyle}
-          data-testid={testId}
-          {...rest}
-        >
+        <div className={triggerRowStyle} data-testid={testId} {...rest}>
           <ColorSwatch
             color={colorState.hexString}
             size={size}

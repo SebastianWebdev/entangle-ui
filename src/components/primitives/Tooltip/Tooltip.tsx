@@ -20,7 +20,8 @@ import { ArrowSvg, StyledTooltipArrow } from './Arrow';
 import { parseCollisionStrategy, parsePlacement } from './utils';
 import { tooltipContentStyle, tooltipTriggerStyle } from './Tooltip.css';
 
-interface TooltipBaseProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'css' | 'title'> {
+interface TooltipBaseProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'css' | 'title'> {
   /**
    * The trigger element that will show the tooltip on hover.
    * Must be a single React element or component.
@@ -299,7 +300,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
     <BaseTooltip.Provider delay={delay} closeDelay={closeDelay} {...rootProps}>
       <BaseTooltip.Root>
         <BaseTooltip.Trigger
-          render={props => <div {...props} className={cx(tooltipTriggerStyle, props.className)} />}
+          render={props => (
+            <div
+              {...props}
+              className={cx(tooltipTriggerStyle, props.className)}
+            />
+          )}
         >
           {children}
         </BaseTooltip.Trigger>
@@ -310,7 +316,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
               render={props => (
                 <div
                   {...props}
-                  className={cx(tooltipContentStyle, className, props.className)}
+                  className={cx(
+                    tooltipContentStyle,
+                    className,
+                    props.className
+                  )}
                   data-testid={testId}
                   id={id}
                   style={{

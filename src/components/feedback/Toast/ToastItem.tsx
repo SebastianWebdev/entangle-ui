@@ -122,7 +122,10 @@ interface ToastItemProps {
  * - warning/error: role="alert", aria-live="assertive"
  * - Auto-dismiss pauses on hover
  */
-export const ToastItem: React.FC<ToastItemProps> = ({ toast: toastData, onDismiss }) => {
+export const ToastItem: React.FC<ToastItemProps> = ({
+  toast: toastData,
+  onDismiss,
+}) => {
   const {
     id,
     title,

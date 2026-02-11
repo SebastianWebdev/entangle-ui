@@ -256,7 +256,9 @@ export const TreeNodeComponent = ({
         renderNode(node, state)
       ) : (
         <>
-          {node.icon && <span className={iconRecipe({ size })}>{node.icon}</span>}
+          {node.icon && (
+            <span className={iconRecipe({ size })}>{node.icon}</span>
+          )}
           {isRenaming ? (
             <input
               ref={renameInputRef}

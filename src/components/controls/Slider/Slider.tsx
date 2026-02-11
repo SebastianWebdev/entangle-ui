@@ -524,10 +524,7 @@ export const Slider: React.FC<SliderProps> = ({
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
         >
-          <div
-            ref={trackRef}
-            className={trackRecipe({ size, error })}
-          >
+          <div ref={trackRef} className={trackRecipe({ size, error })}>
             <div
               className={fillRecipe({ error, isDragging })}
               style={assignInlineVars({

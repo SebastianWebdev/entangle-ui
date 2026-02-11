@@ -48,9 +48,21 @@ interface SearchInputSizeConfig {
 }
 
 const SEARCH_SIZE_MAP: Record<PropertyInspectorSize, SearchInputSizeConfig> = {
-  sm: { height: 20, fontSize: 'var(--etui-font-size-md)', padding: 'var(--etui-spacing-sm)' },
-  md: { height: 24, fontSize: 'var(--etui-font-size-md)', padding: 'var(--etui-spacing-md)' },
-  lg: { height: 28, fontSize: 'var(--etui-font-size-lg)', padding: 'var(--etui-spacing-md)' },
+  sm: {
+    height: 20,
+    fontSize: 'var(--etui-font-size-md)',
+    padding: 'var(--etui-spacing-sm)',
+  },
+  md: {
+    height: 24,
+    fontSize: 'var(--etui-font-size-md)',
+    padding: 'var(--etui-spacing-md)',
+  },
+  lg: {
+    height: 28,
+    fontSize: 'var(--etui-font-size-lg)',
+    padding: 'var(--etui-spacing-md)',
+  },
 };
 
 // --- Component ---
@@ -98,8 +110,14 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
   const sizeConfig = SEARCH_SIZE_MAP[size];
 
   const contentStyle = assignInlineVars({
-    [contentTopSpacingVar]: contentTopSpacing != null ? `${contentTopSpacing}px` : 'var(--etui-spacing-sm)',
-    [contentBottomSpacingVar]: contentBottomSpacing != null ? `${contentBottomSpacing}px` : 'var(--etui-spacing-md)',
+    [contentTopSpacingVar]:
+      contentTopSpacing != null
+        ? `${contentTopSpacing}px`
+        : 'var(--etui-spacing-sm)',
+    [contentBottomSpacingVar]:
+      contentBottomSpacing != null
+        ? `${contentBottomSpacing}px`
+        : 'var(--etui-spacing-md)',
   });
 
   const content = (
