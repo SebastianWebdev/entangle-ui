@@ -33,7 +33,7 @@ export const Horizontal: Story = {
 export const Vertical: Story = {
   render: () => (
     <div style={{ width: 40 }}>
-      <Toolbar $orientation="vertical" aria-label="Tool palette">
+      <Toolbar orientation="vertical" aria-label="Tool palette">
         <Toolbar.Button onClick={() => {}}>P</Toolbar.Button>
         <Toolbar.Button onClick={() => {}}>B</Toolbar.Button>
         <Toolbar.Button onClick={() => {}}>E</Toolbar.Button>
@@ -71,7 +71,7 @@ export const WithToggles: Story = {
 
 export const SmallSize: Story = {
   render: () => (
-    <Toolbar $size="sm" aria-label="Compact toolbar">
+    <Toolbar size="sm" aria-label="Compact toolbar">
       <Toolbar.Button onClick={() => {}}>A</Toolbar.Button>
       <Toolbar.Button onClick={() => {}}>B</Toolbar.Button>
       <Toolbar.Separator />

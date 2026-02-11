@@ -28,7 +28,7 @@ describe('Toolbar', () => {
 
     it('renders vertical when specified', () => {
       renderWithTheme(
-        <Toolbar $orientation="vertical" aria-label="Tools">
+        <Toolbar orientation="vertical" aria-label="Tools">
           <Toolbar.Button onClick={() => {}}>Pen</Toolbar.Button>
         </Toolbar>
       );
@@ -141,7 +141,7 @@ describe('Toolbar', () => {
 
     it('moves focus with ArrowDown/ArrowUp in vertical mode', () => {
       renderWithTheme(
-        <Toolbar $orientation="vertical" aria-label="Tools">
+        <Toolbar orientation="vertical" aria-label="Tools">
           <Toolbar.Button onClick={() => {}}>X</Toolbar.Button>
           <Toolbar.Button onClick={() => {}}>Y</Toolbar.Button>
         </Toolbar>

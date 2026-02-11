@@ -26,7 +26,7 @@ const useStatusBar = () => useContext(StatusBarContext);
 
 const StatusBarSection = /*#__PURE__*/ React.memo<StatusBarSectionProps>(
   ({
-    $side = 'left',
+    side = 'left',
     children,
 
     className,
@@ -38,7 +38,7 @@ const StatusBarSection = /*#__PURE__*/ React.memo<StatusBarSectionProps>(
     return (
       <div
         ref={ref}
-        className={cx(statusBarSection({ side: $side }), className)}
+        className={cx(statusBarSection({ side }), className)}
         style={style}
         data-testid={testId}
         {...rest}
@@ -118,8 +118,8 @@ StatusBarItem.displayName = 'StatusBar.Item';
 // --- Root Component ---
 
 const StatusBarRoot: React.FC<StatusBarProps> = ({
-  $size = 'sm',
-  $variant = 'default',
+  size = 'sm',
+  variant = 'default',
   children,
 
   className,
@@ -128,16 +128,13 @@ const StatusBarRoot: React.FC<StatusBarProps> = ({
   ref,
   ...rest
 }) => {
-  const contextValue = useMemo(() => ({ size: $size }), [$size]);
+  const contextValue = useMemo(() => ({ size }), [size]);
 
   return (
     <StatusBarContext.Provider value={contextValue}>
       <div
         ref={ref}
-        className={cx(
-          statusBarRoot({ variant: $variant, size: $size }),
-          className
-        )}
+        className={cx(statusBarRoot({ variant, size }), className)}
         style={style}
         data-testid={testId}
         role="status"

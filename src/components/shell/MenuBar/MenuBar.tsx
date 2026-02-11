@@ -347,7 +347,7 @@ MenuBarMenu.displayName = 'MenuBar.Menu';
 // --- Root Component ---
 
 const MenuBarRoot: React.FC<MenuBarProps> = ({
-  $size = 'md',
+  size = 'md',
   menuOffset = 2,
   children,
 
@@ -423,7 +423,7 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
 
   const contextValue = useMemo(
     () => ({
-      size: $size,
+      size,
       menuOffset: safeMenuOffset,
       openMenuId,
       setOpenMenuId,
@@ -432,7 +432,7 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
       menuIds: menuIdsRef.current,
     }),
     [
-      $size,
+      size,
       safeMenuOffset,
       openMenuId,
       setOpenMenuId,
@@ -445,7 +445,7 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
     <MenuBarContext.Provider value={contextValue}>
       <div
         ref={setBarRef}
-        className={cx(menuBarRoot({ size: $size }), className)}
+        className={cx(menuBarRoot({ size }), className)}
         style={style}
         data-testid={testId}
         role="menubar"
