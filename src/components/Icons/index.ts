@@ -1,4 +1,6 @@
 export { AddIcon } from './AddIcon';
+export { AiChatIcon } from './AiChatIcon';
+export { AiSparklesIcon } from './AiSparklesIcon';
 export { ArrowDownIcon } from './ArrowDownIcon';
 export { ArrowLeftIcon } from './ArrowLeftIcon';
 export { ArrowRightIcon } from './ArrowRightIcon';
@@ -35,6 +37,7 @@ export { PasteIcon } from './PasteIcon';
 export { PlayIcon } from './PlayIcon';
 export { RedoIcon } from './RedoIcon';
 export { RefreshIcon } from './RefreshIcon';
+export { RobotIcon } from './RobotIcon';
 export { SaveIcon } from './SaveIcon';
 export { SearchIcon } from './SearchIcon';
 export { SettingsIcon } from './SettingsIcon';
