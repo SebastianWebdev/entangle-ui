@@ -132,7 +132,7 @@ export const Menu: React.FC<MenuProps> = ({
   }
 
   return (
-    <BaseMenu.Root openOnHover={config.openOnHover}>
+    <BaseMenu.Root>
       <BaseMenu.Trigger
         render={props => <Button {...props} />}
         disabled={disabled}

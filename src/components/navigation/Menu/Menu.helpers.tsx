@@ -180,10 +180,7 @@ export const renderItemWithSubmenu = (
   // If item has submenu, wrap it in submenu structure
   if (item.subMenu) {
     return (
-      <BaseMenu.Root
-        key={item.id}
-        openOnHover={item.submenuTrigger !== 'click'}
-      >
+      <BaseMenu.Root key={item.id}>
         <BaseMenu.SubmenuTrigger>{menuItem}</BaseMenu.SubmenuTrigger>
         <BaseMenu.Portal>
           <BaseMenu.Positioner>
