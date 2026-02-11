@@ -2,7 +2,10 @@
   "name": "entangle-ui",
   "version": "0.4.0",
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css",
+    "*.css.ts"
+  ],
   "description": "A specialized React component library for building professional editor interfaces",
   "main": "dist/esm/index.js",
   "module": "dist/esm/index.js",
@@ -15,6 +18,10 @@
     "./palettes": {
       "types": "./dist/types/palettes.d.ts",
       "default": "./dist/esm/palettes.js"
+    },
+    "./theme": {
+      "types": "./dist/types/theme/darkTheme.css.d.ts",
+      "default": "./dist/esm/theme/darkTheme.css.js"
     },
     "./package.json": "./package.json"
   },
