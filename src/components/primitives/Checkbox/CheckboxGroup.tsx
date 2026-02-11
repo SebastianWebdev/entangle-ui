@@ -54,8 +54,6 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
   onChange,
   className,
   style,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  css: _css,
   testId,
   ref,
   id: idProp,

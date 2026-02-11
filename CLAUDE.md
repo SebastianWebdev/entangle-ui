@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Entangle UI is a React component library for professional editor interfaces (3D tools, node editors, parameter systems). Alpha stage, published as `entangle-ui@alpha`. Uses Emotion CSS-in-JS with a dark-first theme system, built on top of `@base-ui-components/react`.
+Entangle UI is a React component library for professional editor interfaces (3D tools, node editors, parameter systems). Alpha stage, published as `entangle-ui@alpha`. Uses Vanilla Extract (zero-runtime, compile-time CSS) with a dark-first theme system, built on top of `@base-ui/react`.
 
 ## Commands
 
@@ -34,7 +34,7 @@ Entangle UI is a React component library for professional editor interfaces (3D 
 - `navigation/` — Menu
 - `Icons/` — 40+ SVG icon components
 
-**Theme system** in `src/theme/`: tokens (colors, spacing, typography, shadows, transitions, borderRadius) + ThemeProvider. All components consume theme via Emotion's `ThemeProvider`.
+**Theme system** in `src/theme/`: tokens (colors, spacing, typography, shadows, transitions, borderRadius) defined as a Vanilla Extract theme contract. All tokens are exposed as CSS custom properties (`--etui-*`). Components access tokens via `vars` from `@/theme/contract.css`.
 
 **Barrel exports**: `src/index.ts` is the single entry point. Each component folder has its own `index.ts` re-exporting the component and its types.
 
@@ -44,15 +44,13 @@ Entangle UI is a React component library for professional editor interfaces (3D 
 
 **Path aliases are mandatory**: always use `@/` imports (e.g., `@/theme`, `@/types/utilities`), never relative paths for cross-directory imports.
 
-**Styled component props**: prefix with `$` (e.g., `$variant`, `$size`) to prevent DOM forwarding.
-
 **Type utilities** from `@/types/utilities`:
 
 - `Prettify<T>` — always use for exported intersection types
 - `LiteralUnion<T, U>` — only when values need to be extensible (colors, icons)
 - Strict unions for controlled APIs (e.g., `ButtonSize = 'sm' | 'md' | 'lg'`)
 
-**Theme tokens over hardcoded values**: use `theme.colors.*`, `theme.spacing.*`, etc. Never hardcode colors or spacing.
+**Theme tokens over hardcoded values**: use `vars.colors.*`, `vars.spacing.*`, etc. from `@/theme/contract.css`. Never hardcode colors or spacing.
 
 **No `any` types** — ESLint enforces this as an error.
 
@@ -61,6 +59,7 @@ Entangle UI is a React component library for professional editor interfaces (3D 
 ```
 ComponentName/
 ├── ComponentName.tsx
+├── ComponentName.css.ts       (Vanilla Extract styles)
 ├── ComponentName.test.tsx
 ├── ComponentName.stories.tsx
 ├── ComponentName.types.ts     (if types are complex)
@@ -71,7 +70,7 @@ ComponentName/
 ## Testing
 
 - Test environment: jsdom with `@testing-library/react`
-- Use `renderWithTheme()` from `@/tests/testUtils` instead of plain `render()` — components need the Emotion ThemeProvider
+- Use `renderWithTheme()` from `@/tests/testUtils` instead of plain `render()` — components need the theme CSS custom properties
 - `createTestTheme()` for testing with custom theme overrides
 - `styleAssertions` helpers: `expectBackgroundColor`, `expectTextColor`, `expectDimensions`, `expectBorderRadius`
 - Tests organized in `describe` blocks: Rendering, Interactions, Accessibility
@@ -83,11 +82,12 @@ ComponentName/
 - **Tree-shakeable**: `sideEffects: false` + `preserveModules` + `/*#__PURE__*/` annotations
 - **Build config**: `tsconfig.build.json` (extends `tsconfig.json`, excludes tests/stories)
 - **Vite** is only used for Storybook dev server, not library builds
-- Externals: react, react-dom, react/jsx-runtime, @emotion/react, @emotion/styled, @base-ui-components/react, @floating-ui/react
-- Peer deps: React 19.1+, @emotion/react 11+, @emotion/styled 11+
+- **Vanilla Extract**: Rollup uses `@vanilla-extract/rollup-plugin`, Storybook uses `@vanilla-extract/vite-plugin`
+- Externals: react, react-dom, react/jsx-runtime, @base-ui/react, @floating-ui/react
+- Peer deps: React 19.1+, @base-ui/react ^1.1.0, @floating-ui/react ^0.27.17
 - Deep imports: `entangle-ui/palettes` available via `"exports"` field
 - Size guard: `npm run size` (size-limit)
 
 ## Storybook
 
-Stories use a ThemeProvider decorator wrapping all components. Dark background default. Story pattern: Meta config with argTypes + individual Story exports for each variant/state.
+Storybook 10 with Vite. Dark theme CSS is loaded globally via `@vanilla-extract/vite-plugin`. Dark background default. Story pattern: Meta config with argTypes + individual Story exports for each variant/state.

@@ -95,45 +95,63 @@ export interface ButtonProps {
 }
 ````
 
-## 4. Emotion Styled Components
+## 4. Vanilla Extract Styling
+
+All component styles live in `*.css.ts` files and are compiled to static CSS at build time. No runtime CSS-in-JS.
 
 ```typescript
-interface StyledComponentProps {
-  $variant: ComponentVariant;
-  $size: ComponentSize;
-  $disabled: boolean;
-}
+// ComponentName.css.ts
+import { recipe } from '@vanilla-extract/recipes';
+import { vars } from '@/theme/contract.css';
 
-const StyledComponent = styled.div<StyledComponentProps>`
-  /* Reset and base styles */
-  margin: 0;
-  font-family: inherit;
+export const componentRecipe = recipe({
+  base: {
+    margin: 0,
+    fontFamily: vars.typography.fontFamily.sans,
+    color: vars.colors.text.primary,
+    fontSize: vars.typography.fontSize.md,
+    borderRadius: vars.borderRadius.md,
+    transition: `all ${vars.transitions.normal}`,
+  },
 
-  /* Dynamic styles using theme */
-  ${props => {
-    const { theme } = props;
-    return `
-      color: ${theme.colors.text.primary};
-      font-size: ${theme.typography.fontSize.md}px;
-      border-radius: ${theme.borderRadius.md}px;
-      transition: all ${theme.transitions.normal};
-    `;
-  }}
+  variants: {
+    variant: {
+      default: { background: vars.colors.surface.default },
+      ghost: { background: 'transparent' },
+    },
+    size: {
+      sm: { height: '20px', padding: `0 ${vars.spacing.sm}` },
+      md: { height: '24px', padding: `0 ${vars.spacing.md}` },
+    },
+    disabled: {
+      true: { opacity: 0.5, cursor: 'not-allowed', pointerEvents: 'none' },
+    },
+  },
 
-  /* Variant and size styles */
-  ${props => getVariantStyles(props.$variant, props.theme)}
-  ${props => getSizeStyles(props.$size, props.theme)}
-  
-  /* State styles */
-  ${props =>
-    props.$disabled &&
-    `
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-  `}
-`;
+  defaultVariants: { variant: 'default', size: 'md' },
+});
 ```
+
+```tsx
+// ComponentName.tsx
+import { componentRecipe } from './ComponentName.css';
+import { cx } from '@/utils/cx';
+
+export const Component = ({ variant, size, disabled, className, ...props }) => (
+  <div
+    className={cx(componentRecipe({ variant, size, disabled }), className)}
+    {...props}
+  />
+);
+```
+
+**Key rules:**
+
+- No `styled.*` imports — use `style()` and `recipe()` from Vanilla Extract
+- No `$`-prefixed transient props — not needed with Vanilla Extract
+- No `css` prop — use `className` and `style` only
+- Always use `vars.*` theme tokens, never hardcoded values
+- Use `createVar()` + `assignInlineVars()` for runtime-computed values
 
 ## 5. Path Aliases - MANDATORY
 
@@ -172,13 +190,14 @@ ComponentName/
 ```typescript
 // 1. React and external libraries
 import React from 'react';
-import styled from '@emotion/styled';
+import { recipe } from '@vanilla-extract/recipes';
 
 // 2. Internal utilities and types
-import type { Theme } from '@/theme';
+import { vars } from '@/theme/contract.css';
 import type { Prettify, LiteralUnion } from '@/types/utilities';
 
 // 3. Local imports
+import { componentRecipe } from './ComponentName.css';
 import { useComponentHook } from './useComponentHook';
 ```
 
@@ -275,7 +294,7 @@ Before submitting:
 - [ ] Exported types use `Prettify<>`
 - [ ] String unions use `LiteralUnion<>` only when extensible
 - [ ] Components have comprehensive JSDoc
-- [ ] Styled components use `$` prefix for props
+- [ ] Styles use Vanilla Extract (`*.css.ts`) with `vars.*` tokens
 - [ ] Path aliases used instead of relative imports
 - [ ] Theme tokens used instead of hardcoded values
 - [ ] Tests cover all variants and interactions
@@ -285,14 +304,14 @@ Before submitting:
 ## 11. Performance
 
 ```typescript
-// ✅ Memoize expensive computations
-const styledComponent = useMemo(() => styled.div`...`, [dependency]);
-
 // ✅ Use React.memo for pure components
 export const Component = React.memo<ComponentProps>(({ ... }) => {});
 
 // ✅ Memoize callbacks
 const handleClick = useCallback((event) => {}, [dependencies]);
+
+// ✅ Memoize context values to avoid unnecessary re-renders
+const contextValue = useMemo(() => ({ state, dispatch }), [state, dispatch]);
 ```
 
 ---

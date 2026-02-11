@@ -21,8 +21,8 @@ Peer dependencies:
 
 - `react >= 19.1.0`
 - `react-dom >= 19.1.0`
-- `@emotion/react ^11`
-- `@emotion/styled ^11`
+- `@base-ui/react ^1.1.0`
+- `@floating-ui/react ^0.27.17`
 
 ## Quick Start
 

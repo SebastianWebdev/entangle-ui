@@ -1,14 +1,16 @@
 // src/index.ts
-// Theme system (Emotion — for non-migrated components)
-export { createTheme, ThemeProvider, tokens } from '@/theme';
-export type { Theme, Tokens } from '@/theme';
-
 // Theme system (Vanilla Extract)
-export { vars, darkThemeValues, VanillaThemeProvider } from '@/theme';
+export {
+  vars,
+  darkThemeValues,
+  VanillaThemeProvider,
+  ThemeProvider,
+} from '@/theme';
 export type {
   ThemeVars,
   DarkThemeValues,
   VanillaThemeProviderProps,
+  ThemeProviderProps,
 } from '@/theme';
 
 // Primitives

@@ -1,6 +1,6 @@
 # Styling
 
-Entangle UI uses a dual styling system: **Vanilla Extract** (primary, compile-time) and **Emotion** (secondary, runtime). This guide covers both approaches and the conventions used across the library.
+Entangle UI uses **Vanilla Extract** for all styling -- a zero-runtime CSS-in-JS framework where styles are written in `.css.ts` files and compiled to static CSS at build time. This guide covers the approach and conventions used across the library.
 
 ## Vanilla Extract (Primary)
 
@@ -269,64 +269,6 @@ const responsiveCard = style({
     },
   },
 });
-```
-
-## Emotion (Secondary)
-
-Emotion is available for runtime theming and dynamic styles that cannot be expressed at build time.
-
-### Styled Components
-
-```tsx
-import styled from '@emotion/styled';
-import type { Theme } from '@/theme';
-
-const Panel = styled.div<{ $elevation: number }>`
-  background: ${({ theme }) => theme.colors.surface.default};
-  padding: ${({ theme }) => theme.spacing.lg}px;
-  box-shadow: ${({ theme, $elevation }) =>
-    $elevation > 0 ? theme.shadows.md : 'none'};
-`;
-```
-
-### Transient Props (`$` Prefix)
-
-Props used only for styling must be prefixed with `$` to prevent DOM forwarding:
-
-```tsx
-// Good — $active won't appear in the DOM
-const Tab = styled.div<{ $active: boolean }>`
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.text.primary : theme.colors.text.muted};
-`;
-
-// Bad — active leaks to the DOM as <div active="true">
-const Tab = styled.div<{ active: boolean }>`...`;
-```
-
-### css Prop
-
-```tsx
-import { css } from '@emotion/react';
-import { useTheme } from '@emotion/react';
-
-function Badge({ children }) {
-  const theme = useTheme();
-
-  return (
-    <span
-      css={css`
-        background: ${theme.colors.accent.primary};
-        color: ${theme.colors.text.primary};
-        padding: ${theme.spacing.xs}px ${theme.spacing.sm}px;
-        border-radius: ${theme.borderRadius.sm}px;
-        font-size: ${theme.typography.fontSize.xs}px;
-      `}
-    >
-      {children}
-    </span>
-  );
-}
 ```
 
 ## Utilities

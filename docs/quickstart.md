@@ -13,15 +13,13 @@ npm install entangle-ui@alpha
 Entangle UI requires the following peer dependencies:
 
 ```bash
-npm install react react-dom @emotion/react @emotion/styled @base-ui/react @floating-ui/react
+npm install react react-dom @base-ui/react @floating-ui/react
 ```
 
 | Package              | Version    |
 | -------------------- | ---------- |
 | `react`              | `>=19.1.0` |
 | `react-dom`          | `>=19.1.0` |
-| `@emotion/react`     | `^11.0.0`  |
-| `@emotion/styled`    | `^11.0.0`  |
 | `@base-ui/react`     | `^1.1.0`   |
 | `@floating-ui/react` | `^0.27.17` |
 
@@ -29,38 +27,41 @@ npm install react react-dom @emotion/react @emotion/styled @base-ui/react @float
 
 ## Basic Setup
 
-Wrap your application root with the `ThemeProvider`. This provides the dark-first theme to all components:
+Import the dark theme CSS to register all `--etui-*` CSS custom properties on `:root`. No wrapper component is needed for the default look:
 
 ```tsx
-import { ThemeProvider } from 'entangle-ui';
+import 'entangle-ui/darkTheme.css';
+import { Button } from 'entangle-ui';
 
 function App() {
-  return (
-    <ThemeProvider>
-      <YourApp />
-    </ThemeProvider>
-  );
+  return <Button variant="filled">Save</Button>;
 }
 ```
 
-The default dark theme is applied automatically — no extra configuration required.
+The default dark theme is applied automatically -- no extra configuration required.
 
 ### With Custom Overrides
 
+Override tokens with plain CSS on any selector:
+
+```css
+.my-theme {
+  --etui-color-accent-primary: #2aa1ff;
+  --etui-color-bg-primary: #0d1117;
+}
+```
+
+Or use `VanillaThemeProvider` for scoped overrides:
+
 ```tsx
-import { ThemeProvider } from 'entangle-ui';
+import 'entangle-ui/darkTheme.css';
+import { VanillaThemeProvider } from 'entangle-ui';
 
 function App() {
   return (
-    <ThemeProvider
-      theme={{
-        colors: {
-          accent: { primary: '#2aa1ff' },
-        },
-      }}
-    >
+    <VanillaThemeProvider className="my-theme">
       <YourApp />
-    </ThemeProvider>
+    </VanillaThemeProvider>
   );
 }
 ```
@@ -302,8 +303,8 @@ All components export their prop types. Utility types are also available:
 
 ```tsx
 import type {
-  Theme,
   Tokens,
+  ThemeVars,
   Prettify,
   DeepPartial,
   LiteralUnion,
@@ -313,4 +314,4 @@ import type {
 ## Next Steps
 
 - [Theming](./theming.md) — customize colors, tokens, and create branded themes
-- [Styling](./styling.md) — learn the Vanilla Extract + Emotion styling system
+- [Styling](./styling.md) — learn the Vanilla Extract styling system

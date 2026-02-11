@@ -1,12 +1,10 @@
 import React from 'react';
 
 // src/types/common.ts
-import type { Theme } from '@/theme';
 
-export interface BaseComponent<T = HTMLDivElement> extends Omit<
-  React.HTMLAttributes<T>,
-  'css'
-> {
+export interface BaseComponent<
+  T = HTMLDivElement,
+> extends React.HTMLAttributes<T> {
   /** Unique identifier for the component */
   id?: string | undefined;
 
@@ -18,16 +16,6 @@ export interface BaseComponent<T = HTMLDivElement> extends Omit<
 
   /** Custom inline styles */
   style?: React.CSSProperties | undefined;
-
-  /**
-   * Custom CSS styles included in styled-components
-   * This allows for more powerful styling with theme access
-   * Can be an object of CSS properties or a function that receives theme and returns CSS properties
-   */
-  css?:
-    | React.CSSProperties
-    | ((theme: Theme) => React.CSSProperties)
-    | undefined;
 
   ref?: React.Ref<T> | undefined;
 }

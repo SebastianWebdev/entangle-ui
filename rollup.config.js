@@ -12,15 +12,12 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 /**
  * External dependency matcher.
- * Matches exact package names AND deep imports (e.g. '@emotion/react/jsx-runtime').
+ * Matches exact package names AND deep imports.
  */
 const EXTERNAL_PACKAGES = [
   'react',
   'react-dom',
   'react/jsx-runtime',
-  '@emotion/react',
-  '@emotion/styled',
-  '@emotion/react/jsx-runtime',
   '@base-ui/react',
   '@floating-ui/react',
 ];
