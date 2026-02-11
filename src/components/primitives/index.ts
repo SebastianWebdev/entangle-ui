@@ -1,4 +1,3 @@
-export { BaseButton } from './BaseButton';
 export { Button } from './Button';
 export { Checkbox, CheckboxGroup } from './Checkbox';
 export { Collapsible } from './Collapsible';
@@ -16,7 +15,6 @@ export { Switch } from './Switch';
 export { Text } from './Text';
 export { Tooltip } from './Tooltip';
 
-export type { BaseButtonProps } from './BaseButton';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
 export type {
   CheckboxProps,
