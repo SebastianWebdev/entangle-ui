@@ -16,8 +16,10 @@ export interface ColorPreset {
 
 export type { Palette, PaletteColor, PaletteShade } from './palettes';
 
-export interface ColorPickerBaseProps
-  extends Omit<BaseComponent, 'onChange' | 'value' | 'defaultValue'> {
+export interface ColorPickerBaseProps extends Omit<
+  BaseComponent,
+  'onChange' | 'value' | 'defaultValue'
+> {
   /**
    * Current color value (controlled).
    * Accepts any valid CSS color string.

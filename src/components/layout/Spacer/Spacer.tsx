@@ -5,8 +5,10 @@ import type { Prettify } from '@/types/utilities';
 import { cx } from '@/utils/cx';
 import { spacerBase, spacerFixed, spacerFlexible } from './Spacer.css';
 
-export interface SpacerBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
+export interface SpacerBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'children'
+> {
   /**
    * Fixed size instead of auto-expanding.
    * When provided, spacer will have a fixed dimension instead of flexible growth.

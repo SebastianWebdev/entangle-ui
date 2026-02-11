@@ -20,11 +20,10 @@ import {
 
 export type SwitchSize = Size;
 
-export interface SwitchBaseProps
-  extends Omit<
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    'onChange' | 'css'
-  > {
+export interface SwitchBaseProps extends Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  'onChange' | 'css'
+> {
   /**
    * Whether the switch is on (controlled)
    */

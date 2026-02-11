@@ -94,8 +94,7 @@ export type AccordionItemProps = Prettify<AccordionItemBaseProps>;
 
 // --- AccordionTrigger ---
 
-export interface AccordionTriggerBaseProps
-  extends BaseComponent<HTMLButtonElement> {
+export interface AccordionTriggerBaseProps extends BaseComponent<HTMLButtonElement> {
   /**
    * Header content — typically text label
    */

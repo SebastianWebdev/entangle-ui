@@ -63,8 +63,10 @@ export interface CurveData {
 
 // ─── CurveEditor Props ───
 
-export interface CurveEditorBaseProps
-  extends Omit<BaseComponent, 'onChange' | 'value' | 'defaultValue'> {
+export interface CurveEditorBaseProps extends Omit<
+  BaseComponent,
+  'onChange' | 'value' | 'defaultValue'
+> {
   /**
    * Curve data (controlled)
    */

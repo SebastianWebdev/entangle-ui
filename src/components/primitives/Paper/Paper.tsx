@@ -20,8 +20,10 @@ export type PaperNestLevel = 0 | 1 | 2 | 3;
  */
 export type PaperSpacing = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl';
 
-export interface PaperBaseProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'css'> {
+export interface PaperBaseProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'css'
+> {
   /**
    * Paper content - any React elements
    */

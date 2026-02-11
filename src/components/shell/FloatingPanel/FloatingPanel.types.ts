@@ -12,8 +12,10 @@ export interface FloatingPanelSize {
   height: number;
 }
 
-export interface FloatingPanelBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
+export interface FloatingPanelBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'children'
+> {
   /** Panel title displayed in the header */
   title: string;
   /** Controlled position */

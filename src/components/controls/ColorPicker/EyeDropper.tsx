@@ -16,8 +16,10 @@ interface EyeDropperAPI {
 
 // ---------- Component types ----------
 
-interface EyeDropperBaseProps
-  extends Omit<BaseComponent<HTMLButtonElement>, 'onChange'> {
+interface EyeDropperBaseProps extends Omit<
+  BaseComponent<HTMLButtonElement>,
+  'onChange'
+> {
   /** Callback when a color is picked */
   onColorPick?: (color: string) => void;
   /** Button size @default "md" */

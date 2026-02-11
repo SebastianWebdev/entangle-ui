@@ -25,8 +25,10 @@ export type ContextMenuConfig<TPayload = unknown> =
   | MenuConfig
   | ((context: ContextMenuTargetDetails<TPayload>) => MenuConfig);
 
-export interface ContextMenuBaseProps<TPayload = unknown>
-  extends Omit<BaseComponent<HTMLDivElement>, 'children' | 'onChange'> {
+export interface ContextMenuBaseProps<TPayload = unknown> extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'children' | 'onChange'
+> {
   /**
    * Static menu config or resolver function called with trigger context.
    */

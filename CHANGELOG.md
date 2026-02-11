@@ -5,7 +5,6 @@
 ### Minor Changes
 
 - [#24](https://github.com/SebastianWebdev/entangle-ui/pull/24) [`7c350bb`](https://github.com/SebastianWebdev/entangle-ui/commit/7c350bb1ec812a4c4e3ab44c36bc280920aa61c0) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Switch to fully tree-shakeable ESM build with preserveModules
-
   - Replace monolithic bundle with per-module ESM output (`dist/esm/`)
   - Drop CJS output — ESM-only package
   - Add `sideEffects: false` and `exports` field to package.json
@@ -28,19 +27,16 @@
 ### Minor Changes
 
 - [#19](https://github.com/SebastianWebdev/entangle-ui/pull/19) [`497d0f5`](https://github.com/SebastianWebdev/entangle-ui/commit/497d0f540f8abdf853cdf88aff8e944fee59d378) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - ### App Shell and Navigation
-
   - Added `topChromeSeparator` and `sideChromeSeparator` props in `AppShell` to control border/shadow separation between top and side chrome areas.
   - Refined `Tabs` visual behavior for compact editor layouts and added `pillsFrame` prop to optionally disable the pills container frame.
   - Updated closable tabs to use the library `CloseIcon` by default.
 
   ### Menu and Inspector Improvements
-
   - Added configurable menu dropdown gap via `menuOffset` in `MenuBar`.
   - Extended `PropertyPanel` with configurable `contentTopSpacing` and new `contentBottomSpacing` for better control of inspector spacing.
   - Adjusted property row padding and full-width control layout to better support dense controls (including sliders and curve editor rows).
 
   ### Typography
-
   - Bumped default UI text from 10px (`fontSize.xs`) to 12px (`fontSize.md`) across interactive components: `Menu`, `MenuBar`, `Select`, `Button`, `Input`, `NumberInput`, `TreeView`, `StatusBar`, `FloatingPanel`, and `PropertyInspector` (rows, sections, search, panel).
   - Kept 10px for true secondary text: helper text, tooltips, group labels, toast messages, axis labels.
   - `TreeView`: fixed `line-height: 1` cutting off descenders (p/q/g/y), now uses theme `lineHeight.normal`.
@@ -49,7 +45,6 @@
   - Added `ContextMenu` component with submenu support, icon slots, and keyboard navigation.
 
   ### Layout and Rendering Fixes
-
   - Fixed `SplitPane` size reconciliation to avoid 1-2px layout drift caused by rounding.
   - Improved overflow behavior in shell regions (`Toolbar`, `StatusBar`, tabs panels, and side slots) to prevent content from bleeding outside container bounds.
   - Improved `CurveEditor` axis label layout and spacing when `labelX` / `labelY` are provided.
@@ -59,7 +54,6 @@
 ### Minor Changes
 
 - [#17](https://github.com/SebastianWebdev/entangle-ui/pull/17) [`0854066`](https://github.com/SebastianWebdev/entangle-ui/commit/0854066dbf38c5d45bca24dc861c9eb03a1e98b3) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - ### New Components
-
   - **Checkbox & CheckboxGroup** — Controlled/uncontrolled boolean input with indeterminate state, label positioning, sizes (sm/md/lg), variants (default/filled), and array value management via CheckboxGroup
   - **Switch** — Toggle control with controlled/uncontrolled modes, label positioning, sizes, error state, and animated track/thumb
   - **Select** — Dropdown single-value selection with search/filter, grouped options, keyboard navigation, clearable option, portal-based dropdown, sizes and variants (default/ghost/filled)
@@ -76,7 +70,6 @@
   - **Collapsible** — Headless collapsible primitive for expandable content
 
   ### Refactoring & Improvements
-
   - Translated all Polish comments and JSDoc to English across the entire codebase
   - Added `forwardRef` and `displayName` to all primitive and layout components
   - Added `React.memo` to stateless presentational components (Icon, Paper, Text, Spacer, FormLabel, FormHelperText, InputWrapper)
@@ -86,7 +79,6 @@
   - Added comprehensive keyboard navigation tests for Button, Input, NumberInput, Slider, and Menu
 
   ### CI/CD
-
   - Added GitHub Actions CI workflow (lint, build, type-check, test on PRs and main)
   - Added GitHub Actions release workflow with Changesets and npm OIDC Trusted Publishing
   - Configured Changesets for automated version management and changelog generation

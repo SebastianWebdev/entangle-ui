@@ -2,8 +2,7 @@
 import React, { forwardRef } from 'react';
 import { cn } from '@/utils/cn';
 
-export interface BaseButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface BaseButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** Additional CSS classes */
   className?: string;
   /** Whether button is disabled */

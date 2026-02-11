@@ -17,8 +17,7 @@ export type StatusBarProps = Prettify<StatusBarBaseProps>;
 
 export type StatusBarSectionSide = 'left' | 'right';
 
-export interface StatusBarSectionBaseProps
-  extends BaseComponent<HTMLDivElement> {
+export interface StatusBarSectionBaseProps extends BaseComponent<HTMLDivElement> {
   /** Which side of the status bar */
   $side?: StatusBarSectionSide;
   /** Children (StatusBar.Item components) */
@@ -26,8 +25,10 @@ export interface StatusBarSectionBaseProps
 }
 export type StatusBarSectionProps = Prettify<StatusBarSectionBaseProps>;
 
-export interface StatusBarItemBaseProps
-  extends Omit<BaseComponent<HTMLElement>, 'onClick'> {
+export interface StatusBarItemBaseProps extends Omit<
+  BaseComponent<HTMLElement>,
+  'onClick'
+> {
   /** Click handler - renders as button when provided, span otherwise */
   onClick?: () => void;
   /** Icon to display before label */

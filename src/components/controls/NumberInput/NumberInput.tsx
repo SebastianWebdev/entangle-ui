@@ -24,8 +24,7 @@ import {
  * Props specific to NumberInput component
  */
 export interface NumberInputBaseProps
-  extends Omit<BaseComponent, 'onChange'>,
-    UseNumberInputOptions {
+  extends Omit<BaseComponent, 'onChange'>, UseNumberInputOptions {
   /**
    * Current numeric value
    */

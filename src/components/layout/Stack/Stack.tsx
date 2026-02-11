@@ -42,8 +42,10 @@ export type StackAlign =
  */
 export type StackSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-export interface StackBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
+export interface StackBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'children'
+> {
   /**
    * Stack content - any React elements
    */

@@ -21,11 +21,10 @@ export type IconButtonVariant = Variant;
  */
 export type IconButtonRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
 
-export interface IconButtonBaseProps
-  extends Omit<
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    'css' | 'children'
-  > {
+export interface IconButtonBaseProps extends Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  'css' | 'children'
+> {
   /**
    * Icon component to display inside the button.
    * Should be an Icon component or similar icon element.

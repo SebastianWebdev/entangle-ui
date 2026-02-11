@@ -18,11 +18,10 @@ import {
  */
 export type InputSize = Size;
 
-export interface InputBaseProps
-  extends Omit<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    'onChange' | 'size' | 'css'
-  > {
+export interface InputBaseProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'onChange' | 'size' | 'css'
+> {
   /**
    * Input value (controlled)
    */

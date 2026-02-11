@@ -20,8 +20,10 @@ import { ArrowSvg, StyledTooltipArrow } from './Arrow';
 import { parseCollisionStrategy, parsePlacement } from './utils';
 import { tooltipContentStyle, tooltipTriggerStyle } from './Tooltip.css';
 
-interface TooltipBaseProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'css' | 'title'> {
+interface TooltipBaseProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'css' | 'title'
+> {
   /**
    * The trigger element that will show the tooltip on hover.
    * Must be a single React element or component.

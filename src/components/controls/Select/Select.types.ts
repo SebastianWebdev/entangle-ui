@@ -23,11 +23,10 @@ export interface SelectOptionGroup<T extends string = string> {
   options: SelectOptionItem<T>[];
 }
 
-export interface SelectBaseProps<T extends string = string>
-  extends Omit<
-    BaseComponent<HTMLButtonElement>,
-    'onChange' | 'value' | 'defaultValue'
-  > {
+export interface SelectBaseProps<T extends string = string> extends Omit<
+  BaseComponent<HTMLButtonElement>,
+  'onChange' | 'value' | 'defaultValue'
+> {
   /**
    * Selected value (controlled)
    */

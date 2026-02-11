@@ -73,8 +73,10 @@ export type TextLineHeight = 'tight' | 'normal' | 'relaxed';
 /**
  * Base props for Text component
  */
-export interface TextBaseProps
-  extends Omit<React.HTMLAttributes<HTMLElement>, 'css' | 'color'> {
+export interface TextBaseProps extends Omit<
+  React.HTMLAttributes<HTMLElement>,
+  'css' | 'color'
+> {
   /**
    * Text content
    */

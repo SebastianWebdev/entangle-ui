@@ -4,8 +4,10 @@ import type { BaseComponent, Size } from '@/types/common';
 
 export type PanelSurfaceSize = Size;
 
-export interface PanelSurfaceBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'children'> {
+export interface PanelSurfaceBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'children'
+> {
   /**
    * Panel content. Typically PanelSurface.Header + PanelSurface.Body (+ optional Footer).
    */
@@ -32,8 +34,7 @@ export interface PanelSurfaceBaseProps
 
 export type PanelSurfaceProps = Prettify<PanelSurfaceBaseProps>;
 
-export interface PanelSurfaceHeaderBaseProps
-  extends BaseComponent<HTMLDivElement> {
+export interface PanelSurfaceHeaderBaseProps extends BaseComponent<HTMLDivElement> {
   /**
    * Header content (title/label section).
    */
@@ -47,8 +48,7 @@ export interface PanelSurfaceHeaderBaseProps
 
 export type PanelSurfaceHeaderProps = Prettify<PanelSurfaceHeaderBaseProps>;
 
-export interface PanelSurfaceBodyBaseProps
-  extends BaseComponent<HTMLDivElement> {
+export interface PanelSurfaceBodyBaseProps extends BaseComponent<HTMLDivElement> {
   /**
    * Main panel content.
    */
@@ -69,8 +69,7 @@ export interface PanelSurfaceBodyBaseProps
 
 export type PanelSurfaceBodyProps = Prettify<PanelSurfaceBodyBaseProps>;
 
-export interface PanelSurfaceFooterBaseProps
-  extends BaseComponent<HTMLDivElement> {
+export interface PanelSurfaceFooterBaseProps extends BaseComponent<HTMLDivElement> {
   /**
    * Footer content.
    */

@@ -22,8 +22,10 @@ export type ButtonVariant = Variant;
 /**
  * Base props for the Button component
  */
-export interface ButtonBaseProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'css'> {
+export interface ButtonBaseProps extends Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  'css'
+> {
   /**
    * Button content — text, icons, or other React elements
    * @example "Save", <><SaveIcon /> Save</>

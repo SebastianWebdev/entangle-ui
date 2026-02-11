@@ -12,8 +12,10 @@ export type CheckboxSize = Size;
  */
 export type CheckboxVariant = 'default' | 'filled';
 
-export interface CheckboxBaseProps
-  extends Omit<BaseComponent<HTMLButtonElement>, 'onChange'> {
+export interface CheckboxBaseProps extends Omit<
+  BaseComponent<HTMLButtonElement>,
+  'onChange'
+> {
   /**
    * Whether the checkbox is checked (controlled)
    */
@@ -117,8 +119,10 @@ export interface CheckboxGroupContextValue {
   size: CheckboxSize;
 }
 
-export interface CheckboxGroupBaseProps
-  extends Omit<BaseComponent, 'onChange'> {
+export interface CheckboxGroupBaseProps extends Omit<
+  BaseComponent,
+  'onChange'
+> {
   /**
    * Currently selected values (controlled)
    */
