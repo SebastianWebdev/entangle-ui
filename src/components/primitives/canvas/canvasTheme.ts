@@ -39,9 +39,6 @@ export function resolveCanvasTheme(
  * Resolve a single CSS variable reference string (e.g. `var(--etui-color-accent-primary)`)
  * to its computed value.
  */
-export function resolveVarValue(
-  element: Element,
-  cssVar: string
-): string {
+export function resolveVarValue(element: Element, cssVar: string): string {
   return resolveVar(element, cssVar);
 }

@@ -1,14 +1,19 @@
 import type React from 'react';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
-import type { Point2D, CanvasBackgroundInfo } from '@/components/primitives/canvas';
+import type {
+  Point2D,
+  CanvasBackgroundInfo,
+} from '@/components/primitives/canvas';
 
 export type CartesianPickerSize = Size;
 
 // ─── CartesianPicker Props ───
 
-export interface CartesianPickerBaseProps
-  extends Omit<BaseComponent, 'onChange' | 'value' | 'defaultValue'> {
+export interface CartesianPickerBaseProps extends Omit<
+  BaseComponent,
+  'onChange' | 'value' | 'defaultValue'
+> {
   /**
    * Current point value (controlled)
    */

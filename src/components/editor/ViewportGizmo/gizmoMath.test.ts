@@ -46,7 +46,8 @@ describe('eulerToRotationMatrix', () => {
     const [right, up, forward] = eulerToRotationMatrix(45, 30, 0);
     // Verify orthogonality: dot products should be ~0
     const dotRU = right.x * up.x + right.y * up.y + right.z * up.z;
-    const dotRF = right.x * forward.x + right.y * forward.y + right.z * forward.z;
+    const dotRF =
+      right.x * forward.x + right.y * forward.y + right.z * forward.z;
     const dotUF = up.x * forward.x + up.y * forward.y + up.z * forward.z;
     expect(dotRU).toBeCloseTo(0, 5);
     expect(dotRF).toBeCloseTo(0, 5);
@@ -130,12 +131,7 @@ describe('projectAxes', () => {
   });
 
   it('arms are sorted by depth (furthest first)', () => {
-    const arms = projectAxes(
-      { yaw: 30, pitch: 20 },
-      center,
-      armLength,
-      'y-up'
-    );
+    const arms = projectAxes({ yaw: 30, pitch: 20 }, center, armLength, 'y-up');
     for (let i = 0; i < arms.length - 1; i++) {
       const current = arms[i];
       const next = arms[i + 1];
@@ -146,8 +142,18 @@ describe('projectAxes', () => {
   });
 
   it('Y-up and Z-up produce different axis orientations', () => {
-    const yUpArms = projectAxes({ yaw: 0, pitch: 0 }, center, armLength, 'y-up');
-    const zUpArms = projectAxes({ yaw: 0, pitch: 0 }, center, armLength, 'z-up');
+    const yUpArms = projectAxes(
+      { yaw: 0, pitch: 0 },
+      center,
+      armLength,
+      'y-up'
+    );
+    const zUpArms = projectAxes(
+      { yaw: 0, pitch: 0 },
+      center,
+      armLength,
+      'z-up'
+    );
 
     // Both use the same math since the axis vectors are the same,
     // but the labeling convention differs — both return 6 arms
@@ -166,7 +172,8 @@ describe('gizmoHitTest', () => {
 
   it('returns origin when clicking near center', () => {
     const hit = gizmoHitTest(
-      60, 60,
+      60,
+      60,
       { yaw: 0, pitch: 0 },
       center,
       armLength,
@@ -178,7 +185,8 @@ describe('gizmoHitTest', () => {
   it('returns axis-positive near +X axis tip', () => {
     // At identity orientation, +X projects to (center.x + armLength, center.y)
     const hit = gizmoHitTest(
-      center.x + armLength, center.y,
+      center.x + armLength,
+      center.y,
       { yaw: 0, pitch: 0 },
       center,
       armLength,
@@ -190,7 +198,8 @@ describe('gizmoHitTest', () => {
 
   it('returns none for far-off positions', () => {
     const hit = gizmoHitTest(
-      200, 200,
+      200,
+      200,
       { yaw: 0, pitch: 0 },
       center,
       armLength,
@@ -202,7 +211,8 @@ describe('gizmoHitTest', () => {
   it('detects +Y axis at identity orientation', () => {
     // +Y projects upward, so at (center.x, center.y - armLength)
     const hit = gizmoHitTest(
-      center.x, center.y - armLength,
+      center.x,
+      center.y - armLength,
       { yaw: 0, pitch: 0 },
       center,
       armLength,

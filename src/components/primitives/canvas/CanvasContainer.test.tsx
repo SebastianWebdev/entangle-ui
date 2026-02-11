@@ -89,19 +89,13 @@ describe('CanvasContainer', () => {
     it('sets tabIndex to 0 when not disabled', () => {
       const canvasRef = createCanvasRef();
       renderWithTheme(<CanvasContainer canvasRef={canvasRef} />);
-      expect(screen.getByRole('application')).toHaveAttribute(
-        'tabindex',
-        '0'
-      );
+      expect(screen.getByRole('application')).toHaveAttribute('tabindex', '0');
     });
 
     it('sets tabIndex to -1 when disabled', () => {
       const canvasRef = createCanvasRef();
       renderWithTheme(<CanvasContainer canvasRef={canvasRef} disabled />);
-      expect(screen.getByRole('application')).toHaveAttribute(
-        'tabindex',
-        '-1'
-      );
+      expect(screen.getByRole('application')).toHaveAttribute('tabindex', '-1');
     });
   });
 
@@ -131,10 +125,7 @@ describe('CanvasContainer', () => {
       const onPointerDown = vi.fn();
       const canvasRef = createCanvasRef();
       renderWithTheme(
-        <CanvasContainer
-          canvasRef={canvasRef}
-          handlers={{ onPointerDown }}
-        />
+        <CanvasContainer canvasRef={canvasRef} handlers={{ onPointerDown }} />
       );
       fireEvent.pointerDown(screen.getByRole('application'));
       expect(onPointerDown).toHaveBeenCalled();
@@ -144,10 +135,7 @@ describe('CanvasContainer', () => {
       const onPointerMove = vi.fn();
       const canvasRef = createCanvasRef();
       renderWithTheme(
-        <CanvasContainer
-          canvasRef={canvasRef}
-          handlers={{ onPointerMove }}
-        />
+        <CanvasContainer canvasRef={canvasRef} handlers={{ onPointerMove }} />
       );
       fireEvent.pointerMove(screen.getByRole('application'));
       expect(onPointerMove).toHaveBeenCalled();
@@ -157,10 +145,7 @@ describe('CanvasContainer', () => {
       const onPointerUp = vi.fn();
       const canvasRef = createCanvasRef();
       renderWithTheme(
-        <CanvasContainer
-          canvasRef={canvasRef}
-          handlers={{ onPointerUp }}
-        />
+        <CanvasContainer canvasRef={canvasRef} handlers={{ onPointerUp }} />
       );
       fireEvent.pointerUp(screen.getByRole('application'));
       expect(onPointerUp).toHaveBeenCalled();
@@ -170,10 +155,7 @@ describe('CanvasContainer', () => {
       const onDoubleClick = vi.fn();
       const canvasRef = createCanvasRef();
       renderWithTheme(
-        <CanvasContainer
-          canvasRef={canvasRef}
-          handlers={{ onDoubleClick }}
-        />
+        <CanvasContainer canvasRef={canvasRef} handlers={{ onDoubleClick }} />
       );
       fireEvent.doubleClick(screen.getByRole('application'));
       expect(onDoubleClick).toHaveBeenCalled();

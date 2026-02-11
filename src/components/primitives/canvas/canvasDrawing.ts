@@ -134,8 +134,14 @@ export function drawAxisLabels(
   theme: CanvasThemeColors,
   options: AxisLabelOptions
 ): void {
-  const { subdivisions, domain, viewport, opacity = 1, labelX, labelY } =
-    options;
+  const {
+    subdivisions,
+    domain,
+    viewport,
+    opacity = 1,
+    labelX,
+    labelY,
+  } = options;
   const { domainX, domainY } = domain;
   const dxRange = domainX[1] - domainX[0] || 1;
   const dyRange = domainY[1] - domainY[0] || 1;
@@ -307,9 +313,7 @@ export function drawPointMarker(
   // Outer ring
   ctx.beginPath();
   ctx.arc(px, py, effectiveRadius, 0, Math.PI * 2);
-  ctx.fillStyle = dragging
-    ? theme.accentPrimary
-    : theme.backgroundSecondary;
+  ctx.fillStyle = dragging ? theme.accentPrimary : theme.backgroundSecondary;
   ctx.fill();
   ctx.strokeStyle = theme.accentPrimary;
   ctx.lineWidth = 2;

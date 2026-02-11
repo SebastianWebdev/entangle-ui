@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { CanvasContainerProps } from './canvas.types';

@@ -1,3 +1,5 @@
+'use client';
+
 import type React from 'react';
 import { useState, useCallback, useRef } from 'react';
 import { clamp, roundToPrecision } from '@/utils/mathUtils';
@@ -100,7 +102,15 @@ export function useCartesianInteraction(
 
       return { x: newX, y: newY };
     },
-    [step, snapToGrid, gridSubdivisions, domainX, domainY, precision, clampToRange]
+    [
+      step,
+      snapToGrid,
+      gridSubdivisions,
+      domainX,
+      domainY,
+      precision,
+      clampToRange,
+    ]
   );
 
   const onPointerDown = useCallback(
@@ -116,12 +126,20 @@ export function useCartesianInteraction(
       const newPoint = applyConstraints(domain.x, domain.y, e.ctrlKey);
 
       isDraggingRef.current = true;
-      setForceUpdate((n) => n + 1);
+      setForceUpdate(n => n + 1);
       canvas.setPointerCapture(e.pointerId);
 
       onChange(newPoint);
     },
-    [disabled, readOnly, canvasRef, viewport, getCanvasSize, applyConstraints, onChange]
+    [
+      disabled,
+      readOnly,
+      canvasRef,
+      viewport,
+      getCanvasSize,
+      applyConstraints,
+      onChange,
+    ]
   );
 
   const onPointerMove = useCallback(
@@ -156,7 +174,16 @@ export function useCartesianInteraction(
         canvas.style.cursor = 'crosshair';
       }
     },
-    [canvasRef, viewport, point, disabled, readOnly, getCanvasSize, applyConstraints, onChange]
+    [
+      canvasRef,
+      viewport,
+      point,
+      disabled,
+      readOnly,
+      getCanvasSize,
+      applyConstraints,
+      onChange,
+    ]
   );
 
   const onPointerUp = useCallback(
@@ -166,7 +193,7 @@ export function useCartesianInteraction(
 
       if (isDraggingRef.current) {
         isDraggingRef.current = false;
-        setForceUpdate((n) => n + 1);
+        setForceUpdate(n => n + 1);
         canvas.releasePointerCapture(e.pointerId);
 
         // Compute final point for onChangeComplete

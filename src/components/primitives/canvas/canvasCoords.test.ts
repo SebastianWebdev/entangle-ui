@@ -72,13 +72,7 @@ describe('canvasCoords', () => {
   describe('round-trip', () => {
     it('domainToCanvas -> canvasToDomain preserves values', () => {
       const original = { x: 0.3, y: 0.7 };
-      const canvas = domainToCanvas(
-        original.x,
-        original.y,
-        viewport,
-        W,
-        H
-      );
+      const canvas = domainToCanvas(original.x, original.y, viewport, W, H);
       const domain = canvasToDomain(canvas.px, canvas.py, viewport, W, H);
       expect(domain.x).toBeCloseTo(original.x, 10);
       expect(domain.y).toBeCloseTo(original.y, 10);

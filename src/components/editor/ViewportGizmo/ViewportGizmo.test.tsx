@@ -2,7 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
 import { renderWithTheme } from '@/tests/testUtils';
 import { ViewportGizmo } from './ViewportGizmo';
-import type { ViewportGizmoProps, GizmoOrientation } from './ViewportGizmo.types';
+import type {
+  ViewportGizmoProps,
+  GizmoOrientation,
+} from './ViewportGizmo.types';
 
 import '@/theme/darkTheme.css';
 
@@ -31,8 +34,7 @@ class MockPointerEvent extends MouseEvent {
   }
 }
 
-globalThis.PointerEvent =
-  MockPointerEvent as unknown as typeof PointerEvent;
+globalThis.PointerEvent = MockPointerEvent as unknown as typeof PointerEvent;
 
 // ─── Canvas Mock ───
 
@@ -89,7 +91,7 @@ beforeEach(() => {
   HTMLElement.prototype.setPointerCapture = vi.fn();
   HTMLElement.prototype.releasePointerCapture = vi.fn();
 
-  vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+  vi.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
     cb(0);
     return 0;
   });
@@ -101,11 +103,7 @@ const defaultOrientation: GizmoOrientation = { yaw: 0, pitch: 0 };
 
 function renderGizmo(props: Partial<ViewportGizmoProps> = {}) {
   return renderWithTheme(
-    <ViewportGizmo
-      orientation={defaultOrientation}
-      testId="gizmo"
-      {...props}
-    />
+    <ViewportGizmo orientation={defaultOrientation} testId="gizmo" {...props} />
   );
 }
 
@@ -143,7 +141,9 @@ describe('ViewportGizmo', () => {
     it('shows axis labels when showLabels=true', () => {
       renderGizmo({ showLabels: true });
       const fillTextMock = mockCtx['fillText'] as ReturnType<typeof vi.fn>;
-      const fillTextCalls = fillTextMock.mock.calls as Array<[string, number, number]>;
+      const fillTextCalls = fillTextMock.mock.calls as Array<
+        [string, number, number]
+      >;
       const labels = fillTextCalls.map(c => c[0]);
       expect(labels).toContain('X');
       expect(labels).toContain('Y');
@@ -153,7 +153,9 @@ describe('ViewportGizmo', () => {
     it('hides axis labels when showLabels=false', () => {
       renderGizmo({ showLabels: false });
       const fillTextMock = mockCtx['fillText'] as ReturnType<typeof vi.fn>;
-      const fillTextCalls = fillTextMock.mock.calls as Array<[string, number, number]>;
+      const fillTextCalls = fillTextMock.mock.calls as Array<
+        [string, number, number]
+      >;
       const labels = fillTextCalls.map(c => c[0]);
       expect(labels).not.toContain('X');
       expect(labels).not.toContain('Y');
@@ -193,11 +195,24 @@ describe('ViewportGizmo', () => {
       const canvas = getCanvas();
 
       // Pointer down then up at +X axis position (~99, 60)
-      fireEvent.pointerDown(canvas, { clientX: 99, clientY: 60, pointerId: 1, button: 0 });
-      fireEvent.pointerUp(canvas, { clientX: 99, clientY: 60, pointerId: 1, button: 0 });
+      fireEvent.pointerDown(canvas, {
+        clientX: 99,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
+      fireEvent.pointerUp(canvas, {
+        clientX: 99,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
 
       expect(onAxisClick).toHaveBeenCalled();
-      const [axis, positive] = onAxisClick.mock.calls[0] as ['x' | 'y' | 'z', boolean];
+      const [axis, positive] = onAxisClick.mock.calls[0] as [
+        'x' | 'y' | 'z',
+        boolean,
+      ];
       expect(axis).toBe('x');
       expect(positive).toBe(true);
     });
@@ -208,8 +223,18 @@ describe('ViewportGizmo', () => {
       const canvas = getCanvas();
 
       // Click +X axis area
-      fireEvent.pointerDown(canvas, { clientX: 99, clientY: 60, pointerId: 1, button: 0 });
-      fireEvent.pointerUp(canvas, { clientX: 99, clientY: 60, pointerId: 1, button: 0 });
+      fireEvent.pointerDown(canvas, {
+        clientX: 99,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
+      fireEvent.pointerUp(canvas, {
+        clientX: 99,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
 
       expect(onSnapToView).toHaveBeenCalledWith('right');
     });
@@ -219,12 +244,19 @@ describe('ViewportGizmo', () => {
       renderGizmo({ onOrbit });
       const canvas = getCanvas();
 
-      fireEvent.pointerDown(canvas, { clientX: 60, clientY: 60, pointerId: 1, button: 0 });
+      fireEvent.pointerDown(canvas, {
+        clientX: 60,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
       // Move far enough to register as drag (> 3px)
       fireEvent.pointerMove(canvas, { clientX: 80, clientY: 40, pointerId: 1 });
 
       expect(onOrbit).toHaveBeenCalled();
-      const delta = onOrbit.mock.calls[0]?.[0] as { deltaYaw: number; deltaPitch: number } | undefined;
+      const delta = onOrbit.mock.calls[0]?.[0] as
+        | { deltaYaw: number; deltaPitch: number }
+        | undefined;
       if (delta) {
         expect(typeof delta.deltaYaw).toBe('number');
         expect(typeof delta.deltaPitch).toBe('number');
@@ -237,9 +269,19 @@ describe('ViewportGizmo', () => {
       renderGizmo({ onOrbitEnd, onOrbit });
       const canvas = getCanvas();
 
-      fireEvent.pointerDown(canvas, { clientX: 60, clientY: 60, pointerId: 1, button: 0 });
+      fireEvent.pointerDown(canvas, {
+        clientX: 60,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
       fireEvent.pointerMove(canvas, { clientX: 80, clientY: 40, pointerId: 1 });
-      fireEvent.pointerUp(canvas, { clientX: 80, clientY: 40, pointerId: 1, button: 0 });
+      fireEvent.pointerUp(canvas, {
+        clientX: 80,
+        clientY: 40,
+        pointerId: 1,
+        button: 0,
+      });
 
       expect(onOrbitEnd).toHaveBeenCalledTimes(1);
     });
@@ -250,8 +292,18 @@ describe('ViewportGizmo', () => {
       renderGizmo({ interactionMode: 'display-only', onOrbit, onSnapToView });
       const canvas = getCanvas();
 
-      fireEvent.pointerDown(canvas, { clientX: 99, clientY: 60, pointerId: 1, button: 0 });
-      fireEvent.pointerUp(canvas, { clientX: 99, clientY: 60, pointerId: 1, button: 0 });
+      fireEvent.pointerDown(canvas, {
+        clientX: 99,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
+      fireEvent.pointerUp(canvas, {
+        clientX: 99,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
 
       expect(onOrbit).not.toHaveBeenCalled();
       expect(onSnapToView).not.toHaveBeenCalled();
@@ -264,14 +316,29 @@ describe('ViewportGizmo', () => {
       const canvas = getCanvas();
 
       // Click on +X axis
-      fireEvent.pointerDown(canvas, { clientX: 99, clientY: 60, pointerId: 1, button: 0 });
-      fireEvent.pointerUp(canvas, { clientX: 99, clientY: 60, pointerId: 1, button: 0 });
+      fireEvent.pointerDown(canvas, {
+        clientX: 99,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
+      fireEvent.pointerUp(canvas, {
+        clientX: 99,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
 
       expect(onSnapToView).toHaveBeenCalled();
 
       // Drag should NOT trigger orbit
       onOrbit.mockClear();
-      fireEvent.pointerDown(canvas, { clientX: 60, clientY: 60, pointerId: 1, button: 0 });
+      fireEvent.pointerDown(canvas, {
+        clientX: 60,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
       fireEvent.pointerMove(canvas, { clientX: 80, clientY: 40, pointerId: 1 });
 
       expect(onOrbit).not.toHaveBeenCalled();
@@ -283,8 +350,18 @@ describe('ViewportGizmo', () => {
       const canvas = getCanvas();
 
       // Click at center (origin handle)
-      fireEvent.pointerDown(canvas, { clientX: 60, clientY: 60, pointerId: 1, button: 0 });
-      fireEvent.pointerUp(canvas, { clientX: 60, clientY: 60, pointerId: 1, button: 0 });
+      fireEvent.pointerDown(canvas, {
+        clientX: 60,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
+      fireEvent.pointerUp(canvas, {
+        clientX: 60,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
 
       expect(onOriginClick).toHaveBeenCalled();
     });
@@ -294,7 +371,12 @@ describe('ViewportGizmo', () => {
       renderGizmo({ disabled: true, onOrbit });
       const canvas = getCanvas();
 
-      fireEvent.pointerDown(canvas, { clientX: 60, clientY: 60, pointerId: 1, button: 0 });
+      fireEvent.pointerDown(canvas, {
+        clientX: 60,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
       expect(onOrbit).not.toHaveBeenCalled();
     });
   });
@@ -382,7 +464,10 @@ describe('ViewportGizmo', () => {
       const canvas = getCanvas();
 
       expect(canvas).toHaveAttribute('role', 'application');
-      expect(canvas).toHaveAttribute('aria-label', 'Viewport orientation gizmo');
+      expect(canvas).toHaveAttribute(
+        'aria-label',
+        'Viewport orientation gizmo'
+      );
       expect(canvas).toHaveAttribute('tabindex', '0');
     });
 

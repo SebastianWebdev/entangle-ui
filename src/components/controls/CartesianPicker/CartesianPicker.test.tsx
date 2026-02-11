@@ -31,8 +31,7 @@ class MockPointerEvent extends MouseEvent {
   }
 }
 
-globalThis.PointerEvent =
-  MockPointerEvent as unknown as typeof PointerEvent;
+globalThis.PointerEvent = MockPointerEvent as unknown as typeof PointerEvent;
 
 // ─── Canvas Mock ───
 
@@ -90,7 +89,7 @@ beforeEach(() => {
   HTMLElement.prototype.releasePointerCapture = vi.fn();
 
   // Make requestAnimationFrame synchronous for canvas rendering tests
-  vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+  vi.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
     cb(0);
     return 0;
   });
@@ -99,9 +98,7 @@ beforeEach(() => {
 // ─── Helpers ───
 
 function renderPicker(props: Partial<CartesianPickerProps> = {}) {
-  return renderWithTheme(
-    <CartesianPicker testId="picker" {...props} />
-  );
+  return renderWithTheme(<CartesianPicker testId="picker" {...props} />);
 }
 
 function getCanvas() {
@@ -153,9 +150,7 @@ describe('CartesianPicker', () => {
 
     it('hides bottom bar when not provided', () => {
       renderPicker();
-      expect(
-        screen.queryByTestId('picker-bottom-bar')
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId('picker-bottom-bar')).not.toBeInTheDocument();
     });
 
     it('calls renderBackground with canvas context', () => {
@@ -451,10 +446,7 @@ describe('CartesianPicker', () => {
       const canvas = getCanvas();
 
       expect(canvas).toHaveAttribute('role', 'application');
-      expect(canvas).toHaveAttribute(
-        'aria-label',
-        'Cartesian point picker'
-      );
+      expect(canvas).toHaveAttribute('aria-label', 'Cartesian point picker');
       expect(canvas).toHaveAttribute('tabindex', '0');
     });
 

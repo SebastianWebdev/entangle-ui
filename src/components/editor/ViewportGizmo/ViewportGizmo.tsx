@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useRef, useMemo } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { cx } from '@/utils/cx';
@@ -119,10 +121,7 @@ export const ViewportGizmo: React.FC<ViewportGizmoProps> = ({
 
   return (
     <div
-      className={cx(
-        gizmoWrapperRecipe({ background, disabled }),
-        className
-      )}
+      className={cx(gizmoWrapperRecipe({ background, disabled }), className)}
       style={{
         ...style,
         ...assignInlineVars({ [gizmoDiameterVar]: `${diameter}px` }),

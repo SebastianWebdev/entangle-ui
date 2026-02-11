@@ -69,9 +69,10 @@ export type GizmoPresetView =
 
 // ─── Component Props ───
 
-export interface ViewportGizmoBaseProps
-  extends Omit<BaseComponent, 'onChange'> {
-
+export interface ViewportGizmoBaseProps extends Omit<
+  BaseComponent,
+  'onChange'
+> {
   /**
    * Current viewport orientation (controlled).
    * The gizmo always reflects this — it never owns orientation state.
@@ -184,7 +185,13 @@ export type ViewportGizmoProps = Prettify<ViewportGizmoBaseProps>;
 
 /** Axis arm hit region for interaction. */
 export interface GizmoHitRegion {
-  type: 'axis-positive' | 'axis-negative' | 'label' | 'origin' | 'ring' | 'none';
+  type:
+    | 'axis-positive'
+    | 'axis-negative'
+    | 'label'
+    | 'origin'
+    | 'ring'
+    | 'none';
   axis?: 'x' | 'y' | 'z';
   distance: number;
 }

@@ -35,10 +35,7 @@ function ControlledExample() {
 
   return (
     <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-      <CartesianPicker
-        value={point}
-        onChange={setPoint}
-      />
+      <CartesianPicker value={point} onChange={setPoint} />
       <div style={{ color: '#ccc', fontFamily: 'monospace', fontSize: 12 }}>
         <div>X: {point.x.toFixed(2)}</div>
         <div>Y: {point.y.toFixed(2)}</div>
@@ -119,7 +116,7 @@ export const Responsive: Story = {
     defaultValue: { x: 0, y: 0 },
   },
   decorators: [
-    (Story) => (
+    Story => (
       <div style={{ width: '100%', height: 300 }}>
         <Story />
       </div>
@@ -132,7 +129,7 @@ export const Responsive: Story = {
 export const WithBottomBar: Story = {
   args: {
     defaultValue: { x: 0, y: 0 },
-    renderBottomBar: (info) => (
+    renderBottomBar: info => (
       <div
         style={{
           display: 'flex',

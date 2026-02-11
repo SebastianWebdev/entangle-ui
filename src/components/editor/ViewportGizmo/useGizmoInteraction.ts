@@ -1,3 +1,5 @@
+'use client';
+
 import type React from 'react';
 import { useState, useCallback, useRef } from 'react';
 import { clamp } from '@/utils/mathUtils';
@@ -88,7 +90,8 @@ export function useGizmoInteraction(
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (disabled || interactionMode === 'display-only' || e.button !== 0) return;
+      if (disabled || interactionMode === 'display-only' || e.button !== 0)
+        return;
       const canvas = canvasRef.current;
       if (!canvas) return;
 
@@ -98,14 +101,23 @@ export function useGizmoInteraction(
       hasDraggedRef.current = false;
       lastPointerRef.current = { x: e.clientX, y: e.clientY };
       startPointerRef.current = { x: e.clientX, y: e.clientY };
-      setForceUpdate((n) => n + 1);
+      setForceUpdate(n => n + 1);
       canvas.setPointerCapture(e.pointerId);
 
       // Store hit for click detection on pointer up
       const hit = gizmoHitTest(px, py, orientation, center, armLength, upAxis);
       setHoveredRegion(hit);
     },
-    [disabled, interactionMode, canvasRef, getPointerPos, orientation, center, armLength, upAxis]
+    [
+      disabled,
+      interactionMode,
+      canvasRef,
+      getPointerPos,
+      orientation,
+      center,
+      armLength,
+      upAxis,
+    ]
   );
 
   const onPointerMove = useCallback(
@@ -157,7 +169,20 @@ export function useGizmoInteraction(
         canvas.style.cursor = 'default';
       }
     },
-    [canvasRef, allowOrbit, orbitSpeed, constrainPitch, orientation, interactionMode, disabled, getPointerPos, center, armLength, upAxis, onOrbit]
+    [
+      canvasRef,
+      allowOrbit,
+      orbitSpeed,
+      constrainPitch,
+      orientation,
+      interactionMode,
+      disabled,
+      getPointerPos,
+      center,
+      armLength,
+      upAxis,
+      onOrbit,
+    ]
   );
 
   const onPointerUp = useCallback(
@@ -167,7 +192,7 @@ export function useGizmoInteraction(
 
       if (isDraggingRef.current) {
         isDraggingRef.current = false;
-        setForceUpdate((n) => n + 1);
+        setForceUpdate(n => n + 1);
         canvas.releasePointerCapture(e.pointerId);
 
         if (hasDraggedRef.current) {
@@ -176,7 +201,14 @@ export function useGizmoInteraction(
         } else if (allowSnap) {
           // Click (no drag) — check hit
           const { px, py } = getPointerPos(e);
-          const hit = gizmoHitTest(px, py, orientation, center, armLength, upAxis);
+          const hit = gizmoHitTest(
+            px,
+            py,
+            orientation,
+            center,
+            armLength,
+            upAxis
+          );
 
           if (hit.type === 'origin') {
             onOriginClick?.();
@@ -192,7 +224,19 @@ export function useGizmoInteraction(
         }
       }
     },
-    [canvasRef, allowSnap, getPointerPos, orientation, center, armLength, upAxis, onOrbitEnd, onOriginClick, onAxisClick, onSnapToView]
+    [
+      canvasRef,
+      allowSnap,
+      getPointerPos,
+      orientation,
+      center,
+      armLength,
+      upAxis,
+      onOrbitEnd,
+      onOriginClick,
+      onAxisClick,
+      onSnapToView,
+    ]
   );
 
   const onKeyDown = useCallback(
@@ -220,7 +264,8 @@ export function useGizmoInteraction(
           if (allowOrbit) {
             let deltaPitch = step;
             if (constrainPitch) {
-              deltaPitch = clamp(orientation.pitch + step, -90, 90) - orientation.pitch;
+              deltaPitch =
+                clamp(orientation.pitch + step, -90, 90) - orientation.pitch;
             }
             onOrbit?.({ deltaYaw: 0, deltaPitch });
             handled = true;
@@ -230,7 +275,8 @@ export function useGizmoInteraction(
           if (allowOrbit) {
             let deltaPitch = -step;
             if (constrainPitch) {
-              deltaPitch = clamp(orientation.pitch - step, -90, 90) - orientation.pitch;
+              deltaPitch =
+                clamp(orientation.pitch - step, -90, 90) - orientation.pitch;
             }
             onOrbit?.({ deltaYaw: 0, deltaPitch });
             handled = true;
@@ -265,7 +311,17 @@ export function useGizmoInteraction(
         e.preventDefault();
       }
     },
-    [disabled, interactionMode, allowOrbit, allowSnap, constrainPitch, orientation, onOrbit, onSnapToView, onOriginClick]
+    [
+      disabled,
+      interactionMode,
+      allowOrbit,
+      allowSnap,
+      constrainPitch,
+      orientation,
+      onOrbit,
+      onSnapToView,
+      onOriginClick,
+    ]
   );
 
   return {

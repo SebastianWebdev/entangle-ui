@@ -126,8 +126,10 @@ export interface PointMarkerOptions {
 
 export type CanvasContainerSize = Size;
 
-export interface CanvasContainerBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'onChange'> {
+export interface CanvasContainerBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'onChange'
+> {
   /**
    * Ref to the underlying <canvas> element.
    * Required — the consumer manages the ref for rendering/interaction hooks.

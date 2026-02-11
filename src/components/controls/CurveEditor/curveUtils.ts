@@ -393,7 +393,13 @@ export function domainToCanvas(
   canvasWidth: number,
   canvasHeight: number
 ): { px: number; py: number } {
-  return sharedDomainToCanvas(domainX, domainY, viewport, canvasWidth, canvasHeight);
+  return sharedDomainToCanvas(
+    domainX,
+    domainY,
+    viewport,
+    canvasWidth,
+    canvasHeight
+  );
 }
 
 /**

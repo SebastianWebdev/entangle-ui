@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { cx } from '@/utils/cx';
@@ -138,10 +140,7 @@ export const CartesianPicker: React.FC<CartesianPickerProps> = ({
 
   return (
     <div
-      className={cx(
-        cartesianPickerRecipe({ disabled, responsive }),
-        className
-      )}
+      className={cx(cartesianPickerRecipe({ disabled, responsive }), className)}
       style={{
         ...style,
         ...(!responsive

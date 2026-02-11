@@ -1,7 +1,12 @@
+'use client';
+
 import type React from 'react';
 import { useCallback } from 'react';
 import type { CanvasThemeColors } from '@/components/primitives/canvas';
-import { resolveCanvasTheme, useCanvasRenderer } from '@/components/primitives/canvas';
+import {
+  resolveCanvasTheme,
+  useCanvasRenderer,
+} from '@/components/primitives/canvas';
 import type {
   GizmoOrientation,
   GizmoUpAxis,
@@ -167,7 +172,7 @@ export function useGizmoRenderer(options: UseGizmoRendererOptions): void {
       const isHovered =
         hoveredRegion.axis === arm.axis &&
         ((arm.positive && hoveredRegion.type === 'axis-positive') ||
-         (!arm.positive && hoveredRegion.type === 'axis-negative'));
+          (!arm.positive && hoveredRegion.type === 'axis-negative'));
 
       const alpha = arm.positive ? 1.0 : 0.35;
       const lineWidth = arm.positive

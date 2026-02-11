@@ -1,3 +1,5 @@
+'use client';
+
 import type React from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 import type { CanvasSize } from './canvas.types';
@@ -78,7 +80,7 @@ export function useCanvasSetup(
     const target = containerRef?.current ?? canvasRef.current?.parentElement;
     if (!responsive || !target) return;
 
-    const observer = new ResizeObserver((entries) => {
+    const observer = new ResizeObserver(entries => {
       const entry = entries[0];
       if (entry && onResize) {
         onResize({

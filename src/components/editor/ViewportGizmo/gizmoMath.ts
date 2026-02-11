@@ -1,4 +1,9 @@
-import type { GizmoOrientation, GizmoPresetView, GizmoUpAxis, GizmoHitRegion } from './ViewportGizmo.types';
+import type {
+  GizmoOrientation,
+  GizmoPresetView,
+  GizmoUpAxis,
+  GizmoHitRegion,
+} from './ViewportGizmo.types';
 
 // ─── Vector Type ───
 
@@ -231,9 +236,12 @@ export function gizmoHitTest(
 
     // Check arm line segment
     const segDist = distPointToSegment(
-      px, py,
-      center.x, center.y,
-      arm.screenX, arm.screenY
+      px,
+      py,
+      center.x,
+      center.y,
+      arm.screenX,
+      arm.screenY
     );
     if (segDist <= tolerancePx * 0.7 && segDist < closest.distance) {
       const hitType = arm.positive ? 'axis-positive' : 'axis-negative';
@@ -261,23 +269,35 @@ export function presetViewToOrientation(
 ): GizmoOrientation {
   if (upAxis === 'y-up') {
     switch (view) {
-      case 'front':  return { yaw: 0,    pitch: 0 };
-      case 'back':   return { yaw: 180,  pitch: 0 };
-      case 'right':  return { yaw: 90,   pitch: 0 };
-      case 'left':   return { yaw: -90,  pitch: 0 };
-      case 'top':    return { yaw: 0,    pitch: 90 };
-      case 'bottom': return { yaw: 0,    pitch: -90 };
+      case 'front':
+        return { yaw: 0, pitch: 0 };
+      case 'back':
+        return { yaw: 180, pitch: 0 };
+      case 'right':
+        return { yaw: 90, pitch: 0 };
+      case 'left':
+        return { yaw: -90, pitch: 0 };
+      case 'top':
+        return { yaw: 0, pitch: 90 };
+      case 'bottom':
+        return { yaw: 0, pitch: -90 };
     }
   }
 
   // Z-up
   switch (view) {
-    case 'front':  return { yaw: 0,    pitch: 0 };
-    case 'back':   return { yaw: 180,  pitch: 0 };
-    case 'right':  return { yaw: 90,   pitch: 0 };
-    case 'left':   return { yaw: -90,  pitch: 0 };
-    case 'top':    return { yaw: 0,    pitch: 90 };
-    case 'bottom': return { yaw: 0,    pitch: -90 };
+    case 'front':
+      return { yaw: 0, pitch: 0 };
+    case 'back':
+      return { yaw: 180, pitch: 0 };
+    case 'right':
+      return { yaw: 90, pitch: 0 };
+    case 'left':
+      return { yaw: -90, pitch: 0 };
+    case 'top':
+      return { yaw: 0, pitch: 90 };
+    case 'bottom':
+      return { yaw: 0, pitch: -90 };
   }
 }
 
@@ -343,16 +363,22 @@ export function axisToPresetView(
 ): GizmoPresetView | null {
   if (upAxis === 'y-up') {
     switch (axis) {
-      case 'x': return positive ? 'right' : 'left';
-      case 'y': return positive ? 'top' : 'bottom';
-      case 'z': return positive ? 'front' : 'back';
+      case 'x':
+        return positive ? 'right' : 'left';
+      case 'y':
+        return positive ? 'top' : 'bottom';
+      case 'z':
+        return positive ? 'front' : 'back';
     }
   }
 
   // Z-up
   switch (axis) {
-    case 'x': return positive ? 'right' : 'left';
-    case 'y': return positive ? 'front' : 'back';
-    case 'z': return positive ? 'top' : 'bottom';
+    case 'x':
+      return positive ? 'right' : 'left';
+    case 'y':
+      return positive ? 'front' : 'back';
+    case 'z':
+      return positive ? 'top' : 'bottom';
   }
 }

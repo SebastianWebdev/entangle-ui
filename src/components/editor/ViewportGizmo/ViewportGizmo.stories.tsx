@@ -23,7 +23,10 @@ type Story = StoryObj<typeof ViewportGizmo>;
 // ─── Interactive Wrapper ───
 
 function InteractiveGizmo(
-  props: Omit<React.ComponentProps<typeof ViewportGizmo>, 'orientation' | 'onOrbit' | 'onOrbitEnd'>
+  props: Omit<
+    React.ComponentProps<typeof ViewportGizmo>,
+    'orientation' | 'onOrbit' | 'onOrbitEnd'
+  >
 ) {
   const [orientation, setOrientation] = useState<GizmoOrientation>({
     yaw: 30,
@@ -31,7 +34,7 @@ function InteractiveGizmo(
   });
 
   const handleOrbit = useCallback((delta: OrbitDelta) => {
-    setOrientation((prev) => ({
+    setOrientation(prev => ({
       yaw: prev.yaw + delta.deltaYaw,
       pitch: Math.max(-90, Math.min(90, prev.pitch + delta.deltaPitch)),
     }));
@@ -39,12 +42,12 @@ function InteractiveGizmo(
 
   const handleSnapToView = useCallback((view: string) => {
     const views: Record<string, GizmoOrientation> = {
-      front:  { yaw: 0,    pitch: 0 },
-      back:   { yaw: 180,  pitch: 0 },
-      right:  { yaw: 90,   pitch: 0 },
-      left:   { yaw: -90,  pitch: 0 },
-      top:    { yaw: 0,    pitch: 90 },
-      bottom: { yaw: 0,    pitch: -90 },
+      front: { yaw: 0, pitch: 0 },
+      back: { yaw: 180, pitch: 0 },
+      right: { yaw: 90, pitch: 0 },
+      left: { yaw: -90, pitch: 0 },
+      top: { yaw: 0, pitch: 90 },
+      bottom: { yaw: 0, pitch: -90 },
     };
     const target = views[view];
     if (target) setOrientation(target);
@@ -110,7 +113,7 @@ export const ZUp: Story = {
 export const TransparentBackground: Story = {
   render: () => <InteractiveGizmo background="transparent" />,
   decorators: [
-    (Story) => (
+    Story => (
       <div style={{ background: '#1a1a2e', padding: 24 }}>
         <Story />
       </div>
