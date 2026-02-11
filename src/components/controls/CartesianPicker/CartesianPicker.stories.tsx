@@ -12,6 +12,8 @@ const meta: Meta<typeof CartesianPicker> = {
     domainY: { control: false },
     value: { control: false },
     defaultValue: { control: false },
+    renderBackground: { control: false },
+    renderBottomBar: { control: false },
     onChange: { action: 'onChange' },
     onChangeComplete: { action: 'onChangeComplete' },
   },

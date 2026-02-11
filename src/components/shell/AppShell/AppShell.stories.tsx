@@ -21,6 +21,10 @@ import {
   CurveEditor,
   createLinearCurve,
 } from '@/components/controls/CurveEditor';
+import { CartesianPicker } from '@/components/controls/CartesianPicker';
+import { ViewportGizmo as ViewportGizmoComponent } from '@/components/editor/ViewportGizmo';
+import type { GizmoOrientation, OrbitDelta } from '@/components/editor/ViewportGizmo';
+import type { Point2D } from '@/components/primitives/canvas';
 import { ScrollArea } from '@/components/layout/ScrollArea';
 import { ContextMenu } from '@/components/navigation/ContextMenu';
 import type { MenuConfig } from '@/components/navigation/Menu';
@@ -160,57 +164,6 @@ const ViewportAxisZ = styled.div`
   background: rgba(80, 80, 255, 0.25);
 `;
 
-const ViewportGizmo = styled.div`
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: rgba(30, 30, 30, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  color: ${({ theme }) => theme.colors.text.muted};
-`;
-
-const GizmoAxis = styled.div<{ $color: string; $rotation: number }>`
-  position: absolute;
-  width: 2px;
-  height: 22px;
-  background: ${({ $color }) => $color};
-  transform-origin: bottom center;
-  bottom: 50%;
-  left: calc(50% - 1px);
-  transform: rotate(${({ $rotation }) => $rotation}deg);
-  border-radius: 1px;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: -3px;
-    left: -2px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: ${({ $color }) => $color};
-  }
-`;
-
-const GizmoLabel = styled.span<{
-  $x: number;
-  $y: number;
-  $color: string;
-}>`
-  position: absolute;
-  font-size: 9px;
-  font-weight: 600;
-  color: ${({ $color }) => $color};
-  top: ${({ $y }) => $y}px;
-  left: ${({ $x }) => $x}px;
-`;
 
 const ViewportOverlay = styled.div`
   position: absolute;
@@ -375,6 +328,34 @@ export const FullEditor: Story = {
     const [leftPanelMode, setRightPanelMode] = useState<'properties' | 'chat'>(
       'properties'
     );
+    const [gizmoOrientation, setGizmoOrientation] = useState<GizmoOrientation>({
+      yaw: 35,
+      pitch: -25,
+    });
+    const [cartesianPoint, setCartesianPoint] = useState<Point2D>({
+      x: 0,
+      y: 0,
+    });
+
+    const handleGizmoOrbit = useCallback((delta: OrbitDelta) => {
+      setGizmoOrientation(prev => ({
+        yaw: prev.yaw + delta.deltaYaw,
+        pitch: Math.max(-90, Math.min(90, prev.pitch + delta.deltaPitch)),
+      }));
+    }, []);
+
+    const handleGizmoSnap = useCallback((view: string) => {
+      const views: Record<string, GizmoOrientation> = {
+        front: { yaw: 0, pitch: 0 },
+        back: { yaw: 180, pitch: 0 },
+        right: { yaw: 90, pitch: 0 },
+        left: { yaw: -90, pitch: 0 },
+        top: { yaw: 0, pitch: 90 },
+        bottom: { yaw: 0, pitch: -90 },
+      };
+      const target = views[view];
+      if (target) setGizmoOrientation(target);
+    }, []);
 
     // AI Chat state
     let chatNextId = 100;
@@ -1272,20 +1253,23 @@ export const FullEditor: Story = {
                       </SelectionDots>
 
                       {/* Orientation gizmo */}
-                      <ViewportGizmo>
-                        <GizmoAxis $color="#f55" $rotation={0} />
-                        <GizmoAxis $color="#5f5" $rotation={90} />
-                        <GizmoAxis $color="#55f" $rotation={45} />
-                        <GizmoLabel $x={10} $y={8} $color="#f55">
-                          Y
-                        </GizmoLabel>
-                        <GizmoLabel $x={50} $y={40} $color="#5f5">
-                          X
-                        </GizmoLabel>
-                        <GizmoLabel $x={37} $y={14} $color="#55f">
-                          Z
-                        </GizmoLabel>
-                      </ViewportGizmo>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 12,
+                          right: 12,
+                          zIndex: 10,
+                        }}
+                      >
+                        <ViewportGizmoComponent
+                          orientation={gizmoOrientation}
+                          onOrbit={handleGizmoOrbit}
+                          onSnapToView={handleGizmoSnap}
+                          size="sm"
+                          diameter={80}
+                          background="transparent"
+                        />
+                      </div>
 
                       {/* Viewport mode selector */}
                       <ViewportTopBar>
@@ -1603,6 +1587,40 @@ export const FullEditor: Story = {
                             </span>
                           </PropertyRow>
                         </PropertyGroup>
+                      </PropertySection>
+
+                      <PropertySection title="UV Offset">
+                        <PropertyRow label="Texture Offset" fullWidth>
+                          <div
+                            style={{
+                              display: 'flex',
+                              width: '100%',
+                              minWidth: 0,
+                            }}
+                          >
+                            <CartesianPicker
+                              value={cartesianPoint}
+                              onChange={setCartesianPoint}
+                              responsive
+                              height={160}
+                              size="sm"
+                              labelX="U"
+                              labelY="V"
+                              gridSubdivisions={4}
+                              precision={3}
+                            />
+                          </div>
+                        </PropertyRow>
+                        <PropertyRow label="U Offset">
+                          <Text size="xs" color="secondary" mono>
+                            {cartesianPoint.x.toFixed(3)}
+                          </Text>
+                        </PropertyRow>
+                        <PropertyRow label="V Offset">
+                          <Text size="xs" color="secondary" mono>
+                            {cartesianPoint.y.toFixed(3)}
+                          </Text>
+                        </PropertyRow>
                       </PropertySection>
 
                       <PropertySection title="Rendering">
