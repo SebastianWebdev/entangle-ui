@@ -372,7 +372,7 @@ export const FullEditor: Story = {
     const [showFloating, setShowFloating] = useState(true);
     const [outlinerTab, setOutlinerTab] = useState('scene');
     const [bottomTab, setBottomTab] = useState('console');
-    const [rightPanelMode, setRightPanelMode] = useState<
+    const [leftPanelMode, setRightPanelMode] = useState<
       'properties' | 'chat'
     >('properties');
 
@@ -989,7 +989,7 @@ export const FullEditor: Story = {
                 &#10132;
               </Toolbar.Toggle>
               <Toolbar.Toggle
-                pressed={rightPanelMode === 'chat'}
+                pressed={leftPanelMode === 'chat'}
                 onPressedChange={() =>
                   setRightPanelMode(prev =>
                     prev === 'chat' ? 'properties' : 'chat'
@@ -1068,8 +1068,9 @@ export const FullEditor: Story = {
                 ]}
                 dividerSize={3}
               >
-                {/* ------------ LEFT PANEL: Scene Outliner ------------ */}
+                {/* ------------ LEFT PANEL: Scene Outliner / AI Chat ------------ */}
                 <PanelSurface bordered={false} style={panelGradientStyles}>
+                  {leftPanelMode === 'properties' ? (
                   <PanelSurface.Body padding={0} style={{ display: 'flex' }}>
                     <Tabs
                       value={outlinerTab}
@@ -1153,6 +1154,84 @@ export const FullEditor: Story = {
                       </TabPanel>
                     </Tabs>
                   </PanelSurface.Body>
+                  ) : (
+                  <>
+                    <PanelSurface.Header
+                      style={{
+                        backgroundColor: vars.storybook.canvas.gradientEnd,
+                        borderBottom: '1px solid rgba(111, 204, 182, 0.18)',
+                      }}
+                      actions={
+                        <span
+                          style={{
+                            fontSize: 9,
+                            padding: '1px 5px',
+                            background: 'rgba(111, 204, 182, 0.2)',
+                            border: '1px solid rgba(111, 204, 182, 0.3)',
+                            borderRadius: 3,
+                            color: '#6fc',
+                          }}
+                        >
+                          <AiSparklesIcon size="sm" />
+                        </span>
+                      }
+                    >
+                      AI Assistant
+                    </PanelSurface.Header>
+                    <PanelSurface.Body padding={0} style={{ flex: 1, minHeight: 0 }}>
+                      <ChatPanel density="compact">
+                        <ChatMessageList
+                          messages={chat.messages}
+                          renderMessage={msg => (
+                            <ChatMessage
+                              key={msg.id}
+                              message={msg}
+                              showAvatar
+                              actions={
+                                msg.role === 'assistant' && msg.status === 'complete' ? (
+                                  <ChatActionBar>
+                                    <Button size="sm" variant="ghost">
+                                      Copy
+                                    </Button>
+                                    <Button size="sm" variant="ghost">
+                                      Apply
+                                    </Button>
+                                  </ChatActionBar>
+                                ) : undefined
+                              }
+                            />
+                          )}
+                          emptyState={
+                            <ChatEmptyState
+                              title="AI Assistant"
+                              description="Ask me anything about your scene."
+                              suggestions={[
+                                'Optimize materials',
+                                'Explain selection',
+                                'Fix errors',
+                              ]}
+                              onSuggestionClick={handleChatSend}
+                            />
+                          }
+                        />
+                        <ChatTypingIndicator visible={isChatStreaming} />
+                        <ChatInput
+                          onSubmit={text => handleChatSend(text)}
+                          onStop={() => setIsChatStreaming(false)}
+                          streaming={isChatStreaming}
+                          placeholder="Ask about your scene..."
+                          toolbar={
+                            <ChatInputToolbar>
+                              <Button size="sm" variant="ghost" icon={<UploadIcon size="sm" />}>
+                                Attach
+                              </Button>
+                            </ChatInputToolbar>
+                          }
+                        />
+                      </ChatPanel>
+                    </PanelSurface.Body>
+                  </>
+                  )}
                 </PanelSurface>
 
                 {/* ------------ CENTER: Viewport + Bottom Panel ------------ */}
@@ -1333,10 +1412,8 @@ export const FullEditor: Story = {
                   </PanelSurface>
                 </SplitPane>
 
-                {/* ------------ RIGHT PANEL: Properties / AI Chat ------------ */}
+                {/* ------------ RIGHT PANEL: Properties Inspector ------------ */}
                 <PanelSurface bordered={false} style={panelGradientStyles}>
-                  {rightPanelMode === 'properties' ? (
-                  <>
                   <PanelSurface.Header
                     style={{
                       backgroundColor: vars.storybook.canvas.gradientEnd,
@@ -1787,85 +1864,6 @@ export const FullEditor: Story = {
                       </PropertySection>
                     </PropertyPanel>
                   </PanelSurface.Body>
-                  </>
-                  ) : (
-                  <>
-                    <PanelSurface.Header
-                      style={{
-                        backgroundColor: vars.storybook.canvas.gradientEnd,
-                        borderBottom: '1px solid rgba(111, 204, 182, 0.18)',
-                      }}
-                      actions={
-                        <span
-                          style={{
-                            fontSize: 9,
-                            padding: '1px 5px',
-                            background: 'rgba(111, 204, 182, 0.2)',
-                            border: '1px solid rgba(111, 204, 182, 0.3)',
-                            borderRadius: 3,
-                            color: '#6fc',
-                          }}
-                        >
-                          <AiSparklesIcon size="sm" />
-                        </span>
-                      }
-                    >
-                      AI Assistant
-                    </PanelSurface.Header>
-                    <PanelSurface.Body padding={0} style={{ flex: 1, minHeight: 0 }}>
-                      <ChatPanel density="compact">
-                        <ChatMessageList
-                          messages={chat.messages}
-                          renderMessage={msg => (
-                            <ChatMessage
-                              key={msg.id}
-                              message={msg}
-                              showAvatar
-                              actions={
-                                msg.role === 'assistant' && msg.status === 'complete' ? (
-                                  <ChatActionBar>
-                                    <Button size="sm" variant="ghost">
-                                      Copy
-                                    </Button>
-                                    <Button size="sm" variant="ghost">
-                                      Apply
-                                    </Button>
-                                  </ChatActionBar>
-                                ) : undefined
-                              }
-                            />
-                          )}
-                          emptyState={
-                            <ChatEmptyState
-                              title="AI Assistant"
-                              description="Ask me anything about your scene."
-                              suggestions={[
-                                'Optimize materials',
-                                'Explain selection',
-                                'Fix errors',
-                              ]}
-                              onSuggestionClick={handleChatSend}
-                            />
-                          }
-                        />
-                        <ChatTypingIndicator visible={isChatStreaming} />
-                        <ChatInput
-                          onSubmit={text => handleChatSend(text)}
-                          onStop={() => setIsChatStreaming(false)}
-                          streaming={isChatStreaming}
-                          placeholder="Ask about your scene..."
-                          toolbar={
-                            <ChatInputToolbar>
-                              <Button size="sm" variant="ghost" icon={<UploadIcon size="sm" />}>
-                                Attach
-                              </Button>
-                            </ChatInputToolbar>
-                          }
-                        />
-                      </ChatPanel>
-                    </PanelSurface.Body>
-                  </>
-                  )}
                 </PanelSurface>
               </SplitPane>
 
