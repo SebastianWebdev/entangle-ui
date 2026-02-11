@@ -9,7 +9,10 @@ const meta: Meta<typeof ViewportGizmo> = {
   tags: ['autodocs'],
   argTypes: {
     orientation: { control: false },
-    background: { control: 'select', options: ['transparent', 'subtle', 'solid'] },
+    background: {
+      control: 'select',
+      options: ['transparent', 'subtle', 'solid'],
+    },
     onOrbit: { action: 'onOrbit' },
     onOrbitEnd: { action: 'onOrbitEnd' },
     onSnapToView: { action: 'onSnapToView' },

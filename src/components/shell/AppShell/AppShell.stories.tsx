@@ -23,7 +23,10 @@ import {
 } from '@/components/controls/CurveEditor';
 import { CartesianPicker } from '@/components/controls/CartesianPicker';
 import { ViewportGizmo as ViewportGizmoComponent } from '@/components/editor/ViewportGizmo';
-import type { GizmoOrientation, OrbitDelta } from '@/components/editor/ViewportGizmo';
+import type {
+  GizmoOrientation,
+  OrbitDelta,
+} from '@/components/editor/ViewportGizmo';
 import type { Point2D } from '@/components/primitives/canvas';
 import { ScrollArea } from '@/components/layout/ScrollArea';
 import { ContextMenu } from '@/components/navigation/ContextMenu';
@@ -163,7 +166,6 @@ const ViewportAxisZ = styled.div`
   width: 1px;
   background: rgba(80, 80, 255, 0.25);
 `;
-
 
 const ViewportOverlay = styled.div`
   position: absolute;
