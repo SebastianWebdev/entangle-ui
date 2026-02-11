@@ -1,7 +1,8 @@
+import type { CSSProperties } from 'react';
 import { useState } from 'react';
 import styled from '@emotion/styled';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { Theme } from '@/theme';
+import { vars } from '@/theme';
 import { AppShell } from './AppShell';
 import { MenuBar } from '../MenuBar';
 import { Toolbar } from '../Toolbar';
@@ -84,29 +85,26 @@ const meta: Meta<typeof AppShell> = {
 export default meta;
 type Story = StoryObj<typeof AppShell>;
 
-const shellGradient = (theme: Theme): string =>
-  `radial-gradient(160% 130% at 100% 0%, ${theme.storybook.canvas.gradientStart} 0%, ${theme.storybook.canvas.gradientMid} 48%, ${theme.storybook.canvas.gradientEnd} 100%)`;
+const shellGradient = `radial-gradient(160% 130% at 100% 0%, ${vars.storybook.canvas.gradientStart} 0%, ${vars.storybook.canvas.gradientMid} 48%, ${vars.storybook.canvas.gradientEnd} 100%)`;
 
-const topToolbarGradient = (theme: Theme): string =>
-  `linear-gradient(90deg, #093236 0%, ${theme.storybook.canvas.gradientMid} 52%, ${theme.storybook.canvas.gradientEnd} 100%)`;
+const topToolbarGradient = `linear-gradient(90deg, #093236 0%, ${vars.storybook.canvas.gradientMid} 52%, ${vars.storybook.canvas.gradientEnd} 100%)`;
 
-const asideToolbarGradient = (theme: Theme): string =>
-  `linear-gradient(180deg, #093236 0%, ${theme.storybook.canvas.gradientMid} 52%, ${theme.storybook.canvas.gradientEnd} 100%)`;
+const asideToolbarGradient = `linear-gradient(180deg, #093236 0%, ${vars.storybook.canvas.gradientMid} 52%, ${vars.storybook.canvas.gradientEnd} 100%)`;
 
-const topToolbarGradientCss = (theme: Theme) => ({
-  backgroundImage: topToolbarGradient(theme),
-  backgroundColor: theme.storybook.canvas.gradientEnd,
-});
+const topToolbarGradientStyles: CSSProperties = {
+  backgroundImage: topToolbarGradient,
+  backgroundColor: vars.storybook.canvas.gradientEnd,
+};
 
-const asideToolbarGradientCss = (theme: Theme) => ({
-  backgroundImage: asideToolbarGradient(theme),
-  backgroundColor: theme.storybook.canvas.gradientEnd,
-});
+const asideToolbarGradientStyles: CSSProperties = {
+  backgroundImage: asideToolbarGradient,
+  backgroundColor: vars.storybook.canvas.gradientEnd,
+};
 
-const panelGradientCss = (theme: Theme) => ({
-  backgroundImage: shellGradient(theme),
-  backgroundColor: theme.storybook.canvas.gradientEnd,
-});
+const panelGradientStyles: CSSProperties = {
+  backgroundImage: shellGradient,
+  backgroundColor: vars.storybook.canvas.gradientEnd,
+};
 
 // ---------------------------------------------------------------------------
 // Styled helpers for the FullEditor story
@@ -806,7 +804,7 @@ export const FullEditor: Story = {
 
           {/* ============ TOP TOOLBAR ============ */}
           <AppShell.Toolbar>
-            <Toolbar aria-label="Main toolbar" css={topToolbarGradientCss}>
+            <Toolbar aria-label="Main toolbar" style={topToolbarGradientStyles}>
               <Toolbar.Group aria-label="File operations">
                 <Toolbar.Button
                   onClick={() => {}}
@@ -918,7 +916,7 @@ export const FullEditor: Story = {
               $orientation="vertical"
               aria-label="Tool palette"
               $size="sm"
-              css={asideToolbarGradientCss}
+              style={asideToolbarGradientStyles}
             >
               <Toolbar.Toggle
                 pressed={true}
@@ -997,7 +995,7 @@ export const FullEditor: Story = {
                 dividerSize={3}
               >
                 {/* ------------ LEFT PANEL: Scene Outliner ------------ */}
-                <PanelSurface bordered={false} css={panelGradientCss}>
+                <PanelSurface bordered={false} style={panelGradientStyles}>
                   <PanelSurface.Body padding={0} style={{ display: 'flex' }}>
                     <Tabs
                       value={outlinerTab}
@@ -1168,7 +1166,7 @@ export const FullEditor: Story = {
                   </ContextMenu>
 
                   {/* Bottom panel: Console / Output / Timeline */}
-                  <PanelSurface bordered={false} css={panelGradientCss}>
+                  <PanelSurface bordered={false} style={panelGradientStyles}>
                     <PanelSurface.Body
                       padding={0}
                       style={{ flex: 1, minHeight: 0 }}
@@ -1262,12 +1260,12 @@ export const FullEditor: Story = {
                 </SplitPane>
 
                 {/* ------------ RIGHT PANEL: Properties Inspector ------------ */}
-                <PanelSurface bordered={false} css={panelGradientCss}>
+                <PanelSurface bordered={false} style={panelGradientStyles}>
                   <PanelSurface.Header
-                    css={theme => ({
-                      backgroundColor: theme.storybook.canvas.gradientEnd,
+                    style={{
+                      backgroundColor: vars.storybook.canvas.gradientEnd,
                       borderBottom: '1px solid rgba(111, 204, 182, 0.18)',
-                    })}
+                    }}
                     actions={
                       <span
                         style={{
@@ -1291,9 +1289,9 @@ export const FullEditor: Story = {
                       maxHeight="100%"
                       contentTopSpacing={8}
                       contentBottomSpacing={12}
-                      css={theme => ({
-                        background: theme.storybook.canvas.gradientEnd,
-                      })}
+                      style={{
+                        background: vars.storybook.canvas.gradientEnd,
+                      }}
                     >
                       <PropertySection title="Transform">
                         <PropertyRow label="Position X" modified={posX !== 0}>
