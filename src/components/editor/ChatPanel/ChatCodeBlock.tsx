@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { ChatCodeBlockProps } from './ChatPanel.types';
@@ -8,9 +10,10 @@ import {
   codeBlockLanguageStyle,
   codeBlockActionsStyle,
   codeBlockCopyButtonStyle,
-  codeBlockBodyStyle,
+  codeBlockContentStyle,
+  codeBlockContentWithLineNumbersStyle,
+  codeBlockLineNumbersColumnStyle,
   codeBlockPreStyle,
-  codeBlockLineNumberStyle,
   codeBlockMaxHeightVar,
 } from './ChatPanel.css';
 
@@ -78,13 +81,16 @@ export const ChatCodeBlock = /*#__PURE__*/ React.memo<ChatCodeBlockProps>(
     const [copied, setCopied] = useState(false);
 
     const handleCopy = useCallback(() => {
-      void navigator.clipboard.writeText(code).then(() => {
+      navigator.clipboard.writeText(code).then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+      }).catch(() => {
+        // Fallback: older browsers — no-op
       });
     }, [code]);
 
     const lines = code.split('\n');
+    const showHeader = language != null || copyable || actions != null;
 
     return (
       <div
@@ -94,9 +100,11 @@ export const ChatCodeBlock = /*#__PURE__*/ React.memo<ChatCodeBlockProps>(
         data-testid={testId}
         {...rest}
       >
-        {(language ?? copyable ?? actions) && (
+        {showHeader && (
           <div className={codeBlockHeaderStyle}>
-            <span className={codeBlockLanguageStyle}>{language ?? ''}</span>
+            {language != null && (
+              <span className={codeBlockLanguageStyle}>{language}</span>
+            )}
             <div className={codeBlockActionsStyle}>
               {actions}
               {copyable && (
@@ -114,23 +122,28 @@ export const ChatCodeBlock = /*#__PURE__*/ React.memo<ChatCodeBlockProps>(
         )}
 
         <div
-          className={codeBlockBodyStyle}
+          className={cx(
+            codeBlockContentStyle,
+            lineNumbers && codeBlockContentWithLineNumbersStyle
+          )}
           style={assignInlineVars({
             [codeBlockMaxHeightVar]: `${maxHeight}px`,
           })}
+          data-testid={testId ? `${testId}-content` : undefined}
         >
+          {lineNumbers && (
+            <div
+              className={codeBlockLineNumbersColumnStyle}
+              aria-hidden="true"
+              data-testid={testId ? `${testId}-line-numbers` : undefined}
+            >
+              {lines.map((_, i) => (
+                <div key={i}>{i + 1}</div>
+              ))}
+            </div>
+          )}
           <pre className={codeBlockPreStyle}>
-            <code>
-              {lineNumbers
-                ? lines.map((line, i) => (
-                    <React.Fragment key={i}>
-                      <span className={codeBlockLineNumberStyle}>{i + 1}</span>
-                      {line}
-                      {i < lines.length - 1 ? '\n' : ''}
-                    </React.Fragment>
-                  ))
-                : code}
-            </code>
+            <code>{code}</code>
           </pre>
         </div>
       </div>

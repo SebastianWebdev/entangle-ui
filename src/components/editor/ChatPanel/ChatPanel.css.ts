@@ -570,28 +570,30 @@ export const codeBlockContainerStyle = style({
   borderRadius: vars.borderRadius.md,
   border: `1px solid ${vars.colors.border.default}`,
   overflow: 'hidden',
+  background: vars.colors.background.primary,
 });
 
 export const codeBlockHeaderStyle = style({
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'space-between',
+  gap: vars.spacing.sm,
   padding: `${vars.spacing.xs} ${vars.spacing.md}`,
-  backgroundColor: vars.colors.background.tertiary,
+  backgroundColor: vars.colors.background.secondary,
   borderBottom: `1px solid ${vars.colors.border.default}`,
 });
 
 export const codeBlockLanguageStyle = style({
-  fontSize: vars.typography.fontSize.xxs,
+  fontSize: vars.typography.fontSize.xs,
   color: vars.colors.text.muted,
-  fontWeight: vars.typography.fontWeight.medium,
   textTransform: 'uppercase',
+  letterSpacing: '0.5px',
 });
 
 export const codeBlockActionsStyle = style({
   display: 'flex',
   alignItems: 'center',
   gap: vars.spacing.xs,
+  marginLeft: 'auto',
 });
 
 export const codeBlockCopyButtonStyle = style({
@@ -615,30 +617,40 @@ export const codeBlockCopyButtonStyle = style({
   },
 });
 
-export const codeBlockBodyStyle = style({
+export const codeBlockContentStyle = style({
   maxHeight: codeBlockMaxHeightVar,
-  overflowY: 'auto',
-  backgroundColor: vars.colors.background.primary,
+  overflow: 'auto',
+  padding: vars.spacing.md,
+});
+
+export const codeBlockContentWithLineNumbersStyle = style({
+  display: 'flex',
+});
+
+export const codeBlockLineNumbersColumnStyle = style({
+  color: vars.colors.text.disabled,
+  textAlign: 'right' as const,
+  paddingRight: vars.spacing.md,
+  borderRight: `1px solid ${vars.colors.border.default}`,
+  marginRight: vars.spacing.md,
+  userSelect: 'none',
+  minWidth: '32px',
+  fontFamily: vars.typography.fontFamily.mono,
+  fontSize: vars.typography.fontSize.sm,
+  lineHeight: vars.typography.lineHeight.relaxed,
+  whiteSpace: 'pre',
 });
 
 export const codeBlockPreStyle = style({
   margin: 0,
-  padding: vars.spacing.md,
   fontFamily: vars.typography.fontFamily.mono,
-  fontSize: vars.typography.fontSize.xs,
+  fontSize: vars.typography.fontSize.sm,
   lineHeight: vars.typography.lineHeight.relaxed,
-  color: vars.colors.text.secondary,
+  color: vars.colors.text.primary,
   whiteSpace: 'pre',
   tabSize: 2,
-});
-
-export const codeBlockLineNumberStyle = style({
-  display: 'inline-block',
-  width: '3ch',
-  marginRight: vars.spacing.md,
-  textAlign: 'right' as const,
-  color: vars.colors.text.disabled,
-  userSelect: 'none',
+  flex: 1,
+  minWidth: 0,
 });
 
 // ─── ChatAttachment (chip) ───────────────────────────────────────
