@@ -17,7 +17,7 @@ export default function DemoWrapper({
   const content = (
     <div
       style={{
-        background: '#1a1a1a',
+        background: '#121212',
         borderRadius: '6px',
         padding,
         height,
