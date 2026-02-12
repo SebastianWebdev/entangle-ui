@@ -116,3 +116,46 @@ export const MiniSelectionIcon: React.FC = () => (
     />
   </svg>
 );
+
+export const MiniWrenchIcon: React.FC = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+  >
+    <path
+      d="M14.25 1.75L12.5 3.5L13 5L11.5 6.5L10.5 5.5L5.5 10.5L6.5 11.5L5 13L3.5 12.5L1.75 14.25"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M8.5 2.5L10 4L8 6L6.5 4.5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const MiniChevronIcon: React.FC<{ size?: number }> = ({ size = 10 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 12 12"
+    fill="none"
+    aria-hidden="true"
+  >
+    <path
+      d="M4.5 3L7.5 6L4.5 9"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);

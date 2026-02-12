@@ -91,3 +91,17 @@ ComponentName/
 ## Storybook
 
 Storybook 10 with Vite. Dark theme CSS is loaded globally via `@vanilla-extract/vite-plugin`. Dark background default. Story pattern: Meta config with argTypes + individual Story exports for each variant/state.
+
+## Branch Rules
+
+**NEVER work directly on `main`.** When receiving a task while on `main`, always create a new branch first using the `rad-<ticket>-<task-name>` convention before making any changes.
+
+## Task Completion Checklist
+
+After completing a task, always run the following steps **in order** before committing:
+
+1. `npm run lint` — fix any lint errors
+2. `npm run type-check` — ensure no type errors
+3. `npm run format` — format all changed files
+4. Create a changeset (`npx changeset`)
+5. Commit all changes (including the changeset file)
