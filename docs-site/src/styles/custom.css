@@ -51,6 +51,10 @@ nav.sidebar .top-level > li + li {
   );
 }
 
+[data-has-hero] body {
+  background: transparent;
+}
+
 [data-has-hero] header {
   --sl-color-bg-nav: transparent;
   background: transparent;
