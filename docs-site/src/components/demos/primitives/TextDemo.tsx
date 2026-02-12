@@ -5,7 +5,7 @@ import { Stack } from '@/components/layout';
 export default function TextDemo() {
   return (
     <DemoWrapper>
-      <Stack spacing="sm">
+      <Stack spacing={2}>
         <Text size="xl" weight="semibold">
           Extra Large (16px)
         </Text>

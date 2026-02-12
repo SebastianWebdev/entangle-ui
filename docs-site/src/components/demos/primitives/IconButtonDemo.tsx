@@ -8,7 +8,7 @@ import { TrashIcon } from '@/components/Icons/TrashIcon';
 export default function IconButtonDemo() {
   return (
     <DemoWrapper>
-      <Flex gap="md" align="center">
+      <Flex gap={3} align="center">
         <IconButton aria-label="Settings" variant="default">
           <SettingsIcon />
         </IconButton>

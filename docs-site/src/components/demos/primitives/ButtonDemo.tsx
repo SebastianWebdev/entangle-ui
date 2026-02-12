@@ -7,7 +7,7 @@ export default function ButtonDemo() {
   const [loading, setLoading] = useState(false);
   return (
     <DemoWrapper>
-      <Flex gap="md" align="center" wrap="wrap">
+      <Flex gap={3} align="center" wrap="wrap">
         <Button variant="default">Default</Button>
         <Button variant="ghost">Ghost</Button>
         <Button variant="filled">Filled</Button>

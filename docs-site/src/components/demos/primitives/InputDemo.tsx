@@ -7,7 +7,7 @@ export default function InputDemo() {
   const [value, setValue] = useState('Hello world');
   return (
     <DemoWrapper>
-      <Stack spacing="md" style={{ maxWidth: 300 }}>
+      <Stack spacing={3} style={{ maxWidth: 300 }}>
         <Input
           placeholder="Default input"
           value={value}

@@ -5,7 +5,7 @@ import { Flex } from '@/components/layout';
 export default function TooltipDemo() {
   return (
     <DemoWrapper>
-      <Flex gap="lg" align="center">
+      <Flex gap={4} align="center">
         <Tooltip title="Top tooltip" placement="top">
           <Button>Hover (Top)</Button>
         </Tooltip>

@@ -10,7 +10,7 @@ export default function SliderDemo() {
 
   return (
     <DemoWrapper withKeyboard>
-      <Stack spacing="lg" style={{ maxWidth: 350 }}>
+      <Stack spacing={4} style={{ maxWidth: 350 }}>
         <Slider value={v1} onChange={setV1} label="Opacity" unit="%" />
         <Slider
           value={v2}

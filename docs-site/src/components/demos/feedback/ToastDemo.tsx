@@ -15,7 +15,7 @@ function ToastButtons() {
   const { info, success, warning, error } = useToast();
 
   return (
-    <Flex gap="md" wrap="wrap">
+    <Flex gap={3} wrap="wrap">
       <Button onClick={() => info('This is an informational message')}>
         Info
       </Button>

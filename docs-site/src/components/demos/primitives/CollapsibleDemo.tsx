@@ -7,7 +7,7 @@ export default function CollapsibleDemo() {
     <DemoWrapper>
       <div style={{ maxWidth: 350 }}>
         <Collapsible defaultOpen trigger="Click to toggle">
-          <Stack spacing="sm">
+          <Stack spacing={2}>
             <Text size="sm">
               This content is hidden by default and revealed when the trigger is
               clicked.

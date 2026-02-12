@@ -1,6 +1,6 @@
 import DemoWrapper from '../DemoWrapper';
 import { Text } from '@/components/primitives';
-import { Stack } from '@/components/layout';
+import { Stack, Grid } from '@/components/layout';
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { ChevronUpIcon } from '@/components/Icons/ChevronUpIcon';
 import { CheckIcon } from '@/components/Icons/CheckIcon';
@@ -24,22 +24,18 @@ export default function IconDemo() {
 
   return (
     <DemoWrapper>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '12px',
-        }}
-      >
+      <Grid container columns={4} spacing={3}>
         {icons.map(({ icon, name }) => (
-          <Stack key={name} spacing="xs" align="center">
-            {icon}
-            <Text size="xs" color="muted">
-              {name}
-            </Text>
-          </Stack>
+          <Grid key={name} size={1}>
+            <Stack spacing={1} align="center">
+              {icon}
+              <Text size="xs" color="muted">
+                {name}
+              </Text>
+            </Stack>
+          </Grid>
         ))}
-      </div>
+      </Grid>
     </DemoWrapper>
   );
 }

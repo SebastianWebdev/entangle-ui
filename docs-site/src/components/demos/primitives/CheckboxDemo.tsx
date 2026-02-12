@@ -7,7 +7,7 @@ export default function CheckboxDemo() {
   const [checked, setChecked] = useState(true);
   return (
     <DemoWrapper>
-      <Stack spacing="md">
+      <Stack spacing={3}>
         <Checkbox
           checked={checked}
           onChange={() => setChecked(!checked)}

@@ -25,7 +25,7 @@ export default function ViewportGizmoDemo() {
 
   return (
     <DemoWrapper>
-      <Flex gap="xl" align="center">
+      <Flex gap={5} align="center">
         <ViewportGizmo
           orientation={orientation}
           onOrbit={delta => {

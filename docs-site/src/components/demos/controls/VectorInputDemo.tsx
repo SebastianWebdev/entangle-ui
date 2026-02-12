@@ -9,7 +9,7 @@ export default function VectorInputDemo() {
 
   return (
     <DemoWrapper withKeyboard>
-      <Stack spacing="lg" style={{ maxWidth: 400 }}>
+      <Stack spacing={4} style={{ maxWidth: 400 }}>
         <VectorInput
           value={pos}
           onChange={setPos}

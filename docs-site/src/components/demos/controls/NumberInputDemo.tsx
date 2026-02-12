@@ -8,7 +8,7 @@ export default function NumberInputDemo() {
 
   return (
     <DemoWrapper withKeyboard>
-      <Stack spacing="md" style={{ maxWidth: 250 }}>
+      <Stack spacing={3} style={{ maxWidth: 250 }}>
         <NumberInput value={val} onChange={setVal} label="Value" step={1} />
         <NumberInput
           value={3.14}

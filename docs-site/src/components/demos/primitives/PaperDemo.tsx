@@ -5,7 +5,7 @@ import { Flex } from '@/components/layout';
 export default function PaperDemo() {
   return (
     <DemoWrapper>
-      <Flex gap="lg" wrap="wrap">
+      <Flex gap={4} wrap="wrap">
         <Paper elevation={0} padding="md" bordered style={{ width: 120 }}>
           <Text size="sm">elevation 0</Text>
         </Paper>
