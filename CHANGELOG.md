@@ -1,5 +1,21 @@
 # entangle-ui
 
+## 0.6.0
+
+### Minor Changes
+
+- [#37](https://github.com/SebastianWebdev/entangle-ui/pull/37) [`4ef7ec8`](https://github.com/SebastianWebdev/entangle-ui/commit/4ef7ec868c6887a6e23ca7ef38dcdb28a3f15d5b) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Changed Input onChange from (event) to (value: string) for API consistency with all other components
+
+### Patch Changes
+
+- [#37](https://github.com/SebastianWebdev/entangle-ui/pull/37) [`4ef7ec8`](https://github.com/SebastianWebdev/entangle-ui/commit/4ef7ec868c6887a6e23ca7ef38dcdb28a3f15d5b) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Fixed CurveEditor handle values resetting when moving keyframes. Manually adjusting a handle on an auto-tangent keyframe now promotes the tangent mode from auto to free, preventing recalculation from overwriting user changes.
+
+- [#37](https://github.com/SebastianWebdev/entangle-ui/pull/37) [`4ef7ec8`](https://github.com/SebastianWebdev/entangle-ui/commit/4ef7ec868c6887a6e23ca7ef38dcdb28a3f15d5b) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Fixed CurveEditor bezier curves producing vertical spikes and loops when control handles exceeded segment bounds. Auto-tangent handles now scale proportionally to segment length, and all handles are clamped at evaluation time as a safety net.
+
+- [#35](https://github.com/SebastianWebdev/entangle-ui/pull/35) [`a0d9e87`](https://github.com/SebastianWebdev/entangle-ui/commit/a0d9e87729b86d6f0a495c4be6abcaaa80d8a495) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Fix tree-shaking by replacing barrel imports with direct file imports and adding \*.css.js to sideEffects config.
+
+- [#37](https://github.com/SebastianWebdev/entangle-ui/pull/37) [`4ef7ec8`](https://github.com/SebastianWebdev/entangle-ui/commit/4ef7ec868c6887a6e23ca7ef38dcdb28a3f15d5b) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Hardened math expression evaluator security: expanded blocked identifiers with JS keywords, added expression length limit (200 chars), and made isExpression case-sensitive to match evaluator behavior.
+
 ## 0.5.1
 
 ### Patch Changes
