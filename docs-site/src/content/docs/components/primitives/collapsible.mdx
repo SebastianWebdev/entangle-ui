@@ -1,6 +1,172 @@
 ---
 title: Collapsible
-description: Collapsible component documentation
+description: Expandable/collapsible section component for organizing content in panels and settings interfaces.
 ---
 
-Collapsible documentation is coming soon.
+import PropsTable from '../../../../components/PropsTable.astro';
+
+Expandable/collapsible section component for organizing content in panels, settings interfaces, and property inspectors. Supports controlled and uncontrolled modes, custom indicators, multiple sizes, and optional content persistence when collapsed.
+
+## Import
+
+```tsx
+import { Collapsible } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Collapsible trigger="Section Title">
+  <p>Collapsible content here</p>
+</Collapsible>
+```
+
+## Controlled
+
+Use `open` and `onChange` for controlled mode.
+
+```tsx
+const [isOpen, setIsOpen] = useState(false);
+
+<Collapsible
+  open={isOpen}
+  onChange={setIsOpen}
+  trigger="Controlled Section"
+>
+  <p>Content that you control</p>
+</Collapsible>
+```
+
+## Default Open
+
+Set `defaultOpen` to have the section expanded on first render.
+
+```tsx
+<Collapsible defaultOpen trigger="Initially Open">
+  <p>This content is visible by default</p>
+</Collapsible>
+```
+
+## Sizes
+
+```tsx
+<Collapsible size="sm" trigger="Small (24px header)">
+  <p>Small section content</p>
+</Collapsible>
+
+<Collapsible size="md" trigger="Medium (28px header)">
+  <p>Medium section content</p>
+</Collapsible>
+
+<Collapsible size="lg" trigger="Large (32px header)">
+  <p>Large section content</p>
+</Collapsible>
+```
+
+| Size | Header height | Use case |
+| ---- | ------------- | -------- |
+| `sm` | 24px | Compact property panels |
+| `md` | 28px | Standard settings sections |
+| `lg` | 32px | Prominent section headings |
+
+## Custom Indicator
+
+By default, a chevron icon rotates to indicate open/closed state. Pass a custom React node to replace it, or `null` to hide the indicator entirely.
+
+```tsx
+{/* Custom indicator */}
+<Collapsible indicator={<PlusIcon />} trigger="Custom Icon">
+  <p>Uses a custom indicator icon</p>
+</Collapsible>
+
+{/* No indicator */}
+<Collapsible indicator={null} trigger="No Indicator">
+  <p>No expand/collapse icon shown</p>
+</Collapsible>
+```
+
+## Keep Mounted
+
+By default, collapsed content is removed from the DOM. Set `keepMounted` to keep it in the DOM (hidden) for preserving state or improving toggle performance.
+
+```tsx
+<Collapsible keepMounted trigger="Persistent Content">
+  <ComplexForm />
+</Collapsible>
+```
+
+## Disabled
+
+When disabled, the collapsible cannot be toggled.
+
+```tsx
+<Collapsible disabled trigger="Disabled Section">
+  <p>This section cannot be toggled</p>
+</Collapsible>
+
+<Collapsible disabled defaultOpen trigger="Disabled Open">
+  <p>This content is permanently visible</p>
+</Collapsible>
+```
+
+## Nested Collapsibles
+
+Collapsibles can be nested for hierarchical content organization.
+
+```tsx
+<Collapsible trigger="Transform" defaultOpen>
+  <Collapsible trigger="Position" size="sm">
+    <p>X: 0, Y: 0, Z: 0</p>
+  </Collapsible>
+  <Collapsible trigger="Rotation" size="sm">
+    <p>X: 0, Y: 0, Z: 0</p>
+  </Collapsible>
+  <Collapsible trigger="Scale" size="sm">
+    <p>X: 1, Y: 1, Z: 1</p>
+  </Collapsible>
+</Collapsible>
+```
+
+## Rich Trigger Content
+
+The `trigger` prop accepts any React node, so you can include icons or badges in the header.
+
+```tsx
+<Collapsible
+  trigger={
+    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <SettingsIcon />
+      Advanced Settings
+    </span>
+  }
+>
+  <p>Advanced configuration options</p>
+</Collapsible>
+```
+
+## Props
+
+<PropsTable props={[
+  { name: 'trigger', type: 'ReactNode', description: 'Content shown in the collapsible header/trigger.' },
+  { name: 'children', type: 'ReactNode', description: 'Content to render when expanded.' },
+  { name: 'open', type: 'boolean', description: 'Whether the section is expanded (controlled mode).' },
+  { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'Default expanded state (uncontrolled mode).' },
+  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'sm'", description: 'Size controlling header height, padding, and font size.' },
+  { name: 'indicator', type: 'ReactNode | null', description: 'Custom indicator icon. Defaults to a chevron. Set to null to hide.' },
+  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the collapsible is disabled.' },
+  { name: 'keepMounted', type: 'boolean', default: 'false', description: 'Whether to keep content in the DOM when collapsed.' },
+  { name: 'onChange', type: '(open: boolean) => void', description: 'Callback when the open state changes.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root div element.' },
+]} />
+
+## Accessibility
+
+- Trigger button uses `aria-expanded` to indicate current state
+- Trigger is linked to content via `aria-controls` / `id`
+- Content region uses `role="region"` with `aria-labelledby` pointing to the trigger
+- `aria-disabled` is set when the collapsible is disabled
+- Content is hidden with the `hidden` attribute when collapsed (unless `keepMounted` is false, in which case it is removed from the DOM)
+- Keyboard accessible: Enter/Space to toggle, Tab to navigate

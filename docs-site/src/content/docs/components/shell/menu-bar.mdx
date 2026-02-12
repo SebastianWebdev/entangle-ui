@@ -1,6 +1,197 @@
 ---
 title: MenuBar
-description: MenuBar component documentation
+description: Application menu bar with dropdown menus, sub-menus, keyboard shortcuts, and full keyboard navigation.
 ---
 
-MenuBar documentation is coming soon.
+import PropsTable from '../../../../components/PropsTable.astro';
+
+Application menu bar component for editor interfaces. Provides dropdown menus with items, sub-menus, separators, and keyboard shortcut labels. Supports full keyboard navigation with arrow keys and automatic menu switching on hover when a menu is open.
+
+## Import
+
+```tsx
+import { MenuBar } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<MenuBar>
+  <MenuBar.Menu label="File">
+    <MenuBar.Item onClick={handleNew} shortcut="Ctrl+N">New</MenuBar.Item>
+    <MenuBar.Item onClick={handleOpen} shortcut="Ctrl+O">Open</MenuBar.Item>
+    <MenuBar.Separator />
+    <MenuBar.Item onClick={handleSave} shortcut="Ctrl+S">Save</MenuBar.Item>
+    <MenuBar.Item onClick={handleSaveAs} shortcut="Ctrl+Shift+S">Save As...</MenuBar.Item>
+  </MenuBar.Menu>
+  <MenuBar.Menu label="Edit">
+    <MenuBar.Item onClick={handleUndo} shortcut="Ctrl+Z">Undo</MenuBar.Item>
+    <MenuBar.Item onClick={handleRedo} shortcut="Ctrl+Shift+Z">Redo</MenuBar.Item>
+    <MenuBar.Separator />
+    <MenuBar.Item onClick={handleCut} shortcut="Ctrl+X">Cut</MenuBar.Item>
+    <MenuBar.Item onClick={handleCopy} shortcut="Ctrl+C">Copy</MenuBar.Item>
+    <MenuBar.Item onClick={handlePaste} shortcut="Ctrl+V">Paste</MenuBar.Item>
+  </MenuBar.Menu>
+</MenuBar>
+```
+
+## Compound Components
+
+MenuBar uses a compound component pattern with the following sub-components:
+
+| Component | Purpose |
+| --- | --- |
+| `MenuBar.Menu` | Top-level dropdown trigger and container |
+| `MenuBar.Item` | Clickable menu item with optional icon and shortcut |
+| `MenuBar.Sub` | Nested sub-menu with hover-to-open behavior |
+| `MenuBar.Separator` | Visual divider between menu items |
+
+## Sizes
+
+The `size` prop controls the overall density of the menu bar.
+
+```tsx
+<MenuBar size="sm">
+  <MenuBar.Menu label="File">{/* ... */}</MenuBar.Menu>
+</MenuBar>
+
+<MenuBar size="md">
+  <MenuBar.Menu label="File">{/* ... */}</MenuBar.Menu>
+</MenuBar>
+```
+
+| Size | Use case |
+| --- | --- |
+| `sm` | Compact layouts, secondary menus |
+| `md` | Standard application menu bar (default) |
+
+## Sub-menus
+
+Use `MenuBar.Sub` to create nested menus. Sub-menus open on hover with a short delay to prevent accidental closing.
+
+```tsx
+<MenuBar.Menu label="View">
+  <MenuBar.Item onClick={handleZoomIn}>Zoom In</MenuBar.Item>
+  <MenuBar.Item onClick={handleZoomOut}>Zoom Out</MenuBar.Item>
+  <MenuBar.Separator />
+  <MenuBar.Sub label="Layout">
+    <MenuBar.Item onClick={() => setLayout('single')}>Single</MenuBar.Item>
+    <MenuBar.Item onClick={() => setLayout('split')}>Split View</MenuBar.Item>
+    <MenuBar.Item onClick={() => setLayout('quad')}>Quad View</MenuBar.Item>
+  </MenuBar.Sub>
+</MenuBar.Menu>
+```
+
+## Menu Items with Icons
+
+Items can display an icon before the label text.
+
+```tsx
+import { SaveIcon, CopyIcon } from 'entangle-ui';
+
+<MenuBar.Item onClick={handleSave} icon={<SaveIcon />} shortcut="Ctrl+S">
+  Save
+</MenuBar.Item>
+<MenuBar.Item onClick={handleCopy} icon={<CopyIcon />} shortcut="Ctrl+C">
+  Copy
+</MenuBar.Item>
+```
+
+## Disabled Items
+
+Both menus and individual items can be disabled.
+
+```tsx
+<MenuBar.Menu label="File">
+  <MenuBar.Item onClick={handleSave} shortcut="Ctrl+S">Save</MenuBar.Item>
+  <MenuBar.Item disabled>Export (unavailable)</MenuBar.Item>
+</MenuBar.Menu>
+<MenuBar.Menu label="Debug" disabled>
+  {/* Entire menu is disabled */}
+</MenuBar.Menu>
+```
+
+## Menu Offset
+
+The `menuOffset` prop controls the vertical gap between the top-level trigger and the dropdown panel.
+
+```tsx
+<MenuBar menuOffset={4}>
+  <MenuBar.Menu label="File">{/* ... */}</MenuBar.Menu>
+</MenuBar>
+```
+
+## Props
+
+### MenuBar
+
+<PropsTable props={[
+  { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Size of the menu bar, controlling overall density.' },
+  { name: 'menuOffset', type: 'number', default: '2', description: 'Vertical gap in pixels between the trigger button and the dropdown panel.' },
+  { name: 'children', type: 'ReactNode', description: 'MenuBar.Menu components.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
+]} />
+
+### MenuBar.Menu
+
+<PropsTable props={[
+  { name: 'label', type: 'string', required: true, description: 'Text displayed on the trigger button.' },
+  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the entire menu is disabled.' },
+  { name: 'children', type: 'ReactNode', description: 'Menu items (MenuBar.Item, MenuBar.Sub, MenuBar.Separator).' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the menu container element.' },
+]} />
+
+### MenuBar.Item
+
+<PropsTable props={[
+  { name: 'children', type: 'ReactNode', description: 'Item label text.' },
+  { name: 'onClick', type: '() => void', description: 'Click handler. The menu closes automatically after the handler fires.' },
+  { name: 'shortcut', type: 'string', description: 'Keyboard shortcut display text (e.g., "Ctrl+S"). This is a visual label only and does not bind the shortcut.' },
+  { name: 'icon', type: 'ReactNode', description: 'Icon element displayed before the label.' },
+  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the item is disabled.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLButtonElement>', description: 'Ref to the button element.' },
+]} />
+
+### MenuBar.Sub
+
+<PropsTable props={[
+  { name: 'label', type: 'string', required: true, description: 'Sub-menu trigger label text.' },
+  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the sub-menu is disabled.' },
+  { name: 'children', type: 'ReactNode', description: 'Sub-menu items.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the sub-menu container element.' },
+]} />
+
+### MenuBar.Separator
+
+<PropsTable props={[
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the separator element.' },
+]} />
+
+## Accessibility
+
+- The root element has `role="menubar"` and is focusable with `tabIndex={0}`
+- Menu triggers use `role="menuitem"` with `aria-haspopup="true"` and `aria-expanded`
+- Dropdown panels use `role="menu"` with `aria-label` set to the trigger label
+- Full keyboard navigation:
+  - **ArrowLeft / ArrowRight** to move between top-level menus
+  - **ArrowDown / ArrowUp** to navigate items within a dropdown
+  - **Enter / Space** to open a menu or activate an item
+  - **Escape** to close the current dropdown and return focus to the trigger
+- When a menu is open, hovering over another trigger automatically switches to that menu
+- Separators use `role="separator"`
+- Sub-menus use `aria-haspopup="true"` and `aria-expanded` on their trigger

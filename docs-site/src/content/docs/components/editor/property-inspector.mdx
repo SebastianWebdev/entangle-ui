@@ -1,6 +1,311 @@
 ---
 title: PropertyInspector
-description: PropertyInspector component documentation
+description: Property inspector system with collapsible sections, label-value rows, groups, search filtering, and undo support.
 ---
 
-PropertyInspector documentation is coming soon.
+import PropsTable from '../../../../components/PropsTable.astro';
+
+A property inspector system for editor interfaces, modeled after the property panels found in 3D tools (Blender, Unity, Unreal). Composed of four components -- `PropertyPanel`, `PropertySection`, `PropertyRow`, and `PropertyGroup` -- plus a `usePropertyUndo` hook for undo/redo support. The panel provides shared context for size and search filtering to all child components.
+
+## Import
+
+```tsx
+import {
+  PropertyPanel,
+  PropertySection,
+  PropertyRow,
+  PropertyGroup,
+  usePropertyUndo,
+} from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<PropertyPanel size="md" searchable>
+  <PropertySection title="Transform">
+    <PropertyRow label="Position X">
+      <NumberInput value={posX} onChange={setPosX} />
+    </PropertyRow>
+    <PropertyRow label="Position Y">
+      <NumberInput value={posY} onChange={setPosY} />
+    </PropertyRow>
+    <PropertyRow label="Position Z">
+      <NumberInput value={posZ} onChange={setPosZ} />
+    </PropertyRow>
+  </PropertySection>
+  <PropertySection title="Material">
+    <PropertyRow label="Color">
+      <ColorPicker value={color} onChange={setColor} />
+    </PropertyRow>
+    <PropertyRow label="Roughness" splitRatio={[35, 65]}>
+      <Slider value={roughness} onChange={setRoughness} min={0} max={1} />
+    </PropertyRow>
+  </PropertySection>
+</PropertyPanel>
+```
+
+## Components
+
+### PropertyPanel
+
+The root container that provides size context and optional search filtering to all child sections and rows. Supports a fixed header, footer, and scrollable content area.
+
+```tsx
+<PropertyPanel
+  size="md"
+  searchable
+  searchPlaceholder="Filter properties..."
+  onSearchChange={(query) => console.log(query)}
+  header={<h3>Object Properties</h3>}
+  footer={<button>Apply All</button>}
+  maxHeight={500}
+>
+  {/* PropertySection components */}
+</PropertyPanel>
+```
+
+### PropertySection
+
+Collapsible section with a header trigger, optional icon, and action buttons. Supports both controlled and uncontrolled expanded state.
+
+```tsx
+<PropertySection
+  title="Transform"
+  icon={<TransformIcon />}
+  defaultExpanded={true}
+  actions={<IconButton icon={<ResetIcon />} onClick={handleReset} />}
+>
+  <PropertyRow label="Position X">
+    <NumberInput value={0} />
+  </PropertyRow>
+</PropertySection>
+```
+
+#### Controlled Expansion
+
+```tsx
+const [expanded, setExpanded] = useState(true);
+
+<PropertySection
+  title="Advanced"
+  expanded={expanded}
+  onExpandedChange={setExpanded}
+>
+  {/* ... */}
+</PropertySection>
+```
+
+#### Custom Indicator
+
+Pass a custom element as the `indicator` prop, or `null` to hide the chevron entirely.
+
+```tsx
+<PropertySection title="No Chevron" indicator={null}>
+  {/* Always-visible content with no expand toggle */}
+</PropertySection>
+```
+
+### PropertyRow
+
+A label-value row with configurable split ratio, modified state indicator, tooltip, and reset button. Inherits size from the parent `PropertyPanel` or can override it individually.
+
+```tsx
+<PropertyRow
+  label="Opacity"
+  tooltip="Object opacity (0-1)"
+  splitRatio={[40, 60]}
+  modified
+  onReset={() => setOpacity(1)}
+>
+  <Slider value={opacity} onChange={setOpacity} min={0} max={1} />
+</PropertyRow>
+```
+
+#### Full Width Mode
+
+When `fullWidth` is enabled, the label appears above the control instead of beside it. Useful for controls that need more horizontal space (e.g., text areas, color pickers).
+
+```tsx
+<PropertyRow label="Description" fullWidth>
+  <textarea value={description} onChange={handleChange} />
+</PropertyRow>
+```
+
+#### Modified State
+
+The `modified` prop shows a visual dot indicator and bolds the label, signaling that the property has been changed from its default value. Combine with `onReset` to show a reset button on hover.
+
+```tsx
+<PropertyRow
+  label="Scale"
+  modified={scale !== 1}
+  onReset={() => setScale(1)}
+>
+  <NumberInput value={scale} onChange={setScale} />
+</PropertyRow>
+```
+
+### PropertyGroup
+
+Groups related rows together with an optional labeled divider. Supports indentation for nested groups.
+
+```tsx
+<PropertySection title="Physics">
+  <PropertyGroup title="Rigid Body">
+    <PropertyRow label="Mass">
+      <NumberInput value={mass} onChange={setMass} />
+    </PropertyRow>
+    <PropertyRow label="Friction">
+      <Slider value={friction} onChange={setFriction} min={0} max={1} />
+    </PropertyRow>
+  </PropertyGroup>
+  <PropertyGroup title="Collision" indent={1}>
+    <PropertyRow label="Shape">
+      <select value={shape} onChange={handleShapeChange}>
+        <option>Box</option>
+        <option>Sphere</option>
+        <option>Mesh</option>
+      </select>
+    </PropertyRow>
+  </PropertyGroup>
+</PropertySection>
+```
+
+## Sizes
+
+The `size` prop on `PropertyPanel` cascades to all child sections and rows. Individual components can override with their own `size` prop.
+
+| Size | Row Min Height | Use case |
+| --- | --- | --- |
+| `sm` | 22px | Dense inspector layouts |
+| `md` | 26px | Standard property panels (default) |
+| `lg` | 30px | Touch-friendly or high-DPI layouts |
+
+## Search Filtering
+
+When `searchable` is enabled on `PropertyPanel`, a search input appears in the header. The search query is provided to child components via context. Use the `visible` prop on `PropertyRow` to filter rows based on the query.
+
+```tsx
+const [searchQuery, setSearchQuery] = useState('');
+
+<PropertyPanel searchable onSearchChange={setSearchQuery}>
+  <PropertySection title="Transform">
+    <PropertyRow
+      label="Position X"
+      visible={'position x'.includes(searchQuery.toLowerCase())}
+    >
+      <NumberInput value={posX} />
+    </PropertyRow>
+  </PropertySection>
+</PropertyPanel>
+```
+
+## Undo / Redo
+
+The `usePropertyUndo` hook provides undo/redo stack management for property changes.
+
+```tsx
+const { record, undo, redo, canUndo, canRedo } = usePropertyUndo({
+  maxHistory: 50,
+});
+
+function handleChange(newValue: number) {
+  record({
+    propertyId: 'position.x',
+    previousValue: posX,
+    newValue,
+    label: 'Change Position X',
+  });
+  setPosX(newValue);
+}
+
+<button onClick={undo} disabled={!canUndo}>Undo</button>
+<button onClick={redo} disabled={!canRedo}>Redo</button>
+```
+
+## Props
+
+### PropertyPanel
+
+<PropsTable props={[
+  { name: 'children', type: 'ReactNode', required: true, description: 'Panel content -- PropertySection, PropertyGroup, or any elements.' },
+  { name: 'header', type: 'ReactNode', description: 'Content rendered in the fixed header area above scrollable content.' },
+  { name: 'footer', type: 'ReactNode', description: 'Content rendered in the fixed footer area below scrollable content.' },
+  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Size applied to all nested sections and rows. Individual components can override.' },
+  { name: 'maxHeight', type: 'number | string', description: 'Maximum height of the panel. Enables scrolling via ScrollArea when set.' },
+  { name: 'searchable', type: 'boolean', default: 'false', description: 'Whether to show a search/filter input in the header.' },
+  { name: 'searchPlaceholder', type: 'string', default: "'Search properties...'", description: 'Placeholder for the search input.' },
+  { name: 'onSearchChange', type: '(query: string) => void', description: 'Callback when search query changes.' },
+  { name: 'contentTopSpacing', type: 'number', description: 'Top padding for the scrollable content area in pixels.' },
+  { name: 'contentBottomSpacing', type: 'number', description: 'Bottom padding for the scrollable content area in pixels.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
+]} />
+
+### PropertySection
+
+<PropsTable props={[
+  { name: 'title', type: 'string', required: true, description: 'Section title displayed in the collapsible header.' },
+  { name: 'icon', type: 'ReactNode', description: 'Icon displayed before the section title.' },
+  { name: 'actions', type: 'ReactNode', description: 'Action buttons on the right side of the header. Clicking them does not toggle the section.' },
+  { name: 'expanded', type: 'boolean', description: 'Whether the section is expanded (controlled mode).' },
+  { name: 'defaultExpanded', type: 'boolean', default: 'true', description: 'Whether the section starts expanded (uncontrolled mode).' },
+  { name: 'onExpandedChange', type: '(expanded: boolean) => void', description: 'Callback when expanded state changes.' },
+  { name: 'keepMounted', type: 'boolean', default: 'false', description: 'Whether to keep content mounted in the DOM when collapsed.' },
+  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the section is disabled (not collapsible, dimmed).' },
+  { name: 'size', type: "'sm' | 'md' | 'lg'", description: 'Size override for this section and its rows. Inherits from PropertyPanel if not set.' },
+  { name: 'indicator', type: 'ReactNode | null', description: 'Custom chevron indicator. Pass null to hide the default chevron.' },
+  { name: 'onContextMenu', type: '(event: MouseEvent) => void', description: 'Right-click context menu handler on the section header.' },
+  { name: 'children', type: 'ReactNode', required: true, description: 'Section content -- PropertyRow, PropertyGroup, or any elements.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
+]} />
+
+### PropertyRow
+
+<PropsTable props={[
+  { name: 'label', type: 'string', required: true, description: 'Property label text.' },
+  { name: 'tooltip', type: 'string', description: 'Tooltip text shown on hover over the label.' },
+  { name: 'children', type: 'ReactNode', required: true, description: 'Control content displayed on the right side.' },
+  { name: 'fullWidth', type: 'boolean', default: 'false', description: 'Whether the row spans full width with label above and control below.' },
+  { name: 'splitRatio', type: '[number, number]', default: '[40, 60]', description: 'Label/value split ratio as percentages.' },
+  { name: 'modified', type: 'boolean', default: 'false', description: 'Whether this property has been modified from its default. Shows a dot indicator and bolds the label.' },
+  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the row is disabled (dimmed, non-interactive).' },
+  { name: 'visible', type: 'boolean', default: 'true', description: 'Whether the row is visible. Use with search filtering.' },
+  { name: 'size', type: "'sm' | 'md' | 'lg'", description: 'Size override. Inherits from PropertyPanel if not set.' },
+  { name: 'action', type: 'ReactNode', description: 'Action button on the right edge of the row.' },
+  { name: 'onLabelContextMenu', type: '(event: MouseEvent) => void', description: 'Right-click handler on the label area.' },
+  { name: 'onReset', type: '() => void', description: 'Reset callback. When provided, a reset button automatically appears on hover.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
+]} />
+
+### PropertyGroup
+
+<PropsTable props={[
+  { name: 'title', type: 'string', description: 'Optional group title rendered as a small label divider.' },
+  { name: 'children', type: 'ReactNode', required: true, description: 'Group content -- PropertyRow elements.' },
+  { name: 'indent', type: 'number', default: '0', description: 'Indent level for nested groups (number of indent steps).' },
+  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether all rows in this group are disabled.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
+]} />
+
+## Accessibility
+
+- `PropertyPanel` uses `role="region"` with `aria-label="Properties"`
+- The search input has `role="searchbox"` with `aria-label="Search properties"`
+- `PropertySection` headers are `<button>` elements with `aria-expanded` and `aria-controls` linking to the content region
+- Content regions use `role="region"` with `aria-labelledby` referencing the trigger button
+- Disabled sections set `aria-disabled` on the trigger
+- `PropertyRow` reset buttons are keyboard-accessible with `role="button"` and `tabIndex={0}`
+- Modified properties include an `aria-label="Modified"` on the indicator dot

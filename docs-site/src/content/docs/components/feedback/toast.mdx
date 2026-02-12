@@ -1,6 +1,248 @@
 ---
 title: Toast
-description: Toast component documentation
+description: Toast notification system with severity levels, auto-dismiss, progress indicator, action buttons, and configurable positioning.
 ---
 
-Toast documentation is coming soon.
+import PropsTable from '../../../../components/PropsTable.astro';
+
+Toast notification system for editor feedback. Provides severity-based notifications (info, success, warning, error) with auto-dismiss timers, pause-on-hover, progress bars, action buttons, and configurable screen positioning. Uses a provider/hook pattern for triggering toasts from anywhere in the component tree.
+
+## Import
+
+```tsx
+import { ToastProvider, useToast } from 'entangle-ui';
+```
+
+## Setup
+
+Wrap your application (or a section of it) with `ToastProvider`. Then use the `useToast()` hook in any child component.
+
+```tsx
+function App() {
+  return (
+    <ToastProvider position="bottom-right">
+      <Editor />
+    </ToastProvider>
+  );
+}
+```
+
+## Usage
+
+```tsx
+function SaveButton() {
+  const { success, error } = useToast();
+
+  const handleSave = async () => {
+    try {
+      await saveProject();
+      success('Project saved successfully');
+    } catch (err) {
+      error('Failed to save project', { title: 'Save Error' });
+    }
+  };
+
+  return <Button onClick={handleSave}>Save</Button>;
+}
+```
+
+## Severity Levels
+
+Each severity level has a distinct icon and color scheme.
+
+```tsx
+const { info, success, warning, error } = useToast();
+
+info('New update available');
+success('File exported successfully');
+warning('Running low on memory');
+error('Failed to connect to server');
+```
+
+| Severity | Use case | ARIA role |
+| -------- | -------- | --------- |
+| `info` | General information | `status` (polite) |
+| `success` | Completed operations | `status` (polite) |
+| `warning` | Important warnings | `alert` (assertive) |
+| `error` | Errors and failures | `alert` (assertive) |
+
+## Toast with Title
+
+```tsx
+success('All changes have been saved to disk.', {
+  title: 'Auto-Save Complete',
+});
+
+error('The file format is not supported. Try exporting as .glb instead.', {
+  title: 'Export Failed',
+});
+```
+
+## Custom Duration
+
+Override the default duration (in milliseconds) for individual toasts. Set to `0` for persistent toasts.
+
+```tsx
+// Quick notification (2 seconds)
+info('Copied to clipboard', { duration: 2000 });
+
+// Persistent (no auto-dismiss)
+warning('Unsaved changes detected', { duration: 0, closable: true });
+```
+
+## Progress Bar
+
+Show a visual progress indicator that tracks the remaining auto-dismiss time.
+
+```tsx
+success('File uploaded', {
+  showProgress: true,
+  duration: 5000,
+});
+```
+
+The progress bar pauses when the user hovers over the toast.
+
+## Action Button
+
+Add an action button to the toast for quick responses.
+
+```tsx
+const { toast } = useToast();
+
+toast({
+  message: 'Object deleted',
+  severity: 'info',
+  action: {
+    label: 'Undo',
+    onClick: () => undoDelete(),
+  },
+});
+```
+
+## Custom Icon
+
+Override the default severity icon with a custom React element.
+
+```tsx
+toast({
+  message: 'Render complete',
+  severity: 'success',
+  icon: <RenderIcon />,
+});
+```
+
+## Dismissing Toasts
+
+Toasts with `closable: true` (the default) show a close button. You can also dismiss programmatically.
+
+```tsx
+const { toast, dismiss, dismissAll } = useToast();
+
+// Dismiss specific toast
+const id = toast({ message: 'Processing...', severity: 'info', duration: 0 });
+// Later...
+dismiss(id);
+
+// Dismiss all
+dismissAll();
+```
+
+## Full Toast API
+
+The `toast()` function returns the toast ID and accepts the full `ToastData` object.
+
+```tsx
+const { toast } = useToast();
+
+const id = toast({
+  title: 'Export Progress',
+  message: 'Exporting 3D scene...',
+  severity: 'info',
+  duration: 0,
+  closable: true,
+  showProgress: false,
+  icon: <SpinnerIcon />,
+  action: {
+    label: 'Cancel',
+    onClick: () => cancelExport(),
+  },
+});
+```
+
+## Positioning
+
+The `ToastProvider` controls where toasts appear on screen.
+
+```tsx
+<ToastProvider position="top-right">...</ToastProvider>
+<ToastProvider position="top-center">...</ToastProvider>
+<ToastProvider position="top-left">...</ToastProvider>
+<ToastProvider position="bottom-right">...</ToastProvider>
+<ToastProvider position="bottom-center">...</ToastProvider>
+<ToastProvider position="bottom-left">...</ToastProvider>
+```
+
+Bottom positions stack toasts with the newest at the bottom (using `column-reverse`).
+
+## Provider Configuration
+
+```tsx
+<ToastProvider
+  position="bottom-right"
+  maxVisible={5}
+  defaultDuration={5000}
+  gap={8}
+  zIndex={1200}
+>
+  <App />
+</ToastProvider>
+```
+
+## Props
+
+### ToastProvider
+
+<PropsTable props={[
+  { name: 'children', type: 'ReactNode', description: 'Application content.' },
+  { name: 'position', type: "'top-right' | 'top-left' | 'top-center' | 'bottom-right' | 'bottom-left' | 'bottom-center'", default: "'bottom-right'", description: 'Screen position for the toast container.' },
+  { name: 'maxVisible', type: 'number', default: '5', description: 'Maximum number of visible toasts at once.' },
+  { name: 'defaultDuration', type: 'number', default: '5000', description: 'Default auto-dismiss duration in milliseconds.' },
+  { name: 'gap', type: 'number', default: '8', description: 'Gap between toasts in pixels.' },
+  { name: 'zIndex', type: 'number', default: '1200', description: 'Z-index of the toast container.' },
+]} />
+
+### useToast() Return Value
+
+| Method | Type | Description |
+| ------ | ---- | ----------- |
+| `toast` | `(data: ToastData) => string` | Create a toast with full configuration. Returns the toast ID. |
+| `info` | `(message: string, options?) => string` | Shorthand for info severity. |
+| `success` | `(message: string, options?) => string` | Shorthand for success severity. |
+| `warning` | `(message: string, options?) => string` | Shorthand for warning severity. |
+| `error` | `(message: string, options?) => string` | Shorthand for error severity. |
+| `dismiss` | `(id: string) => void` | Dismiss a specific toast by ID. |
+| `dismissAll` | `() => void` | Dismiss all visible toasts. |
+
+### ToastData
+
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `message` | `string` | *required* | Toast message text. |
+| `id` | `string` | auto-generated | Custom toast ID. |
+| `title` | `string` | | Optional title displayed above the message. |
+| `severity` | `'info' \| 'success' \| 'warning' \| 'error'` | `'info'` | Severity level. |
+| `duration` | `number` | `5000` | Auto-dismiss duration in ms. Set to 0 for persistent. |
+| `closable` | `boolean` | `true` | Whether to show the close button. |
+| `showProgress` | `boolean` | `false` | Whether to show the progress bar. |
+| `icon` | `ReactNode` | severity icon | Custom icon element. |
+| `action` | `{ label: string; onClick: () => void }` | | Action button configuration. |
+
+## Accessibility
+
+- Info and success toasts use `role="status"` with `aria-live="polite"`
+- Warning and error toasts use `role="alert"` with `aria-live="assertive"`
+- The toast container is a `role="region"` with `aria-label="Notifications"`
+- Close buttons have `aria-label="Dismiss notification"`
+- Auto-dismiss timers pause on hover so users have time to read
+- Toasts are rendered in a portal to avoid affecting the DOM structure

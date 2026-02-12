@@ -1,6 +1,103 @@
 ---
 title: Spacer
-description: Spacer component documentation
+description: A flexible spacer component that expands to fill available space or provides fixed spacing between elements.
 ---
 
-Spacer documentation is coming soon.
+import PropsTable from '../../../../components/PropsTable.astro';
+
+A utility component that creates space between elements in flex layouts. By default, it grows to fill all available space, pushing siblings apart. It can also be given a fixed size for precise spacing control. Works with Stack, Flex, and any flex container.
+
+## Import
+
+```tsx
+import { Spacer } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Stack direction="row">
+  <Button>Left</Button>
+  <Spacer />
+  <Button>Right</Button>
+</Stack>
+```
+
+## Auto-expanding Spacer
+
+Without a `size` prop, the Spacer uses `flex-grow: 1` to consume all available space. This is the most common usage for pushing elements to opposite sides of a container.
+
+```tsx
+<Flex direction="row" align="center">
+  <Logo />
+  <Spacer />
+  <Navigation />
+  <Spacer />
+  <UserMenu />
+</Flex>
+```
+
+Multiple Spacer components distribute space evenly between them, creating equal spacing between groups of elements.
+
+## Fixed Size Spacer
+
+Pass a `size` value to create a spacer with fixed dimensions. Accepts CSS strings or numbers (treated as pixels).
+
+```tsx
+<Stack direction="column">
+  <Title>Header</Title>
+  <Spacer size="2rem" />
+  <Content>Body content</Content>
+</Stack>
+
+<Stack direction="row">
+  <Icon />
+  <Spacer size={8} />
+  <Text>Label</Text>
+</Stack>
+```
+
+In fixed mode, both width and height are set to the same value. The parent flex container's direction determines which dimension takes effect -- the cross-axis dimension is typically overridden by `align-items`.
+
+## Common Patterns
+
+### Toolbar with actions pushed apart
+
+```tsx
+<Flex direction="row" align="center" gap={1}>
+  <IconButton icon={<UndoIcon />} />
+  <IconButton icon={<RedoIcon />} />
+  <Spacer />
+  <Button variant="filled">Save</Button>
+</Flex>
+```
+
+### Vertical spacing between sections
+
+```tsx
+<Stack direction="column">
+  <FormField label="Name" />
+  <FormField label="Email" />
+  <Spacer size={16} />
+  <FormField label="Password" />
+  <FormField label="Confirm Password" />
+</Stack>
+```
+
+## Props
+
+<PropsTable props={[
+  { name: 'size', type: 'string | number', description: 'Fixed size for the spacer. When omitted, the spacer expands to fill available space. Numbers are treated as pixels.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the underlying div element.' },
+]} />
+
+The component also accepts all standard HTML `<div>` attributes.
+
+## Accessibility
+
+- Renders an empty `<div>` element used purely for layout purposes
+- Has no semantic meaning and is invisible to assistive technologies
+- The Spacer component is memoized for performance

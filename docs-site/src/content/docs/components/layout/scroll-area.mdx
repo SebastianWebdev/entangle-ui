@@ -1,6 +1,185 @@
 ---
 title: ScrollArea
-description: ScrollArea component documentation
+description: Custom scrollable container with styled scrollbars, drag-to-scroll thumbs, fade masks, and configurable visibility behavior.
 ---
 
-ScrollArea documentation is coming soon.
+import PropsTable from '../../../../components/PropsTable.astro';
+
+A custom scrollable container providing styled scrollbar overlays with drag-to-scroll support, configurable visibility behavior, and optional fade mask gradients at scroll boundaries. Designed for editor panels, sidebars, and content areas that need polished scrolling behavior beyond native scrollbars.
+
+## Import
+
+```tsx
+import { ScrollArea } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<ScrollArea maxHeight={300}>
+  <div>
+    {/* Long content that overflows */}
+    {items.map(item => <Item key={item.id} {...item} />)}
+  </div>
+</ScrollArea>
+```
+
+## Scroll Direction
+
+Control which axes can scroll using the `direction` prop.
+
+```tsx
+{/* Vertical only (default) */}
+<ScrollArea direction="vertical" maxHeight={200}>
+  <LongVerticalContent />
+</ScrollArea>
+
+{/* Horizontal only */}
+<ScrollArea direction="horizontal" maxWidth={400}>
+  <WideHorizontalContent />
+</ScrollArea>
+
+{/* Both axes */}
+<ScrollArea direction="both" maxHeight={300} maxWidth={500}>
+  <LargeContent />
+</ScrollArea>
+```
+
+## Scrollbar Visibility
+
+The `scrollbarVisibility` prop controls when custom scrollbars appear.
+
+```tsx
+{/* Auto: show on scroll/hover, hide after delay (default) */}
+<ScrollArea scrollbarVisibility="auto" maxHeight={200}>
+  <Content />
+</ScrollArea>
+
+{/* Always visible */}
+<ScrollArea scrollbarVisibility="always" maxHeight={200}>
+  <Content />
+</ScrollArea>
+
+{/* Show only on hover */}
+<ScrollArea scrollbarVisibility="hover" maxHeight={200}>
+  <Content />
+</ScrollArea>
+
+{/* Never show scrollbars (still scrollable via wheel/touch) */}
+<ScrollArea scrollbarVisibility="never" maxHeight={200}>
+  <Content />
+</ScrollArea>
+```
+
+| Mode | Behavior |
+| --- | --- |
+| `auto` | Shows on scroll or hover, auto-hides after delay |
+| `always` | Scrollbars always visible when content overflows |
+| `hover` | Shows only while the mouse is over the scroll area |
+| `never` | Scrollbars hidden entirely (scroll still works via wheel/touch/keyboard) |
+
+## Auto-hide Delay
+
+When using `scrollbarVisibility="auto"`, control the delay before scrollbars fade out.
+
+```tsx
+<ScrollArea scrollbarVisibility="auto" hideDelay={2000} maxHeight={200}>
+  <Content />
+</ScrollArea>
+```
+
+## Fade Masks
+
+Enable gradient fade masks at scroll boundaries to visually indicate more content is available.
+
+```tsx
+<ScrollArea fadeMask maxHeight={200}>
+  <Content />
+</ScrollArea>
+
+{/* Custom fade mask size */}
+<ScrollArea fadeMask fadeMaskHeight={40} maxHeight={200}>
+  <Content />
+</ScrollArea>
+```
+
+Fade masks appear at the top/bottom for vertical scrolling and left/right for horizontal scrolling. They automatically hide when the user has scrolled to the edge.
+
+## Scrollbar Customization
+
+Fine-tune the scrollbar appearance with width, padding, and minimum thumb length.
+
+```tsx
+<ScrollArea
+  scrollbarWidth={8}
+  scrollbarPadding={3}
+  minThumbLength={40}
+  maxHeight={300}
+>
+  <Content />
+</ScrollArea>
+```
+
+## Auto Fill
+
+When placed inside a flex or grid layout, use `autoFill` to make the scroll area fill its parent container.
+
+```tsx
+<Flex direction="column" fullHeight>
+  <Header />
+  <ScrollArea autoFill>
+    <MainContent />
+  </ScrollArea>
+  <Footer />
+</Flex>
+```
+
+## Scroll Callbacks
+
+React to scroll position changes and boundary events.
+
+```tsx
+<ScrollArea
+  maxHeight={300}
+  onScroll={(e) => console.log('Scrolled:', e.currentTarget.scrollTop)}
+  onScrollTop={() => console.log('Reached top')}
+  onScrollBottom={() => loadMoreItems()}
+>
+  <Content />
+</ScrollArea>
+```
+
+The `onScrollBottom` callback is useful for implementing infinite scrolling patterns.
+
+## Props
+
+<PropsTable props={[
+  { name: 'children', type: 'ReactNode', description: 'Scrollable content. Required.' },
+  { name: 'direction', type: "'vertical' | 'horizontal' | 'both'", default: "'vertical'", description: 'Which axes can scroll.' },
+  { name: 'scrollbarVisibility', type: "'auto' | 'always' | 'hover' | 'never'", default: "'auto'", description: 'Scrollbar visibility behavior.' },
+  { name: 'hideDelay', type: 'number', default: '1000', description: 'Delay in milliseconds before scrollbar auto-hides. Only applies when scrollbarVisibility is "auto".' },
+  { name: 'scrollbarWidth', type: 'number', default: '6', description: 'Scrollbar track width in pixels.' },
+  { name: 'minThumbLength', type: 'number', default: '30', description: 'Minimum scrollbar thumb length in pixels.' },
+  { name: 'scrollbarPadding', type: 'number', default: '2', description: 'Padding between scrollbar track and content edge in pixels.' },
+  { name: 'fadeMask', type: 'boolean', default: 'false', description: 'Whether to show gradient fade masks at scroll boundaries.' },
+  { name: 'fadeMaskHeight', type: 'number', default: '24', description: 'Height of the fade mask gradient in pixels.' },
+  { name: 'maxHeight', type: 'number | string', description: 'Maximum height of the scroll area. Required to enable vertical scrolling.' },
+  { name: 'maxWidth', type: 'number | string', description: 'Maximum width of the scroll area. Required to enable horizontal scrolling.' },
+  { name: 'autoFill', type: 'boolean', default: 'false', description: 'When true, sets width and height to 100% to fill the parent container.' },
+  { name: 'onScroll', type: '(event: UIEvent<HTMLDivElement>) => void', description: 'Callback fired when the scroll position changes.' },
+  { name: 'onScrollTop', type: '() => void', description: 'Callback fired when scroll reaches the top edge.' },
+  { name: 'onScrollBottom', type: '() => void', description: 'Callback fired when scroll reaches the bottom edge.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names applied to the root element.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles applied to the root element.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the scrollable viewport element.' },
+]} />
+
+The component also accepts all standard HTML `<div>` attributes on the root element.
+
+## Accessibility
+
+- The scrollable viewport has `role="region"` and `tabIndex={0}` for keyboard accessibility
+- Custom scrollbar tracks have `role="scrollbar"` with proper `aria-controls`, `aria-orientation`, `aria-valuenow`, `aria-valuemin`, and `aria-valuemax` attributes
+- Content remains scrollable via keyboard (arrow keys, Page Up/Down, Home/End) regardless of scrollbar visibility setting
+- Scrollbar thumb supports pointer drag interaction for precise scroll positioning

@@ -1,6 +1,170 @@
 ---
 title: Stack
-description: Stack component documentation
+description: Simple stacking component for arranging elements vertically or horizontally with consistent spacing.
 ---
 
-Stack documentation is coming soon.
+import PropsTable from '../../../../components/PropsTable.astro';
+
+A flexible stacking component for arranging elements vertically or horizontally with consistent spacing. Built on flexbox, Stack is the simplest layout primitive for common stacking patterns. For more complex layouts requiring precise flexbox control, see Flex or Grid.
+
+## Import
+
+```tsx
+import { Stack } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Stack spacing={2}>
+  <Card>Item 1</Card>
+  <Card>Item 2</Card>
+  <Card>Item 3</Card>
+</Stack>
+```
+
+## Direction
+
+Stack defaults to `column` (vertical stacking). Use `direction="row"` for horizontal layouts.
+
+```tsx
+<Stack direction="column" spacing={2}>
+  <div>Top</div>
+  <div>Middle</div>
+  <div>Bottom</div>
+</Stack>
+
+<Stack direction="row" spacing={3}>
+  <Button>Cancel</Button>
+  <Button variant="filled">Save</Button>
+</Stack>
+```
+
+| Direction | Behavior |
+| --- | --- |
+| `column` | Top to bottom (default) |
+| `row` | Left to right |
+
+## Responsive Direction
+
+Override the stack direction at different breakpoints. This is useful for layouts that should be vertical on mobile and horizontal on larger screens.
+
+```tsx
+<Stack direction="column" md="row" spacing={2} align="center">
+  <Logo />
+  <Navigation />
+  <UserMenu />
+</Stack>
+```
+
+| Breakpoint | Prop | Min Width |
+| --- | --- | --- |
+| Small | `sm` | 576px |
+| Medium | `md` | 768px |
+| Large | `lg` | 992px |
+| Extra Large | `xl` | 1200px |
+
+## Spacing
+
+The `spacing` prop controls the gap between stacked items. Values are multipliers of a 4px base unit. Use `customGap` for arbitrary CSS values.
+
+```tsx
+<Stack spacing={1}>
+  <div>4px gap</div>
+  <div>between items</div>
+</Stack>
+
+<Stack spacing={4}>
+  <div>16px gap</div>
+  <div>between items</div>
+</Stack>
+
+<Stack customGap="2rem">
+  <div>Custom gap</div>
+  <div>between items</div>
+</Stack>
+```
+
+| Spacing Value | Computed Size |
+| --- | --- |
+| `0` | 0px |
+| `1` | 4px |
+| `2` | 8px |
+| `3` | 12px |
+| `4` | 16px |
+| `5` | 20px |
+| `6` | 24px |
+| `7` | 28px |
+| `8` | 32px |
+
+## Expand
+
+The `expand` prop makes the stack fill available space in the direction of its layout. For `row` direction it takes 100% width; for `column` direction it takes 100% height.
+
+```tsx
+<Stack direction="row" expand spacing={3} justify="space-between">
+  <Button>Cancel</Button>
+  <Button variant="filled">Save</Button>
+</Stack>
+```
+
+## Justify and Align
+
+Use `justify` for main-axis distribution and `align` for cross-axis alignment.
+
+```tsx
+<Stack direction="column" expand justify="center" align="center" spacing={4}>
+  <Icon />
+  <Text>Welcome</Text>
+  <Button>Get Started</Button>
+</Stack>
+```
+
+```tsx
+<Stack direction="row" justify="space-between" align="center">
+  <Text>Label</Text>
+  <Button size="sm">Edit</Button>
+</Stack>
+```
+
+## Wrapping
+
+Allow items to wrap to new lines when they overflow the container.
+
+```tsx
+<Stack direction="row" wrap="wrap" spacing={2} justify="center">
+  <Tag>React</Tag>
+  <Tag>TypeScript</Tag>
+  <Tag>CSS</Tag>
+  <Tag>Vanilla Extract</Tag>
+</Stack>
+```
+
+## Props
+
+<PropsTable props={[
+  { name: 'children', type: 'ReactNode', description: 'Stack content -- any React elements. Required.' },
+  { name: 'direction', type: "'row' | 'column'", default: "'column'", description: 'Stack direction controlling main axis orientation.' },
+  { name: 'sm', type: "'row' | 'column'", description: 'Direction override at the small breakpoint (576px).' },
+  { name: 'md', type: "'row' | 'column'", description: 'Direction override at the medium breakpoint (768px).' },
+  { name: 'lg', type: "'row' | 'column'", description: 'Direction override at the large breakpoint (992px).' },
+  { name: 'xl', type: "'row' | 'column'", description: 'Direction override at the extra-large breakpoint (1200px).' },
+  { name: 'wrap', type: "'nowrap' | 'wrap' | 'wrap-reverse'", default: "'nowrap'", description: 'Flex wrap behavior when items overflow.' },
+  { name: 'expand', type: 'boolean', default: 'false', description: 'Whether the stack fills available space (100% width for row, 100% height for column).' },
+  { name: 'spacing', type: '0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8', default: '0', description: 'Gap between stack items as a multiplier of the 4px base spacing unit.' },
+  { name: 'customGap', type: 'string | number', description: 'Custom gap override as a CSS value. Overrides the spacing prop when provided.' },
+  { name: 'justify', type: "'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly'", default: "'flex-start'", description: 'Distributes space along the main axis.' },
+  { name: 'align', type: "'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline'", default: "'flex-start'", description: 'Aligns items along the cross axis.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the underlying div element.' },
+]} />
+
+The component also accepts all standard HTML `<div>` attributes.
+
+## Accessibility
+
+- Renders a semantic `<div>` element with `display: flex`
+- No special ARIA attributes are needed for layout containers
+- Content maintains its natural DOM order for assistive technologies

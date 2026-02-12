@@ -1,6 +1,109 @@
 ---
 title: Icon
-description: Icon component documentation
+description: SVG icon wrapper component with standardized sizing and color theming for editor interfaces.
 ---
 
-Icon documentation is coming soon.
+import PropsTable from '../../../../components/PropsTable.astro';
+
+SVG icon wrapper component providing standardized sizing and color theming. Wraps icon SVG children in a consistent `<svg>` container with accessible roles and theme-aware coloring.
+
+## Import
+
+```tsx
+import { Icon } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Icon size="md" color="primary">
+  <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" />
+</Icon>
+```
+
+Most of the time you will use the pre-built icon components rather than `Icon` directly. `Icon` is the base building block they are built on.
+
+```tsx
+import { SaveIcon, PlayIcon, SearchIcon } from 'entangle-ui';
+
+<SaveIcon />
+<PlayIcon />
+<SearchIcon />
+```
+
+## Sizes
+
+The `size` prop controls the icon dimensions.
+
+```tsx
+<Icon size="sm">{/* 12px icon */}</Icon>
+<Icon size="md">{/* 16px icon */}</Icon>
+<Icon size="lg">{/* 20px icon */}</Icon>
+```
+
+| Size | Dimensions | Use case |
+| ---- | ---------- | -------- |
+| `sm` | 12x12px | Compact toolbars, inline indicators |
+| `md` | 16x16px | Standard buttons and controls |
+| `lg` | 20x20px | Prominent actions, headers |
+
+## Colors
+
+Standard theme colors are applied via CSS class variants. Custom CSS color values are also supported.
+
+```tsx
+{/* Standard theme colors */}
+<Icon color="primary">{/* ... */}</Icon>
+<Icon color="secondary">{/* ... */}</Icon>
+<Icon color="muted">{/* ... */}</Icon>
+<Icon color="accent">{/* ... */}</Icon>
+<Icon color="success">{/* ... */}</Icon>
+<Icon color="warning">{/* ... */}</Icon>
+<Icon color="error">{/* ... */}</Icon>
+
+{/* Custom CSS color value */}
+<Icon color="#ff6b00">{/* ... */}</Icon>
+<Icon color="rgb(100, 200, 50)">{/* ... */}</Icon>
+```
+
+## Accessible Title
+
+Add a `title` for screen readers when the icon conveys meaning.
+
+```tsx
+<Icon title="Save file" color="primary">
+  <path d="..." fill="currentColor" />
+</Icon>
+```
+
+## Decorative Icons
+
+Set `decorative` to `true` for icons that are purely visual and should be hidden from assistive technology.
+
+```tsx
+<Icon decorative>
+  <path d="..." fill="currentColor" />
+</Icon>
+```
+
+When `decorative` is `true`, the icon renders with `aria-hidden="true"` and `role="presentation"`. The `title` element is also omitted.
+
+## Props
+
+<PropsTable props={[
+  { name: 'children', type: 'ReactNode', description: 'SVG content (paths, circles, etc.) to render inside the icon.' },
+  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Icon size controlling width and height.' },
+  { name: 'color', type: "'primary' | 'secondary' | 'muted' | 'accent' | 'success' | 'warning' | 'error' | string", default: "'primary'", description: 'Icon color. Standard theme tokens or any CSS color value.' },
+  { name: 'title', type: 'string', description: 'Accessible title for the icon. Renders a <title> element inside the SVG.' },
+  { name: 'decorative', type: 'boolean', default: 'false', description: 'Whether the icon is decorative only. Sets aria-hidden and role=presentation.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+  { name: 'ref', type: 'Ref<SVGSVGElement>', description: 'Ref to the underlying SVG element.' },
+]} />
+
+## Accessibility
+
+- Non-decorative icons render with `role="img"` and support a `<title>` element for screen readers
+- Decorative icons set `aria-hidden="true"` and `role="presentation"` to hide from assistive technology
+- Always provide a `title` when the icon conveys meaning that is not available through surrounding text
+- When using icons inside buttons, prefer adding `aria-label` on the button rather than `title` on the icon
