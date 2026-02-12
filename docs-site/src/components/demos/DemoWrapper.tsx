@@ -22,6 +22,8 @@ export default function DemoWrapper({
         padding,
         height,
         overflow: 'auto',
+        fontSize: 'var(--etui-font-size-md)',
+        fontFamily: 'var(--etui-font-family-sans)',
       }}
     >
       {children}

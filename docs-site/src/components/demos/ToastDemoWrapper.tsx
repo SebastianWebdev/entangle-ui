@@ -17,6 +17,8 @@ export default function ToastDemoWrapper({
           background: '#1a1a1a',
           borderRadius: '6px',
           padding,
+          fontSize: 'var(--etui-font-size-md)',
+          fontFamily: 'var(--etui-font-family-sans)',
         }}
       >
         {children}
