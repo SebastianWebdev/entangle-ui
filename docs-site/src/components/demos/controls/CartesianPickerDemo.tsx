@@ -7,7 +7,12 @@ export default function CartesianPickerDemo() {
 
   return (
     <DemoWrapper withKeyboard>
-      <CartesianPicker value={point} onChange={setPoint} />
+      <CartesianPicker
+        value={point}
+        onChange={setPoint}
+        width={340}
+        height={340}
+      />
     </DemoWrapper>
   );
 }
