@@ -3,7 +3,14 @@ title: Icons
 description: Browse and use the 63 built-in SVG icons included with Entangle UI.
 ---
 
+import ComponentPreview from '../../components/ComponentPreview.astro';
+import IconDemo from '../../components/demos/primitives/IconDemo';
+
 Entangle UI includes 63 built-in SVG icons designed for editor interfaces. All icons use the `Icon` component wrapper, support consistent sizing and coloring through theme tokens, and are tree-shakeable.
+
+<ComponentPreview title="Icon Gallery">
+  <IconDemo client:only="react" />
+</ComponentPreview>
 
 ## Import
 
