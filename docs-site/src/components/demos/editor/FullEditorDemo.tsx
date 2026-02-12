@@ -1557,7 +1557,7 @@ export default function FullEditorDemo() {
                       <Input
                         size="sm"
                         value={objectName}
-                        onChange={event => setObjectName(event.target.value)}
+                        onChange={setObjectName}
                       />
                     </PropertyRow>
                     <PropertyRow label="Tag Filter">
@@ -1566,7 +1566,7 @@ export default function FullEditorDemo() {
                         type="search"
                         value={tagFilter}
                         startIcon={<SearchIcon size="sm" />}
-                        onChange={event => setTagFilter(event.target.value)}
+                        onChange={setTagFilter}
                       />
                     </PropertyRow>
                     <PropertyRow label="Pinned in Outliner">

@@ -221,7 +221,7 @@ export default function IconDemo() {
           startIcon={<SearchIcon />}
           placeholder="Search icons..."
           value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
+          onChange={setSearchQuery}
         />
         <Flex gap={4}>
           <Stack spacing={1} style={{ minWidth: 140, flexShrink: 0 }}>

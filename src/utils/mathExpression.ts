@@ -31,26 +31,67 @@ export interface EvaluationResult {
  * via dangerous JavaScript identifiers that pass character validation.
  */
 const BLOCKED_IDENTIFIERS: ReadonlySet<string> = new Set([
+  // Prototype chain & constructors
   'constructor',
   'prototype',
   '__proto__',
+
+  // Scope access
   'this',
   'self',
+  'arguments',
   'window',
   'document',
   'globalThis',
+
+  // Module system
   'process',
   'require',
   'import',
   'module',
   'exports',
+
+  // Code execution
   'eval',
   'Function',
+
+  // Built-in constructors
   'Object',
   'Array',
   'Reflect',
   'Proxy',
   'Symbol',
+
+  // JavaScript keywords that could alter control flow
+  'return',
+  'new',
+  'delete',
+  'typeof',
+  'void',
+  'in',
+  'instanceof',
+  'throw',
+  'var',
+  'let',
+  'const',
+  'class',
+  'yield',
+  'await',
+  'async',
+  'for',
+  'while',
+  'do',
+  'if',
+  'else',
+  'switch',
+  'case',
+  'break',
+  'continue',
+  'try',
+  'catch',
+  'finally',
+  'with',
+  'debugger',
 ]);
 
 /**
@@ -94,6 +135,11 @@ const MATH_FUNCTIONS: Record<string, (x: number) => number> = {
   abs: Math.abs,
   sign: Math.sign,
 };
+
+/**
+ * Maximum allowed expression length to prevent DoS via extremely long input.
+ */
+const MAX_EXPRESSION_LENGTH = 200;
 
 /**
  * Sanitizes mathematical expression by removing dangerous patterns
@@ -232,6 +278,15 @@ export function evaluateExpression(expression: string): EvaluationResult {
       };
     }
 
+    // Reject excessively long expressions
+    if (expression.length > MAX_EXPRESSION_LENGTH) {
+      return {
+        success: false,
+        error: `Expression is too long (max ${MAX_EXPRESSION_LENGTH} characters)`,
+        expression: originalExpression,
+      };
+    }
+
     // Sanitize the expression
     const sanitized = sanitizeExpression(expression);
 
@@ -295,16 +350,16 @@ export function isExpression(input: string): boolean {
     return true;
   }
 
-  // Check for mathematical functions
+  // Check for mathematical functions (case-sensitive to match evaluator behavior)
   const functionNames = Object.keys(MATH_FUNCTIONS);
-  const functionRegex = new RegExp(`\\b(${functionNames.join('|')})\\(`, 'i');
+  const functionRegex = new RegExp(`\\b(${functionNames.join('|')})\\(`);
   if (functionRegex.test(trimmed)) {
     return true;
   }
 
-  // Check for mathematical constants
+  // Check for mathematical constants (case-sensitive to match evaluator behavior)
   const constantNames = Object.keys(MATH_CONSTANTS);
-  const constantRegex = new RegExp(`\\b(${constantNames.join('|')})\\b`, 'i');
+  const constantRegex = new RegExp(`\\b(${constantNames.join('|')})\\b`);
   if (constantRegex.test(trimmed)) {
     return true;
   }

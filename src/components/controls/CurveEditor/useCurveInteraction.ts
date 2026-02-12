@@ -361,6 +361,12 @@ export function useCurveInteraction(
           updatedKf = { ...kf, handleOut: handleOffset };
         }
 
+        // Promote auto → free when the user manually adjusts a handle.
+        // This prevents applyAutoTangents from overwriting the change.
+        if (updatedKf.tangentMode === 'auto') {
+          updatedKf = { ...updatedKf, tangentMode: 'free' };
+        }
+
         // Apply tangent constraints
         updatedKf = constrainTangent(
           updatedKf,

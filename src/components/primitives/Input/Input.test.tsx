@@ -284,7 +284,7 @@ describe('Input', () => {
   });
 
   describe('Event Handling', () => {
-    it('handles change events', () => {
+    it('handles change events with string value', () => {
       const handleChange = vi.fn();
       renderWithTheme(<Input onChange={handleChange} testId="test-input" />);
 
@@ -292,6 +292,7 @@ describe('Input', () => {
       fireEvent.change(input, { target: { value: 'new value' } });
 
       expect(handleChange).toHaveBeenCalledTimes(1);
+      expect(handleChange).toHaveBeenCalledWith('new value');
     });
 
     it('handles focus events', () => {
