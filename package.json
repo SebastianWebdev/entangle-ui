@@ -4,7 +4,8 @@
   "type": "module",
   "sideEffects": [
     "*.css",
-    "*.css.ts"
+    "*.css.ts",
+    "*.css.js"
   ],
   "description": "A specialized React component library for building professional editor interfaces",
   "main": "dist/esm/index.js",

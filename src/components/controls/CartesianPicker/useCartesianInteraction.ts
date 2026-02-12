@@ -3,12 +3,15 @@
 import type React from 'react';
 import { useState, useCallback, useRef } from 'react';
 import { clamp, roundToPrecision } from '@/utils/mathUtils';
-import type { Point2D, CanvasViewport } from '@/components/primitives/canvas';
+import type {
+  Point2D,
+  CanvasViewport,
+} from '@/components/primitives/canvas/canvas.types';
 import {
   canvasToDomain,
   getCanvasPointerPosition,
   hitTestPoint,
-} from '@/components/primitives/canvas';
+} from '@/components/primitives/canvas/canvasCoords';
 
 interface UseCartesianInteractionOptions {
   point: Point2D;

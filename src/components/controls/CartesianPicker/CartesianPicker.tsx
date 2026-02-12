@@ -4,8 +4,11 @@ import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { cx } from '@/utils/cx';
 import { roundToPrecision } from '@/utils/mathUtils';
-import type { Point2D, CanvasViewport } from '@/components/primitives/canvas';
-import { CanvasContainer } from '@/components/primitives/canvas';
+import type {
+  Point2D,
+  CanvasViewport,
+} from '@/components/primitives/canvas/canvas.types';
+import { CanvasContainer } from '@/components/primitives/canvas/CanvasContainer';
 import type { CartesianPickerProps } from './CartesianPicker.types';
 import { useCartesianInteraction } from './useCartesianInteraction';
 import { useCartesianRenderer } from './useCartesianRenderer';

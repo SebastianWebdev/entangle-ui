@@ -3,7 +3,7 @@
 import React, { useCallback } from 'react';
 import { useTabsContext } from './Tabs';
 import type { TabProps, TabsSize } from './Tabs.types';
-import { CloseIcon } from '@/components/Icons';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { cx } from '@/utils/cx';
 import { vars } from '@/theme/contract.css';
 import {

@@ -2,7 +2,7 @@
 
 import React, { useCallback, useId, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { FormHelperText } from '@/components/form';
+import { FormHelperText } from '@/components/form/FormHelperText';
 import type { Prettify } from '@/types/utilities';
 import type { Size } from '@/types/common';
 import { cx } from '@/utils/cx';

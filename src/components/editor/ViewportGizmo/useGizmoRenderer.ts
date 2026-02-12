@@ -2,11 +2,9 @@
 
 import type React from 'react';
 import { useCallback } from 'react';
-import type { CanvasThemeColors } from '@/components/primitives/canvas';
-import {
-  resolveCanvasTheme,
-  useCanvasRenderer,
-} from '@/components/primitives/canvas';
+import type { CanvasThemeColors } from '@/components/primitives/canvas/canvas.types';
+import { resolveCanvasTheme } from '@/components/primitives/canvas/canvasTheme';
+import { useCanvasRenderer } from '@/components/primitives/canvas/useCanvasRenderer';
 import type {
   GizmoOrientation,
   GizmoUpAxis,

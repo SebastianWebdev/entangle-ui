@@ -6,7 +6,9 @@ import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
 import { useKeyboardContext } from '@/context/KeyboardContext';
-import { FormLabel, FormHelperText, InputWrapper } from '@/components/form';
+import { FormLabel } from '@/components/form/FormLabel';
+import { FormHelperText } from '@/components/form/FormHelperText';
+import { InputWrapper } from '@/components/form/InputWrapper';
 import { cx } from '@/utils/cx';
 import {
   sliderContainerRecipe,
