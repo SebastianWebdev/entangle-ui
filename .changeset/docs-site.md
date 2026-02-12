@@ -2,4 +2,4 @@
 'entangle-ui': patch
 ---
 
-Add Astro Starlight documentation site with comprehensive component docs, theming/styling guides, icons gallery, and auto-generated API reference via starlight-typedoc.
+Add documentation site at entangle-ui.dev, update package homepage, and update README with complete component list.

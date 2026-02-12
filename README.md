@@ -4,6 +4,8 @@ React + TypeScript component library for building editor-style interfaces.
 
 `entangle-ui` is focused on dense, keyboard-friendly UI patterns used in tools like 3D editors, node editors, scene inspectors, and technical dashboards.
 
+**[Documentation](https://entangle-ui.dev)** | **[GitHub](https://github.com/SebastianWebdev/entangle-ui)**
+
 ## Status
 
 This package is in alpha and still evolving.
@@ -146,6 +148,7 @@ export const card = style({
 - `Accordion`
 - `ScrollArea`
 - `SplitPane`, `SplitPanePanel`
+- `PanelSurface`
 
 ### Controls
 
@@ -153,10 +156,11 @@ export const card = style({
 - `ColorPicker`, `ColorPalette`, `ColorSwatch`, `EyeDropper`
 - `TreeView`
 - `CurveEditor` + helpers (`evaluateCurve`, `sampleCurve`, `createLinearCurve`, `domainToCanvas`)
+- `CartesianPicker`
 
 ### Navigation
 
-- `Menu`, `useMenu`
+- `Menu`, `ContextMenu`, `useMenu`, `useContextMenuTarget`
 - `Tabs`, `TabList`, `Tab`, `TabPanel`
 
 ### Shell
@@ -171,6 +175,12 @@ export const card = style({
 
 - `PropertyPanel`, `PropertySection`, `PropertyRow`, `PropertyGroup`
 - `usePropertyUndo`
+- `ViewportGizmo`
+- `ChatPanel`, `ChatMessageList`, `ChatMessage`, `ChatBubble`, `ChatInput`
+- `ChatTypingIndicator`, `ChatToolCall`, `ChatCodeBlock`
+- `ChatAttachmentChip`, `ChatContextChip`, `ChatEmptyState`
+- `ChatActionBar`, `ChatInputToolbar`
+- `useChatMessages`, `useChatInput`, `useChatScroll`
 
 ### Feedback and Form
 
@@ -185,6 +195,7 @@ export const card = style({
 - `createCustomTheme(selector, overrides)` — Type-safe custom theme helper
 - `VanillaThemeProvider` — Scoped theme wrapper component
 - `cx(...classes)` — Class name composition utility
+- `cn(...classes)` — Conditional class name utility
 
 ## Development
 
@@ -207,10 +218,11 @@ npm run version-packages
 npm run release
 ```
 
-## Repository
+## Links
 
-- Source: `https://github.com/SebastianWebdev/entangle-ui`
-- Issues: `https://github.com/SebastianWebdev/entangle-ui/issues`
+- Documentation: https://entangle-ui.dev
+- Source: https://github.com/SebastianWebdev/entangle-ui
+- Issues: https://github.com/SebastianWebdev/entangle-ui/issues
 
 ## License
 
