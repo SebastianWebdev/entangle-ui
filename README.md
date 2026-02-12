@@ -4,7 +4,7 @@ React + TypeScript component library for building editor-style interfaces.
 
 `entangle-ui` is focused on dense, keyboard-friendly UI patterns used in tools like 3D editors, node editors, scene inspectors, and technical dashboards.
 
-**[Documentation](https://entangle-ui.dev)** | **[GitHub](https://github.com/SebastianWebdev/entangle-ui)**
+**[Documentation](https://www.entangle-ui.dev)** | **[GitHub](https://github.com/SebastianWebdev/entangle-ui)**
 
 ## Status
 
@@ -220,7 +220,7 @@ npm run release
 
 ## Links
 
-- Documentation: https://entangle-ui.dev
+- Documentation: https://www.entangle-ui.dev
 - Source: https://github.com/SebastianWebdev/entangle-ui
 - Issues: https://github.com/SebastianWebdev/entangle-ui/issues
 
