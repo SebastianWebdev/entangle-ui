@@ -52,7 +52,10 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish",
-    "size": "size-limit"
+    "size": "size-limit",
+    "docs:dev": "npm run --prefix docs-site dev",
+    "docs:build": "npm run --prefix docs-site build",
+    "docs:preview": "npm run --prefix docs-site preview"
   },
   "keywords": [
     "react",
