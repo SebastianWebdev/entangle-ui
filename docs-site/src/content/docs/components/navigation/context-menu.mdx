@@ -4,8 +4,14 @@ description: Right-click context menu with dynamic configuration, payload-aware 
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import ContextMenuDemo from '../../../../components/demos/navigation/ContextMenuDemo';
 
 Right-click context menu component that wraps any element and provides a native-feeling context menu on right-click. Supports static and dynamic configuration, payload-aware item resolution, radio/checkbox selection, nested submenus, and full keyboard navigation. Built on `@base-ui/react` ContextMenu primitives and shares the same configuration format as Menu.
+
+<ComponentPreview title="Live Preview">
+  <ContextMenuDemo client:visible />
+</ComponentPreview>
 
 ## Import
 

@@ -4,8 +4,14 @@ description: 3D orientation gizmo for viewport navigation with orbit, snap-to-vi
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import ViewportGizmoDemo from '../../../../components/demos/editor/ViewportGizmoDemo';
 
 A canvas-based 3D orientation gizmo for viewport navigation in editor applications. Displays the current camera orientation with colored axis arms and supports orbit dragging, snap-to-view clicking, and axis clicking. Fully controlled -- the parent manages orientation state while the gizmo provides interaction callbacks. Supports configurable axis colors, up-axis conventions, and multiple interaction modes.
+
+<ComponentPreview title="Live Preview">
+  <ViewportGizmoDemo client:visible />
+</ComponentPreview>
 
 ## Import
 

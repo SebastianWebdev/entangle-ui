@@ -4,8 +4,14 @@ description: Application status bar with left/right sections, interactive items,
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import StatusBarDemo from '../../../../components/demos/shell/StatusBarDemo';
 
 Application status bar for displaying live status information at the bottom of editor interfaces. Supports sectioned layout (left/right), interactive and static items, badge indicators, and color variants for different application states.
+
+<ComponentPreview title="Live Preview">
+  <StatusBarDemo client:visible />
+</ComponentPreview>
 
 ## Import
 

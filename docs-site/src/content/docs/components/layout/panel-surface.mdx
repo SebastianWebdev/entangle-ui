@@ -4,8 +4,14 @@ description: Structured panel container with compound Header, Body, and Footer s
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import PanelSurfaceDemo from '../../../../components/demos/layout/PanelSurfaceDemo';
 
 A structured panel container using a compound component pattern with `PanelSurface`, `PanelSurface.Header`, `PanelSurface.Body`, and `PanelSurface.Footer`. Provides consistent chrome (border, background, header/footer sizing) for editor panels, tool windows, property inspectors, and sidebar sections.
+
+<ComponentPreview title="Live Preview">
+  <PanelSurfaceDemo client:visible />
+</ComponentPreview>
 
 ## Import
 

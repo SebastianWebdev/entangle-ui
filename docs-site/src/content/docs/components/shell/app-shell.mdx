@@ -4,8 +4,14 @@ description: Top-level layout shell for editor applications with slots for menu 
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import AppShellDemo from '../../../../components/demos/shell/AppShellDemo';
 
 Top-level layout shell that provides the structural skeleton for editor applications. Uses a compound component pattern with named slots for menu bar, toolbars (top, left, right), a central dock area, and a status bar. Includes a context-based toolbar visibility system and configurable chrome separators.
+
+<ComponentPreview title="Live Preview">
+  <AppShellDemo client:visible />
+</ComponentPreview>
 
 ## Import
 

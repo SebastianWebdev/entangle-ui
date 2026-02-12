@@ -4,8 +4,14 @@ description: Complete chat interface system for AI assistant integration with me
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import ChatPanelDemo from '../../../../components/demos/editor/ChatPanelDemo';
 
 A comprehensive chat interface system designed for AI assistant integration in editor applications. ChatPanel is the layout container, and the module exports a full suite of components for building rich conversational UIs: message lists, chat bubbles, input with attachments, typing indicators, tool call displays, code blocks, and empty states. Also includes hooks for managing message state, input behavior, and auto-scroll.
+
+<ComponentPreview title="Live Preview">
+  <ChatPanelDemo client:visible />
+</ComponentPreview>
 
 ## Import
 

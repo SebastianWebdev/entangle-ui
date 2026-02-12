@@ -4,8 +4,14 @@ description: Application menu bar with dropdown menus, sub-menus, keyboard short
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import MenuBarDemo from '../../../../components/demos/shell/MenuBarDemo';
 
 Application menu bar component for editor interfaces. Provides dropdown menus with items, sub-menus, separators, and keyboard shortcut labels. Supports full keyboard navigation with arrow keys and automatic menu switching on hover when a menu is open.
+
+<ComponentPreview title="Live Preview">
+  <MenuBarDemo client:visible />
+</ComponentPreview>
 
 ## Import
 

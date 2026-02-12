@@ -4,8 +4,14 @@ description: Custom scrollable container with styled scrollbars, drag-to-scroll 
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import ScrollAreaDemo from '../../../../components/demos/layout/ScrollAreaDemo';
 
 A custom scrollable container providing styled scrollbar overlays with drag-to-scroll support, configurable visibility behavior, and optional fade mask gradients at scroll boundaries. Designed for editor panels, sidebars, and content areas that need polished scrolling behavior beyond native scrollbars.
+
+<ComponentPreview title="Live Preview">
+  <ScrollAreaDemo client:visible />
+</ComponentPreview>
 
 ## Import
 

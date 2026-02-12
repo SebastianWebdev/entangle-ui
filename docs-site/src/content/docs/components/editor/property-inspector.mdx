@@ -4,8 +4,14 @@ description: Property inspector system with collapsible sections, label-value ro
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import PropertyInspectorDemo from '../../../../components/demos/editor/PropertyInspectorDemo';
 
 A property inspector system for editor interfaces, modeled after the property panels found in 3D tools (Blender, Unity, Unreal). Composed of four components -- `PropertyPanel`, `PropertySection`, `PropertyRow`, and `PropertyGroup` -- plus a `usePropertyUndo` hook for undo/redo support. The panel provides shared context for size and search filtering to all child components.
+
+<ComponentPreview title="Live Preview">
+  <PropertyInspectorDemo client:visible />
+</ComponentPreview>
 
 ## Import
 

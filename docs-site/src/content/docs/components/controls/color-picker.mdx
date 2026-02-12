@@ -4,8 +4,14 @@ description: Full-featured color picker with saturation/value area, hue slider, 
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import ColorPickerDemo from '../../../../components/demos/controls/ColorPickerDemo';
 
 Full-featured color picker for editor interfaces. Includes a saturation/value color area, hue slider, optional alpha slider, multiple input modes (HEX, RGB, HSL), color presets, built-in palettes, and optional EyeDropper support. Opens as a popover by default, or can be rendered inline.
+
+<ComponentPreview title="Live Preview">
+  <ColorPickerDemo client:visible />
+</ComponentPreview>
 
 ## Import
 

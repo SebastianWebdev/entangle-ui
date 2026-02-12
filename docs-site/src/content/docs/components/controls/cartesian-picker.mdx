@@ -4,8 +4,14 @@ description: 2D point picker for selecting coordinates on a cartesian grid with 
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import CartesianPickerDemo from '../../../../components/demos/controls/CartesianPickerDemo';
 
 Interactive 2D point picker for selecting X/Y coordinates on a cartesian grid. Features a draggable marker, crosshair display, origin axes, grid lines with labels, snap-to-grid, and custom background rendering. Commonly used for panning controls, UV coordinate selection, and spatial parameter adjustment.
+
+<ComponentPreview title="Live Preview">
+  <CartesianPickerDemo client:visible />
+</ComponentPreview>
 
 ## Import
 

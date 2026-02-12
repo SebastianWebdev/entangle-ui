@@ -4,8 +4,14 @@ description: Draggable, resizable floating panel with collapse/expand, z-index s
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import FloatingPanelDemo from '../../../../components/demos/shell/FloatingPanelDemo';
 
 Draggable and resizable floating panel for editor tool windows, property inspectors, and other detachable UI. Supports drag-to-move via the header bar, corner resize, collapse/expand toggle, and optional close button. Works in both controlled and uncontrolled modes for position, size, and collapsed state. Use with `FloatingManager` for automatic z-index stacking of multiple panels.
+
+<ComponentPreview title="Live Preview">
+  <FloatingPanelDemo client:visible />
+</ComponentPreview>
 
 ## Import
 
