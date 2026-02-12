@@ -1,6 +1,167 @@
 ---
 title: Slider
-description: Slider component documentation
+description: A professional slider component with drag interaction, keyboard navigation, and modifier key support.
 ---
 
-Slider documentation is coming soon.
+import PropsTable from '../../../../components/PropsTable.astro';
+
+A professional slider component with smooth drag interaction, keyboard navigation, and modifier key support. Designed for precise value control in editor workflows.
+
+## Import
+
+```tsx
+import { Slider } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+const [opacity, setOpacity] = useState(100);
+
+<Slider value={opacity} onChange={setOpacity} min={0} max={100} />
+```
+
+## With Label and Unit
+
+```tsx
+<Slider
+  value={rotation}
+  onChange={setRotation}
+  min={0}
+  max={360}
+  step={1}
+  unit="°"
+  label="Rotation"
+/>
+```
+
+## Sizes
+
+```tsx
+<Slider size="sm" value={50} onChange={setValue} label="Small" />
+<Slider size="md" value={50} onChange={setValue} label="Medium" />
+<Slider size="lg" value={50} onChange={setValue} label="Large" />
+```
+
+## Precision Control with Modifier Keys
+
+Hold modifier keys while dragging or using arrow keys for different step sizes:
+
+| Modifier | Behavior | Default Step |
+| -------- | -------- | ------------ |
+| None     | Normal   | `step` (1)   |
+| Shift    | Fine     | `step / 10`  |
+| Ctrl/Cmd | Coarse   | `step * 10`  |
+
+```tsx
+<Slider
+  value={scale}
+  onChange={setScale}
+  min={0.1}
+  max={5}
+  step={0.1}
+  precisionStep={0.01}
+  largeStep={1}
+  precision={2}
+  label="Scale"
+/>
+```
+
+## Tick Marks
+
+```tsx
+<Slider
+  value={angle}
+  onChange={setAngle}
+  min={0}
+  max={360}
+  step={15}
+  showTicks
+  tickCount={8}
+  unit="°"
+  label="Angle"
+/>
+```
+
+## Custom Value Formatting
+
+```tsx
+<Slider
+  value={volume}
+  onChange={setVolume}
+  min={0}
+  max={100}
+  formatValue={(v) => `${v}%`}
+  label="Volume"
+/>
+```
+
+## Form Integration
+
+```tsx
+<Slider
+  value={brightness}
+  onChange={setBrightness}
+  min={0}
+  max={100}
+  label="Brightness"
+  helperText="Adjust display brightness"
+  required
+/>
+
+<Slider
+  value={contrast}
+  onChange={setContrast}
+  min={0}
+  max={200}
+  label="Contrast"
+  error={contrast > 150}
+  errorMessage="High contrast may cause clipping"
+/>
+```
+
+## Keyboard Navigation
+
+| Key         | Action                    |
+| ----------- | ------------------------- |
+| Arrow Right/Up | Increment by step      |
+| Arrow Left/Down | Decrement by step    |
+| Home        | Jump to minimum           |
+| End         | Jump to maximum           |
+| Page Up     | Increment by large step   |
+| Page Down   | Decrement by large step   |
+
+## Props
+
+<PropsTable props={[
+  { name: 'value', type: 'number', description: 'Current numeric value.', required: true },
+  { name: 'onChange', type: '(value: number) => void', description: 'Callback when value changes.', required: true },
+  { name: 'min', type: 'number', default: '0', description: 'Minimum allowed value.' },
+  { name: 'max', type: 'number', default: '100', description: 'Maximum allowed value.' },
+  { name: 'step', type: 'number', default: '1', description: 'Step size for value increments.' },
+  { name: 'precisionStep', type: 'number', default: 'step / 10', description: 'Step size when Shift is held (fine control).' },
+  { name: 'largeStep', type: 'number', default: 'step * 10', description: 'Step size when Ctrl/Cmd is held (coarse control).' },
+  { name: 'precision', type: 'number', default: '2', description: 'Number of decimal places to round to.' },
+  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Slider size variant.' },
+  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the slider is disabled.' },
+  { name: 'readOnly', type: 'boolean', default: 'false', description: 'Whether the slider is read-only.' },
+  { name: 'label', type: 'string', description: 'Label text displayed above the slider.' },
+  { name: 'helperText', type: 'string', description: 'Helper text displayed below the slider.' },
+  { name: 'error', type: 'boolean', default: 'false', description: 'Whether the slider has an error state.' },
+  { name: 'errorMessage', type: 'string', description: 'Error message displayed when error is true.' },
+  { name: 'required', type: 'boolean', default: 'false', description: 'Whether the slider is required.' },
+  { name: 'unit', type: 'string', description: 'Unit suffix to display (e.g., "px", "%", "°").' },
+  { name: 'formatValue', type: '(value: number) => string', description: 'Custom value formatter for display.' },
+  { name: 'showTooltip', type: 'boolean', default: 'true', description: 'Show value tooltip while dragging.' },
+  { name: 'showTicks', type: 'boolean', default: 'false', description: 'Show tick marks along the track.' },
+  { name: 'tickCount', type: 'number', default: '5', description: 'Number of tick marks to show.' },
+  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
+  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
+]} />
+
+## Accessibility
+
+- Uses `role="slider"` with proper ARIA attributes
+- `aria-valuemin`, `aria-valuemax`, `aria-valuenow`, `aria-valuetext`
+- Full keyboard navigation with arrow keys, Home, End, Page Up/Down
+- Disabled and read-only states reflected via `aria-disabled` and `aria-readonly`
