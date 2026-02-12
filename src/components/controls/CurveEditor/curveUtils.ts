@@ -2,8 +2,8 @@ import { clamp } from '@/utils/mathUtils';
 import {
   domainToCanvas as sharedDomainToCanvas,
   canvasToDomain as sharedCanvasToDomain,
-} from '@/components/primitives/canvas';
-import type { CanvasViewport } from '@/components/primitives/canvas';
+} from '@/components/primitives/canvas/canvasCoords';
+import type { CanvasViewport } from '@/components/primitives/canvas/canvas.types';
 import type {
   CurveData,
   CurveKeyframe,

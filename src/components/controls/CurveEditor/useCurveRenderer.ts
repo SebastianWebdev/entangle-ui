@@ -8,14 +8,16 @@ import type {
   CurveHitTest,
   CurveBackgroundInfo,
 } from './CurveEditor.types';
-import type { CanvasThemeColors } from '@/components/primitives/canvas';
+import type { CanvasThemeColors } from '@/components/primitives/canvas/canvas.types';
 import {
   drawGrid as sharedDrawGrid,
   drawDomainBounds as sharedDrawDomainBounds,
   drawAxisLabels as sharedDrawAxisLabels,
+} from '@/components/primitives/canvas/canvasDrawing';
+import {
   resolveCanvasTheme,
   resolveVarValue,
-} from '@/components/primitives/canvas';
+} from '@/components/primitives/canvas/canvasTheme';
 import { domainToCanvas, sampleCurve } from './curveUtils';
 
 interface UseCurveRendererOptions {

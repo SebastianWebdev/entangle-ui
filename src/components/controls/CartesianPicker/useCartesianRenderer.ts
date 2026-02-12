@@ -7,7 +7,7 @@ import type {
   CanvasViewport,
   CanvasBackgroundInfo,
   CanvasThemeColors,
-} from '@/components/primitives/canvas';
+} from '@/components/primitives/canvas/canvas.types';
 import {
   drawGrid,
   drawDomainBounds,
@@ -15,9 +15,9 @@ import {
   drawAxisLabels,
   drawCrosshair,
   drawPointMarker,
-  resolveCanvasTheme,
-  useCanvasRenderer,
-} from '@/components/primitives/canvas';
+} from '@/components/primitives/canvas/canvasDrawing';
+import { resolveCanvasTheme } from '@/components/primitives/canvas/canvasTheme';
+import { useCanvasRenderer } from '@/components/primitives/canvas/useCanvasRenderer';
 
 interface UseCartesianRendererOptions {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;

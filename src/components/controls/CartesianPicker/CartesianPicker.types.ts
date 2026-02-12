@@ -4,7 +4,7 @@ import type { BaseComponent, Size } from '@/types/common';
 import type {
   Point2D,
   CanvasBackgroundInfo,
-} from '@/components/primitives/canvas';
+} from '@/components/primitives/canvas/canvas.types';
 
 export type CartesianPickerSize = Size;
 

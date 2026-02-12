@@ -9,8 +9,8 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { FormLabel } from '@/components/form';
-import { FormHelperText } from '@/components/form';
+import { FormLabel } from '@/components/form/FormLabel';
+import { FormHelperText } from '@/components/form/FormHelperText';
 import { ScrollArea } from '@/components/layout/ScrollArea';
 import { cx } from '@/utils/cx';
 import type {

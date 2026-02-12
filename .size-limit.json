@@ -1,12 +1,12 @@
 [
   {
     "name": "Single component (Button)",
-    "path": "dist/esm/components/primitives/Button/index.js",
+    "path": "dist/esm/components/primitives/Button/Button.js",
     "limit": "15 kB"
   },
   {
     "name": "Theme only",
-    "path": "dist/esm/theme/index.js",
+    "path": "dist/esm/theme/darkTheme.css.js",
     "limit": "5 kB"
   },
   {

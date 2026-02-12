@@ -3,7 +3,8 @@
 import React, { useMemo } from 'react';
 import { Menu as BaseMenu } from '@base-ui/react/menu';
 
-import { CheckIcon, CircleIcon } from '@/components/Icons';
+import { CheckIcon } from '@/components/Icons/CheckIcon';
+import { CircleIcon } from '@/components/Icons/CircleIcon';
 import { Button } from '@/components/primitives/Button';
 import { Text } from '@/components/primitives/Text';
 import { cx } from '@/utils/cx';

@@ -5,14 +5,12 @@ import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { IconButton } from '@/components/primitives/IconButton';
 import { Select } from '@/components/controls/Select';
 import { Tooltip } from '@/components/primitives/Tooltip';
-import {
-  TangentFreeIcon,
-  TangentAlignedIcon,
-  TangentMirroredIcon,
-  TangentAutoIcon,
-  TangentLinearIcon,
-  TangentStepIcon,
-} from '@/components/Icons';
+import { TangentFreeIcon } from '@/components/Icons/TangentFreeIcon';
+import { TangentAlignedIcon } from '@/components/Icons/TangentAlignedIcon';
+import { TangentMirroredIcon } from '@/components/Icons/TangentMirroredIcon';
+import { TangentAutoIcon } from '@/components/Icons/TangentAutoIcon';
+import { TangentLinearIcon } from '@/components/Icons/TangentLinearIcon';
+import { TangentStepIcon } from '@/components/Icons/TangentStepIcon';
 import type {
   CurveEditorSize,
   CurvePreset,

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Menu as BaseMenu } from '@base-ui/react/menu';
 
-import { ChevronUpIcon } from '@/components/Icons';
+import { ChevronUpIcon } from '@/components/Icons/ChevronUpIcon';
 import { Text } from '@/components/primitives/Text';
 import { Stack } from '@/components/layout/Stack';
 import { cx } from '@/utils/cx';
