@@ -1,6 +1,165 @@
 ---
 title: Quick Start
-description: Get up and running with Entangle UI in minutes.
+description: Get up and running with Entangle UI in under five minutes.
 ---
 
-Quick Start documentation is coming soon.
+Get up and running with Entangle UI in under five minutes.
+
+## Basic Setup
+
+Import the dark theme CSS to register all `--etui-*` CSS custom properties on `:root`. No wrapper component is needed for the default look:
+
+```tsx
+import 'entangle-ui/theme';
+import { Button } from 'entangle-ui';
+
+function App() {
+  return <Button variant="filled">Save</Button>;
+}
+```
+
+The default dark theme is applied automatically — no extra configuration required.
+
+### With Custom Overrides
+
+Override tokens with plain CSS on any selector:
+
+```css
+.my-theme {
+  --etui-color-accent-primary: #2aa1ff;
+  --etui-color-bg-primary: #0d1117;
+}
+```
+
+Or use `VanillaThemeProvider` for scoped overrides:
+
+```tsx
+import 'entangle-ui/theme';
+import { VanillaThemeProvider } from 'entangle-ui';
+
+function App() {
+  return (
+    <VanillaThemeProvider className="my-theme">
+      <YourApp />
+    </VanillaThemeProvider>
+  );
+}
+```
+
+## Your First Component
+
+```tsx
+import { Button, Stack, Text } from 'entangle-ui';
+
+function Welcome() {
+  return (
+    <Stack direction="column" spacing={3} align="center">
+      <Text variant="heading">Welcome to Entangle UI</Text>
+      <Stack direction="row" spacing={2}>
+        <Button variant="default">Cancel</Button>
+        <Button variant="filled">Get Started</Button>
+      </Stack>
+    </Stack>
+  );
+}
+```
+
+## Common Patterns
+
+### Sizing
+
+Most components support a consistent `size` prop:
+
+```tsx
+<Button size="sm">Small</Button>
+<Button size="md">Medium</Button>   {/* default */}
+<Button size="lg">Large</Button>
+
+<Input size="sm" placeholder="Small input" />
+<Slider size="md" min={0} max={100} value={50} />
+```
+
+| Size | Typical Height |
+| ---- | -------------- |
+| `sm` | 20px           |
+| `md` | 24px           |
+| `lg` | 32px           |
+
+### Responsive Layout
+
+`Stack` and `Flex` support responsive direction changes at four breakpoints:
+
+```tsx
+<Stack direction="column" md="row" spacing={2}>
+  <Sidebar />
+  <Content />
+</Stack>
+```
+
+| Breakpoint | Width  |
+| ---------- | ------ |
+| `sm`       | 576px  |
+| `md`       | 768px  |
+| `lg`       | 992px  |
+| `xl`       | 1200px |
+
+### Form Inputs
+
+Combine `Input` with form components for labeled fields with validation:
+
+```tsx
+<Input
+  label="Project Name"
+  placeholder="My Project"
+  helperText="Choose a unique name"
+  error={!!nameError}
+  errorMessage={nameError}
+  required
+  value={name}
+  onChange={e => setName(e.target.value)}
+/>
+```
+
+### Application Shell
+
+Build a complete editor layout:
+
+```tsx
+import {
+  AppShell,
+  MenuBar,
+  Toolbar,
+  StatusBar,
+  useAppShell,
+} from 'entangle-ui';
+
+function Editor() {
+  const appShell = useAppShell();
+
+  return (
+    <AppShell>
+      <AppShell.MenuBar>
+        <MenuBar>{/* menu items */}</MenuBar>
+      </AppShell.MenuBar>
+      <AppShell.Toolbar>
+        <Toolbar>
+          <Toolbar.Button icon={<SaveIcon />}>Save</Toolbar.Button>
+          <Toolbar.Separator />
+          <Toolbar.Toggle icon={<GridIcon />}>Grid</Toolbar.Toggle>
+        </Toolbar>
+      </AppShell.Toolbar>
+      <AppShell.Dock>{/* panels */}</AppShell.Dock>
+      <AppShell.StatusBar>
+        <StatusBar>
+          <StatusBar.Section>Ready</StatusBar.Section>
+        </StatusBar>
+      </AppShell.StatusBar>
+    </AppShell>
+  );
+}
+```
+
+## Next Steps
+
+- [Theming](/guides/theming) — customize colors, tokens, and create branded themes
+- [Styling](/guides/styling) — learn the Vanilla Extract styling system

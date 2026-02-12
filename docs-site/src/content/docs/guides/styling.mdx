@@ -3,4 +3,420 @@ title: Styling
 description: Learn how to style Entangle UI components using Vanilla Extract and theme tokens.
 ---
 
-Styling documentation is coming soon.
+Entangle UI uses **Vanilla Extract** for all styling — a zero-runtime CSS-in-JS framework where styles are written in `.css.ts` files and compiled to static CSS at build time.
+
+## Style Files
+
+Every component has its own `.css.ts` file:
+
+```
+Button/
+├── Button.tsx
+├── Button.css.ts      ← styles
+├── Button.test.tsx
+├── Button.stories.tsx
+└── index.ts
+```
+
+## Basic Styles
+
+Use `style()` for atomic class names:
+
+```typescript
+// Card.css.ts
+import { style } from '@vanilla-extract/css';
+import { vars } from '@/theme';
+
+export const cardStyle = style({
+  background: vars.colors.surface.default,
+  color: vars.colors.text.primary,
+  padding: vars.spacing.lg,
+  borderRadius: vars.borderRadius.md,
+  border: `1px solid ${vars.colors.border.default}`,
+  transition: `all ${vars.transitions.normal}`,
+
+  ':hover': {
+    background: vars.colors.surface.hover,
+    boxShadow: vars.shadows.md,
+  },
+
+  ':focus-visible': {
+    boxShadow: vars.shadows.focus,
+  },
+});
+```
+
+```tsx
+// Card.tsx
+import { cardStyle } from './Card.css';
+
+export const Card = ({ children }) => (
+  <div className={cardStyle}>{children}</div>
+);
+```
+
+:::tip
+Always use `vars.*` tokens — never hardcode colors, spacing, or other visual values.
+:::
+
+## Recipes (Variant-Based Styling)
+
+Recipes from `@vanilla-extract/recipes` define multi-variant component styles:
+
+```typescript
+// Button.css.ts
+import { recipe } from '@vanilla-extract/recipes';
+import { vars } from '@/theme';
+
+export const buttonRecipe = recipe({
+  base: {
+    margin: 0,
+    border: 'none',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: vars.typography.fontFamily.sans,
+    transition: `all ${vars.transitions.normal}`,
+
+    ':disabled': {
+      cursor: 'not-allowed',
+      opacity: 0.5,
+    },
+  },
+
+  variants: {
+    variant: {
+      default: {
+        background: vars.colors.surface.default,
+        color: vars.colors.text.primary,
+        ':hover': { background: vars.colors.surface.hover },
+        ':active': { background: vars.colors.surface.active },
+      },
+      ghost: {
+        background: 'transparent',
+        color: vars.colors.text.primary,
+        ':hover': { background: vars.colors.surface.hover },
+      },
+      filled: {
+        background: vars.colors.accent.primary,
+        color: vars.colors.text.primary,
+        ':hover': { background: vars.colors.accent.secondary },
+      },
+    },
+
+    size: {
+      sm: {
+        height: '20px',
+        padding: `0 ${vars.spacing.sm}`,
+        fontSize: vars.typography.fontSize.xs,
+      },
+      md: {
+        height: '24px',
+        padding: `0 ${vars.spacing.md}`,
+        fontSize: vars.typography.fontSize.sm,
+      },
+      lg: {
+        height: '32px',
+        padding: `0 ${vars.spacing.xl}`,
+        fontSize: vars.typography.fontSize.md,
+      },
+    },
+
+    fullWidth: {
+      true: { width: '100%' },
+    },
+  },
+
+  defaultVariants: {
+    variant: 'default',
+    size: 'md',
+  },
+});
+```
+
+```tsx
+// Button.tsx
+import { buttonRecipe } from './Button.css';
+import { cx } from '@/utils/cx';
+
+export const Button = ({ variant, size, fullWidth, className, ...rest }) => (
+  <button
+    className={cx(buttonRecipe({ variant, size, fullWidth }), className)}
+    {...rest}
+  />
+);
+```
+
+Extract variant types with `RecipeVariants`:
+
+```typescript
+import type { RecipeVariants } from '@vanilla-extract/recipes';
+
+export type ButtonVariants = RecipeVariants<typeof buttonRecipe>;
+// => { variant?: 'default' | 'ghost' | 'filled'; size?: 'sm' | 'md' | 'lg'; fullWidth?: boolean }
+```
+
+## Dynamic CSS Variables
+
+For values computed at runtime (percentages, user input), use `createVar()` and `assignInlineVars()`:
+
+```typescript
+// Slider.css.ts
+import { createVar, style } from '@vanilla-extract/css';
+import { vars } from '@/theme';
+
+export const fillPercentageVar = createVar();
+export const thumbPositionVar = createVar();
+
+export const trackFill = style({
+  position: 'absolute',
+  left: 0,
+  height: '100%',
+  width: fillPercentageVar,
+  background: vars.colors.accent.primary,
+  borderRadius: vars.borderRadius.sm,
+});
+
+export const thumb = style({
+  position: 'absolute',
+  left: thumbPositionVar,
+  transform: 'translate(-50%, -50%)',
+  width: '12px',
+  height: '12px',
+  borderRadius: '50%',
+  background: vars.colors.text.primary,
+  boxShadow: vars.shadows.thumb,
+});
+```
+
+```tsx
+// Slider.tsx
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import {
+  fillPercentageVar,
+  thumbPositionVar,
+  trackFill,
+  thumb,
+} from './Slider.css';
+
+export const Slider = ({ value, min, max }) => {
+  const pct = ((value - min) / (max - min)) * 100;
+
+  return (
+    <div className={track}>
+      <div
+        className={trackFill}
+        style={assignInlineVars({
+          [fillPercentageVar]: `${pct}%`,
+        })}
+      />
+      <div
+        className={thumb}
+        style={assignInlineVars({
+          [thumbPositionVar]: `${pct}%`,
+        })}
+      />
+    </div>
+  );
+};
+```
+
+## Keyframe Animations
+
+```typescript
+import { keyframes, style } from '@vanilla-extract/css';
+
+const spin = keyframes({
+  to: { transform: 'rotate(360deg)' },
+});
+
+export const spinnerStyle = style({
+  animation: `${spin} 1s linear infinite`,
+});
+```
+
+## Global Styles and Media Queries
+
+For responsive overrides, use `globalStyle()`:
+
+```typescript
+import { globalStyle } from '@vanilla-extract/css';
+
+export const flexSelector = 'etui-flex';
+
+globalStyle(`${flexSelector}[data-sm-dir="row"]`, {
+  '@media': {
+    '(min-width: 576px)': { flexDirection: 'row' },
+  },
+});
+```
+
+Inline media queries within `style()`:
+
+```typescript
+const responsiveCard = style({
+  padding: vars.spacing.md,
+
+  '@media': {
+    '(min-width: 768px)': {
+      padding: vars.spacing.xl,
+    },
+  },
+});
+```
+
+## Utilities
+
+### `cx()` — Class Name Combiner
+
+Joins class names, filtering out falsy values:
+
+```typescript
+import { cx } from '@/utils/cx';
+
+function cx(...classes: (string | false | null | undefined)[]): string;
+
+// Usage
+<div className={cx(
+  baseStyle,                      // always applied
+  isActive && activeStyle,        // conditional
+  className                       // user override (last = highest priority)
+)} />
+```
+
+Always place the recipe output first and user `className` last so consumer styles can override:
+
+```tsx
+<button className={cx(buttonRecipe({ variant, size }), className)} />
+```
+
+### `cn()` — Alternative Class Combiner
+
+Alias for `cx()` available for import preference:
+
+```tsx
+import { cn } from 'entangle-ui';
+```
+
+## Responsive Design
+
+### Breakpoints
+
+| Name | Width  | Data Attribute |
+| ---- | ------ | -------------- |
+| `sm` | 576px  | `data-sm-dir`  |
+| `md` | 768px  | `data-md-dir`  |
+| `lg` | 992px  | `data-lg-dir`  |
+| `xl` | 1200px | `data-xl-dir`  |
+
+### Responsive Direction (Stack / Flex)
+
+Layout components accept responsive direction props:
+
+```tsx
+<Stack direction="column" md="row" spacing={2}>
+  <Sidebar />
+  <Content />
+</Stack>
+```
+
+This renders as a column on mobile and switches to a row at `768px`.
+
+### Spacing Multiplier
+
+`Stack` and `Flex` use a 4px base unit for the `spacing` prop:
+
+| `spacing` value | Computed gap |
+| --------------- | ------------ |
+| `0`             | 0px          |
+| `1`             | 4px          |
+| `2`             | 8px          |
+| `3`             | 12px         |
+| `4`             | 16px         |
+| `5`             | 20px         |
+| `6`             | 24px         |
+| `7`             | 28px         |
+| `8`             | 32px         |
+
+Use `customGap` for arbitrary values:
+
+```tsx
+<Stack customGap="6px">{/* ... */}</Stack>
+```
+
+## Conventions
+
+### Theme Tokens Over Hardcoded Values
+
+```typescript
+// Good
+background: vars.colors.surface.default,
+padding: vars.spacing.md,
+
+// Bad
+background: '#2d2d2d',
+padding: '8px',
+```
+
+### Path Aliases
+
+Always use `@/` imports for cross-directory references:
+
+```typescript
+// Good
+import { vars } from '@/theme';
+import type { Prettify } from '@/types/utilities';
+
+// Bad
+import { vars } from '../../theme';
+```
+
+### Recipe Naming
+
+Recipe exports follow the pattern `{componentName}Recipe`:
+
+```typescript
+export const buttonRecipe = recipe({ ... });
+export const textRecipe = recipe({ ... });
+export const sliderTrackRecipe = recipe({ ... });
+```
+
+Standalone styles use `{name}Style`:
+
+```typescript
+export const iconWrapperStyle = style({ ... });
+export const separatorStyle = style({ ... });
+```
+
+## Build Integration
+
+### For Library Consumers
+
+Entangle UI ships pre-compiled CSS. No Vanilla Extract build plugin is needed in consumer projects — just import and use:
+
+```tsx
+import { Button } from 'entangle-ui';
+
+<Button variant="filled">Works out of the box</Button>;
+```
+
+### For Library Contributors
+
+The build uses Rollup with the `@vanilla-extract/rollup-plugin` to compile `.css.ts` files. Storybook uses `@vanilla-extract/vite-plugin` for dev mode.
+
+| Task            | Command              |
+| --------------- | -------------------- |
+| Dev (Storybook) | `npm run dev`        |
+| Build           | `npm run build`      |
+| Type check      | `npm run type-check` |
+
+### Tree-Shaking
+
+The library is fully tree-shakeable:
+
+- `sideEffects: false` in `package.json`
+- `preserveModules` in Rollup output
+- `/*#__PURE__*/` annotations where needed
+
+Unused components and their styles are eliminated by the consumer's bundler.
