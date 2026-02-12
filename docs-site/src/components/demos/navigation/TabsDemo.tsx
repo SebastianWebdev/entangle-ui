@@ -1,11 +1,19 @@
 import DemoWrapper from '../DemoWrapper';
 import { Tabs, TabList, Tab, TabPanel } from '@/components/navigation';
 import { Text } from '@/components/primitives';
+import { Stack } from '@/components/layout';
 
-export default function TabsDemo() {
+function TabsVariant({
+  variant,
+}: {
+  variant: 'underline' | 'pills' | 'enclosed';
+}) {
   return (
-    <DemoWrapper>
-      <Tabs defaultValue="tab1">
+    <div>
+      <Text size="xs" color="muted">
+        {variant}
+      </Text>
+      <Tabs defaultValue="tab1" variant={variant}>
         <TabList>
           <Tab value="tab1">Overview</Tab>
           <Tab value="tab2">Features</Tab>
@@ -27,6 +35,18 @@ export default function TabsDemo() {
           </div>
         </TabPanel>
       </Tabs>
+    </div>
+  );
+}
+
+export default function TabsDemo() {
+  return (
+    <DemoWrapper>
+      <Stack spacing={5}>
+        <TabsVariant variant="underline" />
+        <TabsVariant variant="pills" />
+        <TabsVariant variant="enclosed" />
+      </Stack>
     </DemoWrapper>
   );
 }

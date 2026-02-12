@@ -7,6 +7,7 @@ export default function SliderDemo() {
   const [v1, setV1] = useState(50);
   const [v2, setV2] = useState(75);
   const [v3, setV3] = useState(180);
+  const [v4, setV4] = useState(60);
 
   return (
     <DemoWrapper withKeyboard>
@@ -31,6 +32,8 @@ export default function SliderDemo() {
           showTicks
           tickCount={8}
         />
+        <Slider value={v4} onChange={setV4} label="Brightness" size="lg" />
+        <Slider value={50} onChange={() => {}} label="Locked" disabled />
       </Stack>
     </DemoWrapper>
   );

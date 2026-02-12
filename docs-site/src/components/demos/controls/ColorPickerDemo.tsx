@@ -11,6 +11,7 @@ export default function ColorPickerDemo() {
         value={color}
         onChange={setColor}
         inline
+        palette="material"
         presets={[
           { color: '#007acc', label: 'Accent' },
           { color: '#4caf50', label: 'Success' },
