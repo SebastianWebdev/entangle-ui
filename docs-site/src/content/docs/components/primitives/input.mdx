@@ -22,11 +22,7 @@ import { Input } from 'entangle-ui';
 ## Usage
 
 ```tsx
-<Input
-  placeholder="Enter text..."
-  value={text}
-  onChange={e => setText(e.target.value)}
-/>
+<Input placeholder="Enter text..." value={text} onChange={setText} />
 ```
 
 ## Sizes
@@ -88,7 +84,7 @@ Set `error` to `true` and provide an `errorMessage` to display validation feedba
   error={!!emailError}
   errorMessage={emailError}
   value={email}
-  onChange={e => setEmail(e.target.value)}
+  onChange={setEmail}
 />
 ```
 
@@ -129,7 +125,7 @@ The `type` prop supports common HTML input types.
   startIcon={<SearchIcon />}
   helperText="Search across all project files"
   value={query}
-  onChange={e => setQuery(e.target.value)}
+  onChange={setQuery}
 />
 ```
 
@@ -217,8 +213,9 @@ The `type` prop supports common HTML input types.
     },
     {
       name: 'onChange',
-      type: '(event: ChangeEvent<HTMLInputElement>) => void',
-      description: 'Change event handler.',
+      type: '(value: string) => void',
+      description:
+        'Change event handler — receives the new string value directly.',
     },
     {
       name: 'onFocus',

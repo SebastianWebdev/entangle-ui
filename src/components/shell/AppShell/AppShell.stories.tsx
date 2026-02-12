@@ -1599,9 +1599,7 @@ export const FullEditor: Story = {
                           <Input
                             size="sm"
                             value={objectName}
-                            onChange={event =>
-                              setObjectName(event.target.value)
-                            }
+                            onChange={setObjectName}
                           />
                         </PropertyRow>
                         <PropertyRow label="Tag Filter">
@@ -1610,7 +1608,7 @@ export const FullEditor: Story = {
                             type="search"
                             value={tagFilter}
                             startIcon={<SearchIcon size="sm" />}
-                            onChange={event => setTagFilter(event.target.value)}
+                            onChange={setTagFilter}
                           />
                         </PropertyRow>
                         <PropertyRow label="Pinned in Outliner">

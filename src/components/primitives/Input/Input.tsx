@@ -111,9 +111,9 @@ export interface InputBaseProps extends Omit<
   endIcon?: React.ReactNode;
 
   /**
-   * Change event handler
+   * Change event handler — receives the new string value directly
    */
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (value: string) => void;
 
   /**
    * Focus event handler
@@ -155,7 +155,7 @@ export type InputProps = Prettify<InputBaseProps>;
  * <Input
  *   placeholder="Enter text..."
  *   value={text}
- *   onChange={(e) => setText(e.target.value)}
+ *   onChange={setText}
  * />
  *
  * // With label and helper text
@@ -164,7 +164,7 @@ export type InputProps = Prettify<InputBaseProps>;
  *   placeholder="My Project"
  *   helperText="Choose a unique name for your project"
  *   value={name}
- *   onChange={(e) => setName(e.target.value)}
+ *   onChange={setName}
  * />
  *
  * // With icons and error state
@@ -175,7 +175,7 @@ export type InputProps = Prettify<InputBaseProps>;
  *   error={!!emailError}
  *   errorMessage={emailError}
  *   value={email}
- *   onChange={(e) => setEmail(e.target.value)}
+ *   onChange={setEmail}
  * />
  * ```
  */
@@ -217,6 +217,10 @@ export const Input: React.FC<InputProps> = ({
     onBlur?.(event);
   };
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(event.target.value);
+  };
+
   return (
     <div className={cx(inputContainerStyle, className)} style={style}>
       {label && (
@@ -250,7 +254,7 @@ export const Input: React.FC<InputProps> = ({
           required={required}
           readOnly={readOnly}
           className={inputRecipe({ size })}
-          onChange={onChange}
+          onChange={onChange ? handleChange : undefined}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={onKeyDown}

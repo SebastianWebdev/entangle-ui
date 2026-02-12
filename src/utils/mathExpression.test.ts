@@ -323,7 +323,8 @@ describe('mathExpression', () => {
         expect(isExpression('sin(0)')).toBe(true);
       });
 
-      it('detects case-insensitive functions', () => {
+      it('detects functions with parentheses regardless of case', () => {
+        // Parentheses trigger operator detection even when function name case mismatches
         expect(isExpression('SQRT(16)')).toBe(true);
         expect(isExpression('Sin(0)')).toBe(true);
       });
@@ -346,9 +347,9 @@ describe('mathExpression', () => {
         expect(isExpression('phi')).toBe(true);
       });
 
-      it('detects case-insensitive constants', () => {
-        expect(isExpression('PI')).toBe(true);
-        expect(isExpression('E')).toBe(true);
+      it('does not detect case-mismatched constants', () => {
+        expect(isExpression('PI')).toBe(false);
+        expect(isExpression('E')).toBe(false);
       });
     });
 
@@ -675,6 +676,97 @@ describe('mathExpression', () => {
         expect(evaluateExpression('sin(0)').success).toBe(true);
         expect(evaluateExpression('sqrt(16)+abs(-3)').success).toBe(true);
         expect(evaluateExpression('e+tau+phi').success).toBe(true);
+      });
+    });
+
+    describe('JavaScript keyword rejection', () => {
+      it('rejects arguments identifier', () => {
+        const result = evaluateExpression('arguments');
+        expect(result.success).toBe(false);
+      });
+
+      it('rejects return keyword', () => {
+        const result = evaluateExpression('return');
+        expect(result.success).toBe(false);
+      });
+
+      it('rejects new keyword', () => {
+        const result = evaluateExpression('new');
+        expect(result.success).toBe(false);
+      });
+
+      it('rejects typeof keyword', () => {
+        const result = evaluateExpression('typeof');
+        expect(result.success).toBe(false);
+      });
+
+      it('rejects void keyword', () => {
+        const result = evaluateExpression('void');
+        expect(result.success).toBe(false);
+      });
+
+      it('rejects delete keyword', () => {
+        const result = evaluateExpression('delete');
+        expect(result.success).toBe(false);
+      });
+
+      it('rejects control flow keywords', () => {
+        expect(evaluateExpression('for').success).toBe(false);
+        expect(evaluateExpression('while').success).toBe(false);
+        expect(evaluateExpression('if').success).toBe(false);
+        expect(evaluateExpression('switch').success).toBe(false);
+        expect(evaluateExpression('throw').success).toBe(false);
+      });
+
+      it('rejects variable declaration keywords', () => {
+        expect(evaluateExpression('var').success).toBe(false);
+        expect(evaluateExpression('let').success).toBe(false);
+        expect(evaluateExpression('const').success).toBe(false);
+        expect(evaluateExpression('class').success).toBe(false);
+      });
+
+      it('rejects async keywords', () => {
+        expect(evaluateExpression('yield').success).toBe(false);
+        expect(evaluateExpression('await').success).toBe(false);
+        expect(evaluateExpression('async').success).toBe(false);
+      });
+
+      it('rejects debugger and with keywords', () => {
+        expect(evaluateExpression('debugger').success).toBe(false);
+        expect(evaluateExpression('with').success).toBe(false);
+      });
+    });
+
+    describe('Expression length limit', () => {
+      it('rejects expressions exceeding max length', () => {
+        const longExpression = '1+'.repeat(101) + '1';
+        const result = evaluateExpression(longExpression);
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('too long');
+      });
+
+      it('accepts expressions within max length', () => {
+        const result = evaluateExpression('1+2+3+4+5');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(15);
+      });
+
+      it('accepts expressions at exactly max length', () => {
+        // 200 chars: '1+' * 99 + '10' = 200
+        const expression = '1+'.repeat(99) + '10';
+        expect(expression.length).toBe(200);
+        const result = evaluateExpression(expression);
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('Scientific notation handling', () => {
+      it('blocks scientific notation via identifier check', () => {
+        // '1e5' — after sanitize, 'e' is extracted as identifier
+        // but 'e' is a valid constant (Math.E), so '1e5' becomes '1*2.718...5'
+        // which is a syntax error. The expression is rejected.
+        const result = evaluateExpression('1e5');
+        expect(result.success).toBe(false);
       });
     });
   });

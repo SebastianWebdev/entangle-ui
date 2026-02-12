@@ -9,11 +9,7 @@ export default function InputDemo() {
   return (
     <DemoWrapper>
       <Stack spacing={3} style={{ maxWidth: 300 }}>
-        <Input
-          placeholder="Default input"
-          value={value}
-          onChange={e => setValue(e.target.value)}
-        />
+        <Input placeholder="Default input" value={value} onChange={setValue} />
         <Input label="Username" helperText="Enter your display name" />
         <Input
           error

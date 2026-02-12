@@ -483,8 +483,7 @@ export const InteractiveExample: Story = {
     const [value, setValue] = React.useState('');
     const [hasError, setHasError] = React.useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = e.target.value;
+    const handleChange = (newValue: string) => {
       setValue(newValue);
 
       // Simple validation example

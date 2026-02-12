@@ -123,7 +123,27 @@ export function findTForX(
 }
 
 /**
+ * Clamp a tangent handle so its X component stays within the segment bounds.
+ * Uses proportional scaling to preserve the tangent angle.
+ *
+ * @param handle  Handle offset relative to its keyframe
+ * @param maxAbsX Maximum allowed |handle.x| (typically the segment width)
+ */
+function clampHandleToSegment(
+  handle: { x: number; y: number },
+  maxAbsX: number
+): { x: number; y: number } {
+  const absX = Math.abs(handle.x);
+  if (absX <= maxAbsX || absX < 1e-10) return handle;
+
+  const scale = maxAbsX / absX;
+  return { x: handle.x * scale, y: handle.y * scale };
+}
+
+/**
  * Get the bezier control points for a segment between two keyframes.
+ * Handles are clamped so that p1.x and p2.x stay within [p0.x, p3.x],
+ * preventing the bezier from folding back on itself (vertical spikes / loops).
  */
 function getSegmentControlPoints(
   kf0: CurveKeyframe,
@@ -134,10 +154,15 @@ function getSegmentControlPoints(
   p2: { x: number; y: number };
   p3: { x: number; y: number };
 } {
+  const segWidth = kf1.x - kf0.x;
+
+  const hOut = clampHandleToSegment(kf0.handleOut, segWidth);
+  const hIn = clampHandleToSegment(kf1.handleIn, segWidth);
+
   return {
     p0: { x: kf0.x, y: kf0.y },
-    p1: { x: kf0.x + kf0.handleOut.x, y: kf0.y + kf0.handleOut.y },
-    p2: { x: kf1.x + kf1.handleIn.x, y: kf1.y + kf1.handleIn.y },
+    p1: { x: kf0.x + hOut.x, y: kf0.y + hOut.y },
+    p2: { x: kf1.x + hIn.x, y: kf1.y + hIn.y },
     p3: { x: kf1.x, y: kf1.y },
   };
 }
@@ -246,13 +271,26 @@ export function computeAutoTangent(
     return { handleIn: { x: 0, y: 0 }, handleOut: { x: 0, y: 0 } };
   }
 
-  // Middle keyframe — Catmull-Rom tangent
-  const dx = (next.x - prev.x) * TANGENT_SCALE;
-  const dy = (next.y - prev.y) * TANGENT_SCALE;
+  // Middle keyframe — Catmull-Rom tangent with per-segment scaling.
+  // The tangent direction comes from (next - prev), but each handle is
+  // scaled proportionally to its own segment length so that handles
+  // never overshoot into neighboring segments.
+  const totalDx = next.x - prev.x;
+  const totalDy = next.y - prev.y;
+
+  const segIn = current.x - prev.x;
+  const segOut = next.x - current.x;
+  const totalSeg = segIn + segOut || 1;
 
   return {
-    handleIn: { x: -dx, y: -dy },
-    handleOut: { x: dx, y: dy },
+    handleIn: {
+      x: -(segIn / totalSeg) * totalDx * TANGENT_SCALE,
+      y: -(segIn / totalSeg) * totalDy * TANGENT_SCALE,
+    },
+    handleOut: {
+      x: (segOut / totalSeg) * totalDx * TANGENT_SCALE,
+      y: (segOut / totalSeg) * totalDy * TANGENT_SCALE,
+    },
   };
 }
 
