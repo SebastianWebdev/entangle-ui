@@ -1,5 +1,33 @@
 # entangle-ui
 
+## 0.5.0
+
+### Minor Changes
+
+- [#30](https://github.com/SebastianWebdev/entangle-ui/pull/30) [`a471804`](https://github.com/SebastianWebdev/entangle-ui/commit/a4718046f68e41953c3efcf1987c82daf1a124ad) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - ### Breaking Changes
+  - **Shell component props**: Removed `$` prefix from all shell component props. `$size` → `size`, `$variant` → `variant`, `$side` → `side`, `$orientation` → `orientation` across StatusBar, Toolbar, and MenuBar.
+  - **BaseButton removed**: Deleted dead `BaseButton` primitive (was not exported from public API).
+
+  ### Fixes
+  - **sideEffects**: Changed `sideEffects: false` to `["*.css", "*.css.ts"]` so bundlers preserve Vanilla Extract CSS.
+  - **Theme export**: Added `entangle-ui/theme` export path for `darkThemeValues` and `DarkThemeValues` type.
+  - **Hardcoded 26px**: Replaced hardcoded StatusBar medium height with `vars.shell.statusBar.heightMd` theme token.
+  - **Lockfile**: Regenerated `package-lock.json` to remove stale Emotion peerDeps.
+
+  ### Performance
+  - **Icons memoized**: All 63 icon components wrapped with `React.memo` and `/*#__PURE__*/` annotations for better tree-shaking and fewer re-renders.
+
+  ### Internal
+  - **Chat SVG deduplication**: Extracted shared mini-icons into `ChatIcons.tsx`, removed duplicated inline SVGs from `ChatAttachment` and `ChatContextChip`.
+  - **`cn` deprecated**: `cn` utility is now a re-export alias of `cx`. Use `cx` directly.
+  - **`'use client'` directives**: Added to all icon files for Next.js App Router compatibility.
+
+### Patch Changes
+
+- [#32](https://github.com/SebastianWebdev/entangle-ui/pull/32) [`c080cd7`](https://github.com/SebastianWebdev/entangle-ui/commit/c080cd7def25fca19061ff366ea98144fcd4b6ba) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - ### Internal
+  - **ChatToolCall SVG deduplication**: Moved inline `WrenchIcon` and `ChevronIcon` from `ChatToolCall.tsx` to shared `ChatIcons.tsx` as `MiniWrenchIcon` and `MiniChevronIcon`.
+  - **vite.config.ts cleanup**: Removed stale `build.lib` section with UMD format reference (Rollup handles the real build, Vite is only used for Storybook).
+
 ## 0.4.0
 
 ### Minor Changes
