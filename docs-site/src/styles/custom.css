@@ -1,3 +1,5 @@
+/* ─── Entangle UI docs — dark theme overrides ─── */
+
 :root {
   --sl-color-accent-low: #1a1a3e;
   --sl-color-accent: #6366f1;
@@ -10,10 +12,31 @@
   --sl-color-gray-5: #303040;
   --sl-color-gray-6: #1e1e2e;
   --sl-color-black: #0d0d1a;
+  --sl-font-system-mono: 'SF Mono', Monaco, Consolas, 'Liberation Mono',
+    monospace;
 }
 
 :root[data-theme='dark'] {
   --sl-color-bg: #0d0d1a;
   --sl-color-bg-sidebar: #12121f;
   --sl-color-bg-nav: #0d0d1a;
+}
+
+/* ─── Inline code styling ─── */
+:not(pre) > code {
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+  font-size: 0.85em;
+}
+
+/* ─── Sidebar polish ─── */
+nav.sidebar .top-level > li + li {
+  border-top: 1px solid var(--sl-color-gray-5);
+}
+
+/* ─── Content width ─── */
+.sl-container {
+  max-width: 75rem;
 }
