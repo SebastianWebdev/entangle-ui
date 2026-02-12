@@ -78,7 +78,7 @@ const [collapsed, setCollapsed] = useState(false);
   onCollapsedChange={setCollapsed}
 >
   <p>Fully controlled.</p>
-</FloatingPanel>
+</FloatingPanel>;
 ```
 
 ## Uncontrolled Mode
@@ -103,15 +103,17 @@ The header always shows a collapse/expand toggle. The close button only appears 
 ```tsx
 const [visible, setVisible] = useState(true);
 
-{visible && (
-  <FloatingPanel
-    title="Closable Panel"
-    closable
-    onClose={() => setVisible(false)}
-  >
-    <p>Click the X to close.</p>
-  </FloatingPanel>
-)}
+{
+  visible && (
+    <FloatingPanel
+      title="Closable Panel"
+      closable
+      onClose={() => setVisible(false)}
+    >
+      <p>Click the X to close.</p>
+    </FloatingPanel>
+  );
+}
 ```
 
 ## Scrollable Content
@@ -122,38 +124,149 @@ Panel content is automatically wrapped in a `ScrollArea` that scrolls in both di
 
 ### FloatingPanel
 
-<PropsTable props={[
-  { name: 'title', type: 'string', required: true, description: 'Panel title displayed in the header bar.' },
-  { name: 'position', type: '{ x: number; y: number }', description: 'Controlled position in pixels.' },
-  { name: 'defaultPosition', type: '{ x: number; y: number }', default: '{ x: 100, y: 100 }', description: 'Initial position for uncontrolled mode.' },
-  { name: 'onPositionChange', type: '(position: { x: number; y: number }) => void', description: 'Called when position changes during drag.' },
-  { name: 'size', type: '{ width: number; height: number }', description: 'Controlled size in pixels.' },
-  { name: 'defaultSize', type: '{ width: number; height: number }', default: '{ width: 280, height: 200 }', description: 'Initial size for uncontrolled mode.' },
-  { name: 'onSizeChange', type: '(size: { width: number; height: number }) => void', description: 'Called when size changes during resize.' },
-  { name: 'minWidth', type: 'number', default: '150', description: 'Minimum panel width in pixels.' },
-  { name: 'minHeight', type: 'number', default: '100', description: 'Minimum panel height in pixels.' },
-  { name: 'maxWidth', type: 'number', default: 'Infinity', description: 'Maximum panel width in pixels.' },
-  { name: 'maxHeight', type: 'number', default: 'Infinity', description: 'Maximum panel height in pixels.' },
-  { name: 'collapsed', type: 'boolean', description: 'Controlled collapsed state.' },
-  { name: 'defaultCollapsed', type: 'boolean', default: 'false', description: 'Initial collapsed state for uncontrolled mode.' },
-  { name: 'onCollapsedChange', type: '(collapsed: boolean) => void', description: 'Called when collapsed state changes.' },
-  { name: 'onClose', type: '() => void', description: 'Called when the close button is clicked.' },
-  { name: 'closable', type: 'boolean', default: 'true', description: 'Whether to show the close button (requires onClose handler to actually render).' },
-  { name: 'resizable', type: 'boolean', default: 'true', description: 'Whether the panel can be resized via the bottom-right corner handle.' },
-  { name: 'panelId', type: 'string', description: 'Unique panel ID for FloatingManager z-index tracking. Auto-generated if not provided.' },
-  { name: 'children', type: 'ReactNode', description: 'Panel body content.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the panel root element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'title',
+      type: 'string',
+      required: true,
+      description: 'Panel title displayed in the header bar.',
+    },
+    {
+      name: 'position',
+      type: '{ x: number; y: number }',
+      description: 'Controlled position in pixels.',
+    },
+    {
+      name: 'defaultPosition',
+      type: '{ x: number; y: number }',
+      default: '{ x: 100, y: 100 }',
+      description: 'Initial position for uncontrolled mode.',
+    },
+    {
+      name: 'onPositionChange',
+      type: '(position: { x: number; y: number }) => void',
+      description: 'Called when position changes during drag.',
+    },
+    {
+      name: 'size',
+      type: '{ width: number; height: number }',
+      description: 'Controlled size in pixels.',
+    },
+    {
+      name: 'defaultSize',
+      type: '{ width: number; height: number }',
+      default: '{ width: 280, height: 200 }',
+      description: 'Initial size for uncontrolled mode.',
+    },
+    {
+      name: 'onSizeChange',
+      type: '(size: { width: number; height: number }) => void',
+      description: 'Called when size changes during resize.',
+    },
+    {
+      name: 'minWidth',
+      type: 'number',
+      default: '150',
+      description: 'Minimum panel width in pixels.',
+    },
+    {
+      name: 'minHeight',
+      type: 'number',
+      default: '100',
+      description: 'Minimum panel height in pixels.',
+    },
+    {
+      name: 'maxWidth',
+      type: 'number',
+      default: 'Infinity',
+      description: 'Maximum panel width in pixels.',
+    },
+    {
+      name: 'maxHeight',
+      type: 'number',
+      default: 'Infinity',
+      description: 'Maximum panel height in pixels.',
+    },
+    {
+      name: 'collapsed',
+      type: 'boolean',
+      description: 'Controlled collapsed state.',
+    },
+    {
+      name: 'defaultCollapsed',
+      type: 'boolean',
+      default: 'false',
+      description: 'Initial collapsed state for uncontrolled mode.',
+    },
+    {
+      name: 'onCollapsedChange',
+      type: '(collapsed: boolean) => void',
+      description: 'Called when collapsed state changes.',
+    },
+    {
+      name: 'onClose',
+      type: '() => void',
+      description: 'Called when the close button is clicked.',
+    },
+    {
+      name: 'closable',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'Whether to show the close button (requires onClose handler to actually render).',
+    },
+    {
+      name: 'resizable',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'Whether the panel can be resized via the bottom-right corner handle.',
+    },
+    {
+      name: 'panelId',
+      type: 'string',
+      description:
+        'Unique panel ID for FloatingManager z-index tracking. Auto-generated if not provided.',
+    },
+    { name: 'children', type: 'ReactNode', description: 'Panel body content.' },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the panel root element.',
+    },
+  ]}
+/>
 
 ### FloatingManager
 
-<PropsTable props={[
-  { name: 'baseZIndex', type: 'number', default: '100', description: 'Base z-index value. Each panel stacks one level above the previous.' },
-  { name: 'children', type: 'ReactNode', description: 'FloatingPanel components to manage.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'baseZIndex',
+      type: 'number',
+      default: '100',
+      description:
+        'Base z-index value. Each panel stacks one level above the previous.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'FloatingPanel components to manage.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

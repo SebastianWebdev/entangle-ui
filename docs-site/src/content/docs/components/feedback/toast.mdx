@@ -59,12 +59,12 @@ warning('Running low on memory');
 error('Failed to connect to server');
 ```
 
-| Severity | Use case | ARIA role |
-| -------- | -------- | --------- |
-| `info` | General information | `status` (polite) |
-| `success` | Completed operations | `status` (polite) |
-| `warning` | Important warnings | `alert` (assertive) |
-| `error` | Errors and failures | `alert` (assertive) |
+| Severity  | Use case             | ARIA role           |
+| --------- | -------------------- | ------------------- |
+| `info`    | General information  | `status` (polite)   |
+| `success` | Completed operations | `status` (polite)   |
+| `warning` | Important warnings   | `alert` (assertive) |
+| `error`   | Errors and failures  | `alert` (assertive) |
 
 ## Toast with Title
 
@@ -203,40 +203,71 @@ Bottom positions stack toasts with the newest at the bottom (using `column-rever
 
 ### ToastProvider
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Application content.' },
-  { name: 'position', type: "'top-right' | 'top-left' | 'top-center' | 'bottom-right' | 'bottom-left' | 'bottom-center'", default: "'bottom-right'", description: 'Screen position for the toast container.' },
-  { name: 'maxVisible', type: 'number', default: '5', description: 'Maximum number of visible toasts at once.' },
-  { name: 'defaultDuration', type: 'number', default: '5000', description: 'Default auto-dismiss duration in milliseconds.' },
-  { name: 'gap', type: 'number', default: '8', description: 'Gap between toasts in pixels.' },
-  { name: 'zIndex', type: 'number', default: '1200', description: 'Z-index of the toast container.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Application content.',
+    },
+    {
+      name: 'position',
+      type: "'top-right' | 'top-left' | 'top-center' | 'bottom-right' | 'bottom-left' | 'bottom-center'",
+      default: "'bottom-right'",
+      description: 'Screen position for the toast container.',
+    },
+    {
+      name: 'maxVisible',
+      type: 'number',
+      default: '5',
+      description: 'Maximum number of visible toasts at once.',
+    },
+    {
+      name: 'defaultDuration',
+      type: 'number',
+      default: '5000',
+      description: 'Default auto-dismiss duration in milliseconds.',
+    },
+    {
+      name: 'gap',
+      type: 'number',
+      default: '8',
+      description: 'Gap between toasts in pixels.',
+    },
+    {
+      name: 'zIndex',
+      type: 'number',
+      default: '1200',
+      description: 'Z-index of the toast container.',
+    },
+  ]}
+/>
 
 ### useToast() Return Value
 
-| Method | Type | Description |
-| ------ | ---- | ----------- |
-| `toast` | `(data: ToastData) => string` | Create a toast with full configuration. Returns the toast ID. |
-| `info` | `(message: string, options?) => string` | Shorthand for info severity. |
-| `success` | `(message: string, options?) => string` | Shorthand for success severity. |
-| `warning` | `(message: string, options?) => string` | Shorthand for warning severity. |
-| `error` | `(message: string, options?) => string` | Shorthand for error severity. |
-| `dismiss` | `(id: string) => void` | Dismiss a specific toast by ID. |
-| `dismissAll` | `() => void` | Dismiss all visible toasts. |
+| Method       | Type                                    | Description                                                   |
+| ------------ | --------------------------------------- | ------------------------------------------------------------- |
+| `toast`      | `(data: ToastData) => string`           | Create a toast with full configuration. Returns the toast ID. |
+| `info`       | `(message: string, options?) => string` | Shorthand for info severity.                                  |
+| `success`    | `(message: string, options?) => string` | Shorthand for success severity.                               |
+| `warning`    | `(message: string, options?) => string` | Shorthand for warning severity.                               |
+| `error`      | `(message: string, options?) => string` | Shorthand for error severity.                                 |
+| `dismiss`    | `(id: string) => void`                  | Dismiss a specific toast by ID.                               |
+| `dismissAll` | `() => void`                            | Dismiss all visible toasts.                                   |
 
 ### ToastData
 
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-| `message` | `string` | *required* | Toast message text. |
-| `id` | `string` | auto-generated | Custom toast ID. |
-| `title` | `string` | | Optional title displayed above the message. |
-| `severity` | `'info' \| 'success' \| 'warning' \| 'error'` | `'info'` | Severity level. |
-| `duration` | `number` | `5000` | Auto-dismiss duration in ms. Set to 0 for persistent. |
-| `closable` | `boolean` | `true` | Whether to show the close button. |
-| `showProgress` | `boolean` | `false` | Whether to show the progress bar. |
-| `icon` | `ReactNode` | severity icon | Custom icon element. |
-| `action` | `{ label: string; onClick: () => void }` | | Action button configuration. |
+| Property       | Type                                          | Default        | Description                                           |
+| -------------- | --------------------------------------------- | -------------- | ----------------------------------------------------- |
+| `message`      | `string`                                      | _required_     | Toast message text.                                   |
+| `id`           | `string`                                      | auto-generated | Custom toast ID.                                      |
+| `title`        | `string`                                      |                | Optional title displayed above the message.           |
+| `severity`     | `'info' \| 'success' \| 'warning' \| 'error'` | `'info'`       | Severity level.                                       |
+| `duration`     | `number`                                      | `5000`         | Auto-dismiss duration in ms. Set to 0 for persistent. |
+| `closable`     | `boolean`                                     | `true`         | Whether to show the close button.                     |
+| `showProgress` | `boolean`                                     | `false`        | Whether to show the progress bar.                     |
+| `icon`         | `ReactNode`                                   | severity icon  | Custom icon element.                                  |
+| `action`       | `{ label: string; onClick: () => void }`      |                | Action button configuration.                          |
 
 ## Accessibility
 

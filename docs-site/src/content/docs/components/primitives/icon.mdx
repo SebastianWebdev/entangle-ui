@@ -41,11 +41,11 @@ The `size` prop controls the icon dimensions.
 <Icon size="lg">{/* 20px icon */}</Icon>
 ```
 
-| Size | Dimensions | Use case |
-| ---- | ---------- | -------- |
-| `sm` | 12x12px | Compact toolbars, inline indicators |
-| `md` | 16x16px | Standard buttons and controls |
-| `lg` | 20x20px | Prominent actions, headers |
+| Size | Dimensions | Use case                            |
+| ---- | ---------- | ----------------------------------- |
+| `sm` | 12x12px    | Compact toolbars, inline indicators |
+| `md` | 16x16px    | Standard buttons and controls       |
+| `lg` | 20x20px    | Prominent actions, headers          |
 
 ## Colors
 
@@ -90,16 +90,56 @@ When `decorative` is `true`, the icon renders with `aria-hidden="true"` and `rol
 
 ## Props
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'SVG content (paths, circles, etc.) to render inside the icon.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Icon size controlling width and height.' },
-  { name: 'color', type: "'primary' | 'secondary' | 'muted' | 'accent' | 'success' | 'warning' | 'error' | string", default: "'primary'", description: 'Icon color. Standard theme tokens or any CSS color value.' },
-  { name: 'title', type: 'string', description: 'Accessible title for the icon. Renders a <title> element inside the SVG.' },
-  { name: 'decorative', type: 'boolean', default: 'false', description: 'Whether the icon is decorative only. Sets aria-hidden and role=presentation.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<SVGSVGElement>', description: 'Ref to the underlying SVG element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'SVG content (paths, circles, etc.) to render inside the icon.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Icon size controlling width and height.',
+    },
+    {
+      name: 'color',
+      type: "'primary' | 'secondary' | 'muted' | 'accent' | 'success' | 'warning' | 'error' | string",
+      default: "'primary'",
+      description: 'Icon color. Standard theme tokens or any CSS color value.',
+    },
+    {
+      name: 'title',
+      type: 'string',
+      description:
+        'Accessible title for the icon. Renders a <title> element inside the SVG.',
+    },
+    {
+      name: 'decorative',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the icon is decorative only. Sets aria-hidden and role=presentation.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<SVGSVGElement>',
+      description: 'Ref to the underlying SVG element.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

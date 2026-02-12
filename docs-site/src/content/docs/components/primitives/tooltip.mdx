@@ -39,12 +39,12 @@ The `placement` prop controls where the tooltip appears relative to the trigger.
 </Tooltip>
 ```
 
-| Placement | Description |
-| --------- | ----------- |
-| `top`, `top-start`, `top-end` | Above the trigger |
-| `bottom`, `bottom-start`, `bottom-end` | Below the trigger |
-| `left`, `left-start`, `left-end` | Left of the trigger |
-| `right`, `right-start`, `right-end` | Right of the trigger |
+| Placement                              | Description          |
+| -------------------------------------- | -------------------- |
+| `top`, `top-start`, `top-end`          | Above the trigger    |
+| `bottom`, `bottom-start`, `bottom-end` | Below the trigger    |
+| `left`, `left-start`, `left-end`       | Left of the trigger  |
+| `right`, `right-start`, `right-end`    | Right of the trigger |
 
 ## Collision Handling
 
@@ -64,14 +64,14 @@ The `collision` prop controls how the tooltip reacts when it would overflow the 
 </Tooltip>
 ```
 
-| Strategy | Behavior |
-| -------- | -------- |
-| `smart` | Intelligent fallback with axis switching |
-| `flip` | Flip to the opposite side |
-| `shift` | Shift within viewport bounds |
-| `flip-shift` | Flip first, then shift |
-| `hide` | Hide when no space available |
-| `none` | No collision handling |
+| Strategy     | Behavior                                 |
+| ------------ | ---------------------------------------- |
+| `smart`      | Intelligent fallback with axis switching |
+| `flip`       | Flip to the opposite side                |
+| `shift`      | Shift within viewport bounds             |
+| `flip-shift` | Flip first, then shift                   |
+| `hide`       | Hide when no space available             |
+| `none`       | No collision handling                    |
 
 For advanced control, use `collisionConfig` to configure side and alignment collision behavior independently.
 
@@ -194,25 +194,103 @@ For power users, `rootProps` and `positionerProps` provide direct access to the 
 
 ## Props
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactElement', description: 'The trigger element that shows the tooltip on hover.' },
-  { name: 'title', type: 'ReactNode', description: 'Content displayed in the tooltip. Text or React elements.' },
-  { name: 'placement', type: "'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end' | 'right' | 'right-start' | 'right-end'", default: "'top'", description: 'Tooltip placement relative to the trigger.' },
-  { name: 'collision', type: "'flip' | 'shift' | 'hide' | 'flip-shift' | 'smart' | 'none'", default: "'smart'", description: 'Collision handling strategy when tooltip overflows viewport.' },
-  { name: 'collisionConfig', type: '{ side?: string; align?: string; fallbackAxisSide?: string }', description: 'Advanced collision configuration. Overrides the collision strategy.' },
-  { name: 'positioner', type: '{ offset?: number; padding?: number; sticky?: boolean; boundary?: string | HTMLElement; trackCursor?: string }', description: 'Advanced positioning configuration.' },
-  { name: 'animation', type: '{ animated?: boolean; duration?: number; easing?: string }', description: 'Animation configuration for show/hide transitions.' },
-  { name: 'delay', type: 'number', default: '600', description: 'Delay in milliseconds before showing the tooltip.' },
-  { name: 'closeDelay', type: 'number', default: '0', description: 'Delay in milliseconds before hiding the tooltip.' },
-  { name: 'arrow', type: 'boolean', default: 'true', description: 'Whether to show the arrow pointing to the trigger.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the tooltip is disabled.' },
-  { name: 'rootProps', type: 'Partial<BaseTooltipRootProps>', description: 'Direct props for the Base UI Root component.' },
-  { name: 'positionerProps', type: 'Partial<BaseTooltipPositionerProps>', description: 'Direct props for the Base UI Positioner component.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names for the tooltip popup.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles for the tooltip popup.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the tooltip popup element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactElement',
+      description: 'The trigger element that shows the tooltip on hover.',
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: 'Content displayed in the tooltip. Text or React elements.',
+    },
+    {
+      name: 'placement',
+      type: "'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end' | 'right' | 'right-start' | 'right-end'",
+      default: "'top'",
+      description: 'Tooltip placement relative to the trigger.',
+    },
+    {
+      name: 'collision',
+      type: "'flip' | 'shift' | 'hide' | 'flip-shift' | 'smart' | 'none'",
+      default: "'smart'",
+      description:
+        'Collision handling strategy when tooltip overflows viewport.',
+    },
+    {
+      name: 'collisionConfig',
+      type: '{ side?: string; align?: string; fallbackAxisSide?: string }',
+      description:
+        'Advanced collision configuration. Overrides the collision strategy.',
+    },
+    {
+      name: 'positioner',
+      type: '{ offset?: number; padding?: number; sticky?: boolean; boundary?: string | HTMLElement; trackCursor?: string }',
+      description: 'Advanced positioning configuration.',
+    },
+    {
+      name: 'animation',
+      type: '{ animated?: boolean; duration?: number; easing?: string }',
+      description: 'Animation configuration for show/hide transitions.',
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      default: '600',
+      description: 'Delay in milliseconds before showing the tooltip.',
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      default: '0',
+      description: 'Delay in milliseconds before hiding the tooltip.',
+    },
+    {
+      name: 'arrow',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show the arrow pointing to the trigger.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the tooltip is disabled.',
+    },
+    {
+      name: 'rootProps',
+      type: 'Partial<BaseTooltipRootProps>',
+      description: 'Direct props for the Base UI Root component.',
+    },
+    {
+      name: 'positionerProps',
+      type: 'Partial<BaseTooltipPositionerProps>',
+      description: 'Direct props for the Base UI Positioner component.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names for the tooltip popup.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline styles for the tooltip popup.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the tooltip popup element.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

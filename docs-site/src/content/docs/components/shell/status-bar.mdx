@@ -19,7 +19,9 @@ import { StatusBar } from 'entangle-ui';
 <StatusBar>
   <StatusBar.Section side="left">
     <StatusBar.Item icon={<BranchIcon />}>main</StatusBar.Item>
-    <StatusBar.Item icon={<SyncIcon />} onClick={handleSync}>Synced</StatusBar.Item>
+    <StatusBar.Item icon={<SyncIcon />} onClick={handleSync}>
+      Synced
+    </StatusBar.Item>
   </StatusBar.Section>
   <StatusBar.Section side="right">
     <StatusBar.Item>Ln 42, Col 8</StatusBar.Item>
@@ -30,10 +32,10 @@ import { StatusBar } from 'entangle-ui';
 
 ## Compound Components
 
-| Component | Purpose |
-| --- | --- |
-| `StatusBar.Section` | Container for grouping items on the left or right side |
-| `StatusBar.Item` | Individual status item -- renders as a button when `onClick` is provided, otherwise as a span |
+| Component           | Purpose                                                                                       |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| `StatusBar.Section` | Container for grouping items on the left or right side                                        |
+| `StatusBar.Item`    | Individual status item -- renders as a button when `onClick` is provided, otherwise as a span |
 
 ## Variants
 
@@ -59,11 +61,11 @@ The `variant` prop changes the status bar's background color to communicate appl
 </StatusBar>
 ```
 
-| Variant | Use case |
-| --- | --- |
-| `default` | Normal application state (default) |
-| `error` | Error or critical state (e.g., build failure) |
-| `accent` | Active or special state (e.g., remote debugging) |
+| Variant   | Use case                                         |
+| --------- | ------------------------------------------------ |
+| `default` | Normal application state (default)               |
+| `error`   | Error or critical state (e.g., build failure)    |
+| `accent`  | Active or special state (e.g., remote debugging) |
 
 ## Sizes
 
@@ -72,10 +74,10 @@ The `variant` prop changes the status bar's background color to communicate appl
 <StatusBar size="md">{/* Standard */}</StatusBar>
 ```
 
-| Size | Use case |
-| --- | --- |
+| Size | Use case                     |
+| ---- | ---------------------------- |
 | `sm` | Compact status bar (default) |
-| `md` | Standard height |
+| `md` | Standard height              |
 
 ## Interactive Items
 
@@ -132,41 +134,131 @@ Use `StatusBar.Section` to align items to the left or right side of the status b
 
 ### StatusBar
 
-<PropsTable props={[
-  { name: 'size', type: "'sm' | 'md'", default: "'sm'", description: 'Size of the status bar.' },
-  { name: 'variant', type: "'default' | 'error' | 'accent'", default: "'default'", description: 'Color variant indicating application state.' },
-  { name: 'children', type: 'ReactNode', description: 'StatusBar.Section components.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'size',
+      type: "'sm' | 'md'",
+      default: "'sm'",
+      description: 'Size of the status bar.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'error' | 'accent'",
+      default: "'default'",
+      description: 'Color variant indicating application state.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'StatusBar.Section components.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root element.',
+    },
+  ]}
+/>
 
 ### StatusBar.Section
 
-<PropsTable props={[
-  { name: 'side', type: "'left' | 'right'", default: "'left'", description: 'Which side of the status bar the section aligns to.' },
-  { name: 'children', type: 'ReactNode', description: 'StatusBar.Item components.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the section element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'side',
+      type: "'left' | 'right'",
+      default: "'left'",
+      description: 'Which side of the status bar the section aligns to.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'StatusBar.Item components.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the section element.',
+    },
+  ]}
+/>
 
 ### StatusBar.Item
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Item label text.' },
-  { name: 'icon', type: 'ReactNode', description: 'Icon element displayed before the label.' },
-  { name: 'onClick', type: '() => void', description: 'Click handler. When provided, the item renders as a button instead of a span.' },
-  { name: 'title', type: 'string', description: 'Tooltip text shown on hover.' },
-  { name: 'badge', type: 'number | boolean', description: 'Badge indicator. A number shows a count badge. `true` shows a dot badge. `false` or `undefined` hides the badge.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the item is disabled (only applies to interactive items).' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLElement>', description: 'Ref to the item element (HTMLButtonElement when clickable, HTMLSpanElement when static).' },
-]} />
+<PropsTable
+  props={[
+    { name: 'children', type: 'ReactNode', description: 'Item label text.' },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Icon element displayed before the label.',
+    },
+    {
+      name: 'onClick',
+      type: '() => void',
+      description:
+        'Click handler. When provided, the item renders as a button instead of a span.',
+    },
+    {
+      name: 'title',
+      type: 'string',
+      description: 'Tooltip text shown on hover.',
+    },
+    {
+      name: 'badge',
+      type: 'number | boolean',
+      description:
+        'Badge indicator. A number shows a count badge. `true` shows a dot badge. `false` or `undefined` hides the badge.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the item is disabled (only applies to interactive items).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description:
+        'Ref to the item element (HTMLButtonElement when clickable, HTMLSpanElement when static).',
+    },
+  ]}
+/>
 
 ## Accessibility
 

@@ -18,9 +18,7 @@ import { PanelSurface } from 'entangle-ui';
 ```tsx
 <PanelSurface>
   <PanelSurface.Header>Properties</PanelSurface.Header>
-  <PanelSurface.Body padding={8}>
-    Panel content goes here
-  </PanelSurface.Body>
+  <PanelSurface.Body padding={8}>Panel content goes here</PanelSurface.Body>
 </PanelSurface>
 ```
 
@@ -61,10 +59,10 @@ The `size` prop on the root `PanelSurface` controls the visual density of the he
 </PanelSurface>
 ```
 
-| Size | Use case |
-| --- | --- |
-| `sm` | Compact tool windows and inline panels |
-| `md` | Standard property panels (default) |
+| Size | Use case                                   |
+| ---- | ------------------------------------------ |
+| `sm` | Compact tool windows and inline panels     |
+| `md` | Standard property panels (default)         |
 | `lg` | Prominent settings or configuration panels |
 
 ## Border
@@ -72,17 +70,21 @@ The `size` prop on the root `PanelSurface` controls the visual density of the he
 The `bordered` prop controls whether the panel has a visible border.
 
 ```tsx
-{/* With border (default) */}
+{
+  /* With border (default) */
+}
 <PanelSurface bordered>
   <PanelSurface.Header>Bordered Panel</PanelSurface.Header>
   <PanelSurface.Body>Content</PanelSurface.Body>
-</PanelSurface>
+</PanelSurface>;
 
-{/* Without border */}
+{
+  /* Without border */
+}
 <PanelSurface bordered={false}>
   <PanelSurface.Header>Borderless Panel</PanelSurface.Header>
   <PanelSurface.Body>Content</PanelSurface.Body>
-</PanelSurface>
+</PanelSurface>;
 ```
 
 ## Custom Background
@@ -112,9 +114,7 @@ The `PanelSurface.Header` supports an `actions` slot for interactive elements po
   >
     Inspector
   </PanelSurface.Header>
-  <PanelSurface.Body padding={8}>
-    Inspector content...
-  </PanelSurface.Body>
+  <PanelSurface.Body padding={8}>Inspector content...</PanelSurface.Body>
 </PanelSurface>
 ```
 
@@ -154,9 +154,7 @@ Control the inner padding of the body area. Accepts numbers (treated as pixels) 
 ```tsx
 <PanelSurface size="md" bordered>
   <PanelSurface.Header
-    actions={
-      <IconButton icon={<CloseIcon />} size="sm" variant="ghost" />
-    }
+    actions={<IconButton icon={<CloseIcon />} size="sm" variant="ghost" />}
   >
     Transform
   </PanelSurface.Header>
@@ -170,7 +168,9 @@ Control the inner padding of the body area. Accepts numbers (treated as pixels) 
     </Stack>
   </PanelSurface.Body>
   <PanelSurface.Footer>
-    <Button size="sm" variant="ghost">Reset</Button>
+    <Button size="sm" variant="ghost">
+      Reset
+    </Button>
   </PanelSurface.Footer>
 </PanelSurface>
 ```
@@ -179,49 +179,150 @@ Control the inner padding of the body area. Accepts numbers (treated as pixels) 
 
 ### PanelSurface
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Panel content. Typically PanelSurface.Header, PanelSurface.Body, and optionally PanelSurface.Footer.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Visual density for header and footer chrome. Shared via context to sub-components.' },
-  { name: 'bordered', type: 'boolean', default: 'true', description: 'Whether to show a border around the panel.' },
-  { name: 'background', type: 'string', description: 'Custom background color or gradient. Defaults to the theme secondary background.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root div element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Panel content. Typically PanelSurface.Header, PanelSurface.Body, and optionally PanelSurface.Footer.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description:
+        'Visual density for header and footer chrome. Shared via context to sub-components.',
+    },
+    {
+      name: 'bordered',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show a border around the panel.',
+    },
+    {
+      name: 'background',
+      type: 'string',
+      description:
+        'Custom background color or gradient. Defaults to the theme secondary background.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root div element.',
+    },
+  ]}
+/>
 
 ### PanelSurface.Header
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Header content such as a title or label.' },
-  { name: 'actions', type: 'ReactNode', description: 'Action elements rendered on the right side of the header (e.g. icon buttons).' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the header div element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Header content such as a title or label.',
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description:
+        'Action elements rendered on the right side of the header (e.g. icon buttons).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the header div element.',
+    },
+  ]}
+/>
 
 ### PanelSurface.Body
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Main panel content.' },
-  { name: 'scroll', type: 'boolean', default: 'false', description: 'Enables automatic overflow scrolling for the body area.' },
-  { name: 'padding', type: 'number | string', default: '0', description: 'Inner padding of the body area. Numbers are treated as pixels.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the body div element.' },
-]} />
+<PropsTable
+  props={[
+    { name: 'children', type: 'ReactNode', description: 'Main panel content.' },
+    {
+      name: 'scroll',
+      type: 'boolean',
+      default: 'false',
+      description: 'Enables automatic overflow scrolling for the body area.',
+    },
+    {
+      name: 'padding',
+      type: 'number | string',
+      default: '0',
+      description:
+        'Inner padding of the body area. Numbers are treated as pixels.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the body div element.',
+    },
+  ]}
+/>
 
 ### PanelSurface.Footer
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Footer content such as action buttons.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the footer div element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Footer content such as action buttons.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the footer div element.',
+    },
+  ]}
+/>
 
 All sub-components also accept standard HTML `<div>` attributes.
 

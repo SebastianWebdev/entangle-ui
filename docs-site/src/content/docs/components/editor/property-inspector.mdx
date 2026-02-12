@@ -56,7 +56,7 @@ The root container that provides size context and optional search filtering to a
   size="md"
   searchable
   searchPlaceholder="Filter properties..."
-  onSearchChange={(query) => console.log(query)}
+  onSearchChange={query => console.log(query)}
   header={<h3>Object Properties</h3>}
   footer={<button>Apply All</button>}
   maxHeight={500}
@@ -93,7 +93,7 @@ const [expanded, setExpanded] = useState(true);
   onExpandedChange={setExpanded}
 >
   {/* ... */}
-</PropertySection>
+</PropertySection>;
 ```
 
 #### Custom Indicator
@@ -137,11 +137,7 @@ When `fullWidth` is enabled, the label appears above the control instead of besi
 The `modified` prop shows a visual dot indicator and bolds the label, signaling that the property has been changed from its default value. Combine with `onReset` to show a reset button on hover.
 
 ```tsx
-<PropertyRow
-  label="Scale"
-  modified={scale !== 1}
-  onReset={() => setScale(1)}
->
+<PropertyRow label="Scale" modified={scale !== 1} onReset={() => setScale(1)}>
   <NumberInput value={scale} onChange={setScale} />
 </PropertyRow>
 ```
@@ -176,11 +172,11 @@ Groups related rows together with an optional labeled divider. Supports indentat
 
 The `size` prop on `PropertyPanel` cascades to all child sections and rows. Individual components can override with their own `size` prop.
 
-| Size | Row Min Height | Use case |
-| --- | --- | --- |
-| `sm` | 22px | Dense inspector layouts |
-| `md` | 26px | Standard property panels (default) |
-| `lg` | 30px | Touch-friendly or high-DPI layouts |
+| Size | Row Min Height | Use case                           |
+| ---- | -------------- | ---------------------------------- |
+| `sm` | 22px           | Dense inspector layouts            |
+| `md` | 26px           | Standard property panels (default) |
+| `lg` | 30px           | Touch-friendly or high-DPI layouts |
 
 ## Search Filtering
 
@@ -198,7 +194,7 @@ const [searchQuery, setSearchQuery] = useState('');
       <NumberInput value={posX} />
     </PropertyRow>
   </PropertySection>
-</PropertyPanel>
+</PropertyPanel>;
 ```
 
 ## Undo / Redo
@@ -228,77 +224,316 @@ function handleChange(newValue: number) {
 
 ### PropertyPanel
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', required: true, description: 'Panel content -- PropertySection, PropertyGroup, or any elements.' },
-  { name: 'header', type: 'ReactNode', description: 'Content rendered in the fixed header area above scrollable content.' },
-  { name: 'footer', type: 'ReactNode', description: 'Content rendered in the fixed footer area below scrollable content.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Size applied to all nested sections and rows. Individual components can override.' },
-  { name: 'maxHeight', type: 'number | string', description: 'Maximum height of the panel. Enables scrolling via ScrollArea when set.' },
-  { name: 'searchable', type: 'boolean', default: 'false', description: 'Whether to show a search/filter input in the header.' },
-  { name: 'searchPlaceholder', type: 'string', default: "'Search properties...'", description: 'Placeholder for the search input.' },
-  { name: 'onSearchChange', type: '(query: string) => void', description: 'Callback when search query changes.' },
-  { name: 'contentTopSpacing', type: 'number', description: 'Top padding for the scrollable content area in pixels.' },
-  { name: 'contentBottomSpacing', type: 'number', description: 'Bottom padding for the scrollable content area in pixels.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description:
+        'Panel content -- PropertySection, PropertyGroup, or any elements.',
+    },
+    {
+      name: 'header',
+      type: 'ReactNode',
+      description:
+        'Content rendered in the fixed header area above scrollable content.',
+    },
+    {
+      name: 'footer',
+      type: 'ReactNode',
+      description:
+        'Content rendered in the fixed footer area below scrollable content.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description:
+        'Size applied to all nested sections and rows. Individual components can override.',
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      description:
+        'Maximum height of the panel. Enables scrolling via ScrollArea when set.',
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to show a search/filter input in the header.',
+    },
+    {
+      name: 'searchPlaceholder',
+      type: 'string',
+      default: "'Search properties...'",
+      description: 'Placeholder for the search input.',
+    },
+    {
+      name: 'onSearchChange',
+      type: '(query: string) => void',
+      description: 'Callback when search query changes.',
+    },
+    {
+      name: 'contentTopSpacing',
+      type: 'number',
+      description: 'Top padding for the scrollable content area in pixels.',
+    },
+    {
+      name: 'contentBottomSpacing',
+      type: 'number',
+      description: 'Bottom padding for the scrollable content area in pixels.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root element.',
+    },
+  ]}
+/>
 
 ### PropertySection
 
-<PropsTable props={[
-  { name: 'title', type: 'string', required: true, description: 'Section title displayed in the collapsible header.' },
-  { name: 'icon', type: 'ReactNode', description: 'Icon displayed before the section title.' },
-  { name: 'actions', type: 'ReactNode', description: 'Action buttons on the right side of the header. Clicking them does not toggle the section.' },
-  { name: 'expanded', type: 'boolean', description: 'Whether the section is expanded (controlled mode).' },
-  { name: 'defaultExpanded', type: 'boolean', default: 'true', description: 'Whether the section starts expanded (uncontrolled mode).' },
-  { name: 'onExpandedChange', type: '(expanded: boolean) => void', description: 'Callback when expanded state changes.' },
-  { name: 'keepMounted', type: 'boolean', default: 'false', description: 'Whether to keep content mounted in the DOM when collapsed.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the section is disabled (not collapsible, dimmed).' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", description: 'Size override for this section and its rows. Inherits from PropertyPanel if not set.' },
-  { name: 'indicator', type: 'ReactNode | null', description: 'Custom chevron indicator. Pass null to hide the default chevron.' },
-  { name: 'onContextMenu', type: '(event: MouseEvent) => void', description: 'Right-click context menu handler on the section header.' },
-  { name: 'children', type: 'ReactNode', required: true, description: 'Section content -- PropertyRow, PropertyGroup, or any elements.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'title',
+      type: 'string',
+      required: true,
+      description: 'Section title displayed in the collapsible header.',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Icon displayed before the section title.',
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description:
+        'Action buttons on the right side of the header. Clicking them does not toggle the section.',
+    },
+    {
+      name: 'expanded',
+      type: 'boolean',
+      description: 'Whether the section is expanded (controlled mode).',
+    },
+    {
+      name: 'defaultExpanded',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether the section starts expanded (uncontrolled mode).',
+    },
+    {
+      name: 'onExpandedChange',
+      type: '(expanded: boolean) => void',
+      description: 'Callback when expanded state changes.',
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to keep content mounted in the DOM when collapsed.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the section is disabled (not collapsible, dimmed).',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      description:
+        'Size override for this section and its rows. Inherits from PropertyPanel if not set.',
+    },
+    {
+      name: 'indicator',
+      type: 'ReactNode | null',
+      description:
+        'Custom chevron indicator. Pass null to hide the default chevron.',
+    },
+    {
+      name: 'onContextMenu',
+      type: '(event: MouseEvent) => void',
+      description: 'Right-click context menu handler on the section header.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description:
+        'Section content -- PropertyRow, PropertyGroup, or any elements.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root element.',
+    },
+  ]}
+/>
 
 ### PropertyRow
 
-<PropsTable props={[
-  { name: 'label', type: 'string', required: true, description: 'Property label text.' },
-  { name: 'tooltip', type: 'string', description: 'Tooltip text shown on hover over the label.' },
-  { name: 'children', type: 'ReactNode', required: true, description: 'Control content displayed on the right side.' },
-  { name: 'fullWidth', type: 'boolean', default: 'false', description: 'Whether the row spans full width with label above and control below.' },
-  { name: 'splitRatio', type: '[number, number]', default: '[40, 60]', description: 'Label/value split ratio as percentages.' },
-  { name: 'modified', type: 'boolean', default: 'false', description: 'Whether this property has been modified from its default. Shows a dot indicator and bolds the label.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the row is disabled (dimmed, non-interactive).' },
-  { name: 'visible', type: 'boolean', default: 'true', description: 'Whether the row is visible. Use with search filtering.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", description: 'Size override. Inherits from PropertyPanel if not set.' },
-  { name: 'action', type: 'ReactNode', description: 'Action button on the right edge of the row.' },
-  { name: 'onLabelContextMenu', type: '(event: MouseEvent) => void', description: 'Right-click handler on the label area.' },
-  { name: 'onReset', type: '() => void', description: 'Reset callback. When provided, a reset button automatically appears on hover.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'label',
+      type: 'string',
+      required: true,
+      description: 'Property label text.',
+    },
+    {
+      name: 'tooltip',
+      type: 'string',
+      description: 'Tooltip text shown on hover over the label.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description: 'Control content displayed on the right side.',
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the row spans full width with label above and control below.',
+    },
+    {
+      name: 'splitRatio',
+      type: '[number, number]',
+      default: '[40, 60]',
+      description: 'Label/value split ratio as percentages.',
+    },
+    {
+      name: 'modified',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether this property has been modified from its default. Shows a dot indicator and bolds the label.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the row is disabled (dimmed, non-interactive).',
+    },
+    {
+      name: 'visible',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether the row is visible. Use with search filtering.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      description: 'Size override. Inherits from PropertyPanel if not set.',
+    },
+    {
+      name: 'action',
+      type: 'ReactNode',
+      description: 'Action button on the right edge of the row.',
+    },
+    {
+      name: 'onLabelContextMenu',
+      type: '(event: MouseEvent) => void',
+      description: 'Right-click handler on the label area.',
+    },
+    {
+      name: 'onReset',
+      type: '() => void',
+      description:
+        'Reset callback. When provided, a reset button automatically appears on hover.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root element.',
+    },
+  ]}
+/>
 
 ### PropertyGroup
 
-<PropsTable props={[
-  { name: 'title', type: 'string', description: 'Optional group title rendered as a small label divider.' },
-  { name: 'children', type: 'ReactNode', required: true, description: 'Group content -- PropertyRow elements.' },
-  { name: 'indent', type: 'number', default: '0', description: 'Indent level for nested groups (number of indent steps).' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether all rows in this group are disabled.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'title',
+      type: 'string',
+      description: 'Optional group title rendered as a small label divider.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description: 'Group content -- PropertyRow elements.',
+    },
+    {
+      name: 'indent',
+      type: 'number',
+      default: '0',
+      description: 'Indent level for nested groups (number of indent steps).',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether all rows in this group are disabled.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root element.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

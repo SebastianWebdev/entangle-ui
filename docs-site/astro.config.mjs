@@ -9,8 +9,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Entangle UI',
-      description:
-        'React component library for professional editor interfaces',
+      description: 'React component library for professional editor interfaces',
       social: {
         github: 'https://github.com/SebastianWebdev/entangle-ui',
       },

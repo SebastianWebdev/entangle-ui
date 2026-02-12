@@ -86,13 +86,32 @@ In fixed mode, both width and height are set to the same value. The parent flex 
 
 ## Props
 
-<PropsTable props={[
-  { name: 'size', type: 'string | number', description: 'Fixed size for the spacer. When omitted, the spacer expands to fill available space. Numbers are treated as pixels.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the underlying div element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'size',
+      type: 'string | number',
+      description:
+        'Fixed size for the spacer. When omitted, the spacer expands to fill available space. Numbers are treated as pixels.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
 
 The component also accepts all standard HTML `<div>` attributes.
 

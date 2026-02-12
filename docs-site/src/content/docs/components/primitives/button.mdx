@@ -17,29 +17,40 @@ import { Button } from 'entangle-ui';
 ## Usage
 
 ```tsx
-<Button variant="default" size="md">Save</Button>
+<Button variant="default" size="md">
+  Save
+</Button>
 ```
 
 ## Variants
 
 The `variant` prop controls the button's visual style.
 
-<ComponentPreview title="default" description="Transparent with border, fills on hover. Use for secondary actions.">
-```tsx
-<Button variant="default">Default</Button>
-```
+<ComponentPreview
+  title="default"
+  description="Transparent with border, fills on hover. Use for secondary actions."
+>
+  ```tsx
+  <Button variant="default">Default</Button>
+  ```
 </ComponentPreview>
 
-<ComponentPreview title="ghost" description="No border, subtle hover state. Use for inline or low-emphasis actions.">
-```tsx
-<Button variant="ghost">Ghost</Button>
-```
+<ComponentPreview
+  title="ghost"
+  description="No border, subtle hover state. Use for inline or low-emphasis actions."
+>
+  ```tsx
+  <Button variant="ghost">Ghost</Button>
+  ```
 </ComponentPreview>
 
-<ComponentPreview title="filled" description="Solid background with accent color. Use for primary actions.">
-```tsx
-<Button variant="filled">Filled</Button>
-```
+<ComponentPreview
+  title="filled"
+  description="Solid background with accent color. Use for primary actions."
+>
+  ```tsx
+  <Button variant="filled">Filled</Button>
+  ```
 </ComponentPreview>
 
 ## Sizes
@@ -52,10 +63,10 @@ Sizes are optimized for editor interface density.
 <Button size="lg">Large (32px)</Button>
 ```
 
-| Size | Height | Use case |
-| ---- | ------ | -------- |
-| `sm` | 20px   | Compact toolbars |
-| `md` | 24px   | Standard panels |
+| Size | Height | Use case          |
+| ---- | ------ | ----------------- |
+| `sm` | 20px   | Compact toolbars  |
+| `md` | 24px   | Standard panels   |
 | `lg` | 32px   | Prominent actions |
 
 ## With Icon
@@ -83,7 +94,9 @@ The `loading` prop shows a spinner and disables interaction. Use for async opera
 The `fullWidth` prop makes the button span the full width of its container. Useful for form actions and modal buttons.
 
 ```tsx
-<Button variant="filled" fullWidth>Confirm Action</Button>
+<Button variant="filled" fullWidth>
+  Confirm Action
+</Button>
 ```
 
 ## Disabled
@@ -109,20 +122,72 @@ The `fullWidth` prop makes the button span the full width of its container. Usef
 
 ## Props
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Button content — text, icons, or other React elements.' },
-  { name: 'variant', type: "'default' | 'ghost' | 'filled'", default: "'default'", description: 'Visual variant of the button.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Size variant optimized for editor interfaces.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the button is disabled.' },
-  { name: 'loading', type: 'boolean', default: 'false', description: 'Loading state — shows spinner and disables interaction.' },
-  { name: 'icon', type: 'ReactNode', description: 'Icon element to display before text. Should be 16x16px.' },
-  { name: 'fullWidth', type: 'boolean', default: 'false', description: 'Whether the button should take the full width of the container.' },
-  { name: 'onClick', type: '(event: MouseEvent) => void', description: 'Click event handler.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLButtonElement>', description: 'Ref to the underlying button element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Button content — text, icons, or other React elements.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'ghost' | 'filled'",
+      default: "'default'",
+      description: 'Visual variant of the button.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Size variant optimized for editor interfaces.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the button is disabled.',
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: 'Loading state — shows spinner and disables interaction.',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Icon element to display before text. Should be 16x16px.',
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the button should take the full width of the container.',
+    },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: 'Click event handler.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLButtonElement>',
+      description: 'Ref to the underlying button element.',
+    },
+  ]}
+/>
 
 The component also accepts all standard HTML `<button>` attributes.
 

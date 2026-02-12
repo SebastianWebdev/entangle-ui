@@ -18,7 +18,7 @@ import { Slider } from 'entangle-ui';
 ```tsx
 const [opacity, setOpacity] = useState(100);
 
-<Slider value={opacity} onChange={setOpacity} min={0} max={100} />
+<Slider value={opacity} onChange={setOpacity} min={0} max={100} />;
 ```
 
 ## With Label and Unit
@@ -91,7 +91,7 @@ Hold modifier keys while dragging or using arrow keys for different step sizes:
   onChange={setVolume}
   min={0}
   max={100}
-  formatValue={(v) => `${v}%`}
+  formatValue={v => `${v}%`}
   label="Volume"
 />
 ```
@@ -122,42 +122,152 @@ Hold modifier keys while dragging or using arrow keys for different step sizes:
 
 ## Keyboard Navigation
 
-| Key         | Action                    |
-| ----------- | ------------------------- |
-| Arrow Right/Up | Increment by step      |
-| Arrow Left/Down | Decrement by step    |
-| Home        | Jump to minimum           |
-| End         | Jump to maximum           |
-| Page Up     | Increment by large step   |
-| Page Down   | Decrement by large step   |
+| Key             | Action                  |
+| --------------- | ----------------------- |
+| Arrow Right/Up  | Increment by step       |
+| Arrow Left/Down | Decrement by step       |
+| Home            | Jump to minimum         |
+| End             | Jump to maximum         |
+| Page Up         | Increment by large step |
+| Page Down       | Decrement by large step |
 
 ## Props
 
-<PropsTable props={[
-  { name: 'value', type: 'number', description: 'Current numeric value.', required: true },
-  { name: 'onChange', type: '(value: number) => void', description: 'Callback when value changes.', required: true },
-  { name: 'min', type: 'number', default: '0', description: 'Minimum allowed value.' },
-  { name: 'max', type: 'number', default: '100', description: 'Maximum allowed value.' },
-  { name: 'step', type: 'number', default: '1', description: 'Step size for value increments.' },
-  { name: 'precisionStep', type: 'number', default: 'step / 10', description: 'Step size when Shift is held (fine control).' },
-  { name: 'largeStep', type: 'number', default: 'step * 10', description: 'Step size when Ctrl/Cmd is held (coarse control).' },
-  { name: 'precision', type: 'number', default: '2', description: 'Number of decimal places to round to.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Slider size variant.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the slider is disabled.' },
-  { name: 'readOnly', type: 'boolean', default: 'false', description: 'Whether the slider is read-only.' },
-  { name: 'label', type: 'string', description: 'Label text displayed above the slider.' },
-  { name: 'helperText', type: 'string', description: 'Helper text displayed below the slider.' },
-  { name: 'error', type: 'boolean', default: 'false', description: 'Whether the slider has an error state.' },
-  { name: 'errorMessage', type: 'string', description: 'Error message displayed when error is true.' },
-  { name: 'required', type: 'boolean', default: 'false', description: 'Whether the slider is required.' },
-  { name: 'unit', type: 'string', description: 'Unit suffix to display (e.g., "px", "%", "°").' },
-  { name: 'formatValue', type: '(value: number) => string', description: 'Custom value formatter for display.' },
-  { name: 'showTooltip', type: 'boolean', default: 'true', description: 'Show value tooltip while dragging.' },
-  { name: 'showTicks', type: 'boolean', default: 'false', description: 'Show tick marks along the track.' },
-  { name: 'tickCount', type: 'number', default: '5', description: 'Number of tick marks to show.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'number',
+      description: 'Current numeric value.',
+      required: true,
+    },
+    {
+      name: 'onChange',
+      type: '(value: number) => void',
+      description: 'Callback when value changes.',
+      required: true,
+    },
+    {
+      name: 'min',
+      type: 'number',
+      default: '0',
+      description: 'Minimum allowed value.',
+    },
+    {
+      name: 'max',
+      type: 'number',
+      default: '100',
+      description: 'Maximum allowed value.',
+    },
+    {
+      name: 'step',
+      type: 'number',
+      default: '1',
+      description: 'Step size for value increments.',
+    },
+    {
+      name: 'precisionStep',
+      type: 'number',
+      default: 'step / 10',
+      description: 'Step size when Shift is held (fine control).',
+    },
+    {
+      name: 'largeStep',
+      type: 'number',
+      default: 'step * 10',
+      description: 'Step size when Ctrl/Cmd is held (coarse control).',
+    },
+    {
+      name: 'precision',
+      type: 'number',
+      default: '2',
+      description: 'Number of decimal places to round to.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Slider size variant.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the slider is disabled.',
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the slider is read-only.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Label text displayed above the slider.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text displayed below the slider.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the slider has an error state.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description: 'Error message displayed when error is true.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the slider is required.',
+    },
+    {
+      name: 'unit',
+      type: 'string',
+      description: 'Unit suffix to display (e.g., "px", "%", "°").',
+    },
+    {
+      name: 'formatValue',
+      type: '(value: number) => string',
+      description: 'Custom value formatter for display.',
+    },
+    {
+      name: 'showTooltip',
+      type: 'boolean',
+      default: 'true',
+      description: 'Show value tooltip while dragging.',
+    },
+    {
+      name: 'showTicks',
+      type: 'boolean',
+      default: 'false',
+      description: 'Show tick marks along the track.',
+    },
+    {
+      name: 'tickCount',
+      type: 'number',
+      default: '5',
+      description: 'Number of tick marks to show.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

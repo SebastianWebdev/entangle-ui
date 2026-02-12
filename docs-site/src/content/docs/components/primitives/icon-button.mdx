@@ -20,7 +20,7 @@ import { SaveIcon } from 'entangle-ui';
 
 <IconButton aria-label="Save file">
   <SaveIcon />
-</IconButton>
+</IconButton>;
 ```
 
 ## Variants
@@ -41,11 +41,11 @@ The `variant` prop controls the button's visual style.
 </IconButton>
 ```
 
-| Variant | Description | Use case |
-| ------- | ----------- | -------- |
-| `ghost` | No border, subtle hover state | Toolbar icons, inline actions |
-| `default` | Transparent with border, fills on hover | Secondary actions |
-| `filled` | Solid background with accent color | Primary actions |
+| Variant   | Description                             | Use case                      |
+| --------- | --------------------------------------- | ----------------------------- |
+| `ghost`   | No border, subtle hover state           | Toolbar icons, inline actions |
+| `default` | Transparent with border, fills on hover | Secondary actions             |
+| `filled`  | Solid background with accent color      | Primary actions               |
 
 ## Sizes
 
@@ -63,11 +63,11 @@ The button is always square, sized to match the icon.
 </IconButton>
 ```
 
-| Size | Dimensions | Icon size | Use case |
-| ---- | ---------- | --------- | -------- |
-| `sm` | 20x20px | 12px | Compact toolbars |
-| `md` | 24x24px | 16px | Standard panels |
-| `lg` | 32x32px | 20px | Prominent actions |
+| Size | Dimensions | Icon size | Use case          |
+| ---- | ---------- | --------- | ----------------- |
+| `sm` | 20x20px    | 12px      | Compact toolbars  |
+| `md` | 24x24px    | 16px      | Standard panels   |
+| `lg` | 32x32px    | 20px      | Prominent actions |
 
 ## Border Radius
 
@@ -91,13 +91,13 @@ The `radius` prop controls the button's corner rounding.
 </IconButton>
 ```
 
-| Radius | Value | Use case |
-| ------ | ----- | -------- |
-| `none` | 0px | Sharp toolbar buttons |
-| `sm` | 2px | Slightly rounded |
-| `md` | 4px | Standard rounding |
-| `lg` | 6px | Softer appearance |
-| `full` | 50% | Circular buttons |
+| Radius | Value | Use case              |
+| ------ | ----- | --------------------- |
+| `none` | 0px   | Sharp toolbar buttons |
+| `sm`   | 2px   | Slightly rounded      |
+| `md`   | 4px   | Standard rounding     |
+| `lg`   | 6px   | Softer appearance     |
+| `full` | 50%   | Circular buttons      |
 
 ## Pressed / Toggle State
 
@@ -112,7 +112,7 @@ const [isVisible, setIsVisible] = useState(true);
   onClick={() => setIsVisible(!isVisible)}
 >
   <EyeIcon />
-</IconButton>
+</IconButton>;
 ```
 
 ## Loading State
@@ -159,21 +159,79 @@ The `loading` prop shows a spinner and disables interaction.
 
 ## Props
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Icon component to display inside the button.' },
-  { name: 'aria-label', type: 'string (required)', description: 'Accessible label for screen readers. Required for proper accessibility.' },
-  { name: 'variant', type: "'default' | 'ghost' | 'filled'", default: "'ghost'", description: 'Visual variant of the button.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Button size. The button is always square.' },
-  { name: 'radius', type: "'none' | 'sm' | 'md' | 'lg' | 'full'", default: "'md'", description: 'Border radius for button shape control.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the button is disabled.' },
-  { name: 'loading', type: 'boolean', default: 'false', description: 'Loading state -- shows spinner and disables interaction.' },
-  { name: 'pressed', type: 'boolean', default: 'false', description: 'Whether the button appears pressed/active. Sets aria-pressed.' },
-  { name: 'onClick', type: '(event: MouseEvent) => void', description: 'Click event handler.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLButtonElement>', description: 'Ref to the underlying button element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Icon component to display inside the button.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string (required)',
+      description:
+        'Accessible label for screen readers. Required for proper accessibility.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'ghost' | 'filled'",
+      default: "'ghost'",
+      description: 'Visual variant of the button.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Button size. The button is always square.',
+    },
+    {
+      name: 'radius',
+      type: "'none' | 'sm' | 'md' | 'lg' | 'full'",
+      default: "'md'",
+      description: 'Border radius for button shape control.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the button is disabled.',
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: 'Loading state -- shows spinner and disables interaction.',
+    },
+    {
+      name: 'pressed',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the button appears pressed/active. Sets aria-pressed.',
+    },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: 'Click event handler.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLButtonElement>',
+      description: 'Ref to the underlying button element.',
+    },
+  ]}
+/>
 
 The component also accepts all standard HTML `<button>` attributes (except `children`).
 

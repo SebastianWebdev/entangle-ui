@@ -88,9 +88,7 @@ Enable the `searchable` prop to show a filter input inside the dropdown. A custo
 // Custom filter logic
 <Select
   searchable
-  filterFn={(option, query) =>
-    option.value.startsWith(query.toLowerCase())
-  }
+  filterFn={(option, query) => option.value.startsWith(query.toLowerCase())}
   options={options}
   value={value}
   onChange={setValue}
@@ -145,11 +143,11 @@ The `variant` prop controls the trigger button style.
 <Select size="lg" options={opts} value={v} onChange={setV} />
 ```
 
-| Size | Trigger Height | Use case |
-| ---- | -------------- | -------- |
+| Size | Trigger Height | Use case         |
+| ---- | -------------- | ---------------- |
 | `sm` | 20px           | Compact toolbars |
-| `md` | 24px           | Standard panels |
-| `lg` | 32px           | Prominent forms |
+| `md` | 24px           | Standard panels  |
+| `lg` | 32px           | Prominent forms  |
 
 ## Labels and Helper Text
 
@@ -187,50 +185,163 @@ Use the `name` prop for native form submission. A hidden `<input>` is rendered w
 
 ## Props
 
-<PropsTable props={[
-  { name: 'value', type: 'T | null', description: 'Selected value (controlled).' },
-  { name: 'defaultValue', type: 'T', description: 'Default selected value (uncontrolled).' },
-  { name: 'options', type: 'Array<SelectOptionItem<T> | SelectOptionGroup<T>>', description: 'Options to display — flat list or grouped.' },
-  { name: 'placeholder', type: 'string', default: "'Select...'", description: 'Placeholder text when no value is selected.' },
-  { name: 'searchable', type: 'boolean', default: 'false', description: 'Whether to show a search input inside the dropdown.' },
-  { name: 'searchPlaceholder', type: 'string', default: "'Search...'", description: 'Placeholder for the search input.' },
-  { name: 'filterFn', type: '(option: SelectOptionItem<T>, query: string) => boolean', description: 'Custom filter function for searchable mode.' },
-  { name: 'emptyMessage', type: 'string', default: "'No results found'", description: 'Message shown when search yields no results.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Size of the trigger button.' },
-  { name: 'variant', type: "'default' | 'ghost' | 'filled'", default: "'default'", description: 'Visual variant of the trigger button.' },
-  { name: 'label', type: 'string', description: 'Label displayed above the select.' },
-  { name: 'helperText', type: 'string', description: 'Helper text displayed below the select.' },
-  { name: 'error', type: 'boolean', default: 'false', description: 'Error state.' },
-  { name: 'errorMessage', type: 'string', description: 'Error message shown when in error state.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the select is disabled.' },
-  { name: 'required', type: 'boolean', default: 'false', description: 'Whether the select is required.' },
-  { name: 'clearable', type: 'boolean', default: 'false', description: 'Whether a clear button appears when a value is selected.' },
-  { name: 'maxDropdownHeight', type: 'number', default: '240', description: 'Maximum height of the dropdown in pixels.' },
-  { name: 'minDropdownWidth', type: 'number', description: 'Minimum width of the dropdown in pixels.' },
-  { name: 'name', type: 'string', description: 'Name attribute for hidden input (form submission).' },
-  { name: 'onChange', type: '(value: T | null) => void', description: 'Callback when the selected value changes.' },
-  { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Callback when the dropdown open state changes.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLButtonElement>', description: 'Ref to the trigger button element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'T | null',
+      description: 'Selected value (controlled).',
+    },
+    {
+      name: 'defaultValue',
+      type: 'T',
+      description: 'Default selected value (uncontrolled).',
+    },
+    {
+      name: 'options',
+      type: 'Array<SelectOptionItem<T> | SelectOptionGroup<T>>',
+      description: 'Options to display — flat list or grouped.',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      default: "'Select...'",
+      description: 'Placeholder text when no value is selected.',
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to show a search input inside the dropdown.',
+    },
+    {
+      name: 'searchPlaceholder',
+      type: 'string',
+      default: "'Search...'",
+      description: 'Placeholder for the search input.',
+    },
+    {
+      name: 'filterFn',
+      type: '(option: SelectOptionItem<T>, query: string) => boolean',
+      description: 'Custom filter function for searchable mode.',
+    },
+    {
+      name: 'emptyMessage',
+      type: 'string',
+      default: "'No results found'",
+      description: 'Message shown when search yields no results.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Size of the trigger button.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'ghost' | 'filled'",
+      default: "'default'",
+      description: 'Visual variant of the trigger button.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Label displayed above the select.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text displayed below the select.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Error state.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description: 'Error message shown when in error state.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the select is disabled.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the select is required.',
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether a clear button appears when a value is selected.',
+    },
+    {
+      name: 'maxDropdownHeight',
+      type: 'number',
+      default: '240',
+      description: 'Maximum height of the dropdown in pixels.',
+    },
+    {
+      name: 'minDropdownWidth',
+      type: 'number',
+      description: 'Minimum width of the dropdown in pixels.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Name attribute for hidden input (form submission).',
+    },
+    {
+      name: 'onChange',
+      type: '(value: T | null) => void',
+      description: 'Callback when the selected value changes.',
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Callback when the dropdown open state changes.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLButtonElement>',
+      description: 'Ref to the trigger button element.',
+    },
+  ]}
+/>
 
 ### SelectOptionItem
 
-| Prop | Type | Description |
-| ---- | ---- | ----------- |
-| `value` | `T` | Unique value used for selection. |
-| `label` | `string` | Display label (falls back to value). |
-| `icon` | `ReactNode` | Optional icon rendered before the label. |
-| `disabled` | `boolean` | Whether this option is disabled. |
+| Prop       | Type        | Description                              |
+| ---------- | ----------- | ---------------------------------------- |
+| `value`    | `T`         | Unique value used for selection.         |
+| `label`    | `string`    | Display label (falls back to value).     |
+| `icon`     | `ReactNode` | Optional icon rendered before the label. |
+| `disabled` | `boolean`   | Whether this option is disabled.         |
 
 ### SelectOptionGroup
 
-| Prop | Type | Description |
-| ---- | ---- | ----------- |
-| `label` | `string` | Group header label (non-selectable). |
-| `options` | `SelectOptionItem<T>[]` | Options within this group. |
+| Prop      | Type                    | Description                          |
+| --------- | ----------------------- | ------------------------------------ |
+| `label`   | `string`                | Group header label (non-selectable). |
+| `options` | `SelectOptionItem<T>[]` | Options within this group.           |
 
 ## Accessibility
 

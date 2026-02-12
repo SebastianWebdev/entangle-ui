@@ -10,7 +10,13 @@ Modal dialog component for overlays in editor interfaces. Renders an accessible 
 ## Import
 
 ```tsx
-import { Dialog, DialogHeader, DialogBody, DialogFooter, DialogClose } from 'entangle-ui';
+import {
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogClose,
+} from 'entangle-ui';
 ```
 
 ## Usage
@@ -44,13 +50,13 @@ The `size` prop controls the dialog width.
 <Dialog open={open} onClose={close} size="fullscreen">...</Dialog>
 ```
 
-| Size | Use case |
-| ---- | -------- |
-| `sm` | Simple confirmations, alerts |
-| `md` | Standard forms and content |
-| `lg` | Complex forms, settings panels |
-| `xl` | Wide content, data tables |
-| `fullscreen` | Full viewport coverage |
+| Size         | Use case                       |
+| ------------ | ------------------------------ |
+| `sm`         | Simple confirmations, alerts   |
+| `md`         | Standard forms and content     |
+| `lg`         | Complex forms, settings panels |
+| `xl`         | Wide content, data tables      |
+| `fullscreen` | Full viewport coverage         |
 
 ## Dialog Header
 
@@ -118,7 +124,9 @@ By default, clicking the overlay backdrop closes the dialog. Disable this for ma
   <DialogBody>You must save or discard changes before closing.</DialogBody>
   <DialogFooter>
     <Button onClick={discard}>Discard</Button>
-    <Button variant="filled" onClick={save}>Save</Button>
+    <Button variant="filled" onClick={save}>
+      Save
+    </Button>
   </DialogFooter>
 </Dialog>
 ```
@@ -152,7 +160,7 @@ const inputRef = useRef(null);
   <DialogBody>
     <Input ref={inputRef} placeholder="Auto-focused input" />
   </DialogBody>
-</Dialog>
+</Dialog>;
 ```
 
 Disable focus trapping with `trapFocus={false}`.
@@ -183,7 +191,9 @@ Use `title` and `description` props for screen-reader-friendly labels without vi
   </DialogBody>
   <DialogFooter>
     <Button onClick={close}>Cancel</Button>
-    <Button variant="filled" onClick={handleDelete}>Delete</Button>
+    <Button variant="filled" onClick={handleDelete}>
+      Delete
+    </Button>
   </DialogFooter>
 </Dialog>
 ```
@@ -192,49 +202,160 @@ Use `title` and `description` props for screen-reader-friendly labels without vi
 
 ### Dialog
 
-<PropsTable props={[
-  { name: 'open', type: 'boolean', description: 'Whether the dialog is open.' },
-  { name: 'onClose', type: '() => void', description: 'Callback fired when the dialog should close.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg' | 'xl' | 'fullscreen'", default: "'md'", description: 'Dialog width preset.' },
-  { name: 'title', type: 'string', description: 'Dialog title for aria-labelledby (hidden, use DialogHeader for visible title).' },
-  { name: 'description', type: 'string', description: 'Dialog description for aria-describedby.' },
-  { name: 'closeOnOverlayClick', type: 'boolean', default: 'true', description: 'Whether clicking the overlay closes the dialog.' },
-  { name: 'closeOnEscape', type: 'boolean', default: 'true', description: 'Whether pressing Escape closes the dialog.' },
-  { name: 'showOverlay', type: 'boolean', default: 'true', description: 'Whether to show the overlay backdrop.' },
-  { name: 'trapFocus', type: 'boolean', default: 'true', description: 'Whether to trap focus within the dialog.' },
-  { name: 'initialFocusRef', type: 'RefObject<HTMLElement>', description: 'Ref to the element that should receive initial focus.' },
-  { name: 'portal', type: 'boolean', default: 'true', description: 'Whether to render the dialog in a portal (document.body).' },
-  { name: 'children', type: 'ReactNode', description: 'Dialog content (DialogHeader, DialogBody, DialogFooter).' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names for the dialog panel.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles for the dialog panel.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'id', type: 'string', description: 'HTML id attribute.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the dialog panel element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'open',
+      type: 'boolean',
+      description: 'Whether the dialog is open.',
+    },
+    {
+      name: 'onClose',
+      type: '() => void',
+      description: 'Callback fired when the dialog should close.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg' | 'xl' | 'fullscreen'",
+      default: "'md'",
+      description: 'Dialog width preset.',
+    },
+    {
+      name: 'title',
+      type: 'string',
+      description:
+        'Dialog title for aria-labelledby (hidden, use DialogHeader for visible title).',
+    },
+    {
+      name: 'description',
+      type: 'string',
+      description: 'Dialog description for aria-describedby.',
+    },
+    {
+      name: 'closeOnOverlayClick',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether clicking the overlay closes the dialog.',
+    },
+    {
+      name: 'closeOnEscape',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether pressing Escape closes the dialog.',
+    },
+    {
+      name: 'showOverlay',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show the overlay backdrop.',
+    },
+    {
+      name: 'trapFocus',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to trap focus within the dialog.',
+    },
+    {
+      name: 'initialFocusRef',
+      type: 'RefObject<HTMLElement>',
+      description: 'Ref to the element that should receive initial focus.',
+    },
+    {
+      name: 'portal',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to render the dialog in a portal (document.body).',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Dialog content (DialogHeader, DialogBody, DialogFooter).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names for the dialog panel.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline styles for the dialog panel.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    { name: 'id', type: 'string', description: 'HTML id attribute.' },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the dialog panel element.',
+    },
+  ]}
+/>
 
 ### DialogHeader
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Header content (typically a title string).' },
-  { name: 'showClose', type: 'boolean', description: 'Whether to show the close button.' },
-  { name: 'description', type: 'string', description: 'Optional description text below the title.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Header content (typically a title string).',
+    },
+    {
+      name: 'showClose',
+      type: 'boolean',
+      description: 'Whether to show the close button.',
+    },
+    {
+      name: 'description',
+      type: 'string',
+      description: 'Optional description text below the title.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+  ]}
+/>
 
 ### DialogBody
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Body content.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-]} />
+<PropsTable
+  props={[
+    { name: 'children', type: 'ReactNode', description: 'Body content.' },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+  ]}
+/>
 
 ### DialogFooter
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Footer content (typically action buttons).' },
-  { name: 'align', type: "'left' | 'center' | 'right' | 'space-between'", description: 'Horizontal alignment of footer content.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Footer content (typically action buttons).',
+    },
+    {
+      name: 'align',
+      type: "'left' | 'center' | 'right' | 'space-between'",
+      description: 'Horizontal alignment of footer content.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

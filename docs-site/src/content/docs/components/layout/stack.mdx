@@ -40,10 +40,10 @@ Stack defaults to `column` (vertical stacking). Use `direction="row"` for horizo
 </Stack>
 ```
 
-| Direction | Behavior |
-| --- | --- |
-| `column` | Top to bottom (default) |
-| `row` | Left to right |
+| Direction | Behavior                |
+| --------- | ----------------------- |
+| `column`  | Top to bottom (default) |
+| `row`     | Left to right           |
 
 ## Responsive Direction
 
@@ -57,12 +57,12 @@ Override the stack direction at different breakpoints. This is useful for layout
 </Stack>
 ```
 
-| Breakpoint | Prop | Min Width |
-| --- | --- | --- |
-| Small | `sm` | 576px |
-| Medium | `md` | 768px |
-| Large | `lg` | 992px |
-| Extra Large | `xl` | 1200px |
+| Breakpoint  | Prop | Min Width |
+| ----------- | ---- | --------- |
+| Small       | `sm` | 576px     |
+| Medium      | `md` | 768px     |
+| Large       | `lg` | 992px     |
+| Extra Large | `xl` | 1200px    |
 
 ## Spacing
 
@@ -86,16 +86,16 @@ The `spacing` prop controls the gap between stacked items. Values are multiplier
 ```
 
 | Spacing Value | Computed Size |
-| --- | --- |
-| `0` | 0px |
-| `1` | 4px |
-| `2` | 8px |
-| `3` | 12px |
-| `4` | 16px |
-| `5` | 20px |
-| `6` | 24px |
-| `7` | 28px |
-| `8` | 32px |
+| ------------- | ------------- |
+| `0`           | 0px           |
+| `1`           | 4px           |
+| `2`           | 8px           |
+| `3`           | 12px          |
+| `4`           | 16px          |
+| `5`           | 20px          |
+| `6`           | 24px          |
+| `7`           | 28px          |
+| `8`           | 32px          |
 
 ## Expand
 
@@ -142,24 +142,95 @@ Allow items to wrap to new lines when they overflow the container.
 
 ## Props
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Stack content -- any React elements. Required.' },
-  { name: 'direction', type: "'row' | 'column'", default: "'column'", description: 'Stack direction controlling main axis orientation.' },
-  { name: 'sm', type: "'row' | 'column'", description: 'Direction override at the small breakpoint (576px).' },
-  { name: 'md', type: "'row' | 'column'", description: 'Direction override at the medium breakpoint (768px).' },
-  { name: 'lg', type: "'row' | 'column'", description: 'Direction override at the large breakpoint (992px).' },
-  { name: 'xl', type: "'row' | 'column'", description: 'Direction override at the extra-large breakpoint (1200px).' },
-  { name: 'wrap', type: "'nowrap' | 'wrap' | 'wrap-reverse'", default: "'nowrap'", description: 'Flex wrap behavior when items overflow.' },
-  { name: 'expand', type: 'boolean', default: 'false', description: 'Whether the stack fills available space (100% width for row, 100% height for column).' },
-  { name: 'spacing', type: '0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8', default: '0', description: 'Gap between stack items as a multiplier of the 4px base spacing unit.' },
-  { name: 'customGap', type: 'string | number', description: 'Custom gap override as a CSS value. Overrides the spacing prop when provided.' },
-  { name: 'justify', type: "'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly'", default: "'flex-start'", description: 'Distributes space along the main axis.' },
-  { name: 'align', type: "'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline'", default: "'flex-start'", description: 'Aligns items along the cross axis.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the underlying div element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Stack content -- any React elements. Required.',
+    },
+    {
+      name: 'direction',
+      type: "'row' | 'column'",
+      default: "'column'",
+      description: 'Stack direction controlling main axis orientation.',
+    },
+    {
+      name: 'sm',
+      type: "'row' | 'column'",
+      description: 'Direction override at the small breakpoint (576px).',
+    },
+    {
+      name: 'md',
+      type: "'row' | 'column'",
+      description: 'Direction override at the medium breakpoint (768px).',
+    },
+    {
+      name: 'lg',
+      type: "'row' | 'column'",
+      description: 'Direction override at the large breakpoint (992px).',
+    },
+    {
+      name: 'xl',
+      type: "'row' | 'column'",
+      description: 'Direction override at the extra-large breakpoint (1200px).',
+    },
+    {
+      name: 'wrap',
+      type: "'nowrap' | 'wrap' | 'wrap-reverse'",
+      default: "'nowrap'",
+      description: 'Flex wrap behavior when items overflow.',
+    },
+    {
+      name: 'expand',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the stack fills available space (100% width for row, 100% height for column).',
+    },
+    {
+      name: 'spacing',
+      type: '0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8',
+      default: '0',
+      description:
+        'Gap between stack items as a multiplier of the 4px base spacing unit.',
+    },
+    {
+      name: 'customGap',
+      type: 'string | number',
+      description:
+        'Custom gap override as a CSS value. Overrides the spacing prop when provided.',
+    },
+    {
+      name: 'justify',
+      type: "'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly'",
+      default: "'flex-start'",
+      description: 'Distributes space along the main axis.',
+    },
+    {
+      name: 'align',
+      type: "'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline'",
+      default: "'flex-start'",
+      description: 'Aligns items along the cross axis.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
 
 The component also accepts all standard HTML `<div>` attributes.
 

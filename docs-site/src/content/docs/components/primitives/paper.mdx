@@ -32,12 +32,12 @@ The `elevation` prop controls shadow intensity for visual depth.
 <Paper elevation={3}>Large shadow (high depth)</Paper>
 ```
 
-| Elevation | Shadow | Use case |
-| --------- | ------ | -------- |
-| `0` | None | Flat containers, inline sections |
-| `1` | Small | Standard cards and panels |
-| `2` | Medium | Floating panels, dropdown menus |
-| `3` | Large | Modals, overlays |
+| Elevation | Shadow | Use case                         |
+| --------- | ------ | -------------------------------- |
+| `0`       | None   | Flat containers, inline sections |
+| `1`       | Small  | Standard cards and panels        |
+| `2`       | Medium | Floating panels, dropdown menus  |
+| `3`       | Large  | Modals, overlays                 |
 
 ## Nesting
 
@@ -55,12 +55,12 @@ The `nestLevel` prop adjusts background brightness for visual hierarchy in neste
 </Paper>
 ```
 
-| Nest Level | Background | Use case |
-| ---------- | ---------- | -------- |
-| `0` | Primary (darkest) | Root container |
-| `1` | Secondary | First-level panels |
-| `2` | Tertiary | Nested sub-panels |
-| `3` | Elevated (lightest) | Deeply nested content |
+| Nest Level | Background          | Use case              |
+| ---------- | ------------------- | --------------------- |
+| `0`        | Primary (darkest)   | Root container        |
+| `1`        | Secondary           | First-level panels    |
+| `2`        | Tertiary            | Nested sub-panels     |
+| `3`        | Elevated (lightest) | Deeply nested content |
 
 ## Padding
 
@@ -122,13 +122,7 @@ Override the default border radius with a custom value.
 ## Combining Props
 
 ```tsx
-<Paper
-  elevation={2}
-  nestLevel={1}
-  bordered
-  padding="xl"
-  customRadius="8px"
->
+<Paper elevation={2} nestLevel={1} bordered padding="xl" customRadius="8px">
   <h3>Settings Panel</h3>
   <Paper nestLevel={2} padding="md" bordered>
     <p>Nested settings group</p>
@@ -138,19 +132,68 @@ Override the default border radius with a custom value.
 
 ## Props
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Paper content -- any React elements.' },
-  { name: 'elevation', type: '0 | 1 | 2 | 3', default: '1', description: 'Shadow intensity level for visual depth.' },
-  { name: 'bordered', type: 'boolean', default: 'false', description: 'Whether to show a subtle border around the paper.' },
-  { name: 'padding', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl'", default: "'md'", description: 'Internal padding using theme spacing tokens.' },
-  { name: 'nestLevel', type: '0 | 1 | 2 | 3', default: '0', description: 'Nesting level for automatic background brightness adjustment.' },
-  { name: 'expand', type: 'boolean', default: 'false', description: 'Whether the paper should fill available width and height.' },
-  { name: 'customRadius', type: 'string | number', description: 'Custom border radius override. Numbers are treated as pixels.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the underlying div element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Paper content -- any React elements.',
+    },
+    {
+      name: 'elevation',
+      type: '0 | 1 | 2 | 3',
+      default: '1',
+      description: 'Shadow intensity level for visual depth.',
+    },
+    {
+      name: 'bordered',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to show a subtle border around the paper.',
+    },
+    {
+      name: 'padding',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl'",
+      default: "'md'",
+      description: 'Internal padding using theme spacing tokens.',
+    },
+    {
+      name: 'nestLevel',
+      type: '0 | 1 | 2 | 3',
+      default: '0',
+      description:
+        'Nesting level for automatic background brightness adjustment.',
+    },
+    {
+      name: 'expand',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the paper should fill available width and height.',
+    },
+    {
+      name: 'customRadius',
+      type: 'string | number',
+      description:
+        'Custom border radius override. Numbers are treated as pixels.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
 
 The component also accepts all standard HTML `<div>` attributes.
 

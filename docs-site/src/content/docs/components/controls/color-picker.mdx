@@ -18,7 +18,7 @@ import { ColorPicker } from 'entangle-ui';
 ```tsx
 const [color, setColor] = useState('#007acc');
 
-<ColorPicker value={color} onChange={setColor} />
+<ColorPicker value={color} onChange={setColor} />;
 ```
 
 ## Inline Mode
@@ -26,12 +26,7 @@ const [color, setColor] = useState('#007acc');
 By default, the ColorPicker opens as a popover from a swatch trigger. Set `inline` to render the picker panel directly.
 
 ```tsx
-<ColorPicker
-  value={color}
-  onChange={setColor}
-  inline
-  pickerWidth={280}
-/>
+<ColorPicker value={color} onChange={setColor} inline pickerWidth={280} />
 ```
 
 ## Alpha Channel
@@ -39,11 +34,7 @@ By default, the ColorPicker opens as a popover from a swatch trigger. Set `inlin
 Enable the alpha slider with `showAlpha`.
 
 ```tsx
-<ColorPicker
-  value={color}
-  onChange={setColor}
-  showAlpha
-/>
+<ColorPicker value={color} onChange={setColor} showAlpha />
 ```
 
 ## Output Format
@@ -105,16 +96,16 @@ Use the `palette` prop with a built-in palette name to show a full color palette
 
 Available built-in palettes:
 
-| Palette | Description |
-| ------- | ----------- |
-| `material` | Material Design colors (19 hues x 10 shades) |
-| `tailwind` | Tailwind CSS colors (22 hues x 11 shades) |
-| `pastel` | Soft pastel colors |
-| `earth` | Natural earth tones |
-| `neon` | High-saturation neon colors |
-| `monochrome` | Neutral, warm, and cool grays |
-| `skin-tones` | Portrait/illustration skin palette |
-| `vintage` | Desaturated retro film colors |
+| Palette      | Description                                  |
+| ------------ | -------------------------------------------- |
+| `material`   | Material Design colors (19 hues x 10 shades) |
+| `tailwind`   | Tailwind CSS colors (22 hues x 11 shades)    |
+| `pastel`     | Soft pastel colors                           |
+| `earth`      | Natural earth tones                          |
+| `neon`       | High-saturation neon colors                  |
+| `monochrome` | Neutral, warm, and cool grays                |
+| `skin-tones` | Portrait/illustration skin palette           |
+| `vintage`    | Desaturated retro film colors                |
 
 You can also pass a custom `Palette` object or an array of `PaletteColor[]`.
 
@@ -148,7 +139,7 @@ Use `onChangeComplete` for actions that should only run when the user finishes a
 <ColorPicker
   value={color}
   onChange={setColor}
-  onChangeComplete={(finalColor) => {
+  onChangeComplete={finalColor => {
     addToUndoStack(finalColor);
   }}
 />
@@ -164,28 +155,121 @@ Use `onChangeComplete` for actions that should only run when the user finishes a
 
 ## Props
 
-<PropsTable props={[
-  { name: 'value', type: 'string', description: 'Current color value (controlled). Accepts any valid CSS color string.' },
-  { name: 'defaultValue', type: 'string', default: "'#007acc'", description: 'Default color value (uncontrolled).' },
-  { name: 'format', type: "'hex' | 'rgb' | 'hsl'", default: "'hex'", description: 'Output format for the onChange callback.' },
-  { name: 'showAlpha', type: 'boolean', default: 'false', description: 'Whether to show the alpha channel slider.' },
-  { name: 'inputModes', type: "('hex' | 'rgb' | 'hsl')[]", default: "['hex', 'rgb', 'hsl']", description: 'Available input mode tabs in the picker.' },
-  { name: 'defaultInputMode', type: "'hex' | 'rgb' | 'hsl'", default: "'hex'", description: 'Default active input mode.' },
-  { name: 'presets', type: 'ColorPreset[]', description: 'Array of preset colors for quick selection. Each preset has color and optional label.' },
-  { name: 'palette', type: "string | Palette | PaletteColor[]", description: 'Built-in palette name, custom Palette object, or array of PaletteColor.' },
-  { name: 'showEyeDropper', type: 'boolean', default: 'false', description: 'Whether to show the EyeDropper button (Chromium-only).' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Size of the swatch trigger.' },
-  { name: 'swatchShape', type: "'square' | 'circle'", default: "'square'", description: 'Shape of the swatch trigger.' },
-  { name: 'label', type: 'string', description: 'Label displayed next to the swatch trigger.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the picker is disabled.' },
-  { name: 'inline', type: 'boolean', default: 'false', description: 'Whether to render the picker inline (no popover).' },
-  { name: 'pickerWidth', type: 'number', default: '240', description: 'Width of the picker panel in pixels.' },
-  { name: 'onChange', type: '(color: string) => void', description: 'Callback fired continuously as the color changes.' },
-  { name: 'onChangeComplete', type: '(color: string) => void', description: 'Callback fired when a color change is committed (drag end).' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string',
+      description:
+        'Current color value (controlled). Accepts any valid CSS color string.',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      default: "'#007acc'",
+      description: 'Default color value (uncontrolled).',
+    },
+    {
+      name: 'format',
+      type: "'hex' | 'rgb' | 'hsl'",
+      default: "'hex'",
+      description: 'Output format for the onChange callback.',
+    },
+    {
+      name: 'showAlpha',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to show the alpha channel slider.',
+    },
+    {
+      name: 'inputModes',
+      type: "('hex' | 'rgb' | 'hsl')[]",
+      default: "['hex', 'rgb', 'hsl']",
+      description: 'Available input mode tabs in the picker.',
+    },
+    {
+      name: 'defaultInputMode',
+      type: "'hex' | 'rgb' | 'hsl'",
+      default: "'hex'",
+      description: 'Default active input mode.',
+    },
+    {
+      name: 'presets',
+      type: 'ColorPreset[]',
+      description:
+        'Array of preset colors for quick selection. Each preset has color and optional label.',
+    },
+    {
+      name: 'palette',
+      type: 'string | Palette | PaletteColor[]',
+      description:
+        'Built-in palette name, custom Palette object, or array of PaletteColor.',
+    },
+    {
+      name: 'showEyeDropper',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to show the EyeDropper button (Chromium-only).',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Size of the swatch trigger.',
+    },
+    {
+      name: 'swatchShape',
+      type: "'square' | 'circle'",
+      default: "'square'",
+      description: 'Shape of the swatch trigger.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Label displayed next to the swatch trigger.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the picker is disabled.',
+    },
+    {
+      name: 'inline',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to render the picker inline (no popover).',
+    },
+    {
+      name: 'pickerWidth',
+      type: 'number',
+      default: '240',
+      description: 'Width of the picker panel in pixels.',
+    },
+    {
+      name: 'onChange',
+      type: '(color: string) => void',
+      description: 'Callback fired continuously as the color changes.',
+    },
+    {
+      name: 'onChangeComplete',
+      type: '(color: string) => void',
+      description:
+        'Callback fired when a color change is committed (drag end).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

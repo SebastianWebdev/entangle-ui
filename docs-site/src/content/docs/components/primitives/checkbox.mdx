@@ -26,11 +26,7 @@ Use `checked` and `onChange` for controlled mode. The `onChange` callback receiv
 ```tsx
 const [checked, setChecked] = useState(false);
 
-<Checkbox
-  checked={checked}
-  onChange={setChecked}
-  label="Auto-save"
-/>
+<Checkbox checked={checked} onChange={setChecked} label="Auto-save" />;
 ```
 
 ## Sizes
@@ -41,11 +37,11 @@ const [checked, setChecked] = useState(false);
 <Checkbox size="lg" label="Large (20px)" />
 ```
 
-| Size | Box size | Use case |
-| ---- | -------- | -------- |
-| `sm` | 14px | Compact, dense UIs |
-| `md` | 16px | Standard forms |
-| `lg` | 20px | Prominent settings |
+| Size | Box size | Use case           |
+| ---- | -------- | ------------------ |
+| `sm` | 14px     | Compact, dense UIs |
+| `md` | 16px     | Standard forms     |
+| `lg` | 20px     | Prominent settings |
 
 ## Variants
 
@@ -54,10 +50,10 @@ const [checked, setChecked] = useState(false);
 <Checkbox variant="filled" label="Filled variant" />
 ```
 
-| Variant | Description |
-| ------- | ----------- |
-| `default` | Border-only when unchecked, accent fill when checked |
-| `filled` | Subtle background when unchecked, accent when checked |
+| Variant   | Description                                           |
+| --------- | ----------------------------------------------------- |
+| `default` | Border-only when unchecked, accent fill when checked  |
+| `filled`  | Subtle background when unchecked, accent when checked |
 
 ## Indeterminate State
 
@@ -130,27 +126,112 @@ Use the `name` and `value` props for form integration. A hidden input is rendere
 
 ## Props
 
-<PropsTable props={[
-  { name: 'checked', type: 'boolean', description: 'Whether the checkbox is checked (controlled mode).' },
-  { name: 'defaultChecked', type: 'boolean', default: 'false', description: 'Default checked state (uncontrolled mode).' },
-  { name: 'indeterminate', type: 'boolean', default: 'false', description: 'Whether the checkbox is in an indeterminate state. Shows a dash icon.' },
-  { name: 'label', type: 'string', description: 'Label text displayed next to the checkbox.' },
-  { name: 'labelPosition', type: "'left' | 'right'", default: "'right'", description: 'Position of the label relative to the checkbox.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Checkbox size.' },
-  { name: 'variant', type: "'default' | 'filled'", default: "'default'", description: 'Visual variant controlling unchecked/checked appearance.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the checkbox is disabled.' },
-  { name: 'required', type: 'boolean', default: 'false', description: 'Whether the checkbox is required.' },
-  { name: 'error', type: 'boolean', default: 'false', description: 'Whether the checkbox has an error state.' },
-  { name: 'helperText', type: 'string', description: 'Helper text displayed below the checkbox.' },
-  { name: 'errorMessage', type: 'string', description: 'Error message displayed when error is true. Replaces helperText.' },
-  { name: 'value', type: 'string', description: 'Value attribute for CheckboxGroup integration and form submission.' },
-  { name: 'name', type: 'string', description: 'Name attribute for form submission.' },
-  { name: 'onChange', type: '(checked: boolean) => void', description: 'Change event handler receiving the new checked state.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLButtonElement>', description: 'Ref to the underlying button element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'checked',
+      type: 'boolean',
+      description: 'Whether the checkbox is checked (controlled mode).',
+    },
+    {
+      name: 'defaultChecked',
+      type: 'boolean',
+      default: 'false',
+      description: 'Default checked state (uncontrolled mode).',
+    },
+    {
+      name: 'indeterminate',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the checkbox is in an indeterminate state. Shows a dash icon.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Label text displayed next to the checkbox.',
+    },
+    {
+      name: 'labelPosition',
+      type: "'left' | 'right'",
+      default: "'right'",
+      description: 'Position of the label relative to the checkbox.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Checkbox size.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'filled'",
+      default: "'default'",
+      description: 'Visual variant controlling unchecked/checked appearance.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the checkbox is disabled.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the checkbox is required.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the checkbox has an error state.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text displayed below the checkbox.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description:
+        'Error message displayed when error is true. Replaces helperText.',
+    },
+    {
+      name: 'value',
+      type: 'string',
+      description:
+        'Value attribute for CheckboxGroup integration and form submission.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Name attribute for form submission.',
+    },
+    {
+      name: 'onChange',
+      type: '(checked: boolean) => void',
+      description: 'Change event handler receiving the new checked state.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLButtonElement>',
+      description: 'Ref to the underlying button element.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

@@ -18,10 +18,7 @@ import { CartesianPicker } from 'entangle-ui';
 ```tsx
 const [point, setPoint] = useState({ x: 0, y: 0 });
 
-<CartesianPicker
-  value={point}
-  onChange={setPoint}
-/>
+<CartesianPicker value={point} onChange={setPoint} />;
 ```
 
 ## Controlled vs Uncontrolled
@@ -121,11 +118,7 @@ Enable grid snapping during drag. Hold Ctrl to toggle snapping behavior. You can
 By default, the point is clamped within domain bounds. Disable this to allow values outside the visible range.
 
 ```tsx
-<CartesianPicker
-  clampToRange={false}
-  value={point}
-  onChange={setPoint}
-/>
+<CartesianPicker clampToRange={false} value={point} onChange={setPoint} />
 ```
 
 ## Responsive Mode
@@ -134,12 +127,7 @@ When `responsive` is true, the picker fills its parent container using a ResizeO
 
 ```tsx
 <div style={{ width: '100%' }}>
-  <CartesianPicker
-    responsive
-    height={200}
-    value={point}
-    onChange={setPoint}
-  />
+  <CartesianPicker responsive height={200} value={point} onChange={setPoint} />
 </div>
 ```
 
@@ -155,7 +143,14 @@ Use `renderBackground` to draw behind the grid, such as a heatmap or gradient.
     // Draw a radial gradient
     const cx = info.area.x + info.area.width / 2;
     const cy = info.area.y + info.area.height / 2;
-    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, info.area.width / 2);
+    const grad = ctx.createRadialGradient(
+      cx,
+      cy,
+      0,
+      cx,
+      cy,
+      info.area.width / 2
+    );
     grad.addColorStop(0, 'rgba(0, 122, 204, 0.3)');
     grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = grad;
@@ -187,7 +182,7 @@ Use `onChangeComplete` for undo integration. It fires on pointer up after a drag
 <CartesianPicker
   value={point}
   onChange={setPoint}
-  onChangeComplete={(finalPoint) => {
+  onChangeComplete={finalPoint => {
     undoStack.push(finalPoint);
   }}
 />
@@ -195,36 +190,163 @@ Use `onChangeComplete` for undo integration. It fires on pointer up after a drag
 
 ## Props
 
-<PropsTable props={[
-  { name: 'value', type: 'Point2D', description: 'Current point value (controlled). Object with x and y properties.' },
-  { name: 'defaultValue', type: 'Point2D', default: '{ x: 0, y: 0 }', description: 'Default point value (uncontrolled).' },
-  { name: 'domainX', type: '[number, number]', default: '[-1, 1]', description: 'Domain range for the X axis.' },
-  { name: 'domainY', type: '[number, number]', default: '[-1, 1]', description: 'Domain range for the Y axis.' },
-  { name: 'showGrid', type: 'boolean', default: 'true', description: 'Whether to show grid lines.' },
-  { name: 'gridSubdivisions', type: 'number', default: '4', description: 'Number of grid subdivision lines.' },
-  { name: 'showAxisLabels', type: 'boolean', default: 'true', description: 'Whether to show X/Y axis value labels.' },
-  { name: 'showOriginAxes', type: 'boolean', default: 'true', description: 'Whether to draw emphasized origin axes (X=0, Y=0).' },
-  { name: 'showCrosshair', type: 'boolean', default: 'true', description: 'Whether to draw crosshair lines from the point to edges.' },
-  { name: 'crosshairStyle', type: "'solid' | 'dashed'", default: "'dashed'", description: 'Crosshair line style.' },
-  { name: 'labelX', type: 'string', description: 'X axis name label.' },
-  { name: 'labelY', type: 'string', description: 'Y axis name label.' },
-  { name: 'markerRadius', type: 'number', default: '6', description: 'Point marker radius in pixels.' },
-  { name: 'snapToGrid', type: 'boolean', default: 'false', description: 'Snap to grid subdivisions while dragging (Ctrl toggles).' },
-  { name: 'step', type: 'number | [number, number]', description: 'Discrete step for value snapping. Single value or [stepX, stepY].' },
-  { name: 'clampToRange', type: 'boolean', default: 'true', description: 'Whether to clamp the point within domain bounds.' },
-  { name: 'precision', type: 'number', default: '2', description: 'Number format precision for displayed values.' },
-  { name: 'width', type: 'number', default: '200', description: 'Width of the picker in pixels.' },
-  { name: 'height', type: 'number', default: '200', description: 'Height of the picker in pixels.' },
-  { name: 'responsive', type: 'boolean', default: 'false', description: 'Whether the picker fills its parent container via ResizeObserver.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the picker is disabled.' },
-  { name: 'readOnly', type: 'boolean', default: 'false', description: 'Whether the picker is read-only.' },
-  { name: 'onChange', type: '(point: Point2D) => void', description: 'Callback fired continuously during drag.' },
-  { name: 'onChangeComplete', type: '(point: Point2D) => void', description: 'Callback fired when editing is committed (pointer up).' },
-  { name: 'renderBackground', type: '(ctx: CanvasRenderingContext2D, info: CanvasBackgroundInfo) => void', description: 'Custom background renderer for the canvas.' },
-  { name: 'renderBottomBar', type: '(info: CartesianPickerInfo) => ReactNode', description: 'Render prop for custom content below the canvas.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'Point2D',
+      description:
+        'Current point value (controlled). Object with x and y properties.',
+    },
+    {
+      name: 'defaultValue',
+      type: 'Point2D',
+      default: '{ x: 0, y: 0 }',
+      description: 'Default point value (uncontrolled).',
+    },
+    {
+      name: 'domainX',
+      type: '[number, number]',
+      default: '[-1, 1]',
+      description: 'Domain range for the X axis.',
+    },
+    {
+      name: 'domainY',
+      type: '[number, number]',
+      default: '[-1, 1]',
+      description: 'Domain range for the Y axis.',
+    },
+    {
+      name: 'showGrid',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show grid lines.',
+    },
+    {
+      name: 'gridSubdivisions',
+      type: 'number',
+      default: '4',
+      description: 'Number of grid subdivision lines.',
+    },
+    {
+      name: 'showAxisLabels',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show X/Y axis value labels.',
+    },
+    {
+      name: 'showOriginAxes',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to draw emphasized origin axes (X=0, Y=0).',
+    },
+    {
+      name: 'showCrosshair',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to draw crosshair lines from the point to edges.',
+    },
+    {
+      name: 'crosshairStyle',
+      type: "'solid' | 'dashed'",
+      default: "'dashed'",
+      description: 'Crosshair line style.',
+    },
+    { name: 'labelX', type: 'string', description: 'X axis name label.' },
+    { name: 'labelY', type: 'string', description: 'Y axis name label.' },
+    {
+      name: 'markerRadius',
+      type: 'number',
+      default: '6',
+      description: 'Point marker radius in pixels.',
+    },
+    {
+      name: 'snapToGrid',
+      type: 'boolean',
+      default: 'false',
+      description: 'Snap to grid subdivisions while dragging (Ctrl toggles).',
+    },
+    {
+      name: 'step',
+      type: 'number | [number, number]',
+      description:
+        'Discrete step for value snapping. Single value or [stepX, stepY].',
+    },
+    {
+      name: 'clampToRange',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to clamp the point within domain bounds.',
+    },
+    {
+      name: 'precision',
+      type: 'number',
+      default: '2',
+      description: 'Number format precision for displayed values.',
+    },
+    {
+      name: 'width',
+      type: 'number',
+      default: '200',
+      description: 'Width of the picker in pixels.',
+    },
+    {
+      name: 'height',
+      type: 'number',
+      default: '200',
+      description: 'Height of the picker in pixels.',
+    },
+    {
+      name: 'responsive',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the picker fills its parent container via ResizeObserver.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the picker is disabled.',
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the picker is read-only.',
+    },
+    {
+      name: 'onChange',
+      type: '(point: Point2D) => void',
+      description: 'Callback fired continuously during drag.',
+    },
+    {
+      name: 'onChangeComplete',
+      type: '(point: Point2D) => void',
+      description: 'Callback fired when editing is committed (pointer up).',
+    },
+    {
+      name: 'renderBackground',
+      type: '(ctx: CanvasRenderingContext2D, info: CanvasBackgroundInfo) => void',
+      description: 'Custom background renderer for the canvas.',
+    },
+    {
+      name: 'renderBottomBar',
+      type: '(info: CartesianPickerInfo) => ReactNode',
+      description: 'Render prop for custom content below the canvas.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

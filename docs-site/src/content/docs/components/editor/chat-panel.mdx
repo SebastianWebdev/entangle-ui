@@ -43,17 +43,17 @@ const { messages, appendMessage, updateMessage } = useChatMessages();
         title="How can I help?"
         description="Ask me anything about your scene."
         suggestions={['Create a cube', 'Change material', 'Add lighting']}
-        onSuggestionClick={(s) => handleSend(s)}
+        onSuggestionClick={s => handleSend(s)}
       />
     }
   />
   <ChatInput
-    onSubmit={(value) => handleSend(value)}
+    onSubmit={value => handleSend(value)}
     placeholder="Ask the assistant..."
     streaming={isStreaming}
     onStop={handleStop}
   />
-</ChatPanel>
+</ChatPanel>;
 ```
 
 ## Components
@@ -68,10 +68,10 @@ The root layout container that controls spacing density. Wrap all other chat com
 </ChatPanel>
 ```
 
-| Density | Description |
-| --- | --- |
+| Density       | Description                                                          |
+| ------------- | -------------------------------------------------------------------- |
 | `comfortable` | More spacing and larger bubbles. Use for side panels and fullscreen. |
-| `compact` | Tight spacing. Use for bottom panels and constrained areas. |
+| `compact`     | Tight spacing. Use for bottom panels and constrained areas.          |
 
 ### ChatMessageList
 
@@ -83,12 +83,7 @@ Renders an array of messages with auto-scroll behavior. Accepts a custom `render
   autoScroll={true}
   emptyState={<ChatEmptyState title="No messages yet" />}
   renderMessage={(message, index) => (
-    <ChatMessage
-      key={message.id}
-      message={message}
-      showTimestamp
-      showAvatar
-    />
+    <ChatMessage key={message.id} message={message} showTimestamp showAvatar />
   )}
 />
 ```
@@ -108,7 +103,7 @@ Renders a single message with avatar, timestamp, and action buttons. Supports a 
       <button onClick={handleRetry}>Retry</button>
     </ChatActionBar>
   }
-  renderContent={(content) => <MarkdownRenderer>{content}</MarkdownRenderer>}
+  renderContent={content => <MarkdownRenderer>{content}</MarkdownRenderer>}
 />
 ```
 
@@ -196,8 +191,8 @@ Displays an attached file, image, code snippet, or selection as a chip.
 <ChatAttachmentChip
   attachment={{ id: '1', name: 'scene.glb', type: 'file', size: 1024000 }}
   removable
-  onRemove={(id) => handleRemove(id)}
-  onClick={(attachment) => handlePreview(attachment)}
+  onRemove={id => handleRemove(id)}
+  onClick={attachment => handlePreview(attachment)}
 />
 ```
 
@@ -223,7 +218,7 @@ Shown when the message list is empty. Includes optional suggestion chips.
   title="Start a conversation"
   description="Ask me to modify your scene, generate code, or explain concepts."
   suggestions={['Add a spotlight', 'Optimize materials', 'Export scene']}
-  onSuggestionClick={(suggestion) => handleSend(suggestion)}
+  onSuggestionClick={suggestion => handleSend(suggestion)}
 />
 ```
 
@@ -276,18 +271,12 @@ const {
 Manages textarea input state with auto-resize and submit key handling.
 
 ```tsx
-const {
-  value,
-  setValue,
-  clear,
-  textareaRef,
-  handleKeyDown,
-  handleChange,
-} = useChatInput({
-  submitKey: 'enter',
-  maxLines: 6,
-  onSubmit: (value) => handleSend(value),
-});
+const { value, setValue, clear, textareaRef, handleKeyDown, handleChange } =
+  useChatInput({
+    submitKey: 'enter',
+    maxLines: 6,
+    onSubmit: value => handleSend(value),
+  });
 ```
 
 ### useChatScroll
@@ -295,152 +284,482 @@ const {
 Manages auto-scroll behavior for the message list, pausing when the user scrolls up.
 
 ```tsx
-const {
-  scrollContainerRef,
-  isAtBottom,
-  hasNewMessages,
-  scrollToBottom,
-} = useChatScroll({
-  messages,
-  enabled: true,
-  threshold: 100,
-});
+const { scrollContainerRef, isAtBottom, hasNewMessages, scrollToBottom } =
+  useChatScroll({
+    messages,
+    enabled: true,
+    threshold: 100,
+  });
 ```
 
 ## Props
 
 ### ChatPanel
 
-<PropsTable props={[
-  { name: 'density', type: "'comfortable' | 'compact'", default: "'comfortable'", description: 'Visual density of the chat layout. Comfortable has more spacing for side panels; compact is for constrained areas.' },
-  { name: 'children', type: 'ReactNode', required: true, description: 'Panel content, typically ChatMessageList and ChatInput.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'density',
+      type: "'comfortable' | 'compact'",
+      default: "'comfortable'",
+      description:
+        'Visual density of the chat layout. Comfortable has more spacing for side panels; compact is for constrained areas.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description: 'Panel content, typically ChatMessageList and ChatInput.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root element.',
+    },
+  ]}
+/>
 
 ### ChatMessageList
 
-<PropsTable props={[
-  { name: 'messages', type: 'ChatMessageData[]', required: true, description: 'Array of messages to render.' },
-  { name: 'renderMessage', type: '(message: ChatMessageData, index: number) => ReactNode', description: 'Custom renderer for individual messages.' },
-  { name: 'emptyState', type: 'ReactNode', description: 'Content shown when the messages array is empty.' },
-  { name: 'autoScroll', type: 'boolean', default: 'true', description: 'Auto-scroll to bottom on new messages. Pauses when user scrolls up, resumes at bottom.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'messages',
+      type: 'ChatMessageData[]',
+      required: true,
+      description: 'Array of messages to render.',
+    },
+    {
+      name: 'renderMessage',
+      type: '(message: ChatMessageData, index: number) => ReactNode',
+      description: 'Custom renderer for individual messages.',
+    },
+    {
+      name: 'emptyState',
+      type: 'ReactNode',
+      description: 'Content shown when the messages array is empty.',
+    },
+    {
+      name: 'autoScroll',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'Auto-scroll to bottom on new messages. Pauses when user scrolls up, resumes at bottom.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ### ChatMessage
 
-<PropsTable props={[
-  { name: 'message', type: 'ChatMessageData', required: true, description: 'Message data object.' },
-  { name: 'showTimestamp', type: 'boolean', description: 'Show timestamp below the message content.' },
-  { name: 'showAvatar', type: 'boolean', description: 'Show avatar next to the message.' },
-  { name: 'actions', type: 'ReactNode', description: 'Action buttons rendered below the message (typically a ChatActionBar).' },
-  { name: 'renderContent', type: '(content: string) => ReactNode', description: 'Custom content renderer for markdown, LaTeX, or other rich formats.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'message',
+      type: 'ChatMessageData',
+      required: true,
+      description: 'Message data object.',
+    },
+    {
+      name: 'showTimestamp',
+      type: 'boolean',
+      description: 'Show timestamp below the message content.',
+    },
+    {
+      name: 'showAvatar',
+      type: 'boolean',
+      description: 'Show avatar next to the message.',
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description:
+        'Action buttons rendered below the message (typically a ChatActionBar).',
+    },
+    {
+      name: 'renderContent',
+      type: '(content: string) => ReactNode',
+      description:
+        'Custom content renderer for markdown, LaTeX, or other rich formats.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ### ChatInput
 
-<PropsTable props={[
-  { name: 'value', type: 'string', description: 'Current input value (controlled).' },
-  { name: 'onChange', type: '(value: string) => void', description: 'Change handler for controlled usage.' },
-  { name: 'onSubmit', type: '(value: string, attachments: ChatAttachmentData[]) => void', description: 'Called when the user submits the message.' },
-  { name: 'onStop', type: '() => void', description: 'Called when the user clicks the stop generation button.' },
-  { name: 'placeholder', type: 'string', description: 'Placeholder text for the input.' },
-  { name: 'streaming', type: 'boolean', default: 'false', description: 'Whether the assistant is currently streaming. Shows stop button instead of send.' },
-  { name: 'disabled', type: 'boolean', description: 'Disable the input.' },
-  { name: 'submitKey', type: "'enter' | 'ctrl+enter'", default: "'enter'", description: 'Key combination that submits the message. The other combination inserts a newline.' },
-  { name: 'maxLines', type: 'number', default: '6', description: 'Maximum visible lines before the input scrolls.' },
-  { name: 'attachments', type: 'ChatAttachmentData[]', description: 'Currently attached items shown as chips above the input.' },
-  { name: 'onRemoveAttachment', type: '(attachmentId: string) => void', description: 'Called when user removes an attachment chip.' },
-  { name: 'prefix', type: 'ReactNode', description: 'Content rendered before the textarea (e.g., context chips).' },
-  { name: 'suffix', type: 'ReactNode', description: 'Content rendered after the textarea (e.g., additional action buttons).' },
-  { name: 'toolbar', type: 'ReactNode', description: 'Toolbar rendered below the input area (use ChatInputToolbar as the wrapper).' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Current input value (controlled).',
+    },
+    {
+      name: 'onChange',
+      type: '(value: string) => void',
+      description: 'Change handler for controlled usage.',
+    },
+    {
+      name: 'onSubmit',
+      type: '(value: string, attachments: ChatAttachmentData[]) => void',
+      description: 'Called when the user submits the message.',
+    },
+    {
+      name: 'onStop',
+      type: '() => void',
+      description: 'Called when the user clicks the stop generation button.',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      description: 'Placeholder text for the input.',
+    },
+    {
+      name: 'streaming',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the assistant is currently streaming. Shows stop button instead of send.',
+    },
+    { name: 'disabled', type: 'boolean', description: 'Disable the input.' },
+    {
+      name: 'submitKey',
+      type: "'enter' | 'ctrl+enter'",
+      default: "'enter'",
+      description:
+        'Key combination that submits the message. The other combination inserts a newline.',
+    },
+    {
+      name: 'maxLines',
+      type: 'number',
+      default: '6',
+      description: 'Maximum visible lines before the input scrolls.',
+    },
+    {
+      name: 'attachments',
+      type: 'ChatAttachmentData[]',
+      description: 'Currently attached items shown as chips above the input.',
+    },
+    {
+      name: 'onRemoveAttachment',
+      type: '(attachmentId: string) => void',
+      description: 'Called when user removes an attachment chip.',
+    },
+    {
+      name: 'prefix',
+      type: 'ReactNode',
+      description:
+        'Content rendered before the textarea (e.g., context chips).',
+    },
+    {
+      name: 'suffix',
+      type: 'ReactNode',
+      description:
+        'Content rendered after the textarea (e.g., additional action buttons).',
+    },
+    {
+      name: 'toolbar',
+      type: 'ReactNode',
+      description:
+        'Toolbar rendered below the input area (use ChatInputToolbar as the wrapper).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ### ChatTypingIndicator
 
-<PropsTable props={[
-  { name: 'label', type: 'string', default: "'Thinking...'", description: 'Label shown alongside the animation.' },
-  { name: 'variant', type: "'dots' | 'pulse'", default: "'dots'", description: 'Animation style: three animated dots or a pulsing bar.' },
-  { name: 'visible', type: 'boolean', description: 'Whether the indicator is visible.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Thinking...'",
+      description: 'Label shown alongside the animation.',
+    },
+    {
+      name: 'variant',
+      type: "'dots' | 'pulse'",
+      default: "'dots'",
+      description: 'Animation style: three animated dots or a pulsing bar.',
+    },
+    {
+      name: 'visible',
+      type: 'boolean',
+      description: 'Whether the indicator is visible.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ### ChatToolCall
 
-<PropsTable props={[
-  { name: 'toolCall', type: 'ChatToolCallData', required: true, description: 'Tool call data object with id, name, status, input, output, error, and duration.' },
-  { name: 'collapsible', type: 'boolean', default: 'true', description: 'Whether the input/output details can be expanded.' },
-  { name: 'defaultExpanded', type: 'boolean', default: 'false', description: 'Whether details are initially expanded.' },
-  { name: 'icon', type: 'ReactNode', description: 'Custom icon for the tool (defaults to a wrench icon).' },
-  { name: 'renderOutput', type: '(output: Record<string, unknown>) => ReactNode', description: 'Custom renderer for the tool output.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'toolCall',
+      type: 'ChatToolCallData',
+      required: true,
+      description:
+        'Tool call data object with id, name, status, input, output, error, and duration.',
+    },
+    {
+      name: 'collapsible',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether the input/output details can be expanded.',
+    },
+    {
+      name: 'defaultExpanded',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether details are initially expanded.',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Custom icon for the tool (defaults to a wrench icon).',
+    },
+    {
+      name: 'renderOutput',
+      type: '(output: Record<string, unknown>) => ReactNode',
+      description: 'Custom renderer for the tool output.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ### ChatCodeBlock
 
-<PropsTable props={[
-  { name: 'code', type: 'string', required: true, description: 'Code content to display.' },
-  { name: 'language', type: 'string', description: 'Programming language for syntax highlighting.' },
-  { name: 'copyable', type: 'boolean', default: 'true', description: 'Show a copy-to-clipboard button.' },
-  { name: 'lineNumbers', type: 'boolean', default: 'false', description: 'Show line numbers.' },
-  { name: 'maxHeight', type: 'number', default: '400', description: 'Maximum visible height in pixels before the block scrolls.' },
-  { name: 'actions', type: 'ReactNode', description: 'Actions rendered in the code block header alongside the copy button.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'code',
+      type: 'string',
+      required: true,
+      description: 'Code content to display.',
+    },
+    {
+      name: 'language',
+      type: 'string',
+      description: 'Programming language for syntax highlighting.',
+    },
+    {
+      name: 'copyable',
+      type: 'boolean',
+      default: 'true',
+      description: 'Show a copy-to-clipboard button.',
+    },
+    {
+      name: 'lineNumbers',
+      type: 'boolean',
+      default: 'false',
+      description: 'Show line numbers.',
+    },
+    {
+      name: 'maxHeight',
+      type: 'number',
+      default: '400',
+      description: 'Maximum visible height in pixels before the block scrolls.',
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description:
+        'Actions rendered in the code block header alongside the copy button.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ### ChatAttachmentChip
 
-<PropsTable props={[
-  { name: 'attachment', type: 'ChatAttachmentData', required: true, description: 'Attachment data object.' },
-  { name: 'onRemove', type: '(id: string) => void', description: 'Called when the remove button is clicked.' },
-  { name: 'onClick', type: '(attachment: ChatAttachmentData) => void', description: 'Called when the chip itself is clicked (e.g., to preview).' },
-  { name: 'removable', type: 'boolean', default: 'false', description: 'Whether to show the remove button.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'attachment',
+      type: 'ChatAttachmentData',
+      required: true,
+      description: 'Attachment data object.',
+    },
+    {
+      name: 'onRemove',
+      type: '(id: string) => void',
+      description: 'Called when the remove button is clicked.',
+    },
+    {
+      name: 'onClick',
+      type: '(attachment: ChatAttachmentData) => void',
+      description: 'Called when the chip itself is clicked (e.g., to preview).',
+    },
+    {
+      name: 'removable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to show the remove button.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ### ChatContextChip
 
-<PropsTable props={[
-  { name: 'label', type: 'string', required: true, description: 'Label describing the context (e.g., "Selected", "Active file").' },
-  { name: 'items', type: 'string[]', required: true, description: 'Items in this context group.' },
-  { name: 'icon', type: 'ReactNode', description: 'Icon shown before the label.' },
-  { name: 'onDismiss', type: '() => void', description: 'Called when the chip is dismissed.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'label',
+      type: 'string',
+      required: true,
+      description:
+        'Label describing the context (e.g., "Selected", "Active file").',
+    },
+    {
+      name: 'items',
+      type: 'string[]',
+      required: true,
+      description: 'Items in this context group.',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Icon shown before the label.',
+    },
+    {
+      name: 'onDismiss',
+      type: '() => void',
+      description: 'Called when the chip is dismissed.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ### ChatEmptyState
 
-<PropsTable props={[
-  { name: 'title', type: 'string', description: 'Main heading text.' },
-  { name: 'description', type: 'string', description: 'Supporting description text.' },
-  { name: 'icon', type: 'ReactNode', description: 'Icon or illustration.' },
-  { name: 'suggestions', type: 'string[]', description: 'Quick-start suggestion chips that populate the input when clicked.' },
-  { name: 'onSuggestionClick', type: '(suggestion: string) => void', description: 'Called when a suggestion chip is clicked.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    { name: 'title', type: 'string', description: 'Main heading text.' },
+    {
+      name: 'description',
+      type: 'string',
+      description: 'Supporting description text.',
+    },
+    { name: 'icon', type: 'ReactNode', description: 'Icon or illustration.' },
+    {
+      name: 'suggestions',
+      type: 'string[]',
+      description:
+        'Quick-start suggestion chips that populate the input when clicked.',
+    },
+    {
+      name: 'onSuggestionClick',
+      type: '(suggestion: string) => void',
+      description: 'Called when a suggestion chip is clicked.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ## Data Types
 

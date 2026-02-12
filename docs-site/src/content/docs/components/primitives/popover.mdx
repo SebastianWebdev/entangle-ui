@@ -10,7 +10,12 @@ Floating content container for interactive content anchored to a trigger element
 ## Import
 
 ```tsx
-import { Popover, PopoverTrigger, PopoverContent, PopoverClose } from 'entangle-ui';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverClose,
+} from 'entangle-ui';
 ```
 
 ## Usage
@@ -50,12 +55,12 @@ The `placement` prop controls where the popover appears relative to the trigger.
 </Popover>
 ```
 
-| Placement | Description |
-| --------- | ----------- |
-| `top`, `top-start`, `top-end` | Above the trigger |
-| `bottom`, `bottom-start`, `bottom-end` | Below the trigger |
-| `left`, `left-start`, `left-end` | Left of the trigger |
-| `right`, `right-start`, `right-end` | Right of the trigger |
+| Placement                              | Description          |
+| -------------------------------------- | -------------------- |
+| `top`, `top-start`, `top-end`          | Above the trigger    |
+| `bottom`, `bottom-start`, `bottom-end` | Below the trigger    |
+| `left`, `left-start`, `left-end`       | Left of the trigger  |
+| `right`, `right-start`, `right-end`    | Right of the trigger |
 
 ## Controlled
 
@@ -72,7 +77,7 @@ const [isOpen, setIsOpen] = useState(false);
     <p>Controlled popover</p>
     <Button onClick={() => setIsOpen(false)}>Close</Button>
   </PopoverContent>
-</Popover>
+</Popover>;
 ```
 
 ## With Close Button
@@ -142,7 +147,9 @@ Control the distance between the trigger and popover with the `offset` prop (in 
 Control how the popover closes.
 
 ```tsx
-{/* Disable close on outside click */}
+{
+  /* Disable close on outside click */
+}
 <Popover closeOnClickOutside={false}>
   <PopoverTrigger>
     <Button>Persistent</Button>
@@ -151,9 +158,11 @@ Control how the popover closes.
     <p>Only closes via close button or Escape</p>
     <PopoverClose />
   </PopoverContent>
-</Popover>
+</Popover>;
 
-{/* Disable close on Escape */}
+{
+  /* Disable close on Escape */
+}
 <Popover closeOnEscape={false}>
   <PopoverTrigger>
     <Button>No Escape</Button>
@@ -161,41 +170,123 @@ Control how the popover closes.
   <PopoverContent>
     <p>Escape key does not close this</p>
   </PopoverContent>
-</Popover>
+</Popover>;
 ```
 
 ## Props
 
 ### Popover
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'PopoverTrigger and PopoverContent elements.' },
-  { name: 'open', type: 'boolean', description: 'Whether the popover is open (controlled mode).' },
-  { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'Default open state (uncontrolled mode).' },
-  { name: 'placement', type: "'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end' | 'right' | 'right-start' | 'right-end'", default: "'bottom-start'", description: 'Popover placement relative to the trigger.' },
-  { name: 'offset', type: 'number', default: '8', description: 'Distance in pixels from the trigger element.' },
-  { name: 'closeOnClickOutside', type: 'boolean', default: 'true', description: 'Whether clicking outside closes the popover.' },
-  { name: 'closeOnEscape', type: 'boolean', default: 'true', description: 'Whether pressing Escape closes the popover.' },
-  { name: 'returnFocus', type: 'boolean', default: 'true', description: 'Whether to return focus to the trigger when popover closes.' },
-  { name: 'portal', type: 'boolean', default: 'true', description: 'Whether to render the popover in a React Portal.' },
-  { name: 'matchTriggerWidth', type: 'boolean', default: 'false', description: 'Whether the popover content width matches the trigger width.' },
-  { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Callback when the open state changes.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'PopoverTrigger and PopoverContent elements.',
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: 'Whether the popover is open (controlled mode).',
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: 'Default open state (uncontrolled mode).',
+    },
+    {
+      name: 'placement',
+      type: "'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end' | 'right' | 'right-start' | 'right-end'",
+      default: "'bottom-start'",
+      description: 'Popover placement relative to the trigger.',
+    },
+    {
+      name: 'offset',
+      type: 'number',
+      default: '8',
+      description: 'Distance in pixels from the trigger element.',
+    },
+    {
+      name: 'closeOnClickOutside',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether clicking outside closes the popover.',
+    },
+    {
+      name: 'closeOnEscape',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether pressing Escape closes the popover.',
+    },
+    {
+      name: 'returnFocus',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'Whether to return focus to the trigger when popover closes.',
+    },
+    {
+      name: 'portal',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to render the popover in a React Portal.',
+    },
+    {
+      name: 'matchTriggerWidth',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the popover content width matches the trigger width.',
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Callback when the open state changes.',
+    },
+  ]}
+/>
 
 ### PopoverContent
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Popover content -- any React elements.' },
-  { name: 'width', type: 'number | string', description: 'Width of the popover content. Number = pixels, string = CSS value.' },
-  { name: 'maxHeight', type: 'number | string', description: 'Maximum height with scroll.' },
-  { name: 'padding', type: "'none' | 'sm' | 'md' | 'lg'", default: "'md'", description: 'Padding inside the popover using theme spacing tokens.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Popover content -- any React elements.',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description:
+        'Width of the popover content. Number = pixels, string = CSS value.',
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      description: 'Maximum height with scroll.',
+    },
+    {
+      name: 'padding',
+      type: "'none' | 'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Padding inside the popover using theme spacing tokens.',
+    },
+  ]}
+/>
 
 ### PopoverClose
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Close button content. Defaults to a built-in X icon.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Close button content. Defaults to a built-in X icon.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

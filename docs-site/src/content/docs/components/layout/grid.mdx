@@ -72,13 +72,13 @@ Override column spans at different breakpoints using the `xs`, `sm`, `md`, `lg`,
 </Grid>
 ```
 
-| Breakpoint | Prop | Min Width |
-| --- | --- | --- |
-| Extra Small | `xs` | 0px |
-| Small | `sm` | 576px |
-| Medium | `md` | 768px |
-| Large | `lg` | 992px |
-| Extra Large | `xl` | 1200px |
+| Breakpoint  | Prop | Min Width |
+| ----------- | ---- | --------- |
+| Extra Small | `xs` | 0px       |
+| Small       | `sm` | 576px     |
+| Medium      | `md` | 768px     |
+| Large       | `lg` | 992px     |
+| Extra Large | `xl` | 1200px    |
 
 ## Spacing
 
@@ -98,16 +98,16 @@ The `spacing` prop controls the gap between grid items. Values are multipliers o
 ```
 
 | Spacing Value | Computed Size |
-| --- | --- |
-| `0` | 0px |
-| `1` | 4px |
-| `2` | 8px (default) |
-| `3` | 12px |
-| `4` | 16px |
-| `5` | 20px |
-| `6` | 24px |
-| `7` | 28px |
-| `8` | 32px |
+| ------------- | ------------- |
+| `0`           | 0px           |
+| `1`           | 4px           |
+| `2`           | 8px (default) |
+| `3`           | 12px          |
+| `4`           | 16px          |
+| `5`           | 20px          |
+| `6`           | 24px          |
+| `7`           | 28px          |
+| `8`           | 32px          |
 
 ## Custom Column Count
 
@@ -142,35 +142,119 @@ Grids can be nested by placing a container Grid inside a Grid item.
 
 Props that apply when `container` is `true`.
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Grid content -- Grid items or any React elements. Required.' },
-  { name: 'container', type: 'boolean', default: 'false', description: 'Whether this Grid acts as a container enabling CSS Grid layout.' },
-  { name: 'columns', type: 'number', default: '12', description: 'Total number of columns in the grid. Only applies to containers.' },
-  { name: 'spacing', type: '0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8', default: '2', description: 'Gap between grid items as a multiplier of the 4px base unit. Only applies to containers.' },
-  { name: 'gap', type: 'string | number', description: 'Custom gap override as a CSS value. Overrides the spacing prop when provided.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the underlying div element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Grid content -- Grid items or any React elements. Required.',
+    },
+    {
+      name: 'container',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether this Grid acts as a container enabling CSS Grid layout.',
+    },
+    {
+      name: 'columns',
+      type: 'number',
+      default: '12',
+      description:
+        'Total number of columns in the grid. Only applies to containers.',
+    },
+    {
+      name: 'spacing',
+      type: '0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8',
+      default: '2',
+      description:
+        'Gap between grid items as a multiplier of the 4px base unit. Only applies to containers.',
+    },
+    {
+      name: 'gap',
+      type: 'string | number',
+      description:
+        'Custom gap override as a CSS value. Overrides the spacing prop when provided.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
 
 ### Grid (Item)
 
 Props that apply when `container` is `false` (the default).
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Item content. Required.' },
-  { name: 'size', type: "1-12 | 'auto'", description: 'Number of columns to span (out of the total column count).' },
-  { name: 'xs', type: "1-12 | 'auto'", description: 'Column span at extra-small breakpoint (0px+).' },
-  { name: 'sm', type: "1-12 | 'auto'", description: 'Column span at small breakpoint (576px+).' },
-  { name: 'md', type: "1-12 | 'auto'", description: 'Column span at medium breakpoint (768px+).' },
-  { name: 'lg', type: "1-12 | 'auto'", description: 'Column span at large breakpoint (992px+).' },
-  { name: 'xl', type: "1-12 | 'auto'", description: 'Column span at extra-large breakpoint (1200px+).' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the underlying div element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Item content. Required.',
+    },
+    {
+      name: 'size',
+      type: "1-12 | 'auto'",
+      description: 'Number of columns to span (out of the total column count).',
+    },
+    {
+      name: 'xs',
+      type: "1-12 | 'auto'",
+      description: 'Column span at extra-small breakpoint (0px+).',
+    },
+    {
+      name: 'sm',
+      type: "1-12 | 'auto'",
+      description: 'Column span at small breakpoint (576px+).',
+    },
+    {
+      name: 'md',
+      type: "1-12 | 'auto'",
+      description: 'Column span at medium breakpoint (768px+).',
+    },
+    {
+      name: 'lg',
+      type: "1-12 | 'auto'",
+      description: 'Column span at large breakpoint (992px+).',
+    },
+    {
+      name: 'xl',
+      type: "1-12 | 'auto'",
+      description: 'Column span at extra-large breakpoint (1200px+).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
 
 Both container and item modes accept all standard HTML `<div>` attributes.
 

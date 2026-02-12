@@ -33,15 +33,15 @@ The `variant` prop provides semantic presets with predefined size, weight, and s
 <Text variant="inherit">Inherit — Inherits from parent</Text>
 ```
 
-| Variant | Size | Weight | Use case |
-| ------- | ---- | ------ | -------- |
-| `display` | xl | semibold | Main page titles |
-| `heading` | lg | medium | Section headings |
-| `subheading` | md | medium | Subsection headings |
-| `body` | sm | normal | Standard body text |
-| `caption` | xs | normal | Small helper text, labels |
-| `code` | sm | normal (mono) | Inline code snippets |
-| `inherit` | -- | -- | Inherits parent typography |
+| Variant      | Size | Weight        | Use case                   |
+| ------------ | ---- | ------------- | -------------------------- |
+| `display`    | xl   | semibold      | Main page titles           |
+| `heading`    | lg   | medium        | Section headings           |
+| `subheading` | md   | medium        | Subsection headings        |
+| `body`       | sm   | normal        | Standard body text         |
+| `caption`    | xs   | normal        | Small helper text, labels  |
+| `code`       | sm   | normal (mono) | Inline code snippets       |
+| `inherit`    | --   | --            | Inherits parent typography |
 
 ## Sizes
 
@@ -99,16 +99,20 @@ Use the `as` prop to render as any semantic HTML element.
 Use `truncate` to clip overflowing text with an ellipsis. Combine with `maxLines` for multi-line truncation.
 
 ```tsx
-{/* Single line truncation */}
+{
+  /* Single line truncation */
+}
 <Text truncate>
   This very long text will be truncated with an ellipsis when it overflows...
-</Text>
+</Text>;
 
-{/* Multi-line truncation */}
+{
+  /* Multi-line truncation */
+}
 <Text truncate maxLines={2}>
-  This text will be truncated after two lines. Any content beyond the
-  second line will be clipped with an ellipsis at the end.
-</Text>
+  This text will be truncated after two lines. Any content beyond the second
+  line will be clipped with an ellipsis at the end.
+</Text>;
 ```
 
 ## No Wrap
@@ -173,24 +177,91 @@ Override line height with the `lineHeight` prop.
 
 ## Props
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Text content.' },
-  { name: 'as', type: "'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div' | 'label' | 'strong' | 'em' | 'small'", default: "'span'", description: 'HTML element to render as.' },
-  { name: 'variant', type: "'display' | 'heading' | 'subheading' | 'body' | 'caption' | 'code' | 'inherit'", default: "'body'", description: 'Semantic variant with predefined styling.' },
-  { name: 'size', type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", description: 'Text size using theme typography tokens. Overrides variant size.' },
-  { name: 'weight', type: "'normal' | 'medium' | 'semibold'", description: 'Text weight using theme typography tokens. Overrides variant weight.' },
-  { name: 'color', type: "'primary' | 'secondary' | 'muted' | 'disabled' | 'accent' | 'success' | 'warning' | 'error'", default: "'primary'", description: 'Text color using theme color tokens.' },
-  { name: 'lineHeight', type: "'tight' | 'normal' | 'relaxed'", description: 'Line height. Overrides variant line height.' },
-  { name: 'align', type: "'left' | 'center' | 'right' | 'justify'", description: 'Text alignment.' },
-  { name: 'truncate', type: 'boolean', default: 'false', description: 'Whether to truncate text with ellipsis on overflow.' },
-  { name: 'maxLines', type: 'number', description: 'Maximum lines before truncating. Requires truncate=true.' },
-  { name: 'nowrap', type: 'boolean', default: 'false', description: 'Whether text should not wrap to the next line.' },
-  { name: 'mono', type: 'boolean', default: 'false', description: 'Whether to use monospace font family. Automatically true for code variant.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class name.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLElement>', description: 'Ref to the underlying HTML element.' },
-]} />
+<PropsTable
+  props={[
+    { name: 'children', type: 'ReactNode', description: 'Text content.' },
+    {
+      name: 'as',
+      type: "'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div' | 'label' | 'strong' | 'em' | 'small'",
+      default: "'span'",
+      description: 'HTML element to render as.',
+    },
+    {
+      name: 'variant',
+      type: "'display' | 'heading' | 'subheading' | 'body' | 'caption' | 'code' | 'inherit'",
+      default: "'body'",
+      description: 'Semantic variant with predefined styling.',
+    },
+    {
+      name: 'size',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
+      description:
+        'Text size using theme typography tokens. Overrides variant size.',
+    },
+    {
+      name: 'weight',
+      type: "'normal' | 'medium' | 'semibold'",
+      description:
+        'Text weight using theme typography tokens. Overrides variant weight.',
+    },
+    {
+      name: 'color',
+      type: "'primary' | 'secondary' | 'muted' | 'disabled' | 'accent' | 'success' | 'warning' | 'error'",
+      default: "'primary'",
+      description: 'Text color using theme color tokens.',
+    },
+    {
+      name: 'lineHeight',
+      type: "'tight' | 'normal' | 'relaxed'",
+      description: 'Line height. Overrides variant line height.',
+    },
+    {
+      name: 'align',
+      type: "'left' | 'center' | 'right' | 'justify'",
+      description: 'Text alignment.',
+    },
+    {
+      name: 'truncate',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to truncate text with ellipsis on overflow.',
+    },
+    {
+      name: 'maxLines',
+      type: 'number',
+      description: 'Maximum lines before truncating. Requires truncate=true.',
+    },
+    {
+      name: 'nowrap',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether text should not wrap to the next line.',
+    },
+    {
+      name: 'mono',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether to use monospace font family. Automatically true for code variant.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class name.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the underlying HTML element.',
+    },
+  ]}
+/>
 
 The component also accepts all standard HTML attributes for the rendered element.
 

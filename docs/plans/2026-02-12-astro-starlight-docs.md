@@ -15,6 +15,7 @@
 ### Task 1: Initialize Astro Starlight project
 
 **Files:**
+
 - Create: `docs-site/package.json`
 - Create: `docs-site/astro.config.mjs`
 - Create: `docs-site/tsconfig.json`
@@ -70,7 +71,11 @@ export default defineConfig({
       title: 'Entangle UI',
       description: 'React component library for professional editor interfaces',
       social: [
-        { icon: 'github', label: 'GitHub', href: 'https://github.com/SebastianWebdev/entangle-ui' },
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/SebastianWebdev/entangle-ui',
+        },
       ],
       plugins: [
         starlightTypeDoc({
@@ -117,12 +122,18 @@ export default defineConfig({
                 { label: 'Text', slug: 'components/primitives/text' },
                 { label: 'Paper', slug: 'components/primitives/paper' },
                 { label: 'Icon', slug: 'components/primitives/icon' },
-                { label: 'IconButton', slug: 'components/primitives/icon-button' },
+                {
+                  label: 'IconButton',
+                  slug: 'components/primitives/icon-button',
+                },
                 { label: 'Tooltip', slug: 'components/primitives/tooltip' },
                 { label: 'Checkbox', slug: 'components/primitives/checkbox' },
                 { label: 'Switch', slug: 'components/primitives/switch' },
                 { label: 'Popover', slug: 'components/primitives/popover' },
-                { label: 'Collapsible', slug: 'components/primitives/collapsible' },
+                {
+                  label: 'Collapsible',
+                  slug: 'components/primitives/collapsible',
+                },
               ],
             },
             {
@@ -136,7 +147,10 @@ export default defineConfig({
                 { label: 'ScrollArea', slug: 'components/layout/scroll-area' },
                 { label: 'SplitPane', slug: 'components/layout/split-pane' },
                 { label: 'Accordion', slug: 'components/layout/accordion' },
-                { label: 'PanelSurface', slug: 'components/layout/panel-surface' },
+                {
+                  label: 'PanelSurface',
+                  slug: 'components/layout/panel-surface',
+                },
               ],
             },
             {
@@ -144,13 +158,28 @@ export default defineConfig({
               collapsed: false,
               items: [
                 { label: 'Slider', slug: 'components/controls/slider' },
-                { label: 'NumberInput', slug: 'components/controls/number-input' },
+                {
+                  label: 'NumberInput',
+                  slug: 'components/controls/number-input',
+                },
                 { label: 'Select', slug: 'components/controls/select' },
-                { label: 'ColorPicker', slug: 'components/controls/color-picker' },
-                { label: 'CurveEditor', slug: 'components/controls/curve-editor' },
-                { label: 'CartesianPicker', slug: 'components/controls/cartesian-picker' },
+                {
+                  label: 'ColorPicker',
+                  slug: 'components/controls/color-picker',
+                },
+                {
+                  label: 'CurveEditor',
+                  slug: 'components/controls/curve-editor',
+                },
+                {
+                  label: 'CartesianPicker',
+                  slug: 'components/controls/cartesian-picker',
+                },
                 { label: 'TreeView', slug: 'components/controls/tree-view' },
-                { label: 'VectorInput', slug: 'components/controls/vector-input' },
+                {
+                  label: 'VectorInput',
+                  slug: 'components/controls/vector-input',
+                },
               ],
             },
             {
@@ -158,7 +187,10 @@ export default defineConfig({
               collapsed: false,
               items: [
                 { label: 'Menu', slug: 'components/navigation/menu' },
-                { label: 'ContextMenu', slug: 'components/navigation/context-menu' },
+                {
+                  label: 'ContextMenu',
+                  slug: 'components/navigation/context-menu',
+                },
                 { label: 'Tabs', slug: 'components/navigation/tabs' },
               ],
             },
@@ -178,7 +210,10 @@ export default defineConfig({
                 { label: 'MenuBar', slug: 'components/shell/menu-bar' },
                 { label: 'Toolbar', slug: 'components/shell/toolbar' },
                 { label: 'StatusBar', slug: 'components/shell/status-bar' },
-                { label: 'FloatingPanel', slug: 'components/shell/floating-panel' },
+                {
+                  label: 'FloatingPanel',
+                  slug: 'components/shell/floating-panel',
+                },
               ],
             },
             {
@@ -186,8 +221,14 @@ export default defineConfig({
               collapsed: true,
               items: [
                 { label: 'ChatPanel', slug: 'components/editor/chat-panel' },
-                { label: 'PropertyInspector', slug: 'components/editor/property-inspector' },
-                { label: 'ViewportGizmo', slug: 'components/editor/viewport-gizmo' },
+                {
+                  label: 'PropertyInspector',
+                  slug: 'components/editor/property-inspector',
+                },
+                {
+                  label: 'ViewportGizmo',
+                  slug: 'components/editor/viewport-gizmo',
+                },
               ],
             },
           ],
@@ -276,12 +317,14 @@ git commit -m "feat: scaffold Astro Starlight docs site"
 ### Task 2: Add root-level npm scripts and gitignore
 
 **Files:**
+
 - Modify: `package.json` (root)
 - Modify: `.gitignore`
 
 **Step 1: Add docs scripts to root `package.json`**
 
 Add to `"scripts"`:
+
 ```json
 "docs:dev": "npm run --prefix docs-site dev",
 "docs:build": "npm run --prefix docs-site build",
@@ -291,6 +334,7 @@ Add to `"scripts"`:
 **Step 2: Add docs-site build output to `.gitignore`**
 
 Append:
+
 ```
 docs-site/dist/
 docs-site/.astro/
@@ -311,6 +355,7 @@ git commit -m "chore: add docs npm scripts and gitignore entries"
 ### Task 3: Migrate quickstart, theming, and styling guides
 
 **Files:**
+
 - Create: `docs-site/src/content/docs/getting-started/introduction.mdx`
 - Create: `docs-site/src/content/docs/getting-started/installation.mdx`
 - Create: `docs-site/src/content/docs/getting-started/quick-start.mdx`
@@ -340,6 +385,7 @@ Entangle UI is a React component library designed for professional editor interf
 ## When to Use Entangle UI
 
 Use this library when building:
+
 - 3D editor interfaces (like Blender, Unity)
 - Node-based editors (like Unreal Blueprints)
 - Parameter/property inspectors
@@ -349,10 +395,12 @@ Use this library when building:
 **Step 2: Convert `docs/quickstart.md` content into `installation.mdx` and `quick-start.mdx`**
 
 Split the existing quickstart.md into two focused pages:
+
 - `installation.mdx` — npm install, peer deps, provider setup
 - `quick-start.mdx` — first component usage, basic examples
 
 Add Starlight frontmatter to each:
+
 ```mdx
 ---
 title: Installation
@@ -392,6 +440,7 @@ git commit -m "docs: migrate existing guides to Starlight"
 These are Astro/MDX components used inside documentation pages (NOT entangle-ui library components). They render prop tables, example previews, etc.
 
 **Files:**
+
 - Create: `docs-site/src/components/ComponentPreview.astro`
 - Create: `docs-site/src/components/PropsTable.astro`
 - Create: `docs-site/src/components/ExampleBlock.tsx` (React — for interactive demos)
@@ -553,11 +602,12 @@ git commit -m "feat: add shared doc components (ComponentPreview, PropsTable, Ex
 This establishes the template pattern for ALL component doc pages.
 
 **Files:**
+
 - Create: `docs-site/src/content/docs/components/primitives/button.mdx`
 
 **Step 1: Create the Button doc page**
 
-```mdx
+````mdx
 ---
 title: Button
 description: Clickable button component with multiple variants and sizes
@@ -589,6 +639,7 @@ variants, sizes, loading states, and icon slots.
 <Button variant="ghost">Ghost</Button>
 <Button variant="filled">Filled</Button>
 ```
+````
 
 ### Sizes
 
@@ -618,7 +669,7 @@ variants, sizes, loading states, and icon slots.
 ```tsx
 import { SaveIcon } from 'entangle-ui';
 
-<Button icon={<SaveIcon />}>Save</Button>
+<Button icon={<SaveIcon />}>Save</Button>;
 ```
 
 ### Loading State
@@ -654,17 +705,17 @@ import { SaveIcon } from 'entangle-ui';
 ## API Reference
 
 <PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Button content — text, icons, or other React elements' },
-  { name: 'variant', type: "'default' | 'ghost' | 'filled'", default: "'default'", description: 'Visual style variant' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Button size (sm=20px, md=24px, lg=32px)' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the button is disabled' },
-  { name: 'loading', type: 'boolean', default: 'false', description: 'Show loading spinner and disable interactions' },
-  { name: 'icon', type: 'ReactNode', description: 'Icon element displayed before children' },
-  { name: 'fullWidth', type: 'boolean', default: 'false', description: 'Whether button fills container width' },
-  { name: 'onClick', type: '(e: MouseEvent) => void', description: 'Click event handler' },
-  { name: 'type', type: "'button' | 'submit' | 'reset'", default: "'button'", description: 'HTML button type' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing' },
+{ name: 'children', type: 'ReactNode', description: 'Button content — text, icons, or other React elements' },
+{ name: 'variant', type: "'default' | 'ghost' | 'filled'", default: "'default'", description: 'Visual style variant' },
+{ name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Button size (sm=20px, md=24px, lg=32px)' },
+{ name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the button is disabled' },
+{ name: 'loading', type: 'boolean', default: 'false', description: 'Show loading spinner and disable interactions' },
+{ name: 'icon', type: 'ReactNode', description: 'Icon element displayed before children' },
+{ name: 'fullWidth', type: 'boolean', default: 'false', description: 'Whether button fills container width' },
+{ name: 'onClick', type: '(e: MouseEvent) => void', description: 'Click event handler' },
+{ name: 'type', type: "'button' | 'submit' | 'reset'", default: "'button'", description: 'HTML button type' },
+{ name: 'className', type: 'string', description: 'Additional CSS class names' },
+{ name: 'testId', type: 'string', description: 'Test identifier for automated testing' },
 ]} />
 
 ## Accessibility
@@ -674,13 +725,14 @@ import { SaveIcon } from 'entangle-ui';
 - `disabled` state prevents interaction and announces via ARIA
 - Loading state disables button and shows visual spinner
 - Icon-only usage should include `aria-label`
-```
+
+````
 
 **Step 2: Verify in dev server**
 
 ```bash
 cd docs-site && npm run dev
-```
+````
 
 Visit `http://localhost:4321/components/primitives/button/` — verify examples render with dark theme, props table shows correctly, sidebar navigation works.
 
@@ -698,12 +750,14 @@ git commit -m "docs: add Button component documentation page"
 Same pattern as Button but for a more complex component with many props.
 
 **Files:**
+
 - Create: `docs-site/src/content/docs/components/controls/slider.mdx`
 - Reference: `src/components/controls/Slider/Slider.tsx` (read props from JSDoc)
 
 **Step 1: Create `slider.mdx`**
 
 Follow the same structure as button.mdx:
+
 1. Import component + demo components
 2. Description paragraph
 3. Examples section with `<ComponentPreview>` blocks: Basic, Range, With Units, With Ticks, Disabled, Custom Formatting
@@ -726,6 +780,7 @@ git commit -m "docs: add Slider component documentation page"
 ### Task 7: Write remaining Primitives doc pages
 
 **Files to create** (one per component, follow Button pattern):
+
 - `docs-site/src/content/docs/components/primitives/input.mdx`
 - `docs-site/src/content/docs/components/primitives/text.mdx`
 - `docs-site/src/content/docs/components/primitives/paper.mdx`
@@ -738,6 +793,7 @@ git commit -m "docs: add Slider component documentation page"
 - `docs-site/src/content/docs/components/primitives/collapsible.mdx`
 
 **For each file:**
+
 1. Read the component's `.tsx` and `.types.ts` files to get accurate props
 2. Write description, 3-5 example sections with `<ComponentPreview>`, API Reference with `<PropsTable>`, Accessibility notes
 3. Verify in dev server
@@ -753,6 +809,7 @@ git commit -m "docs: add Input, Text, Paper, Icon documentation pages"
 ### Task 8: Write Layout component doc pages
 
 **Files to create:**
+
 - `docs-site/src/content/docs/components/layout/flex.mdx`
 - `docs-site/src/content/docs/components/layout/stack.mdx`
 - `docs-site/src/content/docs/components/layout/grid.mdx`
@@ -769,6 +826,7 @@ Same pattern. Flex should show responsive props examples (`sm`, `md`, `lg`, `xl`
 ### Task 9: Write remaining Controls doc pages
 
 **Files to create:**
+
 - `docs-site/src/content/docs/components/controls/number-input.mdx`
 - `docs-site/src/content/docs/components/controls/select.mdx`
 - `docs-site/src/content/docs/components/controls/color-picker.mdx`
@@ -784,6 +842,7 @@ ColorPicker should document built-in palettes. CurveEditor should show preset cu
 ### Task 10: Write Navigation, Feedback, Shell, and Editor doc pages
 
 **Files to create:**
+
 - `docs-site/src/content/docs/components/navigation/menu.mdx`
 - `docs-site/src/content/docs/components/navigation/context-menu.mdx`
 - `docs-site/src/content/docs/components/navigation/tabs.mdx`
@@ -805,6 +864,7 @@ AppShell page should show a full layout composition example combining MenuBar + 
 ### Task 11: Create Icons gallery page
 
 **Files:**
+
 - Create: `docs-site/src/content/docs/icons.mdx`
 - Create: `docs-site/src/components/IconGallery.tsx` (React component)
 
@@ -832,7 +892,7 @@ export const IconGallery: React.FC = () => {
         type="search"
         placeholder="Search icons..."
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={e => setSearch(e.target.value)}
         style={{
           width: '100%',
           padding: '8px 12px',
@@ -844,11 +904,13 @@ export const IconGallery: React.FC = () => {
           fontSize: '14px',
         }}
       />
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-        gap: '8px',
-      }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+          gap: '8px',
+        }}
+      >
         {filtered.map(([name, IconComponent]) => {
           const Comp = IconComponent as React.FC;
           return (
@@ -866,7 +928,9 @@ export const IconGallery: React.FC = () => {
               }}
             >
               <Comp />
-              <span style={{ fontSize: '10px', color: '#888', textAlign: 'center' }}>
+              <span
+                style={{ fontSize: '10px', color: '#888', textAlign: 'center' }}
+              >
                 {name.replace('Icon', '')}
               </span>
             </div>
@@ -883,7 +947,7 @@ export const IconGallery: React.FC = () => {
 
 **Step 2: Create `icons.mdx`**
 
-```mdx
+````mdx
 ---
 title: Icons
 description: All available icon components
@@ -902,6 +966,7 @@ import { SaveIcon, AddIcon, CloseIcon } from 'entangle-ui';
 <Button icon={<SaveIcon />}>Save</Button>
 <IconButton><CloseIcon /></IconButton>
 ```
+````
 
 ## Icon Gallery
 
@@ -911,19 +976,20 @@ import { SaveIcon, AddIcon, CloseIcon } from 'entangle-ui';
 
 All icons accept the same props as the `Icon` primitive:
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `size` | `number \| string` | `24` | Icon size in pixels |
-| `color` | `string` | `'currentColor'` | Icon color |
-| `className` | `string` | — | Additional CSS class |
-```
+| Prop        | Type               | Default          | Description          |
+| ----------- | ------------------ | ---------------- | -------------------- |
+| `size`      | `number \| string` | `24`             | Icon size in pixels  |
+| `color`     | `string`           | `'currentColor'` | Icon color           |
+| `className` | `string`           | —                | Additional CSS class |
+
+````
 
 **Step 3: Commit**
 
 ```bash
 git add docs-site/src/components/IconGallery.tsx docs-site/src/content/docs/icons.mdx
 git commit -m "docs: add searchable icon gallery page"
-```
+````
 
 ---
 
@@ -948,6 +1014,7 @@ Verify that the sidebar includes an "API Reference" section with auto-generated 
 **Step 3: Fix any TypeDoc issues**
 
 Common issues:
+
 - Missing JSDoc on exported types → Add JSDoc (see Phase 5)
 - Re-exports not resolving → May need to adjust `entryPoints` to point at individual barrel exports
 - Vanilla Extract imports causing errors → Add `exclude` patterns in TypeDoc config
@@ -998,7 +1065,8 @@ Cross-reference with TypeDoc output — any undocumented exports will appear wit
 **Step 2: For each component missing JSDoc, add:**
 
 1. **Component-level JSDoc** above the export:
-```tsx
+
+````tsx
 /**
  * Short description of what this component does.
  *
@@ -1007,9 +1075,10 @@ Cross-reference with TypeDoc output — any undocumented exports will appear wit
  * <ComponentName prop="value">Content</ComponentName>
  * ```
  */
-```
+````
 
 2. **Props JSDoc** for each property in the interface:
+
 ```tsx
 /**
  * Description of what this prop controls
@@ -1021,6 +1090,7 @@ propName?: PropType;
 ```
 
 **Priority components to check:**
+
 - `src/components/controls/ColorPicker/ColorPicker.tsx`
 - `src/components/controls/CurveEditor/CurveEditor.tsx`
 - `src/components/controls/CartesianPicker/CartesianPicker.tsx`
@@ -1042,6 +1112,7 @@ propName?: PropType;
 **Step 3: Commit batches**
 
 After every 5-6 files:
+
 ```bash
 git commit -m "docs: enhance JSDoc for [CategoryName] components"
 ```
@@ -1053,6 +1124,7 @@ git commit -m "docs: enhance JSDoc for [CategoryName] components"
 ### Task 14: Add custom Starlight theme overrides
 
 **Files:**
+
 - Create: `docs-site/src/styles/custom.css`
 - Modify: `docs-site/astro.config.mjs` (add `customCss`)
 
@@ -1092,7 +1164,7 @@ starlight({
   title: 'Entangle UI',
   customCss: ['./src/styles/custom.css'],
   // ... rest of config
-})
+});
 ```
 
 **Step 3: Commit**
@@ -1107,6 +1179,7 @@ git commit -m "style: add custom Starlight theme matching entangle-ui dark palet
 ### Task 15: Add docs build to CI
 
 **Files:**
+
 - Modify: `.github/workflows/ci.yml`
 
 **Step 1: Add docs build job**
@@ -1114,16 +1187,16 @@ git commit -m "style: add custom Starlight theme matching entangle-ui dark palet
 Add a new job or step to the existing CI workflow:
 
 ```yaml
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm ci
-      - run: cd docs-site && npm install
-      - run: cd docs-site && npm run build
+docs:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - run: npm ci
+    - run: cd docs-site && npm install
+    - run: cd docs-site && npm run build
 ```
 
 This ensures docs stay buildable as components change.
@@ -1154,6 +1227,7 @@ npm run preview
 ```
 
 Walk through:
+
 - [ ] Landing page renders
 - [ ] Sidebar navigation works (all categories, all components)
 - [ ] Component examples render with dark theme
@@ -1190,16 +1264,16 @@ git commit -m "docs: complete Astro Starlight documentation site"
 
 ## Summary of Deliverables
 
-| Deliverable | Description |
-|-------------|-------------|
-| `docs-site/` | Full Astro Starlight documentation site |
-| Left sidebar | Component navigation organized by category (like MUI) |
-| Component pages | ~35 MDX pages with live examples + props tables |
-| API Reference | Auto-generated from TypeScript via starlight-typedoc |
-| Icon gallery | Searchable grid of all 63+ icons |
-| Guides | Migrated theming, styling, quickstart docs |
-| CI integration | Docs build verified in GitHub Actions |
-| JSDoc coverage | Enhanced across all exported components |
+| Deliverable     | Description                                           |
+| --------------- | ----------------------------------------------------- |
+| `docs-site/`    | Full Astro Starlight documentation site               |
+| Left sidebar    | Component navigation organized by category (like MUI) |
+| Component pages | ~35 MDX pages with live examples + props tables       |
+| API Reference   | Auto-generated from TypeScript via starlight-typedoc  |
+| Icon gallery    | Searchable grid of all 63+ icons                      |
+| Guides          | Migrated theming, styling, quickstart docs            |
+| CI integration  | Docs build verified in GitHub Actions                 |
+| JSDoc coverage  | Enhanced across all exported components               |
 
 ## Dependencies to Install (in docs-site/)
 

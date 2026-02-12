@@ -26,11 +26,7 @@ Use `checked` and `onChange` for controlled mode. The `onChange` callback receiv
 ```tsx
 const [enabled, setEnabled] = useState(false);
 
-<Switch
-  checked={enabled}
-  onChange={setEnabled}
-  label="Auto-save"
-/>
+<Switch checked={enabled} onChange={setEnabled} label="Auto-save" />;
 ```
 
 ## Sizes
@@ -41,11 +37,11 @@ const [enabled, setEnabled] = useState(false);
 <Switch size="lg" label="Large (42x22px track)" />
 ```
 
-| Size | Track | Thumb | Use case |
-| ---- | ----- | ----- | -------- |
-| `sm` | 28x14px | 10px | Compact toolbars |
-| `md` | 34x18px | 14px | Standard panels |
-| `lg` | 42x22px | 18px | Prominent settings |
+| Size | Track   | Thumb | Use case           |
+| ---- | ------- | ----- | ------------------ |
+| `sm` | 28x14px | 10px  | Compact toolbars   |
+| `md` | 34x18px | 14px  | Standard panels    |
+| `lg` | 42x22px | 18px  | Prominent settings |
 
 ## Label Position
 
@@ -103,23 +99,83 @@ Use the `name` prop for form integration. A hidden input is rendered with the va
 
 ## Props
 
-<PropsTable props={[
-  { name: 'checked', type: 'boolean', description: 'Whether the switch is on (controlled mode).' },
-  { name: 'defaultChecked', type: 'boolean', default: 'false', description: 'Default on/off state (uncontrolled mode).' },
-  { name: 'label', type: 'string', description: 'Switch label text.' },
-  { name: 'labelPosition', type: "'left' | 'right'", default: "'right'", description: 'Position of the label relative to the switch.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Switch size controlling track and thumb dimensions.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the switch is disabled.' },
-  { name: 'helperText', type: 'string', description: 'Helper text displayed below the switch.' },
-  { name: 'error', type: 'boolean', default: 'false', description: 'Whether the switch has an error state.' },
-  { name: 'errorMessage', type: 'string', description: 'Error message displayed when error is true. Replaces helperText.' },
-  { name: 'name', type: 'string', description: 'Name attribute for form submission.' },
-  { name: 'onChange', type: '(checked: boolean) => void', description: 'Change event handler receiving the new on/off state.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLButtonElement>', description: 'Ref to the underlying button element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'checked',
+      type: 'boolean',
+      description: 'Whether the switch is on (controlled mode).',
+    },
+    {
+      name: 'defaultChecked',
+      type: 'boolean',
+      default: 'false',
+      description: 'Default on/off state (uncontrolled mode).',
+    },
+    { name: 'label', type: 'string', description: 'Switch label text.' },
+    {
+      name: 'labelPosition',
+      type: "'left' | 'right'",
+      default: "'right'",
+      description: 'Position of the label relative to the switch.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Switch size controlling track and thumb dimensions.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the switch is disabled.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text displayed below the switch.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the switch has an error state.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description:
+        'Error message displayed when error is true. Replaces helperText.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Name attribute for form submission.',
+    },
+    {
+      name: 'onChange',
+      type: '(checked: boolean) => void',
+      description: 'Change event handler receiving the new on/off state.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLButtonElement>',
+      description: 'Ref to the underlying button element.',
+    },
+  ]}
+/>
 
 The component also accepts all standard HTML `<button>` attributes (except `onChange`).
 

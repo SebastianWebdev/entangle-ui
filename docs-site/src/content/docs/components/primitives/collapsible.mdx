@@ -28,13 +28,9 @@ Use `open` and `onChange` for controlled mode.
 ```tsx
 const [isOpen, setIsOpen] = useState(false);
 
-<Collapsible
-  open={isOpen}
-  onChange={setIsOpen}
-  trigger="Controlled Section"
->
+<Collapsible open={isOpen} onChange={setIsOpen} trigger="Controlled Section">
   <p>Content that you control</p>
-</Collapsible>
+</Collapsible>;
 ```
 
 ## Default Open
@@ -63,26 +59,30 @@ Set `defaultOpen` to have the section expanded on first render.
 </Collapsible>
 ```
 
-| Size | Header height | Use case |
-| ---- | ------------- | -------- |
-| `sm` | 24px | Compact property panels |
-| `md` | 28px | Standard settings sections |
-| `lg` | 32px | Prominent section headings |
+| Size | Header height | Use case                   |
+| ---- | ------------- | -------------------------- |
+| `sm` | 24px          | Compact property panels    |
+| `md` | 28px          | Standard settings sections |
+| `lg` | 32px          | Prominent section headings |
 
 ## Custom Indicator
 
 By default, a chevron icon rotates to indicate open/closed state. Pass a custom React node to replace it, or `null` to hide the indicator entirely.
 
 ```tsx
-{/* Custom indicator */}
+{
+  /* Custom indicator */
+}
 <Collapsible indicator={<PlusIcon />} trigger="Custom Icon">
   <p>Uses a custom indicator icon</p>
-</Collapsible>
+</Collapsible>;
 
-{/* No indicator */}
+{
+  /* No indicator */
+}
 <Collapsible indicator={null} trigger="No Indicator">
   <p>No expand/collapse icon shown</p>
-</Collapsible>
+</Collapsible>;
 ```
 
 ## Keep Mounted
@@ -146,21 +146,76 @@ The `trigger` prop accepts any React node, so you can include icons or badges in
 
 ## Props
 
-<PropsTable props={[
-  { name: 'trigger', type: 'ReactNode', description: 'Content shown in the collapsible header/trigger.' },
-  { name: 'children', type: 'ReactNode', description: 'Content to render when expanded.' },
-  { name: 'open', type: 'boolean', description: 'Whether the section is expanded (controlled mode).' },
-  { name: 'defaultOpen', type: 'boolean', default: 'false', description: 'Default expanded state (uncontrolled mode).' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'sm'", description: 'Size controlling header height, padding, and font size.' },
-  { name: 'indicator', type: 'ReactNode | null', description: 'Custom indicator icon. Defaults to a chevron. Set to null to hide.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the collapsible is disabled.' },
-  { name: 'keepMounted', type: 'boolean', default: 'false', description: 'Whether to keep content in the DOM when collapsed.' },
-  { name: 'onChange', type: '(open: boolean) => void', description: 'Callback when the open state changes.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root div element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'trigger',
+      type: 'ReactNode',
+      description: 'Content shown in the collapsible header/trigger.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Content to render when expanded.',
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: 'Whether the section is expanded (controlled mode).',
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: 'Default expanded state (uncontrolled mode).',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'sm'",
+      description: 'Size controlling header height, padding, and font size.',
+    },
+    {
+      name: 'indicator',
+      type: 'ReactNode | null',
+      description:
+        'Custom indicator icon. Defaults to a chevron. Set to null to hide.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the collapsible is disabled.',
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to keep content in the DOM when collapsed.',
+    },
+    {
+      name: 'onChange',
+      type: '(open: boolean) => void',
+      description: 'Callback when the open state changes.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root div element.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

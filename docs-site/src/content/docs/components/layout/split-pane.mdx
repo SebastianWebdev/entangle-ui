@@ -27,23 +27,27 @@ import { SplitPane, SplitPanePanel } from 'entangle-ui';
 Use `direction` to control whether panels are laid out side by side (horizontal) or stacked vertically.
 
 ```tsx
-{/* Side by side (default) */}
+{
+  /* Side by side (default) */
+}
 <SplitPane direction="horizontal">
   <SplitPanePanel>Left</SplitPanePanel>
   <SplitPanePanel>Right</SplitPanePanel>
-</SplitPane>
+</SplitPane>;
 
-{/* Stacked */}
+{
+  /* Stacked */
+}
 <SplitPane direction="vertical">
   <SplitPanePanel>Top</SplitPanePanel>
   <SplitPanePanel>Bottom</SplitPanePanel>
-</SplitPane>
+</SplitPane>;
 ```
 
-| Direction | Layout | Divider Orientation |
-| --- | --- | --- |
-| `horizontal` | Panels side by side | Vertical bar |
-| `vertical` | Panels stacked | Horizontal bar |
+| Direction    | Layout              | Divider Orientation |
+| ------------ | ------------------- | ------------------- |
+| `horizontal` | Panels side by side | Vertical bar        |
+| `vertical`   | Panels stacked      | Horizontal bar      |
 
 ## Panel Configuration
 
@@ -69,9 +73,9 @@ Panel default sizes can be specified as pixel numbers or percentage strings. Pan
 ```tsx
 <SplitPane
   panels={[
-    { defaultSize: 250 },       // Fixed 250px
-    { defaultSize: '60%' },     // 60% of available space
-    {},                          // Gets remaining space
+    { defaultSize: 250 }, // Fixed 250px
+    { defaultSize: '60%' }, // 60% of available space
+    {}, // Gets remaining space
   ]}
 >
   <SplitPanePanel>Fixed sidebar</SplitPanePanel>
@@ -85,12 +89,7 @@ Panel default sizes can be specified as pixel numbers or percentage strings. Pan
 Prevent panels from being resized beyond specific boundaries.
 
 ```tsx
-<SplitPane
-  panels={[
-    { minSize: 100, maxSize: 500 },
-    { minSize: 200 },
-  ]}
->
+<SplitPane panels={[{ minSize: 100, maxSize: 500 }, { minSize: 200 }]}>
   <SplitPanePanel>Constrained panel</SplitPanePanel>
   <SplitPanePanel>Main content</SplitPanePanel>
 </SplitPane>
@@ -119,10 +118,7 @@ Panels with `collapsible: true` snap to zero width/height when dragged below a t
 
 ```tsx
 <SplitPane
-  panels={[
-    { minSize: 150, collapsible: true, collapseThreshold: 50 },
-    {},
-  ]}
+  panels={[{ minSize: 150, collapsible: true, collapseThreshold: 50 }, {}]}
 >
   <SplitPanePanel>Panel</SplitPanePanel>
   <SplitPanePanel>Content</SplitPanePanel>
@@ -157,16 +153,13 @@ const [sizes, setSizes] = useState([300, 500]);
 
 <SplitPane
   sizes={sizes}
-  panels={[
-    { minSize: 100 },
-    { minSize: 200 },
-  ]}
+  panels={[{ minSize: 100 }, { minSize: 200 }]}
   onResize={setSizes}
-  onResizeEnd={(finalSizes) => saveLayout(finalSizes)}
+  onResizeEnd={finalSizes => saveLayout(finalSizes)}
 >
   <SplitPanePanel>Panel A</SplitPanePanel>
   <SplitPanePanel>Panel B</SplitPanePanel>
-</SplitPane>
+</SplitPane>;
 ```
 
 ## Divider Size
@@ -184,11 +177,11 @@ Control the visual size (width or height) of the draggable divider.
 
 ```tsx
 <SplitPane
-  onResize={(sizes) => {
+  onResize={sizes => {
     // Fires continuously during drag
     console.log('Resizing:', sizes);
   }}
-  onResizeEnd={(sizes) => {
+  onResizeEnd={sizes => {
     // Fires once when drag ends -- use to persist layout
     localStorage.setItem('layout', JSON.stringify(sizes));
   }}
@@ -202,42 +195,136 @@ Control the visual size (width or height) of the draggable divider.
 
 ### SplitPane
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'SplitPanePanel children (minimum 2). Required.' },
-  { name: 'direction', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Layout direction. Horizontal places panels side by side, vertical stacks them.' },
-  { name: 'panels', type: 'PanelConfig[]', default: '[]', description: 'Array of panel configuration objects defining default size, min/max constraints, and collapse behavior.' },
-  { name: 'sizes', type: 'number[]', description: 'Controlled panel sizes in pixels. When provided, the component operates in controlled mode.' },
-  { name: 'dividerSize', type: 'number', default: '4', description: 'Divider width (horizontal) or height (vertical) in pixels.' },
-  { name: 'onResize', type: '(sizes: number[]) => void', description: 'Callback fired continuously during drag with the current panel sizes.' },
-  { name: 'onResizeEnd', type: '(sizes: number[]) => void', description: 'Callback fired when a drag ends. Useful for persisting layout to storage.' },
-  { name: 'onCollapseChange', type: '(panelIndex: number, collapsed: boolean) => void', description: 'Callback fired when a collapsible panel collapses or expands.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the container div element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'SplitPanePanel children (minimum 2). Required.',
+    },
+    {
+      name: 'direction',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description:
+        'Layout direction. Horizontal places panels side by side, vertical stacks them.',
+    },
+    {
+      name: 'panels',
+      type: 'PanelConfig[]',
+      default: '[]',
+      description:
+        'Array of panel configuration objects defining default size, min/max constraints, and collapse behavior.',
+    },
+    {
+      name: 'sizes',
+      type: 'number[]',
+      description:
+        'Controlled panel sizes in pixels. When provided, the component operates in controlled mode.',
+    },
+    {
+      name: 'dividerSize',
+      type: 'number',
+      default: '4',
+      description: 'Divider width (horizontal) or height (vertical) in pixels.',
+    },
+    {
+      name: 'onResize',
+      type: '(sizes: number[]) => void',
+      description:
+        'Callback fired continuously during drag with the current panel sizes.',
+    },
+    {
+      name: 'onResizeEnd',
+      type: '(sizes: number[]) => void',
+      description:
+        'Callback fired when a drag ends. Useful for persisting layout to storage.',
+    },
+    {
+      name: 'onCollapseChange',
+      type: '(panelIndex: number, collapsed: boolean) => void',
+      description:
+        'Callback fired when a collapsible panel collapses or expands.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the container div element.',
+    },
+  ]}
+/>
 
 ### PanelConfig
 
 Configuration object for each panel in the `panels` array.
 
-<PropsTable props={[
-  { name: 'defaultSize', type: 'number | string', description: 'Initial panel size in pixels (number) or as a CSS value (e.g. "30%").' },
-  { name: 'minSize', type: 'number', description: 'Minimum panel size in pixels.' },
-  { name: 'maxSize', type: 'number', description: 'Maximum panel size in pixels.' },
-  { name: 'collapsible', type: 'boolean', default: 'false', description: 'Whether this panel can collapse to zero size.' },
-  { name: 'collapseThreshold', type: 'number', description: 'Size in pixels below which the panel snaps to collapsed. Defaults to minSize / 2.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'defaultSize',
+      type: 'number | string',
+      description:
+        'Initial panel size in pixels (number) or as a CSS value (e.g. "30%").',
+    },
+    {
+      name: 'minSize',
+      type: 'number',
+      description: 'Minimum panel size in pixels.',
+    },
+    {
+      name: 'maxSize',
+      type: 'number',
+      description: 'Maximum panel size in pixels.',
+    },
+    {
+      name: 'collapsible',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether this panel can collapse to zero size.',
+    },
+    {
+      name: 'collapseThreshold',
+      type: 'number',
+      description:
+        'Size in pixels below which the panel snaps to collapsed. Defaults to minSize / 2.',
+    },
+  ]}
+/>
 
 ### SplitPanePanel
 
-<PropsTable props={[
-  { name: 'children', type: 'ReactNode', description: 'Panel content.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the panel div element.' },
-]} />
+<PropsTable
+  props={[
+    { name: 'children', type: 'ReactNode', description: 'Panel content.' },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the panel div element.',
+    },
+  ]}
+/>
 
 Both SplitPane and SplitPanePanel accept all standard HTML `<div>` attributes.
 

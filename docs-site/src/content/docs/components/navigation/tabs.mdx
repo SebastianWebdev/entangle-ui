@@ -114,10 +114,10 @@ Bordered active tab with a connected panel appearance.
 <Tabs size="lg" defaultValue="a">...</Tabs>
 ```
 
-| Size | Tab Height | Use case |
-| ---- | ---------- | -------- |
-| `sm` | 24px       | Ultra-compact panels |
-| `md` | 28px       | Compact default |
+| Size | Tab Height | Use case               |
+| ---- | ---------- | ---------------------- |
+| `sm` | 24px       | Ultra-compact panels   |
+| `md` | 28px       | Compact default        |
 | `lg` | 32px       | Comfortable navigation |
 
 ## Full Width
@@ -155,8 +155,12 @@ Make tabs fill the available width equally.
 ```tsx
 <Tabs defaultValue="scene">
   <TabList>
-    <Tab value="scene" icon={<SceneIcon />}>Scene</Tab>
-    <Tab value="render" icon={<RenderIcon />}>Render</Tab>
+    <Tab value="scene" icon={<SceneIcon />}>
+      Scene
+    </Tab>
+    <Tab value="render" icon={<RenderIcon />}>
+      Render
+    </Tab>
   </TabList>
   ...
 </Tabs>
@@ -167,10 +171,10 @@ Make tabs fill the available width equally.
 ```tsx
 <Tabs defaultValue="file1">
   <TabList>
-    <Tab value="file1" closable onClose={(v) => closeFile(v)}>
+    <Tab value="file1" closable onClose={v => closeFile(v)}>
       main.ts
     </Tab>
-    <Tab value="file2" closable onClose={(v) => closeFile(v)}>
+    <Tab value="file2" closable onClose={v => closeFile(v)}>
       styles.css
     </Tab>
   </TabList>
@@ -184,7 +188,9 @@ Make tabs fill the available width equally.
 <Tabs defaultValue="a">
   <TabList>
     <Tab value="a">Active</Tab>
-    <Tab value="b" disabled>Disabled</Tab>
+    <Tab value="b" disabled>
+      Disabled
+    </Tab>
     <Tab value="c">Another</Tab>
   </TabList>
   ...
@@ -205,44 +211,156 @@ By default, inactive panels are unmounted. Use `keepMounted` to preserve their s
 
 ### Tabs (Root)
 
-<PropsTable props={[
-  { name: 'value', type: 'string', description: 'Currently active tab value (controlled).' },
-  { name: 'defaultValue', type: 'string', description: 'Default active tab (uncontrolled).' },
-  { name: 'variant', type: "'underline' | 'pills' | 'enclosed'", default: "'underline'", description: 'Visual variant of the tab list.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Tab size.' },
-  { name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Orientation of the tab list.' },
-  { name: 'fullWidth', type: 'boolean', default: 'false', description: 'Whether tabs fill the available width equally.' },
-  { name: 'pillsFrame', type: 'boolean', default: 'true', description: 'Whether pills variant renders a framed container.' },
-  { name: 'children', type: 'ReactNode', description: 'TabList and TabPanel components.' },
-  { name: 'onChange', type: '(value: string) => void', description: 'Callback when the active tab changes.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLDivElement>', description: 'Ref to the root element.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Currently active tab value (controlled).',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      description: 'Default active tab (uncontrolled).',
+    },
+    {
+      name: 'variant',
+      type: "'underline' | 'pills' | 'enclosed'",
+      default: "'underline'",
+      description: 'Visual variant of the tab list.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Tab size.',
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: 'Orientation of the tab list.',
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether tabs fill the available width equally.',
+    },
+    {
+      name: 'pillsFrame',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether pills variant renders a framed container.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'TabList and TabPanel components.',
+    },
+    {
+      name: 'onChange',
+      type: '(value: string) => void',
+      description: 'Callback when the active tab changes.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root element.',
+    },
+  ]}
+/>
 
 ### Tab
 
-<PropsTable props={[
-  { name: 'value', type: 'string', description: 'Unique value identifying this tab. Must match a TabPanel value.' },
-  { name: 'children', type: 'ReactNode', description: 'Tab label content.' },
-  { name: 'icon', type: 'ReactNode', description: 'Icon displayed before the label.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether this tab is disabled.' },
-  { name: 'closable', type: 'boolean', default: 'false', description: 'Whether this tab shows a close button.' },
-  { name: 'onClose', type: '(value: string) => void', description: 'Callback when the close button is clicked.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string',
+      description:
+        'Unique value identifying this tab. Must match a TabPanel value.',
+    },
+    { name: 'children', type: 'ReactNode', description: 'Tab label content.' },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Icon displayed before the label.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether this tab is disabled.',
+    },
+    {
+      name: 'closable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether this tab shows a close button.',
+    },
+    {
+      name: 'onClose',
+      type: '(value: string) => void',
+      description: 'Callback when the close button is clicked.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ### TabPanel
 
-<PropsTable props={[
-  { name: 'value', type: 'string', description: 'Value matching a Tab value.' },
-  { name: 'children', type: 'ReactNode', description: 'Panel content, only rendered when active.' },
-  { name: 'keepMounted', type: 'boolean', default: 'false', description: 'Whether to keep the panel mounted when inactive (preserves state).' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-]} />
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Value matching a Tab value.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Panel content, only rendered when active.',
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether to keep the panel mounted when inactive (preserves state).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
 
 ## Accessibility
 

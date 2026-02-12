@@ -18,7 +18,7 @@ import { NumberInput } from 'entangle-ui';
 ```tsx
 const [value, setValue] = useState(0);
 
-<NumberInput value={value} onChange={setValue} />
+<NumberInput value={value} onChange={setValue} />;
 ```
 
 ## Drag to Scrub
@@ -26,15 +26,11 @@ const [value, setValue] = useState(0);
 Click and drag left/right on the input to scrub the value. This is the signature interaction from Blender-style editors. Short clicks enter edit mode for direct keyboard input.
 
 ```tsx
-<NumberInput
-  value={rotation}
-  onChange={setRotation}
-  unit="°"
-  step={1}
-/>
+<NumberInput value={rotation} onChange={setRotation} unit="°" step={1} />
 ```
 
 **Modifier keys during drag:**
+
 - **Ctrl** held: large step increments (default `step * 10`)
 - **Shift** held: precision step increments (default `step / 10`)
 
@@ -106,10 +102,10 @@ Sizes are optimized for editor interface density.
 <NumberInput value={v} onChange={setV} size="lg" label="Large" />
 ```
 
-| Size | Height | Use case |
-| ---- | ------ | -------- |
+| Size | Height | Use case         |
+| ---- | ------ | ---------------- |
 | `sm` | 20px   | Compact toolbars |
-| `md` | 24px   | Standard panels |
+| `md` | 24px   | Standard panels  |
 | `lg` | 32px   | Prominent inputs |
 
 ## Custom Formatting
@@ -120,8 +116,8 @@ Use `formatValue` and `parseValue` for custom display formatting such as currenc
 <NumberInput
   value={price}
   onChange={setPrice}
-  formatValue={(v) => `$${v.toFixed(2)}`}
-  parseValue={(s) => {
+  formatValue={v => `$${v.toFixed(2)}`}
+  parseValue={s => {
     const n = parseFloat(s.replace(/[$,]/g, ''));
     return isNaN(n) ? null : n;
   }}
@@ -136,7 +132,7 @@ Provide a `validate` function that returns an error message string if the value 
 <NumberInput
   value={dimension}
   onChange={setDimension}
-  validate={(v) => v <= 0 ? 'Must be positive' : undefined}
+  validate={v => (v <= 0 ? 'Must be positive' : undefined)}
 />
 ```
 
@@ -172,39 +168,179 @@ Provide a `validate` function that returns an error message string if the value 
 
 ## Props
 
-<PropsTable props={[
-  { name: 'value', type: 'number', description: 'Current numeric value.' },
-  { name: 'onChange', type: '(value: number) => void', description: 'Callback when value changes.' },
-  { name: 'unit', type: "string | ((value: number) => string)", description: 'Unit suffix to display (e.g., "px", "%", "deg"). Can be a function for dynamic formatting.' },
-  { name: 'showStepButtons', type: 'boolean', default: 'true', description: 'Whether to show increment/decrement chevron buttons on hover.' },
-  { name: 'validate', type: '(value: number) => string | undefined', description: 'Custom validation function. Return error message string if invalid.' },
-  { name: 'formatValue', type: '(value: number) => string', description: 'Format value for display (e.g., add commas, currency symbols).' },
-  { name: 'parseValue', type: '(input: string) => number | null', description: 'Parse custom formatted input back to number. Used with formatValue.' },
-  { name: 'min', type: 'number', description: 'Minimum allowed value (hard limit).' },
-  { name: 'max', type: 'number', description: 'Maximum allowed value (hard limit).' },
-  { name: 'softMin', type: 'number', description: 'Soft minimum for drag operations. Can be overridden by keyboard input.' },
-  { name: 'softMax', type: 'number', description: 'Soft maximum for drag operations. Can be overridden by keyboard input.' },
-  { name: 'step', type: 'number', default: '1', description: 'Step size for increment/decrement and drag operations.' },
-  { name: 'precisionStep', type: 'number', default: 'step / 10', description: 'Step size when Shift is held (precision mode).' },
-  { name: 'largeStep', type: 'number', default: 'step * 10', description: 'Step size when Ctrl is held (large steps).' },
-  { name: 'precision', type: 'number', description: 'Number of decimal places for display.' },
-  { name: 'allowExpressions', type: 'boolean', default: 'true', description: 'Whether to allow mathematical expression input (pi, sqrt, sin, etc.).' },
-  { name: 'dragSensitivity', type: 'number', default: '1', description: 'Sensitivity multiplier for mouse drag scrubbing.' },
-  { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Input size variant.' },
-  { name: 'disabled', type: 'boolean', default: 'false', description: 'Whether the input is disabled.' },
-  { name: 'readOnly', type: 'boolean', default: 'false', description: 'Whether the input is read-only.' },
-  { name: 'errorMessage', type: 'string', description: 'Error message displayed below the input.' },
-  { name: 'placeholder', type: 'string', description: 'Placeholder text shown in edit mode.' },
-  { name: 'label', type: 'string', description: 'Input label displayed above the field.' },
-  { name: 'helperText', type: 'string', description: 'Helper text displayed below the input.' },
-  { name: 'required', type: 'boolean', default: 'false', description: 'Whether the input is required.' },
-  { name: 'onFocus', type: '(event: FocusEvent) => void', description: 'Focus event handler.' },
-  { name: 'onBlur', type: '(event: FocusEvent) => void', description: 'Blur event handler.' },
-  { name: 'onKeyDown', type: '(event: KeyboardEvent) => void', description: 'Key down event handler.' },
-  { name: 'className', type: 'string', description: 'Additional CSS class names.' },
-  { name: 'testId', type: 'string', description: 'Test identifier for automated testing.' },
-  { name: 'ref', type: 'Ref<HTMLInputElement>', description: 'Ref to the underlying input element.' },
-]} />
+<PropsTable
+  props={[
+    { name: 'value', type: 'number', description: 'Current numeric value.' },
+    {
+      name: 'onChange',
+      type: '(value: number) => void',
+      description: 'Callback when value changes.',
+    },
+    {
+      name: 'unit',
+      type: 'string | ((value: number) => string)',
+      description:
+        'Unit suffix to display (e.g., "px", "%", "deg"). Can be a function for dynamic formatting.',
+    },
+    {
+      name: 'showStepButtons',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'Whether to show increment/decrement chevron buttons on hover.',
+    },
+    {
+      name: 'validate',
+      type: '(value: number) => string | undefined',
+      description:
+        'Custom validation function. Return error message string if invalid.',
+    },
+    {
+      name: 'formatValue',
+      type: '(value: number) => string',
+      description:
+        'Format value for display (e.g., add commas, currency symbols).',
+    },
+    {
+      name: 'parseValue',
+      type: '(input: string) => number | null',
+      description:
+        'Parse custom formatted input back to number. Used with formatValue.',
+    },
+    {
+      name: 'min',
+      type: 'number',
+      description: 'Minimum allowed value (hard limit).',
+    },
+    {
+      name: 'max',
+      type: 'number',
+      description: 'Maximum allowed value (hard limit).',
+    },
+    {
+      name: 'softMin',
+      type: 'number',
+      description:
+        'Soft minimum for drag operations. Can be overridden by keyboard input.',
+    },
+    {
+      name: 'softMax',
+      type: 'number',
+      description:
+        'Soft maximum for drag operations. Can be overridden by keyboard input.',
+    },
+    {
+      name: 'step',
+      type: 'number',
+      default: '1',
+      description: 'Step size for increment/decrement and drag operations.',
+    },
+    {
+      name: 'precisionStep',
+      type: 'number',
+      default: 'step / 10',
+      description: 'Step size when Shift is held (precision mode).',
+    },
+    {
+      name: 'largeStep',
+      type: 'number',
+      default: 'step * 10',
+      description: 'Step size when Ctrl is held (large steps).',
+    },
+    {
+      name: 'precision',
+      type: 'number',
+      description: 'Number of decimal places for display.',
+    },
+    {
+      name: 'allowExpressions',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'Whether to allow mathematical expression input (pi, sqrt, sin, etc.).',
+    },
+    {
+      name: 'dragSensitivity',
+      type: 'number',
+      default: '1',
+      description: 'Sensitivity multiplier for mouse drag scrubbing.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Input size variant.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the input is disabled.',
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the input is read-only.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description: 'Error message displayed below the input.',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      description: 'Placeholder text shown in edit mode.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Input label displayed above the field.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text displayed below the input.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the input is required.',
+    },
+    {
+      name: 'onFocus',
+      type: '(event: FocusEvent) => void',
+      description: 'Focus event handler.',
+    },
+    {
+      name: 'onBlur',
+      type: '(event: FocusEvent) => void',
+      description: 'Blur event handler.',
+    },
+    {
+      name: 'onKeyDown',
+      type: '(event: KeyboardEvent) => void',
+      description: 'Key down event handler.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLInputElement>',
+      description: 'Ref to the underlying input element.',
+    },
+  ]}
+/>
 
 ## Accessibility
 
