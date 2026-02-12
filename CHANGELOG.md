@@ -1,5 +1,11 @@
 # entangle-ui
 
+## 0.5.1
+
+### Patch Changes
+
+- [#33](https://github.com/SebastianWebdev/entangle-ui/pull/33) [`35efe46`](https://github.com/SebastianWebdev/entangle-ui/commit/35efe463b0f1b8e4b92ccabbb792c80160eec593) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add documentation site at entangle-ui.dev, update package homepage, and update README with complete component list.
+
 ## 0.5.0
 
 ### Minor Changes
