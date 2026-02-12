@@ -1,0 +1,58 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<div class="component-preview">
+  {title && (
+    <div class="preview-header">
+      <h4 class="preview-title">{title}</h4>
+      {description && <p class="preview-description">{description}</p>}
+    </div>
+  )}
+  <div class="preview-content">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .component-preview {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    overflow: hidden;
+  }
+
+  .preview-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-gray-6);
+  }
+
+  .preview-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+
+  .preview-description {
+    margin: 0.25rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--sl-color-gray-2);
+  }
+
+  .preview-content {
+    padding: 1rem;
+  }
+
+  /* When a code block is the direct child, remove its margins */
+  .preview-content :global(pre) {
+    margin: 0;
+    border-radius: 0;
+  }
+</style>
