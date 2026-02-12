@@ -40,3 +40,19 @@ nav.sidebar .top-level > li + li {
 .sl-container {
   max-width: 75rem;
 }
+
+/* ─── Hero page gradient background ─── */
+[data-has-hero] {
+  background: radial-gradient(
+    160% 130% at 100% 0%,
+    #061f21 0%,
+    #031a1a 48%,
+    #091010 100%
+  );
+}
+
+[data-has-hero] header {
+  --sl-color-bg-nav: transparent;
+  background: transparent;
+  border-bottom-color: transparent;
+}

@@ -10,6 +10,9 @@ export default defineConfig({
     starlight({
       title: 'Entangle UI',
       description: 'React component library for professional editor interfaces',
+      components: {
+        Hero: './src/components/overrides/Hero.astro',
+      },
       social: {
         github: 'https://github.com/SebastianWebdev/entangle-ui',
       },
@@ -181,9 +184,7 @@ export default defineConfig({
         },
         {
           label: 'Showcase',
-          items: [
-            { label: 'Full Editor', slug: 'showcase/editor' },
-          ],
+          items: [{ label: 'Full Editor', slug: 'showcase/editor' }],
         },
         {
           label: 'Icons',
