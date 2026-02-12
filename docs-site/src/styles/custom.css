@@ -12,8 +12,8 @@
   --sl-color-gray-5: #303040;
   --sl-color-gray-6: #1e1e2e;
   --sl-color-black: #0d0d1a;
-  --sl-font-system-mono: 'SF Mono', Monaco, Consolas, 'Liberation Mono',
-    monospace;
+  --sl-font-system-mono:
+    'SF Mono', Monaco, Consolas, 'Liberation Mono', monospace;
 }
 
 :root[data-theme='dark'] {
