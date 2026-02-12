@@ -180,6 +180,12 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Showcase',
+          items: [
+            { label: 'Full Editor', slug: 'showcase/editor' },
+          ],
+        },
+        {
           label: 'Icons',
           slug: 'icons',
         },
