@@ -1,0 +1,360 @@
+---
+title: ViewportGizmo
+description: 3D orientation gizmo for viewport navigation with orbit, snap-to-view, axis colors, and multiple interaction modes.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import ViewportGizmoDemo from '../../../../components/demos/editor/ViewportGizmoDemo';
+
+A canvas-based 3D orientation gizmo for viewport navigation in editor applications. Displays the current camera orientation with colored axis arms and supports orbit dragging, snap-to-view clicking, and axis clicking. Fully controlled -- the parent manages orientation state while the gizmo provides interaction callbacks. Supports configurable axis colors, up-axis conventions, and multiple interaction modes.
+
+<ComponentPreview title="Live Preview">
+  <ViewportGizmoDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { ViewportGizmo } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+const [orientation, setOrientation] = useState({ yaw: 45, pitch: -30 });
+
+<ViewportGizmo
+  orientation={orientation}
+  onOrbit={delta => {
+    setOrientation(prev => ({
+      yaw: prev.yaw + delta.deltaYaw,
+      pitch: prev.pitch + delta.deltaPitch,
+    }));
+  }}
+  onSnapToView={view => {
+    // Snap camera to preset view (front, back, left, right, top, bottom)
+    snapCameraTo(view);
+  }}
+/>;
+```
+
+## Orientation
+
+The gizmo always reflects the parent-provided orientation. It uses Euler angles in degrees with YXZ intrinsic rotation order (matching Three.js defaults).
+
+```tsx
+interface GizmoOrientation {
+  yaw: number; // Y-axis rotation (heading) in degrees
+  pitch: number; // X-axis rotation in degrees
+  roll?: number; // Z-axis rotation in degrees (default: 0)
+}
+```
+
+## Up Axis Convention
+
+Configure which axis points up to match your 3D engine's coordinate system.
+
+```tsx
+{
+  /* Y-up (Three.js, Babylon, Maya) */
+}
+<ViewportGizmo orientation={orientation} upAxis="y-up" />;
+
+{
+  /* Z-up (Blender, Unreal, CAD) */
+}
+<ViewportGizmo orientation={orientation} upAxis="z-up" />;
+```
+
+## Axis Colors
+
+Choose from built-in color presets or provide custom axis colors.
+
+```tsx
+{
+  /* Blender preset (default): X=red, Y=green, Z=blue */
+}
+<ViewportGizmo orientation={orientation} axisColorPreset="blender" />;
+
+{
+  /* Unreal preset: X=red, Y=green, Z=blue */
+}
+<ViewportGizmo orientation={orientation} axisColorPreset="unreal" />;
+
+{
+  /* Custom colors */
+}
+<ViewportGizmo
+  orientation={orientation}
+  axisColorPreset="custom"
+  axisConfig={[
+    { label: 'X', color: '#FF4444', visible: true },
+    { label: 'Y', color: '#44FF44', visible: true },
+    { label: 'Z', color: '#4444FF', visible: true },
+  ]}
+/>;
+```
+
+## Interaction Modes
+
+Control which interactions are available to the user.
+
+```tsx
+{
+  /* Full interaction: orbit + snap + click (default) */
+}
+<ViewportGizmo orientation={orientation} interactionMode="full" />;
+
+{
+  /* Snap-to-view only: click axes to snap, no orbit dragging */
+}
+<ViewportGizmo orientation={orientation} interactionMode="snap-only" />;
+
+{
+  /* Orbit only: drag to orbit, no snap clicks */
+}
+<ViewportGizmo orientation={orientation} interactionMode="orbit-only" />;
+
+{
+  /* Display only: no interaction, just a visual indicator */
+}
+<ViewportGizmo orientation={orientation} interactionMode="display-only" />;
+```
+
+| Mode           | Orbit | Snap | Description                        |
+| -------------- | ----- | ---- | ---------------------------------- |
+| `full`         | Yes   | Yes  | Complete interaction (default)     |
+| `snap-only`    | No    | Yes  | Click axes to snap to preset views |
+| `orbit-only`   | Yes   | No   | Drag to orbit the camera           |
+| `display-only` | No    | No   | Read-only orientation display      |
+
+## Visual Options
+
+Toggle various visual elements of the gizmo.
+
+```tsx
+<ViewportGizmo
+  orientation={orientation}
+  showLabels={true} // Axis labels (X, Y, Z) at arm tips
+  showNegativeAxes={true} // Dimmed shorter arms for negative axes
+  showOrbitRing={true} // Thin ring around the gizmo
+  showOriginHandle={true} // Clickable center handle
+  background="subtle" // Background style
+/>
+```
+
+| Background    | Description                |
+| ------------- | -------------------------- |
+| `transparent` | No background              |
+| `subtle`      | Faint background (default) |
+| `solid`       | Opaque background          |
+
+## Orbit Configuration
+
+Fine-tune orbit behavior with speed and pitch constraint options.
+
+```tsx
+<ViewportGizmo
+  orientation={orientation}
+  orbitSpeed={1.5} // 1.5x orbit speed
+  constrainPitch={true} // Clamp pitch to [-90, 90] degrees
+  onOrbit={delta => {
+    /* ... */
+  }}
+  onOrbitEnd={finalOrientation => {
+    /* ... */
+  }}
+/>
+```
+
+## Event Callbacks
+
+```tsx
+<ViewportGizmo
+  orientation={orientation}
+  onOrbit={delta => {
+    // Called continuously during drag
+    // delta: { deltaYaw: number, deltaPitch: number }
+  }}
+  onOrbitEnd={finalOrientation => {
+    // Called when drag ends
+    // finalOrientation: { yaw, pitch, roll }
+  }}
+  onSnapToView={view => {
+    // Called when user clicks an axis arm
+    // view: 'front' | 'back' | 'left' | 'right' | 'top' | 'bottom'
+  }}
+  onAxisClick={(axis, positive) => {
+    // Called when a specific axis arm is clicked
+    // axis: 'x' | 'y' | 'z', positive: boolean
+  }}
+  onOriginClick={() => {
+    // Called when the center origin handle is clicked
+  }}
+/>
+```
+
+## Size and Diameter
+
+The `diameter` prop controls the pixel size of the canvas. The `size` prop affects label font size.
+
+```tsx
+<ViewportGizmo orientation={orientation} diameter={80} size="sm" />
+<ViewportGizmo orientation={orientation} diameter={120} size="md" />
+<ViewportGizmo orientation={orientation} diameter={160} size="lg" />
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'orientation',
+      type: '{ yaw: number; pitch: number; roll?: number }',
+      required: true,
+      description:
+        'Current viewport orientation in degrees. The gizmo always reflects this value (fully controlled).',
+    },
+    {
+      name: 'upAxis',
+      type: "'y-up' | 'z-up'",
+      default: "'y-up'",
+      description:
+        'Which axis points up. Y-up for Three.js/Babylon/Maya, Z-up for Blender/Unreal/CAD.',
+    },
+    {
+      name: 'axisColorPreset',
+      type: "'blender' | 'unreal' | 'custom'",
+      default: "'blender'",
+      description:
+        'Axis color convention. Use "custom" with axisConfig for custom colors.',
+    },
+    {
+      name: 'axisConfig',
+      type: '[GizmoAxisConfig, GizmoAxisConfig, GizmoAxisConfig]',
+      description:
+        'Per-axis configuration [X, Y, Z] with custom label, color, and visibility. Used when axisColorPreset is "custom".',
+    },
+    {
+      name: 'showLabels',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show axis labels (X, Y, Z) at arm tips.',
+    },
+    {
+      name: 'showNegativeAxes',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show negative axis arms (dimmed, shorter).',
+    },
+    {
+      name: 'showOrbitRing',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show a thin orbit ring around the gizmo.',
+    },
+    {
+      name: 'showOriginHandle',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show a clickable origin handle at the center.',
+    },
+    {
+      name: 'background',
+      type: "'transparent' | 'subtle' | 'solid'",
+      default: "'subtle'",
+      description: 'Background style of the gizmo container.',
+    },
+    {
+      name: 'interactionMode',
+      type: "'full' | 'snap-only' | 'orbit-only' | 'display-only'",
+      default: "'full'",
+      description: 'Which interactions are enabled.',
+    },
+    {
+      name: 'orbitSpeed',
+      type: 'number',
+      default: '1',
+      description: 'Orbit speed multiplier for drag interactions.',
+    },
+    {
+      name: 'constrainPitch',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to constrain pitch rotation to [-90, 90] degrees.',
+    },
+    {
+      name: 'onOrbit',
+      type: '(delta: { deltaYaw: number; deltaPitch: number }) => void',
+      description: 'Called continuously while the user drags to orbit.',
+    },
+    {
+      name: 'onOrbitEnd',
+      type: '(finalOrientation: GizmoOrientation) => void',
+      description: 'Called when the user finishes an orbit drag.',
+    },
+    {
+      name: 'onSnapToView',
+      type: "(view: 'front' | 'back' | 'left' | 'right' | 'top' | 'bottom') => void",
+      description:
+        'Called when the user clicks an axis to snap to a preset view.',
+    },
+    {
+      name: 'onAxisClick',
+      type: "(axis: 'x' | 'y' | 'z', positive: boolean) => void",
+      description: 'Called when the user clicks a specific axis arm.',
+    },
+    {
+      name: 'onOriginClick',
+      type: '() => void',
+      description: 'Called when the user clicks the origin handle.',
+    },
+    {
+      name: 'diameter',
+      type: 'number',
+      default: '120',
+      description: 'Gizmo diameter in pixels.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Component size, affecting label font size.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the gizmo is disabled.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names on the wrapper element.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline styles on the wrapper element.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'id',
+      type: 'string',
+      description: 'HTML id attribute on the wrapper element.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+- The canvas element has `role="application"` with `aria-label="Viewport orientation gizmo"`
+- `aria-roledescription` provides a live description of the current yaw and pitch values
+- A hidden `aria-live="polite"` region announces orientation changes to screen readers
+- The canvas is keyboard-focusable (`tabIndex={0}`) when not disabled, supporting keyboard-driven orbit via the `onKeyDown` handler
+- When `disabled` is `true`, the canvas is removed from the tab order (`tabIndex={-1}`)

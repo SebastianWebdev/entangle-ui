@@ -1,0 +1,204 @@
+---
+title: Button
+description: Versatile button component for editor interfaces with multiple variants, sizes, and states.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import ButtonDemo from '../../../../components/demos/primitives/ButtonDemo';
+
+Versatile button component optimized for professional editor interfaces. Supports multiple variants, sizes, loading states, and icons.
+
+<ComponentPreview title="Live Preview">
+  <ButtonDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Button } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Button variant="default" size="md">
+  Save
+</Button>
+```
+
+## Variants
+
+The `variant` prop controls the button's visual style.
+
+<ComponentPreview
+  title="default"
+  description="Transparent with border, fills on hover. Use for secondary actions."
+>
+  ```tsx
+  <Button variant="default">Default</Button>
+  ```
+</ComponentPreview>
+
+<ComponentPreview
+  title="ghost"
+  description="No border, subtle hover state. Use for inline or low-emphasis actions."
+>
+  ```tsx
+  <Button variant="ghost">Ghost</Button>
+  ```
+</ComponentPreview>
+
+<ComponentPreview
+  title="filled"
+  description="Solid background with accent color. Use for primary actions."
+>
+  ```tsx
+  <Button variant="filled">Filled</Button>
+  ```
+</ComponentPreview>
+
+## Sizes
+
+Sizes are optimized for editor interface density.
+
+```tsx
+<Button size="sm">Small (20px)</Button>
+<Button size="md">Medium (24px)</Button>
+<Button size="lg">Large (32px)</Button>
+```
+
+| Size | Height | Use case          |
+| ---- | ------ | ----------------- |
+| `sm` | 20px   | Compact toolbars  |
+| `md` | 24px   | Standard panels   |
+| `lg` | 32px   | Prominent actions |
+
+## With Icon
+
+Pass an icon element via the `icon` prop. Icons should be 16x16px for optimal appearance.
+
+```tsx
+import { SaveIcon, PlayIcon } from 'entangle-ui';
+
+<Button icon={<SaveIcon />}>Save</Button>
+<Button icon={<PlayIcon />} variant="filled">Play</Button>
+```
+
+## Loading State
+
+The `loading` prop shows a spinner and disables interaction. Use for async operations.
+
+```tsx
+<Button loading>Saving...</Button>
+<Button loading variant="filled">Publishing</Button>
+```
+
+## Full Width
+
+The `fullWidth` prop makes the button span the full width of its container. Useful for form actions and modal buttons.
+
+```tsx
+<Button variant="filled" fullWidth>
+  Confirm Action
+</Button>
+```
+
+## Disabled
+
+```tsx
+<Button disabled>Disabled</Button>
+<Button disabled variant="filled">Disabled Filled</Button>
+```
+
+## Combining Props
+
+```tsx
+<Button
+  icon={<SaveIcon />}
+  variant="filled"
+  size="lg"
+  loading={isSaving}
+  onClick={handleSave}
+>
+  Save Project
+</Button>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Button content — text, icons, or other React elements.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'ghost' | 'filled'",
+      default: "'default'",
+      description: 'Visual variant of the button.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Size variant optimized for editor interfaces.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the button is disabled.',
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: 'Loading state — shows spinner and disables interaction.',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Icon element to display before text. Should be 16x16px.',
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the button should take the full width of the container.',
+    },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: 'Click event handler.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLButtonElement>',
+      description: 'Ref to the underlying button element.',
+    },
+  ]}
+/>
+
+The component also accepts all standard HTML `<button>` attributes.
+
+## Accessibility
+
+- Renders a native `<button>` element
+- Supports keyboard navigation (Enter/Space to activate)
+- `disabled` and `loading` states set `disabled` on the native element
+- Use meaningful text content or `aria-label` for icon-only buttons

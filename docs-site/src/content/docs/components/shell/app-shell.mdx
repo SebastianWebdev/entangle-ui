@@ -1,0 +1,273 @@
+---
+title: AppShell
+description: Top-level layout shell for editor applications with slots for menu bar, toolbars, dock area, and status bar.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import AppShellDemo from '../../../../components/demos/shell/AppShellDemo';
+
+Top-level layout shell that provides the structural skeleton for editor applications. Uses a compound component pattern with named slots for menu bar, toolbars (top, left, right), a central dock area, and a status bar. Includes a context-based toolbar visibility system and configurable chrome separators.
+
+<ComponentPreview title="Live Preview">
+  <AppShellDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { AppShell } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<AppShell viewportLock>
+  <AppShell.MenuBar>{/* MenuBar component goes here */}</AppShell.MenuBar>
+  <AppShell.Toolbar position="top">{/* Top toolbar */}</AppShell.Toolbar>
+  <AppShell.Toolbar position="left">{/* Left side toolbar */}</AppShell.Toolbar>
+  <AppShell.Dock>{/* Main content / viewport */}</AppShell.Dock>
+  <AppShell.Toolbar position="right">
+    {/* Right side toolbar */}
+  </AppShell.Toolbar>
+  <AppShell.StatusBar>{/* Status bar */}</AppShell.StatusBar>
+</AppShell>
+```
+
+## Compound Components
+
+AppShell uses a compound component pattern. Each slot renders an appropriate semantic HTML element:
+
+| Slot                 | Element              | Purpose                          |
+| -------------------- | -------------------- | -------------------------------- |
+| `AppShell.MenuBar`   | `<header>`           | Application menu bar area        |
+| `AppShell.Toolbar`   | `<div>` or `<aside>` | Toolbar slots (top, left, right) |
+| `AppShell.Dock`      | `<main>`             | Central content / viewport area  |
+| `AppShell.StatusBar` | `<footer>`           | Bottom status bar                |
+
+## Viewport Lock
+
+When `viewportLock` is enabled, the shell locks to the full viewport, preventing page scroll. This is the typical setup for editor applications.
+
+```tsx
+<AppShell viewportLock>{/* Full-viewport editor layout */}</AppShell>
+```
+
+## Chrome Separators
+
+Control the visual separator between chrome areas (toolbars) and content. Separate options exist for the top chrome (menu + top toolbar) and side chrome (left/right toolbars).
+
+```tsx
+<AppShell topChromeSeparator="shadow" sideChromeSeparator="none">
+  <AppShell.Toolbar position="top">{/* ... */}</AppShell.Toolbar>
+  <AppShell.Dock>{/* ... */}</AppShell.Dock>
+</AppShell>
+```
+
+| Value    | Effect                     |
+| -------- | -------------------------- |
+| `none`   | No visual separator        |
+| `border` | Thin border line (default) |
+| `shadow` | Drop shadow                |
+| `both`   | Border and shadow combined |
+
+## Toolbar Positions
+
+The `AppShell.Toolbar` slot accepts a `position` prop that determines where the toolbar is placed in the layout.
+
+```tsx
+<AppShell>
+  <AppShell.Toolbar position="top">
+    {/* Horizontal toolbar below the menu bar */}
+  </AppShell.Toolbar>
+  <AppShell.Toolbar position="left">
+    {/* Vertical toolbar on the left */}
+  </AppShell.Toolbar>
+  <AppShell.Dock>{/* ... */}</AppShell.Dock>
+  <AppShell.Toolbar position="right">
+    {/* Vertical toolbar on the right */}
+  </AppShell.Toolbar>
+</AppShell>
+```
+
+## Toolbar Visibility
+
+AppShell provides a context-based system for toggling toolbar visibility. Use the `useAppShell` hook to programmatically show or hide toolbars.
+
+```tsx
+import { useAppShell } from 'entangle-ui';
+
+function ToggleToolbarButton() {
+  const { isToolbarVisible, setToolbarVisible } = useAppShell();
+
+  return (
+    <button
+      onClick={() => setToolbarVisible('left', !isToolbarVisible('left'))}
+    >
+      Toggle Left Panel
+    </button>
+  );
+}
+```
+
+## Props
+
+### AppShell
+
+<PropsTable
+  props={[
+    {
+      name: 'viewportLock',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Lock the shell to the viewport, preventing page scroll. Injects global html/body styles.',
+    },
+    {
+      name: 'topChromeSeparator',
+      type: "'none' | 'border' | 'shadow' | 'both'",
+      default: "'border'",
+      description:
+        'Visual separator under the top chrome area (menu + top toolbar).',
+    },
+    {
+      name: 'sideChromeSeparator',
+      type: "'none' | 'border' | 'shadow' | 'both'",
+      default: "'border'",
+      description: 'Visual separator between side toolbars and dock content.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Slot components (AppShell.MenuBar, AppShell.Toolbar, AppShell.Dock, AppShell.StatusBar).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root element.',
+    },
+  ]}
+/>
+
+### AppShell.MenuBar
+
+<PropsTable
+  props={[
+    { name: 'children', type: 'ReactNode', description: 'Menu bar content.' },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the header element.',
+    },
+  ]}
+/>
+
+### AppShell.Toolbar
+
+<PropsTable
+  props={[
+    {
+      name: 'position',
+      type: "'top' | 'left' | 'right'",
+      default: "'top'",
+      description:
+        'Toolbar placement in the layout. Side positions render as <aside> elements.',
+    },
+    { name: 'children', type: 'ReactNode', description: 'Toolbar content.' },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the toolbar element.',
+    },
+  ]}
+/>
+
+### AppShell.Dock
+
+<PropsTable
+  props={[
+    { name: 'children', type: 'ReactNode', description: 'Main content area.' },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the main element.',
+    },
+  ]}
+/>
+
+### AppShell.StatusBar
+
+<PropsTable
+  props={[
+    { name: 'children', type: 'ReactNode', description: 'Status bar content.' },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the footer element.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+- The root element has `role="application"`, signaling to assistive technologies that this is an interactive application region
+- `AppShell.MenuBar` renders a semantic `<header>` element
+- `AppShell.Dock` renders a semantic `<main>` element
+- `AppShell.StatusBar` renders a semantic `<footer>` element
+- Side toolbars render as `<aside>` elements for landmark navigation

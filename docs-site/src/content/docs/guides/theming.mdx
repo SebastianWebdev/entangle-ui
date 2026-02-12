@@ -1,0 +1,325 @@
+---
+title: Theming
+description: Learn how to customize and extend the Entangle UI theme system — colors, spacing, typography, shadows, and more.
+---
+
+Entangle UI ships with a dark-first theme designed for professional editor interfaces. Every visual value — colors, spacing, typography, shadows — is defined as a **theme token** and exposed as a CSS custom property prefixed with `--etui-`.
+
+## Architecture Overview
+
+The theme system is built on CSS custom properties:
+
+```
+                    CSS Custom Properties (--etui-*)
+                    Applied at :root by default
+                    ┌───────────────────────────────────┐
+                    │   contract.css.ts (property names) │
+                    │   darkTheme.css.ts (values)        │
+                    └──────────────┬────────────────────┘
+                                   │
+              ┌────────────────────┼────────────────────┐
+              │                                         │
+     Vanilla Extract                              CSS Override
+     (compile-time)                              (any selector)
+     import { vars }                             --etui-*: value
+```
+
+- **Vanilla Extract** — tokens compile to CSS custom properties at build time. Zero runtime cost. Access via `vars` object.
+- **CSS Override** — any `--etui-*` custom property can be overridden with plain CSS on any selector.
+
+## Default Theme
+
+The dark theme is applied globally on `:root` at build time. No provider is needed for the default look:
+
+```tsx
+import { Button } from 'entangle-ui';
+
+// Works out of the box — dark theme is already active
+<Button variant="filled">Save</Button>;
+```
+
+## Token Reference
+
+### Colors
+
+#### Background
+
+| Token                         | CSS Property                | Value     |
+| ----------------------------- | --------------------------- | --------- |
+| `colors.background.primary`   | `--etui-color-bg-primary`   | `#1a1a1a` |
+| `colors.background.secondary` | `--etui-color-bg-secondary` | `#2d2d2d` |
+| `colors.background.tertiary`  | `--etui-color-bg-tertiary`  | `#3a3a3a` |
+| `colors.background.elevated`  | `--etui-color-bg-elevated`  | `#404040` |
+
+#### Surface (Interactive Elements)
+
+| Token                         | CSS Property                        | Value                   |
+| ----------------------------- | ----------------------------------- | ----------------------- |
+| `colors.surface.default`      | `--etui-color-surface-default`      | `#2d2d2d`               |
+| `colors.surface.hover`        | `--etui-color-surface-hover`        | `#363636`               |
+| `colors.surface.active`       | `--etui-color-surface-active`       | `#404040`               |
+| `colors.surface.disabled`     | `--etui-color-surface-disabled`     | `#1f1f1f`               |
+| `colors.surface.whiteOverlay` | `--etui-color-surface-whiteOverlay` | `rgba(255,255,255,0.1)` |
+
+#### Border
+
+| Token                   | CSS Property                  | Value     |
+| ----------------------- | ----------------------------- | --------- |
+| `colors.border.default` | `--etui-color-border-default` | `#4a4a4a` |
+| `colors.border.focus`   | `--etui-color-border-focus`   | `#007acc` |
+| `colors.border.error`   | `--etui-color-border-error`   | `#f44336` |
+| `colors.border.success` | `--etui-color-border-success` | `#4caf50` |
+
+#### Text
+
+| Token                   | CSS Property                  | Value     |
+| ----------------------- | ----------------------------- | --------- |
+| `colors.text.primary`   | `--etui-color-text-primary`   | `#ffffff` |
+| `colors.text.secondary` | `--etui-color-text-secondary` | `#cccccc` |
+| `colors.text.muted`     | `--etui-color-text-muted`     | `#888888` |
+| `colors.text.disabled`  | `--etui-color-text-disabled`  | `#555555` |
+
+#### Accent
+
+| Token                     | CSS Property                    | Value     |
+| ------------------------- | ------------------------------- | --------- |
+| `colors.accent.primary`   | `--etui-color-accent-primary`   | `#007acc` |
+| `colors.accent.secondary` | `--etui-color-accent-secondary` | `#005a9e` |
+| `colors.accent.success`   | `--etui-color-accent-success`   | `#4caf50` |
+| `colors.accent.warning`   | `--etui-color-accent-warning`   | `#ff9800` |
+| `colors.accent.error`     | `--etui-color-accent-error`     | `#f44336` |
+
+### Spacing
+
+All spacing values in pixels. `md` (8px) is the base unit.
+
+| Token  | CSS Property          | Value |
+| ------ | --------------------- | ----- |
+| `xs`   | `--etui-spacing-xs`   | 2px   |
+| `sm`   | `--etui-spacing-sm`   | 4px   |
+| `md`   | `--etui-spacing-md`   | 8px   |
+| `lg`   | `--etui-spacing-lg`   | 12px  |
+| `xl`   | `--etui-spacing-xl`   | 16px  |
+| `xxl`  | `--etui-spacing-xxl`  | 24px  |
+| `xxxl` | `--etui-spacing-xxxl` | 32px  |
+
+### Typography
+
+#### Font Sizes
+
+| Token | CSS Property           | Value |
+| ----- | ---------------------- | ----- |
+| `xxs` | `--etui-font-size-xxs` | 9px   |
+| `xs`  | `--etui-font-size-xs`  | 10px  |
+| `sm`  | `--etui-font-size-sm`  | 11px  |
+| `md`  | `--etui-font-size-md`  | 12px  |
+| `lg`  | `--etui-font-size-lg`  | 14px  |
+| `xl`  | `--etui-font-size-xl`  | 16px  |
+
+#### Font Weights
+
+| Token      | CSS Property                  | Value |
+| ---------- | ----------------------------- | ----- |
+| `normal`   | `--etui-font-weight-normal`   | 400   |
+| `medium`   | `--etui-font-weight-medium`   | 500   |
+| `semibold` | `--etui-font-weight-semibold` | 600   |
+
+#### Line Heights
+
+| Token     | CSS Property                 | Value |
+| --------- | ---------------------------- | ----- |
+| `tight`   | `--etui-line-height-tight`   | 1.2   |
+| `normal`  | `--etui-line-height-normal`  | 1.4   |
+| `relaxed` | `--etui-line-height-relaxed` | 1.6   |
+
+#### Font Families
+
+| Token  | CSS Property              | Value                                                             |
+| ------ | ------------------------- | ----------------------------------------------------------------- |
+| `mono` | `--etui-font-family-mono` | SF Mono, Monaco, Consolas, "Liberation Mono", monospace           |
+| `sans` | `--etui-font-family-sans` | -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif |
+
+### Border Radius
+
+| Token  | CSS Property         | Value |
+| ------ | -------------------- | ----- |
+| `none` | `--etui-radius-none` | 0px   |
+| `sm`   | `--etui-radius-sm`   | 2px   |
+| `md`   | `--etui-radius-md`   | 4px   |
+| `lg`   | `--etui-radius-lg`   | 6px   |
+
+### Shadows
+
+| Token             | CSS Property                    | Value                           |
+| ----------------- | ------------------------------- | ------------------------------- |
+| `sm`              | `--etui-shadow-sm`              | `0 1px 2px rgba(0,0,0,0.2)`     |
+| `md`              | `--etui-shadow-md`              | `0 2px 4px rgba(0,0,0,0.3)`     |
+| `lg`              | `--etui-shadow-lg`              | `0 4px 8px rgba(0,0,0,0.4)`     |
+| `xl`              | `--etui-shadow-xl`              | `0 8px 16px rgba(0,0,0,0.5)`    |
+| `focus`           | `--etui-shadow-focus`           | `0 0 0 2px rgba(0,122,204,0.4)` |
+| `separatorBottom` | `--etui-shadow-separatorBottom` | `0 1px 2px rgba(0,0,0,0.18)`    |
+| `separatorRight`  | `--etui-shadow-separatorRight`  | `1px 0 2px rgba(0,0,0,0.18)`    |
+| `separatorLeft`   | `--etui-shadow-separatorLeft`   | `-1px 0 2px rgba(0,0,0,0.18)`   |
+| `thumb`           | `--etui-shadow-thumb`           | `0 0 2px rgba(0,0,0,0.5)`       |
+
+### Transitions
+
+| Token    | CSS Property               | Value            |
+| -------- | -------------------------- | ---------------- |
+| `fast`   | `--etui-transition-fast`   | `100ms ease-out` |
+| `normal` | `--etui-transition-normal` | `200ms ease-out` |
+| `slow`   | `--etui-transition-slow`   | `300ms ease-out` |
+
+### Z-Index
+
+| Token      | CSS Property        | Value |
+| ---------- | ------------------- | ----- |
+| `base`     | `--etui-z-base`     | 1     |
+| `dropdown` | `--etui-z-dropdown` | 1000  |
+| `popover`  | `--etui-z-popover`  | 1000  |
+| `tooltip`  | `--etui-z-tooltip`  | 1000  |
+| `modal`    | `--etui-z-modal`    | 1100  |
+
+### Shell Tokens
+
+Specialized tokens for application layout components:
+
+| Token                     | CSS Property                     | Value     |
+| ------------------------- | -------------------------------- | --------- |
+| `shell.menuBar.height`    | `--etui-shell-menubar-height`    | 28px      |
+| `shell.toolbar.height.sm` | `--etui-shell-toolbar-height-sm` | 32px      |
+| `shell.toolbar.height.md` | `--etui-shell-toolbar-height-md` | 40px      |
+| `shell.statusBar.height`  | `--etui-shell-statusbar-height`  | 22px      |
+| `shell.statusBar.bg`      | `--etui-shell-statusbar-bg`      | `#007acc` |
+| `shell.dock.tabHeight`    | `--etui-shell-dock-tabHeight`    | 28px      |
+| `shell.dock.splitterSize` | `--etui-shell-dock-splitterSize` | 4px       |
+
+## Customization
+
+### 1. CSS Override (Simplest)
+
+Override any token for a subtree using plain CSS:
+
+```css
+.my-brand {
+  --etui-color-accent-primary: #ff6600;
+  --etui-color-accent-secondary: #cc5200;
+}
+```
+
+```tsx
+<div className="my-brand">
+  <Button variant="filled">Orange Button</Button>
+</div>
+```
+
+### 2. createCustomTheme (Build-Time)
+
+Create a scoped theme that compiles to CSS at build time. This **must** be called in a `.css.ts` file:
+
+```typescript
+// src/themes/light.css.ts
+import { createCustomTheme } from 'entangle-ui';
+
+createCustomTheme('[data-theme="light"]', {
+  colors: {
+    background: {
+      primary: '#ffffff',
+      secondary: '#f5f5f5',
+      tertiary: '#eeeeee',
+      elevated: '#e8e8e8',
+    },
+    surface: {
+      default: '#f5f5f5',
+      hover: '#eeeeee',
+      active: '#e8e8e8',
+    },
+    text: {
+      primary: '#000000',
+      secondary: '#333333',
+      muted: '#666666',
+      disabled: '#999999',
+    },
+    border: {
+      default: '#d0d0d0',
+      focus: '#007acc',
+    },
+  },
+});
+```
+
+Apply it:
+
+```tsx
+<div data-theme="light">
+  <Button>Light-themed button</Button>
+</div>
+```
+
+### 3. VanillaThemeProvider (Scoped Override)
+
+Wrap a section with a className that carries theme overrides:
+
+```tsx
+import { VanillaThemeProvider } from 'entangle-ui';
+
+<VanillaThemeProvider className="light-theme">
+  <SettingsPanel />
+</VanillaThemeProvider>;
+```
+
+## Accessing Tokens in Code
+
+### Vanilla Extract (`.css.ts` files)
+
+```typescript
+import { vars } from 'entangle-ui';
+import { style } from '@vanilla-extract/css';
+
+export const card = style({
+  background: vars.colors.surface.default,
+  color: vars.colors.text.primary,
+  padding: vars.spacing.lg,
+  borderRadius: vars.borderRadius.md,
+  boxShadow: vars.shadows.md,
+  transition: `all ${vars.transitions.normal}`,
+
+  ':hover': {
+    background: vars.colors.surface.hover,
+    boxShadow: vars.shadows.lg,
+  },
+});
+```
+
+`vars` is fully typed — autocomplete guides you through the entire token tree.
+
+### Plain CSS
+
+```css
+.custom-panel {
+  background: var(--etui-color-bg-secondary);
+  padding: var(--etui-spacing-lg);
+  border: 1px solid var(--etui-color-border-default);
+  border-radius: var(--etui-radius-md);
+}
+```
+
+## TypeScript Types
+
+```tsx
+import type {
+  Tokens, // Raw token definitions
+  ThemeVars, // Vanilla Extract contract type (CSS variable references)
+  DarkThemeValues, // Dark theme value map
+  ThemeValues, // Alias for DarkThemeValues (used in createCustomTheme)
+  DeepPartial, // Recursive Partial<T> for theme overrides
+} from 'entangle-ui';
+```
+
+## Design Principles
+
+- **Dark-first** — all default values target dark backgrounds suitable for 3D editors, node editors, and creative tools.
+- **CSS-native** — tokens are CSS custom properties. Override them with CSS, no JavaScript runtime needed.
+- **Type-safe** — `vars` and `Theme` provide full autocomplete and compile-time checks.
+- **Scoped overrides** — custom themes can target any CSS selector for sectional theming.
+- **Stable API** — CSS property names (`--etui-*`) are considered public API. Renaming them requires a major version bump.

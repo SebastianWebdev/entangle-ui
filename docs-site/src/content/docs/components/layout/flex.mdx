@@ -1,0 +1,348 @@
+---
+title: Flex
+description: Comprehensive flexbox layout component with full control over direction, alignment, wrapping, spacing, and responsive breakpoints.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import FlexDemo from '../../../../components/demos/layout/FlexDemo';
+
+Comprehensive flexbox layout component providing full control over flex properties. More powerful than Stack for complex layouts requiring precise flexbox control. Supports all flexbox properties, responsive direction changes, and flexible sizing. Ideal for navigation bars, form layouts, and sophisticated arrangements.
+
+<ComponentPreview title="Live Preview">
+  <FlexDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Flex } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Flex justify="space-between" align="center">
+  <div>Left content</div>
+  <div>Right content</div>
+</Flex>
+```
+
+## Direction
+
+The `direction` prop controls the main axis orientation of flex children.
+
+```tsx
+<Flex direction="row">
+  <div>A</div>
+  <div>B</div>
+  <div>C</div>
+</Flex>
+
+<Flex direction="column" gap={2}>
+  <div>First</div>
+  <div>Second</div>
+  <div>Third</div>
+</Flex>
+
+<Flex direction="row-reverse">
+  <div>Appears last</div>
+  <div>Appears first</div>
+</Flex>
+```
+
+| Direction        | Behavior                |
+| ---------------- | ----------------------- |
+| `row`            | Left to right (default) |
+| `row-reverse`    | Right to left           |
+| `column`         | Top to bottom           |
+| `column-reverse` | Bottom to top           |
+
+## Responsive Direction
+
+Override the flex direction at different breakpoints using the `sm`, `md`, `lg`, and `xl` props. This lets you create layouts that adapt to screen size without media query boilerplate.
+
+```tsx
+<Flex
+  direction="column"
+  md="row"
+  justify="space-between"
+  align="center"
+  gap={2}
+>
+  <Logo />
+  <Navigation />
+  <UserMenu />
+</Flex>
+```
+
+| Breakpoint  | Prop | Min Width |
+| ----------- | ---- | --------- |
+| Small       | `sm` | 576px     |
+| Medium      | `md` | 768px     |
+| Large       | `lg` | 992px     |
+| Extra Large | `xl` | 1200px    |
+
+## Justify and Align
+
+Use `justify` to distribute space along the main axis and `align` to position items on the cross axis.
+
+```tsx
+<Flex justify="space-between" align="center">
+  <span>Title</span>
+  <Button>Action</Button>
+</Flex>
+
+<Flex justify="center" align="center" fullHeight>
+  <div>Centered content</div>
+</Flex>
+```
+
+## Gap (Spacing)
+
+The `gap` prop accepts a multiplier from 0 to 8, based on a 4px base spacing unit. Use `customGap` for arbitrary CSS values.
+
+```tsx
+<Flex gap={2}>
+  <div>8px gap between items</div>
+  <div>Next item</div>
+</Flex>
+
+<Flex customGap="1.5rem">
+  <div>Custom gap</div>
+  <div>Next item</div>
+</Flex>
+```
+
+| Gap Value | Computed Size |
+| --------- | ------------- |
+| `0`       | 0px           |
+| `1`       | 4px           |
+| `2`       | 8px           |
+| `3`       | 12px          |
+| `4`       | 16px          |
+| `5`       | 20px          |
+| `6`       | 24px          |
+| `7`       | 28px          |
+| `8`       | 32px          |
+
+## Wrapping
+
+Control how flex items wrap when they overflow the container.
+
+```tsx
+<Flex wrap="wrap" gap={3} justify="center">
+  <Card style={{ flexBasis: '300px' }}>Card 1</Card>
+  <Card style={{ flexBasis: '300px' }}>Card 2</Card>
+  <Card style={{ flexBasis: '300px' }}>Card 3</Card>
+</Flex>
+```
+
+Use `alignContent` to control spacing between wrapped rows.
+
+```tsx
+<Flex wrap="wrap" alignContent="space-between" style={{ height: '400px' }}>
+  <div>Row 1</div>
+  <div>Row 2</div>
+  <div>Row 3</div>
+</Flex>
+```
+
+## Flex Item Properties
+
+Each `Flex` can also behave as a flex item using `grow`, `shrink`, and `basis`.
+
+```tsx
+<Flex direction="column" fullHeight>
+  <Header />
+  <Flex grow={1}>
+    <Flex basis="200px" shrink={0}>
+      <Sidebar />
+    </Flex>
+    <Flex grow={1}>
+      <MainContent />
+    </Flex>
+  </Flex>
+  <Footer />
+</Flex>
+```
+
+## Full Width and Height
+
+Use `fullWidth` and `fullHeight` to make the container fill its parent.
+
+```tsx
+<Flex fullWidth justify="space-between">
+  <span>Left</span>
+  <span>Right</span>
+</Flex>
+
+<Flex fullHeight direction="column" justify="center" align="center">
+  <div>Vertically centered</div>
+</Flex>
+```
+
+## Size Constraints
+
+Apply `minHeight` and `maxWidth` to constrain the flex container.
+
+```tsx
+<Flex direction="column" gap={2} maxWidth="400px">
+  <Input label="Email" />
+  <Input label="Password" />
+  <Flex justify="space-between" gap={2}>
+    <Button fullWidth variant="ghost">
+      Cancel
+    </Button>
+    <Button fullWidth variant="filled">
+      Login
+    </Button>
+  </Flex>
+</Flex>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Flex content -- any React elements.',
+    },
+    {
+      name: 'direction',
+      type: "'row' | 'row-reverse' | 'column' | 'column-reverse'",
+      default: "'row'",
+      description: 'Flex direction controlling main axis orientation.',
+    },
+    {
+      name: 'sm',
+      type: "'row' | 'row-reverse' | 'column' | 'column-reverse'",
+      description: 'Flex direction override at the small breakpoint (576px).',
+    },
+    {
+      name: 'md',
+      type: "'row' | 'row-reverse' | 'column' | 'column-reverse'",
+      description: 'Flex direction override at the medium breakpoint (768px).',
+    },
+    {
+      name: 'lg',
+      type: "'row' | 'row-reverse' | 'column' | 'column-reverse'",
+      description: 'Flex direction override at the large breakpoint (992px).',
+    },
+    {
+      name: 'xl',
+      type: "'row' | 'row-reverse' | 'column' | 'column-reverse'",
+      description:
+        'Flex direction override at the extra-large breakpoint (1200px).',
+    },
+    {
+      name: 'wrap',
+      type: "'nowrap' | 'wrap' | 'wrap-reverse'",
+      default: "'nowrap'",
+      description: 'Flex wrap behavior for overflowing items.',
+    },
+    {
+      name: 'justify',
+      type: "'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly'",
+      default: "'flex-start'",
+      description: 'Distributes space along the main axis.',
+    },
+    {
+      name: 'align',
+      type: "'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline'",
+      default: "'stretch'",
+      description: 'Aligns items along the cross axis.',
+    },
+    {
+      name: 'alignContent',
+      type: "'flex-start' | 'flex-end' | 'center' | 'stretch' | 'space-between' | 'space-around'",
+      default: "'stretch'",
+      description:
+        'Aligns wrapped lines. Only applies when wrap is enabled with multiple lines.',
+    },
+    {
+      name: 'gap',
+      type: '0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8',
+      default: '0',
+      description:
+        'Gap between flex items as a multiplier of the 4px base spacing unit.',
+    },
+    {
+      name: 'customGap',
+      type: 'string | number',
+      description:
+        'Custom gap override as a CSS value. Overrides the gap prop when provided.',
+    },
+    {
+      name: 'grow',
+      type: 'number',
+      default: '0',
+      description:
+        'Flex grow factor controlling how much the item should grow relative to siblings.',
+    },
+    {
+      name: 'shrink',
+      type: 'number',
+      default: '1',
+      description:
+        'Flex shrink factor controlling how much the item should shrink relative to siblings.',
+    },
+    {
+      name: 'basis',
+      type: 'string | number',
+      default: "'auto'",
+      description:
+        'Flex basis defining the initial size before free space is distributed.',
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the flex container should fill available width (100%).',
+    },
+    {
+      name: 'fullHeight',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the flex container should fill available height (100%).',
+    },
+    {
+      name: 'minHeight',
+      type: 'string | number',
+      description: 'Minimum height constraint for the flex container.',
+    },
+    {
+      name: 'maxWidth',
+      type: 'string | number',
+      description: 'Maximum width constraint for the flex container.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
+
+The component also accepts all standard HTML `<div>` attributes.
+
+## Accessibility
+
+- Renders a semantic `<div>` element with `display: flex`
+- No special ARIA attributes are needed for layout containers
+- Ensure content within the flex container maintains a logical reading order, especially when using `row-reverse` or `column-reverse`

@@ -1,0 +1,271 @@
+---
+title: Grid
+description: A responsive 12-column grid system built on CSS Grid for creating structured layouts with flexible column spans.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import GridDemo from '../../../../components/demos/layout/GridDemo';
+
+A flexible 12-column grid system for creating responsive layouts. Supports both container and item modes -- container grids establish the grid layout while item grids define how many columns each child spans. Built on CSS Grid for modern, gap-aware layouts.
+
+<ComponentPreview title="Live Preview">
+  <GridDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Grid } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Grid container spacing={2}>
+  <Grid size={6}>Left half</Grid>
+  <Grid size={6}>Right half</Grid>
+</Grid>
+```
+
+## Container and Item Modes
+
+A `Grid` with `container` creates the grid context. Child `Grid` elements without `container` act as grid items that span a number of columns.
+
+```tsx
+<Grid container spacing={3}>
+  <Grid size={4}>One third</Grid>
+  <Grid size={4}>One third</Grid>
+  <Grid size={4}>One third</Grid>
+</Grid>
+```
+
+The total number of columns defaults to 12. Items that exceed 12 columns will wrap to the next row.
+
+```tsx
+<Grid container columns={12} spacing={2}>
+  <Grid size={8}>Main content (8/12)</Grid>
+  <Grid size={4}>Sidebar (4/12)</Grid>
+</Grid>
+```
+
+## Auto-sizing Items
+
+Use `size="auto"` to let a grid item size based on its content.
+
+```tsx
+<Grid container spacing={2}>
+  <Grid size="auto">Fits content</Grid>
+  <Grid size={6}>Fixed 6 columns</Grid>
+</Grid>
+```
+
+## Responsive Sizes
+
+Override column spans at different breakpoints using the `xs`, `sm`, `md`, `lg`, and `xl` props. Items start at the smallest specified breakpoint and scale up.
+
+```tsx
+<Grid container spacing={2}>
+  <Grid xs={12} sm={6} md={4}>
+    Full on mobile, half on tablet, third on desktop
+  </Grid>
+  <Grid xs={12} sm={6} md={4}>
+    Full on mobile, half on tablet, third on desktop
+  </Grid>
+  <Grid xs={12} sm={12} md={4}>
+    Full on mobile, full on tablet, third on desktop
+  </Grid>
+</Grid>
+```
+
+| Breakpoint  | Prop | Min Width |
+| ----------- | ---- | --------- |
+| Extra Small | `xs` | 0px       |
+| Small       | `sm` | 576px     |
+| Medium      | `md` | 768px     |
+| Large       | `lg` | 992px     |
+| Extra Large | `xl` | 1200px    |
+
+## Spacing
+
+The `spacing` prop controls the gap between grid items. Values are multipliers of a 4px base unit. Use the `gap` prop for arbitrary CSS values.
+
+```tsx
+<Grid container spacing={4}>
+  <Grid size={6}>16px gap</Grid>
+  <Grid size={6}>between items</Grid>
+</Grid>
+
+<Grid container gap="2rem">
+  <Grid size={4}>Custom gap</Grid>
+  <Grid size={4}>between items</Grid>
+  <Grid size={4}>everywhere</Grid>
+</Grid>
+```
+
+| Spacing Value | Computed Size |
+| ------------- | ------------- |
+| `0`           | 0px           |
+| `1`           | 4px           |
+| `2`           | 8px (default) |
+| `3`           | 12px          |
+| `4`           | 16px          |
+| `5`           | 20px          |
+| `6`           | 24px          |
+| `7`           | 28px          |
+| `8`           | 32px          |
+
+## Custom Column Count
+
+Change the total number of columns with the `columns` prop.
+
+```tsx
+<Grid container columns={6} spacing={2}>
+  <Grid size={2}>2 of 6</Grid>
+  <Grid size={4}>4 of 6</Grid>
+</Grid>
+```
+
+## Nested Grids
+
+Grids can be nested by placing a container Grid inside a Grid item.
+
+```tsx
+<Grid container spacing={3}>
+  <Grid size={8}>
+    <Grid container spacing={2}>
+      <Grid size={6}>Nested left</Grid>
+      <Grid size={6}>Nested right</Grid>
+    </Grid>
+  </Grid>
+  <Grid size={4}>Sidebar</Grid>
+</Grid>
+```
+
+## Props
+
+### Grid (Container)
+
+Props that apply when `container` is `true`.
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Grid content -- Grid items or any React elements. Required.',
+    },
+    {
+      name: 'container',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether this Grid acts as a container enabling CSS Grid layout.',
+    },
+    {
+      name: 'columns',
+      type: 'number',
+      default: '12',
+      description:
+        'Total number of columns in the grid. Only applies to containers.',
+    },
+    {
+      name: 'spacing',
+      type: '0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8',
+      default: '2',
+      description:
+        'Gap between grid items as a multiplier of the 4px base unit. Only applies to containers.',
+    },
+    {
+      name: 'gap',
+      type: 'string | number',
+      description:
+        'Custom gap override as a CSS value. Overrides the spacing prop when provided.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
+
+### Grid (Item)
+
+Props that apply when `container` is `false` (the default).
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Item content. Required.',
+    },
+    {
+      name: 'size',
+      type: "1-12 | 'auto'",
+      description: 'Number of columns to span (out of the total column count).',
+    },
+    {
+      name: 'xs',
+      type: "1-12 | 'auto'",
+      description: 'Column span at extra-small breakpoint (0px+).',
+    },
+    {
+      name: 'sm',
+      type: "1-12 | 'auto'",
+      description: 'Column span at small breakpoint (576px+).',
+    },
+    {
+      name: 'md',
+      type: "1-12 | 'auto'",
+      description: 'Column span at medium breakpoint (768px+).',
+    },
+    {
+      name: 'lg',
+      type: "1-12 | 'auto'",
+      description: 'Column span at large breakpoint (992px+).',
+    },
+    {
+      name: 'xl',
+      type: "1-12 | 'auto'",
+      description: 'Column span at extra-large breakpoint (1200px+).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
+
+Both container and item modes accept all standard HTML `<div>` attributes.
+
+## Accessibility
+
+- Renders semantic `<div>` elements with CSS Grid
+- No special ARIA attributes required for layout containers
+- Grid items maintain their natural DOM order for screen readers regardless of visual placement

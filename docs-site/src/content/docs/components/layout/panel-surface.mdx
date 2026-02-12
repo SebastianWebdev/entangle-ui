@@ -1,0 +1,340 @@
+---
+title: PanelSurface
+description: Structured panel container with compound Header, Body, and Footer sub-components for editor panels and tool windows.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import PanelSurfaceDemo from '../../../../components/demos/layout/PanelSurfaceDemo';
+
+A structured panel container using a compound component pattern with `PanelSurface`, `PanelSurface.Header`, `PanelSurface.Body`, and `PanelSurface.Footer`. Provides consistent chrome (border, background, header/footer sizing) for editor panels, tool windows, property inspectors, and sidebar sections.
+
+<ComponentPreview title="Live Preview">
+  <PanelSurfaceDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { PanelSurface } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<PanelSurface>
+  <PanelSurface.Header>Properties</PanelSurface.Header>
+  <PanelSurface.Body padding={8}>Panel content goes here</PanelSurface.Body>
+</PanelSurface>
+```
+
+## Panel Structure
+
+A typical panel consists of a Header, Body, and optionally a Footer. All sub-components are accessed as static properties of `PanelSurface`.
+
+```tsx
+<PanelSurface>
+  <PanelSurface.Header>Panel Title</PanelSurface.Header>
+  <PanelSurface.Body padding={12}>
+    <p>Main content area</p>
+  </PanelSurface.Body>
+  <PanelSurface.Footer>
+    <Button size="sm">Apply</Button>
+  </PanelSurface.Footer>
+</PanelSurface>
+```
+
+## Sizes
+
+The `size` prop on the root `PanelSurface` controls the visual density of the header and footer chrome. It is shared via context to all sub-components.
+
+```tsx
+<PanelSurface size="sm">
+  <PanelSurface.Header>Compact Panel</PanelSurface.Header>
+  <PanelSurface.Body>Content</PanelSurface.Body>
+</PanelSurface>
+
+<PanelSurface size="md">
+  <PanelSurface.Header>Standard Panel</PanelSurface.Header>
+  <PanelSurface.Body>Content</PanelSurface.Body>
+</PanelSurface>
+
+<PanelSurface size="lg">
+  <PanelSurface.Header>Spacious Panel</PanelSurface.Header>
+  <PanelSurface.Body>Content</PanelSurface.Body>
+</PanelSurface>
+```
+
+| Size | Use case                                   |
+| ---- | ------------------------------------------ |
+| `sm` | Compact tool windows and inline panels     |
+| `md` | Standard property panels (default)         |
+| `lg` | Prominent settings or configuration panels |
+
+## Border
+
+The `bordered` prop controls whether the panel has a visible border.
+
+```tsx
+{
+  /* With border (default) */
+}
+<PanelSurface bordered>
+  <PanelSurface.Header>Bordered Panel</PanelSurface.Header>
+  <PanelSurface.Body>Content</PanelSurface.Body>
+</PanelSurface>;
+
+{
+  /* Without border */
+}
+<PanelSurface bordered={false}>
+  <PanelSurface.Header>Borderless Panel</PanelSurface.Header>
+  <PanelSurface.Body>Content</PanelSurface.Body>
+</PanelSurface>;
+```
+
+## Custom Background
+
+Override the default panel background with any CSS color or gradient value.
+
+```tsx
+<PanelSurface background="linear-gradient(180deg, #2f3442 0%, #1b202a 100%)">
+  <PanelSurface.Header>Gradient Panel</PanelSurface.Header>
+  <PanelSurface.Body>Content with gradient background</PanelSurface.Body>
+</PanelSurface>
+```
+
+## Header with Actions
+
+The `PanelSurface.Header` supports an `actions` slot for interactive elements positioned on the right side of the header.
+
+```tsx
+<PanelSurface>
+  <PanelSurface.Header
+    actions={
+      <>
+        <IconButton icon={<SettingsIcon />} size="sm" />
+        <IconButton icon={<CloseIcon />} size="sm" />
+      </>
+    }
+  >
+    Inspector
+  </PanelSurface.Header>
+  <PanelSurface.Body padding={8}>Inspector content...</PanelSurface.Body>
+</PanelSurface>
+```
+
+## Scrollable Body
+
+Enable scrolling for the body content when it overflows its container.
+
+```tsx
+<PanelSurface style={{ height: '400px' }}>
+  <PanelSurface.Header>Scrollable Panel</PanelSurface.Header>
+  <PanelSurface.Body scroll padding={8}>
+    <div style={{ height: '800px' }}>
+      Long content that scrolls within the body...
+    </div>
+  </PanelSurface.Body>
+</PanelSurface>
+```
+
+When `scroll` is `false` (the default), body overflow is hidden.
+
+## Body Padding
+
+Control the inner padding of the body area. Accepts numbers (treated as pixels) or CSS strings.
+
+```tsx
+<PanelSurface.Body padding={16}>
+  Content with 16px padding
+</PanelSurface.Body>
+
+<PanelSurface.Body padding="1rem 0.5rem">
+  Content with custom padding
+</PanelSurface.Body>
+```
+
+## Complete Example
+
+```tsx
+<PanelSurface size="md" bordered>
+  <PanelSurface.Header
+    actions={<IconButton icon={<CloseIcon />} size="sm" variant="ghost" />}
+  >
+    Transform
+  </PanelSurface.Header>
+  <PanelSurface.Body scroll padding={8}>
+    <Stack spacing={2}>
+      <NumberInput label="Position X" value={0} />
+      <NumberInput label="Position Y" value={0} />
+      <NumberInput label="Position Z" value={0} />
+      <NumberInput label="Rotation" value={0} />
+      <NumberInput label="Scale" value={1} />
+    </Stack>
+  </PanelSurface.Body>
+  <PanelSurface.Footer>
+    <Button size="sm" variant="ghost">
+      Reset
+    </Button>
+  </PanelSurface.Footer>
+</PanelSurface>
+```
+
+## Props
+
+### PanelSurface
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Panel content. Typically PanelSurface.Header, PanelSurface.Body, and optionally PanelSurface.Footer.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description:
+        'Visual density for header and footer chrome. Shared via context to sub-components.',
+    },
+    {
+      name: 'bordered',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show a border around the panel.',
+    },
+    {
+      name: 'background',
+      type: 'string',
+      description:
+        'Custom background color or gradient. Defaults to the theme secondary background.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root div element.',
+    },
+  ]}
+/>
+
+### PanelSurface.Header
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Header content such as a title or label.',
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description:
+        'Action elements rendered on the right side of the header (e.g. icon buttons).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the header div element.',
+    },
+  ]}
+/>
+
+### PanelSurface.Body
+
+<PropsTable
+  props={[
+    { name: 'children', type: 'ReactNode', description: 'Main panel content.' },
+    {
+      name: 'scroll',
+      type: 'boolean',
+      default: 'false',
+      description: 'Enables automatic overflow scrolling for the body area.',
+    },
+    {
+      name: 'padding',
+      type: 'number | string',
+      default: '0',
+      description:
+        'Inner padding of the body area. Numbers are treated as pixels.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the body div element.',
+    },
+  ]}
+/>
+
+### PanelSurface.Footer
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Footer content such as action buttons.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the footer div element.',
+    },
+  ]}
+/>
+
+All sub-components also accept standard HTML `<div>` attributes.
+
+## Accessibility
+
+- Renders semantic `<div>` elements for structural layout
+- Header content is wrapped in a `<span>` for text styling; actions are grouped separately
+- The component provides no implicit ARIA roles -- add `role` and `aria-label` as needed for specific use cases (e.g. `role="complementary"` for a sidebar panel)
+- Use descriptive header text that clearly identifies the panel purpose for screen reader users

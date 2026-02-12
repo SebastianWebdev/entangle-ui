@@ -1,0 +1,265 @@
+---
+title: Input
+description: Versatile text input component for editor interfaces with labels, icons, error states, and multiple sizes.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import InputDemo from '../../../../components/demos/primitives/InputDemo';
+
+Versatile text input component for editor interfaces. Supports labels, helper text, start/end icons, error states, and multiple sizes optimized for compact editor UIs.
+
+<ComponentPreview title="Live Preview">
+  <InputDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Input } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Input
+  placeholder="Enter text..."
+  value={text}
+  onChange={e => setText(e.target.value)}
+/>
+```
+
+## Sizes
+
+Sizes are optimized for editor interface density.
+
+```tsx
+<Input size="sm" placeholder="Small (20px)" />
+<Input size="md" placeholder="Medium (24px)" />
+<Input size="lg" placeholder="Large (32px)" />
+```
+
+| Size | Height | Use case         |
+| ---- | ------ | ---------------- |
+| `sm` | 20px   | Compact toolbars |
+| `md` | 24px   | Standard forms   |
+| `lg` | 32px   | Prominent inputs |
+
+## With Label
+
+The `label` prop adds an accessible label above the input. Combine with `required` to show a red asterisk.
+
+```tsx
+<Input label="Project Name" placeholder="My Project" />
+<Input label="Email" required placeholder="you@example.com" />
+```
+
+## With Icons
+
+Use `startIcon` and `endIcon` to place icons inside the input field.
+
+```tsx
+import { SearchIcon, CloseIcon } from 'entangle-ui';
+
+<Input startIcon={<SearchIcon />} placeholder="Search..." />
+<Input endIcon={<CloseIcon />} placeholder="Clearable input" />
+```
+
+## Helper Text
+
+The `helperText` prop displays descriptive text below the input.
+
+```tsx
+<Input
+  label="Project Name"
+  placeholder="My Project"
+  helperText="Choose a unique name for your project"
+/>
+```
+
+## Error State
+
+Set `error` to `true` and provide an `errorMessage` to display validation feedback. The error message replaces the helper text when active.
+
+```tsx
+<Input
+  label="Email"
+  type="email"
+  error={!!emailError}
+  errorMessage={emailError}
+  value={email}
+  onChange={e => setEmail(e.target.value)}
+/>
+```
+
+## Input Types
+
+The `type` prop supports common HTML input types.
+
+```tsx
+<Input type="text" placeholder="Text input" />
+<Input type="email" placeholder="Email address" />
+<Input type="password" placeholder="Password" />
+<Input type="number" placeholder="Number" />
+<Input type="search" placeholder="Search" />
+<Input type="url" placeholder="URL" />
+<Input type="tel" placeholder="Phone number" />
+```
+
+## Read Only
+
+```tsx
+<Input readOnly value="This value cannot be changed" label="Read Only" />
+```
+
+## Disabled
+
+```tsx
+<Input disabled placeholder="Disabled input" />
+<Input disabled label="Disabled" value="Cannot edit" />
+```
+
+## Combining Props
+
+```tsx
+<Input
+  label="Search Files"
+  placeholder="Type to search..."
+  size="sm"
+  startIcon={<SearchIcon />}
+  helperText="Search across all project files"
+  value={query}
+  onChange={e => setQuery(e.target.value)}
+/>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Input value (controlled mode).',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      description: 'Default value (uncontrolled mode).',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      description: 'Placeholder text displayed when input is empty.',
+    },
+    {
+      name: 'type',
+      type: "'text' | 'email' | 'password' | 'number' | 'search' | 'url' | 'tel'",
+      default: "'text'",
+      description: 'HTML input type.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Input size optimized for editor interfaces.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the input is disabled.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the input has an error state.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the input is required. Shows a red asterisk on the label.',
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the input is read-only.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Input label displayed above the field.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text displayed below the input.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description:
+        'Error message displayed when error is true. Replaces helperText.',
+    },
+    {
+      name: 'startIcon',
+      type: 'ReactNode',
+      description: 'Icon displayed at the start of the input.',
+    },
+    {
+      name: 'endIcon',
+      type: 'ReactNode',
+      description: 'Icon displayed at the end of the input.',
+    },
+    {
+      name: 'onChange',
+      type: '(event: ChangeEvent<HTMLInputElement>) => void',
+      description: 'Change event handler.',
+    },
+    {
+      name: 'onFocus',
+      type: '(event: FocusEvent<HTMLInputElement>) => void',
+      description: 'Focus event handler.',
+    },
+    {
+      name: 'onBlur',
+      type: '(event: FocusEvent<HTMLInputElement>) => void',
+      description: 'Blur event handler.',
+    },
+    {
+      name: 'onKeyDown',
+      type: '(event: KeyboardEvent<HTMLInputElement>) => void',
+      description: 'Key down event handler.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLInputElement>',
+      description: 'Ref to the underlying input element.',
+    },
+  ]}
+/>
+
+The component also accepts all standard HTML `<input>` attributes (except `onChange` and `size`, which are replaced by the custom props above).
+
+## Accessibility
+
+- Label is linked to the input via `htmlFor`/`id` for screen readers
+- `required` adds `required` attribute to the native input and displays a visual asterisk
+- Error state helper text is associated with the input for assistive technology
+- Supports standard keyboard navigation (Tab to focus, type to input)
+- `disabled` and `readOnly` states are reflected on the native input element

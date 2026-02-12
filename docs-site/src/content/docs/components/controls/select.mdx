@@ -1,0 +1,363 @@
+---
+title: Select
+description: Dropdown select component with searchable mode, grouped options, keyboard navigation, and clearable state.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import SelectDemo from '../../../../components/demos/controls/SelectDemo';
+
+Dropdown select component for choosing a single value from a list. Supports searchable filtering, grouped options, keyboard navigation, clearable selection, and multiple visual variants. Built for professional editor interfaces.
+
+<ComponentPreview title="Live Preview">
+  <SelectDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Select } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Select
+  options={[
+    { value: 'normal', label: 'Normal' },
+    { value: 'multiply', label: 'Multiply' },
+    { value: 'screen', label: 'Screen' },
+  ]}
+  value={blendMode}
+  onChange={setBlendMode}
+/>
+```
+
+## Controlled vs Uncontrolled
+
+The Select component supports both controlled and uncontrolled patterns.
+
+```tsx
+// Controlled
+const [value, setValue] = useState<string | null>('normal');
+<Select options={options} value={value} onChange={setValue} />
+
+// Uncontrolled
+<Select options={options} defaultValue="normal" />
+```
+
+## Grouped Options
+
+Options can be organized into groups with non-selectable headers.
+
+```tsx
+<Select
+  label="Blend Mode"
+  options={[
+    {
+      label: 'Normal',
+      options: [
+        { value: 'normal', label: 'Normal' },
+        { value: 'dissolve', label: 'Dissolve' },
+      ],
+    },
+    {
+      label: 'Darken',
+      options: [
+        { value: 'multiply', label: 'Multiply' },
+        { value: 'darken', label: 'Darken' },
+        { value: 'color-burn', label: 'Color Burn' },
+      ],
+    },
+  ]}
+  value={mode}
+  onChange={setMode}
+/>
+```
+
+## Searchable
+
+Enable the `searchable` prop to show a filter input inside the dropdown. A custom filter function can be provided with `filterFn`.
+
+```tsx
+<Select
+  searchable
+  searchPlaceholder="Filter blend modes..."
+  emptyMessage="No matching modes"
+  options={allBlendModes}
+  value={mode}
+  onChange={setMode}
+/>
+```
+
+```tsx
+// Custom filter logic
+<Select
+  searchable
+  filterFn={(option, query) => option.value.startsWith(query.toLowerCase())}
+  options={options}
+  value={value}
+  onChange={setValue}
+/>
+```
+
+## Clearable
+
+When `clearable` is enabled, a clear button appears when a value is selected.
+
+```tsx
+<Select
+  clearable
+  placeholder="Choose a material..."
+  options={materials}
+  value={material}
+  onChange={setMaterial}
+/>
+```
+
+## Options with Icons
+
+Each option can include an icon rendered before its label.
+
+```tsx
+<Select
+  options={[
+    { value: 'mesh', label: 'Mesh', icon: <MeshIcon /> },
+    { value: 'light', label: 'Light', icon: <LightIcon /> },
+    { value: 'camera', label: 'Camera', icon: <CameraIcon /> },
+  ]}
+  value={objectType}
+  onChange={setObjectType}
+/>
+```
+
+## Variants
+
+The `variant` prop controls the trigger button style.
+
+```tsx
+<Select variant="default" options={opts} value={v} onChange={setV} />
+<Select variant="ghost" options={opts} value={v} onChange={setV} />
+<Select variant="filled" options={opts} value={v} onChange={setV} />
+```
+
+## Sizes
+
+```tsx
+<Select size="sm" options={opts} value={v} onChange={setV} />
+<Select size="md" options={opts} value={v} onChange={setV} />
+<Select size="lg" options={opts} value={v} onChange={setV} />
+```
+
+| Size | Trigger Height | Use case         |
+| ---- | -------------- | ---------------- |
+| `sm` | 20px           | Compact toolbars |
+| `md` | 24px           | Standard panels  |
+| `lg` | 32px           | Prominent forms  |
+
+## Labels and Helper Text
+
+```tsx
+<Select
+  label="Render Engine"
+  helperText="Select the rendering backend"
+  required
+  options={engines}
+  value={engine}
+  onChange={setEngine}
+/>
+```
+
+## Error State
+
+```tsx
+<Select
+  label="Material"
+  error
+  errorMessage="A material is required"
+  options={materials}
+  value={material}
+  onChange={setMaterial}
+/>
+```
+
+## Form Integration
+
+Use the `name` prop for native form submission. A hidden `<input>` is rendered with the selected value.
+
+```tsx
+<Select name="blendMode" options={blendModes} value={mode} onChange={setMode} />
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'T | null',
+      description: 'Selected value (controlled).',
+    },
+    {
+      name: 'defaultValue',
+      type: 'T',
+      description: 'Default selected value (uncontrolled).',
+    },
+    {
+      name: 'options',
+      type: 'Array<SelectOptionItem<T> | SelectOptionGroup<T>>',
+      description: 'Options to display — flat list or grouped.',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      default: "'Select...'",
+      description: 'Placeholder text when no value is selected.',
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to show a search input inside the dropdown.',
+    },
+    {
+      name: 'searchPlaceholder',
+      type: 'string',
+      default: "'Search...'",
+      description: 'Placeholder for the search input.',
+    },
+    {
+      name: 'filterFn',
+      type: '(option: SelectOptionItem<T>, query: string) => boolean',
+      description: 'Custom filter function for searchable mode.',
+    },
+    {
+      name: 'emptyMessage',
+      type: 'string',
+      default: "'No results found'",
+      description: 'Message shown when search yields no results.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Size of the trigger button.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'ghost' | 'filled'",
+      default: "'default'",
+      description: 'Visual variant of the trigger button.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Label displayed above the select.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text displayed below the select.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Error state.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description: 'Error message shown when in error state.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the select is disabled.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the select is required.',
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether a clear button appears when a value is selected.',
+    },
+    {
+      name: 'maxDropdownHeight',
+      type: 'number',
+      default: '240',
+      description: 'Maximum height of the dropdown in pixels.',
+    },
+    {
+      name: 'minDropdownWidth',
+      type: 'number',
+      description: 'Minimum width of the dropdown in pixels.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Name attribute for hidden input (form submission).',
+    },
+    {
+      name: 'onChange',
+      type: '(value: T | null) => void',
+      description: 'Callback when the selected value changes.',
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Callback when the dropdown open state changes.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLButtonElement>',
+      description: 'Ref to the trigger button element.',
+    },
+  ]}
+/>
+
+### SelectOptionItem
+
+| Prop       | Type        | Description                              |
+| ---------- | ----------- | ---------------------------------------- |
+| `value`    | `T`         | Unique value used for selection.         |
+| `label`    | `string`    | Display label (falls back to value).     |
+| `icon`     | `ReactNode` | Optional icon rendered before the label. |
+| `disabled` | `boolean`   | Whether this option is disabled.         |
+
+### SelectOptionGroup
+
+| Prop      | Type                    | Description                          |
+| --------- | ----------------------- | ------------------------------------ |
+| `label`   | `string`                | Group header label (non-selectable). |
+| `options` | `SelectOptionItem<T>[]` | Options within this group.           |
+
+## Accessibility
+
+- Trigger renders as a `<button>` with `role="combobox"` and `aria-haspopup="listbox"`
+- Dropdown renders as a `role="listbox"` with `role="option"` children
+- Grouped options use `role="group"` with `aria-label`
+- Full keyboard navigation: Arrow Up/Down to navigate, Enter to select, Escape to close, Home/End for first/last
+- `aria-expanded` reflects the dropdown open state
+- `aria-selected` marks the current selection
+- `aria-invalid` is set when in error state
+- `aria-required` is set when the select is required
+- `aria-describedby` links to helper/error text
+- Clear button has `aria-label="Clear selection"`

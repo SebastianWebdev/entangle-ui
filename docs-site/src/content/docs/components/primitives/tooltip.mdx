@@ -1,0 +1,307 @@
+---
+title: Tooltip
+description: Contextual information tooltip with flexible positioning, collision handling, and animation support.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import TooltipDemo from '../../../../components/demos/primitives/TooltipDemo';
+
+Tooltip component that displays contextual information on hover. Built on `@base-ui/react` for robust accessibility and positioning. Provides an intuitive placement API with collision handling and animation support.
+
+<ComponentPreview title="Live Preview">
+  <TooltipDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Tooltip } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Tooltip title="Save your work">
+  <Button>Save</Button>
+</Tooltip>
+```
+
+## Placement
+
+The `placement` prop controls where the tooltip appears relative to the trigger. Supports 12 positions.
+
+```tsx
+<Tooltip placement="top" title="Top">
+  <Button>Top</Button>
+</Tooltip>
+
+<Tooltip placement="bottom-start" title="Bottom start">
+  <Button>Bottom Start</Button>
+</Tooltip>
+
+<Tooltip placement="right" title="Right">
+  <Button>Right</Button>
+</Tooltip>
+```
+
+| Placement                              | Description          |
+| -------------------------------------- | -------------------- |
+| `top`, `top-start`, `top-end`          | Above the trigger    |
+| `bottom`, `bottom-start`, `bottom-end` | Below the trigger    |
+| `left`, `left-start`, `left-end`       | Left of the trigger  |
+| `right`, `right-start`, `right-end`    | Right of the trigger |
+
+## Collision Handling
+
+The `collision` prop controls how the tooltip reacts when it would overflow the viewport.
+
+```tsx
+<Tooltip collision="smart" title="Intelligent positioning">
+  <Button>Smart (default)</Button>
+</Tooltip>
+
+<Tooltip collision="flip" title="Flips to opposite side">
+  <Button>Flip</Button>
+</Tooltip>
+
+<Tooltip collision="shift" title="Shifts within bounds">
+  <Button>Shift</Button>
+</Tooltip>
+```
+
+| Strategy     | Behavior                                 |
+| ------------ | ---------------------------------------- |
+| `smart`      | Intelligent fallback with axis switching |
+| `flip`       | Flip to the opposite side                |
+| `shift`      | Shift within viewport bounds             |
+| `flip-shift` | Flip first, then shift                   |
+| `hide`       | Hide when no space available             |
+| `none`       | No collision handling                    |
+
+For advanced control, use `collisionConfig` to configure side and alignment collision behavior independently.
+
+```tsx
+<Tooltip
+  collisionConfig={{
+    side: 'flip',
+    align: 'shift',
+    fallbackAxisSide: 'start',
+  }}
+  title="Advanced collision"
+>
+  <Button>Advanced</Button>
+</Tooltip>
+```
+
+## Delay
+
+Control the show and hide delays in milliseconds.
+
+```tsx
+<Tooltip delay={300} title="Shows faster">
+  <Button>Fast delay</Button>
+</Tooltip>
+
+<Tooltip delay={1000} closeDelay={200} title="Slow show, delayed hide">
+  <Button>Custom delay</Button>
+</Tooltip>
+```
+
+## Arrow
+
+The arrow pointing to the trigger is shown by default. Set `arrow={false}` to hide it.
+
+```tsx
+<Tooltip arrow={false} title="No arrow">
+  <Button>No arrow</Button>
+</Tooltip>
+```
+
+## Rich Content
+
+The `title` prop accepts React nodes for complex tooltip content.
+
+```tsx
+<Tooltip
+  title={
+    <div>
+      <strong>Save</strong>
+      <br />
+      Ctrl+S
+    </div>
+  }
+>
+  <Button>Save</Button>
+</Tooltip>
+```
+
+## Disabled
+
+When `disabled` is `true`, the tooltip does not render. The trigger element is returned as-is.
+
+```tsx
+<Tooltip disabled title="This tooltip is disabled">
+  <Button>No tooltip</Button>
+</Tooltip>
+```
+
+## Custom Animation
+
+Configure tooltip animation with the `animation` prop.
+
+```tsx
+<Tooltip
+  animation={{
+    animated: true,
+    duration: 300,
+    easing: 'ease-in-out',
+  }}
+  title="Custom animation"
+>
+  <Button>Animated</Button>
+</Tooltip>
+
+<Tooltip animation={{ animated: false }} title="No animation">
+  <Button>Instant</Button>
+</Tooltip>
+```
+
+## Advanced Positioning
+
+Use the `positioner` prop for fine-grained positioning control.
+
+```tsx
+<Tooltip
+  positioner={{
+    offset: 12,
+    padding: 10,
+    sticky: true,
+  }}
+  title="Advanced positioning"
+>
+  <Button>Custom offset</Button>
+</Tooltip>
+```
+
+## Raw Props Pass-Through
+
+For power users, `rootProps` and `positionerProps` provide direct access to the underlying Base UI components.
+
+```tsx
+<Tooltip
+  rootProps={{ trackCursorAxis: 'x' }}
+  positionerProps={{ arrowPadding: 20 }}
+  title="Cursor tracking"
+>
+  <Button>Track cursor</Button>
+</Tooltip>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactElement',
+      description: 'The trigger element that shows the tooltip on hover.',
+    },
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description: 'Content displayed in the tooltip. Text or React elements.',
+    },
+    {
+      name: 'placement',
+      type: "'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end' | 'right' | 'right-start' | 'right-end'",
+      default: "'top'",
+      description: 'Tooltip placement relative to the trigger.',
+    },
+    {
+      name: 'collision',
+      type: "'flip' | 'shift' | 'hide' | 'flip-shift' | 'smart' | 'none'",
+      default: "'smart'",
+      description:
+        'Collision handling strategy when tooltip overflows viewport.',
+    },
+    {
+      name: 'collisionConfig',
+      type: '{ side?: string; align?: string; fallbackAxisSide?: string }',
+      description:
+        'Advanced collision configuration. Overrides the collision strategy.',
+    },
+    {
+      name: 'positioner',
+      type: '{ offset?: number; padding?: number; sticky?: boolean; boundary?: string | HTMLElement; trackCursor?: string }',
+      description: 'Advanced positioning configuration.',
+    },
+    {
+      name: 'animation',
+      type: '{ animated?: boolean; duration?: number; easing?: string }',
+      description: 'Animation configuration for show/hide transitions.',
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      default: '600',
+      description: 'Delay in milliseconds before showing the tooltip.',
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      default: '0',
+      description: 'Delay in milliseconds before hiding the tooltip.',
+    },
+    {
+      name: 'arrow',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show the arrow pointing to the trigger.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the tooltip is disabled.',
+    },
+    {
+      name: 'rootProps',
+      type: 'Partial<BaseTooltipRootProps>',
+      description: 'Direct props for the Base UI Root component.',
+    },
+    {
+      name: 'positionerProps',
+      type: 'Partial<BaseTooltipPositionerProps>',
+      description: 'Direct props for the Base UI Positioner component.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names for the tooltip popup.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline styles for the tooltip popup.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the tooltip popup element.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+- Built on `@base-ui/react` which implements WAI-ARIA tooltip patterns
+- Tooltip content is associated with the trigger via `aria-describedby`
+- Tooltip appears on hover and focus, and dismisses on Escape
+- The trigger is wrapped in a focusable container for keyboard access
+- Use meaningful text in `title` for screen reader users

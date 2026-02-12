@@ -1,0 +1,249 @@
+---
+title: Checkbox
+description: Checkbox component for boolean selection with indeterminate state, labels, and group support.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import CheckboxDemo from '../../../../components/demos/primitives/CheckboxDemo';
+
+Checkbox component for boolean selection in settings panels, property inspectors, and form interfaces. Supports controlled and uncontrolled modes, indeterminate state, label positioning, sizes, variants, and error states.
+
+<ComponentPreview title="Live Preview">
+  <CheckboxDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Checkbox } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Checkbox label="Enable shadows" />
+```
+
+## Controlled
+
+Use `checked` and `onChange` for controlled mode. The `onChange` callback receives the new boolean value.
+
+```tsx
+const [checked, setChecked] = useState(false);
+
+<Checkbox checked={checked} onChange={setChecked} label="Auto-save" />;
+```
+
+## Sizes
+
+```tsx
+<Checkbox size="sm" label="Small (14px)" />
+<Checkbox size="md" label="Medium (16px)" />
+<Checkbox size="lg" label="Large (20px)" />
+```
+
+| Size | Box size | Use case           |
+| ---- | -------- | ------------------ |
+| `sm` | 14px     | Compact, dense UIs |
+| `md` | 16px     | Standard forms     |
+| `lg` | 20px     | Prominent settings |
+
+## Variants
+
+```tsx
+<Checkbox variant="default" label="Default variant" />
+<Checkbox variant="filled" label="Filled variant" />
+```
+
+| Variant   | Description                                           |
+| --------- | ----------------------------------------------------- |
+| `default` | Border-only when unchecked, accent fill when checked  |
+| `filled`  | Subtle background when unchecked, accent when checked |
+
+## Indeterminate State
+
+The `indeterminate` prop shows a dash icon instead of a checkmark. Used for "select all" patterns when some items are checked. Takes visual precedence over the checked state.
+
+```tsx
+<Checkbox indeterminate label="Select all" />
+```
+
+## Label Position
+
+The label can be placed on either side of the checkbox.
+
+```tsx
+<Checkbox label="Label on right" labelPosition="right" />
+<Checkbox label="Label on left" labelPosition="left" />
+```
+
+## Helper Text and Error
+
+Display helper text below the checkbox, or an error message when validation fails.
+
+```tsx
+<Checkbox
+  label="Accept terms"
+  helperText="You must accept to continue"
+/>
+
+<Checkbox
+  label="Accept terms"
+  error
+  errorMessage="This field is required"
+/>
+```
+
+## Required
+
+```tsx
+<Checkbox label="I agree to the terms" required />
+```
+
+## Disabled
+
+```tsx
+<Checkbox disabled label="Disabled unchecked" />
+<Checkbox disabled checked label="Disabled checked" />
+```
+
+## Form Submission
+
+Use the `name` and `value` props for form integration. A hidden input is rendered with the appropriate value.
+
+```tsx
+<Checkbox name="features" value="shadows" label="Enable shadows" />
+<Checkbox name="features" value="reflections" label="Enable reflections" />
+```
+
+## Combining Props
+
+```tsx
+<Checkbox
+  checked={enableShadows}
+  onChange={setEnableShadows}
+  label="Enable shadows"
+  size="sm"
+  variant="filled"
+  helperText="Adds real-time shadow rendering"
+/>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'checked',
+      type: 'boolean',
+      description: 'Whether the checkbox is checked (controlled mode).',
+    },
+    {
+      name: 'defaultChecked',
+      type: 'boolean',
+      default: 'false',
+      description: 'Default checked state (uncontrolled mode).',
+    },
+    {
+      name: 'indeterminate',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the checkbox is in an indeterminate state. Shows a dash icon.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Label text displayed next to the checkbox.',
+    },
+    {
+      name: 'labelPosition',
+      type: "'left' | 'right'",
+      default: "'right'",
+      description: 'Position of the label relative to the checkbox.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Checkbox size.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'filled'",
+      default: "'default'",
+      description: 'Visual variant controlling unchecked/checked appearance.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the checkbox is disabled.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the checkbox is required.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the checkbox has an error state.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text displayed below the checkbox.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description:
+        'Error message displayed when error is true. Replaces helperText.',
+    },
+    {
+      name: 'value',
+      type: 'string',
+      description:
+        'Value attribute for CheckboxGroup integration and form submission.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Name attribute for form submission.',
+    },
+    {
+      name: 'onChange',
+      type: '(checked: boolean) => void',
+      description: 'Change event handler receiving the new checked state.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLButtonElement>',
+      description: 'Ref to the underlying button element.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+- Uses `role="checkbox"` on a native `<button>` element
+- `aria-checked` reflects the current state: `true`, `false`, or `mixed` (indeterminate)
+- `aria-disabled`, `aria-required`, and `aria-invalid` are set based on props
+- Helper text and error messages are linked via `aria-describedby`
+- Label is rendered as a `<label>` element wrapping the checkbox for click target expansion
+- Keyboard accessible: Space to toggle, Tab to navigate

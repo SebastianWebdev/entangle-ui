@@ -1,0 +1,428 @@
+---
+title: CurveEditor
+description: Interactive bezier curve editor for animation timing, color grading, and value remapping with keyframes, tangent modes, and presets.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import CurveEditorDemo from '../../../../components/demos/controls/CurveEditorDemo';
+
+Interactive bezier curve editor for professional tools. Supports keyframe editing with multiple tangent modes, built-in and custom presets, grid and axis labels, snap-to-grid, and custom render props for backgrounds and bottom bars. Used for animation curves, color grading, easing functions, and value remapping.
+
+<ComponentPreview title="Live Preview">
+  <CurveEditorDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { CurveEditor } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+const [curve, setCurve] = useState(undefined);
+
+<CurveEditor value={curve} onChange={setCurve} width={400} height={250} />;
+```
+
+The component defaults to an ease-in-out curve when no value is provided.
+
+## Controlled vs Uncontrolled
+
+```tsx
+// Controlled
+<CurveEditor value={curve} onChange={setCurve} />
+
+// Uncontrolled with default
+<CurveEditor defaultValue={myCurveData} />
+```
+
+## Keyframe Interaction
+
+- **Double-click** on the curve to add a new keyframe
+- **Click** a keyframe to select it (Shift+Click for multi-select, box select by dragging on empty space)
+- **Drag** a keyframe to move it
+- **Delete/Backspace** to remove selected keyframes
+- **Double-click** a keyframe to cycle tangent modes
+- **Keyboard shortcuts 1-6** set tangent modes on selected keyframes
+
+## Tangent Modes
+
+Each keyframe has a tangent mode controlling how the curve passes through it.
+
+| Mode       | Description                                            |
+| ---------- | ------------------------------------------------------ |
+| `free`     | Each handle moves independently                        |
+| `aligned`  | Handles stay co-linear but can differ in length        |
+| `mirrored` | Handles are symmetric (same angle and length)          |
+| `auto`     | Smooth catmull-rom style, auto-computed from neighbors |
+| `linear`   | No handles, straight line segments                     |
+| `step`     | Constant value until next keyframe (step function)     |
+
+The toolbar provides buttons for switching tangent modes on selected keyframes.
+
+## Lock Tangents
+
+When `lockTangents` is true, tangent handle editing is hidden and disabled. The curve still renders normally using each keyframe's existing tangent mode.
+
+```tsx
+<CurveEditor value={curve} onChange={setCurve} lockTangents />
+```
+
+## Presets
+
+Built-in presets include ease-in, ease-out, ease-in-out, linear, and more. You can add custom presets that appear alongside them in the toolbar.
+
+```tsx
+<CurveEditor
+  value={curve}
+  onChange={setCurve}
+  presets={[
+    {
+      id: 'custom-bounce',
+      label: 'Bounce',
+      category: 'Custom',
+      curve: bounceCurveData,
+    },
+  ]}
+/>
+```
+
+## Grid and Labels
+
+```tsx
+<CurveEditor
+  value={curve}
+  onChange={setCurve}
+  showGrid
+  gridSubdivisions={8}
+  showAxisLabels
+  labelX="Time"
+  labelY="Value"
+/>
+```
+
+## Snap to Grid
+
+Hold Ctrl to toggle snapping, or enable it as the default.
+
+```tsx
+<CurveEditor
+  value={curve}
+  onChange={setCurve}
+  snapToGrid
+  gridSubdivisions={4}
+/>
+```
+
+## Constraints
+
+```tsx
+<CurveEditor
+  value={curve}
+  onChange={setCurve}
+  lockEndpoints // First/last keyframes locked on X axis
+  maxKeyframes={10} // Limit number of keyframes
+  minKeyframeDistance={0.01}
+  clampY // Clamp Y values to domain bounds
+/>
+```
+
+## Responsive Mode
+
+When `responsive` is true, the editor fills its parent container using a ResizeObserver, ignoring the `width` prop.
+
+```tsx
+<div style={{ width: '100%' }}>
+  <CurveEditor responsive height={200} value={curve} onChange={setCurve} />
+</div>
+```
+
+## Custom Background
+
+Use `renderBackground` to draw behind the curve, such as a histogram or gradient (like Photoshop/Lightroom curves).
+
+```tsx
+<CurveEditor
+  value={curve}
+  onChange={setCurve}
+  renderBackground={(ctx, info) => {
+    // Draw a gradient behind the curve
+    const grad = ctx.createLinearGradient(
+      info.area.x,
+      info.area.y + info.area.height,
+      info.area.x,
+      info.area.y
+    );
+    grad.addColorStop(0, 'rgba(0, 0, 0, 0.3)');
+    grad.addColorStop(1, 'rgba(255, 255, 255, 0.1)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(info.area.x, info.area.y, info.area.width, info.area.height);
+  }}
+/>
+```
+
+## Custom Bottom Bar
+
+Use `renderBottomBar` for custom content below the canvas, such as coordinate readouts or channel selectors.
+
+```tsx
+<CurveEditor
+  value={curve}
+  onChange={setCurve}
+  renderBottomBar={({ selectedKeyframes, evaluate }) => (
+    <div>
+      {selectedKeyframes.length > 0 && (
+        <span>
+          Selected: ({selectedKeyframes[0].x.toFixed(2)},
+          {selectedKeyframes[0].y.toFixed(2)})
+        </span>
+      )}
+    </div>
+  )}
+/>
+```
+
+## Change Complete
+
+Use `onChangeComplete` for undo system integration. It fires on drag end, keyframe add, and keyframe delete.
+
+```tsx
+<CurveEditor
+  value={curve}
+  onChange={setCurve}
+  onChangeComplete={finalCurve => {
+    undoStack.push(finalCurve);
+  }}
+/>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'CurveData',
+      description: 'Curve data (controlled).',
+    },
+    {
+      name: 'defaultValue',
+      type: 'CurveData',
+      default: 'ease-in-out preset',
+      description: 'Default curve data (uncontrolled).',
+    },
+    {
+      name: 'width',
+      type: 'number',
+      default: '320',
+      description: 'Width of the editor in pixels.',
+    },
+    {
+      name: 'height',
+      type: 'number',
+      default: '200',
+      description: 'Height of the editor in pixels.',
+    },
+    {
+      name: 'responsive',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the editor fills its parent container via ResizeObserver.',
+    },
+    {
+      name: 'showToolbar',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'Whether to show the toolbar with presets and tangent mode buttons.',
+    },
+    {
+      name: 'showGrid',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to show grid lines.',
+    },
+    {
+      name: 'gridSubdivisions',
+      type: 'number',
+      default: '4',
+      description: 'Number of grid subdivision lines between domain bounds.',
+    },
+    {
+      name: 'showAxisLabels',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to display X/Y axis value labels on the grid.',
+    },
+    {
+      name: 'allowAdd',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether double-clicking the curve adds a new keyframe.',
+    },
+    {
+      name: 'allowDelete',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether Delete/Backspace removes selected keyframes.',
+    },
+    {
+      name: 'maxKeyframes',
+      type: 'number',
+      default: 'Infinity',
+      description: 'Maximum number of keyframes allowed.',
+    },
+    {
+      name: 'lockEndpoints',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether first/last keyframe X positions are locked.',
+    },
+    {
+      name: 'minKeyframeDistance',
+      type: 'number',
+      default: '0.001',
+      description: 'Minimum distance between keyframes on the X axis.',
+    },
+    {
+      name: 'clampY',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether Y values are clamped to domain bounds.',
+    },
+    {
+      name: 'snapToGrid',
+      type: 'boolean',
+      default: 'false',
+      description: 'Snap to grid while dragging (Ctrl toggles).',
+    },
+    {
+      name: 'precision',
+      type: 'number',
+      default: '3',
+      description: 'Number format precision for displayed values.',
+    },
+    {
+      name: 'labelX',
+      type: 'string',
+      description: 'X axis label (e.g., "Time", "Input").',
+    },
+    {
+      name: 'labelY',
+      type: 'string',
+      description: 'Y axis label (e.g., "Value", "Output").',
+    },
+    {
+      name: 'presets',
+      type: 'CurvePreset[]',
+      description: 'Custom preset curves, merged with built-in presets.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Component size affecting toolbar and label sizing.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the editor is disabled.',
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the editor is read-only (viewable but not editable).',
+    },
+    {
+      name: 'curveColor',
+      type: 'string',
+      default: 'theme accent color',
+      description: 'CSS color for the curve line.',
+    },
+    {
+      name: 'curveWidth',
+      type: 'number',
+      default: '2',
+      description: 'Curve line width in pixels.',
+    },
+    {
+      name: 'lockTangents',
+      type: 'boolean',
+      default: 'false',
+      description: 'Hides tangent handles and disables tangent editing UI.',
+    },
+    {
+      name: 'onChange',
+      type: '(curve: CurveData) => void',
+      description: 'Callback fired continuously during drag.',
+    },
+    {
+      name: 'onChangeComplete',
+      type: '(curve: CurveData) => void',
+      description:
+        'Callback fired when editing is committed (drag end, add, delete).',
+    },
+    {
+      name: 'onSelectionChange',
+      type: '(selectedIds: string[]) => void',
+      description: 'Callback when keyframe selection changes.',
+    },
+    {
+      name: 'renderBackground',
+      type: '(ctx: CanvasRenderingContext2D, info: CurveBackgroundInfo) => void',
+      description: 'Custom background renderer for the canvas.',
+    },
+    {
+      name: 'renderBottomBar',
+      type: '(info: CurveBottomBarInfo) => ReactNode',
+      description: 'Render prop for custom content below the canvas.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+  ]}
+/>
+
+### CurveData
+
+| Property       | Type                                              | Description                             |
+| -------------- | ------------------------------------------------- | --------------------------------------- |
+| `keyframes`    | `CurveKeyframe[]`                                 | Ordered array of keyframes sorted by x. |
+| `domainX`      | `[number, number]`                                | Domain bounds for the X axis.           |
+| `domainY`      | `[number, number]`                                | Domain bounds for the Y axis.           |
+| `preInfinity`  | `'constant' \| 'linear' \| 'cycle' \| 'pingpong'` | Behavior before the first keyframe.     |
+| `postInfinity` | `'constant' \| 'linear' \| 'cycle' \| 'pingpong'` | Behavior after the last keyframe.       |
+
+### CurveKeyframe
+
+| Property      | Type                       | Description                                 |
+| ------------- | -------------------------- | ------------------------------------------- |
+| `x`           | `number`                   | X position in domain space.                 |
+| `y`           | `number`                   | Y value at this position.                   |
+| `handleIn`    | `{ x: number; y: number }` | Left tangent handle offset (relative).      |
+| `handleOut`   | `{ x: number; y: number }` | Right tangent handle offset (relative).     |
+| `tangentMode` | `TangentMode`              | Tangent mode for this keyframe.             |
+| `id`          | `string`                   | Unique ID (auto-generated if not provided). |
+
+## Accessibility
+
+- Canvas-based rendering with keyboard support for keyframe manipulation
+- Arrow keys move selected keyframes
+- Delete/Backspace removes selected keyframes
+- Number keys 1-6 set tangent modes on selected keyframes
+- Box select via Shift+drag on empty canvas area
+- Multi-select via Shift+Click on keyframes

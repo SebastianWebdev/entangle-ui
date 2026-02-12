@@ -1,0 +1,211 @@
+---
+title: Paper
+description: Surface component providing elevation, nesting hierarchy, and visual depth for editor interface panels and cards.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import PaperDemo from '../../../../components/demos/primitives/PaperDemo';
+
+Surface component for creating cards, panels, modals, and content containers with visual depth. Supports elevation shadows, automatic background adjustment for nested components, borders, and flexible spacing.
+
+<ComponentPreview title="Live Preview">
+  <PaperDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Paper } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Paper elevation={1} padding="md">
+  <p>Content in a card</p>
+</Paper>
+```
+
+## Elevation
+
+The `elevation` prop controls shadow intensity for visual depth.
+
+```tsx
+<Paper elevation={0}>No shadow (flat)</Paper>
+<Paper elevation={1}>Small shadow (subtle depth)</Paper>
+<Paper elevation={2}>Medium shadow (moderate depth)</Paper>
+<Paper elevation={3}>Large shadow (high depth)</Paper>
+```
+
+| Elevation | Shadow | Use case                         |
+| --------- | ------ | -------------------------------- |
+| `0`       | None   | Flat containers, inline sections |
+| `1`       | Small  | Standard cards and panels        |
+| `2`       | Medium | Floating panels, dropdown menus  |
+| `3`       | Large  | Modals, overlays                 |
+
+## Nesting
+
+The `nestLevel` prop adjusts background brightness for visual hierarchy in nested layouts. Higher levels get progressively lighter backgrounds.
+
+```tsx
+<Paper nestLevel={0} padding="xl">
+  <h2>Main Container (darkest)</h2>
+  <Paper nestLevel={1} padding="lg">
+    <h3>Nested Section</h3>
+    <Paper nestLevel={2} padding="md">
+      <p>Deeply nested content (lightest)</p>
+    </Paper>
+  </Paper>
+</Paper>
+```
+
+| Nest Level | Background          | Use case              |
+| ---------- | ------------------- | --------------------- |
+| `0`        | Primary (darkest)   | Root container        |
+| `1`        | Secondary           | First-level panels    |
+| `2`        | Tertiary            | Nested sub-panels     |
+| `3`        | Elevated (lightest) | Deeply nested content |
+
+## Padding
+
+The `padding` prop uses theme spacing tokens for consistent internal spacing.
+
+```tsx
+<Paper padding="xs">2px padding</Paper>
+<Paper padding="sm">4px padding</Paper>
+<Paper padding="md">8px padding</Paper>
+<Paper padding="lg">12px padding</Paper>
+<Paper padding="xl">16px padding</Paper>
+<Paper padding="xxl">24px padding</Paper>
+<Paper padding="xxxl">32px padding</Paper>
+```
+
+## Bordered
+
+The `bordered` prop adds a subtle border around the paper. Useful for flat containers that need visual separation.
+
+```tsx
+<Paper elevation={0} bordered padding="md">
+  Outlined container without shadow
+</Paper>
+
+<Paper elevation={1} bordered padding="lg">
+  Card with both border and shadow
+</Paper>
+```
+
+## Expand
+
+The `expand` prop makes the paper fill the available width and height of its container.
+
+```tsx
+<Paper expand elevation={1} padding="lg">
+  <header>Full-size panel</header>
+  <main>Fills available space</main>
+</Paper>
+```
+
+## Custom Radius
+
+Override the default border radius with a custom value.
+
+```tsx
+<Paper customRadius="12px" elevation={2} padding="lg">
+  Custom rounded corners
+</Paper>
+
+<Paper customRadius={0} elevation={1} padding="md">
+  Sharp corners
+</Paper>
+
+<Paper customRadius="50%" elevation={2} padding="xl">
+  Circular
+</Paper>
+```
+
+## Combining Props
+
+```tsx
+<Paper elevation={2} nestLevel={1} bordered padding="xl" customRadius="8px">
+  <h3>Settings Panel</h3>
+  <Paper nestLevel={2} padding="md" bordered>
+    <p>Nested settings group</p>
+  </Paper>
+</Paper>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Paper content -- any React elements.',
+    },
+    {
+      name: 'elevation',
+      type: '0 | 1 | 2 | 3',
+      default: '1',
+      description: 'Shadow intensity level for visual depth.',
+    },
+    {
+      name: 'bordered',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to show a subtle border around the paper.',
+    },
+    {
+      name: 'padding',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl'",
+      default: "'md'",
+      description: 'Internal padding using theme spacing tokens.',
+    },
+    {
+      name: 'nestLevel',
+      type: '0 | 1 | 2 | 3',
+      default: '0',
+      description:
+        'Nesting level for automatic background brightness adjustment.',
+    },
+    {
+      name: 'expand',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the paper should fill available width and height.',
+    },
+    {
+      name: 'customRadius',
+      type: 'string | number',
+      description:
+        'Custom border radius override. Numbers are treated as pixels.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
+
+The component also accepts all standard HTML `<div>` attributes.
+
+## Accessibility
+
+- Renders a semantic `<div>` element
+- Use appropriate headings and landmarks within Paper content for screen reader navigation
+- Elevation is purely visual and does not affect the accessibility tree
+- Ensure sufficient color contrast between nested Paper levels and their text content

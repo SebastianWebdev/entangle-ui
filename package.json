@@ -52,7 +52,10 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish",
-    "size": "size-limit"
+    "size": "size-limit",
+    "docs:dev": "npm run --prefix docs-site dev",
+    "docs:build": "npm run --prefix docs-site build",
+    "docs:preview": "npm run --prefix docs-site preview"
   },
   "keywords": [
     "react",
@@ -67,7 +70,7 @@
   ],
   "author": "Sebastian Gołębiowski <see.golebiowski@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/SebastianWebdev/entangle-ui#readme",
+  "homepage": "https://www.entangle-ui.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SebastianWebdev/entangle-ui.git"

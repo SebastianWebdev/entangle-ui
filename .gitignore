@@ -18,3 +18,9 @@ test_results/
 coverage/
 *storybook.log
 storybook-static
+
+# Docs site
+docs-site/dist/
+docs-site/.astro/
+docs-site/node_modules/
+docs-site/src/content/docs/api/

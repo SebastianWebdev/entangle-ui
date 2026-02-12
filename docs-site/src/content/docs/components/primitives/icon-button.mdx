@@ -1,0 +1,250 @@
+---
+title: IconButton
+description: Square button component for icon-based actions in toolbars and editor interfaces.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import IconButtonDemo from '../../../../components/demos/primitives/IconButtonDemo';
+
+Square button component designed for icon-based actions in toolbars, quick controls, and icon-driven interactions. Always square and sized appropriately for the contained icon. Supports multiple variants, border radius options, and a pressed/toggle state.
+
+<ComponentPreview title="Live Preview">
+  <IconButtonDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { IconButton } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+import { SaveIcon } from 'entangle-ui';
+
+<IconButton aria-label="Save file">
+  <SaveIcon />
+</IconButton>;
+```
+
+## Variants
+
+The `variant` prop controls the button's visual style.
+
+```tsx
+<IconButton variant="ghost" aria-label="Ghost action">
+  <SettingsIcon />
+</IconButton>
+
+<IconButton variant="default" aria-label="Default action">
+  <SettingsIcon />
+</IconButton>
+
+<IconButton variant="filled" aria-label="Filled action">
+  <SettingsIcon />
+</IconButton>
+```
+
+| Variant   | Description                             | Use case                      |
+| --------- | --------------------------------------- | ----------------------------- |
+| `ghost`   | No border, subtle hover state           | Toolbar icons, inline actions |
+| `default` | Transparent with border, fills on hover | Secondary actions             |
+| `filled`  | Solid background with accent color      | Primary actions               |
+
+## Sizes
+
+The button is always square, sized to match the icon.
+
+```tsx
+<IconButton size="sm" aria-label="Small">
+  <SaveIcon />
+</IconButton>
+<IconButton size="md" aria-label="Medium">
+  <SaveIcon />
+</IconButton>
+<IconButton size="lg" aria-label="Large">
+  <SaveIcon />
+</IconButton>
+```
+
+| Size | Dimensions | Icon size | Use case          |
+| ---- | ---------- | --------- | ----------------- |
+| `sm` | 20x20px    | 12px      | Compact toolbars  |
+| `md` | 24x24px    | 16px      | Standard panels   |
+| `lg` | 32x32px    | 20px      | Prominent actions |
+
+## Border Radius
+
+The `radius` prop controls the button's corner rounding.
+
+```tsx
+<IconButton radius="none" aria-label="Sharp corners">
+  <SaveIcon />
+</IconButton>
+<IconButton radius="sm" aria-label="Slight rounding">
+  <SaveIcon />
+</IconButton>
+<IconButton radius="md" aria-label="Moderate rounding">
+  <SaveIcon />
+</IconButton>
+<IconButton radius="lg" aria-label="More rounding">
+  <SaveIcon />
+</IconButton>
+<IconButton radius="full" aria-label="Circular">
+  <SaveIcon />
+</IconButton>
+```
+
+| Radius | Value | Use case              |
+| ------ | ----- | --------------------- |
+| `none` | 0px   | Sharp toolbar buttons |
+| `sm`   | 2px   | Slightly rounded      |
+| `md`   | 4px   | Standard rounding     |
+| `lg`   | 6px   | Softer appearance     |
+| `full` | 50%   | Circular buttons      |
+
+## Pressed / Toggle State
+
+Use the `pressed` prop for toggle states and active tool indicators. The button visually shows the pressed state and sets `aria-pressed`.
+
+```tsx
+const [isVisible, setIsVisible] = useState(true);
+
+<IconButton
+  pressed={isVisible}
+  aria-label="Toggle visibility"
+  onClick={() => setIsVisible(!isVisible)}
+>
+  <EyeIcon />
+</IconButton>;
+```
+
+## Loading State
+
+The `loading` prop shows a spinner and disables interaction.
+
+```tsx
+<IconButton loading aria-label="Saving...">
+  <SaveIcon />
+</IconButton>
+```
+
+## Disabled
+
+```tsx
+<IconButton disabled aria-label="Save (disabled)">
+  <SaveIcon />
+</IconButton>
+```
+
+## Combining Props
+
+```tsx
+<IconButton
+  variant="filled"
+  size="lg"
+  radius="full"
+  aria-label="Add new item"
+  onClick={handleAdd}
+>
+  <AddIcon />
+</IconButton>
+
+<IconButton
+  variant="default"
+  radius="none"
+  pressed={isActive}
+  aria-label="Toggle grid"
+  onClick={toggleGrid}
+>
+  <GridIcon />
+</IconButton>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Icon component to display inside the button.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string (required)',
+      description:
+        'Accessible label for screen readers. Required for proper accessibility.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'ghost' | 'filled'",
+      default: "'ghost'",
+      description: 'Visual variant of the button.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Button size. The button is always square.',
+    },
+    {
+      name: 'radius',
+      type: "'none' | 'sm' | 'md' | 'lg' | 'full'",
+      default: "'md'",
+      description: 'Border radius for button shape control.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the button is disabled.',
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: 'Loading state -- shows spinner and disables interaction.',
+    },
+    {
+      name: 'pressed',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the button appears pressed/active. Sets aria-pressed.',
+    },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: 'Click event handler.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLButtonElement>',
+      description: 'Ref to the underlying button element.',
+    },
+  ]}
+/>
+
+The component also accepts all standard HTML `<button>` attributes (except `children`).
+
+## Accessibility
+
+- Renders a native `<button>` element
+- `aria-label` is required since there is no visible text content
+- `pressed` state sets `aria-pressed` for toggle button semantics
+- `disabled` and `loading` states set `disabled` on the native element
+- Supports keyboard navigation (Enter/Space to activate)
