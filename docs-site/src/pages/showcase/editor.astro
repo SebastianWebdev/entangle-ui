@@ -1,0 +1,19 @@
+---
+// Full-page editor showcase — bypasses Starlight layout for 100vh experience
+import FullEditorPage from '../../components/demos/editor/FullEditorPage';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Full Editor Showcase — Entangle UI</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { height: 100%; overflow: hidden; background: #0a0a0a; }
+    </style>
+  </head>
+  <body>
+    <FullEditorPage client:only="react" />
+  </body>
+</html>

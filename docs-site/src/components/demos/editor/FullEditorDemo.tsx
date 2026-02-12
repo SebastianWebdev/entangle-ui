@@ -22,7 +22,6 @@ import {
   consoleEntryRecipe,
   timeStampStyle,
 } from './FullEditorDemo.css';
-import DemoWrapper from '../DemoWrapper';
 import { AppShell } from '@/components/shell/AppShell';
 import { MenuBar } from '@/components/shell/MenuBar';
 import { Toolbar } from '@/components/shell/Toolbar';
@@ -489,8 +488,7 @@ export default function FullEditorDemo() {
   ];
 
   return (
-    <DemoWrapper height="80vh" padding="0" withKeyboard>
-      <AppShell viewportLock topChromeSeparator="both">
+    <AppShell viewportLock topChromeSeparator="both">
         {/* ============ MENU BAR ============ */}
         <AppShell.MenuBar>
           <MenuBar menuOffset={4}>
@@ -1935,7 +1933,6 @@ export default function FullEditorDemo() {
             </StatusBar.Section>
           </StatusBar>
         </AppShell.StatusBar>
-      </AppShell>
-    </DemoWrapper>
+    </AppShell>
   );
 }
