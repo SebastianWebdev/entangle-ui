@@ -51,6 +51,7 @@ export interface UseNumberInputOptions {
 
   /**
    * Number of decimal places to round to
+   * @default 2
    */
   precision?: number;
 
@@ -261,10 +262,13 @@ export function useNumberInput({
   // Calculate default step sizes if not provided
   const effectivePrecisionStep = precisionStep ?? step / 10;
   const effectiveLargeStep = largeStep ?? step * 10;
+  const effectivePrecision = precision ?? 2;
 
   // State
   const [displayValue, setDisplayValue] = useState(() =>
-    formatValue ? formatValue(value) : defaultFormatValue(value, precision)
+    formatValue
+      ? formatValue(value)
+      : defaultFormatValue(value, effectivePrecision)
   );
   const [isEditing, setIsEditing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -285,11 +289,11 @@ export function useNumberInput({
     if (!isEditing && !isDragging) {
       const formatted = formatValue
         ? formatValue(value)
-        : defaultFormatValue(value, precision);
+        : defaultFormatValue(value, effectivePrecision);
       setDisplayValue(formatted);
       setError(undefined);
     }
-  }, [value, precision, isEditing, isDragging, formatValue]);
+  }, [value, effectivePrecision, isEditing, isDragging, formatValue]);
 
   /**
    * Gets the appropriate step size based on modifier keys
@@ -315,7 +319,7 @@ export function useNumberInput({
       if (disabled) return;
 
       // Apply rounding
-      const rounded = roundToPrecision(newValue, precision);
+      const rounded = roundToPrecision(newValue, effectivePrecision);
 
       // Apply limits
       const minLimit = useSoftLimits && softMin !== undefined ? softMin : min;
@@ -326,7 +330,7 @@ export function useNumberInput({
         onChange(clamped);
       }
     },
-    [disabled, precision, min, max, softMin, softMax, value, onChange]
+    [disabled, effectivePrecision, min, max, softMin, softMax, value, onChange]
   );
 
   /**
@@ -423,7 +427,7 @@ export function useNumberInput({
         // Update display to show current value
         const formatted = formatValue
           ? formatValue(newValue)
-          : defaultFormatValue(newValue, precision);
+          : defaultFormatValue(newValue, effectivePrecision);
         setDisplayValue(formatted);
       }
     },
@@ -434,7 +438,7 @@ export function useNumberInput({
       dragSensitivity,
       applyValue,
       formatValue,
-      precision,
+      effectivePrecision,
     ]
   );
 
@@ -444,9 +448,9 @@ export function useNumberInput({
     // Refresh display value to ensure it matches the current value
     const formatted = formatValue
       ? formatValue(value)
-      : defaultFormatValue(value, precision);
+      : defaultFormatValue(value, effectivePrecision);
     setDisplayValue(formatted);
-  }, [value, formatValue, precision]);
+  }, [value, formatValue, effectivePrecision]);
 
   const startEditing = useCallback(() => {
     if (disabled) return;
@@ -470,10 +474,10 @@ export function useNumberInput({
     setIsEditing(false);
     const formatted = formatValue
       ? formatValue(value)
-      : defaultFormatValue(value, precision);
+      : defaultFormatValue(value, effectivePrecision);
     setDisplayValue(formatted);
     setError(undefined);
-  }, [value, precision, formatValue]);
+  }, [value, effectivePrecision, formatValue]);
 
   const updateDisplayValue = useCallback(
     (newValue: string) => {

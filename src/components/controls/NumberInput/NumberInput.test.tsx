@@ -58,7 +58,7 @@ describe('NumberInput', () => {
       renderNumberInput({ value: 42 });
 
       // When not editing, the display value is shown in a separate span
-      expect(screen.getByText('42')).toBeInTheDocument();
+      expect(screen.getByText('42.00')).toBeInTheDocument();
     });
 
     it('renders with label', () => {
@@ -137,7 +137,7 @@ describe('NumberInput', () => {
       });
 
       // Before Enter: input is hidden (opacity 0), display value is shown
-      expect(screen.getByText('50')).toBeInTheDocument();
+      expect(screen.getByText('50.00')).toBeInTheDocument();
 
       // Press Enter to start editing
       fireEvent.keyDown(input, { key: 'Enter' });
