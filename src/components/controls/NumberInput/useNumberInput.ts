@@ -456,10 +456,13 @@ export function useNumberInput({
     if (disabled) return;
     setIsEditing(true);
     setError(undefined);
-    // Select all text when starting to edit
+    // Place cursor at end of input
     setTimeout(() => {
       const input = document.activeElement as HTMLInputElement;
-      input?.select();
+      if (input) {
+        const len = input.value.length;
+        input.setSelectionRange(len, len);
+      }
     }, 0);
   }, [disabled]);
 
