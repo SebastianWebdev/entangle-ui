@@ -1,5 +1,8 @@
 # Entangle UI
 
+[![npm](https://img.shields.io/npm/v/entangle-ui)](https://www.npmjs.com/package/entangle-ui)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/entangle-ui)](https://socket.dev/npm/package/entangle-ui)
+
 React + TypeScript component library for building editor-style interfaces.
 
 `entangle-ui` is focused on dense, keyboard-friendly UI patterns used in tools like 3D editors, node editors, scene inspectors, and technical dashboards.
