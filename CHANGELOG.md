@@ -1,5 +1,15 @@
 # entangle-ui
 
+## 0.6.1
+
+### Patch Changes
+
+- [#38](https://github.com/SebastianWebdev/entangle-ui/pull/38) [`3a3222f`](https://github.com/SebastianWebdev/entangle-ui/commit/3a3222f6e007f8fe2d0969df17c0d7e21b67cfc4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Default NumberInput precision to 2 decimal places. Fixes floating-point artifacts (e.g. `1.0000000000000002`) when dragging to change values.
+
+- [#38](https://github.com/SebastianWebdev/entangle-ui/pull/38) [`1b9540f`](https://github.com/SebastianWebdev/entangle-ui/commit/1b9540f5008a71c53549d6882b3e52e8c4f6bf5e) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Replace eval-based math expression parser with recursive descent parser. Removes `new Function()` to eliminate Socket.dev "Uses eval" flag. Adds modulo operator, implicit multiplication, multi-arg functions (min, max, pow, clamp, lerp, smoothstep), hyperbolic trig, unit conversion (deg/rad), and context-aware comma handling.
+
+- [#38](https://github.com/SebastianWebdev/entangle-ui/pull/38) [`536e037`](https://github.com/SebastianWebdev/entangle-ui/commit/536e037280821dc4c9e9d4833514fbd04b579675) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Move @vanilla-extract/dynamic and @vanilla-extract/recipes from dependencies to peerDependencies. Mark them as external in Rollup to avoid bundling duplicate runtime code.
+
 ## 0.6.0
 
 ### Minor Changes
