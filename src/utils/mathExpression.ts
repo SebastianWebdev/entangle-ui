@@ -1,9 +1,9 @@
 /**
  * Safe mathematical expression parser using recursive descent.
  *
- * Evaluates math expressions without `eval()` or `new Function()`.
- * The parser only understands numbers, operators, constants, and
- * whitelisted math functions — there is no code execution vector.
+ * Computes math expressions using a hand-written tokenizer and parser.
+ * No dynamic code generation is used — the parser only understands
+ * numbers, operators, constants, and allow-listed math functions.
  *
  * Supports:
  * - Arithmetic: `+`, `-`, `*`, `/`, `**`, `%`
