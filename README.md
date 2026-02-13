@@ -11,15 +11,15 @@ React + TypeScript component library for building editor-style interfaces.
 
 ## Status
 
-This package is in alpha and still evolving.
+This package is still evolving.
 
-- API can change between alpha releases.
+- API can change between minor releases.
 - Use in production only if you are comfortable with rapid iteration.
 
 ## Installation
 
 ```bash
-npm install entangle-ui@alpha
+npm install entangle-ui
 ```
 
 Peer dependencies:
@@ -28,6 +28,8 @@ Peer dependencies:
 - `react-dom >= 19.1.0`
 - `@base-ui/react ^1.1.0`
 - `@floating-ui/react ^0.27.17`
+- `@vanilla-extract/dynamic ^2.1.5`
+- `@vanilla-extract/recipes ^0.5.7`
 
 ## Quick Start
 

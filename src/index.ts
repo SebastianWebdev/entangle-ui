@@ -3,6 +3,7 @@
 export {
   vars,
   darkThemeValues,
+  createCustomTheme,
   VanillaThemeProvider,
   ThemeProvider,
 } from '@/theme';
