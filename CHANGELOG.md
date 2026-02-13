@@ -1,5 +1,11 @@
 # entangle-ui
 
+## 0.6.2
+
+### Patch Changes
+
+- [#40](https://github.com/SebastianWebdev/entangle-ui/pull/40) [`e741f82`](https://github.com/SebastianWebdev/entangle-ui/commit/e741f828607ed018073d8b597b6f7695bba94ec7) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Reword mathExpression JSDoc to avoid socket.dev false positive alerts
+
 ## 0.6.1
 
 ### Patch Changes
