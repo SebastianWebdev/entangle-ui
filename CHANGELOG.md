@@ -1,5 +1,11 @@
 # entangle-ui
 
+## 0.6.3
+
+### Patch Changes
+
+- [#42](https://github.com/SebastianWebdev/entangle-ui/pull/42) [`e728388`](https://github.com/SebastianWebdev/entangle-ui/commit/e7283883d5323ff9eba8764991dd6b6af393b09a) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Update README: remove alpha tag, add missing peer dependencies, export createCustomTheme from main entry point
+
 ## 0.6.2
 
 ### Patch Changes
