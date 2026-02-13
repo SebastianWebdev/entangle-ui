@@ -20,6 +20,8 @@ const EXTERNAL_PACKAGES = [
   'react/jsx-runtime',
   '@base-ui/react',
   '@floating-ui/react',
+  '@vanilla-extract/dynamic',
+  '@vanilla-extract/recipes',
 ];
 
 const isExternal = id =>

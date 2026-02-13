@@ -82,12 +82,10 @@
   "peerDependencies": {
     "@base-ui/react": "^1.1.0",
     "@floating-ui/react": "^0.27.17",
+    "@vanilla-extract/dynamic": "^2.1.5",
+    "@vanilla-extract/recipes": "^0.5.7",
     "react": ">=19.1.0",
     "react-dom": ">=19.1.0"
-  },
-  "dependencies": {
-    "@vanilla-extract/dynamic": "^2.1.5",
-    "@vanilla-extract/recipes": "^0.5.7"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.2",
