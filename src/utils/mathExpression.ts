@@ -1,402 +1,535 @@
-// src/utils/mathExpression.ts
-
 /**
- * Result of mathematical expression evaluation
+ * Safe mathematical expression parser using recursive descent.
+ *
+ * Evaluates math expressions without `eval()` or `new Function()`.
+ * The parser only understands numbers, operators, constants, and
+ * whitelisted math functions — there is no code execution vector.
+ *
+ * Supports:
+ * - Arithmetic: `+`, `-`, `*`, `/`, `**`, `%`
+ * - Grouping: `(`, `)`
+ * - Unary minus: `-5`, `-(3+2)`
+ * - Implicit multiplication: `2pi`, `3(4+1)`, `(2)(3)`
+ * - Constants: `pi`, `e`, `tau`, `phi`, `inf`
+ * - Functions (1-arg): `sin`, `cos`, `tan`, `asin`, `acos`, `atan`,
+ *   `log`, `log10`, `log2`, `ln`, `exp`, `sqrt`, `cbrt`,
+ *   `floor`, `ceil`, `round`, `trunc`, `abs`, `sign`,
+ *   `deg`, `rad`, `fract`
+ * - Functions (2-arg): `min`, `max`, `pow`, `atan2`, `mod`, `hypot`
+ * - Functions (3-arg): `clamp`, `lerp`, `smoothstep`
+ * - Alternative notations: `×` → `*`, `÷` → `/`, `^` → `**`, `,` → `.` (decimal)
+ *
+ * @module mathExpression
  */
+
+// ─────────────────────────────────────────────────────────────────
+// Result type
+// ─────────────────────────────────────────────────────────────────
+
 export interface EvaluationResult {
-  /**
-   * Whether the evaluation was successful
-   */
   success: boolean;
-
-  /**
-   * The computed numerical result (only when success is true)
-   */
   value?: number;
-
-  /**
-   * Error message if evaluation failed
-   */
   error?: string;
-
-  /**
-   * The original expression that was evaluated
-   */
   expression: string;
 }
 
-/**
- * Blocked identifiers that must be rejected before evaluation.
- * Defense-in-depth layer to prevent prototype pollution or code execution
- * via dangerous JavaScript identifiers that pass character validation.
- */
-const BLOCKED_IDENTIFIERS: ReadonlySet<string> = new Set([
-  // Prototype chain & constructors
-  'constructor',
-  'prototype',
-  '__proto__',
+// ─────────────────────────────────────────────────────────────────
+// Constants & Functions registry
+// ─────────────────────────────────────────────────────────────────
 
-  // Scope access
-  'this',
-  'self',
-  'arguments',
-  'window',
-  'document',
-  'globalThis',
-
-  // Module system
-  'process',
-  'require',
-  'import',
-  'module',
-  'exports',
-
-  // Code execution
-  'eval',
-  'Function',
-
-  // Built-in constructors
-  'Object',
-  'Array',
-  'Reflect',
-  'Proxy',
-  'Symbol',
-
-  // JavaScript keywords that could alter control flow
-  'return',
-  'new',
-  'delete',
-  'typeof',
-  'void',
-  'in',
-  'instanceof',
-  'throw',
-  'var',
-  'let',
-  'const',
-  'class',
-  'yield',
-  'await',
-  'async',
-  'for',
-  'while',
-  'do',
-  'if',
-  'else',
-  'switch',
-  'case',
-  'break',
-  'continue',
-  'try',
-  'catch',
-  'finally',
-  'with',
-  'debugger',
-]);
-
-/**
- * Mathematical constants available in expressions
- */
 const MATH_CONSTANTS: Record<string, number> = {
   pi: Math.PI,
   e: Math.E,
-  tau: 2 * Math.PI,
-  phi: (1 + Math.sqrt(5)) / 2, // Golden ratio
+  tau: Math.PI * 2,
+  phi: (1 + Math.sqrt(5)) / 2,
+  inf: Infinity,
 };
 
-/**
- * Mathematical functions available in expressions
- */
-const MATH_FUNCTIONS: Record<string, (x: number) => number> = {
-  // Trigonometric functions
+const FUNCTIONS_1: Record<string, (a: number) => number> = {
+  // Trigonometric
   sin: Math.sin,
   cos: Math.cos,
   tan: Math.tan,
   asin: Math.asin,
   acos: Math.acos,
   atan: Math.atan,
+  sinh: Math.sinh,
+  cosh: Math.cosh,
+  tanh: Math.tanh,
+  asinh: Math.asinh,
+  acosh: Math.acosh,
+  atanh: Math.atanh,
 
-  // Logarithmic and exponential
+  // Logarithmic & exponential
   log: Math.log,
+  ln: Math.log,
   log10: Math.log10,
   log2: Math.log2,
   exp: Math.exp,
+  exp2: (x: number) => 2 ** x,
 
-  // Power and root functions
+  // Power & root
   sqrt: Math.sqrt,
   cbrt: Math.cbrt,
 
-  // Rounding functions
+  // Rounding
   floor: Math.floor,
   ceil: Math.ceil,
   round: Math.round,
+  trunc: Math.trunc,
 
-  // Other useful functions
+  // Other
   abs: Math.abs,
   sign: Math.sign,
+  fract: (x: number) => x - Math.floor(x),
+
+  // Unit conversion
+  deg: (radians: number) => (radians * 180) / Math.PI,
+  rad: (degrees: number) => (degrees * Math.PI) / 180,
 };
 
-/**
- * Maximum allowed expression length to prevent DoS via extremely long input.
- */
+const FUNCTIONS_2: Record<string, (a: number, b: number) => number> = {
+  min: Math.min,
+  max: Math.max,
+  pow: Math.pow,
+  atan2: Math.atan2,
+  mod: (a: number, b: number) => ((a % b) + b) % b,
+  hypot: Math.hypot,
+};
+
+const FUNCTIONS_3: Record<string, (a: number, b: number, c: number) => number> =
+  {
+    clamp: (val: number, lo: number, hi: number) =>
+      Math.min(Math.max(val, lo), hi),
+    lerp: (a: number, b: number, t: number) => a + (b - a) * t,
+    smoothstep: (edge0: number, edge1: number, x: number) => {
+      const t = Math.min(Math.max((x - edge0) / (edge1 - edge0), 0), 1);
+      return t * t * (3 - 2 * t);
+    },
+    mix: (a: number, b: number, t: number) => a + (b - a) * t,
+  };
+
+const FUNCTION_ARITY: Record<string, number> = {};
+for (const name of Object.keys(FUNCTIONS_1)) FUNCTION_ARITY[name] = 1;
+for (const name of Object.keys(FUNCTIONS_2)) FUNCTION_ARITY[name] = 2;
+for (const name of Object.keys(FUNCTIONS_3)) FUNCTION_ARITY[name] = 3;
+
+// ─────────────────────────────────────────────────────────────────
+// Tokenizer
+// ─────────────────────────────────────────────────────────────────
+
+const enum TokenType {
+  Number,
+  Ident,
+  Op,
+  LParen,
+  RParen,
+  Comma,
+  End,
+}
+
+interface Token {
+  type: TokenType;
+  value: string;
+  pos: number;
+}
+
+function isDigit(ch: string | undefined): boolean {
+  return ch !== undefined && ch >= '0' && ch <= '9';
+}
+
+function isAlpha(ch: string | undefined): boolean {
+  return (
+    ch !== undefined &&
+    ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch === '_')
+  );
+}
+
+function tokenize(input: string): Token[] {
+  const tokens: Token[] = [];
+  let i = 0;
+
+  while (i < input.length) {
+    const ch = input[i];
+
+    if (ch === ' ' || ch === '\t') {
+      i++;
+      continue;
+    }
+
+    // Number: 123, 3.14, .5
+    if (isDigit(ch) || (ch === '.' && isDigit(input[i + 1]))) {
+      const start = i;
+      while (isDigit(input[i])) i++;
+      if (input[i] === '.' && isDigit(input[i + 1])) {
+        i++;
+        while (isDigit(input[i])) i++;
+      } else if (input[i] === '.' && !isAlpha(input[i + 1])) {
+        i++;
+      }
+      tokens.push({
+        type: TokenType.Number,
+        value: input.slice(start, i),
+        pos: start,
+      });
+      continue;
+    }
+
+    // Identifier
+    if (isAlpha(ch)) {
+      const start = i;
+      while (isAlpha(input[i]) || isDigit(input[i])) i++;
+      tokens.push({
+        type: TokenType.Ident,
+        value: input.slice(start, i),
+        pos: start,
+      });
+      continue;
+    }
+
+    // ** (before single *)
+    if (ch === '*' && input[i + 1] === '*') {
+      tokens.push({ type: TokenType.Op, value: '**', pos: i });
+      i += 2;
+      continue;
+    }
+
+    if (ch === '+' || ch === '-' || ch === '*' || ch === '/' || ch === '%') {
+      tokens.push({ type: TokenType.Op, value: ch, pos: i });
+      i++;
+      continue;
+    }
+
+    if (ch === '(') {
+      tokens.push({ type: TokenType.LParen, value: '(', pos: i });
+      i++;
+      continue;
+    }
+    if (ch === ')') {
+      tokens.push({ type: TokenType.RParen, value: ')', pos: i });
+      i++;
+      continue;
+    }
+
+    if (ch === ',') {
+      tokens.push({ type: TokenType.Comma, value: ',', pos: i });
+      i++;
+      continue;
+    }
+
+    throw new Error(`Unexpected character '${ch}' at position ${i}`);
+  }
+
+  tokens.push({ type: TokenType.End, value: '', pos: i });
+  return tokens;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Parser — recursive descent, evaluates during parsing
+// ─────────────────────────────────────────────────────────────────
+
+let _tokens: Token[] = [];
+let _pos = 0;
+
+function peek(): Token {
+  // _tokens always ends with an End token, so _pos is always valid
+  const t = _tokens[_pos];
+  if (t === undefined) {
+    return { type: TokenType.End, value: '', pos: _pos };
+  }
+  return t;
+}
+
+function advance(): Token {
+  const t = peek();
+  _pos++;
+  return t;
+}
+
+function expect(type: TokenType, label: string): Token {
+  const t = advance();
+  if (t.type !== type) {
+    throw new Error(
+      `Expected ${label}, got '${t.value || 'end of input'}' at position ${t.pos}`
+    );
+  }
+  return t;
+}
+
+function parseExpression(): number {
+  let left = parseTerm();
+
+  while (
+    peek().type === TokenType.Op &&
+    (peek().value === '+' || peek().value === '-')
+  ) {
+    const op = advance().value;
+    const right = parseTerm();
+    left = op === '+' ? left + right : left - right;
+  }
+
+  return left;
+}
+
+function parseTerm(): number {
+  let left = parsePower();
+
+  while (
+    peek().type === TokenType.Op &&
+    (peek().value === '*' || peek().value === '/' || peek().value === '%')
+  ) {
+    const op = advance().value;
+    const right = parsePower();
+    if (op === '*') left *= right;
+    else if (op === '/') left /= right;
+    else left = ((left % right) + right) % right;
+  }
+
+  return left;
+}
+
+function parsePower(): number {
+  const base = parseUnary();
+
+  if (peek().type === TokenType.Op && peek().value === '**') {
+    advance();
+    const exp = parsePower();
+    return Math.pow(base, exp);
+  }
+
+  return base;
+}
+
+function parseUnary(): number {
+  if (peek().type === TokenType.Op && peek().value === '-') {
+    advance();
+    return -parseUnary();
+  }
+  if (peek().type === TokenType.Op && peek().value === '+') {
+    advance();
+    return parseUnary();
+  }
+  return parsePostfix();
+}
+
+function parsePostfix(): number {
+  let left = parseCall();
+
+  while (canImplicitMultiply()) {
+    const right = parseCall();
+    left *= right;
+  }
+
+  return left;
+}
+
+function canImplicitMultiply(): boolean {
+  const t = peek();
+  if (t.type === TokenType.LParen) return true;
+  if (t.type === TokenType.Number) return true;
+  if (t.type === TokenType.Ident) {
+    return t.value in MATH_CONSTANTS || t.value in FUNCTION_ARITY;
+  }
+  return false;
+}
+
+function parseCall(): number {
+  if (
+    peek().type === TokenType.Ident &&
+    peek().value in FUNCTION_ARITY &&
+    _tokens[_pos + 1]?.type === TokenType.LParen
+  ) {
+    const name = advance().value;
+    const arity = FUNCTION_ARITY[name] ?? 1;
+    advance(); // consume '('
+
+    const args: number[] = [parseExpression()];
+    while (peek().type === TokenType.Comma && args.length < arity) {
+      advance();
+      args.push(parseExpression());
+    }
+
+    expect(TokenType.RParen, `')' after ${name}() arguments`);
+
+    const a0 = args[0] ?? 0;
+    const a1 = args[1] ?? 0;
+    const a2 = args[2] ?? 0;
+
+    if (arity === 1 && args.length === 1) {
+      const fn = FUNCTIONS_1[name];
+      if (fn) return fn(a0);
+    }
+    if (arity === 2) {
+      if (args.length === 1) {
+        const fn1 = FUNCTIONS_1[name];
+        if (fn1) return fn1(a0);
+      }
+      if (args.length !== 2) {
+        throw new Error(`${name}() expects 2 arguments, got ${args.length}`);
+      }
+      const fn2 = FUNCTIONS_2[name];
+      if (fn2) return fn2(a0, a1);
+    }
+    if (arity === 3) {
+      if (args.length !== 3) {
+        throw new Error(`${name}() expects 3 arguments, got ${args.length}`);
+      }
+      const fn3 = FUNCTIONS_3[name];
+      if (fn3) return fn3(a0, a1, a2);
+    }
+
+    throw new Error(`Unknown function: ${name}`);
+  }
+
+  return parsePrimary();
+}
+
+function parsePrimary(): number {
+  const t = peek();
+
+  if (t.type === TokenType.Number) {
+    advance();
+    return parseFloat(t.value);
+  }
+
+  if (t.type === TokenType.Ident) {
+    if (t.value in MATH_CONSTANTS) {
+      advance();
+      return MATH_CONSTANTS[t.value] ?? 0;
+    }
+    throw new Error(`Unknown identifier '${t.value}' at position ${t.pos}`);
+  }
+
+  if (t.type === TokenType.LParen) {
+    advance();
+    const result = parseExpression();
+    expect(TokenType.RParen, "')'");
+    return result;
+  }
+
+  throw new Error(
+    `Unexpected ${t.value ? `'${t.value}'` : 'end of input'} at position ${t.pos}`
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Input sanitization (pre-tokenizer normalization)
+// ─────────────────────────────────────────────────────────────────
+
 const MAX_EXPRESSION_LENGTH = 200;
 
-/**
- * Sanitizes mathematical expression by removing dangerous patterns
- * and normalizing the input for safe evaluation.
- */
-function sanitizeExpression(expression: string): string {
-  // Remove whitespace
-  let sanitized = expression.replace(/\s+/g, '');
+function sanitize(expression: string): string {
+  let result = expression;
+  result = result.replace(/×/g, '*');
+  result = result.replace(/÷/g, '/');
+  result = result.replace(/\^/g, '**');
 
-  // Convert common alternative notations
-  sanitized = sanitized.replace(/×/g, '*'); // Multiplication symbol
-  sanitized = sanitized.replace(/÷/g, '/'); // Division symbol
-  sanitized = sanitized.replace(/\^/g, '**'); // Power operator
-
-  // Ensure proper decimal notation
-  sanitized = sanitized.replace(/,/g, '.'); // European decimal notation
+  // Context-aware comma handling:
+  // Inside parens → keep as comma (argument separator)
+  // Outside parens → convert to dot (European decimal notation)
+  let depth = 0;
+  let sanitized = '';
+  for (const ch of result) {
+    if (ch === '(') depth++;
+    if (ch === ')') depth--;
+    if (ch === ',' && depth <= 0) {
+      sanitized += '.';
+    } else {
+      sanitized += ch;
+    }
+  }
 
   return sanitized;
 }
 
-/**
- * Validates that expression contains only allowed characters and patterns
- */
-function isValidExpression(expression: string): boolean {
-  // Allow numbers, operators, parentheses, dots, and known constants/functions
-  const allowedPattern = /^[0-9+\-*/().a-zA-Z_]+$/;
+// ─────────────────────────────────────────────────────────────────
+// Public API
+// ─────────────────────────────────────────────────────────────────
 
-  if (!allowedPattern.test(expression)) {
-    return false;
-  }
-
-  // Check for balanced parentheses
-  let depth = 0;
-  for (const char of expression) {
-    if (char === '(') depth++;
-    if (char === ')') depth--;
-    if (depth < 0) return false;
-  }
-
-  return depth === 0;
-}
-
-/**
- * Checks whether the expression contains any blocked identifiers or
- * unknown alphabetic tokens. All word tokens must be either a known
- * constant, a known function name, or part of "Math" (introduced by
- * replaceConstantsAndFunctions). Any unrecognized identifier is rejected.
- */
-function containsBlockedIdentifiers(expression: string): boolean {
-  const wordTokens = expression.match(/[a-zA-Z_][a-zA-Z0-9_]*/g);
-  if (!wordTokens) return false;
-
-  const allowedTokens = new Set([
-    ...Object.keys(MATH_CONSTANTS),
-    ...Object.keys(MATH_FUNCTIONS),
-  ]);
-
-  for (const token of wordTokens) {
-    if (BLOCKED_IDENTIFIERS.has(token)) return true;
-    if (!allowedTokens.has(token)) return true;
-  }
-
-  return false;
-}
-
-/**
- * Replaces mathematical constants and functions in the expression
- * with their JavaScript equivalents for safe evaluation.
- */
-function replaceConstantsAndFunctions(expression: string): string {
-  let result = expression;
-
-  // Replace constants
-  Object.entries(MATH_CONSTANTS).forEach(([name, value]) => {
-    const regex = new RegExp(`\\b${name}\\b`, 'g');
-    result = result.replace(regex, value.toString());
-  });
-
-  // Replace functions
-  Object.entries(MATH_FUNCTIONS).forEach(([name]) => {
-    const regex = new RegExp(`\\b${name}\\(`, 'g');
-    result = result.replace(regex, `Math.${name}(`);
-  });
-
-  return result;
-}
-
-/**
- * Safely evaluates a mathematical expression using Function constructor
- * instead of eval() for better security.
- */
-
-function safeEvaluate(expression: string): number {
-  // Create a function that returns the expression result
-  // This is safer than eval() as it doesn't have access to the scope
-
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
-  const func = new Function('Math', `"use strict"; return (${expression});`);
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  return func(Math) as number;
-}
-
-/**
- * Evaluates a mathematical expression and returns the result.
- *
- * Supports:
- * - Basic arithmetic: +, -, *, /, **, ()
- * - Mathematical constants: pi, e, tau, phi
- * - Mathematical functions: sin, cos, tan, sqrt, log, etc.
- * - Alternative notations: × (multiplication), ÷ (division), ^ (power)
- * - European decimal notation: , instead of .
- *
- * @param expression The mathematical expression to evaluate
- * @returns Evaluation result with success status and value or error
- *
- * @example
- * ```typescript
- * evaluateExpression("3 + 4 * 2") // { success: true, value: 11 }
- * evaluateExpression("sqrt(16)") // { success: true, value: 4 }
- * evaluateExpression("pi * 2") // { success: true, value: 6.283... }
- * evaluateExpression("2 ^ 3") // { success: true, value: 8 }
- * evaluateExpression("invalid") // { success: false, error: "..." }
- * ```
- */
 export function evaluateExpression(expression: string): EvaluationResult {
-  const originalExpression = expression;
+  const original = expression;
 
   try {
-    // Handle empty or whitespace-only expressions
     if (!expression?.trim()) {
       return {
         success: false,
         error: 'Expression cannot be empty',
-        expression: originalExpression,
+        expression: original,
       };
     }
 
-    // Reject excessively long expressions
     if (expression.length > MAX_EXPRESSION_LENGTH) {
       return {
         success: false,
         error: `Expression is too long (max ${MAX_EXPRESSION_LENGTH} characters)`,
-        expression: originalExpression,
+        expression: original,
       };
     }
 
-    // Sanitize the expression
-    const sanitized = sanitizeExpression(expression);
+    const sanitized = sanitize(expression);
+    _tokens = tokenize(sanitized);
+    _pos = 0;
 
-    // Validate the expression
-    if (!isValidExpression(sanitized)) {
+    const value = parseExpression();
+
+    if (peek().type !== TokenType.End) {
+      throw new Error(`Unexpected '${peek().value}' at position ${peek().pos}`);
+    }
+
+    if (typeof value !== 'number' || !isFinite(value)) {
       return {
         success: false,
-        error: 'Expression contains invalid characters or syntax',
-        expression: originalExpression,
+        error: 'Expression does not evaluate to a finite number',
+        expression: original,
       };
     }
 
-    // Check for blocked or unknown identifiers (defense-in-depth)
-    if (containsBlockedIdentifiers(sanitized)) {
-      return {
-        success: false,
-        error: 'Expression contains invalid characters or syntax',
-        expression: originalExpression,
-      };
-    }
-
-    // Replace constants and functions
-    const processed = replaceConstantsAndFunctions(sanitized);
-
-    // Evaluate the expression
-    const result = safeEvaluate(processed);
-
-    // Check if result is a valid number
-    if (typeof result !== 'number' || !isFinite(result)) {
-      return {
-        success: false,
-        error: 'Expression does not evaluate to a valid number',
-        expression: originalExpression,
-      };
-    }
-
-    return {
-      success: true,
-      value: result,
-      expression: originalExpression,
-    };
-  } catch (error) {
+    return { success: true, value, expression: original };
+  } catch (err: unknown) {
     return {
       success: false,
-      error:
-        error instanceof Error ? error.message : 'Unknown evaluation error',
-      expression: originalExpression,
+      error: err instanceof Error ? err.message : 'Unknown evaluation error',
+      expression: original,
     };
   }
 }
 
-/**
- * Checks if a string looks like a mathematical expression
- * (contains operators, functions, or constants)
- */
 export function isExpression(input: string): boolean {
   const trimmed = input.trim();
 
-  // Check for mathematical operators
-  if (/[+\-*/^×÷()]/.test(trimmed)) {
+  if (/[+\-*/^×÷%()]/.test(trimmed)) {
     return true;
   }
 
-  // Check for mathematical functions (case-sensitive to match evaluator behavior)
-  const functionNames = Object.keys(MATH_FUNCTIONS);
-  const functionRegex = new RegExp(`\\b(${functionNames.join('|')})\\(`);
-  if (functionRegex.test(trimmed)) {
+  const fnNames = Object.keys(FUNCTION_ARITY);
+  const fnPattern = new RegExp(`\\b(${fnNames.join('|')})\\(`);
+  if (fnPattern.test(trimmed)) {
     return true;
   }
 
-  // Check for mathematical constants (case-sensitive to match evaluator behavior)
-  const constantNames = Object.keys(MATH_CONSTANTS);
-  const constantRegex = new RegExp(`\\b(${constantNames.join('|')})\\b`);
-  if (constantRegex.test(trimmed)) {
+  const constNames = Object.keys(MATH_CONSTANTS);
+  const constPattern = new RegExp(`\\b(${constNames.join('|')})\\b`);
+  if (constPattern.test(trimmed)) {
     return true;
   }
 
   return false;
 }
 
-/**
- * Attempts to parse a string as either a direct number or mathematical expression
- */
 export function parseNumericInput(input: string): EvaluationResult {
   const trimmed = input.trim();
 
-  // Try direct number parsing first (more efficient)
   const directNumber = parseFloat(trimmed);
   if (
     !isNaN(directNumber) &&
     isFinite(directNumber) &&
     trimmed === directNumber.toString()
   ) {
-    return {
-      success: true,
-      value: directNumber,
-      expression: input,
-    };
+    return { success: true, value: directNumber, expression: input };
   }
 
-  // Fall back to expression evaluation
   return evaluateExpression(input);
 }
 
-/**
- * Available mathematical constants that can be used in expressions
- */
 export const AVAILABLE_CONSTANTS = Object.keys(MATH_CONSTANTS);
-
-/**
- * Available mathematical functions that can be used in expressions
- */
-export const AVAILABLE_FUNCTIONS = Object.keys(MATH_FUNCTIONS);
+export const AVAILABLE_FUNCTIONS = Object.keys(FUNCTION_ARITY);

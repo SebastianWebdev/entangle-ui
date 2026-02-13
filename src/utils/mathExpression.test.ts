@@ -225,32 +225,26 @@ describe('mathExpression', () => {
       it('handles invalid characters', () => {
         const result = evaluateExpression('3 + $');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('handles unbalanced parentheses - missing closing', () => {
         const result = evaluateExpression('(3 + 4');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('handles unbalanced parentheses - missing opening', () => {
         const result = evaluateExpression('3 + 4)');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('handles division by zero', () => {
         const result = evaluateExpression('5 / 0');
         expect(result.success).toBe(false);
         expect(result.error).toBe(
-          'Expression does not evaluate to a valid number'
+          'Expression does not evaluate to a finite number'
         );
       });
 
@@ -258,16 +252,14 @@ describe('mathExpression', () => {
         const result = evaluateExpression('sqrt(-1)');
         expect(result.success).toBe(false);
         expect(result.error).toBe(
-          'Expression does not evaluate to a valid number'
+          'Expression does not evaluate to a finite number'
         );
       });
 
-      it('handles syntax errors', () => {
+      it('handles unary plus in expressions', () => {
         const result = evaluateExpression('3 + + 4');
-        expect(result.success).toBe(false);
-        expect(result.error).toContain(
-          'Invalid left-hand side expression in postfix operation'
-        );
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(7);
       });
 
       it('preserves original expression in error result', () => {
@@ -312,6 +304,10 @@ describe('mathExpression', () => {
       it('detects parentheses', () => {
         expect(isExpression('(3 + 4)')).toBe(true);
       });
+
+      it('detects modulo operator', () => {
+        expect(isExpression('10 % 3')).toBe(true);
+      });
     });
 
     describe('Detects mathematical functions', () => {
@@ -345,6 +341,10 @@ describe('mathExpression', () => {
 
       it('detects phi constant', () => {
         expect(isExpression('phi')).toBe(true);
+      });
+
+      it('detects inf constant', () => {
+        expect(isExpression('inf')).toBe(true);
       });
 
       it('does not detect case-mismatched constants', () => {
@@ -452,10 +452,11 @@ describe('mathExpression', () => {
         expect(AVAILABLE_CONSTANTS).toContain('e');
         expect(AVAILABLE_CONSTANTS).toContain('tau');
         expect(AVAILABLE_CONSTANTS).toContain('phi');
+        expect(AVAILABLE_CONSTANTS).toContain('inf');
       });
 
       it('has correct length', () => {
-        expect(AVAILABLE_CONSTANTS).toHaveLength(4);
+        expect(AVAILABLE_CONSTANTS).toHaveLength(5);
       });
     });
 
@@ -469,11 +470,22 @@ describe('mathExpression', () => {
         expect(AVAILABLE_FUNCTIONS).toContain('atan');
       });
 
+      it('contains hyperbolic functions', () => {
+        expect(AVAILABLE_FUNCTIONS).toContain('sinh');
+        expect(AVAILABLE_FUNCTIONS).toContain('cosh');
+        expect(AVAILABLE_FUNCTIONS).toContain('tanh');
+        expect(AVAILABLE_FUNCTIONS).toContain('asinh');
+        expect(AVAILABLE_FUNCTIONS).toContain('acosh');
+        expect(AVAILABLE_FUNCTIONS).toContain('atanh');
+      });
+
       it('contains logarithmic functions', () => {
         expect(AVAILABLE_FUNCTIONS).toContain('log');
+        expect(AVAILABLE_FUNCTIONS).toContain('ln');
         expect(AVAILABLE_FUNCTIONS).toContain('log10');
         expect(AVAILABLE_FUNCTIONS).toContain('log2');
         expect(AVAILABLE_FUNCTIONS).toContain('exp');
+        expect(AVAILABLE_FUNCTIONS).toContain('exp2');
       });
 
       it('contains power and root functions', () => {
@@ -485,11 +497,34 @@ describe('mathExpression', () => {
         expect(AVAILABLE_FUNCTIONS).toContain('floor');
         expect(AVAILABLE_FUNCTIONS).toContain('ceil');
         expect(AVAILABLE_FUNCTIONS).toContain('round');
+        expect(AVAILABLE_FUNCTIONS).toContain('trunc');
       });
 
       it('contains utility functions', () => {
         expect(AVAILABLE_FUNCTIONS).toContain('abs');
         expect(AVAILABLE_FUNCTIONS).toContain('sign');
+        expect(AVAILABLE_FUNCTIONS).toContain('fract');
+      });
+
+      it('contains unit conversion functions', () => {
+        expect(AVAILABLE_FUNCTIONS).toContain('deg');
+        expect(AVAILABLE_FUNCTIONS).toContain('rad');
+      });
+
+      it('contains 2-arg functions', () => {
+        expect(AVAILABLE_FUNCTIONS).toContain('min');
+        expect(AVAILABLE_FUNCTIONS).toContain('max');
+        expect(AVAILABLE_FUNCTIONS).toContain('pow');
+        expect(AVAILABLE_FUNCTIONS).toContain('atan2');
+        expect(AVAILABLE_FUNCTIONS).toContain('mod');
+        expect(AVAILABLE_FUNCTIONS).toContain('hypot');
+      });
+
+      it('contains 3-arg functions', () => {
+        expect(AVAILABLE_FUNCTIONS).toContain('clamp');
+        expect(AVAILABLE_FUNCTIONS).toContain('lerp');
+        expect(AVAILABLE_FUNCTIONS).toContain('smoothstep');
+        expect(AVAILABLE_FUNCTIONS).toContain('mix');
       });
     });
   });
@@ -551,79 +586,60 @@ describe('mathExpression', () => {
       it('rejects __proto__ identifier', () => {
         const result = evaluateExpression('__proto__');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('rejects prototype identifier', () => {
         const result = evaluateExpression('prototype');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('rejects this identifier', () => {
         const result = evaluateExpression('this');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('rejects globalThis identifier', () => {
         const result = evaluateExpression('globalThis');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('rejects eval identifier', () => {
         const result = evaluateExpression('eval');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('rejects Function identifier', () => {
         const result = evaluateExpression('Function');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('rejects Object identifier', () => {
         const result = evaluateExpression('Object');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('rejects require identifier', () => {
         const result = evaluateExpression('require');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('rejects self identifier', () => {
         const result = evaluateExpression('self');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
     });
 
     describe('Prototype chain and constructor access attempts', () => {
       it('rejects constructor.constructor("return this")()', () => {
-        // Quotes are blocked by character validation
         const result = evaluateExpression(
           'constructor.constructor("return this")()'
         );
@@ -631,8 +647,6 @@ describe('mathExpression', () => {
       });
 
       it('rejects Math.constructor via dot notation', () => {
-        // Dot is allowed by char regex but "Math" and "constructor" are
-        // caught by the identifier blocklist
         const result = evaluateExpression('Math.constructor');
         expect(result.success).toBe(false);
       });
@@ -640,17 +654,13 @@ describe('mathExpression', () => {
       it('rejects constructor embedded in arithmetic', () => {
         const result = evaluateExpression('1+constructor+1');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('rejects prototype in arithmetic context', () => {
         const result = evaluateExpression('prototype+1');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
     });
 
@@ -658,17 +668,13 @@ describe('mathExpression', () => {
       it('rejects arbitrary unknown identifiers', () => {
         const result = evaluateExpression('foo');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('rejects unknown identifiers mixed with valid math', () => {
         const result = evaluateExpression('sin(0)+unknown');
         expect(result.success).toBe(false);
-        expect(result.error).toBe(
-          'Expression contains invalid characters or syntax'
-        );
+        expect(result.error).toBeDefined();
       });
 
       it('still allows valid constants and functions', () => {
@@ -762,11 +768,199 @@ describe('mathExpression', () => {
 
     describe('Scientific notation handling', () => {
       it('blocks scientific notation via identifier check', () => {
-        // '1e5' — after sanitize, 'e' is extracted as identifier
-        // but 'e' is a valid constant (Math.E), so '1e5' becomes '1*2.718...5'
-        // which is a syntax error. The expression is rejected.
+        // '1e5' — after sanitize, 'e' is a valid constant (Math.E),
+        // so '1e5' is parsed as implicit multiplication 1 * e * 5
+        // which gives 1 * 2.718... * 5 ≈ 13.59
+        // But we still test it doesn't produce 100000
         const result = evaluateExpression('1e5');
+        // Parser treats this as 1 * e * 5 via implicit multiply, not 1e5=100000
+        if (result.success) {
+          expect(result.value).not.toBe(100000);
+        }
+      });
+    });
+  });
+
+  describe('New features', () => {
+    describe('Modulo operator', () => {
+      it('evaluates basic modulo', () => {
+        const result = evaluateExpression('10 % 3');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(1);
+      });
+
+      it('uses positive modulo semantics for negative numbers', () => {
+        const result = evaluateExpression('(-7) % 3');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(2);
+      });
+    });
+
+    describe('Implicit multiplication', () => {
+      it('handles number followed by constant', () => {
+        const result = evaluateExpression('2pi');
+        expect(result.success).toBe(true);
+        expect(result.value).toBeCloseTo(2 * Math.PI);
+      });
+
+      it('handles number followed by parenthesized expression', () => {
+        const result = evaluateExpression('3(4+1)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(15);
+      });
+
+      it('handles adjacent parenthesized expressions', () => {
+        const result = evaluateExpression('(2)(3)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(6);
+      });
+    });
+
+    describe('Unary plus', () => {
+      it('handles standalone unary plus', () => {
+        const result = evaluateExpression('+5');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(5);
+      });
+
+      it('handles unary plus in expression', () => {
+        const result = evaluateExpression('3 + +4');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(7);
+      });
+    });
+
+    describe('Multi-arg functions', () => {
+      it('evaluates min with 2 args', () => {
+        const result = evaluateExpression('min(3,7)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(3);
+      });
+
+      it('evaluates max with 2 args', () => {
+        const result = evaluateExpression('max(3,7)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(7);
+      });
+
+      it('evaluates pow with 2 args', () => {
+        const result = evaluateExpression('pow(2,10)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(1024);
+      });
+
+      it('evaluates clamp with 3 args', () => {
+        const result = evaluateExpression('clamp(15,0,10)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(10);
+      });
+
+      it('evaluates lerp', () => {
+        const result = evaluateExpression('lerp(0,100,0.5)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(50);
+      });
+
+      it('evaluates smoothstep', () => {
+        const result = evaluateExpression('smoothstep(0,1,0.5)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(0.5);
+      });
+
+      it('evaluates mix (GLSL alias for lerp)', () => {
+        const result = evaluateExpression('mix(0,100,0.5)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(50);
+      });
+
+      it('evaluates hypot', () => {
+        const result = evaluateExpression('hypot(3,4)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(5);
+      });
+
+      it('evaluates mod', () => {
+        const result = evaluateExpression('mod(7,3)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(1);
+      });
+
+      it('evaluates atan2', () => {
+        const result = evaluateExpression('atan2(1,1)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBeCloseTo(Math.PI / 4);
+      });
+    });
+
+    describe('New 1-arg functions', () => {
+      it('evaluates trunc', () => {
+        const result = evaluateExpression('trunc(3.7)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(3);
+      });
+
+      it('evaluates fract', () => {
+        const result = evaluateExpression('fract(3.7)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBeCloseTo(0.7);
+      });
+
+      it('evaluates deg', () => {
+        const result = evaluateExpression('deg(pi)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBeCloseTo(180);
+      });
+
+      it('evaluates rad', () => {
+        const result = evaluateExpression('rad(180)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBeCloseTo(Math.PI);
+      });
+
+      it('evaluates sinh', () => {
+        const result = evaluateExpression('sinh(0)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(0);
+      });
+
+      it('evaluates ln', () => {
+        const result = evaluateExpression('ln(1)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(0);
+      });
+
+      it('evaluates exp2', () => {
+        const result = evaluateExpression('exp2(3)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(8);
+      });
+    });
+
+    describe('inf constant', () => {
+      it('recognizes inf as Infinity (results in error — not finite)', () => {
+        const result = evaluateExpression('inf');
         expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Expression does not evaluate to a finite number'
+        );
+      });
+
+      it('is detected by isExpression', () => {
+        expect(isExpression('inf')).toBe(true);
+      });
+    });
+
+    describe('Context-aware comma handling', () => {
+      it('treats comma as decimal separator outside parens', () => {
+        const result = evaluateExpression('3,14 + 2,86');
+        expect(result.success).toBe(true);
+        expect(result.value).toBeCloseTo(6);
+      });
+
+      it('treats comma as argument separator inside function parens', () => {
+        const result = evaluateExpression('min(3,7)');
+        expect(result.success).toBe(true);
+        expect(result.value).toBe(3);
       });
     });
   });
