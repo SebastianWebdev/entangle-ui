@@ -48,6 +48,7 @@ export default defineConfig({
           items: [
             { label: 'Theming', slug: 'guides/theming' },
             { label: 'Styling', slug: 'guides/styling' },
+            { label: 'Animations', slug: 'guides/animations' },
           ],
         },
         {
@@ -57,46 +58,52 @@ export default defineConfig({
               label: 'Primitives',
               collapsed: false,
               items: [
+                { label: 'Badge', slug: 'components/primitives/badge' },
                 { label: 'Button', slug: 'components/primitives/button' },
-                { label: 'Input', slug: 'components/primitives/input' },
-                { label: 'Text', slug: 'components/primitives/text' },
-                { label: 'Paper', slug: 'components/primitives/paper' },
+                { label: 'Checkbox', slug: 'components/primitives/checkbox' },
+                { label: 'Code', slug: 'components/primitives/code' },
+                {
+                  label: 'Collapsible',
+                  slug: 'components/primitives/collapsible',
+                },
                 { label: 'Icon', slug: 'components/primitives/icon' },
                 {
                   label: 'IconButton',
                   slug: 'components/primitives/icon-button',
                 },
-                { label: 'Tooltip', slug: 'components/primitives/tooltip' },
-                { label: 'Checkbox', slug: 'components/primitives/checkbox' },
-                { label: 'Switch', slug: 'components/primitives/switch' },
+                { label: 'Input', slug: 'components/primitives/input' },
+                { label: 'Paper', slug: 'components/primitives/paper' },
                 { label: 'Popover', slug: 'components/primitives/popover' },
-                {
-                  label: 'Collapsible',
-                  slug: 'components/primitives/collapsible',
-                },
+                { label: 'Switch', slug: 'components/primitives/switch' },
+                { label: 'Text', slug: 'components/primitives/text' },
+                { label: 'TextArea', slug: 'components/primitives/text-area' },
+                { label: 'Tooltip', slug: 'components/primitives/tooltip' },
               ],
             },
             {
               label: 'Layout',
               collapsed: false,
               items: [
-                { label: 'Flex', slug: 'components/layout/flex' },
-                { label: 'Stack', slug: 'components/layout/stack' },
-                { label: 'Grid', slug: 'components/layout/grid' },
-                { label: 'Spacer', slug: 'components/layout/spacer' },
-                {
-                  label: 'ScrollArea',
-                  slug: 'components/layout/scroll-area',
-                },
-                {
-                  label: 'SplitPane',
-                  slug: 'components/layout/split-pane',
-                },
                 { label: 'Accordion', slug: 'components/layout/accordion' },
+                { label: 'Divider', slug: 'components/layout/divider' },
+                { label: 'Flex', slug: 'components/layout/flex' },
+                { label: 'Grid', slug: 'components/layout/grid' },
+                { label: 'ListItem', slug: 'components/layout/list-item' },
+                { label: 'PageHeader', slug: 'components/layout/page-header' },
                 {
                   label: 'PanelSurface',
                   slug: 'components/layout/panel-surface',
                 },
+                {
+                  label: 'ScrollArea',
+                  slug: 'components/layout/scroll-area',
+                },
+                { label: 'Spacer', slug: 'components/layout/spacer' },
+                {
+                  label: 'SplitPane',
+                  slug: 'components/layout/split-pane',
+                },
+                { label: 'Stack', slug: 'components/layout/stack' },
               ],
             },
             {
@@ -145,6 +152,11 @@ export default defineConfig({
               collapsed: false,
               items: [
                 { label: 'Dialog', slug: 'components/feedback/dialog' },
+                {
+                  label: 'EmptyState',
+                  slug: 'components/feedback/empty-state',
+                },
+                { label: 'Spinner', slug: 'components/feedback/spinner' },
                 { label: 'Toast', slug: 'components/feedback/toast' },
               ],
             },

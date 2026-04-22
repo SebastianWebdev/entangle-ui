@@ -1,0 +1,103 @@
+---
+title: Code
+description: Inline code primitive backed by the theme inset background and monospace font.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import CodeDemo from '../../../../components/demos/primitives/CodeDemo';
+
+A small inline `<code>` primitive that picks up the theme monospace font and the new `colors.background.inset` token so inline snippets read as recessed surface inside body text. For multi-line or syntax-highlighted blocks use `ChatCodeBlock` (under the editor namespace).
+
+<ComponentPreview title="Live Preview">
+  <CodeDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Code } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Text>
+  Run <Code>npm install entangle-ui</Code> to add the package.
+</Text>
+```
+
+## Sizes
+
+The font size is relative to the surrounding text — use `size` to fine-tune the scale.
+
+```tsx
+<Code size="xs">xs</Code> {/* 0.8em */}
+<Code size="sm">sm</Code> {/* 0.9em — default */}
+<Code size="md">md</Code> {/* 1em */}
+```
+
+## Inside a Sentence
+
+```tsx
+<Text>
+  Install with <Code>npm install entangle-ui</Code> and import from the root
+  barrel.
+</Text>
+```
+
+## Inside a Link
+
+```tsx
+<a href="/docs">
+  See the <Code>Button</Code> docs
+</a>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Inline code content.',
+    },
+    {
+      name: 'size',
+      type: "'xs' | 'sm' | 'md'",
+      default: "'sm'",
+      description: 'Font size scale, relative to surrounding text.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the underlying code element.',
+    },
+  ]}
+/>
+
+## Theme Tokens
+
+| Token                       | Used for                                |
+| --------------------------- | --------------------------------------- |
+| `colors.background.inset`   | Sunken background fill                  |
+| `colors.text.primary`       | Foreground text                         |
+| `typography.fontFamily.mono`| Monospace family                        |
+| `borderRadius.sm`           | Corner radius (2px)                     |
+
+## Accessibility
+
+- Renders a semantic `<code>` element so assistive tech announces it as inline code
+- No interactive behavior — wrap with a link or button if needed

@@ -1,0 +1,187 @@
+---
+title: ListItem
+description: Reusable list row primitive with leading and trailing slots, selected/active/hover states, and built-in keyboard activation.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import ListItemDemo from '../../../../components/demos/layout/ListItemDemo';
+
+A reusable list row primitive. Encapsulates the common pattern of `leading | content | trailing` with hover, selected, active, and disabled states. When `onClick` is provided, the item becomes a keyboard-activatable button (Enter/Space). Backed by the `colors.surface.row` and `colors.surface.rowHover` tokens so list backgrounds stay subtle without competing with button hover state.
+
+<ComponentPreview title="Live Preview">
+  <ListItemDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { ListItem } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<ListItem
+  leading={<FileIcon />}
+  trailing={<Badge color="success">done</Badge>}
+  selected={id === activeId}
+  onClick={() => select(id)}
+>
+  scene.blend
+</ListItem>
+```
+
+## States
+
+The component composes four orthogonal states. Multiple can be set at once.
+
+| Prop       | Effect                                                           |
+| ---------- | ---------------------------------------------------------------- |
+| `selected` | Persistent selection — accent-tinted background                  |
+| `active`   | Pressed / open — stronger accent tint, typically transient       |
+| `disabled` | Greyed out, pointer-events disabled, keyboard activation skipped |
+| _(hover)_  | Automatic via the `surface.rowHover` token                       |
+
+```tsx
+<ListItem onClick={fn}>Default</ListItem>
+<ListItem selected>Selected</ListItem>
+<ListItem active>Active</ListItem>
+<ListItem disabled>Disabled</ListItem>
+```
+
+## Density
+
+```tsx
+<ListItem density="comfortable">32px row, default</ListItem>
+<ListItem density="compact">24px row, dense lists</ListItem>
+```
+
+## Leading and Trailing Slots
+
+`leading` and `trailing` are both inline-flex containers. They flank the main content area and don't shrink — long content is truncated with ellipsis.
+
+```tsx
+<ListItem
+  leading={<Avatar src={user.avatar} />}
+  trailing={<IconButton icon={<MoreIcon />} aria-label="Actions" />}
+>
+  {user.name}
+</ListItem>
+```
+
+## Clickable Behavior
+
+When `onClick` is set, the item:
+
+- Renders with `role="button"` and `tabIndex={0}`
+- Activates on Enter and Space (the click handler is invoked from the keyboard event)
+- Stops responding when `disabled`
+
+For navigation lists, wrap children in your own `<a>` element instead of using `onClick`, so middle-click / right-click open in new tabs work natively.
+
+## In a List
+
+```tsx
+<Stack gap={1}>
+  {files.map(file => (
+    <ListItem
+      key={file.id}
+      leading={<FileIcon type={file.type} />}
+      trailing={<Badge color={statusColor(file)}>{file.status}</Badge>}
+      selected={file.id === activeId}
+      onClick={() => setActive(file.id)}
+    >
+      {file.name}
+    </ListItem>
+  ))}
+</Stack>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Primary content (typically a title + optional description).',
+    },
+    {
+      name: 'leading',
+      type: 'ReactNode',
+      description: 'Leading content (icon, checkbox, avatar).',
+    },
+    {
+      name: 'trailing',
+      type: 'ReactNode',
+      description: 'Trailing content (actions, badge, chevron).',
+    },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent<HTMLDivElement>) => void',
+      description:
+        'Click handler — when set, the item becomes keyboard-activatable.',
+    },
+    {
+      name: 'selected',
+      type: 'boolean',
+      default: 'false',
+      description: 'Persistent selection state.',
+    },
+    {
+      name: 'active',
+      type: 'boolean',
+      default: 'false',
+      description: 'Pressed / opened state — typically transient.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Disables hover and pointer events; skips keyboard activation.',
+    },
+    {
+      name: 'density',
+      type: "'compact' | 'comfortable'",
+      default: "'comfortable'",
+      description: 'Row density — compact (24px) or comfortable (32px).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
+
+## Theme Tokens
+
+| Token                          | Used for                              |
+| ------------------------------ | ------------------------------------- |
+| `colors.surface.row`           | Default row background (transparent)  |
+| `colors.surface.rowHover`      | Hover background (subtle)             |
+| `colors.accent.primary`        | Selected and active tint              |
+| `colors.text.primary`          | Foreground content                    |
+| `colors.text.secondary`        | Leading content (icon)                |
+| `colors.text.muted`            | Trailing content                      |
+
+## Accessibility
+
+- `role="button"` and `tabIndex={0}` are added when `onClick` is provided
+- `aria-disabled` is set when `disabled` is true
+- Selected/active state is exposed via `data-selected` / `data-active` attributes for styling, plus the visible color treatment
+- Keyboard: Enter and Space activate the click handler when clickable
+- Disabled rows are skipped during keyboard activation

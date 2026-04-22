@@ -1,0 +1,222 @@
+---
+title: Badge
+description: Inline status indicator and tag primitive with subtle, solid, outline, and dot variants.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import BadgeDemo from '../../../../components/demos/primitives/BadgeDemo';
+
+A small inline indicator for status, counts, or tags. Designed for editor density: short label, semibold weight, optional uppercase. Supports semantic color tokens or arbitrary CSS color strings, an optional leading icon, and a removable variant for chip-like usage.
+
+<ComponentPreview title="Live Preview">
+  <BadgeDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Badge } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Badge color="success">Saved</Badge>
+<Badge variant="outline" color="warning">Draft</Badge>
+<Badge variant="dot" color="error">Offline</Badge>
+```
+
+## Variants
+
+The `variant` prop controls the visual treatment.
+
+<ComponentPreview
+  title="subtle"
+  description="Tinted translucent fill with colored text — the default. Reads as a label without competing with surrounding UI."
+>
+  ```tsx
+  <Badge variant="subtle" color="success">Subtle</Badge>
+  ```
+</ComponentPreview>
+
+<ComponentPreview
+  title="solid"
+  description="Saturated fill with contrasting text. Use sparingly for high-visibility status."
+>
+  ```tsx
+  <Badge variant="solid" color="primary">Solid</Badge>
+  ```
+</ComponentPreview>
+
+<ComponentPreview
+  title="outline"
+  description="Transparent background with a colored border. Good for secondary chips that share row space with subtle badges."
+>
+  ```tsx
+  <Badge variant="outline" color="warning">Outline</Badge>
+  ```
+</ComponentPreview>
+
+<ComponentPreview
+  title="dot"
+  description="A small filled circle followed by the label. Use for online/offline / status indicators."
+>
+  ```tsx
+  <Badge variant="dot" color="success">Online</Badge>
+  ```
+</ComponentPreview>
+
+## Sizes
+
+| Size | Height | Use case                          |
+| ---- | ------ | --------------------------------- |
+| `xs` | 14px   | Inline counters in dense rows     |
+| `sm` | 16px   | Default — paired with body text   |
+| `md` | 20px   | Standalone status pills           |
+| `lg` | 24px   | Prominent labels in toolbars      |
+
+```tsx
+<Badge size="xs">3</Badge>
+<Badge size="sm">Default</Badge>
+<Badge size="md">Status</Badge>
+<Badge size="lg">Pill</Badge>
+```
+
+## Colors
+
+Named colors map to theme accent tokens. Any other string is treated as a raw CSS color (hex, `rgb()`, `hsl()`, …).
+
+| Name       | Maps to                       |
+| ---------- | ----------------------------- |
+| `neutral`  | `colors.text.muted`           |
+| `primary`  | `colors.accent.primary`       |
+| `info`     | `colors.accent.primary`       |
+| `success`  | `colors.accent.success`       |
+| `warning`  | `colors.accent.warning`       |
+| `error`    | `colors.accent.error`         |
+
+```tsx
+<Badge color="success">Theme color</Badge>
+<Badge color="#ff6600">Custom hex</Badge>
+<Badge color="rgb(0, 180, 200)" variant="outline">Custom rgb</Badge>
+```
+
+## Uppercase
+
+Auto-applies `text-transform: uppercase` and a subtle letter-spacing — matches the editor-UI tag convention.
+
+```tsx
+<Badge uppercase color="warning">draft</Badge>
+```
+
+## With Icon
+
+The `icon` slot renders before the label.
+
+```tsx
+<Badge color="success" icon={<CheckIcon />}>Saved</Badge>
+```
+
+## Removable
+
+The `removable` prop renders a built-in close button. The badge body click is **not** treated as a remove action — use the dedicated button.
+
+```tsx
+<Badge removable onRemove={() => removeTag(tag)}>
+  feature/foo
+</Badge>
+```
+
+The remove button gets `aria-label="Remove"` automatically. Wrap the badge with your own click handler for selection if needed; clicks on the remove button stop propagation.
+
+## In a List Row
+
+Pair with `ListItem` for status-tagged rows.
+
+```tsx
+<ListItem trailing={<Badge color="success">done</Badge>}>
+  Bake meshes
+</ListItem>
+<ListItem trailing={<Badge color="warning">running</Badge>}>
+  Normalize UVs
+</ListItem>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Label content.',
+    },
+    {
+      name: 'variant',
+      type: "'subtle' | 'solid' | 'outline' | 'dot'",
+      default: "'subtle'",
+      description: 'Visual style.',
+    },
+    {
+      name: 'size',
+      type: "'xs' | 'sm' | 'md' | 'lg'",
+      default: "'sm'",
+      description: 'Size scale.',
+    },
+    {
+      name: 'color',
+      type: "'neutral' | 'primary' | 'info' | 'success' | 'warning' | 'error' | string",
+      default: "'neutral'",
+      description:
+        'Semantic color name (mapped to theme accent) or any CSS color string.',
+    },
+    {
+      name: 'uppercase',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Auto-uppercase the label and apply a small letter-spacing.',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Icon rendered before the label.',
+    },
+    {
+      name: 'removable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Render a remove (×) button after the label.',
+    },
+    {
+      name: 'onRemove',
+      type: '(event: MouseEvent<HTMLButtonElement>) => void',
+      description: 'Called when the remove button is clicked.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLSpanElement>',
+      description: 'Ref to the underlying span element.',
+    },
+  ]}
+/>
+
+The component also accepts all standard HTML `<span>` attributes.
+
+## Accessibility
+
+- Renders a semantic `<span>` (inline)
+- The remove button has `aria-label="Remove"` and stops click-propagation so the badge body click handler stays separate
+- Decorative icons are marked `aria-hidden`; provide your own `aria-label` if the badge is the only label for an action
