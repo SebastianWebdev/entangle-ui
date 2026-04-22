@@ -1,7 +1,10 @@
 'use client';
 
-import React from 'react';
-import type { ChatMessageListProps } from './ChatPanel.types';
+import React, { useImperativeHandle, useMemo } from 'react';
+import type {
+  ChatMessageListProps,
+  ChatMessageListScrollApi,
+} from './ChatPanel.types';
 import { useChatScroll } from './useChatScroll';
 import { ChatMessage } from './ChatMessage';
 import { ScrollArea } from '@/components/layout/ScrollArea';
@@ -16,17 +19,24 @@ export const ChatMessageList = /*#__PURE__*/ React.memo<ChatMessageListProps>(
     renderMessage,
     emptyState,
     autoScroll = true,
+    scrollApiRef,
     className,
     style,
     testId,
     ref,
     ...rest
   }) => {
-    const { scrollContainerRef, hasNewMessages, scrollToBottom } =
-      useChatScroll({
-        messages,
-        enabled: autoScroll,
-      });
+    const {
+      scrollContainerRef,
+      scrollContentRef,
+      hasNewMessages,
+      scrollToBottom,
+      scrollTo,
+      scrollToElement,
+    } = useChatScroll({
+      messages,
+      enabled: autoScroll,
+    });
 
     // Merge refs — ScrollArea forwards ref to its viewport div
     const mergedRef = React.useCallback(
@@ -43,6 +53,25 @@ export const ChatMessageList = /*#__PURE__*/ React.memo<ChatMessageListProps>(
       [scrollContainerRef, ref]
     );
 
+    const isAtBottomGetter = React.useCallback(() => {
+      const container = scrollContainerRef.current;
+      if (!container) return true;
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      return scrollHeight - scrollTop - clientHeight <= 100;
+    }, [scrollContainerRef]);
+
+    const scrollApi = useMemo<ChatMessageListScrollApi>(
+      () => ({
+        scrollToBottom,
+        scrollTo,
+        scrollToElement,
+        isAtBottom: isAtBottomGetter,
+      }),
+      [scrollToBottom, scrollTo, scrollToElement, isAtBottomGetter]
+    );
+
+    useImperativeHandle(scrollApiRef, () => scrollApi, [scrollApi]);
+
     if (messages.length === 0 && emptyState) {
       return (
         <ScrollArea
@@ -54,6 +83,7 @@ export const ChatMessageList = /*#__PURE__*/ React.memo<ChatMessageListProps>(
           {...rest}
         >
           <div
+            ref={scrollContentRef}
             className={messageListContentStyle}
             role="log"
             aria-live="polite"
@@ -73,7 +103,12 @@ export const ChatMessageList = /*#__PURE__*/ React.memo<ChatMessageListProps>(
         testId={testId}
         {...rest}
       >
-        <div className={messageListContentStyle} role="log" aria-live="polite">
+        <div
+          ref={scrollContentRef}
+          className={messageListContentStyle}
+          role="log"
+          aria-live="polite"
+        >
           {messages.map((message, index) =>
             renderMessage ? (
               <React.Fragment key={message.id}>

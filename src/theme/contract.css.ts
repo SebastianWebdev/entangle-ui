@@ -24,6 +24,7 @@ export const vars = createGlobalThemeContract({
       secondary: 'etui-color-bg-secondary',
       tertiary: 'etui-color-bg-tertiary',
       elevated: 'etui-color-bg-elevated',
+      inset: 'etui-color-bg-inset',
     },
     surface: {
       default: 'etui-color-surface-default',
@@ -31,6 +32,8 @@ export const vars = createGlobalThemeContract({
       active: 'etui-color-surface-active',
       disabled: 'etui-color-surface-disabled',
       whiteOverlay: 'etui-color-surface-white-overlay',
+      row: 'etui-color-surface-row',
+      rowHover: 'etui-color-surface-row-hover',
     },
     border: {
       default: 'etui-color-border-default',

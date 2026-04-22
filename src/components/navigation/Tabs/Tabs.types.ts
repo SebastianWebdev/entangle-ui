@@ -60,6 +60,17 @@ export interface TabsBaseProps extends Omit<BaseComponent, 'onChange'> {
   pillsFrame?: boolean;
 
   /**
+   * When true, every `TabPanel` stays mounted even when its tab is not
+   * active. Individual panels can still opt out by passing
+   * `keepMounted={false}` explicitly.
+   *
+   * Use this for tabs that host stateful UIs (terminals, code editors,
+   * media previews) where unmount/remount would destroy session state.
+   * @default false
+   */
+  keepMounted?: boolean;
+
+  /**
    * Children: TabList + TabPanel components
    */
   children: React.ReactNode;
@@ -156,5 +167,6 @@ export interface TabsContextValue {
   orientation: 'horizontal' | 'vertical';
   fullWidth: boolean;
   pillsFrame: boolean;
+  keepMounted: boolean;
   tabsId: string;
 }

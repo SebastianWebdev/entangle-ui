@@ -87,6 +87,7 @@ export const ChatInput = /*#__PURE__*/ React.memo<ChatInputProps>(
       submitKey,
       onSubmit: handleSubmit,
       maxLines,
+      attachmentsCount: attachments?.length ?? 0,
     });
 
     // Support controlled mode
@@ -102,6 +103,8 @@ export const ChatInput = /*#__PURE__*/ React.memo<ChatInputProps>(
       [controlledOnChange, chatInput]
     );
 
+    const attachmentsCount = attachments?.length ?? 0;
+
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         // In controlled mode, override the internal value check
@@ -111,26 +114,37 @@ export const ChatInput = /*#__PURE__*/ React.memo<ChatInputProps>(
               ? e.key === 'Enter' && !e.shiftKey
               : e.key === 'Enter' && (e.ctrlKey || e.metaKey);
 
-          if (isSubmitKey && controlledValue.trim()) {
+          if (isSubmitKey && (controlledValue.trim() || attachmentsCount > 0)) {
             e.preventDefault();
-            onSubmit?.(controlledValue, attachments ?? []);
+            onSubmit?.(controlledValue.trim(), attachments ?? []);
             return;
           }
         }
         chatInput.handleKeyDown(e);
       },
-      [controlledValue, submitKey, onSubmit, attachments, chatInput]
+      [
+        controlledValue,
+        submitKey,
+        onSubmit,
+        attachments,
+        attachmentsCount,
+        chatInput,
+      ]
     );
 
     const handleSendClick = useCallback(() => {
       const val = controlledValue ?? chatInput.value;
-      if (val.trim()) {
-        onSubmit?.(val, attachments ?? []);
+      const canSubmit = val.trim() || attachmentsCount > 0;
+      if (canSubmit) {
+        onSubmit?.(val.trim(), attachments ?? []);
         if (controlledValue === undefined) {
           chatInput.clear();
         }
       }
-    }, [controlledValue, chatInput, onSubmit, attachments]);
+    }, [controlledValue, chatInput, onSubmit, attachments, attachmentsCount]);
+
+    const canSubmit =
+      (currentValue.trim().length > 0 || attachmentsCount > 0) && !disabled;
 
     const lineHeight = 18; // approximate line-height in px
     const maxHeightPx = `${maxLines * lineHeight}px`;
@@ -200,7 +214,7 @@ export const ChatInput = /*#__PURE__*/ React.memo<ChatInputProps>(
                 type="button"
                 className={inputButtonStyle}
                 onClick={handleSendClick}
-                disabled={disabled || !currentValue.trim()}
+                disabled={!canSubmit}
                 aria-label="Send message"
               >
                 <SendIcon />

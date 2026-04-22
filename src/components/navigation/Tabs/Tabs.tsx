@@ -51,6 +51,7 @@ export const Tabs: React.FC<TabsProps> = ({
   orientation = 'horizontal',
   fullWidth = false,
   pillsFrame = true,
+  keepMounted = false,
   children,
   onChange,
   className,
@@ -85,6 +86,7 @@ export const Tabs: React.FC<TabsProps> = ({
       orientation,
       fullWidth,
       pillsFrame,
+      keepMounted,
       tabsId,
     }),
     [
@@ -95,6 +97,7 @@ export const Tabs: React.FC<TabsProps> = ({
       orientation,
       fullWidth,
       pillsFrame,
+      keepMounted,
       tabsId,
     ]
   );

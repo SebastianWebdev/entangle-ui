@@ -1,5 +1,7 @@
+export { Badge } from './Badge';
 export { Button } from './Button';
 export { Checkbox, CheckboxGroup } from './Checkbox';
+export { Code } from './Code';
 export { Collapsible } from './Collapsible';
 export { Icon } from './Icon';
 export { IconButton } from './IconButton';
@@ -13,8 +15,10 @@ export {
 } from './Popover';
 export { Switch } from './Switch';
 export { Text } from './Text';
+export { TextArea } from './TextArea';
 export { Tooltip } from './Tooltip';
 
+export type { BadgeProps, BadgeColor, BadgeSize, BadgeVariant } from './Badge';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
 export type {
   CheckboxProps,
@@ -22,6 +26,7 @@ export type {
   CheckboxVariant,
   CheckboxGroupProps,
 } from './Checkbox';
+export type { CodeProps, CodeSize } from './Code';
 export type { CollapsibleProps, CollapsibleSize } from './Collapsible';
 export type { IconColor, IconProps, IconSize } from './Icon';
 export type {
@@ -45,6 +50,7 @@ export type {
   PopoverTriggerProps,
 } from './Popover';
 export type { SwitchProps, SwitchSize } from './Switch';
+export type { TextAreaProps, TextAreaResize, TextAreaSize } from './TextArea';
 export type {
   TextAlign,
   TextColor,

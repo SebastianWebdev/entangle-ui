@@ -62,4 +62,9 @@ export const dividerRecipe = recipe({
 
 export const panelStyle = style({
   overflow: 'auto',
+  width: '100%',
+  height: '100%',
+  boxSizing: 'border-box',
+  minWidth: 0,
+  minHeight: 0,
 });

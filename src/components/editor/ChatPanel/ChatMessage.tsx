@@ -9,12 +9,20 @@ import {
   messageContentStyle,
   messageAvatarStyle,
   messageAvatarImgStyle,
+  messageMaxWidthVarName,
   messageTimestampStyle,
   messageTextStyle,
   bubbleErrorStyle,
   messageErrorCaptionStyle,
   messageErrorIconStyle,
 } from './ChatPanel.css';
+
+function resolveMaxWidth(
+  value: number | string | undefined
+): string | undefined {
+  if (value === undefined) return undefined;
+  return typeof value === 'number' ? `${value}px` : value;
+}
 
 function formatTimestamp(iso: string): string {
   try {
@@ -64,6 +72,7 @@ export const ChatMessage = /*#__PURE__*/ React.memo<ChatMessageProps>(
     showAvatar = false,
     actions,
     renderContent,
+    maxWidth,
     className,
     style,
     testId,
@@ -79,11 +88,19 @@ export const ChatMessage = /*#__PURE__*/ React.memo<ChatMessageProps>(
       <span className={messageTextStyle}>{content}</span>
     );
 
+    const resolvedMaxWidth = resolveMaxWidth(maxWidth);
+    const rootStyle: React.CSSProperties = resolvedMaxWidth
+      ? ({
+          [messageMaxWidthVarName]: resolvedMaxWidth,
+          ...style,
+        } as React.CSSProperties)
+      : (style ?? {});
+
     return (
       <div
         ref={ref}
         className={cx(messageRecipe({ role }), className)}
-        style={style}
+        style={rootStyle}
         data-testid={testId}
         {...rest}
       >
