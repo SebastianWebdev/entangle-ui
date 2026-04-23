@@ -246,7 +246,9 @@ Individual panels can opt **out** of the cascade by setting `keepMounted={false}
     <Tab value="a">Always alive</Tab>
     <Tab value="b">Heavy — rebuild on switch</Tab>
   </TabList>
-  <TabPanel value="a"><PersistentUi /></TabPanel>
+  <TabPanel value="a">
+    <PersistentUi />
+  </TabPanel>
   <TabPanel value="b" keepMounted={false}>
     <ExpensiveTree />
   </TabPanel>

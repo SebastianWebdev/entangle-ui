@@ -34,12 +34,12 @@ import { animSpin } from 'entangle-ui';
 </svg>;
 ```
 
-| Utility       | Animation                                          | Typical use                          |
-| ------------- | -------------------------------------------------- | ------------------------------------ |
-| `animSpin`    | 1s linear infinite rotate (0deg → 360deg)          | Loading rings, refresh icons         |
-| `animPulse`   | 1.5s ease-in-out infinite opacity (1 → 0.4 → 1)    | Skeleton placeholders, soft pings   |
-| `animBlink`   | 1s steps(1) infinite opacity toggle                | Cursor blinks, attention prompts    |
-| `animFadeIn` | One-shot opacity 0 → 1, normal transition timing   | Mount transitions, toast appearance |
+| Utility      | Animation                                        | Typical use                         |
+| ------------ | ------------------------------------------------ | ----------------------------------- |
+| `animSpin`   | 1s linear infinite rotate (0deg → 360deg)        | Loading rings, refresh icons        |
+| `animPulse`  | 1.5s ease-in-out infinite opacity (1 → 0.4 → 1)  | Skeleton placeholders, soft pings   |
+| `animBlink`  | 1s steps(1) infinite opacity toggle              | Cursor blinks, attention prompts    |
+| `animFadeIn` | One-shot opacity 0 → 1, normal transition timing | Mount transitions, toast appearance |
 
 When the user has `prefers-reduced-motion: reduce` enabled in their OS, every utility class above sets `animation: none` automatically.
 
@@ -79,10 +79,10 @@ export const myPulse = style({
 
 ## Where they're used internally
 
-| Component             | Keyframe         |
-| --------------------- | ---------------- |
-| `Spinner` (`ring`)    | `spinKeyframe`   |
-| `Spinner` (`pulse`)   | `pulseKeyframe`  |
-| `Spinner` (`dots`)    | `pulseKeyframe`  |
+| Component           | Keyframe        |
+| ------------------- | --------------- |
+| `Spinner` (`ring`)  | `spinKeyframe`  |
+| `Spinner` (`pulse`) | `pulseKeyframe` |
+| `Spinner` (`dots`)  | `pulseKeyframe` |
 
 `Button`'s built-in loading spinner and `ChatTypingIndicator` keep their own local keyframes for now and will migrate to these utilities in a follow-up patch — switch to the shared utilities first when authoring new components.

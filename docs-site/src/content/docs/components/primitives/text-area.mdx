@@ -89,21 +89,13 @@ Switch to the theme monospace family for code-style content.
 `TextArea` integrates with `FormLabel` and `FormHelperText` automatically when you pass `label`, `helperText`, or `errorMessage`.
 
 ```tsx
-<TextArea
-  label="Description"
-  helperText="Markdown is supported"
-  required
-/>
+<TextArea label="Description" helperText="Markdown is supported" required />
 ```
 
 ## Error State
 
 ```tsx
-<TextArea
-  label="Description"
-  error
-  errorMessage="This field is required"
-/>
+<TextArea label="Description" error errorMessage="This field is required" />
 ```
 
 `errorMessage` overrides `helperText` when `error` is true.

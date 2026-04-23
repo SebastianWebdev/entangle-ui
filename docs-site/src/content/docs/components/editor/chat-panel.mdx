@@ -211,12 +211,12 @@ Lightweight built-in markdown renderer designed to be passed to `ChatMessage.ren
 />
 ```
 
-| Prop          | Type                          | Default     | Description                                              |
-| ------------- | ----------------------------- | ----------- | -------------------------------------------------------- |
-| `content`     | `string`                      | —           | Raw markdown content.                                    |
-| `gfm`         | `boolean`                     | `true`      | Enable GitHub-flavored markdown extensions (tables).     |
-| `linkTarget`  | `'_self' \| '_blank'`         | `'_blank'`  | Link target. `_blank` adds `rel="noopener noreferrer"`.  |
-| `components`  | partial overrides             | —           | Replace `code` / `codeBlock` / `link` renderers.         |
+| Prop         | Type                  | Default    | Description                                             |
+| ------------ | --------------------- | ---------- | ------------------------------------------------------- |
+| `content`    | `string`              | —          | Raw markdown content.                                   |
+| `gfm`        | `boolean`             | `true`     | Enable GitHub-flavored markdown extensions (tables).    |
+| `linkTarget` | `'_self' \| '_blank'` | `'_blank'` | Link target. `_blank` adds `rel="noopener noreferrer"`. |
+| `components` | partial overrides     | —          | Replace `code` / `codeBlock` / `link` renderers.        |
 
 Inline code uses the [`Code`](/components/primitives/code) primitive; fenced code blocks use `ChatCodeBlock`. Tables and headings pick up theme tokens automatically.
 

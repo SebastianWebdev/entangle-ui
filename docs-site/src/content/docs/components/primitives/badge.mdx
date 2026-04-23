@@ -36,7 +36,9 @@ The `variant` prop controls the visual treatment.
   description="Tinted translucent fill with colored text — the default. Reads as a label without competing with surrounding UI."
 >
   ```tsx
-  <Badge variant="subtle" color="success">Subtle</Badge>
+  <Badge variant="subtle" color="success">
+    Subtle
+  </Badge>
   ```
 </ComponentPreview>
 
@@ -45,7 +47,9 @@ The `variant` prop controls the visual treatment.
   description="Saturated fill with contrasting text. Use sparingly for high-visibility status."
 >
   ```tsx
-  <Badge variant="solid" color="primary">Solid</Badge>
+  <Badge variant="solid" color="primary">
+    Solid
+  </Badge>
   ```
 </ComponentPreview>
 
@@ -54,7 +58,9 @@ The `variant` prop controls the visual treatment.
   description="Transparent background with a colored border. Good for secondary chips that share row space with subtle badges."
 >
   ```tsx
-  <Badge variant="outline" color="warning">Outline</Badge>
+  <Badge variant="outline" color="warning">
+    Outline
+  </Badge>
   ```
 </ComponentPreview>
 
@@ -63,18 +69,20 @@ The `variant` prop controls the visual treatment.
   description="A small filled circle followed by the label. Use for online/offline / status indicators."
 >
   ```tsx
-  <Badge variant="dot" color="success">Online</Badge>
+  <Badge variant="dot" color="success">
+    Online
+  </Badge>
   ```
 </ComponentPreview>
 
 ## Sizes
 
-| Size | Height | Use case                          |
-| ---- | ------ | --------------------------------- |
-| `xs` | 14px   | Inline counters in dense rows     |
-| `sm` | 16px   | Default — paired with body text   |
-| `md` | 20px   | Standalone status pills           |
-| `lg` | 24px   | Prominent labels in toolbars      |
+| Size | Height | Use case                        |
+| ---- | ------ | ------------------------------- |
+| `xs` | 14px   | Inline counters in dense rows   |
+| `sm` | 16px   | Default — paired with body text |
+| `md` | 20px   | Standalone status pills         |
+| `lg` | 24px   | Prominent labels in toolbars    |
 
 ```tsx
 <Badge size="xs">3</Badge>
@@ -87,14 +95,14 @@ The `variant` prop controls the visual treatment.
 
 Named colors map to theme accent tokens. Any other string is treated as a raw CSS color (hex, `rgb()`, `hsl()`, …).
 
-| Name       | Maps to                       |
-| ---------- | ----------------------------- |
-| `neutral`  | `colors.text.muted`           |
-| `primary`  | `colors.accent.primary`       |
-| `info`     | `colors.accent.primary`       |
-| `success`  | `colors.accent.success`       |
-| `warning`  | `colors.accent.warning`       |
-| `error`    | `colors.accent.error`         |
+| Name      | Maps to                 |
+| --------- | ----------------------- |
+| `neutral` | `colors.text.muted`     |
+| `primary` | `colors.accent.primary` |
+| `info`    | `colors.accent.primary` |
+| `success` | `colors.accent.success` |
+| `warning` | `colors.accent.warning` |
+| `error`   | `colors.accent.error`   |
 
 ```tsx
 <Badge color="success">Theme color</Badge>
@@ -107,7 +115,9 @@ Named colors map to theme accent tokens. Any other string is treated as a raw CS
 Auto-applies `text-transform: uppercase` and a subtle letter-spacing — matches the editor-UI tag convention.
 
 ```tsx
-<Badge uppercase color="warning">draft</Badge>
+<Badge uppercase color="warning">
+  draft
+</Badge>
 ```
 
 ## With Icon
@@ -115,7 +125,9 @@ Auto-applies `text-transform: uppercase` and a subtle letter-spacing — matches
 The `icon` slot renders before the label.
 
 ```tsx
-<Badge color="success" icon={<CheckIcon />}>Saved</Badge>
+<Badge color="success" icon={<CheckIcon />}>
+  Saved
+</Badge>
 ```
 
 ## Removable
@@ -175,8 +187,7 @@ Pair with `ListItem` for status-tagged rows.
       name: 'uppercase',
       type: 'boolean',
       default: 'false',
-      description:
-        'Auto-uppercase the label and apply a small letter-spacing.',
+      description: 'Auto-uppercase the label and apply a small letter-spacing.',
     },
     {
       name: 'icon',

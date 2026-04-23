@@ -55,12 +55,12 @@ import { Spinner } from 'entangle-ui';
 
 Named values map onto theme tokens. Any other string is used as a raw CSS color.
 
-| Name        | Maps to                  |
-| ----------- | ------------------------ |
-| `accent`    | `colors.accent.primary`  |
-| `primary`   | `colors.text.primary`    |
-| `secondary` | `colors.text.secondary`  |
-| `muted`     | `colors.text.muted`      |
+| Name        | Maps to                 |
+| ----------- | ----------------------- |
+| `accent`    | `colors.accent.primary` |
+| `primary`   | `colors.text.primary`   |
+| `secondary` | `colors.text.secondary` |
+| `muted`     | `colors.text.muted`     |
 
 ```tsx
 <Spinner color="accent" />
@@ -112,8 +112,7 @@ When the user enables `prefers-reduced-motion: reduce` in their OS, animation is
       name: 'color',
       type: "'accent' | 'primary' | 'secondary' | 'muted' | string",
       default: "'accent'",
-      description:
-        'Named theme color or any CSS color string.',
+      description: 'Named theme color or any CSS color string.',
     },
     {
       name: 'label',
