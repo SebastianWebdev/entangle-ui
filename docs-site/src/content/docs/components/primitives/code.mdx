@@ -5,9 +5,14 @@ description: Inline code primitive backed by the theme inset background and mono
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import CodeDemo from '../../../../components/demos/primitives/CodeDemo';
+import CodeDemo, {
+  CodeSizes,
+  CodeInSentence,
+  CodeInLink,
+  CodeNextToBadge,
+} from '../../../../components/demos/primitives/CodeDemo';
 
-A small inline `<code>` primitive that picks up the theme monospace font and the new `colors.background.inset` token so inline snippets read as recessed surface inside body text. For multi-line or syntax-highlighted blocks use `ChatCodeBlock` (under the editor namespace).
+A small inline `<code>` primitive that picks up the theme monospace font and the `colors.background.inset` token so inline snippets read as recessed surfaces inside body text. For multi-line or syntax-highlighted blocks use `ChatCodeBlock` (under the editor namespace).
 
 <ComponentPreview title="Live Preview">
   <CodeDemo client:only="react" />
@@ -31,6 +36,10 @@ import { Code } from 'entangle-ui';
 
 The font size is relative to the surrounding text — use `size` to fine-tune the scale.
 
+<ComponentPreview title="Sizes">
+  <CodeSizes client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Code size="xs">xs</Code> {/* 0.8em */}
 <Code size="sm">sm</Code> {/* 0.9em — default */}
@@ -39,19 +48,44 @@ The font size is relative to the surrounding text — use `size` to fine-tune th
 
 ## Inside a Sentence
 
+`Code` is inline — it sits on the same baseline as surrounding text and wraps naturally.
+
+<ComponentPreview title="Inside a sentence">
+  <CodeInSentence client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Text>
   Install with <Code>npm install entangle-ui</Code> and import from the root
-  barrel.
+  barrel: <Code>{"import { Button } from 'entangle-ui'"}</Code>.
 </Text>
 ```
 
 ## Inside a Link
 
+Inherits text color from its parent, so it plays nicely with colored anchors.
+
+<ComponentPreview title="Inside a link">
+  <CodeInLink client:only="react" />
+</ComponentPreview>
+
 ```tsx
-<a href="/docs">
+<a href="/components/primitives/button">
   See the <Code>Button</Code> docs
 </a>
+```
+
+## Mixed with String Literals
+
+<ComponentPreview title="With string literals">
+  <CodeNextToBadge client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Text>
+  The environment variable <Code>NODE_ENV</Code> defaults to{' '}
+  <Code>"development"</Code> when running <Code>npm run dev</Code>.
+</Text>
 ```
 
 ## Props

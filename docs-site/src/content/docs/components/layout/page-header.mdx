@@ -5,7 +5,13 @@ description: Structural page or view header with optional icon, subtitle, breadc
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import PageHeaderDemo from '../../../../components/demos/layout/PageHeaderDemo';
+import PageHeaderDemo, {
+  PageHeaderBasic,
+  PageHeaderWithActions,
+  PageHeaderWithBreadcrumbs,
+  PageHeaderSizes,
+  PageHeaderBorderless,
+} from '../../../../components/demos/layout/PageHeaderDemo';
 
 A semantic `<header>` element that arranges an optional leading icon, the title block (breadcrumbs + title + subtitle), and a right-aligned actions slot. Built for top-of-view headers inside a panel or page container, not for the application chrome — for that, use the components under `Shell`.
 
@@ -21,13 +27,12 @@ import { PageHeader } from 'entangle-ui';
 
 ## Usage
 
+<ComponentPreview title="Basic">
+  <PageHeaderBasic client:only="react" />
+</ComponentPreview>
+
 ```tsx
-<PageHeader
-  icon={<FolderIcon size="lg" />}
-  title="Project Assets"
-  subtitle="124 items"
-  actions={<Button variant="filled">Upload</Button>}
-/>
+<PageHeader title="Project Assets" />
 ```
 
 ## Anatomy
@@ -40,7 +45,33 @@ import { PageHeader } from 'entangle-ui';
 
 The title block grows to fill available space; actions sit flush to the right.
 
+## With Actions
+
+<ComponentPreview title="With actions">
+  <PageHeaderWithActions client:only="react" />
+</ComponentPreview>
+
+```tsx
+<PageHeader
+  icon={<FolderIcon />}
+  title="Project Assets"
+  subtitle="124 items"
+  actions={
+    <>
+      <Button>Import</Button>
+      <Button variant="filled">Upload</Button>
+    </>
+  }
+/>
+```
+
 ## With Breadcrumbs
+
+You can pass any `ReactNode` as `breadcrumbs` — typically your own breadcrumb component or a series of `<a>` tags.
+
+<ComponentPreview title="With breadcrumbs">
+  <PageHeaderWithBreadcrumbs client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <PageHeader
@@ -52,15 +83,17 @@ The title block grows to fill available space; actions sit flush to the right.
 />
 ```
 
-You can pass any `ReactNode` as `breadcrumbs` — typically your own breadcrumb component or a series of `<a>` tags.
-
 ## Sizes
 
 The `size` prop scales the title font size and outer padding.
 
+<ComponentPreview title="Sizes">
+  <PageHeaderSizes client:only="react" />
+</ComponentPreview>
+
 ```tsx
-<PageHeader size="sm" title="Compact" />
-<PageHeader size="md" title="Default" />
+<PageHeader size="sm" title="Small" />
+<PageHeader size="md" title="Medium" />
 <PageHeader size="lg" title="Prominent" />
 ```
 
@@ -74,8 +107,18 @@ The `size` prop scales the title font size and outer padding.
 
 The bottom border is on by default. Pass `bordered={false}` when the header sits inside another bordered container.
 
+<ComponentPreview
+  title="Inside a bordered container"
+  description="The header's own bottom border is hidden so the outer container's border reads as the boundary."
+>
+  <PageHeaderBorderless client:only="react" />
+</ComponentPreview>
+
 ```tsx
-<PageHeader title="Settings" bordered={false} />
+<div style={{ border: '1px solid var(--etui-color-border-default)' }}>
+  <PageHeader title="Settings" bordered={false} />
+  <div>panel body...</div>
+</div>
 ```
 
 ## Inside a PanelSurface

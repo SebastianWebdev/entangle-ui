@@ -5,7 +5,13 @@ description: Loading and activity indicator with ring, dots, and pulse variants.
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import SpinnerDemo from '../../../../components/demos/feedback/SpinnerDemo';
+import SpinnerDemo, {
+  SpinnerVariants,
+  SpinnerSizes,
+  SpinnerColors,
+  SpinnerWithLabel,
+  SpinnerInButton,
+} from '../../../../components/demos/feedback/SpinnerDemo';
 
 A small loading indicator with three visual variants and four sizes. Always announces itself via `role="status"` and `aria-label`. Honors `prefers-reduced-motion` by halting animation and dimming the indicator.
 
@@ -29,6 +35,10 @@ import { Spinner } from 'entangle-ui';
 
 ## Variants
 
+<ComponentPreview title="Variants">
+  <SpinnerVariants client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Spinner variant="ring" />  {/* default — circular arc */}
 <Spinner variant="dots" />  {/* three pulsing dots */}
@@ -36,6 +46,10 @@ import { Spinner } from 'entangle-ui';
 ```
 
 ## Sizes
+
+<ComponentPreview title="Sizes">
+  <SpinnerSizes client:only="react" />
+</ComponentPreview>
 
 | Size | Pixel size | Use case                        |
 | ---- | ---------- | ------------------------------- |
@@ -55,6 +69,10 @@ import { Spinner } from 'entangle-ui';
 
 Named values map onto theme tokens. Any other string is used as a raw CSS color.
 
+<ComponentPreview title="Colors">
+  <SpinnerColors client:only="react" />
+</ComponentPreview>
+
 | Name        | Maps to                 |
 | ----------- | ----------------------- |
 | `accent`    | `colors.accent.primary` |
@@ -72,21 +90,38 @@ Named values map onto theme tokens. Any other string is used as a raw CSS color.
 
 By default the label is provided via `aria-label` only. Set `showLabel` to render it visually next to the spinner.
 
+<ComponentPreview title="Visible label">
+  <SpinnerWithLabel client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Spinner showLabel label="Saving..." />
 ```
 
 ## Inside a Button
 
-Replace the button content while an operation runs:
+Replace the button content while an operation runs.
+
+<ComponentPreview
+  title="Inside a button"
+  description="Click the button to simulate a 1.5s async operation."
+>
+  <SpinnerInButton client:only="react" />
+</ComponentPreview>
 
 ```tsx
-<Button disabled>
-  <Spinner size="sm" color="primary" /> Saving...
+<Button disabled={loading}>
+  {loading ? (
+    <>
+      <Spinner size="sm" color="primary" /> Saving...
+    </>
+  ) : (
+    'Save'
+  )}
 </Button>
 ```
 
-(For the standard "loading button" pattern, prefer `<Button loading>`.)
+For the standard "loading button" pattern, prefer `<Button loading>`.
 
 ## Reduced Motion
 

@@ -5,7 +5,18 @@ description: Inline status indicator and tag primitive with subtle, solid, outli
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import BadgeDemo from '../../../../components/demos/primitives/BadgeDemo';
+import BadgeDemo, {
+  BadgeVariantSubtle,
+  BadgeVariantSolid,
+  BadgeVariantOutline,
+  BadgeVariantDot,
+  BadgeSizes,
+  BadgeUppercase,
+  BadgeWithIcon,
+  BadgeRemovable,
+  BadgeCustomColors,
+  BadgeInList,
+} from '../../../../components/demos/primitives/BadgeDemo';
 
 A small inline indicator for status, counts, or tags. Designed for editor density: short label, semibold weight, optional uppercase. Supports semantic color tokens or arbitrary CSS color strings, an optional leading icon, and a removable variant for chip-like usage.
 
@@ -31,49 +42,61 @@ import { Badge } from 'entangle-ui';
 
 The `variant` prop controls the visual treatment.
 
-<ComponentPreview
-  title="subtle"
-  description="Tinted translucent fill with colored text — the default. Reads as a label without competing with surrounding UI."
->
-  ```tsx
-  <Badge variant="subtle" color="success">
-    Subtle
-  </Badge>
-  ```
+### Subtle
+
+Tinted translucent fill with colored text — the default. Reads as a label without competing with surrounding UI.
+
+<ComponentPreview title="subtle">
+  <BadgeVariantSubtle client:only="react" />
 </ComponentPreview>
 
-<ComponentPreview
-  title="solid"
-  description="Saturated fill with contrasting text. Use sparingly for high-visibility status."
->
-  ```tsx
-  <Badge variant="solid" color="primary">
-    Solid
-  </Badge>
-  ```
+```tsx
+<Badge variant="subtle" color="success">
+  Success
+</Badge>
+```
+
+### Solid
+
+Saturated fill with contrasting text. Use sparingly for high-visibility status.
+
+<ComponentPreview title="solid">
+  <BadgeVariantSolid client:only="react" />
 </ComponentPreview>
 
-<ComponentPreview
-  title="outline"
-  description="Transparent background with a colored border. Good for secondary chips that share row space with subtle badges."
->
-  ```tsx
-  <Badge variant="outline" color="warning">
-    Outline
-  </Badge>
-  ```
+```tsx
+<Badge variant="solid" color="primary">
+  Primary
+</Badge>
+```
+
+### Outline
+
+Transparent background with a colored border. Good for secondary chips that share row space with subtle badges.
+
+<ComponentPreview title="outline">
+  <BadgeVariantOutline client:only="react" />
 </ComponentPreview>
 
-<ComponentPreview
-  title="dot"
-  description="A small filled circle followed by the label. Use for online/offline / status indicators."
->
-  ```tsx
-  <Badge variant="dot" color="success">
-    Online
-  </Badge>
-  ```
+```tsx
+<Badge variant="outline" color="warning">
+  Warning
+</Badge>
+```
+
+### Dot
+
+A small filled circle followed by the label. Use for online/offline or health indicators.
+
+<ComponentPreview title="dot">
+  <BadgeVariantDot client:only="react" />
 </ComponentPreview>
+
+```tsx
+<Badge variant="dot" color="success">
+  Online
+</Badge>
+```
 
 ## Sizes
 
@@ -83,6 +106,10 @@ The `variant` prop controls the visual treatment.
 | `sm` | 16px   | Default — paired with body text |
 | `md` | 20px   | Standalone status pills         |
 | `lg` | 24px   | Prominent labels in toolbars    |
+
+<ComponentPreview title="Sizes">
+  <BadgeSizes client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Badge size="xs">3</Badge>
@@ -104,15 +131,27 @@ Named colors map to theme accent tokens. Any other string is treated as a raw CS
 | `warning` | `colors.accent.warning` |
 | `error`   | `colors.accent.error`   |
 
+### Custom CSS colors
+
+Pass any CSS color string — hex, `rgb()`, `hsl()`, CSS variables — and the badge picks it up via a per-instance runtime variable.
+
+<ComponentPreview title="Custom colors">
+  <BadgeCustomColors client:only="react" />
+</ComponentPreview>
+
 ```tsx
-<Badge color="success">Theme color</Badge>
-<Badge color="#ff6600">Custom hex</Badge>
-<Badge color="rgb(0, 180, 200)" variant="outline">Custom rgb</Badge>
+<Badge color="#ff6600">orange hex</Badge>
+<Badge color="#9b59b6" variant="solid">purple solid</Badge>
+<Badge color="rgb(0, 180, 200)" variant="outline">teal rgb</Badge>
 ```
 
 ## Uppercase
 
 Auto-applies `text-transform: uppercase` and a subtle letter-spacing — matches the editor-UI tag convention.
+
+<ComponentPreview title="Uppercase">
+  <BadgeUppercase client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Badge uppercase color="warning">
@@ -122,29 +161,53 @@ Auto-applies `text-transform: uppercase` and a subtle letter-spacing — matches
 
 ## With Icon
 
-The `icon` slot renders before the label.
+The `icon` slot renders before the label. Pass any ReactNode — SVGs or Entangle's `Icon` wrappers are the common choice.
+
+<ComponentPreview title="With icon">
+  <BadgeWithIcon client:only="react" />
+</ComponentPreview>
 
 ```tsx
-<Badge color="success" icon={<CheckIcon />}>
-  Saved
-</Badge>
+<Badge color="success" icon={<CheckIcon />}>Saved</Badge>
+<Badge color="warning" icon={<StarIcon />}>Featured</Badge>
+<Badge variant="solid" color="primary" icon={<StarIcon />}>Pro</Badge>
 ```
 
 ## Removable
 
 The `removable` prop renders a built-in close button. The badge body click is **not** treated as a remove action — use the dedicated button.
 
+<ComponentPreview
+  title="Removable"
+  description="Click the × on any tag to remove it."
+>
+  <BadgeRemovable client:only="react" />
+</ComponentPreview>
+
 ```tsx
-<Badge removable onRemove={() => removeTag(tag)}>
-  feature/foo
-</Badge>
+const [tags, setTags] = useState([...]);
+
+{tags.map(tag => (
+  <Badge
+    key={tag}
+    color="primary"
+    removable
+    onRemove={() => setTags(prev => prev.filter(t => t !== tag))}
+  >
+    {tag}
+  </Badge>
+))}
 ```
 
-The remove button gets `aria-label="Remove"` automatically. Wrap the badge with your own click handler for selection if needed; clicks on the remove button stop propagation.
+The remove button gets `aria-label="Remove"` automatically. Clicks on the remove button stop propagation so your own click handler on the badge body remains separate.
 
 ## In a List Row
 
-Pair with `ListItem` for status-tagged rows.
+Pair with `ListItem` (or a plain row) for status-tagged lists.
+
+<ComponentPreview title="In a list row">
+  <BadgeInList client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <ListItem trailing={<Badge color="success">done</Badge>}>

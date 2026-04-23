@@ -5,7 +5,15 @@ description: Multi-line text input with optional auto-resize, character count, m
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import TextAreaDemo from '../../../../components/demos/primitives/TextAreaDemo';
+import TextAreaDemo, {
+  TextAreaControlled,
+  TextAreaSizes,
+  TextAreaAutoResize,
+  TextAreaWithCharCount,
+  TextAreaMonospace,
+  TextAreaError,
+  TextAreaDisabled,
+} from '../../../../components/demos/primitives/TextAreaDemo';
 
 Multi-line text input with the same border, focus ring, and error treatment as `Input`. Supports optional auto-resize between `minRows` and `maxRows`, character counters with `maxLength`, and monospace mode for code-style content.
 
@@ -34,6 +42,15 @@ const [value, setValue] = useState('');
 
 ## Controlled vs Uncontrolled
 
+`onChange` receives the string value directly, not a synthetic event — it works well with plain setter functions.
+
+<ComponentPreview
+  title="Controlled"
+  description="Typing updates parent state, which drives both the field and the character counter below it."
+>
+  <TextAreaControlled client:only="react" />
+</ComponentPreview>
+
 ```tsx
 // Controlled
 <TextArea value={value} onChange={setValue} />
@@ -42,11 +59,13 @@ const [value, setValue] = useState('');
 <TextArea defaultValue="initial text" onChange={value => console.log(value)} />
 ```
 
-`onChange` receives the string value directly, not a synthetic event.
-
 ## Sizes
 
 Sizes match `Input` for visual parity in mixed forms.
+
+<ComponentPreview title="Sizes">
+  <TextAreaSizes client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <TextArea size="sm" />
@@ -64,41 +83,63 @@ Sizes match `Input` for visual parity in mixed forms.
 
 Set `minRows`, `maxRows`, or both to enable auto-resize. The textarea grows with content and scrolls past `maxRows`. The native resize handle is automatically disabled in this mode.
 
+<ComponentPreview
+  title="Auto-resize"
+  description="Press Enter a few times — the textarea grows until it hits 6 rows, then scrolls."
+>
+  <TextAreaAutoResize client:only="react" />
+</ComponentPreview>
+
 ```tsx
-<TextArea minRows={2} maxRows={8} value={value} onChange={setValue} />
+<TextArea minRows={2} maxRows={6} value={value} onChange={setValue} />
 ```
 
 ## Character Count
 
 Pair `showCount` with `maxLength` to render a `123/500` counter aligned to the right.
 
+<ComponentPreview title="Character count">
+  <TextAreaWithCharCount client:only="react" />
+</ComponentPreview>
+
 ```tsx
-<TextArea label="Tweet" maxLength={280} showCount />
+<TextArea label="Bio" maxLength={140} showCount />
 ```
 
 ## Monospace
 
 Switch to the theme monospace family for code-style content.
 
+<ComponentPreview title="Monospace">
+  <TextAreaMonospace client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <TextArea monospace rows={6} defaultValue="const x = 1;" />
 ```
 
-## With Label and Helper Text
-
-`TextArea` integrates with `FormLabel` and `FormHelperText` automatically when you pass `label`, `helperText`, or `errorMessage`.
-
-```tsx
-<TextArea label="Description" helperText="Markdown is supported" required />
-```
-
 ## Error State
+
+`errorMessage` overrides `helperText` when `error` is true; the textarea gets `aria-invalid`.
+
+<ComponentPreview title="Error state">
+  <TextAreaError client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <TextArea label="Description" error errorMessage="This field is required" />
 ```
 
-`errorMessage` overrides `helperText` when `error` is true.
+## Disabled and Read-only
+
+<ComponentPreview title="Disabled and read-only">
+  <TextAreaDisabled client:only="react" />
+</ComponentPreview>
+
+```tsx
+<TextArea disabled defaultValue="Cannot edit this field." />
+<TextArea readOnly defaultValue="Select me, but don't type." />
+```
 
 ## Resize Direction
 
@@ -110,6 +151,14 @@ Switch to the theme monospace family for code-style content.
 ```
 
 When auto-resize is active (`minRows` or `maxRows` set), `resize` is forced to `'none'`.
+
+## With Label and Helper Text
+
+`TextArea` integrates with `FormLabel` and `FormHelperText` automatically when you pass `label`, `helperText`, or `errorMessage`.
+
+```tsx
+<TextArea label="Description" helperText="Markdown is supported" required />
+```
 
 ## Props
 

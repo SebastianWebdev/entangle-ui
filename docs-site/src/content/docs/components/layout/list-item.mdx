@@ -5,7 +5,13 @@ description: Reusable list row primitive with leading and trailing slots, select
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import ListItemDemo from '../../../../components/demos/layout/ListItemDemo';
+import ListItemDemo, {
+  ListItemStates,
+  ListItemClickable,
+  ListItemDensity,
+  ListItemSlots,
+  ListItemInList,
+} from '../../../../components/demos/layout/ListItemDemo';
 
 A reusable list row primitive. Encapsulates the common pattern of `leading | content | trailing` with hover, selected, active, and disabled states. When `onClick` is provided, the item becomes a keyboard-activatable button (Enter/Space). Backed by the `colors.surface.row` and `colors.surface.rowHover` tokens so list backgrounds stay subtle without competing with button hover state.
 
@@ -36,6 +42,17 @@ import { ListItem } from 'entangle-ui';
 
 The component composes four orthogonal states. Multiple can be set at once.
 
+<ComponentPreview title="States">
+  <ListItemStates client:only="react" />
+</ComponentPreview>
+
+```tsx
+<ListItem onClick={fn}>Default</ListItem>
+<ListItem onClick={fn} selected>Selected</ListItem>
+<ListItem onClick={fn} active>Active</ListItem>
+<ListItem disabled>Disabled</ListItem>
+```
+
 | Prop       | Effect                                                           |
 | ---------- | ---------------------------------------------------------------- |
 | `selected` | Persistent selection — accent-tinted background                  |
@@ -43,44 +60,60 @@ The component composes four orthogonal states. Multiple can be set at once.
 | `disabled` | Greyed out, pointer-events disabled, keyboard activation skipped |
 | _(hover)_  | Automatic via the `surface.rowHover` token                       |
 
+## Clickable Behavior
+
+When `onClick` is set, the item renders as `role="button"` with `tabIndex={0}` and activates on Enter or Space. Try keyboard navigation in the demo below.
+
+<ComponentPreview
+  title="Clickable"
+  description="Tab to the rows, then press Enter or Space."
+>
+  <ListItemClickable client:only="react" />
+</ComponentPreview>
+
 ```tsx
-<ListItem onClick={fn}>Default</ListItem>
-<ListItem selected>Selected</ListItem>
-<ListItem active>Active</ListItem>
-<ListItem disabled>Disabled</ListItem>
+<ListItem onClick={handleSelect}>Keyboard-activatable</ListItem>
+```
+
+For navigation lists, wrap children in your own `<a>` element instead of using `onClick`, so middle-click / right-click open in new tabs work natively.
+
+## Leading and Trailing Slots
+
+`leading` and `trailing` are both inline-flex containers. They flank the main content area and don't shrink — long content is truncated with ellipsis.
+
+<ComponentPreview title="Slots">
+  <ListItemSlots client:only="react" />
+</ComponentPreview>
+
+```tsx
+<ListItem leading={<FileIcon />}>Leading only</ListItem>
+<ListItem trailing={<ChevronIcon />}>Trailing only</ListItem>
+<ListItem leading={<FileIcon />} trailing={<Badge color="success">12</Badge>}>
+  Both slots
+</ListItem>
 ```
 
 ## Density
+
+<ComponentPreview title="Density">
+  <ListItemDensity client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <ListItem density="comfortable">32px row, default</ListItem>
 <ListItem density="compact">24px row, dense lists</ListItem>
 ```
 
-## Leading and Trailing Slots
-
-`leading` and `trailing` are both inline-flex containers. They flank the main content area and don't shrink — long content is truncated with ellipsis.
-
-```tsx
-<ListItem
-  leading={<Avatar src={user.avatar} />}
-  trailing={<IconButton icon={<MoreIcon />} aria-label="Actions" />}
->
-  {user.name}
-</ListItem>
-```
-
-## Clickable Behavior
-
-When `onClick` is set, the item:
-
-- Renders with `role="button"` and `tabIndex={0}`
-- Activates on Enter and Space (the click handler is invoked from the keyboard event)
-- Stops responding when `disabled`
-
-For navigation lists, wrap children in your own `<a>` element instead of using `onClick`, so middle-click / right-click open in new tabs work natively.
-
 ## In a List
+
+Pair with `Stack` (with `gap={1}`) for a clean selectable list.
+
+<ComponentPreview
+  title="Selectable list"
+  description="Click a row to select it — the selection persists with data-selected styling."
+>
+  <ListItemInList client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Stack gap={1}>

@@ -5,7 +5,13 @@ description: Thin horizontal or vertical rule for separating content, with optio
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import DividerDemo from '../../../../components/demos/layout/DividerDemo';
+import DividerDemo, {
+  DividerHorizontal,
+  DividerVertical,
+  DividerVariants,
+  DividerWithLabel,
+  DividerSpacing,
+} from '../../../../components/demos/layout/DividerDemo';
 
 Thin horizontal or vertical rule for separating content. Supports `solid` / `dashed` / `dotted` line styles, an optional centered label (horizontal only), and a numeric `spacing` prop that maps onto the theme spacing scale.
 
@@ -31,28 +37,64 @@ import { Divider } from 'entangle-ui';
 
 ## Orientation
 
+### Horizontal
+
+The default — a full-width rule between stacked content.
+
+<ComponentPreview title="Horizontal">
+  <DividerHorizontal client:only="react" />
+</ComponentPreview>
+
 ```tsx
-<Divider /> {/* horizontal — default */}
-<Divider orientation="vertical" />
+<Divider />
 ```
 
-A vertical divider needs a parent that gives it a non-zero cross-axis size — typically a flex row.
+### Vertical
+
+A vertical divider needs a parent that gives it a non-zero cross-axis size — typically a flex row with a fixed height.
+
+<ComponentPreview title="Vertical">
+  <DividerVertical client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Flex align="center" gap={2} style={{ height: 32 }}>
-  <span>Left</span>
+  <span>File</span>
   <Divider orientation="vertical" />
-  <span>Right</span>
+  <span>Edit</span>
+  <Divider orientation="vertical" />
+  <span>View</span>
 </Flex>
 ```
 
 ## Variants
+
+Three line styles — switch freely without changing layout.
+
+<ComponentPreview title="Variants">
+  <DividerVariants client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Divider variant="solid" /> {/* default */}
 <Divider variant="dashed" />
 <Divider variant="dotted" />
 ```
+
+## Labeled Divider
+
+Pass a `label` to render an inline title centered between two flanking lines (horizontal only).
+
+<ComponentPreview title="Labeled divider">
+  <DividerWithLabel client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Divider label="Advanced" />
+<Divider label="Danger zone" variant="dashed" />
+```
+
+The label is rendered with the theme's `xxs` font size, `text.muted` color, and an uppercase letter-spacing — matches editor section dividers.
 
 ## Spacing
 
@@ -69,20 +111,14 @@ A vertical divider needs a parent that gives it a non-zero cross-axis size — t
 | `6`    | `xxl`  | 24px        |
 | `7`    | `xxxl` | 32px        |
 
+<ComponentPreview title="Spacing scale">
+  <DividerSpacing client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Divider spacing={3} />        {/* 8px top/bottom */}
 <Divider spacing="1.5rem" />    {/* arbitrary CSS */}
 ```
-
-## Labeled Divider
-
-Pass a `label` to render an inline title centered between two flanking lines (horizontal only).
-
-```tsx
-<Divider label="Advanced" />
-```
-
-The label is rendered with the theme's `xxs` font size, `text.muted` color, and an uppercase letter-spacing — matches editor section dividers.
 
 ## Props
 
