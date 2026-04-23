@@ -89,12 +89,22 @@ export const messageRecipe = recipe({
   },
 });
 
+/**
+ * Public CSS custom property consumers can override globally to change
+ * the max-width of every chat message bubble in the app.
+ *
+ * ```css
+ * .my-dense-chat { --etui-chat-message-max-width: 100%; }
+ * ```
+ */
+export const messageMaxWidthVarName = '--etui-chat-message-max-width';
+
 export const messageContentStyle = style({
   display: 'flex',
   flexDirection: 'column',
   gap: vars.spacing.xs,
   minWidth: 0,
-  maxWidth: '85%',
+  maxWidth: `var(${messageMaxWidthVarName}, 85%)`,
 });
 
 export const messageAvatarStyle = style({
@@ -856,4 +866,85 @@ export const actionBarStyle = style({
   alignItems: 'center',
   gap: vars.spacing.sm,
   paddingTop: vars.spacing.xs,
+});
+
+// ─── Markdown ────────────────────────────────────────────────────
+
+export const markdownRootStyle = style({
+  fontFamily: vars.typography.fontFamily.sans,
+  color: vars.colors.text.primary,
+  lineHeight: vars.typography.lineHeight.normal,
+  fontSize: 'inherit',
+  wordBreak: 'break-word',
+});
+
+export const markdownParagraphStyle = style({
+  margin: `0 0 ${vars.spacing.sm} 0`,
+  selectors: { '&:last-child': { marginBottom: 0 } },
+});
+
+export const markdownHeadingStyle = style({
+  margin: `${vars.spacing.md} 0 ${vars.spacing.sm} 0`,
+  fontWeight: vars.typography.fontWeight.semibold,
+  lineHeight: vars.typography.lineHeight.tight,
+  selectors: { '&:first-child': { marginTop: 0 } },
+});
+
+export const markdownListStyle = style({
+  margin: `0 0 ${vars.spacing.sm} 0`,
+  paddingLeft: vars.spacing.xl,
+  selectors: { '&:last-child': { marginBottom: 0 } },
+});
+
+export const markdownListItemStyle = style({
+  margin: 0,
+  padding: 0,
+});
+
+export const markdownLinkStyle = style({
+  color: vars.colors.accent.primary,
+  textDecoration: 'none',
+  selectors: {
+    '&:hover': { textDecoration: 'underline' },
+    '&:focus-visible': { outline: `1px solid ${vars.colors.border.focus}` },
+  },
+});
+
+export const markdownBlockquoteStyle = style({
+  margin: `0 0 ${vars.spacing.sm} 0`,
+  padding: `${vars.spacing.xs} ${vars.spacing.md}`,
+  borderLeft: `3px solid ${vars.colors.border.default}`,
+  color: vars.colors.text.secondary,
+  background: vars.colors.background.inset,
+  borderRadius: vars.borderRadius.sm,
+  selectors: { '&:last-child': { marginBottom: 0 } },
+});
+
+export const markdownHrStyle = style({
+  border: 0,
+  height: '1px',
+  background: vars.colors.border.default,
+  margin: `${vars.spacing.md} 0`,
+});
+
+export const markdownTableStyle = style({
+  borderCollapse: 'collapse',
+  width: '100%',
+  fontSize: vars.typography.fontSize.sm,
+  margin: `0 0 ${vars.spacing.sm} 0`,
+  selectors: { '&:last-child': { marginBottom: 0 } },
+});
+
+export const markdownThStyle = style({
+  background: vars.colors.background.secondary,
+  color: vars.colors.text.primary,
+  textAlign: 'left',
+  fontWeight: vars.typography.fontWeight.semibold,
+  padding: `${vars.spacing.xs} ${vars.spacing.md}`,
+  borderBottom: `1px solid ${vars.colors.border.default}`,
+});
+
+export const markdownTdStyle = style({
+  padding: `${vars.spacing.xs} ${vars.spacing.md}`,
+  borderBottom: `1px solid ${vars.colors.border.default}`,
 });

@@ -9,7 +9,12 @@ import type {
 export function useChatInput(
   options: UseChatInputOptions = {}
 ): UseChatInputReturn {
-  const { submitKey = 'enter', onSubmit, maxLines = 6 } = options;
+  const {
+    submitKey = 'enter',
+    onSubmit,
+    maxLines = 6,
+    attachmentsCount = 0,
+  } = options;
   const [value, setValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -63,13 +68,13 @@ export function useChatInput(
       if (isSubmit) {
         event.preventDefault();
         const trimmed = value.trim();
-        if (trimmed) {
+        if (trimmed || attachmentsCount > 0) {
           onSubmit?.(trimmed);
           clear();
         }
       }
     },
-    [submitKey, value, onSubmit, clear]
+    [submitKey, value, onSubmit, clear, attachmentsCount]
   );
 
   return {

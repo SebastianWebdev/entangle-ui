@@ -207,11 +207,55 @@ Make tabs fill the available width equally.
 
 By default, inactive panels are unmounted. Use `keepMounted` to preserve their state.
 
+### Per-panel
+
 ```tsx
 <TabPanel value="editor" keepMounted>
   <CodeEditor /> {/* State preserved when switching tabs */}
 </TabPanel>
 ```
+
+### Cascade from the root
+
+Set `keepMounted` on the `Tabs` root to keep **every** panel mounted at once. Use this when most or all panels host stateful UIs (terminals, code editors, media previews) that would lose session state on remount.
+
+```tsx
+<Tabs defaultValue="terminal" keepMounted>
+  <TabList>
+    <Tab value="terminal">Terminal</Tab>
+    <Tab value="editor">Editor</Tab>
+    <Tab value="preview">Preview</Tab>
+  </TabList>
+  <TabPanel value="terminal">
+    <Terminal /> {/* xterm.js instance survives tab switches */}
+  </TabPanel>
+  <TabPanel value="editor">
+    <CodeEditor />
+  </TabPanel>
+  <TabPanel value="preview">
+    <PreviewIframe />
+  </TabPanel>
+</Tabs>
+```
+
+Individual panels can opt **out** of the cascade by setting `keepMounted={false}` explicitly:
+
+```tsx
+<Tabs defaultValue="a" keepMounted>
+  <TabList>
+    <Tab value="a">Always alive</Tab>
+    <Tab value="b">Heavy — rebuild on switch</Tab>
+  </TabList>
+  <TabPanel value="a">
+    <PersistentUi />
+  </TabPanel>
+  <TabPanel value="b" keepMounted={false}>
+    <ExpensiveTree />
+  </TabPanel>
+</Tabs>
+```
+
+When a panel is mounted but inactive, it is hidden via `display: none` and its `tabIndex` is set to `-1`.
 
 ## Props
 
@@ -258,6 +302,13 @@ By default, inactive panels are unmounted. Use `keepMounted` to preserve their s
       type: 'boolean',
       default: 'true',
       description: 'Whether pills variant renders a framed container.',
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'When true, every TabPanel stays mounted even when its tab is not active. Individual panels can opt out by passing keepMounted={false}.',
     },
     {
       name: 'children',
@@ -351,9 +402,8 @@ By default, inactive panels are unmounted. Use `keepMounted` to preserve their s
     {
       name: 'keepMounted',
       type: 'boolean',
-      default: 'false',
       description:
-        'Whether to keep the panel mounted when inactive (preserves state).',
+        'Whether to keep the panel mounted when inactive (preserves state). When undefined, inherits from the parent Tabs root (default false).',
     },
     {
       name: 'className',

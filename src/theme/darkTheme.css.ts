@@ -12,6 +12,7 @@ export const darkThemeValues = {
       secondary: '#2d2d2d',
       tertiary: '#3a3a3a',
       elevated: '#404040',
+      inset: 'rgba(0, 0, 0, 0.2)',
     },
     surface: {
       default: '#2d2d2d',
@@ -19,6 +20,8 @@ export const darkThemeValues = {
       active: '#404040',
       disabled: '#1f1f1f',
       whiteOverlay: 'rgba(255, 255, 255, 0.1)',
+      row: 'transparent',
+      rowHover: 'rgba(255, 255, 255, 0.03)',
     },
     border: {
       default: '#4a4a4a',

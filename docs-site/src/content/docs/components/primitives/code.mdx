@@ -1,0 +1,137 @@
+---
+title: Code
+description: Inline code primitive backed by the theme inset background and monospace font.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import CodeDemo, {
+  CodeSizes,
+  CodeInSentence,
+  CodeInLink,
+  CodeNextToBadge,
+} from '../../../../components/demos/primitives/CodeDemo';
+
+A small inline `<code>` primitive that picks up the theme monospace font and the `colors.background.inset` token so inline snippets read as recessed surfaces inside body text. For multi-line or syntax-highlighted blocks use `ChatCodeBlock` (under the editor namespace).
+
+<ComponentPreview title="Live Preview">
+  <CodeDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Code } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Text>
+  Run <Code>npm install entangle-ui</Code> to add the package.
+</Text>
+```
+
+## Sizes
+
+The font size is relative to the surrounding text — use `size` to fine-tune the scale.
+
+<ComponentPreview title="Sizes">
+  <CodeSizes client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Code size="xs">xs</Code> {/* 0.8em */}
+<Code size="sm">sm</Code> {/* 0.9em — default */}
+<Code size="md">md</Code> {/* 1em */}
+```
+
+## Inside a Sentence
+
+`Code` is inline — it sits on the same baseline as surrounding text and wraps naturally.
+
+<ComponentPreview title="Inside a sentence">
+  <CodeInSentence client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Text>
+  Install with <Code>npm install entangle-ui</Code> and import from the root
+  barrel: <Code>{"import { Button } from 'entangle-ui'"}</Code>.
+</Text>
+```
+
+## Inside a Link
+
+Inherits text color from its parent, so it plays nicely with colored anchors.
+
+<ComponentPreview title="Inside a link">
+  <CodeInLink client:only="react" />
+</ComponentPreview>
+
+```tsx
+<a href="/components/primitives/button">
+  See the <Code>Button</Code> docs
+</a>
+```
+
+## Mixed with String Literals
+
+<ComponentPreview title="With string literals">
+  <CodeNextToBadge client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Text>
+  The environment variable <Code>NODE_ENV</Code> defaults to{' '}
+  <Code>"development"</Code> when running <Code>npm run dev</Code>.
+</Text>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Inline code content.',
+    },
+    {
+      name: 'size',
+      type: "'xs' | 'sm' | 'md'",
+      default: "'sm'",
+      description: 'Font size scale, relative to surrounding text.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the underlying code element.',
+    },
+  ]}
+/>
+
+## Theme Tokens
+
+| Token                        | Used for               |
+| ---------------------------- | ---------------------- |
+| `colors.background.inset`    | Sunken background fill |
+| `colors.text.primary`        | Foreground text        |
+| `typography.fontFamily.mono` | Monospace family       |
+| `borderRadius.sm`            | Corner radius (2px)    |
+
+## Accessibility
+
+- Renders a semantic `<code>` element so assistive tech announces it as inline code
+- No interactive behavior — wrap with a link or button if needed

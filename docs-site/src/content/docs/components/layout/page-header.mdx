@@ -1,0 +1,199 @@
+---
+title: PageHeader
+description: Structural page or view header with optional icon, subtitle, breadcrumbs, and right-aligned actions.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import PageHeaderDemo, {
+  PageHeaderBasic,
+  PageHeaderWithActions,
+  PageHeaderWithBreadcrumbs,
+  PageHeaderSizes,
+  PageHeaderBorderless,
+} from '../../../../components/demos/layout/PageHeaderDemo';
+
+A semantic `<header>` element that arranges an optional leading icon, the title block (breadcrumbs + title + subtitle), and a right-aligned actions slot. Built for top-of-view headers inside a panel or page container, not for the application chrome — for that, use the components under `Shell`.
+
+<ComponentPreview title="Live Preview">
+  <PageHeaderDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { PageHeader } from 'entangle-ui';
+```
+
+## Usage
+
+<ComponentPreview title="Basic">
+  <PageHeaderBasic client:only="react" />
+</ComponentPreview>
+
+```tsx
+<PageHeader title="Project Assets" />
+```
+
+## Anatomy
+
+```
+[ icon ]  [ breadcrumbs        ]   [ actions ]
+          [ title              ]
+          [ subtitle           ]
+```
+
+The title block grows to fill available space; actions sit flush to the right.
+
+## With Actions
+
+<ComponentPreview title="With actions">
+  <PageHeaderWithActions client:only="react" />
+</ComponentPreview>
+
+```tsx
+<PageHeader
+  icon={<FolderIcon />}
+  title="Project Assets"
+  subtitle="124 items"
+  actions={
+    <>
+      <Button>Import</Button>
+      <Button variant="filled">Upload</Button>
+    </>
+  }
+/>
+```
+
+## With Breadcrumbs
+
+You can pass any `ReactNode` as `breadcrumbs` — typically your own breadcrumb component or a series of `<a>` tags.
+
+<ComponentPreview title="With breadcrumbs">
+  <PageHeaderWithBreadcrumbs client:only="react" />
+</ComponentPreview>
+
+```tsx
+<PageHeader
+  breadcrumbs={<span>Workspace / Project / Assets</span>}
+  title="Textures"
+  subtitle="Baked PBR materials"
+  icon={<FolderIcon />}
+  actions={<Button variant="filled">New</Button>}
+/>
+```
+
+## Sizes
+
+The `size` prop scales the title font size and outer padding.
+
+<ComponentPreview title="Sizes">
+  <PageHeaderSizes client:only="react" />
+</ComponentPreview>
+
+```tsx
+<PageHeader size="sm" title="Small" />
+<PageHeader size="md" title="Medium" />
+<PageHeader size="lg" title="Prominent" />
+```
+
+| Size | Title font size | Padding               |
+| ---- | --------------- | --------------------- |
+| `sm` | `md` (12px)     | `sm` × `md`           |
+| `md` | `lg` (14px)     | `md` × `lg` (default) |
+| `lg` | `xl` (16px)     | `lg` × `xl`           |
+
+## Borderless
+
+The bottom border is on by default. Pass `bordered={false}` when the header sits inside another bordered container.
+
+<ComponentPreview
+  title="Inside a bordered container"
+  description="The header's own bottom border is hidden so the outer container's border reads as the boundary."
+>
+  <PageHeaderBorderless client:only="react" />
+</ComponentPreview>
+
+```tsx
+<div style={{ border: '1px solid var(--etui-color-border-default)' }}>
+  <PageHeader title="Settings" bordered={false} />
+  <div>panel body...</div>
+</div>
+```
+
+## Inside a PanelSurface
+
+```tsx
+<PanelSurface>
+  <PageHeader title="Inspector" actions={<IconButton icon={<MoreIcon />} />} />
+  <PanelSurface.Body scroll>{/* content */}</PanelSurface.Body>
+</PanelSurface>
+```
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'title',
+      type: 'ReactNode',
+      required: true,
+      description: 'Title — plain string or custom ReactNode.',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Icon rendered before the title.',
+    },
+    {
+      name: 'subtitle',
+      type: 'ReactNode',
+      description: 'Optional subtitle below the title.',
+    },
+    {
+      name: 'actions',
+      type: 'ReactNode',
+      description:
+        'Actions rendered on the right (buttons, menus, IconButtons).',
+    },
+    {
+      name: 'breadcrumbs',
+      type: 'ReactNode',
+      description: 'Breadcrumb slot rendered above the title.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Size scale.',
+    },
+    {
+      name: 'bordered',
+      type: 'boolean',
+      default: 'true',
+      description: 'Render a bottom border separating the header from content.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the underlying header element.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+- Renders a semantic `<header>` element so assistive tech and search engines treat it as page-level metadata
+- Title is rendered as `<h1>` inside the title block — pair with `aria-labelledby` on the surrounding section if needed
+- Actions container is a plain `<div>` — wrap individual actions in `<Button>` or `<IconButton>` for proper button semantics and `aria-label`

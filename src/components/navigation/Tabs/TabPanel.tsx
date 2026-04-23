@@ -11,20 +11,24 @@ import { tabPanelStyle } from './Tabs.css';
 export const TabPanel: React.FC<TabPanelProps> = ({
   value,
   children,
-  keepMounted = false,
+  keepMounted,
   className,
   style,
   testId,
   ref,
   ...rest
 }) => {
-  const { activeValue, tabsId } = useTabsContext();
+  const ctx = useTabsContext();
+  const { activeValue, tabsId } = ctx;
   const isActive = activeValue === value;
+
+  // Explicit child prop wins over the parent cascade. Undefined = inherit.
+  const effectiveKeepMounted = keepMounted ?? ctx.keepMounted;
 
   const tabId = `tabs-${tabsId}-tab-${value}`;
   const panelId = `tabs-${tabsId}-panel-${value}`;
 
-  if (!isActive && !keepMounted) {
+  if (!isActive && !effectiveKeepMounted) {
     return null;
   }
 

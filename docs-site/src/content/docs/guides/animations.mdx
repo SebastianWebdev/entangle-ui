@@ -1,0 +1,88 @@
+---
+title: Animations
+description: Shared keyframes and utility classes for spinners, pulses, blinks, and fade-ins. Each utility honors prefers-reduced-motion.
+---
+
+import PropsTable from '../../../components/PropsTable.astro';
+
+Entangle ships a small set of shared keyframes and utility classes so components don't redefine the same animations over and over. They are exposed as both raw keyframe references (for use inside your own Vanilla Extract recipes) and ready-to-apply class names. Every utility class respects `prefers-reduced-motion: reduce` by halting the animation.
+
+## Import
+
+```tsx
+import {
+  animSpin,
+  animPulse,
+  animBlink,
+  animFadeIn,
+  spinKeyframe,
+  pulseKeyframe,
+  blinkKeyframe,
+  fadeInKeyframe,
+} from 'entangle-ui';
+```
+
+## Utility classes
+
+Apply directly to any element via `className`:
+
+```tsx
+import { animSpin } from 'entangle-ui';
+
+<svg className={animSpin}>
+  <circle cx="8" cy="8" r="6" stroke="currentColor" fill="none" />
+</svg>;
+```
+
+| Utility      | Animation                                        | Typical use                         |
+| ------------ | ------------------------------------------------ | ----------------------------------- |
+| `animSpin`   | 1s linear infinite rotate (0deg → 360deg)        | Loading rings, refresh icons        |
+| `animPulse`  | 1.5s ease-in-out infinite opacity (1 → 0.4 → 1)  | Skeleton placeholders, soft pings   |
+| `animBlink`  | 1s steps(1) infinite opacity toggle              | Cursor blinks, attention prompts    |
+| `animFadeIn` | One-shot opacity 0 → 1, normal transition timing | Mount transitions, toast appearance |
+
+When the user has `prefers-reduced-motion: reduce` enabled in their OS, every utility class above sets `animation: none` automatically.
+
+## Keyframes for custom recipes
+
+Use the exported keyframe references when you want to compose your own animation in a Vanilla Extract recipe:
+
+```ts
+// my-component.css.ts
+import { style } from '@vanilla-extract/css';
+import { spinKeyframe } from 'entangle-ui';
+
+export const slowSpin = style({
+  animation: `${spinKeyframe} 4s linear infinite`,
+});
+```
+
+This keeps the keyframe definition shared across the bundle (smaller CSS) and avoids drift from copy-pasted versions.
+
+## Reduced motion
+
+The `prefers-reduced-motion` media query is the source of truth — utility classes react to it automatically. If you build your own animation with the keyframes, opt into the same behavior:
+
+```ts
+import { style } from '@vanilla-extract/css';
+import { pulseKeyframe } from 'entangle-ui';
+
+export const myPulse = style({
+  animation: `${pulseKeyframe} 1.5s ease-in-out infinite`,
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      animation: 'none',
+    },
+  },
+});
+```
+
+## Where they're used internally
+
+| Component           | Keyframe        |
+| ------------------- | --------------- |
+| `Spinner` (`ring`)  | `spinKeyframe`  |
+| `Spinner` (`pulse`) | `pulseKeyframe` |
+| `Spinner` (`dots`)  | `pulseKeyframe` |
+
+`Button`'s built-in loading spinner and `ChatTypingIndicator` keep their own local keyframes for now and will migrate to these utilities in a follow-up patch — switch to the shared utilities first when authoring new components.

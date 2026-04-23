@@ -44,22 +44,29 @@ import { Button } from 'entangle-ui';
 
 #### Background
 
-| Token                         | CSS Property                | Value     |
-| ----------------------------- | --------------------------- | --------- |
-| `colors.background.primary`   | `--etui-color-bg-primary`   | `#1a1a1a` |
-| `colors.background.secondary` | `--etui-color-bg-secondary` | `#2d2d2d` |
-| `colors.background.tertiary`  | `--etui-color-bg-tertiary`  | `#3a3a3a` |
-| `colors.background.elevated`  | `--etui-color-bg-elevated`  | `#404040` |
+| Token                         | CSS Property                | Value                |
+| ----------------------------- | --------------------------- | -------------------- |
+| `colors.background.primary`   | `--etui-color-bg-primary`   | `#1a1a1a`            |
+| `colors.background.secondary` | `--etui-color-bg-secondary` | `#2d2d2d`            |
+| `colors.background.tertiary`  | `--etui-color-bg-tertiary`  | `#3a3a3a`            |
+| `colors.background.elevated`  | `--etui-color-bg-elevated`  | `#404040`            |
+| `colors.background.inset`     | `--etui-color-bg-inset`     | `rgba(0, 0, 0, 0.2)` |
+
+> `background.inset` is a sunken/recessed surface — used by `Code` for inline code, by `ChatMarkdownRenderer` for blockquotes, and recommended for any "preview window" / textarea-style background.
 
 #### Surface (Interactive Elements)
 
-| Token                         | CSS Property                        | Value                   |
-| ----------------------------- | ----------------------------------- | ----------------------- |
-| `colors.surface.default`      | `--etui-color-surface-default`      | `#2d2d2d`               |
-| `colors.surface.hover`        | `--etui-color-surface-hover`        | `#363636`               |
-| `colors.surface.active`       | `--etui-color-surface-active`       | `#404040`               |
-| `colors.surface.disabled`     | `--etui-color-surface-disabled`     | `#1f1f1f`               |
-| `colors.surface.whiteOverlay` | `--etui-color-surface-whiteOverlay` | `rgba(255,255,255,0.1)` |
+| Token                         | CSS Property                         | Value                       |
+| ----------------------------- | ------------------------------------ | --------------------------- |
+| `colors.surface.default`      | `--etui-color-surface-default`       | `#2d2d2d`                   |
+| `colors.surface.hover`        | `--etui-color-surface-hover`         | `#363636`                   |
+| `colors.surface.active`       | `--etui-color-surface-active`        | `#404040`                   |
+| `colors.surface.disabled`     | `--etui-color-surface-disabled`      | `#1f1f1f`                   |
+| `colors.surface.whiteOverlay` | `--etui-color-surface-white-overlay` | `rgba(255,255,255,0.1)`     |
+| `colors.surface.row`          | `--etui-color-surface-row`           | `transparent`               |
+| `colors.surface.rowHover`     | `--etui-color-surface-row-hover`     | `rgba(255, 255, 255, 0.03)` |
+
+> `surface.row` and `surface.rowHover` are intentionally lighter than `surface.hover` — use them for list and table rows, where the hover state should hint at interactivity without competing with adjacent buttons (`ListItem` uses these out of the box). Reserve `surface.hover` for buttons and other interactive controls.
 
 #### Border
 
@@ -303,6 +310,36 @@ export const card = style({
   border-radius: var(--etui-radius-md);
 }
 ```
+
+## ThemeProvider
+
+Most apps don't need a provider — the dark theme is applied globally to `:root`. Use `ThemeProvider` for opt-in global behaviors.
+
+```tsx
+import { ThemeProvider } from 'entangle-ui';
+
+<ThemeProvider globalScrollbars>
+  <App />
+</ThemeProvider>;
+```
+
+### Global scrollbars (opt-in)
+
+Set `globalScrollbars` to apply Entangle's dark-theme scrollbar styling to native scrollbars on overflowing elements throughout the document. The provider toggles a class on `document.body`; styles are scoped under that class so they don't leak when the prop is `false` (the default).
+
+| Prop               | Type      | Default | Description                                                                         |
+| ------------------ | --------- | ------- | ----------------------------------------------------------------------------------- |
+| `globalScrollbars` | `boolean` | `false` | Add a class to `document.body` that themes WebKit and Firefox scrollbars dark-thin. |
+
+You can also opt in manually by adding the published class to your own root element:
+
+```tsx
+import { GLOBAL_SCROLLBARS_CLASS } from 'entangle-ui';
+
+document.body.classList.add(GLOBAL_SCROLLBARS_CLASS);
+```
+
+This is helpful when Entangle is embedded inside another app shell that already manages mount/unmount of the provider.
 
 ## TypeScript Types
 

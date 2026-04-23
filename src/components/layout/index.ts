@@ -4,8 +4,11 @@ export {
   AccordionItem,
   AccordionTrigger,
 } from './Accordion';
+export { Divider } from './Divider';
 export { Flex } from './Flex';
 export { Grid } from './Grid';
+export { ListItem } from './ListItem';
+export { PageHeader } from './PageHeader';
 export { PanelSurface } from './PanelSurface';
 export { ScrollArea } from './ScrollArea';
 export { Spacer } from './Spacer';
@@ -21,6 +24,12 @@ export type {
   AccordionVariant,
 } from './Accordion';
 export type {
+  DividerOrientation,
+  DividerProps,
+  DividerSpacing,
+  DividerVariant,
+} from './Divider';
+export type {
   FlexAlign,
   FlexAlignContent,
   FlexDirection,
@@ -30,6 +39,8 @@ export type {
   FlexWrap,
 } from './Flex';
 export type { GridProps, GridSize, GridSpacing } from './Grid';
+export type { ListItemDensity, ListItemProps } from './ListItem';
+export type { PageHeaderProps, PageHeaderSize } from './PageHeader';
 export type {
   PanelSurfaceBodyProps,
   PanelSurfaceFooterProps,

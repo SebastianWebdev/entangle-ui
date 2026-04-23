@@ -12,6 +12,7 @@ export { ChatContextChip } from './ChatContextChip';
 export { ChatEmptyState } from './ChatEmptyState';
 export { ChatActionBar } from './ChatActionBar';
 export { ChatInputToolbar } from './ChatInputToolbar';
+export { ChatMarkdownRenderer } from './ChatMarkdownRenderer';
 
 // Hooks
 export { useChatMessages } from './useChatMessages';
@@ -40,6 +41,7 @@ export type {
   ChatEmptyStateProps,
   ChatActionBarProps,
   ChatInputToolbarProps,
+  ChatMessageListScrollApi,
   UseChatMessagesOptions,
   UseChatMessagesReturn,
   UseChatInputOptions,
@@ -47,3 +49,5 @@ export type {
   UseChatScrollOptions,
   UseChatScrollReturn,
 } from './ChatPanel.types';
+
+export type { ChatMarkdownRendererProps } from './ChatMarkdownRenderer.types';

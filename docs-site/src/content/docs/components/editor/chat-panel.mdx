@@ -25,6 +25,7 @@ import {
   ChatTypingIndicator,
   ChatToolCall,
   ChatCodeBlock,
+  ChatMarkdownRenderer,
   ChatAttachmentChip,
   ChatContextChip,
   ChatEmptyState,
@@ -34,6 +35,12 @@ import {
   useChatInput,
   useChatScroll,
 } from 'entangle-ui';
+```
+
+For consumers driving scroll imperatively, also import the API type:
+
+```tsx
+import type { ChatMessageListScrollApi } from 'entangle-ui';
 ```
 
 ## Usage
@@ -147,6 +154,10 @@ Multi-line input with submit/stop button, attachment chips, and configurable sub
 />
 ```
 
+#### Attachments-only submit
+
+When the textarea is empty, submit is allowed if at least one attachment is queued. The send button stays enabled and `onSubmit` fires with `('', attachments)`. Both controlled and uncontrolled modes honor this — no extra prop needed.
+
 ### ChatTypingIndicator
 
 Animated indicator shown while the assistant is generating a response.
@@ -188,6 +199,28 @@ Code display with optional syntax highlighting, line numbers, copy button, and c
   actions={<button onClick={handleInsert}>Insert</button>}
 />
 ```
+
+### ChatMarkdownRenderer
+
+Lightweight built-in markdown renderer designed to be passed to `ChatMessage.renderContent`. Covers what assistant LLMs typically produce: paragraphs, headings, lists, blockquotes, horizontal rules, inline emphasis / code, links (rendered with `rel="noopener noreferrer"` by default), fenced code blocks, and GFM pipe tables.
+
+```tsx
+<ChatMessage
+  message={msg}
+  renderContent={content => <ChatMarkdownRenderer content={content} />}
+/>
+```
+
+| Prop         | Type                  | Default    | Description                                             |
+| ------------ | --------------------- | ---------- | ------------------------------------------------------- |
+| `content`    | `string`              | —          | Raw markdown content.                                   |
+| `gfm`        | `boolean`             | `true`     | Enable GitHub-flavored markdown extensions (tables).    |
+| `linkTarget` | `'_self' \| '_blank'` | `'_blank'` | Link target. `_blank` adds `rel="noopener noreferrer"`. |
+| `components` | partial overrides     | —          | Replace `code` / `codeBlock` / `link` renderers.        |
+
+Inline code uses the [`Code`](/components/primitives/code) primitive; fenced code blocks use `ChatCodeBlock`. Tables and headings pick up theme tokens automatically.
+
+For full CommonMark / advanced GFM support, swap in your own renderer via `renderContent` — the API stays the same.
 
 ### ChatAttachmentChip
 
@@ -251,6 +284,23 @@ Horizontal row of action buttons rendered below the chat input area.
 </ChatInputToolbar>
 ```
 
+## Customizing the message bubble width
+
+Message bubbles default to `max-width: 85%` of the message row. You can change this at three levels:
+
+```tsx
+// Global default — set the public CSS variable in your own stylesheet:
+:root { --etui-chat-message-max-width: 720px; }
+
+// Panel-level cascade:
+<ChatPanel messageMaxWidth="100%">…</ChatPanel>
+
+// Per-message override:
+<ChatMessage maxWidth={500} message={msg} />
+```
+
+Numbers are interpreted as pixels (`500` → `500px`); strings are passed through verbatim (`"60ch"`, `"70%"`, …). Per-message wins over the panel cascade, which wins over the global CSS variable, which wins over the library default.
+
 ## Hooks
 
 ### useChatMessages
@@ -282,21 +332,57 @@ const { value, setValue, clear, textareaRef, handleKeyDown, handleChange } =
     submitKey: 'enter',
     maxLines: 6,
     onSubmit: value => handleSend(value),
+    attachmentsCount: attachments.length, // allows attachments-only submit
   });
 ```
+
+The optional `attachmentsCount` lets the submit gate fire `onSubmit('')` when the textarea is empty but attachments are queued. Defaults to `0`.
 
 ### useChatScroll
 
-Manages auto-scroll behavior for the message list, pausing when the user scrolls up.
+Manages auto-scroll behavior for the message list. Pauses when the user scrolls up and resumes when they scroll back to the bottom. Streaming-aware: an internal `ResizeObserver` watches the content element so the list stays pinned while a single message grows token-by-token (no `messages.length` change required).
 
 ```tsx
-const { scrollContainerRef, isAtBottom, hasNewMessages, scrollToBottom } =
-  useChatScroll({
-    messages,
-    enabled: true,
-    threshold: 100,
-  });
+const {
+  scrollContainerRef,
+  scrollContentRef,
+  isAtBottom,
+  hasNewMessages,
+  scrollToBottom,
+  scrollTo,
+  scrollToElement,
+} = useChatScroll({
+  messages,
+  enabled: true,
+  threshold: 100,
+});
 ```
+
+| Returned ref         | Where to attach                                                  |
+| -------------------- | ---------------------------------------------------------------- |
+| `scrollContainerRef` | The scroll container (the element with `overflow: auto`).        |
+| `scrollContentRef`   | The inner content element whose height grows as content streams. |
+
+`ChatMessageList` wires both refs internally — you only need this hook directly if you're building a custom message list shell.
+
+### Imperative scroll API on ChatMessageList
+
+Drive scroll position from outside the list by passing `scrollApiRef`:
+
+```tsx
+import type { ChatMessageListScrollApi } from 'entangle-ui';
+
+const scrollApi = useRef<ChatMessageListScrollApi>(null);
+
+<ChatMessageList scrollApiRef={scrollApi} messages={messages} />;
+
+// Later — e.g., from a search panel:
+scrollApi.current?.scrollToBottom('smooth');
+scrollApi.current?.scrollToElement(messageEl, { block: 'center' });
+const atBottom = scrollApi.current?.isAtBottom();
+```
+
+The DOM `ref` on `ChatMessageList` still points to the scroll container element — `scrollApiRef` is intentionally separate so methods don't overload the DOM ref.
 
 ## Props
 
@@ -310,6 +396,12 @@ const { scrollContainerRef, isAtBottom, hasNewMessages, scrollToBottom } =
       default: "'comfortable'",
       description:
         'Visual density of the chat layout. Comfortable has more spacing for side panels; compact is for constrained areas.',
+    },
+    {
+      name: 'messageMaxWidth',
+      type: 'number | string',
+      description:
+        'Maximum width of message bubbles inside this panel. Cascades to every ChatMessage via the --etui-chat-message-max-width CSS variable. Numbers are pixels; strings are used verbatim.',
     },
     {
       name: 'children',
@@ -361,7 +453,13 @@ const { scrollContainerRef, isAtBottom, hasNewMessages, scrollToBottom } =
       type: 'boolean',
       default: 'true',
       description:
-        'Auto-scroll to bottom on new messages. Pauses when user scrolls up, resumes at bottom.',
+        'Auto-scroll to bottom on new messages and during streaming. Pauses when user scrolls up, resumes at bottom.',
+    },
+    {
+      name: 'scrollApiRef',
+      type: 'Ref<ChatMessageListScrollApi>',
+      description:
+        'Imperative handle exposing scrollToBottom, scrollTo, scrollToElement, and isAtBottom. Separate from the DOM ref.',
     },
     {
       name: 'className',
@@ -407,7 +505,13 @@ const { scrollContainerRef, isAtBottom, hasNewMessages, scrollToBottom } =
       name: 'renderContent',
       type: '(content: string) => ReactNode',
       description:
-        'Custom content renderer for markdown, LaTeX, or other rich formats.',
+        'Custom content renderer for markdown, LaTeX, or other rich formats. Pair with ChatMarkdownRenderer for built-in markdown support.',
+    },
+    {
+      name: 'maxWidth',
+      type: 'number | string',
+      description:
+        'Per-message bubble max width. Overrides ChatPanel.messageMaxWidth and the 85% default. Numbers are pixels; strings are used verbatim.',
     },
     {
       name: 'className',

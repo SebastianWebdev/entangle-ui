@@ -127,6 +127,16 @@ interface ChatPanelBaseProps extends BaseComponent {
    * @default "comfortable"
    */
   density?: ChatPanelDensity;
+  /**
+   * Maximum width of message bubbles inside this panel.
+   *
+   * Cascades to every `ChatMessage` via the
+   * `--etui-chat-message-max-width` CSS variable. Individual messages
+   * can override with their own `maxWidth` prop.
+   *
+   * Numbers are interpreted as pixels; strings are used verbatim.
+   */
+  messageMaxWidth?: number | string;
   /** Panel content — typically ChatMessageList + ChatInput */
   children: React.ReactNode;
 }
@@ -153,6 +163,21 @@ interface ChatMessageListBaseProps extends BaseComponent {
    * @default true
    */
   autoScroll?: boolean;
+  /**
+   * Imperative handle exposing scroll helpers.
+   *
+   * Kept separate from the DOM `ref` (which points to the scroll
+   * container element) so methods like `scrollToBottom` don't
+   * overload the DOM ref.
+   *
+   * @example
+   * ```tsx
+   * const apiRef = useRef<ChatMessageListScrollApi>(null);
+   * <ChatMessageList scrollApiRef={apiRef} messages={messages} />
+   * apiRef.current?.scrollToBottom('smooth');
+   * ```
+   */
+  scrollApiRef?: React.Ref<ChatMessageListScrollApi>;
 }
 
 export type ChatMessageListProps = Prettify<ChatMessageListBaseProps>;
@@ -177,6 +202,17 @@ interface ChatMessageBaseProps extends BaseComponent {
    * Use for custom markdown rendering, LaTeX, etc.
    */
   renderContent?: (content: string) => React.ReactNode;
+  /**
+   * Maximum width of the message bubble.
+   *
+   * Overrides the panel-level `messageMaxWidth` and the library default
+   * of `85%`. Numbers are interpreted as pixels; strings are used
+   * verbatim (`"500px"`, `"60ch"`, `"70%"`).
+   *
+   * Equivalent to setting `--etui-chat-message-max-width` inline on the
+   * message root.
+   */
+  maxWidth?: number | string;
 }
 
 export type ChatMessageProps = Prettify<ChatMessageBaseProps>;
@@ -451,6 +487,15 @@ export interface UseChatInputOptions {
    * @default 6
    */
   maxLines?: number;
+  /**
+   * Number of currently queued attachments.
+   *
+   * Used only to allow attachments-only submit when the textarea is empty.
+   * When greater than 0, pressing the submit key will fire `onSubmit('')`
+   * even if the input value is empty or whitespace-only.
+   * @default 0
+   */
+  attachmentsCount?: number;
 }
 
 export interface UseChatInputReturn {
@@ -486,10 +531,47 @@ export interface UseChatScrollOptions {
 export interface UseChatScrollReturn {
   /** Ref to attach to the scrollable container element */
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
+  /**
+   * Ref for the element whose height changes trigger auto-scroll.
+   *
+   * Attach this to the inner content element (the one that grows when
+   * messages stream in). The hook observes its resize events so the list
+   * stays pinned to the bottom during streaming, even when the
+   * `messages` array length does not change.
+   */
+  scrollContentRef: React.RefObject<HTMLDivElement | null>;
   /** Whether the user is currently scrolled to the bottom */
   isAtBottom: boolean;
   /** Whether there are new messages below the current scroll position */
   hasNewMessages: boolean;
   /** Programmatically scroll to the bottom */
   scrollToBottom: (behavior?: ScrollBehavior) => void;
+  /**
+   * Scroll the container to an arbitrary position.
+   * Thin wrapper over `Element.scrollTo`.
+   */
+  scrollTo: (options: ScrollToOptions) => void;
+  /**
+   * Scroll a specific element into view inside the container.
+   * Thin wrapper over `Element.scrollIntoView`.
+   */
+  scrollToElement: (el: HTMLElement, options?: ScrollIntoViewOptions) => void;
+}
+
+/**
+ * Imperative scroll API exposed by `ChatMessageList` via `scrollApiRef`.
+ *
+ * Use this when you need to drive scroll position from outside — e.g.,
+ * "scroll to message X" triggered by a search panel, or a "jump to top"
+ * action button.
+ */
+export interface ChatMessageListScrollApi {
+  /** Scroll to the bottom of the message list. */
+  scrollToBottom: (behavior?: ScrollBehavior) => void;
+  /** Scroll the container to an arbitrary position. */
+  scrollTo: (options: ScrollToOptions) => void;
+  /** Scroll a specific element into view inside the container. */
+  scrollToElement: (el: HTMLElement, options?: ScrollIntoViewOptions) => void;
+  /** Whether the user is currently scrolled to the bottom. */
+  isAtBottom: () => boolean;
 }
