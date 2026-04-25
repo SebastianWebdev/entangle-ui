@@ -1,6 +1,6 @@
 import type React from 'react';
 import type { Prettify } from '@/types/utilities';
-import type { Size } from '@/types/common';
+import type { BaseComponent, Size } from '@/types/common';
 
 /**
  * Radio size using standard library sizing.
@@ -18,8 +18,8 @@ export type RadioLabelPosition = 'left' | 'right';
 export type RadioGroupOrientation = 'horizontal' | 'vertical';
 
 export interface RadioBaseProps extends Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  'onChange' | 'size' | 'type'
+  BaseComponent<HTMLInputElement>,
+  'onChange'
 > {
   /**
    * Value of this radio option (used for group selection)
@@ -101,23 +101,6 @@ export interface RadioBaseProps extends Omit<
     value: string,
     event: React.ChangeEvent<HTMLInputElement>
   ) => void;
-
-  /**
-   * Test identifier for automated testing
-   */
-  testId?: string;
-
-  /**
-   * Additional CSS class names
-   */
-  className?: string;
-
-  /**
-   * Custom inline styles
-   */
-  style?: React.CSSProperties;
-
-  ref?: React.Ref<HTMLInputElement>;
 }
 
 export type RadioProps = Prettify<RadioBaseProps>;
@@ -134,7 +117,7 @@ export interface RadioGroupContextValue {
 }
 
 export interface RadioGroupBaseProps extends Omit<
-  React.HTMLAttributes<HTMLDivElement>,
+  BaseComponent<HTMLDivElement>,
   'onChange'
 > {
   /**
@@ -187,9 +170,10 @@ export interface RadioGroupBaseProps extends Omit<
   orientation?: RadioGroupOrientation;
 
   /**
-   * Spacing between radios. A number maps to the theme spacing scale
-   * (1 = xs, 2 = sm, 3 = md, 4 = lg, 5 = xl, 6 = xxl, 7 = xxxl); a string
-   * passes through unchanged.
+   * Spacing between radios. A number maps onto the theme spacing scale
+   * (0 = 0, 1 = xs, 2 = sm, 3 = md, 4 = lg, 5 = xl, 6 = xxl, 7 = xxxl).
+   * Fractional values are floored, out-of-range values are clamped.
+   * A string passes through unchanged as a raw CSS gap.
    * @default 2
    */
   spacing?: number | string;
@@ -214,13 +198,6 @@ export interface RadioGroupBaseProps extends Omit<
    * Children — typically Radio components
    */
   children: React.ReactNode;
-
-  /**
-   * Test identifier for automated testing
-   */
-  testId?: string;
-
-  ref?: React.Ref<HTMLDivElement>;
 }
 
 export type RadioGroupProps = Prettify<RadioGroupBaseProps>;
