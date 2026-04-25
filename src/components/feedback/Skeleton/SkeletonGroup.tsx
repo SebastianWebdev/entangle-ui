@@ -21,7 +21,8 @@ const SPACING_SCALE: readonly string[] = [
 
 function resolveSpacing(value: number | string): string {
   if (typeof value === 'string') return value;
-  const index = Math.max(0, Math.min(SPACING_SCALE.length - 1, value));
+  const clamped = Math.max(0, Math.min(SPACING_SCALE.length - 1, value));
+  const index = Math.floor(clamped);
   return SPACING_SCALE[index] ?? vars.spacing.sm;
 }
 

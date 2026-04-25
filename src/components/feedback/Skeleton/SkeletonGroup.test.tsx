@@ -86,6 +86,29 @@ describe('SkeletonGroup', () => {
       const styleStr = screen.getByTestId('group').getAttribute('style') ?? '';
       expect(styleStr).toContain('20px');
     });
+
+    it('floors fractional spacing values to the nearest scale step', () => {
+      renderWithTheme(<SkeletonGroup testId="group" spacing={2.7} count={1} />);
+      // 2.7 → floor to 2 → spacing.sm; the var name maps to etui-spacing-sm.
+      const styleStr = screen.getByTestId('group').getAttribute('style') ?? '';
+      expect(styleStr).toContain('etui-spacing-sm');
+    });
+
+    it('clamps out-of-range spacing values to the scale bounds', () => {
+      const { rerender } = renderWithTheme(
+        <SkeletonGroup testId="group" spacing={100} count={1} />
+      );
+      const upperStyle =
+        screen.getByTestId('group').getAttribute('style') ?? '';
+      expect(upperStyle).toContain('etui-spacing-xxxl');
+
+      rerender(<SkeletonGroup testId="group" spacing={-5} count={1} />);
+      const lowerStyle =
+        screen.getByTestId('group').getAttribute('style') ?? '';
+      // 0 maps to the literal '0' string, not a token.
+      expect(lowerStyle).not.toContain('etui-spacing');
+      expect(lowerStyle).toMatch(/:\s*0[;\s]/);
+    });
   });
 
   describe('Accessibility', () => {

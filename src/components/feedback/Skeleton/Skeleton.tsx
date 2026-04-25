@@ -14,9 +14,6 @@ import {
 
 const LINE_DEFAULT_HEIGHT = '12px';
 
-const IS_DEV: boolean =
-  typeof process !== 'undefined' && process.env['NODE_ENV'] !== 'production';
-
 const SHAPE_RADIUS_FALLBACK: Record<SkeletonShape, string> = {
   rect: vars.borderRadius.sm,
   line: vars.borderRadius.lg,
@@ -91,7 +88,6 @@ export const Skeleton = /*#__PURE__*/ React.memo<SkeletonProps>(
     ...rest
   }) => {
     if (
-      IS_DEV &&
       shape === 'circle' &&
       width !== undefined &&
       height !== undefined &&
