@@ -74,6 +74,7 @@ export default defineConfig({
                 { label: 'Input', slug: 'components/primitives/input' },
                 { label: 'Paper', slug: 'components/primitives/paper' },
                 { label: 'Popover', slug: 'components/primitives/popover' },
+                { label: 'Radio', slug: 'components/primitives/radio' },
                 { label: 'Switch', slug: 'components/primitives/switch' },
                 { label: 'Text', slug: 'components/primitives/text' },
                 { label: 'TextArea', slug: 'components/primitives/text-area' },
