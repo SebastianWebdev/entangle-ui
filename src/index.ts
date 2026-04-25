@@ -93,6 +93,10 @@ export {
 } from '@/components/navigation';
 export { FormHelperText, FormLabel, InputWrapper } from '@/components/form';
 export {
+  Alert,
+  AlertActions,
+  AlertDescription,
+  AlertTitle,
   Dialog,
   DialogBody,
   DialogClose,
@@ -307,6 +311,12 @@ export type {
   InputWrapperProps,
 } from '@/components/form';
 export type {
+  AlertActionsProps,
+  AlertAppearance,
+  AlertDescriptionProps,
+  AlertProps,
+  AlertTitleProps,
+  AlertVariant,
   DialogBodyProps,
   DialogFooterProps,
   DialogHeaderProps,
