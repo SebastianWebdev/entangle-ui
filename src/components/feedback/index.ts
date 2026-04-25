@@ -17,6 +17,14 @@ export type {
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps, EmptyStateVariant } from './EmptyState';
 
+export { Skeleton, SkeletonGroup } from './Skeleton';
+export type {
+  SkeletonAnimation,
+  SkeletonGroupProps,
+  SkeletonProps,
+  SkeletonShape,
+} from './Skeleton';
+
 export { Spinner } from './Spinner';
 export type {
   SpinnerColor,
