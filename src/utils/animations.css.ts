@@ -32,6 +32,11 @@ export const fadeInKeyframe = keyframes({
   to: { opacity: 1 },
 });
 
+export const waveKeyframe = keyframes({
+  from: { backgroundPositionX: '200%' },
+  to: { backgroundPositionX: '-200%' },
+});
+
 // ─── Utility classes ──────────────────────────────────────────────
 
 export const animSpin = style({
@@ -63,6 +68,15 @@ export const animBlink = style({
 
 export const animFadeIn = style({
   animation: `${fadeInKeyframe} ${vars.transitions.normal} ease-out`,
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      animation: 'none',
+    },
+  },
+});
+
+export const animWave = style({
+  animation: `${waveKeyframe} 1.6s linear infinite`,
   '@media': {
     '(prefers-reduced-motion: reduce)': {
       animation: 'none',

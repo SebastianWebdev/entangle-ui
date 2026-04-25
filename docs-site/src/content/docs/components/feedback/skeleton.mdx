@@ -1,0 +1,293 @@
+---
+title: Skeleton
+description: Loading-placeholder primitive with rect, circle, and line shapes plus pulse, wave, and static animations.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import SkeletonDemo, {
+  SkeletonShapes,
+  SkeletonAnimations,
+  SkeletonParagraph,
+  SkeletonCard,
+  SkeletonList,
+  SkeletonGrid,
+  SkeletonInPropertyPanel,
+} from '../../../../components/demos/feedback/SkeletonDemo';
+
+A neutral grey placeholder block to render in place of content while it loads. Use it for lists, cards, and panels that need to feel responsive before the data arrives — keeps the visual language consistent across loading states.
+
+<ComponentPreview title="Live Preview">
+  <SkeletonDemo client:only="react" />
+</ComponentPreview>
+
+## When to use
+
+- **Skeleton** — content has a known shape (rows, avatars, cards) and you want to mirror that layout while loading.
+- **Spinner** — generic activity indicator with no layout to mirror; pair with a label or use inside a button.
+- **EmptyState** — the request completed and returned nothing, or you have not yet asked for data.
+
+Reach for `Skeleton` when the placeholder structure is itself information ("there will be five rows here"). Reach for `Spinner` when the placeholder is just "we're working on it".
+
+## Import
+
+```tsx
+import { Skeleton, SkeletonGroup } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Skeleton width={120} height={16} />
+<Skeleton shape="circle" width={32} />
+<Skeleton shape="line" width="60%" />
+```
+
+## Shapes
+
+<ComponentPreview title="Shapes">
+  <SkeletonShapes client:only="react" />
+</ComponentPreview>
+
+| Shape    | Default radius    | Default height      | Use for                       |
+| -------- | ----------------- | ------------------- | ----------------------------- |
+| `rect`   | `borderRadius.sm` | `100%` of container | Thumbnails, cards, blocks     |
+| `circle` | `50%`             | matches `width`     | Avatars, dots, badge slots    |
+| `line`   | `borderRadius.lg` | `12px`              | Single text-line placeholders |
+
+```tsx
+<Skeleton shape="rect" width={120} height={48} />
+<Skeleton shape="circle" width={48} />
+<Skeleton shape="line" width="60%" />
+```
+
+## Animations
+
+<ComponentPreview title="Animations">
+  <SkeletonAnimations client:only="react" />
+</ComponentPreview>
+
+| Animation | Behavior                                       | Use when                                |
+| --------- | ---------------------------------------------- | --------------------------------------- |
+| `pulse`   | Opacity oscillates between 1 and 0.4 at 1.5 s  | Default — works almost everywhere       |
+| `wave`    | Shimmer gradient sweeps left-to-right at 1.6 s | Hero placeholders, cards above the fold |
+| `none`    | Static base color                              | 20+ skeletons on screen at once         |
+
+`prefers-reduced-motion: reduce` automatically suppresses both animations — no code changes needed.
+
+```tsx
+<Skeleton animation="pulse" />
+<Skeleton animation="wave" />
+<Skeleton animation="none" />
+```
+
+## Paragraph composition
+
+Stack several `shape="line"` skeletons with varying widths to imitate a paragraph of text. Tail with a shorter line so the block reads as a real paragraph.
+
+<ComponentPreview title="Paragraph">
+  <SkeletonParagraph client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Stack spacing={2}>
+  <Skeleton shape="line" width="60%" />
+  <Skeleton shape="line" width="100%" />
+  <Skeleton shape="line" width="90%" />
+  <Skeleton shape="line" width="75%" />
+  <Skeleton shape="line" width="40%" />
+</Stack>
+```
+
+## Card composition
+
+Mirror the real layout: avatar circle, a few title / description lines, and a thumbnail rect. The closer the skeleton matches the final shape, the less visual "snap" the user perceives when content lands.
+
+<ComponentPreview title="Card">
+  <SkeletonCard client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Flex gap={3} align="flex-start">
+  <Skeleton shape="circle" width={40} />
+  <Stack spacing={2} style={{ flex: 1 }}>
+    <Skeleton shape="line" width="70%" />
+    <Skeleton shape="line" width="100%" />
+    <Skeleton shape="line" width="50%" />
+    <Skeleton width="100%" height={80} />
+  </Stack>
+</Flex>
+```
+
+## SkeletonGroup
+
+`SkeletonGroup` arranges multiple skeletons consistently. Pass `count` for an auto-generated list (configured via `itemProps`), or pass `children` for a custom composition. `direction` and `spacing` control the flex container.
+
+<ComponentPreview title="List">
+  <SkeletonList client:only="react" />
+</ComponentPreview>
+
+```tsx
+<SkeletonGroup
+  count={5}
+  spacing={2}
+  itemProps={{ shape: 'line', width: '100%' }}
+/>
+```
+
+### Grid loading state
+
+For dense surfaces (asset browser, gallery, file picker), drop animation entirely — running 12 + animations at once is more noise than help.
+
+<ComponentPreview title="Grid">
+  <SkeletonGrid client:only="react" />
+</ComponentPreview>
+
+```tsx
+<div
+  style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 80px)', gap: 12 }}
+>
+  {Array.from({ length: 12 }, (_, i) => (
+    <Skeleton key={i} width={80} height={80} animation="none" />
+  ))}
+</div>
+```
+
+## In an editor panel
+
+Use `shape="line"` skeletons inside `PropertySection` to reflect the panel's editor density while data loads.
+
+<ComponentPreview title="Property panel">
+  <SkeletonInPropertyPanel client:only="react" />
+</ComponentPreview>
+
+```tsx
+<PropertyPanel size="sm">
+  <PropertySection title="Transform" defaultExpanded>
+    <Stack spacing={2}>
+      <Skeleton shape="line" width="100%" />
+      <Skeleton shape="line" width="80%" />
+    </Stack>
+  </PropertySection>
+</PropertyPanel>
+```
+
+## Performance
+
+Each animated skeleton runs a CSS animation on the GPU, so a handful is cheap. When you have **20 + skeletons on screen at once** (grid views, large lists), prefer `animation="none"` — the eye reads the static blocks as "loading" just as well, and the page stays smooth.
+
+## Accessibility
+
+- Skeletons are decorative: they set `aria-hidden="true"` and `aria-busy="true"` but do **not** announce themselves.
+- The surrounding container is responsible for announcing loading state — pair with a `Spinner` or an `EmptyState loading` if assistive tech needs to be informed.
+- Animation is automatically halted under `prefers-reduced-motion: reduce`; the wave gradient is also suppressed.
+
+## API Reference
+
+### `<Skeleton>`
+
+<PropsTable
+  props={[
+    {
+      name: 'shape',
+      type: "'rect' | 'circle' | 'line'",
+      default: "'rect'",
+      description:
+        'Visual shape. Determines the default border radius and the height fallback for `line`.',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      default: "'100%'",
+      description: 'Width. Number → px, string → CSS value.',
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description:
+        'Height. Number → px, string → CSS value. Defaults to 12px for `line`; matches `width` for `circle`.',
+    },
+    {
+      name: 'borderRadius',
+      type: 'number | string',
+      description: 'Override the radius. Defaults are derived from the shape.',
+    },
+    {
+      name: 'animation',
+      type: "'pulse' | 'wave' | 'none'",
+      default: "'pulse'",
+      description:
+        'Animation style. Both pulse and wave honor `prefers-reduced-motion`.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
+
+### `<SkeletonGroup>`
+
+<PropsTable
+  props={[
+    {
+      name: 'count',
+      type: 'number',
+      description:
+        'Number of skeletons to auto-generate. Ignored when `children` is provided.',
+    },
+    {
+      name: 'spacing',
+      type: 'number | string',
+      default: '2',
+      description:
+        'Number maps onto the spacing scale (0 → 0, 1 → xs, 2 → sm, 3 → md, 4 → lg, 5 → xl, 6 → xxl, 7+ → xxxl). String passes through as a raw CSS gap.',
+    },
+    {
+      name: 'direction',
+      type: "'row' | 'column'",
+      default: "'column'",
+      description: 'Flex layout direction.',
+    },
+    {
+      name: 'itemProps',
+      type: 'Partial<SkeletonProps>',
+      description:
+        'Props applied to each auto-generated `Skeleton` (used only with `count`).',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'When provided, overrides `count` and the wrapper just lays the children out.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>

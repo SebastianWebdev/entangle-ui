@@ -16,8 +16,10 @@ export {
   animFadeIn,
   animPulse,
   animSpin,
+  animWave,
   blinkKeyframe,
   fadeInKeyframe,
   pulseKeyframe,
   spinKeyframe,
+  waveKeyframe,
 } from './animations.css';

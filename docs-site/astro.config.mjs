@@ -157,6 +157,7 @@ export default defineConfig({
                   label: 'EmptyState',
                   slug: 'components/feedback/empty-state',
                 },
+                { label: 'Skeleton', slug: 'components/feedback/skeleton' },
                 { label: 'Spinner', slug: 'components/feedback/spinner' },
                 { label: 'Toast', slug: 'components/feedback/toast' },
               ],
