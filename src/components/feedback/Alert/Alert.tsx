@@ -16,7 +16,6 @@ import {
   alertCloseColumnStyle,
   alertColorVar,
   alertContentStyle,
-  alertDescriptionSolidStyle,
   alertIconSolidStyle,
   alertIconStyle,
   alertRecipe,
@@ -130,22 +129,14 @@ const AlertImpl = /*#__PURE__*/ React.memo<AlertProps>(
           >
             {resolvedIcon}
           </div>
-        ) : (
-          <span aria-hidden="true" />
-        )}
+        ) : null}
 
         <div className={alertContentStyle}>
           {title !== undefined && title !== null ? (
             <AlertTitle>{title}</AlertTitle>
           ) : null}
           {typeof children === 'string' ? (
-            <AlertDescription
-              className={isSolid ? alertDescriptionSolidStyle : undefined}
-            >
-              {children}
-            </AlertDescription>
-          ) : isSolid ? (
-            <SolidColorScope>{children}</SolidColorScope>
+            <AlertDescription>{children}</AlertDescription>
           ) : (
             children
           )}
@@ -154,6 +145,7 @@ const AlertImpl = /*#__PURE__*/ React.memo<AlertProps>(
         {onClose ? (
           <div className={alertCloseColumnStyle}>
             <IconButton
+              type="button"
               aria-label="Close alert"
               variant="ghost"
               size="sm"
@@ -164,31 +156,13 @@ const AlertImpl = /*#__PURE__*/ React.memo<AlertProps>(
               <CloseIcon size="sm" decorative />
             </IconButton>
           </div>
-        ) : (
-          <span aria-hidden="true" />
-        )}
+        ) : null}
       </div>
     );
   }
 );
 
 AlertImpl.displayName = 'Alert';
-
-/**
- * Wraps non-string children in solid appearance so the description text
- * inherits the on-solid token. Title color already inherits via `color: inherit`.
- */
-const SolidColorScope: React.FC<{ children?: React.ReactNode }> = ({
-  children,
-}) => (
-  <div
-    className={alertDescriptionSolidStyle}
-    style={{ display: 'contents' }}
-    data-alert-solid-scope=""
-  >
-    {children}
-  </div>
-);
 
 /**
  * Public API: `Alert` with attached compound members.

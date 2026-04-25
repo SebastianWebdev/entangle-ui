@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { FormEvent } from 'react';
 import { renderWithTheme } from '@/tests/testUtils';
 import { Alert } from './Alert';
 import { AlertTitle } from './AlertTitle';
@@ -222,6 +223,26 @@ describe('Alert', () => {
         screen.getByRole('button', { name: 'Close alert' })
       );
       expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not submit a surrounding form when clicked', async () => {
+      const onSubmit = vi.fn((e: FormEvent) => {
+        e.preventDefault();
+      });
+      const onClose = vi.fn();
+      renderWithTheme(
+        <form onSubmit={onSubmit}>
+          <Alert testId="alert" onClose={onClose}>
+            x
+          </Alert>
+          <button type="submit">Save</button>
+        </form>
+      );
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Close alert' })
+      );
+      expect(onClose).toHaveBeenCalledTimes(1);
+      expect(onSubmit).not.toHaveBeenCalled();
     });
   });
 

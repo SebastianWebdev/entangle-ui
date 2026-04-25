@@ -20,9 +20,9 @@ export const alertOnSolidVar = createVar();
 
 export const alertRecipe = recipe({
   base: {
-    display: 'grid',
-    gridTemplateColumns: 'auto 1fr auto',
-    columnGap: vars.spacing.md,
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: vars.spacing.md,
     padding: vars.spacing.md,
     borderRadius: vars.borderRadius.md,
     fontFamily: vars.typography.fontFamily.sans,
@@ -82,11 +82,15 @@ export const alertIconSolidStyle = style({
 });
 
 /**
- * Center column — flexible content area for title / description / actions.
+ * Center slot — flexible content area for title / description / actions.
+ *
+ * `flex: 1` claims remaining horizontal space; `min-width: 0` lets long
+ * content wrap instead of overflowing the alert.
  */
 export const alertContentStyle = style({
   display: 'flex',
   flexDirection: 'column',
+  flex: 1,
   minWidth: 0,
 });
 
@@ -124,21 +128,20 @@ export const alertTitleStyle = style({
 });
 
 /**
- * Standalone (no title) description: drop the top spacing it would otherwise
- * inherit from the title's bottom margin.
+ * Description text. Defaults to the secondary token; switches to the
+ * on-solid color when nested inside a solid-appearance alert via the
+ * parent attribute selector. This handles both string children (auto-wrapped
+ * in `AlertDescription`) and the compound `<Alert.Description>` API uniformly.
  */
 export const alertDescriptionStyle = style({
   fontSize: vars.typography.fontSize.md,
   lineHeight: vars.typography.lineHeight.normal,
   color: vars.colors.text.secondary,
-});
-
-/**
- * Solid appearance: secondary text would lose contrast on a saturated
- * background; force the on-solid color.
- */
-export const alertDescriptionSolidStyle = style({
-  color: alertOnSolidVar,
+  selectors: {
+    '[data-appearance="solid"] &': {
+      color: alertOnSolidVar,
+    },
+  },
 });
 
 export const alertActionsRecipe = recipe({
