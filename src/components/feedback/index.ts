@@ -1,3 +1,13 @@
+export { Alert, AlertTitle, AlertDescription, AlertActions } from './Alert';
+export type {
+  AlertProps,
+  AlertTitleProps,
+  AlertDescriptionProps,
+  AlertActionsProps,
+  AlertVariant,
+  AlertAppearance,
+} from './Alert';
+
 export {
   Dialog,
   DialogHeader,

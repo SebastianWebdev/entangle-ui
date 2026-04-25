@@ -152,6 +152,7 @@ export default defineConfig({
               label: 'Feedback',
               collapsed: false,
               items: [
+                { label: 'Alert', slug: 'components/feedback/alert' },
                 { label: 'Dialog', slug: 'components/feedback/dialog' },
                 {
                   label: 'EmptyState',
