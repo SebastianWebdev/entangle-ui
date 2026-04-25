@@ -13,6 +13,7 @@ export {
   PopoverContent,
   PopoverTrigger,
 } from './Popover';
+export { Radio, RadioGroup } from './Radio';
 export { Switch } from './Switch';
 export { Text } from './Text';
 export { TextArea } from './TextArea';
@@ -49,6 +50,13 @@ export type {
   PopoverProps,
   PopoverTriggerProps,
 } from './Popover';
+export type {
+  RadioProps,
+  RadioGroupProps,
+  RadioSize,
+  RadioLabelPosition,
+  RadioGroupOrientation,
+} from './Radio';
 export type { SwitchProps, SwitchSize } from './Switch';
 export type { TextAreaProps, TextAreaResize, TextAreaSize } from './TextArea';
 export type {
