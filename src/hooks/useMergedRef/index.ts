@@ -1,0 +1,1 @@
+export { useMergedRef } from './useMergedRef';

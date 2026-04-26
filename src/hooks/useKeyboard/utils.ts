@@ -1,3 +1,4 @@
+import { devWarn } from '@/utils/devWarn';
 import {
   KeyboardState,
   KeyboardInnerState,
@@ -45,7 +46,7 @@ export const updateState = (
     case 'keyup':
       return KeyReleaseUpdate(prevState, key);
     default:
-      console.warn(`Unhandled event type: ${eventType}`);
+      devWarn(`Unhandled event type: ${eventType}`);
       return prevState;
   }
 };

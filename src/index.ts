@@ -482,6 +482,26 @@ export type {
   ValueOf,
 } from '@/types/utilities';
 
+// Hooks
+export {
+  useControlledState,
+  useFocusTrap,
+  useKeyboard,
+  useMergedRef,
+  useResizeObserver,
+  isKeyPressed,
+  isModifierKey,
+} from '@/hooks';
+export type {
+  AllKeys,
+  KeyboardState,
+  KeyCode,
+  ModifierKeys,
+  UseControlledStateOptions,
+  UseFocusTrapOptions,
+  UseResizeObserverOptions,
+} from '@/hooks';
+
 // Utilities
 export { cn } from '@/utils/cn';
 export { cx } from '@/utils/cx';

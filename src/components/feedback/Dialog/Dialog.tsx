@@ -11,7 +11,8 @@ import { createPortal } from 'react-dom';
 import type { DialogContextValue, DialogProps } from './Dialog.types';
 import { overlayRecipe, dialogPanelRecipe } from './Dialog.css';
 import { useDialogAnimation } from './useDialogAnimation';
-import { useFocusTrap } from './useFocusTrap';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
 
 // --- Context ---
@@ -87,6 +88,8 @@ export const Dialog: React.FC<DialogProps> = ({
     enabled: trapFocus,
   });
 
+  const setPanelRef = useMergedRef<HTMLDivElement>(panelRef, ref);
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       // Escape handler — inline instead of global document listener
@@ -128,16 +131,7 @@ export const Dialog: React.FC<DialogProps> = ({
         />
       )}
       <div
-        ref={(node: HTMLDivElement | null) => {
-          (panelRef as React.MutableRefObject<HTMLDivElement | null>).current =
-            node;
-          if (typeof ref === 'function') {
-            ref(node);
-          } else if (ref) {
-            (ref as React.MutableRefObject<HTMLDivElement | null>).current =
-              node;
-          }
-        }}
+        ref={setPanelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}

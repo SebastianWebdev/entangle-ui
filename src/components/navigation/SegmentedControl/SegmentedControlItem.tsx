@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Tooltip } from '@/components/primitives/Tooltip/Tooltip';
 import { cx } from '@/utils/cx';
+import { devWarn } from '@/utils/devWarn';
 import { useSegmentedControlContext } from './SegmentedControl';
 import type { SegmentedControlItemProps } from './SegmentedControl.types';
 import {
@@ -72,7 +73,7 @@ export const SegmentedControlItem: React.FC<SegmentedControlItemProps> = ({
   // StrictMode and on every rerender).
   useEffect(() => {
     if (isIconOnly && !tooltip && !ariaLabelProp && !ariaLabelledByProp) {
-      console.warn(
+      devWarn(
         `[SegmentedControl] Icon-only segment "${value}" has no tooltip or aria-label. ` +
           'Add a tooltip prop or aria-label so the segment is accessible.'
       );

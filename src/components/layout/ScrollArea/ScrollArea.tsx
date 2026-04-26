@@ -3,6 +3,8 @@
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { ScrollAreaProps } from './ScrollArea.types';
 import { cx } from '@/utils/cx';
+import { useMergedRef } from '@/hooks/useMergedRef';
+import { useResizeObserver } from '@/hooks/useResizeObserver';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import {
   rootStyle,
@@ -260,21 +262,24 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
     []
   );
 
-  // Observe resize
+  // Initial measurement once the viewport is mounted.
+  useEffect(() => {
+    if (viewportRef.current) recalculate();
+  }, [recalculate]);
+
+  useResizeObserver(viewportRef, recalculate);
+
+  // Also observe the first child so the scrollbar reacts to content growth.
+  // The child is user-supplied content with no stable ref — kept inline since
+  // useResizeObserver is single-target.
   useEffect(() => {
     const vp = viewportRef.current;
     if (!vp) return;
+    const child = vp.firstElementChild;
+    if (!child || typeof ResizeObserver === 'undefined') return;
 
-    recalculate();
-
-    const ro = new ResizeObserver(() => {
-      recalculate();
-    });
-    ro.observe(vp);
-    if (vp.firstElementChild) {
-      ro.observe(vp.firstElementChild);
-    }
-
+    const ro = new ResizeObserver(() => recalculate());
+    ro.observe(child);
     return () => ro.disconnect();
   }, [recalculate]);
 
@@ -287,19 +292,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
     };
   }, []);
 
-  // Set ref
-  const setViewportRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      viewportRef.current = node;
-      if (typeof externalRef === 'function') {
-        externalRef(node as HTMLDivElement);
-      } else if (externalRef && typeof externalRef === 'object') {
-        (externalRef as React.MutableRefObject<HTMLDivElement | null>).current =
-          node;
-      }
-    },
-    [externalRef]
-  );
+  const setViewportRef = useMergedRef<HTMLDivElement>(viewportRef, externalRef);
 
   const isScrollbarShown =
     scrollbarVisibility === 'never' ? false : scrollbarVisibleState;
