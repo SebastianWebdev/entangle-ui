@@ -74,7 +74,9 @@ export const Kbd = /*#__PURE__*/ React.memo<KbdProps>(
             key={`${typeof key === 'string' ? key : index}-${index}`}
           >
             {index > 0 && separator !== null && (
-              <span className={separatorStyle}>{separator}</span>
+              <span className={separatorStyle} aria-hidden="true">
+                {separator}
+              </span>
             )}
             <kbd className={keycapRecipe({ size, variant })}>
               {renderKey(key)}

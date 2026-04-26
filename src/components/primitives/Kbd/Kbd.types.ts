@@ -1,40 +1,11 @@
 import type React from 'react';
 import type { BaseComponent, Size } from '@/types/common';
-import type { LiteralUnion, Prettify } from '@/types/utilities';
+import type { Prettify } from '@/types/utilities';
+import type { Platform } from '@/utils/platform';
 
 export type KbdSize = Size;
 
 export type KbdVariant = 'solid' | 'outline' | 'ghost';
-
-/**
- * Standard keys recognized for OS-aware rendering.
- * Arbitrary strings are also accepted and rendered verbatim.
- */
-export type KbdKey = LiteralUnion<
-  | 'Ctrl'
-  | 'Cmd'
-  | 'Meta'
-  | 'Alt'
-  | 'Option'
-  | 'Shift'
-  | 'Enter'
-  | 'Return'
-  | 'Tab'
-  | 'Esc'
-  | 'Escape'
-  | 'Space'
-  | 'Backspace'
-  | 'Delete'
-  | 'Up'
-  | 'Down'
-  | 'Left'
-  | 'Right'
-  | 'Plus'
-  | 'Minus'
-  | 'Comma'
-  | 'Period'
-  | 'Slash'
->;
 
 export interface KbdBaseProps extends BaseComponent<HTMLSpanElement> {
   /**
@@ -71,7 +42,7 @@ export interface KbdBaseProps extends BaseComponent<HTMLSpanElement> {
    * Override platform detection.
    * @default "auto"
    */
-  platform?: 'auto' | 'mac' | 'windows' | 'linux';
+  platform?: 'auto' | Platform;
 
   /**
    * Separator between keys when multiple keys are rendered.

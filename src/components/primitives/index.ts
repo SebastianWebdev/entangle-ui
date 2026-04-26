@@ -47,7 +47,7 @@ export type {
   IconButtonVariant,
 } from './IconButton';
 export type { InputProps, InputSize } from './Input';
-export type { KbdKey, KbdProps, KbdSize, KbdVariant } from './Kbd';
+export type { KbdProps, KbdSize, KbdVariant } from './Kbd';
 export type {
   PaperElevation,
   PaperNestLevel,

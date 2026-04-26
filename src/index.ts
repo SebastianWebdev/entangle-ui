@@ -224,7 +224,6 @@ export type {
   IconSize,
   InputProps,
   InputSize,
-  KbdKey,
   KbdProps,
   KbdSize,
   KbdVariant,
