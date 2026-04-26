@@ -21,7 +21,7 @@ const meta: Meta<TransformControlProps> = {
   decorators: [
     Story => (
       <KeyboardContextProvider>
-        <div style={{ maxWidth: 360, padding: 12 }}>
+        <div style={{ maxWidth: 400, padding: 12 }}>
           <Story />
         </div>
       </KeyboardContextProvider>

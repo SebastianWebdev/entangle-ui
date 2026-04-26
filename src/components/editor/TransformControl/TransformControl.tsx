@@ -47,6 +47,10 @@ const DEFAULT_PRECISION = { position: 3, rotation: 1, scale: 3 } as const;
 const DEFAULT_STEP = { position: 0.1, rotation: 1, scale: 0.01 } as const;
 const DEFAULT_UNITS = { position: 'm', rotation: '°', scale: '' } as const;
 
+// Narrow label column so the three axis inputs (with units) have room
+// to render without clipping inside typical 320–400 px property panels.
+const ROW_SPLIT_RATIO: [number, number] = [25, 75];
+
 // --- Helpers ---
 
 const vecToArray = (v: Vec3): number[] => [v.x, v.y, v.z];
@@ -239,6 +243,7 @@ export const TransformControl: React.FC<TransformControlProps> = ({
           label={resolvedLabels.coordinateSpace}
           size={size}
           disabled={disabled}
+          splitRatio={ROW_SPLIT_RATIO}
         >
           <Select
             value={coordinateSpace}
@@ -256,6 +261,7 @@ export const TransformControl: React.FC<TransformControlProps> = ({
           label={resolvedLabels.position}
           size={size}
           disabled={disabled}
+          splitRatio={ROW_SPLIT_RATIO}
           onReset={showReset ? handlePositionReset : undefined}
         >
           <VectorInput
@@ -279,6 +285,7 @@ export const TransformControl: React.FC<TransformControlProps> = ({
           label={resolvedLabels.rotation}
           size={size}
           disabled={disabled}
+          splitRatio={ROW_SPLIT_RATIO}
           onReset={showReset ? handleRotationReset : undefined}
         >
           <VectorInput
@@ -302,6 +309,7 @@ export const TransformControl: React.FC<TransformControlProps> = ({
           label={resolvedLabels.scale}
           size={size}
           disabled={disabled}
+          splitRatio={ROW_SPLIT_RATIO}
           onReset={showReset ? handleScaleReset : undefined}
         >
           <div className={scaleRowInner}>
