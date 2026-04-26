@@ -476,6 +476,7 @@ export type {
 // Hooks
 export {
   useControlledState,
+  useFocusTrap,
   useKeyboard,
   isKeyPressed,
   isModifierKey,
@@ -486,6 +487,7 @@ export type {
   KeyCode,
   ModifierKeys,
   UseControlledStateOptions,
+  UseFocusTrapOptions,
 } from '@/hooks';
 
 // Utilities

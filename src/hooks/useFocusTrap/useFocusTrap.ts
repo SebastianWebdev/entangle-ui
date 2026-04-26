@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, type RefObject, type KeyboardEvent } from 'react';
+import { useCallback, type KeyboardEvent, type RefObject } from 'react';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -11,29 +11,35 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(', ');
 
-interface UseFocusTrapOptions {
+export interface UseFocusTrapOptions {
+  /** Ref to the container element whose focusable descendants are trapped. */
   containerRef: RefObject<HTMLElement | null>;
+  /**
+   * When false, the trap is bypassed (Tab works normally). Useful for toggling
+   * trap state without unmounting.
+   * @default true
+   */
   enabled?: boolean;
 }
 
 /**
- * Reusable focus trap hook.
+ * Trap focus within a container element. Tab and Shift+Tab cycle through the
+ * focusable descendants without escaping the container.
  *
- * Traps Tab/Shift+Tab navigation within a container element,
- * wrapping focus from last to first element and vice versa.
- *
- * @returns onKeyDown handler to attach to the container element
+ * Returns a keyboard event handler to attach to the container's `onKeyDown`.
  *
  * @example
  * ```tsx
- * const handleKeyDown = useFocusTrap({ containerRef: panelRef, enabled: true });
- * <div ref={panelRef} onKeyDown={handleKeyDown}>...</div>
+ * const ref = useRef<HTMLDivElement>(null);
+ * const handleKeyDown = useFocusTrap({ containerRef: ref, enabled: isOpen });
+ *
+ * return <div ref={ref} onKeyDown={handleKeyDown}>...</div>;
  * ```
  */
 export function useFocusTrap({
   containerRef,
   enabled = true,
-}: UseFocusTrapOptions) {
+}: UseFocusTrapOptions): (event: KeyboardEvent) => void {
   return useCallback(
     (e: KeyboardEvent) => {
       if (!enabled || e.key !== 'Tab') return;
