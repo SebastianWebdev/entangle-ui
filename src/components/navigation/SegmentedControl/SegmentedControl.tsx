@@ -47,43 +47,38 @@ interface IndicatorRect {
 }
 
 function computeIndicatorRect(
-  rootEl: HTMLElement,
   itemEl: HTMLElement,
   variant: SegmentedControlVariant,
   orientation: SegmentedControlOrientation
 ): IndicatorRect {
-  const root = rootEl.getBoundingClientRect();
-  const item = itemEl.getBoundingClientRect();
-
-  const x = item.left - root.left;
-  const y = item.top - root.top;
+  // Use offsetLeft/offsetTop (padding-box-relative) so the indicator
+  // aligns with the absolutely-positioned reference frame inside the root.
+  const x = itemEl.offsetLeft;
+  const y = itemEl.offsetTop;
+  const width = itemEl.offsetWidth;
+  const height = itemEl.offsetHeight;
 
   if (variant === 'outline') {
     if (orientation === 'horizontal') {
       // 2px bar at the bottom of the item
       return {
         x,
-        y: item.height - 2,
-        width: item.width,
+        y: y + height - 2,
+        width,
         height: 2,
       };
     }
     // vertical: 2px bar at the left of the item
     return {
-      x: 0,
+      x,
       y,
       width: 2,
-      height: item.height,
+      height,
     };
   }
 
   // subtle / solid: full-segment background
-  return {
-    x,
-    y,
-    width: item.width,
-    height: item.height,
-  };
+  return { x, y, width, height };
 }
 
 // --- Use isomorphic layout effect for SSR safety ---
@@ -178,8 +173,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
   const [hasMeasured, setHasMeasured] = useState(false);
 
   const updateIndicator = useCallback(() => {
-    const root = rootRef.current;
-    if (!root || !activeValue) {
+    if (!activeValue) {
       setIndicator(null);
       return;
     }
@@ -188,7 +182,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
       setIndicator(null);
       return;
     }
-    setIndicator(computeIndicatorRect(root, item, variant, orientation));
+    setIndicator(computeIndicatorRect(item, variant, orientation));
   }, [activeValue, variant, orientation]);
 
   useIsomorphicLayoutEffect(() => {

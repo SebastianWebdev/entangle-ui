@@ -85,7 +85,8 @@ export const segmentedIndicatorRecipe = recipe({
   variants: {
     variant: {
       subtle: {
-        background: vars.colors.surface.default,
+        background: vars.colors.background.elevated,
+        border: `1px solid ${vars.colors.border.default}`,
         boxShadow: vars.shadows.sm,
         borderRadius: `calc(${vars.borderRadius.md} - 2px)`,
       },
