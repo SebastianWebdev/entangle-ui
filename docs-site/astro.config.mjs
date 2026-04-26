@@ -4,6 +4,9 @@ import react from '@astrojs/react';
 import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import { resolve } from 'path';
+import { fileURLToPath } from 'node:url';
+
+const rootDir = fileURLToPath(new URL('..', import.meta.url));
 
 export default defineConfig({
   integrations: [
@@ -140,11 +143,15 @@ export default defineConfig({
               label: 'Navigation',
               collapsed: false,
               items: [
-                { label: 'Menu', slug: 'components/navigation/menu' },
+                {
+                  label: 'Breadcrumbs',
+                  slug: 'components/navigation/breadcrumbs',
+                },
                 {
                   label: 'ContextMenu',
                   slug: 'components/navigation/context-menu',
                 },
+                { label: 'Menu', slug: 'components/navigation/menu' },
                 { label: 'Tabs', slug: 'components/navigation/tabs' },
               ],
             },
@@ -214,7 +221,7 @@ export default defineConfig({
     plugins: [vanillaExtractPlugin()],
     resolve: {
       alias: {
-        '@': resolve(new URL('.', import.meta.url).pathname, '../src'),
+        '@': resolve(rootDir, 'src'),
       },
     },
   },
