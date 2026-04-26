@@ -1,0 +1,87 @@
+---
+title: useResizeObserver
+description: Observe size changes on an element with SSR-safe setup and automatic cleanup.
+---
+
+import PropsTable from '../../../components/PropsTable.astro';
+import ComponentPreview from '../../../components/ComponentPreview.astro';
+import UseResizeObserverDemo from '../../../components/demos/hooks/UseResizeObserverDemo';
+
+`useResizeObserver` wraps the browser `ResizeObserver` API with the conventions used throughout this library: SSR-safe, no resubscription on callback identity changes, and an `enabled` flag for toggling observation without unmounting.
+
+<ComponentPreview title="Live preview">
+  <UseResizeObserverDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```ts
+import { useResizeObserver } from 'entangle-ui';
+```
+
+## Signature
+
+```ts
+function useResizeObserver<T extends HTMLElement>(
+  ref: React.RefObject<T | null>,
+  callback: (entry: ResizeObserverEntry) => void,
+  options?: UseResizeObserverOptions
+): void;
+
+interface UseResizeObserverOptions {
+  enabled?: boolean;
+}
+```
+
+## Usage
+
+```tsx
+function Box() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+
+  useResizeObserver(ref, entry => {
+    setWidth(entry.contentRect.width);
+  });
+
+  return <div ref={ref}>Width: {width}px</div>;
+}
+```
+
+## API
+
+<PropsTable
+  props={[
+    {
+      name: 'ref',
+      type: 'RefObject<T | null>',
+      required: true,
+      description: 'Ref pointing to the element you want to observe.',
+    },
+    {
+      name: 'callback',
+      type: '(entry: ResizeObserverEntry) => void',
+      required: true,
+      description:
+        'Called for each observed entry on every size change. Does not need to be memoized — the hook stores it in a ref so the underlying observer never resubscribes when the callback identity changes.',
+    },
+    {
+      name: 'options.enabled',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'When false, the observer is detached. Toggling between true and false attaches / disconnects without unmounting the host component.',
+    },
+  ]}
+/>
+
+## Returns
+
+`void`. The hook owns its `ResizeObserver` instance internally and disconnects it on unmount or when the ref / `enabled` changes.
+
+## Common pitfalls
+
+- **SSR safety:** the hook checks `typeof ResizeObserver === 'undefined'` and silently no-ops on the server, in tests without a polyfill, or in legacy browsers without the API.
+- **Single-target only:** each call observes exactly one element. To observe multiple elements (e.g. a viewport and its first child), call the hook twice with different refs.
+- **`contentRect` vs `borderBoxSize`:** the entry exposes both. `contentRect` is the most common shape for layout work; switch to `borderBoxSize[0]` if you need the border-box dimensions.
+- **Initial measurement:** `ResizeObserver` fires once on attach with the element's current size, so you do not need a separate `getBoundingClientRect()` call to seed initial state — unless you want the value before the first paint.

@@ -1,0 +1,66 @@
+---
+title: useMergedRef
+description: Merge multiple refs (object or callback) into a single callback ref.
+---
+
+import PropsTable from '../../../components/PropsTable.astro';
+import ComponentPreview from '../../../components/ComponentPreview.astro';
+import UseMergedRefDemo from '../../../components/demos/hooks/UseMergedRefDemo';
+
+`useMergedRef` lets a component keep an internal ref to a DOM node while also forwarding the same node through an externally supplied `ref` prop. Each provided ref — object refs, callback refs, `null`, or `undefined` — receives the node when the merged callback fires.
+
+<ComponentPreview title="Live preview">
+  <UseMergedRefDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```ts
+import { useMergedRef } from 'entangle-ui';
+```
+
+## Signature
+
+```ts
+function useMergedRef<T>(
+  ...refs: Array<React.Ref<T> | undefined | null>
+): React.RefCallback<T>;
+```
+
+## Usage
+
+The most common case in React 19 components: an internal ref for measurements / focus, plus the consumer's `ref` prop forwarded onto the same node.
+
+```tsx
+function Panel({ ref: externalRef, ...rest }) {
+  const internalRef = useRef<HTMLDivElement>(null);
+  const setPanelRef = useMergedRef<HTMLDivElement>(internalRef, externalRef);
+
+  return <div ref={setPanelRef} {...rest} />;
+}
+```
+
+## Returns
+
+A `RefCallback<T>` that fans the node out to every provided ref. Pass it directly to the element's `ref` prop.
+
+## API
+
+The hook accepts a variadic list of refs:
+
+<PropsTable
+  props={[
+    {
+      name: '...refs',
+      type: 'Array<Ref<T> | undefined | null>',
+      description:
+        'Any number of refs to merge. Object refs are mutated, callback refs are invoked, and null / undefined entries are skipped.',
+    },
+  ]}
+/>
+
+## Common pitfalls
+
+- **Identity changes:** the returned callback's identity changes whenever the underlying refs do. This is intentional — when a consumer's `ref` prop swaps, the new ref must receive the node. React handles this gracefully by calling the previous callback with `null` and the new one with the node.
+- **Don't memoize the inputs:** there's no need to wrap the `ref` arguments in `useMemo`. The hook always reads the latest refs you pass.
+- **TypeScript:** specify the element type explicitly (`useMergedRef<HTMLDivElement>(...)`) so TypeScript can match it against the consumer's `ref` prop.

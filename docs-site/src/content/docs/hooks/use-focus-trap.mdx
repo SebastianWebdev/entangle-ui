@@ -1,0 +1,91 @@
+---
+title: useFocusTrap
+description: Trap keyboard focus within a container element so Tab and Shift+Tab cycle without escaping.
+---
+
+import PropsTable from '../../../components/PropsTable.astro';
+import ComponentPreview from '../../../components/ComponentPreview.astro';
+import UseFocusTrapDemo from '../../../components/demos/hooks/UseFocusTrapDemo';
+
+`useFocusTrap` is the focus management primitive used by `Dialog`. It returns an `onKeyDown` handler that intercepts `Tab` and `Shift+Tab`, cycling focus through the focusable descendants of a container so that keyboard navigation stays inside the trap.
+
+<ComponentPreview title="Live preview">
+  <UseFocusTrapDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```ts
+import { useFocusTrap } from 'entangle-ui';
+```
+
+## Signature
+
+```ts
+function useFocusTrap(
+  options: UseFocusTrapOptions
+): (event: React.KeyboardEvent) => void;
+
+interface UseFocusTrapOptions {
+  containerRef: React.RefObject<HTMLElement | null>;
+  enabled?: boolean;
+}
+```
+
+## Usage
+
+```tsx
+function Modal({ open, children }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useFocusTrap({ containerRef: ref, enabled: open });
+
+  return (
+    <div ref={ref} onKeyDown={handleKeyDown} role="dialog">
+      {children}
+    </div>
+  );
+}
+```
+
+## Returns
+
+A keyboard event handler. Attach it to the container's `onKeyDown` prop.
+
+## API
+
+<PropsTable
+  props={[
+    {
+      name: 'containerRef',
+      type: 'RefObject<HTMLElement | null>',
+      required: true,
+      description:
+        'Ref to the element whose focusable descendants are trapped.',
+    },
+    {
+      name: 'enabled',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'When false, Tab works normally and focus escapes the container. Useful for toggling trap state without unmounting.',
+    },
+  ]}
+/>
+
+## Focusable selector
+
+The hook treats elements matching the following selector as focusable:
+
+```
+a[href], button:not([disabled]), input:not([disabled]),
+textarea:not([disabled]), select:not([disabled]),
+[tabindex]:not([tabindex="-1"])
+```
+
+The same `FOCUSABLE_SELECTOR` constant is exported from the hook module for advanced use cases (focus-on-open, finding the first focusable, etc.).
+
+## Common pitfalls
+
+- **Forgetting to attach the handler:** the hook only returns the event handler — it does not attach a global listener. The container must wire up `onKeyDown` itself.
+- **Container with no focusable elements:** the hook will `preventDefault` Tab to keep focus from escaping, but cannot focus anything. In a Dialog this is expected; in other contexts you may want to ensure the container has at least a focusable wrapper.
+- **Nested traps:** only the innermost trap that handles the event matters. If you nest two traps, stop propagation appropriately.

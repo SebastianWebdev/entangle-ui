@@ -1,0 +1,36 @@
+---
+title: Hooks
+description: Reusable hooks shipped alongside Entangle UI components.
+---
+
+The library exports a set of hooks used internally by components and available for consumer applications. Each hook is small, focused, SSR-safe, and tree-shakeable.
+
+## Available in v0.8
+
+- [`useControlledState`](/hooks/use-controlled-state) — manage the controlled / uncontrolled state pattern
+- [`useFocusTrap`](/hooks/use-focus-trap) — trap keyboard focus within a container
+- [`useKeyboard`](/hooks/use-keyboard) — read the live keyboard state via context (already shipped)
+- [`useMergedRef`](/hooks/use-merged-ref) — merge multiple refs into a single callback ref
+- [`useResizeObserver`](/hooks/use-resize-observer) — observe element size changes with SSR-safe cleanup
+
+## Importing
+
+All hooks are exported from the package root:
+
+```ts
+import {
+  useControlledState,
+  useFocusTrap,
+  useMergedRef,
+  useResizeObserver,
+} from 'entangle-ui';
+```
+
+## Conventions
+
+Every hook in this library follows the same conventions:
+
+- **SSR-safe**: hooks that touch browser globals (`ResizeObserver`, `document`, etc.) check for their existence and silently no-op on the server.
+- **Stable callback identity**: callbacks passed to hooks do not need to be memoized by the consumer. The hook wraps them in a ref so the underlying observer / effect does not re-subscribe on every render.
+- **`enabled` toggles, not unmounts**: when a hook accepts an `enabled` flag, toggling it safely attaches / detaches its effect without unmounting the component.
+- **Dev-only warnings**: misuse warnings (controlled / uncontrolled switches, etc.) only fire in development. Production builds are silent.

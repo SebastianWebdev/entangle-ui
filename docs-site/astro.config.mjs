@@ -215,6 +215,23 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Hooks',
+          collapsed: false,
+          items: [
+            { label: 'Overview', slug: 'hooks' },
+            {
+              label: 'useControlledState',
+              slug: 'hooks/use-controlled-state',
+            },
+            { label: 'useFocusTrap', slug: 'hooks/use-focus-trap' },
+            { label: 'useMergedRef', slug: 'hooks/use-merged-ref' },
+            {
+              label: 'useResizeObserver',
+              slug: 'hooks/use-resize-observer',
+            },
+          ],
+        },
+        {
           label: 'Showcase',
           items: [{ label: 'Full Editor', slug: 'showcase/editor' }],
         },
