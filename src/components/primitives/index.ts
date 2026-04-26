@@ -1,3 +1,4 @@
+export { Avatar, AvatarGroup, getAvatarInitials } from './Avatar';
 export { Badge } from './Badge';
 export { Button } from './Button';
 export { Checkbox, CheckboxGroup } from './Checkbox';
@@ -19,6 +20,14 @@ export { Text } from './Text';
 export { TextArea } from './TextArea';
 export { Tooltip } from './Tooltip';
 
+export type {
+  AvatarColor,
+  AvatarGroupProps,
+  AvatarProps,
+  AvatarShape,
+  AvatarSize,
+  AvatarStatus,
+} from './Avatar';
 export type { BadgeProps, BadgeColor, BadgeSize, BadgeVariant } from './Badge';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
 export type {

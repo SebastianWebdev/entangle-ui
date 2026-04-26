@@ -58,6 +58,7 @@ export default defineConfig({
               label: 'Primitives',
               collapsed: false,
               items: [
+                { label: 'Avatar', slug: 'components/primitives/avatar' },
                 { label: 'Badge', slug: 'components/primitives/badge' },
                 { label: 'Button', slug: 'components/primitives/button' },
                 { label: 'Checkbox', slug: 'components/primitives/checkbox' },
