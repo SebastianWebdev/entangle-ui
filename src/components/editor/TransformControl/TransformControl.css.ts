@@ -14,12 +14,12 @@ export const transformRoot = style({
 });
 
 /**
- * The inner control container of the scale row holds the lock toggle
- * followed by the `VectorInput`. We keep the toggle on the left so the
- * row visually echoes Blender / Unity conventions where uniform-scale
- * locks sit before the value triplet.
+ * Inner control container for every transform row (position, rotation,
+ * scale). Each row reserves the same prefix slot on the left so all three
+ * `VectorInput`s end up with identical width — the scale row uses that
+ * slot for the lock toggle, the others fill it with an invisible spacer.
  */
-export const scaleRowInner = style({
+export const rowInner = style({
   display: 'flex',
   alignItems: 'center',
   gap: vars.spacing.xs,
@@ -27,9 +27,31 @@ export const scaleRowInner = style({
   minWidth: 0,
 });
 
-export const scaleVectorWrapper = style({
+export const rowVectorWrapper = style({
   flex: 1,
   minWidth: 0,
+});
+
+/**
+ * Invisible placeholder rendered in the Position / Rotation rows that
+ * matches the dimensions of the lock toggle, so all three rows align.
+ */
+export const lockSpacerRecipe = recipe({
+  base: {
+    flexShrink: 0,
+    visibility: 'hidden',
+    pointerEvents: 'none',
+  },
+  variants: {
+    size: {
+      sm: { width: '20px', height: '20px', minWidth: '20px' },
+      md: { width: '24px', height: '24px', minWidth: '24px' },
+      lg: { width: '28px', height: '28px', minWidth: '28px' },
+    },
+  },
+  defaultVariants: {
+    size: 'sm',
+  },
 });
 
 /**

@@ -21,7 +21,7 @@ const meta: Meta<TransformControlProps> = {
   decorators: [
     Story => (
       <KeyboardContextProvider>
-        <div style={{ width: 480 }}>
+        <div style={{ width: 360, padding: 12 }}>
           <Story />
         </div>
       </KeyboardContextProvider>
@@ -156,13 +156,11 @@ export const Disabled: Story = {
 
 export const InPropertySection: Story = {
   render: args => (
-    <div style={{ width: 520 }}>
-      <PropertyPanel size="sm">
-        <PropertySection title="Transform" defaultExpanded>
-          <TransformControl {...args} defaultValue={initialValue} />
-        </PropertySection>
-      </PropertyPanel>
-    </div>
+    <PropertyPanel size="sm">
+      <PropertySection title="Transform" defaultExpanded>
+        <TransformControl {...args} defaultValue={initialValue} />
+      </PropertySection>
+    </PropertyPanel>
   ),
 };
 
@@ -172,42 +170,40 @@ export const EditorExample: Story = {
       const [transform, setTransform] = useState<TransformValue>(initialValue);
       const [space, setSpace] = useState<CoordinateSpace>('local');
       return (
-        <div style={{ width: 520 }}>
-          <PropertyPanel size="sm">
-            <PropertySection title="Transform" defaultExpanded>
-              <TransformControl
-                {...args}
-                value={transform}
-                onChange={setTransform}
-                coordinateSpace={space}
-                onCoordinateSpaceChange={setSpace}
-                showReset
-              />
-            </PropertySection>
-            <PropertySection title="Material" defaultExpanded={false}>
-              <div
-                style={{
-                  padding: 8,
-                  fontSize: 12,
-                  color: 'var(--etui-color-text-muted)',
-                }}
-              >
-                (placeholder section)
-              </div>
-            </PropertySection>
-            <PropertySection title="Physics" defaultExpanded={false}>
-              <div
-                style={{
-                  padding: 8,
-                  fontSize: 12,
-                  color: 'var(--etui-color-text-muted)',
-                }}
-              >
-                (placeholder section)
-              </div>
-            </PropertySection>
-          </PropertyPanel>
-        </div>
+        <PropertyPanel size="sm">
+          <PropertySection title="Transform" defaultExpanded>
+            <TransformControl
+              {...args}
+              value={transform}
+              onChange={setTransform}
+              coordinateSpace={space}
+              onCoordinateSpaceChange={setSpace}
+              showReset
+            />
+          </PropertySection>
+          <PropertySection title="Material" defaultExpanded={false}>
+            <div
+              style={{
+                padding: 8,
+                fontSize: 12,
+                color: 'var(--etui-color-text-muted)',
+              }}
+            >
+              (placeholder section)
+            </div>
+          </PropertySection>
+          <PropertySection title="Physics" defaultExpanded={false}>
+            <div
+              style={{
+                padding: 8,
+                fontSize: 12,
+                color: 'var(--etui-color-text-muted)',
+              }}
+            >
+              (placeholder section)
+            </div>
+          </PropertySection>
+        </PropertyPanel>
       );
     };
     return <Inner />;

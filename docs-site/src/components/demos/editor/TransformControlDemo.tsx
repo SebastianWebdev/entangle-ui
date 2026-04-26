@@ -22,7 +22,7 @@ export default function TransformControlDemo() {
 
   return (
     <DemoWrapper withKeyboard padding="0">
-      <div style={{ maxWidth: 440 }}>
+      <div style={{ maxWidth: 360 }}>
         <PropertyPanel size="sm">
           <PropertySection title="Transform" defaultExpanded>
             <TransformControl
@@ -42,7 +42,7 @@ export default function TransformControlDemo() {
 export function TransformControlBasic() {
   return (
     <DemoWrapper withKeyboard padding="0">
-      <div style={{ maxWidth: 440 }}>
+      <div style={{ maxWidth: 360 }}>
         <PropertyPanel size="sm">
           <PropertySection title="Transform" defaultExpanded>
             <TransformControl defaultValue={initialValue} />
@@ -56,7 +56,7 @@ export function TransformControlBasic() {
 export function TransformControlWithReset() {
   return (
     <DemoWrapper withKeyboard padding="0">
-      <div style={{ maxWidth: 440 }}>
+      <div style={{ maxWidth: 360 }}>
         <PropertyPanel size="sm">
           <PropertySection title="Transform" defaultExpanded>
             <TransformControl
@@ -78,7 +78,7 @@ export function TransformControlLinkedScale() {
   const [transform, setTransform] = useState<TransformValue>(initialValue);
   return (
     <DemoWrapper withKeyboard padding="0">
-      <div style={{ maxWidth: 440 }}>
+      <div style={{ maxWidth: 360 }}>
         <PropertyPanel size="sm">
           <PropertySection title="Transform" defaultExpanded>
             <TransformControl
@@ -107,7 +107,7 @@ export function TransformControlLinkedScale() {
 export function TransformControlPositionOnly() {
   return (
     <DemoWrapper withKeyboard padding="0">
-      <div style={{ maxWidth: 440 }}>
+      <div style={{ maxWidth: 360 }}>
         <PropertyPanel size="sm">
           <PropertySection title="Transform" defaultExpanded>
             <TransformControl
@@ -124,7 +124,7 @@ export function TransformControlPositionOnly() {
 export function TransformControlCustomSpaces() {
   return (
     <DemoWrapper withKeyboard padding="0">
-      <div style={{ maxWidth: 440 }}>
+      <div style={{ maxWidth: 360 }}>
         <PropertyPanel size="sm">
           <PropertySection title="Transform" defaultExpanded>
             <TransformControl
@@ -146,7 +146,7 @@ export function TransformControlCustomSpaces() {
 export function TransformControlInPanel() {
   return (
     <DemoWrapper withKeyboard padding="0">
-      <div style={{ maxWidth: 440 }}>
+      <div style={{ maxWidth: 360 }}>
         <PropertyPanel size="sm">
           <PropertySection title="Transform" defaultExpanded>
             <TransformControl defaultValue={initialValue} showReset />

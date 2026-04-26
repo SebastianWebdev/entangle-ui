@@ -17,8 +17,9 @@ import type {
 } from './TransformControl.types';
 import {
   lockButtonRecipe,
-  scaleRowInner,
-  scaleVectorWrapper,
+  lockSpacerRecipe,
+  rowInner,
+  rowVectorWrapper,
   transformRoot,
 } from './TransformControl.css';
 
@@ -264,19 +265,24 @@ export const TransformControl: React.FC<TransformControlProps> = ({
           splitRatio={ROW_SPLIT_RATIO}
           onReset={showReset ? handlePositionReset : undefined}
         >
-          <VectorInput
-            value={vecToArray(value.position)}
-            onChange={handlePositionChange}
-            dimension={3}
-            labelPreset="xyz"
-            colorPreset="spatial"
-            precision={resolvedPrecision.position}
-            step={resolvedStep.position}
-            unit={resolvedUnits.position}
-            size={size}
-            disabled={disabled}
-            aria-label={resolvedLabels.position}
-          />
+          <div className={rowInner}>
+            <span aria-hidden="true" className={lockSpacerRecipe({ size })} />
+            <div className={rowVectorWrapper}>
+              <VectorInput
+                value={vecToArray(value.position)}
+                onChange={handlePositionChange}
+                dimension={3}
+                labelPreset="xyz"
+                colorPreset="spatial"
+                precision={resolvedPrecision.position}
+                step={resolvedStep.position}
+                unit={resolvedUnits.position}
+                size={size}
+                disabled={disabled}
+                aria-label={resolvedLabels.position}
+              />
+            </div>
+          </div>
         </PropertyRow>
       )}
 
@@ -288,19 +294,24 @@ export const TransformControl: React.FC<TransformControlProps> = ({
           splitRatio={ROW_SPLIT_RATIO}
           onReset={showReset ? handleRotationReset : undefined}
         >
-          <VectorInput
-            value={vecToArray(value.rotation)}
-            onChange={handleRotationChange}
-            dimension={3}
-            labelPreset="xyz"
-            colorPreset="spatial"
-            precision={resolvedPrecision.rotation}
-            step={resolvedStep.rotation}
-            unit={resolvedUnits.rotation}
-            size={size}
-            disabled={disabled}
-            aria-label={resolvedLabels.rotation}
-          />
+          <div className={rowInner}>
+            <span aria-hidden="true" className={lockSpacerRecipe({ size })} />
+            <div className={rowVectorWrapper}>
+              <VectorInput
+                value={vecToArray(value.rotation)}
+                onChange={handleRotationChange}
+                dimension={3}
+                labelPreset="xyz"
+                colorPreset="spatial"
+                precision={resolvedPrecision.rotation}
+                step={resolvedStep.rotation}
+                unit={resolvedUnits.rotation}
+                size={size}
+                disabled={disabled}
+                aria-label={resolvedLabels.rotation}
+              />
+            </div>
+          </div>
         </PropertyRow>
       )}
 
@@ -312,7 +323,7 @@ export const TransformControl: React.FC<TransformControlProps> = ({
           splitRatio={ROW_SPLIT_RATIO}
           onReset={showReset ? handleScaleReset : undefined}
         >
-          <div className={scaleRowInner}>
+          <div className={rowInner}>
             <button
               type="button"
               className={lockButtonRecipe({ active: linkedScale, size })}
@@ -329,7 +340,7 @@ export const TransformControl: React.FC<TransformControlProps> = ({
                 <UnlockIcon size={size} decorative />
               )}
             </button>
-            <div className={scaleVectorWrapper}>
+            <div className={rowVectorWrapper}>
               <VectorInput
                 value={vecToArray(value.scale)}
                 onChange={handleScaleChange}
