@@ -44,6 +44,7 @@ export {
   Icon,
   IconButton,
   Input,
+  Kbd,
   Link,
   Paper,
   Popover,
@@ -91,6 +92,8 @@ export {
   BreadcrumbItem,
   Breadcrumbs,
   BreadcrumbSeparator,
+  SegmentedControl,
+  SegmentedControlItem,
   useContextMenuTarget,
   useMenu,
   Tab,
@@ -226,6 +229,9 @@ export type {
   IconSize,
   InputProps,
   InputSize,
+  KbdProps,
+  KbdSize,
+  KbdVariant,
   LinkColor,
   LinkProps,
   LinkSize,
@@ -323,6 +329,11 @@ export type {
   MenuSelection,
   ItemSelectionType,
   SubmenuTrigger,
+  SegmentedControlProps,
+  SegmentedControlItemProps,
+  SegmentedControlSize,
+  SegmentedControlOrientation,
+  SegmentedControlVariant,
   TabListProps,
   TabPanelProps,
   TabProps,
@@ -471,6 +482,8 @@ export type {
 // Utilities
 export { cn } from '@/utils/cn';
 export { cx } from '@/utils/cx';
+export { getKeyGlyph, getPlatform, parseShortcut } from '@/utils/platform';
+export type { Platform } from '@/utils/platform';
 export {
   animBlink,
   animFadeIn,

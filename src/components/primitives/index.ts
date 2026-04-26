@@ -7,6 +7,7 @@ export { Collapsible } from './Collapsible';
 export { Icon } from './Icon';
 export { IconButton } from './IconButton';
 export { Input } from './Input';
+export { Kbd } from './Kbd';
 export { Link } from './Link';
 export { Paper } from './Paper';
 export {
@@ -47,6 +48,7 @@ export type {
   IconButtonVariant,
 } from './IconButton';
 export type { InputProps, InputSize } from './Input';
+export type { KbdProps, KbdSize, KbdVariant } from './Kbd';
 export type {
   LinkColor,
   LinkProps,

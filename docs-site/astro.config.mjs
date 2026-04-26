@@ -76,6 +76,7 @@ export default defineConfig({
                   slug: 'components/primitives/icon-button',
                 },
                 { label: 'Input', slug: 'components/primitives/input' },
+                { label: 'Kbd', slug: 'components/primitives/kbd' },
                 { label: 'Link', slug: 'components/primitives/link' },
                 { label: 'Paper', slug: 'components/primitives/paper' },
                 { label: 'Popover', slug: 'components/primitives/popover' },
@@ -154,6 +155,10 @@ export default defineConfig({
                   slug: 'components/navigation/context-menu',
                 },
                 { label: 'Menu', slug: 'components/navigation/menu' },
+                {
+                  label: 'SegmentedControl',
+                  slug: 'components/navigation/segmented-control',
+                },
                 { label: 'Tabs', slug: 'components/navigation/tabs' },
               ],
             },
