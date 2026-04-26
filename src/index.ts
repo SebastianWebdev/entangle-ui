@@ -12,6 +12,7 @@ export {
 } from '@/theme';
 export type {
   ThemeVars,
+  ThemeValues,
   DarkThemeValues,
   LightThemeValues,
   VanillaThemeProviderProps,
@@ -497,6 +498,7 @@ export {
   useKeyboard,
   useMergedRef,
   useResizeObserver,
+  useTheme,
   isKeyPressed,
   isModifierKey,
 } from '@/hooks';
@@ -506,6 +508,8 @@ export type {
   KeyboardState,
   KeyCode,
   ModifierKeys,
+  ResolvedThemeValues,
+  ThemeVariant,
   UseClickOutsideOptions,
   UseClipboardOptions,
   UseClipboardReturn,
@@ -515,6 +519,7 @@ export type {
   UseFocusTrapOptions,
   UseHotkeyOptions,
   UseResizeObserverOptions,
+  UseThemeReturn,
 } from '@/hooks';
 
 // Utilities

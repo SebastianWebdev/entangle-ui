@@ -238,6 +238,7 @@ export default defineConfig({
               label: 'useResizeObserver',
               slug: 'hooks/use-resize-observer',
             },
+            { label: 'useTheme', slug: 'hooks/use-theme' },
           ],
         },
         {
