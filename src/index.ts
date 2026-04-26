@@ -484,8 +484,12 @@ export type {
 
 // Hooks
 export {
+  useClickOutside,
+  useClipboard,
   useControlledState,
+  useDisclosure,
   useFocusTrap,
+  useHotkey,
   useKeyboard,
   useMergedRef,
   useResizeObserver,
@@ -494,11 +498,18 @@ export {
 } from '@/hooks';
 export type {
   AllKeys,
+  ClipboardStatus,
   KeyboardState,
   KeyCode,
   ModifierKeys,
+  UseClickOutsideOptions,
+  UseClipboardOptions,
+  UseClipboardReturn,
   UseControlledStateOptions,
+  UseDisclosureOptions,
+  UseDisclosureReturn,
   UseFocusTrapOptions,
+  UseHotkeyOptions,
   UseResizeObserverOptions,
 } from '@/hooks';
 

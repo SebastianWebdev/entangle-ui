@@ -224,11 +224,15 @@ export default defineConfig({
           collapsed: false,
           items: [
             { label: 'Overview', slug: 'hooks' },
+            { label: 'useClickOutside', slug: 'hooks/use-click-outside' },
+            { label: 'useClipboard', slug: 'hooks/use-clipboard' },
             {
               label: 'useControlledState',
               slug: 'hooks/use-controlled-state',
             },
+            { label: 'useDisclosure', slug: 'hooks/use-disclosure' },
             { label: 'useFocusTrap', slug: 'hooks/use-focus-trap' },
+            { label: 'useHotkey', slug: 'hooks/use-hotkey' },
             { label: 'useMergedRef', slug: 'hooks/use-merged-ref' },
             {
               label: 'useResizeObserver',
