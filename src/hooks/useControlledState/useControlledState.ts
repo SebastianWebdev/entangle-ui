@@ -45,8 +45,11 @@ export function useControlledState<T>(
 
   const isControlled = value !== undefined;
 
+  // Only `undefined` means "no defaultValue given" — `null` is a legal value
+  // for generic T (e.g. `string | null`) and must not be replaced by fallback.
   const [internalValue, setInternalValue] = useState<T>(
-    defaultValue ?? fallback
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    defaultValue !== undefined ? defaultValue : fallback
   );
 
   // Stable refs to avoid stale closures and unnecessary identity changes.

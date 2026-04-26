@@ -83,6 +83,16 @@ describe('useControlledState', () => {
       expect(result.current[0]).toBe('fb');
     });
 
+    it('treats defaultValue: null as a real value, not as missing', () => {
+      const { result } = renderHook(() =>
+        useControlledState<string | null>({
+          defaultValue: null,
+          fallback: 'fb',
+        })
+      );
+      expect(result.current[0]).toBe(null);
+    });
+
     it('setValue updates internal state', () => {
       const { result } = renderHook(() =>
         useControlledState({ defaultValue: 'a', fallback: '' })
