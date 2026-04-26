@@ -37,7 +37,7 @@ interface UseHotkeyOptions {
   enableInInputs?: boolean;
   preventDefault?: boolean;
   stopPropagation?: boolean;
-  target?: HTMLElement | Document | null;
+  target?: EventTarget | RefObject<EventTarget | null> | null;
 }
 ```
 
@@ -134,9 +134,9 @@ Examples: `"Ctrl+S"`, `"Cmd+Shift+P"`, `"Escape"`, `"Alt+ArrowUp"`.
     },
     {
       name: 'options.target',
-      type: 'HTMLElement | Document | null',
+      type: 'EventTarget | RefObject<EventTarget | null> | null',
       description:
-        'Override the listener target. Defaults to `window`. Use a specific element to scope the hotkey.',
+        'Override the listener target. Accepts an `EventTarget` directly or a `RefObject` whose `.current` resolves to one — the latter form attaches the listener after the ref mounts. Defaults to `window`.',
     },
   ]}
 />
@@ -146,4 +146,4 @@ Examples: `"Ctrl+S"`, `"Cmd+Shift+P"`, `"Escape"`, `"Alt+ArrowUp"`.
 - **Modifier mismatch:** `'Ctrl+S'` does NOT match `Ctrl+Shift+S`. The hook checks every modifier — extra ones cause the combo to miss. If you want a "Ctrl+S regardless of Shift" behavior, write a manual handler.
 - **Editable focus:** Forgetting to set `enableInInputs` for global app shortcuts (Save, Find, Command Palette) leads to confusing "shortcut works on the page but not while I'm typing" reports.
 - **Browser-reserved combos:** `Ctrl+W`, `Ctrl+T`, `Ctrl+N` and friends cannot be intercepted reliably. Pick combos that aren't bound by the browser chrome.
-- **`target` lifecycle:** When passing a custom `target`, make sure the element is mounted by the time the effect runs. Pass the ref's `.current` value or render the consumer below the element.
+- **`target` lifecycle:** Prefer passing the ref directly (e.g. `target: ref`) over `target: ref.current`. The `RefObject` form re-resolves once the element mounts; the `.current` form is `null` on the first render and the listener never attaches.

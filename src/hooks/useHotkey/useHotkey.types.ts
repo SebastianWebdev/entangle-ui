@@ -1,3 +1,7 @@
+import type { RefObject } from 'react';
+
+export type HotkeyTarget = EventTarget | RefObject<EventTarget | null> | null;
+
 export interface UseHotkeyOptions {
   /**
    * When false, the binding is not active.
@@ -21,7 +25,11 @@ export interface UseHotkeyOptions {
    */
   stopPropagation?: boolean;
   /**
-   * Override the target element. Defaults to `window`.
+   * Override the target element. Accepts either an `EventTarget` directly
+   * (e.g. `document`, an `HTMLElement`) or a `RefObject` whose `.current`
+   * resolves to one. The latter form re-attaches the listener once the ref
+   * mounts, so passing `ref` directly works without waiting a render. Defaults
+   * to `window`.
    */
-  target?: HTMLElement | Document | null;
+  target?: HotkeyTarget;
 }

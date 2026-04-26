@@ -17,9 +17,20 @@ const panelStyle: React.CSSProperties = {
 
 export default function UseClickOutsideDemo() {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(ref, () => setOpen(false), { enabled: open });
+  // Trigger and panel share the "inside" group — clicking the trigger
+  // does not count as outside, so the same click that opens the panel
+  // can never close it on the same gesture.
+  useClickOutside(
+    [
+      triggerRef as RefObject<HTMLElement | null>,
+      panelRef as RefObject<HTMLElement | null>,
+    ],
+    () => setOpen(false),
+    { enabled: open }
+  );
 
   return (
     <DemoWrapper>
@@ -28,11 +39,11 @@ export default function UseClickOutsideDemo() {
           Click outside the panel to close it.
         </Text>
         <div style={{ position: 'relative' }}>
-          <Button onClick={() => setOpen(prev => !prev)}>
+          <Button ref={triggerRef} onClick={() => setOpen(prev => !prev)}>
             {open ? 'Close panel' : 'Open panel'}
           </Button>
           {open && (
-            <div ref={ref} style={panelStyle}>
+            <div ref={panelRef} style={panelStyle}>
               <Stack spacing={2}>
                 <Text size="sm">I close when you click outside.</Text>
                 <Button variant="ghost" onClick={() => setOpen(false)}>

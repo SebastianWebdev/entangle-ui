@@ -1,8 +1,25 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import { getPlatform, parseShortcut } from '@/utils/platform';
-import type { UseHotkeyOptions } from './useHotkey.types';
+import type { HotkeyTarget, UseHotkeyOptions } from './useHotkey.types';
+
+function isRefObject(value: unknown): value is RefObject<EventTarget | null> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'current' in (value as Record<string, unknown>)
+  );
+}
+
+function resolveTarget(target: HotkeyTarget | undefined): EventTarget | null {
+  if (target === undefined) {
+    return typeof window === 'undefined' ? null : window;
+  }
+  if (target === null) return null;
+  if (isRefObject(target)) return target.current;
+  return target;
+}
 
 interface ParsedCombo {
   ctrl: boolean;
@@ -145,18 +162,17 @@ export function useHotkey(
   } = options;
 
   const handlerRef = useRef(handler);
-
-  useEffect(() => {
-    handlerRef.current = handler;
-  }, [handler]);
+  handlerRef.current = handler;
 
   const parsed = useMemo(() => parseCombo(combo), [combo]);
 
   useEffect(() => {
     if (!enabled || parsed === null) return;
-    if (typeof window === 'undefined') return;
 
-    const eventTarget: EventTarget | null = target ?? window;
+    // Resolve inside the effect so a `RefObject` target reads its current
+    // value after commit — by the time `useEffect` fires, React has already
+    // populated `ref.current` with the mounted element.
+    const eventTarget = resolveTarget(target);
     if (eventTarget === null) return;
 
     const listener = (event: Event) => {

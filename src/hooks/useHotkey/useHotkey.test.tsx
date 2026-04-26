@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/react';
+import { useRef, type RefObject } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useHotkey } from './useHotkey';
 import type { UseHotkeyOptions } from './useHotkey.types';
@@ -277,6 +278,67 @@ describe('useHotkey', () => {
       const { unmount } = render(<Harness combo="Ctrl+S" handler={handler} />);
 
       unmount();
+
+      fireEvent.keyDown(window, { key: 's', ctrlKey: true });
+
+      expect(handler).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('target option', () => {
+    it('attaches to a direct EventTarget', () => {
+      const handler = vi.fn();
+      render(
+        <Harness
+          combo="Ctrl+S"
+          handler={handler}
+          options={{ target: document }}
+        />
+      );
+
+      // Document, not window — but the event still bubbles, so dispatching
+      // on the body should reach the document listener.
+      fireEvent.keyDown(document.body, { key: 's', ctrlKey: true });
+
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
+
+    it('attaches via a RefObject once the element mounts', () => {
+      const handler = vi.fn();
+
+      function ScopedHarness() {
+        const ref = useRef<HTMLDivElement>(null);
+        useHotkey('Ctrl+S', handler, { target: ref });
+        return (
+          <div ref={ref} data-testid="scope" tabIndex={-1}>
+            content
+          </div>
+        );
+      }
+
+      const { getByTestId } = render(<ScopedHarness />);
+
+      // Window-level press should NOT match — listener is scoped.
+      fireEvent.keyDown(window, { key: 's', ctrlKey: true });
+      expect(handler).not.toHaveBeenCalled();
+
+      fireEvent.keyDown(getByTestId('scope'), {
+        key: 's',
+        ctrlKey: true,
+      });
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
+
+    it('does nothing when the RefObject is still null', () => {
+      const handler = vi.fn();
+      const ref: RefObject<HTMLElement | null> = { current: null };
+
+      function NeverMountsHarness() {
+        useHotkey('Ctrl+S', handler, { target: ref });
+        return null;
+      }
+
+      render(<NeverMountsHarness />);
 
       fireEvent.keyDown(window, { key: 's', ctrlKey: true });
 

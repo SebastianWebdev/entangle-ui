@@ -2,6 +2,22 @@ import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useClipboard } from './useClipboard';
 
+interface Deferred<T> {
+  promise: Promise<T>;
+  resolve: (value: T) => void;
+  reject: (reason?: unknown) => void;
+}
+
+function createDeferred<T>(): Deferred<T> {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
 describe('useClipboard', () => {
   let writeTextMock: ReturnType<typeof vi.fn>;
   let originalClipboard: PropertyDescriptor | undefined;
@@ -142,6 +158,71 @@ describe('useClipboard', () => {
       vi.advanceTimersByTime(300);
     });
     expect(result.current.status).toBe('idle');
+  });
+
+  it('drops a stale slow copy when a newer copy resolves first', async () => {
+    // First copy hangs; second copy resolves immediately with a different
+    // result. The slow first copy must not flip the state once it lands.
+    const deferred = createDeferred<void>();
+    writeTextMock
+      .mockImplementationOnce(() => deferred.promise)
+      .mockResolvedValueOnce(undefined);
+
+    const { result } = renderHook(() => useClipboard());
+
+    let firstCopyPromise: Promise<boolean> | undefined;
+    act(() => {
+      firstCopyPromise = result.current.copy('slow');
+    });
+    expect(result.current.status).toBe('idle');
+
+    await act(async () => {
+      await result.current.copy('fast');
+    });
+    expect(result.current.status).toBe('copied');
+
+    // Now let the first call resolve LATE — the result must not stomp the
+    // current "copied" state nor arm a stale timer.
+    deferred.resolve();
+    await act(async () => {
+      await firstCopyPromise;
+    });
+    expect(result.current.status).toBe('copied');
+
+    // The active timer belongs to the second call; it should still tick down.
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+    expect(result.current.status).toBe('idle');
+  });
+
+  it('a stale rejection does not overwrite a newer success', async () => {
+    const deferred = createDeferred<void>();
+    writeTextMock
+      .mockImplementationOnce(() => deferred.promise)
+      .mockResolvedValueOnce(undefined);
+
+    const { result } = renderHook(() => useClipboard());
+
+    let firstCopyPromise: Promise<boolean> | undefined;
+    act(() => {
+      firstCopyPromise = result.current.copy('slow');
+    });
+
+    await act(async () => {
+      await result.current.copy('fast');
+    });
+    expect(result.current.status).toBe('copied');
+    expect(result.current.error).toBeNull();
+
+    deferred.reject(new Error('late failure'));
+    await act(async () => {
+      await firstCopyPromise;
+    });
+
+    // Late rejection from the stale request must be ignored.
+    expect(result.current.status).toBe('copied');
+    expect(result.current.error).toBeNull();
   });
 
   it('cancels the pending timer on unmount', async () => {

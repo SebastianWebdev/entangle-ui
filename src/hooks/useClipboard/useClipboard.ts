@@ -72,6 +72,11 @@ export function useClipboard(
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const timeoutRef = useRef(timeout);
+  // Bumped on every `copy()` call. The async path captures its own value
+  // and short-circuits on resolution if a newer call has started — that
+  // prevents an older, slower `writeText` from overwriting the state of a
+  // newer copy or from arming a stale timer.
+  const requestSeqRef = useRef(0);
 
   useEffect(() => {
     timeoutRef.current = timeout;
@@ -86,6 +91,9 @@ export function useClipboard(
 
   const reset = useCallback(() => {
     clearTimer();
+    // Invalidate any in-flight copy so a late resolution does not flip
+    // the status back from idle/error.
+    requestSeqRef.current += 1;
     setStatus('idle');
     setError(null);
   }, [clearTimer]);
@@ -93,6 +101,9 @@ export function useClipboard(
   const copy = useCallback(
     async (text: string): Promise<boolean> => {
       clearTimer();
+
+      requestSeqRef.current += 1;
+      const requestId = requestSeqRef.current;
 
       let succeeded = false;
       let copyError: Error | null = null;
@@ -114,12 +125,24 @@ export function useClipboard(
         }
       }
 
+      // A newer call (or `reset`) has started — drop this result on the
+      // floor so it does not race the active state.
+      if (requestId !== requestSeqRef.current) {
+        return succeeded;
+      }
+
       if (succeeded) {
         setError(null);
         setStatus('copied');
         timerRef.current = setTimeout(() => {
           timerRef.current = null;
-          setStatus('idle');
+          // Guard the timer too: another copy may have started during the
+          // window and bumped the sequence. We still clear the timer ref,
+          // but only flip back to idle if the timer belonged to the
+          // current request.
+          if (requestId === requestSeqRef.current) {
+            setStatus('idle');
+          }
         }, timeoutRef.current);
         return true;
       }
