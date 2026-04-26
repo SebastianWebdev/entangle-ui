@@ -212,6 +212,10 @@ export default defineConfig({
                   slug: 'components/editor/property-inspector',
                 },
                 {
+                  label: 'TransformControl',
+                  slug: 'components/editor/transform-control',
+                },
+                {
                   label: 'ViewportGizmo',
                   slug: 'components/editor/viewport-gizmo',
                 },
@@ -260,6 +264,23 @@ export default defineConfig({
       alias: {
         '@': resolve(rootDir, 'src'),
       },
+    },
+    // Keep Vite's dep optimizer out of vanilla-extract land — pre-bundling
+    // these packages races the plugin and triggers "No CSS for file" errors
+    // when navigating to component pages in dev mode.
+    optimizeDeps: {
+      exclude: [
+        '@vanilla-extract/css',
+        '@vanilla-extract/recipes',
+        '@vanilla-extract/dynamic',
+      ],
+    },
+    ssr: {
+      noExternal: [
+        '@vanilla-extract/css',
+        '@vanilla-extract/recipes',
+        '@vanilla-extract/dynamic',
+      ],
     },
   },
 });
