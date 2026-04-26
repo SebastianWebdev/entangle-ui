@@ -52,6 +52,48 @@ function resolveLinkColor(color: LinkColor): { base: string; hover: string } {
   return { base: color, hover: color };
 }
 
+/**
+ * Props stripped from the rest spread when the link is disabled.
+ *
+ * Without this, `<Link as={RouterLink} disabled to="/x" onClick={fn} />`
+ * would still navigate / fire the handler — `aria-disabled` and CSS
+ * pointer-events alone don't block keyboard activation or programmatic
+ * triggers fired by router libraries.
+ */
+const NAV_PROPS_TO_STRIP_WHEN_DISABLED = [
+  'href',
+  'to',
+  'onClick',
+  'onClickCapture',
+  'onPointerDown',
+  'onPointerDownCapture',
+  'onMouseDown',
+  'onMouseDownCapture',
+  'onKeyDown',
+  'onKeyDownCapture',
+  'onKeyUp',
+  'onKeyUpCapture',
+  'onAuxClick',
+  'replace',
+  'reloadDocument',
+  'preventScrollReset',
+  'state',
+  'relative',
+] as const;
+
+function stripNavProps(
+  props: Record<string, unknown>
+): Record<string, unknown> {
+  const cleaned: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(props)) {
+    if ((NAV_PROPS_TO_STRIP_WHEN_DISABLED as readonly string[]).includes(key)) {
+      continue;
+    }
+    cleaned[key] = value;
+  }
+  return cleaned;
+}
+
 const ExternalIcon: React.FC = () => (
   <svg
     className={externalIconStyle}
@@ -92,7 +134,8 @@ const ExternalIcon: React.FC = () => (
  * router's link component (react-router, TanStack Router, Next.js).
  *
  * Scope: **styling-only**, not router-aware. Pass your router's link
- * component via `as` for client-side navigation.
+ * component via `as` for client-side navigation — the router's props
+ * (`to`, `replace`, …) are type-checked automatically.
  *
  * @example
  * ```tsx
@@ -109,16 +152,18 @@ const ExternalIcon: React.FC = () => (
  * </Text>
  * ```
  */
-export const Link = /*#__PURE__*/ React.memo<LinkProps>(
-  ({
+function LinkImpl<E extends React.ElementType = 'a'>(
+  props: LinkProps<E>
+): React.ReactElement {
+  const {
     href,
     as,
-    variant = 'default',
+    variant,
     color,
     underline,
-    size = 'md',
+    size,
     external,
-    disabled = false,
+    disabled,
     children,
     className,
     style,
@@ -126,75 +171,107 @@ export const Link = /*#__PURE__*/ React.memo<LinkProps>(
     ref,
     'aria-label': ariaLabel,
     ...rest
-  }) => {
-    const resolvedColor = color ?? VARIANT_DEFAULT_COLOR[variant];
-    const resolvedUnderline = underline ?? VARIANT_DEFAULT_UNDERLINE[variant];
+  } = props;
 
-    const isExternal =
-      external ?? (typeof href === 'string' && EXTERNAL_PROTOCOL_RE.test(href));
+  const resolvedVariant: LinkVariant = variant ?? 'default';
+  const resolvedSize = size ?? 'md';
+  const isDisabled = disabled === true;
+  const resolvedColor = color ?? VARIANT_DEFAULT_COLOR[resolvedVariant];
+  const resolvedUnderline =
+    underline ?? VARIANT_DEFAULT_UNDERLINE[resolvedVariant];
 
-    const { base, hover } = resolveLinkColor(resolvedColor);
-    const inlineVars = assignInlineVars({
-      [linkColorVar]: base,
-      [linkHoverColorVar]: hover,
-    });
+  // External affordances only apply when the link is actually navigable.
+  // A disabled link with `external` would be misleading: no target, no
+  // rel, no real navigation — but icon + "opens in new tab" suggest
+  // otherwise. So we suppress all of it.
+  const isExternal =
+    !isDisabled &&
+    (external ?? (typeof href === 'string' && EXTERNAL_PROTOCOL_RE.test(href)));
 
-    const Component: React.ElementType = as ?? (disabled ? 'span' : 'a');
+  const { base, hover } = resolveLinkColor(resolvedColor);
+  const inlineVars = assignInlineVars({
+    [linkColorVar]: base,
+    [linkHoverColorVar]: hover,
+  });
 
-    const commonProps = {
-      ref,
-      className: cx(
-        linkRecipe({
-          variant,
-          underline: resolvedUnderline,
-          size,
-          disabled: disabled || undefined,
-        }),
-        className
-      ),
-      style: { ...inlineVars, ...style },
-      'data-testid': testId,
-      'data-disabled': disabled || undefined,
-    };
+  // Disabled forces a non-navigating <span> regardless of `as`. If we
+  // honored `as` while disabled, a router link would still respond to
+  // `to` / `onClick` because pointer-events: none and aria-disabled are
+  // visual hints, not functional locks for programmatic triggers.
+  const Component: React.ElementType = isDisabled ? 'span' : (as ?? 'a');
 
-    const externalProps =
-      isExternal && !disabled
-        ? {
-            target: '_blank',
-            rel: 'noopener noreferrer',
-          }
-        : {};
+  const cleanedRest = isDisabled
+    ? stripNavProps(rest as Record<string, unknown>)
+    : (rest as Record<string, unknown>);
 
-    const anchorHref = disabled ? undefined : href;
-    const ariaProps = ariaLabel
-      ? {
-          'aria-label': isExternal
-            ? `${ariaLabel} (opens in new tab)`
-            : ariaLabel,
-        }
-      : {};
+  // Only set `href` when rendering a plain anchor and not disabled. For
+  // custom `as` components (router links) the navigation prop is the
+  // router's own (`to`, `href`, …), passed through `...rest`.
+  const hrefProp =
+    !isDisabled && Component === 'a' && href !== undefined ? { href } : {};
 
-    return (
-      <Component
-        {...rest}
-        {...commonProps}
-        {...(Component === 'a' || as ? { href: anchorHref } : {})}
-        {...externalProps}
-        {...ariaProps}
-        aria-disabled={disabled || undefined}
-      >
-        {children}
-        {isExternal && (
-          <>
-            <ExternalIcon />
-            {!ariaLabel && (
-              <span className={srOnlyStyle}> (opens in new tab)</span>
-            )}
-          </>
-        )}
-      </Component>
-    );
-  }
-);
+  const externalAttrs = isExternal
+    ? { target: '_blank', rel: 'noopener noreferrer' }
+    : {};
 
+  const ariaLabelProp = ariaLabel
+    ? {
+        'aria-label': isExternal
+          ? `${ariaLabel} (opens in new tab)`
+          : ariaLabel,
+      }
+    : {};
+
+  const linkClassName = cx(
+    linkRecipe({
+      variant: resolvedVariant,
+      underline: resolvedUnderline,
+      size: resolvedSize,
+      disabled: isDisabled || undefined,
+    }),
+    className
+  );
+
+  return (
+    <Component
+      {...cleanedRest}
+      {...hrefProp}
+      {...externalAttrs}
+      {...ariaLabelProp}
+      ref={ref}
+      className={linkClassName}
+      style={{ ...inlineVars, ...style }}
+      data-testid={testId}
+      data-disabled={isDisabled || undefined}
+      aria-disabled={isDisabled || undefined}
+    >
+      {children}
+      {isExternal && (
+        <>
+          <ExternalIcon />
+          {!ariaLabel && (
+            <span className={srOnlyStyle}> (opens in new tab)</span>
+          )}
+        </>
+      )}
+    </Component>
+  );
+}
+
+/**
+ * Public Link signature.
+ *
+ * Modelled as a callable interface so the polymorphic generic
+ * (`<Link as={RouterLink} to="/x" />`) survives the export. `React.memo`
+ * is intentionally not applied here — wrapping a generic function in
+ * `memo` collapses the call signature and forces an `as unknown as` cast,
+ * which the codebase forbids. The library has precedent for non-memoised
+ * primitives (e.g. `Switch`), and Link's render is cheap.
+ */
+interface LinkComponent {
+  <E extends React.ElementType = 'a'>(props: LinkProps<E>): React.ReactElement;
+  displayName?: string;
+}
+
+export const Link = LinkImpl as LinkComponent;
 Link.displayName = 'Link';

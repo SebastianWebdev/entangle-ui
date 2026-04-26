@@ -100,7 +100,9 @@ Pass `external={false}` to force same-tab navigation on an absolute URL, or `ext
 
 ## Disabled
 
-`disabled` renders as a `<span>` with no `href`, sets `aria-disabled`, and turns off pointer events. Browsers will not navigate, and assistive tech will announce the disabled state.
+`disabled` renders as a `<span>` regardless of `as`, strips navigation handlers (`href`, `to`, `onClick`, key/pointer events), sets `aria-disabled`, and turns off pointer events. This means a disabled router link cannot navigate via mouse, keyboard, or programmatic activation — `aria-disabled` plus CSS alone wouldn't be enough to block router-driven triggers, so the wrapper enforces it at render time.
+
+When `disabled` is true, the external-link icon and "(opens in new tab)" announcement are also suppressed, since there is no real external navigation to advertise.
 
 <ComponentPreview title="Disabled">
   <LinkDisabled client:only="react" />
@@ -205,9 +207,9 @@ A status bar showing two `subtle` `sm` links — typical use inside an editor fo
     {
       name: 'as',
       type: 'ElementType',
-      default: "'a' (or 'span' when disabled)",
+      default: "'a' (always 'span' when disabled)",
       description:
-        "Polymorphic root override — pass a router's link component to get client-side navigation.",
+        "Polymorphic root override — pass a router's link component to get client-side navigation. When the resolved element is generic (e.g. a router link), its props (`to`, `replace`, …) are type-checked. Ignored when `disabled` is true.",
     },
     {
       name: 'variant',

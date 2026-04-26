@@ -30,22 +30,16 @@ export type LinkColor = LiteralUnion<'primary' | 'secondary' | 'inherit'>;
  */
 export type LinkUnderline = 'always' | 'hover' | 'never';
 
-export interface LinkBaseProps extends Omit<
-  React.AnchorHTMLAttributes<HTMLAnchorElement>,
-  'color' | 'href'
-> {
-  /** Destination URL */
+/**
+ * Props that belong to Link itself, regardless of which element it renders.
+ *
+ * These are the keys that get stripped from the underlying element's props
+ * when computing `LinkProps<E>` — so consumers don't get conflicts when
+ * passing through router-specific props like `to`.
+ */
+export interface LinkOwnProps {
+  /** Destination URL for the default `<a>` rendering. */
   href?: string;
-
-  /**
-   * Polymorphic root override. Pass a router's link component here:
-   * `<Link as={RouterLink} to="/foo">...</Link>`.
-   *
-   * The replacement receives every prop except `as`. This is the only
-   * place in the library where `as` is supported — Link needs it to
-   * integrate cleanly with router libraries; other components don't.
-   */
-  as?: React.ElementType;
 
   /**
    * Visual variant.
@@ -78,12 +72,17 @@ export interface LinkBaseProps extends Omit<
    * External links get `target="_blank"`, `rel="noopener noreferrer"`,
    * an external-link icon, and an "(opens in new tab)" announcement for
    * screen readers.
+   *
+   * Ignored when `disabled` is true — disabled links never advertise
+   * external behavior.
    */
   external?: boolean;
 
   /**
-   * Disable the link. Renders as a `<span>` with disabled styling and no
-   * `href`, so the browser does not navigate.
+   * Disable the link. Renders as a `<span>` (overriding `as`), strips
+   * navigation handlers (`href`, `to`, `onClick`), sets `aria-disabled`,
+   * and turns off pointer events. The disabled span is also skipped for
+   * the external-link affordance.
    * @default false
    */
   disabled?: boolean;
@@ -99,8 +98,42 @@ export interface LinkBaseProps extends Omit<
 
   /** Test identifier for automated testing */
   testId?: string;
-
-  ref?: React.Ref<HTMLAnchorElement>;
 }
 
-export type LinkProps = Prettify<LinkBaseProps>;
+/**
+ * Polymorphic Link props.
+ *
+ * The generic `E` is the element type passed via `as`. By default Link
+ * renders an `<a>`, so all `<a>`-specific props (target, rel, …) are
+ * accepted. Pass `as={RouterLink}` and you also get the router's props
+ * (`to`, `replace`, …) typed automatically.
+ *
+ * Keys defined by `LinkOwnProps` are removed from the underlying
+ * element's props so the Link's own meanings always win.
+ *
+ * @example
+ * ```tsx
+ * // <a href="...">
+ * <Link href="/docs">Docs</Link>
+ *
+ * // react-router — `to` is typed because LinkProps<RouterLink> includes it
+ * <Link as={RouterLink} to="/profile">Profile</Link>
+ * ```
+ */
+export type LinkProps<E extends React.ElementType = 'a'> = Prettify<
+  LinkOwnProps & {
+    /**
+     * Polymorphic root override. Pass a router's link component here:
+     * `<Link as={RouterLink} to="/foo">...</Link>`.
+     *
+     * The replacement receives every prop except `as` and the keys
+     * defined by `LinkOwnProps`. This is the only place in the library
+     * where `as` is supported — Link needs it to integrate cleanly with
+     * router libraries; other components don't.
+     */
+    as?: E;
+
+    /** Ref to the rendered element. */
+    ref?: React.ComponentPropsWithRef<E>['ref'];
+  } & Omit<React.ComponentPropsWithoutRef<E>, keyof LinkOwnProps | 'as'>
+>;

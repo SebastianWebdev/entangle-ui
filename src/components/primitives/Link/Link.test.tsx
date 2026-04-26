@@ -247,6 +247,19 @@ describe('Link', () => {
       expect(el).not.toHaveAttribute('target');
       expect(el).not.toHaveAttribute('rel');
     });
+
+    it('disabled external link does not render the icon or SR-only text', () => {
+      renderWithTheme(
+        <Link href="https://example.com" disabled testId="link">
+          Site
+        </Link>
+      );
+      const el = screen.getByTestId('link');
+      expect(el.querySelector('svg')).toBeNull();
+      expect(
+        screen.queryByText(/\(opens in new tab\)/i)
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe('Interactions', () => {
@@ -272,6 +285,51 @@ describe('Link', () => {
       expect(el.tagName).toBe('SPAN');
       expect(el).not.toHaveAttribute('href');
       expect(el).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('forces a non-navigating span even when `as` is provided', () => {
+      // Regression: <Link as={RouterLink} disabled to="/x" /> previously
+      // rendered the router link with `to`/onClick still attached.
+      const handleClick = vi.fn();
+      const RouterLink = (
+        props: React.AnchorHTMLAttributes<HTMLAnchorElement> & { to?: string }
+      ) => {
+        const { to, href, onClick, ...rest } = props;
+        return (
+          <a data-router="yes" href={to ?? href} onClick={onClick} {...rest} />
+        );
+      };
+      renderWithTheme(
+        <Link
+          as={RouterLink}
+          disabled
+          to="/profile"
+          onClick={handleClick}
+          testId="link"
+        >
+          Profile
+        </Link>
+      );
+
+      const el = screen.getByTestId('link');
+      // Falls back to a plain <span>, not the router component
+      expect(el.tagName).toBe('SPAN');
+      expect(el).not.toHaveAttribute('data-router');
+      expect(el).not.toHaveAttribute('href');
+      // Click handler is stripped
+      el.click();
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('strips onClick when disabled even on a default anchor', () => {
+      const handleClick = vi.fn();
+      renderWithTheme(
+        <Link href="/foo" disabled onClick={handleClick} testId="link">
+          Click
+        </Link>
+      );
+      screen.getByTestId('link').click();
+      expect(handleClick).not.toHaveBeenCalled();
     });
   });
 
