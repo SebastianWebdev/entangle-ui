@@ -55,6 +55,7 @@ export {
   Text,
   TextArea,
   Tooltip,
+  VisuallyHidden,
 } from '@/components/primitives';
 export {
   ColorPicker,
@@ -256,6 +257,8 @@ export type {
   TooltipCollisionStrategy,
   TooltipPlacement,
   TooltipProps,
+  VisuallyHiddenElement,
+  VisuallyHiddenProps,
 } from '@/components/primitives';
 export type {
   ColorFormat,

@@ -19,6 +19,7 @@ export { Switch } from './Switch';
 export { Text } from './Text';
 export { TextArea } from './TextArea';
 export { Tooltip } from './Tooltip';
+export { VisuallyHidden } from './VisuallyHidden';
 
 export type {
   AvatarColor,
@@ -88,6 +89,10 @@ export type {
   TooltipPlacement,
   TooltipProps,
 } from './Tooltip';
+export type {
+  VisuallyHiddenElement,
+  VisuallyHiddenProps,
+} from './VisuallyHidden';
 
 // Canvas primitives
 export {

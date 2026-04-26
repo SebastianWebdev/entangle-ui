@@ -83,6 +83,10 @@ export default defineConfig({
                 { label: 'Text', slug: 'components/primitives/text' },
                 { label: 'TextArea', slug: 'components/primitives/text-area' },
                 { label: 'Tooltip', slug: 'components/primitives/tooltip' },
+                {
+                  label: 'VisuallyHidden',
+                  slug: 'components/primitives/visually-hidden',
+                },
               ],
             },
             {
