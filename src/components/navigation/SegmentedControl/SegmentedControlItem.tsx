@@ -12,6 +12,7 @@ import {
   segmentedItemBaseStyle,
   segmentedItemIconStyle,
   segmentedItemRecipe,
+  segmentedItemWrapperRecipe,
 } from './SegmentedControl.css';
 
 function getVariantClass(variant: 'subtle' | 'solid' | 'outline'): string {
@@ -63,33 +64,33 @@ export const SegmentedControlItem: React.FC<SegmentedControlItemProps> = ({
     children !== undefined && children !== null && children !== '';
   const isIconOnly = !hasLabel && Boolean(icon);
 
-  // Warn when an icon-only segment has no accessible name.
-  if (
-    isIconOnly &&
-    !tooltip &&
-    !rest['aria-label'] &&
-    !rest['aria-labelledby']
-  ) {
-    console.warn(
-      `[SegmentedControl] Icon-only segment "${value}" has no tooltip or aria-label. ` +
-        'Add a tooltip prop or aria-label so the segment is accessible.'
-    );
-  }
+  const ariaLabelProp = rest['aria-label'];
+  const ariaLabelledByProp = rest['aria-labelledby'];
 
-  // Register node for sliding indicator measurement
-  const localRef = useRef<HTMLButtonElement | null>(null);
-  const setBtnRef = useCallback(
-    (node: HTMLButtonElement | null) => {
-      localRef.current = node;
+  // Warn when an icon-only segment has no accessible name. Runs in an
+  // effect so it does not fire from the render path (which would double in
+  // StrictMode and on every rerender).
+  useEffect(() => {
+    if (isIconOnly && !tooltip && !ariaLabelProp && !ariaLabelledByProp) {
+      console.warn(
+        `[SegmentedControl] Icon-only segment "${value}" has no tooltip or aria-label. ` +
+          'Add a tooltip prop or aria-label so the segment is accessible.'
+      );
+    }
+  }, [isIconOnly, tooltip, ariaLabelProp, ariaLabelledByProp, value]);
+
+  // Wrapper ref: this is the direct child of the SegmentedControl root and
+  // the measurement target for the sliding indicator. When `tooltip` is set
+  // the Tooltip introduces its own positioned wrapper between us and the
+  // button, which is why measuring the button itself would yield (0, 0)
+  // relative to that intermediate wrapper.
+  const wrapperRef = useRef<HTMLSpanElement | null>(null);
+  const setWrapperRef = useCallback(
+    (node: HTMLSpanElement | null) => {
+      wrapperRef.current = node;
       registerItem(value, node);
-      if (typeof ref === 'function') {
-        ref(node);
-      } else if (ref) {
-        (ref as React.MutableRefObject<HTMLButtonElement | null>).current =
-          node;
-      }
     },
-    [registerItem, value, ref]
+    [registerItem, value]
   );
 
   useEffect(() => {
@@ -110,11 +111,11 @@ export const SegmentedControlItem: React.FC<SegmentedControlItemProps> = ({
   // Resolve aria-label fallback for icon-only segments
   const tooltipString = typeof tooltip === 'string' ? tooltip : undefined;
   const resolvedAriaLabel =
-    rest['aria-label'] ?? (isIconOnly ? tooltipString : undefined);
+    ariaLabelProp ?? (isIconOnly ? tooltipString : undefined);
 
   const button = (
     <button
-      ref={setBtnRef}
+      ref={ref}
       type="button"
       role="button"
       data-segmented-item="true"
@@ -131,7 +132,6 @@ export const SegmentedControlItem: React.FC<SegmentedControlItemProps> = ({
         segmentedItemBaseStyle,
         segmentedItemRecipe({
           size,
-          fullWidth,
           iconOnly: isIconOnly,
           orientation,
         }),
@@ -147,11 +147,20 @@ export const SegmentedControlItem: React.FC<SegmentedControlItemProps> = ({
     </button>
   );
 
-  if (tooltip) {
-    return <Tooltip title={tooltip}>{button}</Tooltip>;
-  }
-
-  return button;
+  return (
+    <span
+      ref={setWrapperRef}
+      data-segmented-item-wrapper="true"
+      className={segmentedItemWrapperRecipe({
+        fullWidth,
+        orientation,
+        iconOnly: isIconOnly,
+        size,
+      })}
+    >
+      {tooltip ? <Tooltip title={tooltip}>{button}</Tooltip> : button}
+    </span>
+  );
 };
 
 SegmentedControlItem.displayName = 'SegmentedControlItem';

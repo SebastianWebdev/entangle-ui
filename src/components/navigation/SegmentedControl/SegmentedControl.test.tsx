@@ -406,5 +406,122 @@ describe('SegmentedControlItem', () => {
       );
       expect(warnSpy).not.toHaveBeenCalled();
     });
+
+    it('does not warn from the render path on every rerender (effect-driven)', () => {
+      // Renders one tooltipped item then re-renders with a label change.
+      // The warn condition stays false the whole time, so a render-time
+      // side effect would fire on every render. With an effect the warn
+      // only fires when the dependency set actually flips.
+      const { rerender } = renderWithTheme(
+        <SegmentedControl defaultValue="a">
+          <SegmentedControlItem
+            value="a"
+            icon={<span data-testid="icon" />}
+            tooltip="Hello"
+          />
+        </SegmentedControl>
+      );
+      rerender(
+        <SegmentedControl defaultValue="a">
+          <SegmentedControlItem
+            value="a"
+            icon={<span data-testid="icon" />}
+            tooltip="World"
+          />
+        </SegmentedControl>
+      );
+      expect(warnSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('tooltip wrapper measurement', () => {
+    it('still wires the click through Tooltip wrapper', () => {
+      const handle = vi.fn();
+      renderWithTheme(
+        <SegmentedControl defaultValue="a" onChange={handle}>
+          <SegmentedControlItem
+            value="a"
+            icon={<span data-testid="ia" />}
+            tooltip="A"
+          />
+          <SegmentedControlItem
+            value="b"
+            icon={<span data-testid="ib" />}
+            tooltip="B"
+          />
+        </SegmentedControl>
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'B' }));
+      expect(handle).toHaveBeenCalledWith('b');
+    });
+
+    it('wraps each item in a measurement span as a direct child of the root', () => {
+      renderWithTheme(
+        <SegmentedControl defaultValue="a">
+          <SegmentedControlItem
+            value="a"
+            icon={<span data-testid="ia" />}
+            tooltip="A"
+          />
+          <SegmentedControlItem value="b">B</SegmentedControlItem>
+        </SegmentedControl>
+      );
+      const root = screen.getByRole('group');
+      const wrappers = root.querySelectorAll(
+        ':scope > [data-segmented-item-wrapper="true"]'
+      );
+      expect(wrappers).toHaveLength(2);
+    });
+  });
+});
+
+describe('SegmentedControl — empty-string values', () => {
+  it('treats empty string as a legal selectable value', () => {
+    const handle = vi.fn();
+    renderWithTheme(
+      <SegmentedControl defaultValue="a" onChange={handle}>
+        <SegmentedControlItem value="">All</SegmentedControlItem>
+        <SegmentedControlItem value="active">Active</SegmentedControlItem>
+      </SegmentedControl>
+    );
+    fireEvent.click(getItem('All'));
+    expect(handle).toHaveBeenCalledWith('');
+    expect(getItem('All')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('renders no segment as pressed when no value or defaultValue is set', () => {
+    renderWithTheme(
+      <SegmentedControl>
+        <SegmentedControlItem value="a">A</SegmentedControlItem>
+        <SegmentedControlItem value="b">B</SegmentedControlItem>
+      </SegmentedControl>
+    );
+    expect(getItem('A')).toHaveAttribute('aria-pressed', 'false');
+    expect(getItem('B')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('marks the empty-string segment as pressed when controlled to ""', () => {
+    renderWithTheme(
+      <SegmentedControl value="">
+        <SegmentedControlItem value="">All</SegmentedControlItem>
+        <SegmentedControlItem value="active">Active</SegmentedControlItem>
+      </SegmentedControl>
+    );
+    expect(getItem('All')).toHaveAttribute('aria-pressed', 'true');
+    expect(getItem('Active')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('keyboard navigation can land on an empty-string segment', () => {
+    const handle = vi.fn();
+    renderWithTheme(
+      <SegmentedControl defaultValue="active" onChange={handle}>
+        <SegmentedControlItem value="">All</SegmentedControlItem>
+        <SegmentedControlItem value="active">Active</SegmentedControlItem>
+      </SegmentedControl>
+    );
+    const active = getItem('Active');
+    active.focus();
+    fireEvent.keyDown(active, { key: 'ArrowLeft' });
+    expect(handle).toHaveBeenCalledWith('');
   });
 });

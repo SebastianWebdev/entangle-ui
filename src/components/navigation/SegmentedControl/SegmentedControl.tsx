@@ -123,7 +123,9 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
   'aria-label': ariaLabel = 'Segmented control',
   ...rest
 }) => {
-  const [internalValue, setInternalValue] = useState(defaultValue ?? '');
+  const [internalValue, setInternalValue] = useState<string | undefined>(
+    defaultValue
+  );
   const isControlled = valueProp !== undefined;
   const activeValue = isControlled ? valueProp : internalValue;
 
@@ -142,7 +144,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
   // --- Item registry for sliding indicator ---
 
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const itemsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const itemsRef = useRef<Map<string, HTMLElement>>(new Map());
 
   const setRootRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -157,7 +159,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
   );
 
   const registerItem = useCallback(
-    (itemValue: string, node: HTMLButtonElement | null) => {
+    (itemValue: string, node: HTMLElement | null) => {
       if (node) {
         itemsRef.current.set(itemValue, node);
       } else {
@@ -173,7 +175,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
   const [hasMeasured, setHasMeasured] = useState(false);
 
   const updateIndicator = useCallback(() => {
-    if (!activeValue) {
+    if (activeValue === undefined) {
       setIndicator(null);
       return;
     }
@@ -294,7 +296,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
       if (target) {
         target.focus();
         const nextValue = target.dataset['value'];
-        if (nextValue) {
+        if (nextValue !== undefined) {
           setActiveValue(nextValue);
         }
       }

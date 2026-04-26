@@ -116,7 +116,8 @@ export type SegmentedControlItemProps = Prettify<SegmentedControlItemBaseProps>;
 // --- Context ---
 
 export interface SegmentedControlContextValue {
-  value: string;
+  /** Currently selected value, or `undefined` when no segment is selected. */
+  value: string | undefined;
   size: SegmentedControlSize;
   variant: SegmentedControlVariant;
   orientation: SegmentedControlOrientation;
@@ -124,5 +125,5 @@ export interface SegmentedControlContextValue {
   fullWidth: boolean;
   onChange: (value: string) => void;
   /** Registers an item element for sliding indicator measurement. */
-  registerItem: (value: string, node: HTMLButtonElement | null) => void;
+  registerItem: (value: string, node: HTMLElement | null) => void;
 }

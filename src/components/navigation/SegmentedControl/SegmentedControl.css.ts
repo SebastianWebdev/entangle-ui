@@ -1,5 +1,5 @@
 import { recipe, type RecipeVariants } from '@vanilla-extract/recipes';
-import { style } from '@vanilla-extract/css';
+import { style, globalStyle } from '@vanilla-extract/css';
 import { vars } from '@/theme/contract.css';
 
 // --- Root container ---
@@ -130,6 +130,80 @@ export const segmentedIndicatorRecipe = recipe({
   },
 });
 
+// --- Item wrapper (direct child of root: flex item + measurement target) ---
+
+const segmentedItemWrapperBase = style({
+  position: 'relative',
+  display: 'inline-flex',
+  alignItems: 'stretch',
+  justifyContent: 'stretch',
+  minWidth: 0,
+  minHeight: 0,
+});
+
+export const segmentedItemWrapperRecipe = recipe({
+  base: [segmentedItemWrapperBase],
+
+  variants: {
+    fullWidth: {
+      true: { flex: 1 },
+      false: {},
+    },
+    orientation: {
+      horizontal: {},
+      vertical: { width: '100%' },
+    },
+    iconOnly: {
+      true: {},
+      false: {},
+    },
+    size: {
+      sm: {},
+      md: {},
+      lg: {},
+    },
+  },
+
+  compoundVariants: [
+    // Icon-only horizontal: wrapper is square so the button (width: 100%) is square too
+    {
+      variants: { iconOnly: true, size: 'sm', orientation: 'horizontal' },
+      style: { width: '20px', flex: 'none' },
+    },
+    {
+      variants: { iconOnly: true, size: 'md', orientation: 'horizontal' },
+      style: { width: '24px', flex: 'none' },
+    },
+    {
+      variants: { iconOnly: true, size: 'lg', orientation: 'horizontal' },
+      style: { width: '32px', flex: 'none' },
+    },
+  ],
+
+  defaultVariants: {
+    fullWidth: false,
+    orientation: 'horizontal',
+    iconOnly: false,
+    size: 'md',
+  },
+});
+
+export type SegmentedItemWrapperVariants = RecipeVariants<
+  typeof segmentedItemWrapperRecipe
+>;
+
+// Force the direct child of the wrapper (button OR the Tooltip trigger div)
+// to fill the wrapper. This propagates layout down into the button even when
+// the Tooltip introduces an `inline-block; width: fit-content` element in
+// between. Inside that trigger, the button reads `width: 100%` from its own
+// base style.
+globalStyle(`${segmentedItemWrapperBase} > *`, {
+  display: 'inline-flex',
+  alignItems: 'stretch',
+  width: '100%',
+  minWidth: 0,
+});
+
 // --- Item (button) ---
 
 export const segmentedItemBaseStyle = style({
@@ -143,6 +217,7 @@ export const segmentedItemBaseStyle = style({
   background: 'transparent',
   appearance: 'none',
   WebkitAppearance: 'none',
+  width: '100%',
 
   // Layout
   position: 'relative',
@@ -193,42 +268,20 @@ export const segmentedItemRecipe = recipe({
         gap: '8px',
       },
     },
-    fullWidth: {
-      true: {
-        flex: 1,
-      },
-      false: {},
-    },
     iconOnly: {
-      true: {
-        padding: 0,
-      },
+      true: { padding: 0 },
       false: {},
     },
     orientation: {
       horizontal: {},
       vertical: {
-        width: '100%',
         justifyContent: 'flex-start',
       },
     },
   },
 
   compoundVariants: [
-    // Icon-only square dimensions per size (horizontal)
-    {
-      variants: { iconOnly: true, size: 'sm', orientation: 'horizontal' },
-      style: { width: '20px' },
-    },
-    {
-      variants: { iconOnly: true, size: 'md', orientation: 'horizontal' },
-      style: { width: '24px' },
-    },
-    {
-      variants: { iconOnly: true, size: 'lg', orientation: 'horizontal' },
-      style: { width: '32px' },
-    },
-    // Icon-only vertical orientation: center-justify
+    // Icon-only vertical: center the icon
     {
       variants: { iconOnly: true, orientation: 'vertical' },
       style: { justifyContent: 'center' },
@@ -237,7 +290,6 @@ export const segmentedItemRecipe = recipe({
 
   defaultVariants: {
     size: 'md',
-    fullWidth: false,
     iconOnly: false,
     orientation: 'horizontal',
   },
