@@ -4,6 +4,7 @@ export {
   vars,
   darkThemeValues,
   lightThemeValues,
+  lightThemeClass,
   createCustomTheme,
   createLightTheme,
   VanillaThemeProvider,

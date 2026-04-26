@@ -51,21 +51,15 @@ import { Button } from 'entangle-ui';
 
 The light theme is shipped as a build-time preset. It is **not** applied globally — consumers opt in by generating a class with `createLightTheme()` and applying it to a subtree (typically the entire app, but it can also scope to a single dialog or panel).
 
-<LightThemeOverview client:load />
+<LightThemeOverview client:only="react" />
 
 ### Quick start
 
-```ts
-// app/light-theme.css.ts
-import { createLightTheme } from 'entangle-ui';
-
-export const lightThemeClass = createLightTheme();
-```
+The light-theme class is pre-generated at the package's build time, so it's a plain string you can import from anywhere — no consumer-side `.css.ts` file required:
 
 ```tsx
 // app/Root.tsx
-import { VanillaThemeProvider } from 'entangle-ui';
-import { lightThemeClass } from './light-theme.css';
+import { VanillaThemeProvider, lightThemeClass } from 'entangle-ui';
 
 export function Root() {
   return (
@@ -76,7 +70,19 @@ export function Root() {
 }
 ```
 
-`createLightTheme()` must be called from a `.css.ts` file — it generates a Vanilla Extract theme class at build time. The returned class flips every `--etui-*` custom property under the wrapped subtree to the light preset.
+If you prefer a function-style API, `createLightTheme()` returns the same string and is interchangeable:
+
+```tsx
+import { VanillaThemeProvider, createLightTheme } from 'entangle-ui';
+
+const lightThemeClass = createLightTheme();
+
+<VanillaThemeProvider className={lightThemeClass}>
+  <App />
+</VanillaThemeProvider>;
+```
+
+The class flips every `--etui-*` custom property under the wrapped subtree to the light preset.
 
 ### What flips and what stays
 
@@ -91,25 +97,24 @@ A few notes worth flagging:
 
 ### Common components
 
-<LightThemeBasicComponents client:load />
+<LightThemeBasicComponents client:only="react" />
 
 ### Property panels
 
-<LightThemePanel client:load />
+<LightThemePanel client:only="react" />
 
 ### Alerts
 
-<LightThemeAlerts client:load />
+<LightThemeAlerts client:only="react" />
 
 ### Scoped overrides — light dialog inside a dark app
 
 `VanillaThemeProvider` is just a `<div>` wrapper for a className, so themes can be scoped to any subtree. A common pattern is a dark editor with a single light-themed settings dialog (for legibility while a long form is being filled out):
 
-<LightThemeMixed client:load />
+<LightThemeMixed client:only="react" />
 
 ```tsx
-import { VanillaThemeProvider } from 'entangle-ui';
-import { lightThemeClass } from './light-theme.css';
+import { VanillaThemeProvider, lightThemeClass } from 'entangle-ui';
 
 <VanillaThemeProvider className={lightThemeClass}>
   <SettingsDialog />

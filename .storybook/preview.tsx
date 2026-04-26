@@ -1,11 +1,10 @@
 import type { Preview } from '@storybook/react';
 import type { ReactNode } from 'react';
 import { withThemeByClassName } from '@storybook/addon-themes';
-import { vars } from '../src/theme';
+import { vars, lightThemeClass } from '../src/theme';
 
 // Import dark theme to register VE CSS custom properties on :root
 import '../src/theme/darkTheme.css';
-import { lightThemeClass } from './lightTheme.css';
 
 const StorybookCanvas = ({ children }: { children: ReactNode }) => {
   return (

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { darkThemeValues } from './darkTheme.css';
-import { lightThemeValues } from './lightTheme.css';
-import { lightThemeFixtureClass } from './__fixtures__/lightThemeFixture.css';
+import { lightThemeValues, lightThemeClass } from './lightTheme.css';
+import { createLightTheme } from './createLightTheme';
 
 const sortedKeys = (obj: Record<string, unknown>): string[] =>
   Object.keys(obj).sort();
@@ -59,8 +59,13 @@ describe('lightThemeValues', () => {
 });
 
 describe('createLightTheme', () => {
-  it('returns a non-empty CSS class string when invoked in a .css.ts context', () => {
-    expect(typeof lightThemeFixtureClass).toBe('string');
-    expect(lightThemeFixtureClass.length).toBeGreaterThan(0);
+  it('returns a non-empty CSS class string', () => {
+    const className = createLightTheme();
+    expect(typeof className).toBe('string');
+    expect(className.length).toBeGreaterThan(0);
+  });
+
+  it('returns the same class as the directly-imported lightThemeClass', () => {
+    expect(createLightTheme()).toBe(lightThemeClass);
   });
 });

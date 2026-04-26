@@ -3,7 +3,7 @@ export { vars } from './contract.css';
 export type { ThemeVars } from './contract.css';
 export { darkThemeValues } from './darkTheme.css';
 export type { DarkThemeValues } from './darkTheme.css';
-export { lightThemeValues } from './lightTheme.css';
+export { lightThemeValues, lightThemeClass } from './lightTheme.css';
 export type { LightThemeValues } from './lightTheme.css';
 export { createCustomTheme } from './createCustomTheme';
 export type { ThemeValues } from './createCustomTheme';

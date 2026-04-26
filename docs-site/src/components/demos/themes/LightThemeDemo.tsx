@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import '@/theme/darkTheme.css';
-import { lightThemeClass } from './lightTheme.css';
-import { VanillaThemeProvider } from '@/theme';
+import { VanillaThemeProvider, lightThemeClass } from '@/theme';
 import { Button, Checkbox, Input, Switch, Text } from '@/components/primitives';
 import { Select, NumberInput } from '@/components/controls';
 import { Stack, PanelSurface } from '@/components/layout';

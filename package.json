@@ -21,8 +21,8 @@
       "default": "./dist/esm/palettes.js"
     },
     "./theme": {
-      "types": "./dist/types/theme/darkTheme.css.d.ts",
-      "default": "./dist/esm/theme/darkTheme.css.js"
+      "types": "./dist/types/theme/index.d.ts",
+      "default": "./dist/esm/theme/index.js"
     },
     "./package.json": "./package.json"
   },

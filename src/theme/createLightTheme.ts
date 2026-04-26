@@ -1,25 +1,20 @@
-import { createTheme } from '@vanilla-extract/css';
-import { vars } from './contract.css';
-import { lightThemeValues } from './lightTheme.css';
+import { lightThemeClass } from './lightTheme.css';
 
 /**
- * Generate a light-theme CSS class. Apply the returned class to any
+ * Returns the light-theme CSS class. Apply the returned class to any
  * subtree (typically via `VanillaThemeProvider`) to flip its tokens
  * from the dark default to the light preset.
  *
- * MUST be called in a `.css.ts` file — `createTheme` is build-time only.
+ * The class is generated at build time inside `lightTheme.css.ts` (where
+ * Vanilla Extract's file scope is set), so this helper is safe to call
+ * from any `.ts`/`.tsx` file — no `.css.ts` wrapper required. Consumers
+ * who prefer can also import `lightThemeClass` directly from the package.
  *
  * @example
- * ```ts
- * // src/light-theme.css.ts
- * import { createLightTheme } from 'entangle-ui';
- * export const lightThemeClass = createLightTheme();
- * ```
- *
  * ```tsx
- * // src/Root.tsx
- * import { VanillaThemeProvider } from 'entangle-ui';
- * import { lightThemeClass } from './light-theme.css';
+ * import { createLightTheme, VanillaThemeProvider } from 'entangle-ui';
+ *
+ * const lightThemeClass = createLightTheme();
  *
  * <VanillaThemeProvider className={lightThemeClass}>
  *   <SettingsPanel />
@@ -27,5 +22,5 @@ import { lightThemeValues } from './lightTheme.css';
  * ```
  */
 export function createLightTheme(): string {
-  return createTheme(vars, lightThemeValues);
+  return lightThemeClass;
 }

@@ -1,3 +1,6 @@
+import { createTheme } from '@vanilla-extract/css';
+import { vars } from './contract.css';
+
 /**
  * Light theme values — mirror `darkThemeValues` shape exactly so
  * `createCustomTheme` and `createLightTheme` can share the merge helper
@@ -5,8 +8,8 @@
  * `DarkThemeValues`.
  *
  * Unlike the dark theme, these values are NOT applied globally on `:root`.
- * Consumers opt in by generating a class via `createLightTheme()` and
- * wrapping a subtree in `VanillaThemeProvider`.
+ * Consumers opt in by applying `lightThemeClass` (or the equivalent class
+ * returned by `createLightTheme()`) to a subtree via `VanillaThemeProvider`.
  *
  * Note on `colors.surface.whiteOverlay`: the token name is kept for
  * contract compatibility, but in light mode it flips polarity to a
@@ -40,14 +43,14 @@ export const lightThemeValues = {
     text: {
       primary: '#1a1a1a',
       secondary: '#4a4a4a',
-      muted: '#7a7a7a',
+      muted: '#6b6b6b',
       disabled: '#b0b0b0',
     },
     accent: {
       primary: '#0066cc',
       secondary: '#004a99',
       success: '#2e7d32',
-      warning: '#e65100',
+      warning: '#a64500',
       error: '#d32f2f',
     },
     backdrop: 'rgba(0, 0, 0, 0.4)',
@@ -121,7 +124,7 @@ export const lightThemeValues = {
       hoverBg: '#ebebee',
       activeBg: '#0066cc',
       text: '#1a1a1a',
-      shortcutText: '#7a7a7a',
+      shortcutText: '#6b6b6b',
     },
     toolbar: {
       height: { sm: '32px', md: '40px' },
@@ -159,3 +162,13 @@ export const lightThemeValues = {
 } as const;
 
 export type LightThemeValues = typeof lightThemeValues;
+
+/**
+ * Pre-generated light-theme class. The class is created at build time in
+ * this `.css.ts` module so Vanilla Extract's file scope is always set —
+ * importing or calling `createLightTheme()` from a regular `.ts` file
+ * is therefore safe. Apply this class to any subtree (typically via
+ * `VanillaThemeProvider`) to flip its tokens from the dark default to
+ * the light preset.
+ */
+export const lightThemeClass = createTheme(vars, lightThemeValues);
