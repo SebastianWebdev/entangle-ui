@@ -27,6 +27,16 @@ export type {
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps, EmptyStateVariant } from './EmptyState';
 
+export { ProgressBar, CircularProgress } from './ProgressBar';
+export type {
+  CircularProgressProps,
+  CircularProgressSize,
+  ProgressBarColor,
+  ProgressBarLabelPosition,
+  ProgressBarProps,
+  ProgressBarSize,
+} from './ProgressBar';
+
 export { Skeleton, SkeletonGroup } from './Skeleton';
 export type {
   SkeletonAnimation,
