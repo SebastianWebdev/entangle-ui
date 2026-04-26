@@ -265,5 +265,22 @@ export default defineConfig({
         '@': resolve(rootDir, 'src'),
       },
     },
+    // Keep Vite's dep optimizer out of vanilla-extract land — pre-bundling
+    // these packages races the plugin and triggers "No CSS for file" errors
+    // when navigating to component pages in dev mode.
+    optimizeDeps: {
+      exclude: [
+        '@vanilla-extract/css',
+        '@vanilla-extract/recipes',
+        '@vanilla-extract/dynamic',
+      ],
+    },
+    ssr: {
+      noExternal: [
+        '@vanilla-extract/css',
+        '@vanilla-extract/recipes',
+        '@vanilla-extract/dynamic',
+      ],
+    },
   },
 });
