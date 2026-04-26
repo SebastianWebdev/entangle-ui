@@ -7,6 +7,7 @@ export { Collapsible } from './Collapsible';
 export { Icon } from './Icon';
 export { IconButton } from './IconButton';
 export { Input } from './Input';
+export { Link } from './Link';
 export { Paper } from './Paper';
 export {
   Popover,
@@ -46,6 +47,13 @@ export type {
   IconButtonVariant,
 } from './IconButton';
 export type { InputProps, InputSize } from './Input';
+export type {
+  LinkColor,
+  LinkProps,
+  LinkSize,
+  LinkUnderline,
+  LinkVariant,
+} from './Link';
 export type {
   PaperElevation,
   PaperNestLevel,
