@@ -1,0 +1,157 @@
+---
+title: VisuallyHidden
+description: Hide content visually while keeping it announced by screen readers.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import VisuallyHiddenDemo, {
+  VisuallyHiddenBasic,
+  VisuallyHiddenWithSibling,
+  VisuallyHiddenFocusable,
+  VisuallyHiddenInIconButton,
+} from '../../../../components/demos/primitives/VisuallyHiddenDemo';
+
+Hides its children visually while keeping them in the accessibility tree. This is the canonical `sr-only` / `visually-hidden` pattern used by Tailwind, Bootstrap, and Radix — same CSS, just packaged as a primitive so the rule lives in one place.
+
+Reach for it to label icon-only buttons, surface extra context next to inputs, or build a skip-to-content link. Don't use it to hide content from sighted users for layout reasons — that's `display: none`. This component keeps content audible on purpose.
+
+<ComponentPreview title="Live Preview">
+  <VisuallyHiddenDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { VisuallyHidden } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<VisuallyHidden>Search the catalog</VisuallyHidden>
+```
+
+## Basic Hidden Content
+
+Children render into the DOM but are clipped to a single transparent pixel. Inspect the element to confirm the text is still there.
+
+<ComponentPreview title="Basic">
+  <VisuallyHiddenBasic client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Text>
+  This sentence has{' '}
+  <VisuallyHidden>extra context only screen readers hear</VisuallyHidden>{' '}
+  invisible content embedded in it.
+</Text>
+```
+
+## With a Visible Sibling
+
+Pair a visible label with a hidden description for a fuller screen-reader experience without cluttering the layout.
+
+<ComponentPreview title="With visible sibling">
+  <VisuallyHiddenWithSibling client:only="react" />
+</ComponentPreview>
+
+```tsx
+<label>
+  <span>Email</span>
+  <VisuallyHidden>
+    We will only use your email to send password reset links.
+  </VisuallyHidden>
+  <input type="email" />
+</label>
+```
+
+## Skip-to-Content Link
+
+Set `focusable` to make the wrapper appear when it (or a descendant) gains focus. This is the standard skip-link pattern — wrap an anchor inside and let `:focus-within` reveal it.
+
+<ComponentPreview title="Focusable (skip-to-content)">
+  <VisuallyHiddenFocusable client:only="react" />
+</ComponentPreview>
+
+```tsx
+<VisuallyHidden focusable>
+  <a href="#main-content">Skip to main content</a>
+</VisuallyHidden>
+```
+
+## Hiding a Label for an Icon-Only Button
+
+Pair a visible icon with a hidden label so assistive tech can announce the action.
+
+<ComponentPreview title="Icon-only button">
+  <VisuallyHiddenInIconButton client:only="react" />
+</ComponentPreview>
+
+```tsx
+<button>
+  <SearchIcon />
+  <VisuallyHidden>Search the catalog</VisuallyHidden>
+</button>
+```
+
+For most cases, prefer `aria-label="Search"` on the button itself — that's terser. Use `VisuallyHidden` when you need rich children (e.g. interpolated values, formatted markup) that `aria-label` cannot express.
+
+## Common Pitfalls
+
+- **Don't use it to hide things from everyone.** `VisuallyHidden` keeps content audible. Use `display: none` or `hidden` if the content should not exist for any user.
+- **Don't put interactive content inside it without `focusable`.** A button hidden with the static styles still receives focus but stays clipped — sighted keyboard users cannot tell where they are.
+- **Don't add `aria-hidden="true"`.** That removes the content from the accessibility tree, defeating the purpose.
+
+## Props
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description: 'Content rendered inside the hidden region.',
+    },
+    {
+      name: 'as',
+      type: "'span' | 'div' | 'label' | 'p'",
+      default: "'span'",
+      description:
+        'Element to render. Use `div` for block content or `label`/`p` when the semantics fit.',
+    },
+    {
+      name: 'focusable',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'When true, becomes visible when the element (or a descendant) is focused. Used for skip links.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline styles applied to the rendered element.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLSpanElement>',
+      description: 'Ref to the rendered element.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+- Children remain in the DOM and the accessibility tree — screen readers, browser find-in-page, and translation tools all still see them
+- Implements the canonical SR-only style (`position: absolute`, `clip: rect(0,0,0,0)`, `width/height: 1px`) so the element occupies no visual space but is not removed from layout flow
+- `focusable` reveals the element under `:focus` and `:focus-within`, which is exactly what skip links need
