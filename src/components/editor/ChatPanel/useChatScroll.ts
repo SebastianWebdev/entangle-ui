@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useResizeObserver } from '@/hooks/useResizeObserver';
 import type {
   UseChatScrollOptions,
   UseChatScrollReturn,
@@ -78,40 +79,31 @@ export function useChatScroll(
     return () => container.removeEventListener('scroll', handleScroll);
   }, [checkIfAtBottom]);
 
-  // Observe content growth — keeps the list pinned to the bottom during streaming
-  // (when message text grows but `messages.length` stays constant).
+  // Seed the last-height baseline once the content node mounts so growth is
+  // measured against the initial height, not zero.
   useEffect(() => {
-    if (typeof ResizeObserver === 'undefined') return;
-
     const content = scrollContentRef.current;
     if (!content) return;
-
     lastContentHeightRef.current = content.getBoundingClientRect().height;
+  }, []);
 
-    const ro = new ResizeObserver(entries => {
-      const entry = entries[0];
-      if (!entry) return;
+  // Observe content growth — keeps the list pinned to the bottom during streaming
+  // (when message text grows but `messages.length` stays constant).
+  useResizeObserver(scrollContentRef, entry => {
+    const nextHeight = entry.contentRect.height;
+    const prevHeight = lastContentHeightRef.current;
+    lastContentHeightRef.current = nextHeight;
 
-      const nextHeight = entry.contentRect.height;
-      const prevHeight = lastContentHeightRef.current;
-      lastContentHeightRef.current = nextHeight;
+    // Only react to growth — shrinks shouldn't force a scroll jump.
+    if (nextHeight <= prevHeight) return;
+    if (!enabledRef.current) return;
 
-      // Only react to growth — shrinks shouldn't force a scroll jump.
-      if (nextHeight <= prevHeight) return;
-      if (!enabledRef.current) return;
-
-      if (isAtBottomRef.current) {
-        scrollToBottom('auto');
-      } else {
-        setHasNewMessages(true);
-      }
-    });
-
-    ro.observe(content);
-    return () => {
-      ro.disconnect();
-    };
-  }, [scrollToBottom]);
+    if (isAtBottomRef.current) {
+      scrollToBottom('auto');
+    } else {
+      setHasNewMessages(true);
+    }
+  });
 
   // Auto-scroll or show indicator on new messages. Fallback for mounts and
   // cleared lists where content height may not grow monotonically.

@@ -13,3 +13,6 @@ export { useFocusTrap } from './useFocusTrap';
 export type { UseFocusTrapOptions } from './useFocusTrap';
 
 export { useMergedRef } from './useMergedRef';
+
+export { useResizeObserver } from './useResizeObserver';
+export type { UseResizeObserverOptions } from './useResizeObserver';

@@ -478,6 +478,8 @@ export {
   useControlledState,
   useFocusTrap,
   useKeyboard,
+  useMergedRef,
+  useResizeObserver,
   isKeyPressed,
   isModifierKey,
 } from '@/hooks';
@@ -488,6 +490,7 @@ export type {
   ModifierKeys,
   UseControlledStateOptions,
   UseFocusTrapOptions,
+  UseResizeObserverOptions,
 } from '@/hooks';
 
 // Utilities
