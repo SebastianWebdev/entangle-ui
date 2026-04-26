@@ -44,6 +44,7 @@ export {
   Icon,
   IconButton,
   Input,
+  Kbd,
   Paper,
   Popover,
   PopoverClose,
@@ -225,6 +226,9 @@ export type {
   IconSize,
   InputProps,
   InputSize,
+  KbdProps,
+  KbdSize,
+  KbdVariant,
   PaperElevation,
   PaperNestLevel,
   PaperProps,
@@ -465,6 +469,8 @@ export type {
 // Utilities
 export { cn } from '@/utils/cn';
 export { cx } from '@/utils/cx';
+export { getKeyGlyph, getPlatform, parseShortcut } from '@/utils/platform';
+export type { Platform } from '@/utils/platform';
 export {
   animBlink,
   animFadeIn,

@@ -76,6 +76,7 @@ export default defineConfig({
                   slug: 'components/primitives/icon-button',
                 },
                 { label: 'Input', slug: 'components/primitives/input' },
+                { label: 'Kbd', slug: 'components/primitives/kbd' },
                 { label: 'Paper', slug: 'components/primitives/paper' },
                 { label: 'Popover', slug: 'components/primitives/popover' },
                 { label: 'Radio', slug: 'components/primitives/radio' },
