@@ -171,16 +171,6 @@ export const avatarStatusRecipe = recipe({
   },
 });
 
-export const avatarResetButtonStyle = style({
-  appearance: 'none',
-  background: 'transparent',
-  border: 'none',
-  padding: 0,
-  margin: 0,
-  font: 'inherit',
-  color: 'inherit',
-});
-
 /**
  * Per-instance overlap spacing for AvatarGroup, set via inline vars from the
  * `spacing` prop. Negative values produce overlap; the leftmost avatar stays
@@ -196,15 +186,6 @@ export const avatarGroupRootStyle = style({
 });
 
 export const avatarGroupItemStyle = style({
-  position: 'relative',
-  selectors: {
-    '&:not(:first-child)': {
-      marginLeft: avatarGroupSpacingVar,
-    },
-  },
-});
-
-export const avatarGroupOverflowStyle = style({
   position: 'relative',
   selectors: {
     '&:not(:first-child)': {

@@ -10,7 +10,6 @@ import type { AvatarGroupProps, AvatarProps } from './Avatar.types';
 import {
   avatarBgVar,
   avatarGroupItemStyle,
-  avatarGroupOverflowStyle,
   avatarGroupRootStyle,
   avatarGroupSpacingVar,
   avatarRecipe,
@@ -92,20 +91,14 @@ export const AvatarGroup = /*#__PURE__*/ React.memo<AvatarGroupProps>(
 
       const overflowEl = (
         <span
-          className={cx(
-            avatarGroupOverflowStyle,
-            avatarRecipe({
-              size,
-              shape: 'circle',
-              bordered: bordered || undefined,
-            })
-          )}
-          style={{
-            ...assignInlineVars({
-              [avatarBgVar]: vars.colors.surface.active,
-            }),
-            zIndex: 0,
-          }}
+          className={avatarRecipe({
+            size,
+            shape: 'circle',
+            bordered: bordered || undefined,
+          })}
+          style={assignInlineVars({
+            [avatarBgVar]: vars.colors.surface.active,
+          })}
           data-overflow="true"
           aria-label={`${overflowCount} more`}
         >
@@ -113,15 +106,23 @@ export const AvatarGroup = /*#__PURE__*/ React.memo<AvatarGroupProps>(
         </span>
       );
 
-      if (showOverflowTooltip && hiddenNames.length > 0) {
-        return (
+      const wrapped =
+        showOverflowTooltip && hiddenNames.length > 0 ? (
           <Tooltip title={hiddenNames.join(', ')} placement="top">
             {overflowEl}
           </Tooltip>
+        ) : (
+          overflowEl
         );
-      }
 
-      return overflowEl;
+      // The wrapper span owns the spacing rule (`:not(:first-child)`), so the
+      // overlap stays correct whether or not Tooltip injects its own trigger
+      // div between this wrapper and the +N span.
+      return (
+        <span className={avatarGroupItemStyle} style={{ zIndex: 0 }}>
+          {wrapped}
+        </span>
+      );
     };
 
     return (

@@ -205,10 +205,10 @@ describe('Avatar', () => {
   });
 
   describe('Interactions', () => {
-    it('does not have button role unless onClick is provided', () => {
+    it('uses role="img" with no tabIndex when onClick is not provided', () => {
       renderWithTheme(<Avatar testId="avatar" name="A" />);
       const el = screen.getByTestId('avatar');
-      expect(el).not.toHaveAttribute('role');
+      expect(el).toHaveAttribute('role', 'img');
       expect(el).not.toHaveAttribute('tabIndex');
     });
 

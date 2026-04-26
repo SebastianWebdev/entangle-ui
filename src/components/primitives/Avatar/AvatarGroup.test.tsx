@@ -133,7 +133,7 @@ describe('AvatarGroup', () => {
   });
 
   describe('Overflow tooltip', () => {
-    it('exposes hidden names via the +N indicator wrapper when tooltip is enabled', () => {
+    it('wraps the +N indicator in a Tooltip trigger when tooltip is enabled', () => {
       renderWithTheme(
         <AvatarGroup testId="group" max={1} showOverflowTooltip>
           <Avatar testId="a" name="Alice" />
@@ -145,13 +145,13 @@ describe('AvatarGroup', () => {
         .getByTestId('group')
         .querySelector('[data-overflow="true"]');
       expect(overflow).not.toBeNull();
-      // When showOverflowTooltip is true and there are hidden names, the
-      // overflow indicator is wrapped by a Tooltip trigger element. The
-      // direct parent of the +N span is therefore not the group root.
-      expect(overflow?.parentElement).not.toBe(screen.getByTestId('group'));
+      // The overflow span sits inside a wrapper-span that owns the spacing
+      // rule; with the tooltip enabled, Tooltip injects its own trigger
+      // <div> between the wrapper and the +N span.
+      expect(overflow?.parentElement?.tagName).toBe('DIV');
     });
 
-    it('renders the +N indicator directly inside the group when tooltip is disabled', () => {
+    it('renders the +N indicator without a tooltip trigger when tooltip is disabled', () => {
       renderWithTheme(
         <AvatarGroup testId="group" max={1} showOverflowTooltip={false}>
           <Avatar name="Alice" />
@@ -163,10 +163,11 @@ describe('AvatarGroup', () => {
         .getByTestId('group')
         .querySelector('[data-overflow="true"]');
       expect(overflow).not.toBeNull();
-      expect(overflow?.parentElement).toBe(screen.getByTestId('group'));
+      // No tooltip → +N sits directly inside the wrapper span.
+      expect(overflow?.parentElement?.tagName).toBe('SPAN');
     });
 
-    it('renders the +N indicator without a tooltip when no hidden names exist', () => {
+    it('skips the tooltip wrapper when no hidden names exist', () => {
       renderWithTheme(
         <AvatarGroup testId="group" max={1}>
           <Avatar src="/a.png" />
@@ -178,7 +179,29 @@ describe('AvatarGroup', () => {
         .getByTestId('group')
         .querySelector('[data-overflow="true"]');
       expect(overflow).not.toBeNull();
-      expect(overflow?.parentElement).toBe(screen.getByTestId('group'));
+      expect(overflow?.parentElement?.tagName).toBe('SPAN');
+    });
+
+    it('keeps the spacing wrapper as a direct child of the group regardless of tooltip', () => {
+      renderWithTheme(
+        <AvatarGroup testId="group" max={1} showOverflowTooltip>
+          <Avatar name="Alice" />
+          <Avatar name="Bob" />
+          <Avatar name="Carol" />
+        </AvatarGroup>
+      );
+      const overflow = screen
+        .getByTestId('group')
+        .querySelector('[data-overflow="true"]');
+      // Walk up to the direct child of the group — that's the wrapper that
+      // owns marginLeft via :not(:first-child). It must always be a span,
+      // not Tooltip's trigger div.
+      const group = screen.getByTestId('group');
+      let node: HTMLElement | null = overflow as HTMLElement | null;
+      while (node?.parentElement && node.parentElement !== group) {
+        node = node.parentElement;
+      }
+      expect(node?.tagName).toBe('SPAN');
     });
 
     it('overflow indicator has an accessible label with the count', () => {

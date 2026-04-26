@@ -53,8 +53,12 @@ export interface AvatarBaseProps extends BaseComponent<HTMLSpanElement> {
   alt?: string;
 
   /**
-   * Display name. The first character of the first and last word forms the
-   * initials fallback. `"Sebastian Kowalski"` → `"SK"`, `"Sebastian"` → `"S"`.
+   * Display name. Drives the initials fallback and the auto-color hash.
+   *
+   * Single-word names contribute their first two characters; multi-word
+   * names contribute the first character of the first and last word.
+   * `"Sebastian Kowalski"` → `"SK"`, `"Sebastian"` → `"SE"`,
+   * `"Mary Anne Smith"` → `"MS"`.
    */
   name?: string;
 
