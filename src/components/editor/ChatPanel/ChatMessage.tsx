@@ -3,18 +3,17 @@
 import React from 'react';
 import type { ChatMessageProps } from './ChatPanel.types';
 import { cx } from '@/utils/cx';
+import { Avatar } from '@/components/primitives/Avatar';
 import { ChatBubble } from './ChatBubble';
 import {
-  messageRecipe,
-  messageContentStyle,
-  messageAvatarStyle,
-  messageAvatarImgStyle,
-  messageMaxWidthVarName,
-  messageTimestampStyle,
-  messageTextStyle,
   bubbleErrorStyle,
+  messageContentStyle,
   messageErrorCaptionStyle,
   messageErrorIconStyle,
+  messageMaxWidthVarName,
+  messageRecipe,
+  messageTextStyle,
+  messageTimestampStyle,
 } from './ChatPanel.css';
 
 function resolveMaxWidth(
@@ -31,16 +30,6 @@ function formatTimestamp(iso: string): string {
   } catch {
     return '';
   }
-}
-
-function getInitials(name?: string): string {
-  if (!name) return '?';
-  return name
-    .split(' ')
-    .map(part => part[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
 }
 
 const ErrorIcon: React.FC = () => (
@@ -105,17 +94,12 @@ export const ChatMessage = /*#__PURE__*/ React.memo<ChatMessageProps>(
         {...rest}
       >
         {showAvatar && role !== 'system' && (
-          <div className={messageAvatarStyle} aria-hidden="true">
-            {avatar ? (
-              <img
-                src={avatar}
-                alt={displayName ?? role}
-                className={messageAvatarImgStyle}
-              />
-            ) : (
-              getInitials(displayName ?? role)
-            )}
-          </div>
+          <Avatar
+            size="md"
+            src={avatar}
+            name={displayName ?? role}
+            alt={displayName ?? role}
+          />
         )}
 
         <div className={messageContentStyle}>
