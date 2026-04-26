@@ -1,0 +1,400 @@
+---
+title: Breadcrumbs
+description: Hierarchical navigation trail for pages, editor paths, and nested resources.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import BreadcrumbsDemo, {
+  BreadcrumbsBasic,
+  BreadcrumbsWithIcons,
+  BreadcrumbsCustomSeparator,
+  BreadcrumbsCustomSeparatorIcon,
+  BreadcrumbsSizes,
+  BreadcrumbsCollapsed,
+  BreadcrumbsExpandable,
+  BreadcrumbsLongLabels,
+  BreadcrumbsFilePath,
+  BreadcrumbsInPageHeader,
+} from '../../../../components/demos/navigation/BreadcrumbsDemo';
+
+Breadcrumbs show where the current view sits in a hierarchy: file paths, nested categories, project folders, or parent routes. Use Tabs for sibling views at the same level; use Breadcrumbs when each segment is a parent of the next one.
+
+<ComponentPreview title="Live Preview">
+  <BreadcrumbsDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import {
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  Breadcrumbs,
+  BreadcrumbSeparator,
+} from 'entangle-ui';
+```
+
+## Usage
+
+<ComponentPreview title="Basic">
+  <BreadcrumbsBasic client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Breadcrumbs>
+  <BreadcrumbItem href="/">Home</BreadcrumbItem>
+  <BreadcrumbItem href="/components">Components</BreadcrumbItem>
+  <BreadcrumbItem isCurrent>Button</BreadcrumbItem>
+</Breadcrumbs>
+```
+
+Pass `isCurrent` explicitly on the current page. Breadcrumbs does not infer the current segment from missing links.
+
+## With Icons
+
+<ComponentPreview title="With icons">
+  <BreadcrumbsWithIcons client:only="react" />
+</ComponentPreview>
+
+```tsx
+<BreadcrumbItem href="/" icon={<HomeIcon size="sm" decorative />}>
+  Home
+</BreadcrumbItem>
+```
+
+## Custom Separator
+
+<ComponentPreview title="String separator">
+  <BreadcrumbsCustomSeparator client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Breadcrumbs separator="/">
+  <BreadcrumbItem href="/">Home</BreadcrumbItem>
+  <BreadcrumbItem isCurrent>Button</BreadcrumbItem>
+</Breadcrumbs>
+```
+
+<ComponentPreview title="Icon separator">
+  <BreadcrumbsCustomSeparatorIcon client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Breadcrumbs separator={<ArrowRightIcon size="sm" decorative />}>
+  {/* items */}
+</Breadcrumbs>
+```
+
+## Sizes
+
+<ComponentPreview title="Sizes">
+  <BreadcrumbsSizes client:only="react" />
+</ComponentPreview>
+
+| Size | Font token | Separator gap |
+| ---- | ---------- | ------------- |
+| `sm` | `xs`       | `xs`          |
+| `md` | `sm`       | `sm`          |
+| `lg` | `md`       | `sm`          |
+
+```tsx
+<Breadcrumbs size="sm" />
+<Breadcrumbs size="md" />
+<Breadcrumbs size="lg" />
+```
+
+## Collapsed
+
+<ComponentPreview title="Collapsed">
+  <BreadcrumbsCollapsed client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Breadcrumbs maxItems={4} expandable={false}>
+  {/* long trail */}
+</Breadcrumbs>
+```
+
+When `maxItems` is greater than `0` and the item count exceeds it, the middle of the trail collapses into an ellipsis. By default, the first item and the last two items remain visible.
+
+## Expandable
+
+<ComponentPreview title="Expandable">
+  <BreadcrumbsExpandable client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Breadcrumbs maxItems={4}>
+  {/* clicking the ellipsis expands the trail */}
+</Breadcrumbs>
+```
+
+`expandable` defaults to `true`, so the ellipsis is a button with `aria-label="Show all breadcrumbs"`.
+
+## Truncation
+
+<ComponentPreview title="Long labels">
+  <BreadcrumbsLongLabels client:only="react" />
+</ComponentPreview>
+
+```tsx
+<BreadcrumbItem href="/captures" maxLength={16}>
+  Photogrammetry capture workspace
+</BreadcrumbItem>
+```
+
+Only string labels are truncated. Icons remain visible before the shortened label, and the full label is exposed through Tooltip.
+
+## Editor Paths
+
+<ComponentPreview title="File path">
+  <BreadcrumbsFilePath client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Breadcrumbs separator="/">
+  <BreadcrumbItem href="/">project</BreadcrumbItem>
+  <BreadcrumbItem href="/src">src</BreadcrumbItem>
+  <BreadcrumbItem href="/src/components">components</BreadcrumbItem>
+  <BreadcrumbItem isCurrent>Button.tsx</BreadcrumbItem>
+</Breadcrumbs>
+```
+
+## Integration with PageHeader
+
+<ComponentPreview title="In PageHeader">
+  <BreadcrumbsInPageHeader client:only="react" />
+</ComponentPreview>
+
+```tsx
+<PageHeader
+  breadcrumbs={
+    <Breadcrumbs>
+      <BreadcrumbItem href="/">Workspace</BreadcrumbItem>
+      <BreadcrumbItem href="/projects">Project</BreadcrumbItem>
+      <BreadcrumbItem isCurrent>Assets</BreadcrumbItem>
+    </Breadcrumbs>
+  }
+  title="Textures"
+/>
+```
+
+## Compound API
+
+If you pass only `BreadcrumbItem` children, separators are inserted automatically. Use the `separator` prop to change the default separator for the whole trail.
+
+```tsx
+<Breadcrumbs separator="/">
+  <BreadcrumbItem href="/">Home</BreadcrumbItem>
+  <BreadcrumbItem isCurrent>Button</BreadcrumbItem>
+</Breadcrumbs>
+```
+
+For full control, place `BreadcrumbSeparator` manually between items. When explicit separators are present, Breadcrumbs renders your children as provided.
+
+```tsx
+<Breadcrumbs>
+  <BreadcrumbItem href="/">Home</BreadcrumbItem>
+  <BreadcrumbSeparator>/</BreadcrumbSeparator>
+  <BreadcrumbItem isCurrent>Button</BreadcrumbItem>
+</Breadcrumbs>
+```
+
+## When to use
+
+Use Breadcrumbs for hierarchical paths: files, folders, nested categories, scene hierarchy depth, or parent route trails. Use a Stepper for linear numbered flows when that component ships. Do not use Breadcrumbs as primary navigation; they are supporting context and a way back up the hierarchy.
+
+## Accessibility
+
+- The root renders `<nav aria-label="Breadcrumb">` with an ordered list inside
+- Each segment is an `<li>` so assistive tech announces a list of pages in order
+- Mark the current segment with `isCurrent`, which applies `aria-current="page"`
+- Separators are decorative and hidden from assistive tech
+- Clickable ellipsis uses a native `<button>` and keyboard support when collapsed trails are expandable
+
+## API Reference
+
+### Breadcrumbs
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description:
+        'BreadcrumbItem children, optionally mixed with BreadcrumbSeparator for manual separator control.',
+    },
+    {
+      name: 'separator',
+      type: 'ReactNode',
+      default: '<ArrowRightIcon size="sm" decorative />',
+      description: 'Default separator inserted between items.',
+    },
+    {
+      name: 'maxItems',
+      type: 'number',
+      default: '0',
+      description:
+        'Maximum item count before collapsing. Use 0 to never collapse.',
+    },
+    {
+      name: 'itemsBeforeCollapse',
+      type: 'number',
+      default: '1',
+      description: 'Number of leading items to keep visible when collapsed.',
+    },
+    {
+      name: 'itemsAfterCollapse',
+      type: 'number',
+      default: '2',
+      description: 'Number of trailing items to keep visible when collapsed.',
+    },
+    {
+      name: 'expandable',
+      type: 'boolean',
+      default: 'true',
+      description: 'Allow clicking the ellipsis to reveal all items.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'sm'",
+      description: 'Typography and separator spacing scale.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the underlying nav element.',
+    },
+  ]}
+/>
+
+### BreadcrumbItem
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      required: true,
+      description: 'Segment label, typically a string.',
+    },
+    {
+      name: 'href',
+      type: 'string',
+      description: 'Render the segment as a link.',
+    },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent<HTMLElement>) => void',
+      description: 'Click handler for client-side routing.',
+    },
+    {
+      name: 'isCurrent',
+      type: 'boolean',
+      default: 'false',
+      description: 'Mark the segment as the current page.',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Icon rendered before the label.',
+    },
+    {
+      name: 'maxLength',
+      type: 'number',
+      description:
+        'Maximum string length before truncating and showing Tooltip.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the underlying list item.',
+    },
+  ]}
+/>
+
+### BreadcrumbSeparator
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Custom separator content.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the underlying list item.',
+    },
+  ]}
+/>
+
+### BreadcrumbEllipsis
+
+<PropsTable
+  props={[
+    {
+      name: 'onClick',
+      type: '() => void',
+      description: 'Click handler used to expand collapsed items.',
+    },
+    {
+      name: 'tooltip',
+      type: 'ReactNode',
+      description: 'Tooltip content describing collapsed labels.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLElement>',
+      description: 'Ref to the underlying list item.',
+    },
+  ]}
+/>
