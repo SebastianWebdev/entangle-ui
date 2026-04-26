@@ -43,6 +43,20 @@ export type {
   ProjectedArm,
 } from './ViewportGizmo';
 
+export { TransformControl } from './TransformControl';
+
+export type {
+  TransformControlProps,
+  TransformValue,
+  CoordinateSpace,
+  CoordinateSpaceOption,
+  TransformShowConfig,
+  TransformLabelsConfig,
+  TransformPrecisionConfig,
+  TransformStepConfig,
+  TransformUnitsConfig,
+} from './TransformControl';
+
 export {
   ChatPanel,
   ChatMessageList,

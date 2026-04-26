@@ -1,0 +1,255 @@
+---
+title: TransformControl
+description: The canonical position / rotation / scale property control for 3D editor interfaces. Composes VectorInput, Select and PropertyRow into one high-level component.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import { Aside } from '@astrojs/starlight/components';
+import TransformControlDemo, {
+  TransformControlBasic,
+  TransformControlWithReset,
+  TransformControlLinkedScale,
+  TransformControlPositionOnly,
+  TransformControlCustomSpaces,
+  TransformControlInPanel,
+} from '../../../../components/demos/editor/TransformControlDemo';
+
+The canonical 3D-editor property control. `TransformControl` bundles
+position, rotation and scale rows -- plus a coordinate-space switcher and
+a linked-scale toggle -- into a single high-level component. It is a pure
+composition over `VectorInput`, `Select` and `PropertyRow`, so the visual
+language matches the rest of the property inspector.
+
+<ComponentPreview title="Live Preview">
+  <TransformControlDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { TransformControl } from 'entangle-ui';
+import type { TransformValue, CoordinateSpace } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+const [transform, setTransform] = useState<TransformValue>({
+  position: { x: 0, y: 0, z: 0 },
+  rotation: { x: 0, y: 0, z: 0 },
+  scale: { x: 1, y: 1, z: 1 },
+});
+
+<PropertySection title="Transform">
+  <TransformControl value={transform} onChange={setTransform} showReset />
+</PropertySection>;
+```
+
+`TransformControl` does not render its own `PropertySection` wrapper --
+slot it inside one of your own sections so it inherits the panel's size
+and layout.
+
+## Basic
+
+The defaults render all three rows plus the coordinate-space dropdown,
+size `sm` to match typical property-panel density.
+
+<ComponentPreview title="Basic">
+  <TransformControlBasic client:only="react" />
+</ComponentPreview>
+
+## With reset
+
+Set `showReset` to render a per-row reset button. Position and rotation
+reset to `(0, 0, 0)`, scale resets to `(1, 1, 1)`.
+
+<ComponentPreview title="With reset">
+  <TransformControlWithReset client:only="react" />
+</ComponentPreview>
+
+## Linked scale
+
+When the lock toggle is engaged, editing any scale axis sets all three
+to that value (uniform scale). Toggling the lock does **not** snap the
+existing values -- it only changes how subsequent edits propagate.
+
+<ComponentPreview title="Linked scale">
+  <TransformControlLinkedScale client:only="react" />
+</ComponentPreview>
+
+## Position only
+
+Hide rows you do not need with the `show` prop. When both `position` and
+`rotation` are hidden, the coordinate-space row is hidden too.
+
+<ComponentPreview title="Position only">
+  <TransformControlPositionOnly client:only="react" />
+</ComponentPreview>
+
+## Custom coordinate spaces
+
+Replace the default `local | world | parent` triple with your own list
+via `coordinateSpaceOptions`.
+
+<ComponentPreview title="Custom spaces">
+  <TransformControlCustomSpaces client:only="react" />
+</ComponentPreview>
+
+<Aside type="caution" title="Coordinate space is a UI surface">
+  Changing the coordinate-space dropdown does **not** transform the numeric
+  values. The component is purely a UI control -- your editor logic is
+  responsible for re-projecting positions and rotations when the active space
+  changes.
+</Aside>
+
+## Inside a PropertyPanel
+
+`TransformControl` is designed to sit inside a `PropertySection`, with
+peer sections beside it for material, physics, etc.
+
+<ComponentPreview title="In a property panel">
+  <TransformControlInPanel client:only="react" />
+</ComponentPreview>
+
+## Accessibility
+
+All keyboard, focus and ARIA semantics come from the underlying
+controls. The component itself adds no new interactions:
+
+- Each axis input is a `NumberInput`, with the standard math-expression,
+  drag-edit and step-button keybindings.
+- The coordinate-space dropdown is a `Select` (`role="combobox"`).
+- The linked-scale toggle is a button with `aria-pressed` reflecting the
+  current state.
+
+## When to use
+
+- **`TransformControl`** -- 3D position / rotation / scale UI in a
+  property inspector. Use the defaults; pass `show` and `coordinateSpaceOptions`
+  to tailor the rows to your editor.
+- **Plain `VectorInput`** -- any single-vector input that is not part of
+  a transform triple (UV coordinates, color channels, bounding-box extents).
+- **Custom composition** -- when you need transform UI with a non-standard
+  structure (only position plus a single rotation angle, mixed scalar /
+  vector controls, etc.). Compose `VectorInput` + `PropertyRow` directly.
+
+## API Reference
+
+### TransformControl
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'TransformValue',
+      description: 'Controlled transform value. Pair with onChange.',
+    },
+    {
+      name: 'defaultValue',
+      type: 'TransformValue',
+      description:
+        'Initial transform value when the component is uncontrolled.',
+    },
+    {
+      name: 'onChange',
+      type: '(next: TransformValue) => void',
+      description:
+        'Called with the full TransformValue whenever any axis of any subgroup changes.',
+    },
+    {
+      name: 'coordinateSpace',
+      type: "'local' | 'world' | 'parent' | (string & {})",
+      description: 'Controlled coordinate space for position/rotation rows.',
+    },
+    {
+      name: 'defaultCoordinateSpace',
+      type: 'CoordinateSpace',
+      default: "'local'",
+      description: 'Initial coordinate space when uncontrolled.',
+    },
+    {
+      name: 'onCoordinateSpaceChange',
+      type: '(next: CoordinateSpace) => void',
+      description: 'Called when the coordinate-space dropdown changes.',
+    },
+    {
+      name: 'coordinateSpaceOptions',
+      type: '{ value: string; label: string }[]',
+      default:
+        "[{value:'local',label:'Local'},{value:'world',label:'World'},{value:'parent',label:'Parent'}]",
+      description:
+        'Custom coordinate-space options. Replaces the default triple when provided.',
+    },
+    {
+      name: 'linkedScale',
+      type: 'boolean',
+      description:
+        'Whether scale axes are linked (controlled). When linked, editing one axis sets all three to the same value.',
+    },
+    {
+      name: 'defaultLinkedScale',
+      type: 'boolean',
+      default: 'true',
+      description: 'Initial linked-scale state when uncontrolled.',
+    },
+    {
+      name: 'onLinkedScaleChange',
+      type: '(linked: boolean) => void',
+      description: 'Called when the lock toggle is clicked.',
+    },
+    {
+      name: 'show',
+      type: '{ position?: boolean; rotation?: boolean; scale?: boolean }',
+      default: 'all true',
+      description:
+        'Which subgroups to render. Hiding both position and rotation also hides the coordinate-space row.',
+    },
+    {
+      name: 'labels',
+      type: '{ position?: string; rotation?: string; scale?: string; coordinateSpace?: string }',
+      default:
+        "{ position: 'Position', rotation: 'Rotation', scale: 'Scale', coordinateSpace: 'Space' }",
+      description:
+        'Display labels for each row and the coordinate-space dropdown.',
+    },
+    {
+      name: 'precision',
+      type: '{ position?: number; rotation?: number; scale?: number }',
+      default: '{ position: 3, rotation: 1, scale: 3 }',
+      description: 'Decimal places per row. Forwarded to each VectorInput.',
+    },
+    {
+      name: 'step',
+      type: '{ position?: number; rotation?: number; scale?: number }',
+      default: '{ position: 0.1, rotation: 1, scale: 0.01 }',
+      description: 'Step values per row. Forwarded to each VectorInput.',
+    },
+    {
+      name: 'units',
+      type: '{ position?: string; rotation?: string; scale?: string }',
+      default: "{ position: 'm', rotation: '°', scale: '' }",
+      description: 'Unit suffix appended to each axis input.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'sm'",
+      description:
+        'Size for the underlying VectorInput and Select controls. Defaults to sm to match property-panel density.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disable all interactions.',
+    },
+    {
+      name: 'showReset',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Render a reset button next to each row. Position/rotation reset to (0,0,0); scale resets to (1,1,1).',
+    },
+  ]}
+/>

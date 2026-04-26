@@ -212,6 +212,10 @@ export default defineConfig({
                   slug: 'components/editor/property-inspector',
                 },
                 {
+                  label: 'TransformControl',
+                  slug: 'components/editor/transform-control',
+                },
+                {
                   label: 'ViewportGizmo',
                   slug: 'components/editor/viewport-gizmo',
                 },
