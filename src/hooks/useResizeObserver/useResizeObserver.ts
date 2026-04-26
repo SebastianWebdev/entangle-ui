@@ -14,9 +14,13 @@ export interface UseResizeObserverOptions {
 /**
  * Observe size changes on an element. SSR-safe; cleans up on unmount.
  *
- * The callback is wrapped in a ref so that consumers do not have to memoize
- * it — the observer only re-subscribes when the target ref or `enabled` flag
+ * The callback is wrapped in a ref so consumers do not have to memoize it —
+ * the underlying observer never re-subscribes when the callback identity
  * changes.
+ *
+ * The hook re-checks `ref.current` on every render so it picks up nodes that
+ * mount later (e.g. through conditional rendering). When the observed node
+ * has not changed the only cost is a single identity comparison.
  *
  * @example
  * ```tsx
@@ -35,17 +39,38 @@ export function useResizeObserver<T extends HTMLElement>(
 ): void {
   const { enabled = true } = options ?? {};
 
-  // Stable callback ref so consumers don't need to memoize.
   const callbackRef = useRef(callback);
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const observedNodeRef = useRef<T | null>(null);
+
   useEffect(() => {
     callbackRef.current = callback;
   }, [callback]);
 
+  // Runs on every render so a node that mounts after the first render
+  // (conditional rendering, lazy children, suspense fallback flips, ...) is
+  // picked up automatically. Short-circuits on the common case where the
+  // observed node has not changed.
   useEffect(() => {
-    if (!enabled) return;
     if (typeof ResizeObserver === 'undefined') return;
 
+    if (!enabled) {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+        observedNodeRef.current = null;
+      }
+      return;
+    }
+
     const node = ref.current;
+    if (node === observedNodeRef.current) return;
+
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+    observedNodeRef.current = node;
     if (!node) return;
 
     const observer = new ResizeObserver(entries => {
@@ -54,9 +79,16 @@ export function useResizeObserver<T extends HTMLElement>(
       }
     });
     observer.observe(node);
+    observerRef.current = observer;
+  });
 
-    return () => {
-      observer.disconnect();
-    };
-  }, [ref, enabled]);
+  // Final cleanup on unmount.
+  useEffect(
+    () => () => {
+      observerRef.current?.disconnect();
+      observerRef.current = null;
+      observedNodeRef.current = null;
+    },
+    []
+  );
 }

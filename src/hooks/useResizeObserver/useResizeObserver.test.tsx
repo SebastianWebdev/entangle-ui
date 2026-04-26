@@ -81,6 +81,37 @@ describe('useResizeObserver', () => {
     expect(observers).toHaveLength(1);
   });
 
+  it('attaches when the ref node mounts after the first render', () => {
+    const onResize = vi.fn();
+    function Conditional({ show }: { show: boolean }) {
+      const ref = useRef<HTMLDivElement>(null);
+      useResizeObserver(ref, onResize);
+      return show ? <div ref={ref} data-testid="late" /> : null;
+    }
+
+    const { rerender } = render(<Conditional show={false} />);
+    expect(observers).toHaveLength(0);
+
+    rerender(<Conditional show={true} />);
+    expect(observers).toHaveLength(1);
+  });
+
+  it('disconnects when the observed node is removed', () => {
+    const onResize = vi.fn();
+    function Conditional({ show }: { show: boolean }) {
+      const ref = useRef<HTMLDivElement>(null);
+      useResizeObserver(ref, onResize);
+      return show ? <div ref={ref} /> : null;
+    }
+
+    const { rerender } = render(<Conditional show={true} />);
+    expect(observers).toHaveLength(1);
+    const ro = observers[0] as MockResizeObserver;
+
+    rerender(<Conditional show={false} />);
+    expect(ro.disconnect).toHaveBeenCalled();
+  });
+
   it('disconnects on unmount', () => {
     const { unmount } = render(<Probe onResize={vi.fn()} />);
     const ro = observers[0] as MockResizeObserver;
