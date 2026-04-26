@@ -33,6 +33,8 @@ export {
   Stack,
 } from '@/components/layout';
 export {
+  Avatar,
+  AvatarGroup,
   Badge,
   Button,
   Checkbox,
@@ -191,6 +193,12 @@ export type {
   PanelSize,
 } from '@/components/layout';
 export type {
+  AvatarColor,
+  AvatarGroupProps,
+  AvatarProps,
+  AvatarShape,
+  AvatarSize,
+  AvatarStatus,
   BadgeColor,
   BadgeProps,
   BadgeSize,
