@@ -166,6 +166,10 @@ export default defineConfig({
                   label: 'EmptyState',
                   slug: 'components/feedback/empty-state',
                 },
+                {
+                  label: 'ProgressBar',
+                  slug: 'components/feedback/progress-bar',
+                },
                 { label: 'Skeleton', slug: 'components/feedback/skeleton' },
                 { label: 'Spinner', slug: 'components/feedback/spinner' },
                 { label: 'Toast', slug: 'components/feedback/toast' },
