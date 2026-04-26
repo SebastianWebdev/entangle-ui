@@ -11,3 +11,5 @@ export type { UseControlledStateOptions } from './useControlledState';
 
 export { useFocusTrap } from './useFocusTrap';
 export type { UseFocusTrapOptions } from './useFocusTrap';
+
+export { useMergedRef } from './useMergedRef';
