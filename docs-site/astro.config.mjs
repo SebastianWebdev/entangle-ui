@@ -154,6 +154,10 @@ export default defineConfig({
                   slug: 'components/navigation/context-menu',
                 },
                 { label: 'Menu', slug: 'components/navigation/menu' },
+                {
+                  label: 'SegmentedControl',
+                  slug: 'components/navigation/segmented-control',
+                },
                 { label: 'Tabs', slug: 'components/navigation/tabs' },
               ],
             },
