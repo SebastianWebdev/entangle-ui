@@ -70,6 +70,9 @@ export type SegmentedControlVariants = RecipeVariants<
 export const segmentedIndicatorRecipe = recipe({
   base: {
     position: 'absolute',
+    top: 0,
+    left: 0,
+    boxSizing: 'border-box',
     pointerEvents: 'none',
     transitionProperty: 'transform, width, height, opacity',
     transitionDuration: vars.transitions.normal,
