@@ -3,7 +3,16 @@ title: Theming
 description: Learn how to customize and extend the Entangle UI theme system — colors, spacing, typography, shadows, and more.
 ---
 
+import LightThemeOverview, {
+  LightThemeBasicComponents,
+  LightThemePanel,
+  LightThemeAlerts,
+  LightThemeMixed,
+} from '../../../components/demos/themes/LightThemeDemo';
+
 Entangle UI ships with a dark-first theme designed for professional editor interfaces. Every visual value — colors, spacing, typography, shadows — is defined as a **theme token** and exposed as a CSS custom property prefixed with `--etui-`.
+
+The library also ships a maintained **light theme preset** for use in agent UIs, dashboards, and customer-facing surfaces — opt in via `createLightTheme()`.
 
 ## Architecture Overview
 
@@ -37,6 +46,82 @@ import { Button } from 'entangle-ui';
 // Works out of the box — dark theme is already active
 <Button variant="filled">Save</Button>;
 ```
+
+## Light Theme
+
+The light theme is shipped as a build-time preset. It is **not** applied globally — consumers opt in by generating a class with `createLightTheme()` and applying it to a subtree (typically the entire app, but it can also scope to a single dialog or panel).
+
+<LightThemeOverview client:only="react" />
+
+### Quick start
+
+The light-theme class is pre-generated at the package's build time, so it's a plain string you can import from anywhere — no consumer-side `.css.ts` file required:
+
+```tsx
+// app/Root.tsx
+import { VanillaThemeProvider, lightThemeClass } from 'entangle-ui';
+
+export function Root() {
+  return (
+    <VanillaThemeProvider className={lightThemeClass}>
+      <App />
+    </VanillaThemeProvider>
+  );
+}
+```
+
+If you prefer a function-style API, `createLightTheme()` returns the same string and is interchangeable:
+
+```tsx
+import { VanillaThemeProvider, createLightTheme } from 'entangle-ui';
+
+const lightThemeClass = createLightTheme();
+
+<VanillaThemeProvider className={lightThemeClass}>
+  <App />
+</VanillaThemeProvider>;
+```
+
+The class flips every `--etui-*` custom property under the wrapped subtree to the light preset.
+
+### What flips and what stays
+
+The light theme only changes **visual** tokens (colors, shadows). Structural tokens — spacing, typography, border-radius, transitions, z-index — are identical between the two themes, so layout and rhythm don't drift when a user switches modes.
+
+A few notes worth flagging:
+
+- `colors.surface.whiteOverlay` keeps its name (the contract is part of the public API), but its value flips polarity in light mode — it becomes a subtle dark overlay (`rgba(0, 0, 0, 0.06)`) so it still reads as "subtle tint over the underlying surface".
+- `colors.backdrop` uses lower opacity in light mode (`0.4` vs dark's `0.6`) — a heavier dim feels harsh against bright underlying content.
+- Shadows use lower opacity and softer spread to remain visible on white surfaces without looking heavy.
+- `shell.statusBar` keeps a solid accent background in both themes — it's a deliberately punchy element regardless of mode.
+
+### Common components
+
+<LightThemeBasicComponents client:only="react" />
+
+### Property panels
+
+<LightThemePanel client:only="react" />
+
+### Alerts
+
+<LightThemeAlerts client:only="react" />
+
+### Scoped overrides — light dialog inside a dark app
+
+`VanillaThemeProvider` is just a `<div>` wrapper for a className, so themes can be scoped to any subtree. A common pattern is a dark editor with a single light-themed settings dialog (for legibility while a long form is being filled out):
+
+<LightThemeMixed client:only="react" />
+
+```tsx
+import { VanillaThemeProvider, lightThemeClass } from 'entangle-ui';
+
+<VanillaThemeProvider className={lightThemeClass}>
+  <SettingsDialog />
+</VanillaThemeProvider>;
+```
+
+The same pattern works in reverse — embed a dark preview inside a light dashboard by wrapping just that subtree with the dark theme class generated via `createCustomTheme`.
 
 ## Token Reference
 
@@ -222,34 +307,20 @@ Override any token for a subtree using plain CSS:
 
 ### 2. createCustomTheme (Build-Time)
 
-Create a scoped theme that compiles to CSS at build time. This **must** be called in a `.css.ts` file:
+Create a scoped theme that compiles to CSS at build time. This **must** be called in a `.css.ts` file. Use it for brand palettes or full custom themes — for the standard light preset prefer [`createLightTheme()`](#light-theme).
 
 ```typescript
-// src/themes/light.css.ts
+// src/themes/brand.css.ts
 import { createCustomTheme } from 'entangle-ui';
 
-createCustomTheme('[data-theme="light"]', {
+createCustomTheme('[data-theme="brand"]', {
   colors: {
-    background: {
-      primary: '#ffffff',
-      secondary: '#f5f5f5',
-      tertiary: '#eeeeee',
-      elevated: '#e8e8e8',
-    },
-    surface: {
-      default: '#f5f5f5',
-      hover: '#eeeeee',
-      active: '#e8e8e8',
-    },
-    text: {
-      primary: '#000000',
-      secondary: '#333333',
-      muted: '#666666',
-      disabled: '#999999',
+    accent: {
+      primary: '#ff6600',
+      secondary: '#cc5200',
     },
     border: {
-      default: '#d0d0d0',
-      focus: '#007acc',
+      focus: '#ff6600',
     },
   },
 });
@@ -258,8 +329,8 @@ createCustomTheme('[data-theme="light"]', {
 Apply it:
 
 ```tsx
-<div data-theme="light">
-  <Button>Light-themed button</Button>
+<div data-theme="brand">
+  <Button variant="filled">Brand-themed button</Button>
 </div>
 ```
 
@@ -348,6 +419,7 @@ import type {
   Tokens, // Raw token definitions
   ThemeVars, // Vanilla Extract contract type (CSS variable references)
   DarkThemeValues, // Dark theme value map
+  LightThemeValues, // Light theme value map (matches DarkThemeValues shape)
   ThemeValues, // Alias for DarkThemeValues (used in createCustomTheme)
   DeepPartial, // Recursive Partial<T> for theme overrides
 } from 'entangle-ui';

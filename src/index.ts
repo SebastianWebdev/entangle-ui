@@ -3,13 +3,17 @@
 export {
   vars,
   darkThemeValues,
+  lightThemeValues,
+  lightThemeClass,
   createCustomTheme,
+  createLightTheme,
   VanillaThemeProvider,
   ThemeProvider,
 } from '@/theme';
 export type {
   ThemeVars,
   DarkThemeValues,
+  LightThemeValues,
   VanillaThemeProviderProps,
   ThemeProviderProps,
 } from '@/theme';
