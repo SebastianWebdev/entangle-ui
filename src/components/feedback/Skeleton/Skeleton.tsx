@@ -4,6 +4,7 @@ import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
+import { devWarn } from '@/utils/devWarn';
 import type { SkeletonProps, SkeletonShape } from './Skeleton.types';
 import {
   skeletonHeightVar,
@@ -93,7 +94,7 @@ export const Skeleton = /*#__PURE__*/ React.memo<SkeletonProps>(
       height !== undefined &&
       width !== height
     ) {
-      console.warn(
+      devWarn(
         '[Skeleton] shape="circle" expects equal width and height; received width=%o, height=%o.',
         width,
         height
