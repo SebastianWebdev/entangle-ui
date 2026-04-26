@@ -35,3 +35,10 @@ export type { UseClickOutsideOptions } from './useClickOutside';
 
 export { useHotkey } from './useHotkey';
 export type { UseHotkeyOptions } from './useHotkey';
+
+export { useTheme } from './useTheme';
+export type {
+  ResolvedThemeValues,
+  ThemeVariant,
+  UseThemeReturn,
+} from './useTheme';
