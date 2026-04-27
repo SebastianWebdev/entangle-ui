@@ -1,7 +1,8 @@
-import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { main } from './export-tokens';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -35,10 +36,7 @@ function collectLeafPaths(
 
 describe('export-tokens script', () => {
   it('builds tokens.json and per-theme CSS artifacts', () => {
-    execSync('npm run build:tokens', {
-      cwd: REPO_ROOT,
-      stdio: 'pipe',
-    });
+    main();
 
     const jsonPath = resolve(TOKENS_DIR, 'tokens.json');
     const darkCssPath = resolve(TOKENS_DIR, 'tokens.dark.css');

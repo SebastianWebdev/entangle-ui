@@ -24,6 +24,10 @@
       "types": "./dist/types/theme/index.d.ts",
       "default": "./dist/esm/theme/index.js"
     },
+    "./theme-values": {
+      "types": "./dist/types/theme-values.d.ts",
+      "default": "./dist/esm/theme-values.js"
+    },
     "./tokens.json": "./dist/tokens/tokens.json",
     "./tokens.dark.css": "./dist/tokens/tokens.dark.css",
     "./tokens.light.css": "./dist/tokens/tokens.light.css",

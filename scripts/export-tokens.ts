@@ -24,7 +24,7 @@
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { darkThemeValues } from '../src/theme/darkThemeValues';
 import { lightThemeValues } from '../src/theme/lightThemeValues';
@@ -226,7 +226,7 @@ function buildJsonFile(
   return `${JSON.stringify(payload, null, 2)}\n`;
 }
 
-function main(): void {
+export function main(): void {
   const dark = buildThemeExport(
     darkThemeValues as unknown as Plain,
     themeContractData as unknown as Plain
@@ -263,4 +263,9 @@ function main(): void {
   );
 }
 
-main();
+if (
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  main();
+}

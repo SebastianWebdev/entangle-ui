@@ -43,6 +43,11 @@ export default [
     input: {
       index: 'src/index.ts',
       palettes: 'src/palettes.ts',
+      // Explicit theme entry — without it Rollup tree-shakes the pure
+      // re-export hub and dist/esm/theme/index.js is never emitted,
+      // breaking the `entangle-ui/theme` subpath export.
+      'theme/index': 'src/theme/index.ts',
+      'theme-values': 'src/theme-values.ts',
     },
     output: {
       dir: 'dist/esm',
@@ -73,6 +78,8 @@ export default [
     input: {
       index: 'src/index.ts',
       palettes: 'src/palettes.ts',
+      'theme/index': 'src/theme/index.ts',
+      'theme-values': 'src/theme-values.ts',
     },
     output: {
       dir: 'dist/types',

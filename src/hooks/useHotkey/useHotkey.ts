@@ -164,37 +164,74 @@ export function useHotkey(
   const handlerRef = useRef(handler);
   handlerRef.current = handler;
 
-  const parsed = useMemo(() => parseCombo(combo), [combo]);
-
-  useEffect(() => {
-    if (!enabled || parsed === null) return;
-
-    // Resolve inside the effect so a `RefObject` target reads its current
-    // value after commit — by the time `useEffect` fires, React has already
-    // populated `ref.current` with the mounted element.
-    const eventTarget = resolveTarget(target);
-    if (eventTarget === null) return;
-
-    const listener = (event: Event) => {
-      const ke = event as KeyboardEvent;
-      if (!matches(parsed, ke)) return;
-      if (!enableInInputs && isEditableTarget(ke.target)) return;
-
-      if (preventDefault) ke.preventDefault();
-      handlerRef.current(ke);
-      if (stopPropagation) ke.stopPropagation();
-    };
-
-    eventTarget.addEventListener('keydown', listener);
-    return () => {
-      eventTarget.removeEventListener('keydown', listener);
-    };
-  }, [
+  const optionsRef = useRef({
     enabled,
     enableInInputs,
     preventDefault,
     stopPropagation,
-    target,
-    parsed,
-  ]);
+  });
+  optionsRef.current = {
+    enabled,
+    enableInInputs,
+    preventDefault,
+    stopPropagation,
+  };
+
+  const parsed = useMemo(() => parseCombo(combo), [combo]);
+  const parsedRef = useRef(parsed);
+  parsedRef.current = parsed;
+
+  const attachedTargetRef = useRef<EventTarget | null>(null);
+  const listenerRef = useRef<((event: Event) => void) | null>(null);
+
+  // Runs every render so a ref whose `.current` becomes available after the
+  // first render (conditional rendering, lazy children) is picked up. The
+  // identity check on the resolved target keeps re-attaches limited to the
+  // moments the underlying element actually changes.
+  useEffect(() => {
+    const desired =
+      enabled && parsed !== null ? resolveTarget(target) : null;
+    if (desired === attachedTargetRef.current) return;
+
+    if (attachedTargetRef.current && listenerRef.current) {
+      attachedTargetRef.current.removeEventListener(
+        'keydown',
+        listenerRef.current
+      );
+    }
+    attachedTargetRef.current = desired;
+    if (desired === null) {
+      listenerRef.current = null;
+      return;
+    }
+
+    const listener = (event: Event) => {
+      const ke = event as KeyboardEvent;
+      const opts = optionsRef.current;
+      const p = parsedRef.current;
+      if (p === null || !opts.enabled) return;
+      if (!matches(p, ke)) return;
+      if (!opts.enableInInputs && isEditableTarget(ke.target)) return;
+
+      if (opts.preventDefault) ke.preventDefault();
+      handlerRef.current(ke);
+      if (opts.stopPropagation) ke.stopPropagation();
+    };
+    listenerRef.current = listener;
+    desired.addEventListener('keydown', listener);
+  });
+
+  useEffect(
+    () => () => {
+      if (attachedTargetRef.current && listenerRef.current) {
+        attachedTargetRef.current.removeEventListener(
+          'keydown',
+          listenerRef.current
+        );
+      }
+      attachedTargetRef.current = null;
+      listenerRef.current = null;
+    },
+    []
+  );
 }

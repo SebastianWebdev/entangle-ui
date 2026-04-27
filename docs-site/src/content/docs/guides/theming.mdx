@@ -497,6 +497,31 @@ completeness over conformance, so the proprietary `shell.*` branch ships
 alongside standard categories. Library-internal tokens under `storybook.*`
 are intentionally excluded.
 
+### Node / SSR Data Consumers
+
+Use `entangle-ui/theme-values` when you need the raw theme objects in a Node
+script, server-only route, PDF/email generator, or any other environment that
+does not process CSS imports. This entrypoint contains only plain TypeScript
+data modules and does not import Vanilla Extract CSS files:
+
+```ts
+import {
+  darkThemeValues,
+  lightThemeValues,
+  themeContractData,
+} from 'entangle-ui/theme-values';
+
+console.log(lightThemeValues.colors.accent.primary);
+// -> '#0066cc'
+
+console.log(themeContractData.colors.accent.primary);
+// -> 'etui-color-accent-primary'
+```
+
+Use `entangle-ui/theme` for React UI code that needs `ThemeProvider`, `vars`,
+`createLightTheme()`, or `createCustomTheme()`. That entrypoint intentionally
+loads the CSS runtime and is meant for bundled app code.
+
 ## TypeScript Types
 
 ```tsx
@@ -508,6 +533,17 @@ import type {
   ThemeValues, // Alias for DarkThemeValues (used in createCustomTheme)
   DeepPartial, // Recursive Partial<T> for theme overrides
 } from 'entangle-ui';
+```
+
+For CSS-free theme data imports, use:
+
+```ts
+import type {
+  DarkThemeValues,
+  LightThemeValues,
+  ThemeContractData,
+  ThemeValues,
+} from 'entangle-ui/theme-values';
 ```
 
 ## Design Principles

@@ -329,6 +329,33 @@ describe('useHotkey', () => {
       expect(handler).toHaveBeenCalledTimes(1);
     });
 
+    it('attaches once the ref target mounts after the hook initializes', () => {
+      const handler = vi.fn();
+
+      function LateMountHarness({ show }: { show: boolean }) {
+        const ref = useRef<HTMLDivElement>(null);
+        useHotkey('Ctrl+S', handler, { target: ref });
+        return show ? (
+          <div ref={ref} data-testid="scope" tabIndex={-1}>
+            content
+          </div>
+        ) : null;
+      }
+
+      const { rerender, getByTestId } = render(
+        <LateMountHarness show={false} />
+      );
+
+      // Hook initialized with ref.current === null — listener not attached.
+      fireEvent.keyDown(window, { key: 's', ctrlKey: true });
+      expect(handler).not.toHaveBeenCalled();
+
+      rerender(<LateMountHarness show={true} />);
+
+      fireEvent.keyDown(getByTestId('scope'), { key: 's', ctrlKey: true });
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
+
     it('does nothing when the RefObject is still null', () => {
       const handler = vi.fn();
       const ref: RefObject<HTMLElement | null> = { current: null };
