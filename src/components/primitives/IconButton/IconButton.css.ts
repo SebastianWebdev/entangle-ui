@@ -28,6 +28,12 @@ const iconButtonBase = style({
       transform: 'translateY(0.5px)',
     },
   },
+
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      transition: 'none',
+    },
+  },
 });
 
 globalStyle(`${iconButtonBase} > *`, {
@@ -143,6 +149,13 @@ export const loadingSpinnerRecipe = recipe({
     borderTopColor: 'transparent',
     borderRadius: '50%',
     animation: `${spin} 1s linear infinite`,
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        animation: 'none',
+        opacity: 0.6,
+      },
+    },
   },
 
   variants: {

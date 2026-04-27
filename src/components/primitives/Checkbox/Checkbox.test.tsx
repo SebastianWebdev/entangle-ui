@@ -268,4 +268,44 @@ describe('Checkbox', () => {
       expect(handleChange).toHaveBeenCalledWith(true);
     });
   });
+
+  describe('Reduced motion', () => {
+    const originalMatchMedia = window.matchMedia;
+
+    afterEach(() => {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: originalMatchMedia,
+      });
+    });
+
+    it('disables the inline check-mark transition when prefers-reduced-motion: reduce', () => {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: vi.fn().mockImplementation((query: string) => ({
+          matches: query.includes('prefers-reduced-motion: reduce'),
+          media: query,
+          onchange: null,
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        })),
+      });
+
+      const { container } = renderWithTheme(<Checkbox checked />);
+      const checkSvg = container.querySelector('svg[aria-hidden="true"]');
+      expect(checkSvg).not.toBeNull();
+      expect(checkSvg).toHaveStyle({ transition: 'none' });
+    });
+
+    it('keeps the animated transition when reduced motion is not requested', () => {
+      const { container } = renderWithTheme(<Checkbox checked />);
+      const checkSvg = container.querySelector('svg[aria-hidden="true"]');
+      expect(checkSvg).not.toBeNull();
+      // Inline style is set, so the rendered DOM contains the easing string.
+      expect(checkSvg?.getAttribute('style')).toContain('150ms ease-out');
+    });
+  });
 });

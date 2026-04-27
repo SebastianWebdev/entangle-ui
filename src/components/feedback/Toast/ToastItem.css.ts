@@ -41,6 +41,12 @@ export const toast = recipe({
     position: 'relative',
     overflow: 'hidden',
     animation: `${slideIn} ${vars.transitions.normal} forwards`,
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        animation: 'none',
+      },
+    },
   },
   variants: {
     severity: {
@@ -175,6 +181,13 @@ export const progressBar = recipe({
     animationTimingFunction: 'linear',
     animationFillMode: 'forwards',
     animationDuration: progressDurationVar,
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        animation: 'none',
+        display: 'none',
+      },
+    },
   },
   variants: {
     severity: {

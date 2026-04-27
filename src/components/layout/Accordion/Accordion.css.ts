@@ -116,6 +116,12 @@ export const chevronStyle = style({
   flexShrink: 0,
   transition: `transform ${vars.transitions.fast}`,
   color: vars.colors.text.muted,
+
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      transition: 'none',
+    },
+  },
 });
 
 export const chevronExpanded = style({
@@ -144,6 +150,12 @@ export const iconArea = style({
 export const contentWrapper = style({
   display: 'grid',
   transition: `grid-template-rows ${vars.transitions.normal}`,
+
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      transition: 'none',
+    },
+  },
 });
 
 export const contentWrapperExpanded = style({

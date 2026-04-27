@@ -82,6 +82,12 @@ export const chevronRecipe = recipe({
     flexShrink: 0,
     transition: `transform ${vars.transitions.fast}`,
     color: 'currentColor',
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
 
   variants: {
@@ -102,6 +108,12 @@ export const contentWrapperRecipe = recipe({
   base: {
     display: 'grid',
     transition: `grid-template-rows ${vars.transitions.normal}`,
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
 
   variants: {

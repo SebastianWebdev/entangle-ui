@@ -289,8 +289,14 @@ export const Tooltip: React.FC<TooltipProps> = ({
     rootProps.trackCursorAxis = trackCursor;
   }
 
-  // Build animation transition style
-  const animated = animation?.animated !== false;
+  // Build animation transition style. Honors `prefers-reduced-motion: reduce`
+  // by collapsing to `transition: none` regardless of caller-passed config —
+  // user OS-level preference always wins over component config.
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const animated = animation?.animated !== false && !prefersReducedMotion;
   const duration = animation?.duration ?? 200;
   const easing = animation?.easing ?? 'ease-out';
 

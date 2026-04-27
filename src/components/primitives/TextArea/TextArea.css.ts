@@ -17,6 +17,12 @@ export const textAreaWrapperRecipe = recipe({
     borderRadius: vars.borderRadius.md,
     transition: `all ${vars.transitions.normal}`,
     boxSizing: 'border-box',
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
   variants: {
     size: {
