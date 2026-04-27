@@ -481,13 +481,16 @@ Top-level structure:
 ```json
 {
   "$schema": "https://design-tokens.org/schema.json",
-  "$version": "0.8.0",
+  "$version": "<package version>",
   "themes": {
     "dark":  { "colors": { ... }, "spacing": { ... }, "shell": { ... } },
     "light": { "colors": { ... }, "spacing": { ... }, "shell": { ... } }
   }
 }
 ```
+
+The `$version` field is read from `package.json` at export time, so each
+published artifact carries the exact version it shipped with.
 
 The export is loosely DTCG-aligned rather than spec-strict — the goal is
 completeness over conformance, so the proprietary `shell.*` branch ships
