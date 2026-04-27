@@ -1,5 +1,185 @@
 # entangle-ui
 
+## 0.8.0
+
+### Minor Changes
+
+- [#49](https://github.com/SebastianWebdev/entangle-ui/pull/49) [`0cd0997`](https://github.com/SebastianWebdev/entangle-ui/commit/0cd0997e236b822e9cd6b7d140e4285a1cbe365f) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `Alert` component for persistent inline status banners — read-only
+  notices, expired-credentials warnings, unsaved-changes banners, and similar
+  in-layout messages. Five semantic variants (`info`, `success`, `warning`,
+  `error`, `neutral`) drive the color and the default icon, with three visual
+  treatments: `subtle` (default), `solid`, and `outline`. Provide `onClose`
+  to render a dismiss button. Ships a compound API — `Alert.Title`,
+  `Alert.Description`, `Alert.Actions` — also exported as standalone
+  `AlertTitle`, `AlertDescription`, `AlertActions`. ARIA roles are derived
+  from the variant (`alert` for error/warning, `status` for info/success,
+  `region` for neutral). For transient confirmations like "File saved", reach
+  for `useToast` instead.
+
+- [#50](https://github.com/SebastianWebdev/entangle-ui/pull/50) [`cad70ba`](https://github.com/SebastianWebdev/entangle-ui/commit/cad70ba1c6cbf4137345fe473448fd80697ae744) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `Avatar` and `AvatarGroup` primitives for rendering people, agents, and
+  named entities consistently across editor UIs. `Avatar` resolves an `src`
+  when one is available and falls back through initials (derived from `name`,
+  or set explicitly) to a generic user glyph; the fallback is always rendered
+  underneath the image so a slow load never produces a blank flash. Six sizes
+  (`xs` 16px → `xxl` 56px), three shapes (`circle`, `square`, `rounded`),
+  deterministic auto colour hashed from `name`, optional presence indicator
+  (`online` / `away` / `busy` / `offline`), and an interactive mode (`onClick`
+  makes it a focusable, Enter/Space-activatable button). `AvatarGroup`
+  overlaps multiple avatars with configurable spacing and collapses overflow
+  beyond `max` into a `+N` indicator with a tooltip listing the hidden names.
+
+- [#51](https://github.com/SebastianWebdev/entangle-ui/pull/51) [`31469af`](https://github.com/SebastianWebdev/entangle-ui/commit/31469afb423b6eeb60791ab8762a0e06c7111159) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add Breadcrumbs navigation for hierarchical paths, including link/current/disabled item states, automatic or custom separators, collapsed trails with expandable ellipsis, truncation tooltips, Storybook coverage, and Starlight documentation.
+
+- [#57](https://github.com/SebastianWebdev/entangle-ui/pull/57) [`434e750`](https://github.com/SebastianWebdev/entangle-ui/commit/434e7507c0df6c2a6f250340d0cdbd66ee0b2d3f) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Promote three internal patterns into public hooks: `useFocusTrap`, `useMergedRef`, and `useResizeObserver`.
+  - `useFocusTrap` was previously a private helper inside `Dialog`. It now lives in the public hooks API with the same `({ containerRef, enabled }) => onKeyDown` signature.
+  - `useMergedRef` replaces inline ref-merge boilerplate in `Dialog`, `ChatMessageList`, `FloatingPanel`, and `ScrollArea`. Pass any number of object refs, callback refs, `null`, or `undefined`, and get a single callback ref that fans the node out to all of them.
+  - `useResizeObserver` wraps the browser API with the conventions used elsewhere in the library: SSR-safe, stable callback identity (no re-subscription on callback change), and an `enabled` flag for toggling without unmount. `SplitPane`, `ScrollArea`, and the chat scroll hook (`useChatScroll`) now use it.
+
+  All three hooks have full documentation pages with runnable demos.
+
+  This is a pure extraction — no behavior changes in the affected components, all existing tests pass.
+
+- [#57](https://github.com/SebastianWebdev/entangle-ui/pull/57) [`434e750`](https://github.com/SebastianWebdev/entangle-ui/commit/434e7507c0df6c2a6f250340d0cdbd66ee0b2d3f) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Establish the public hooks library and ship the first reference hook, `useControlledState`. The hook codifies the controlled / uncontrolled state pattern that every input-like component in the library reimplements: it accepts an optional `value`, `defaultValue`, `onChange`, and a required `fallback`, and returns a `[value, setValue]` tuple just like `useState`. Switching between controlled and uncontrolled modes during a component's lifetime emits a development-only warning that mirrors React's own `<input value/defaultValue>` warning.
+
+  Also adds a small `devWarn` / `devError` helper used internally by the library to gate developer-facing warnings to development builds. Several internal warnings that previously logged in production (Skeleton circle aspect, SegmentedControl a11y warning, NumberInput parse errors, useKeyboard fallback) are now silent in production.
+
+  The hooks documentation site gets a new top-level "Hooks" section with a landing page and a dedicated page for `useControlledState`.
+
+- [#59](https://github.com/SebastianWebdev/entangle-ui/pull/59) [`583f19f`](https://github.com/SebastianWebdev/entangle-ui/commit/583f19fa12aef2c861c622e008a8ceafee03e7c5) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add four net-new hooks to the public API: `useDisclosure`, `useClipboard`, `useClickOutside`, and `useHotkey`.
+  - **`useDisclosure`** — manages a boolean `isOpen` state with stable `open`, `close`, `toggle`, and `setOpen` callbacks. Supports both controlled (`open` / `onOpenChange`) and uncontrolled (`defaultOpen`) modes, built on top of `useControlledState`.
+  - **`useClipboard`** — copies text to the clipboard with a built-in timeout-driven `copied` feedback flag, an `error` field, and a `reset` callback. Uses `navigator.clipboard.writeText` with a `document.execCommand` fallback; never throws.
+  - **`useClickOutside`** — fires a callback when a click lands outside one or more refs. Supports both single-ref and array-of-refs forms (useful for popover + trigger pairs) and is configurable to listen on `mousedown`, `click`, or `pointerdown`.
+  - **`useHotkey`** — binds a single keyboard combo (e.g. `'Ctrl+S'`, `'Cmd+K'`, `'Escape'`) to a callback. `Cmd` automatically maps to `Ctrl` on non-Mac platforms. Skips firing inside editable elements by default; `enableInInputs` opts back in for global shortcuts.
+
+  All four hooks are SSR-safe, clean up subscriptions on unmount, and use a stable handler-ref pattern so consumers do not need to memoize callbacks. Each hook ships with a dedicated page on the docs site under the Hooks section.
+
+- [#58](https://github.com/SebastianWebdev/entangle-ui/pull/58) [`ac62afb`](https://github.com/SebastianWebdev/entangle-ui/commit/ac62afb6329ca533e0987973e0802c50229bb9c0) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add a maintained light theme preset. Ships `lightThemeValues` and a
+  `createLightTheme()` helper that generates a build-time CSS class via
+  Vanilla Extract. Unlike the dark theme, the light preset is not applied
+  on `:root` — consumers opt in by wrapping a subtree with
+  `VanillaThemeProvider` and the generated class, so the same theming
+  machinery powers both whole-app light mode and scoped light surfaces
+  inside a dark app (and vice versa). Structural tokens (spacing,
+  typography, border-radius, transitions, z-index) are identical between
+  themes so layout and rhythm don't drift when users switch modes.
+  Storybook gains a global theme toggle for inspecting any story under
+  either theme.
+
+- [#55](https://github.com/SebastianWebdev/entangle-ui/pull/55) [`d01fe9e`](https://github.com/SebastianWebdev/entangle-ui/commit/d01fe9ea1b8d9d59e99ee4e639559872b2f83abe) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `Link` styled-anchor primitive. Provides theme-aware color, underline,
+  hover, and focus behavior, plus `default` / `subtle` / `inline` variants
+  and `sm` / `md` / `lg` sizes. External links are auto-detected from
+  `http(s)://` hrefs (or set explicitly), get an external-link icon, and
+  ship `target="_blank" rel="noopener noreferrer"` along with an "(opens in
+  new tab)" screen-reader announcement. Polymorphic via `as` with a typed
+  generic so consumers can pass a router's link component (react-router,
+  TanStack Router, Next.js) and get the router's own props (`to`, …)
+  type-checked. `disabled` renders as a non-anchor span regardless of `as`,
+  strips navigation handlers, and suppresses the external affordance —
+  disabled router links cannot navigate via mouse, keyboard, or
+  programmatic activation.
+
+- [#52](https://github.com/SebastianWebdev/entangle-ui/pull/52) [`ce4240e`](https://github.com/SebastianWebdev/entangle-ui/commit/ce4240ede8cbabe7c4da09ad919d1e7d46408567) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `ProgressBar` and `CircularProgress` feedback components for measurable
+  operations like uploads, exports, renders, and batch jobs. Both share `value`
+  / `min` / `max` semantics and four named colors (`primary`, `success`,
+  `warning`, `error`) plus arbitrary CSS color pass-through. Omitting `value`
+  renders an indeterminate variant — a sliding gradient on the linear bar, a
+  rotating arc on the circular one — with a `prefers-reduced-motion` fallback.
+  `ProgressBar` ships in three heights (`sm` 2px → `lg` 8px), supports inline /
+  overlay / custom labels, and an optional striped (optionally animated)
+  texture overlay; `CircularProgress` ranges from `xs` (16px) to `xl` (48px),
+  auto-derives stroke thickness from size (overridable via `thickness`), and
+  can render a center label for `lg`+ sizes. Both expose
+  `role="progressbar"` with the appropriate `aria-value*` attributes.
+
+- [#47](https://github.com/SebastianWebdev/entangle-ui/pull/47) [`0300928`](https://github.com/SebastianWebdev/entangle-ui/commit/0300928f4e1cce6e48dbcb15b657cbe77d6fa650) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `Radio` and `RadioGroup` primitives. Closes the last gap in Phase 1 by providing a styled, accessible alternative to native radio inputs for mutually exclusive selection.
+  - `Radio`: standalone (controlled or uncontrolled) or context-driven, with sizes (sm/md/lg), label position, helper text, and error state.
+  - `RadioGroup`: manages exclusive selection, propagates `name`, `size`, `disabled`, and `error` via context, supports vertical/horizontal orientation, custom spacing, required/error states, and helper text.
+  - Native `<input type="radio">` under the hood so browser arrow-key navigation and form submission work out of the box.
+  - Honors `prefers-reduced-motion`.
+
+- [#54](https://github.com/SebastianWebdev/entangle-ui/pull/54) [`7e88083`](https://github.com/SebastianWebdev/entangle-ui/commit/7e8808322ec022ba7a7290f4686c315c09103123) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add SegmentedControl, a toolbar-density mutually exclusive selector for view modes, layout toggles, and small option groups. Compound API (`SegmentedControl` + `SegmentedControlItem`) with controlled and uncontrolled modes, three visual variants (subtle / solid / outline), three sizes, horizontal and vertical orientations, optional fullWidth, icon and icon-only segments with tooltip support, an animated sliding indicator that respects `prefers-reduced-motion`, full roving-tabindex keyboard navigation (Arrow keys / Home / End), `role="group"` + `aria-pressed` accessibility, Storybook coverage, and Starlight documentation.
+
+- [#46](https://github.com/SebastianWebdev/entangle-ui/pull/46) [`014eecc`](https://github.com/SebastianWebdev/entangle-ui/commit/014eeccc4f4d96f2d6ea39f6dcfe427acb51d62d) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `Skeleton` and `SkeletonGroup` components for loading-placeholder
+  states. Supports `rect`, `circle`, and `line` shapes with `pulse`, `wave`,
+  or no animation. Animations honor `prefers-reduced-motion`. `SkeletonGroup`
+  auto-generates a configurable number of skeletons with consistent spacing
+  and direction, or lays out custom children.
+
+- [#63](https://github.com/SebastianWebdev/entangle-ui/pull/63) [`f86981d`](https://github.com/SebastianWebdev/entangle-ui/commit/f86981dea383ea91027437998285001e3e535f98) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Ship machine-readable token artifacts alongside the JS bundle. Each release
+  now publishes `entangle-ui/tokens.json` (a loosely DTCG-aligned export of
+  both themes), `entangle-ui/tokens.dark.css` (the dark `--etui-*` custom
+  properties scoped to `:root`), and `entangle-ui/tokens.light.css` (the light
+  preset scoped to the documented `etui-theme-light` class). Figma plugins,
+  Style Dictionary pipelines, and projects that don't use Vanilla Extract can
+  now consume the same values the components compile against. The tree-shaking
+  guarantees of the main entry point are unchanged — these files are only
+  loaded by consumers that explicitly import them.
+
+- [#61](https://github.com/SebastianWebdev/entangle-ui/pull/61) [`fb25779`](https://github.com/SebastianWebdev/entangle-ui/commit/fb25779de140def961c0ace8fad70399e676c7b5) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `TransformControl` — the canonical position / rotation / scale property
+  control for 3D editor interfaces. Composes `VectorInput`, `Select` and
+  `PropertyRow` into a single high-level component, mirroring the transform
+  widget found in Blender, Unity and Unreal. Renders three rows (position,
+  rotation, scale) plus a coordinate-space dropdown and a linked-scale lock
+  toggle, with sensible defaults for precision (`3 / 1 / 3`), step
+  (`0.1 / 1 / 0.01`) and units (`m / ° / ''`). Three independent atoms —
+  `value`, `coordinateSpace`, `linkedScale` — each support controlled and
+  uncontrolled usage. `linkedScale` performs uniform (not proportional)
+  scaling and does not snap values when toggled. Hide rows via `show`,
+  swap the coordinate-space options via `coordinateSpaceOptions`, and turn
+  on per-row reset buttons with `showReset`. The component intentionally
+  renders no `PropertySection` wrapper — slot it inside one of your own.
+  Note: changing the coordinate-space dropdown does not transform the
+  numeric values; the consumer's editor logic is responsible for re-projecting
+  them.
+
+- [#53](https://github.com/SebastianWebdev/entangle-ui/pull/53) [`f6a6580`](https://github.com/SebastianWebdev/entangle-ui/commit/f6a6580344a2b591ca6549bdc46f7320793d6704) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add the Kbd primitive for consistent keyboard shortcut rendering across menus, tooltips, command palettes, and help panels. Includes platform-aware glyph utilities for macOS, Windows, and Linux shortcut labels.
+
+- [#60](https://github.com/SebastianWebdev/entangle-ui/pull/60) [`27b61f0`](https://github.com/SebastianWebdev/entangle-ui/commit/27b61f02a69b37672cc279e67dd0481dfd717698) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `useTheme` hook for runtime theme reads. Returns the resolved CSS
+  variable snapshot from `:root`, the detected variant (`'dark'` / `'light'` /
+  `'custom'`), and `getToken(path)` / `getVar(path)` helpers for paths like
+  `'colors.accent.primary'`. Use it for canvas drawing, third-party libraries
+  that take colours as plain strings, and conditional logic — keep using
+  Vanilla Extract `vars.*` for ordinary styling. SSR-safe: returns dark-theme
+  defaults when no DOM is available.
+
+- [#56](https://github.com/SebastianWebdev/entangle-ui/pull/56) [`af3f44a`](https://github.com/SebastianWebdev/entangle-ui/commit/af3f44a17d173f192f2e376a73760c82fe6a86f5) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `VisuallyHidden` primitive for hiding content visually while keeping
+  it accessible to screen readers. Implements the canonical SR-only style
+  and supports a `focusable` mode for skip-to-content links (revealed via
+  `:focus-within`). Renders as `<span>` by default with `as` overrides for
+  `div`, `label`, and `p`.
+
+### Patch Changes
+
+- [#50](https://github.com/SebastianWebdev/entangle-ui/pull/50) [`5763f0e`](https://github.com/SebastianWebdev/entangle-ui/commit/5763f0ea29a7820bee11a0c6860a3015849c83c6) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Internal refactor: `ChatMessage` now renders the new `Avatar` primitive
+  instead of inline JSX. The visual output (24px circle, initials fallback,
+  image when available) is unchanged from a consumer's perspective, but the
+  chat avatar now picks up Avatar's deterministic auto color, image-error
+  fallback chain, and standard accessible-name handling for free.
+
+- [#62](https://github.com/SebastianWebdev/entangle-ui/pull/62) [`91f2c7b`](https://github.com/SebastianWebdev/entangle-ui/commit/91f2c7b18463d684f19a4e9a25f56b8fe70fcc69) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Honor `prefers-reduced-motion: reduce` across every existing component that
+  animates anything. Loading spinners (Button, IconButton), Dialog overlay
+  and panel fade-in/out, Toast slide-in and auto-dismiss progress bar,
+  Select dropdown scale-in, Popover entry, Tooltip popup transition, Switch
+  thumb travel, Checkbox check-mark draw, expand/collapse chevrons (Accordion,
+  Collapsible, Select, TreeView, PropertySection, ChatPanel tool-call),
+  Accordion and Collapsible content height transitions, Avatar / Slider /
+  ColorPicker hover scale effects, and every `transition: all` block on
+  interactive primitives now collapse to a static state under reduced
+  motion. Direct-manipulation interactions (drag, scrub, gizmo rotation,
+  focus rings, hover color changes) are preserved. A new
+  [Accessibility](https://entangle-ui.dev/guides/accessibility) guide page
+  documents the library's reduced-motion stance and shows how to follow the
+  same pattern in consumer code.
+
+- [#48](https://github.com/SebastianWebdev/entangle-ui/pull/48) [`249a2aa`](https://github.com/SebastianWebdev/entangle-ui/commit/249a2aa11801a45871dffd11286a2535e895d7f4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add a CSS-free `entangle-ui/theme-values` export for Node, SSR, and tooling consumers that need raw theme data without importing Vanilla Extract CSS runtime files.
+
+- [#61](https://github.com/SebastianWebdev/entangle-ui/pull/61) [`7bce1c9`](https://github.com/SebastianWebdev/entangle-ui/commit/7bce1c93a4432ddac252be65f6334211c68674b9) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Fix `VectorInput` axis inputs overflowing their column in narrow layouts.
+  The `NumberInput` inside each axis previously took its intrinsic content
+  width, causing values to clip and visually overlap when the row was tight
+  (typical inside property panels or alongside a lock toggle). The
+  `NumberInput` container now fills the remaining axis space with
+  `flex: 1; min-width: 0`, so axes share width evenly and shrink gracefully.
+
 ## 0.7.0
 
 ### Minor Changes
