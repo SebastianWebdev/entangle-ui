@@ -21,6 +21,12 @@ export const contentPanelRecipe = recipe({
         outline: 'none',
       },
     },
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
 
   variants: {

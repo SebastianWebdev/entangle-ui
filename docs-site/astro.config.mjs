@@ -49,9 +49,10 @@ export default defineConfig({
         {
           label: 'Guides',
           items: [
-            { label: 'Theming', slug: 'guides/theming' },
-            { label: 'Styling', slug: 'guides/styling' },
+            { label: 'Accessibility', slug: 'guides/accessibility' },
             { label: 'Animations', slug: 'guides/animations' },
+            { label: 'Styling', slug: 'guides/styling' },
+            { label: 'Theming', slug: 'guides/theming' },
           ],
         },
         {

@@ -35,6 +35,12 @@ export const triggerRecipe = recipe({
         boxShadow: vars.shadows.focus,
       },
     },
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
   variants: {
     size: {
@@ -169,6 +175,12 @@ export const chevronRecipe = recipe({
     flexShrink: 0,
     transition: `transform ${vars.transitions.fast}`,
     color: vars.colors.text.muted,
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
   variants: {
     open: {
@@ -217,6 +229,12 @@ export const dropdownStyle = style({
   overflow: 'hidden',
   fontFamily: vars.typography.fontFamily.sans,
   animation: `${selectDropdownIn} ${vars.transitions.fast} forwards`,
+
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      animation: 'none',
+    },
+  },
 });
 
 // --- Search input ---

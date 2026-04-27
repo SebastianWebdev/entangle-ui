@@ -79,6 +79,12 @@ export const checkboxBoxRecipe = recipe({
       opacity: 0.5,
       cursor: 'not-allowed',
     },
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
 
   variants: {

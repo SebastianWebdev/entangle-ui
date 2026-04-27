@@ -158,7 +158,6 @@ export const Tab: React.FC<TabProps> = ({
       )}
       style={{
         gap: vars.spacing.xs,
-        transition: `all ${vars.transitions.fast}`,
         ...style,
       }}
       data-testid={testId}

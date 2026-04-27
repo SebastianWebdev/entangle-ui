@@ -60,6 +60,12 @@ export const overlayRecipe = recipe({
     background: vars.colors.backdrop,
     backdropFilter: 'blur(2px)',
     zIndex: vars.zIndex.modal,
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        animation: 'none',
+      },
+    },
   },
 
   variants: {
@@ -98,6 +104,12 @@ const dialogPanelBase = style({
   boxShadow: vars.shadows.lg,
   fontFamily: vars.typography.fontFamily.sans,
   outline: 'none',
+
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      animation: 'none',
+    },
+  },
 });
 
 export const dialogPanelRecipe = recipe({

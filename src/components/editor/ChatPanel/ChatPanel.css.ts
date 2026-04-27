@@ -494,6 +494,12 @@ export const toolCallChevronRecipe = recipe({
     transition: `transform ${vars.transitions.fast}`,
     color: vars.colors.text.muted,
     flexShrink: 0,
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
   variants: {
     open: {

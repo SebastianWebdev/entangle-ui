@@ -88,6 +88,12 @@ export const avatarRecipe = recipe({
           outline: 'none',
           boxShadow: vars.shadows.focus,
         },
+
+        '@media': {
+          '(prefers-reduced-motion: reduce)': {
+            transition: 'none',
+          },
+        },
       },
     },
   },

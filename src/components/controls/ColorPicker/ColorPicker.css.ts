@@ -207,9 +207,20 @@ export const presetButtonRecipe = recipe({
       '&:hover': {
         transform: 'scale(1.15)',
         zIndex: 1,
+        '@media': {
+          '(prefers-reduced-motion: reduce)': {
+            transform: 'none',
+          },
+        },
       },
       '&:focus-visible': {
         boxShadow: vars.shadows.focus,
+      },
+    },
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
       },
     },
   },
@@ -365,9 +376,20 @@ export const paletteShadeRecipe = recipe({
         transform: 'scale(1.3)',
         zIndex: 1,
         position: 'relative',
+        '@media': {
+          '(prefers-reduced-motion: reduce)': {
+            transform: 'none',
+          },
+        },
       },
       '&:focus-visible': {
         boxShadow: vars.shadows.focus,
+      },
+    },
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
       },
     },
   },

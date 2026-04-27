@@ -1,0 +1,89 @@
+---
+title: Accessibility
+description: How Entangle UI handles accessibility concerns shared by every component, including reduced-motion support, focus rings, and keyboard semantics.
+---
+
+Entangle UI is designed for professional editor interfaces — surfaces where users spend hours every day. Accessibility is treated as a baseline, not a feature: every primitive ships with the focus, ARIA, and motion behavior expected of a 1.0 component library. This page documents the cross-cutting policies; component-specific notes (keyboard maps, ARIA roles) live on each component's own page.
+
+## Reduced motion
+
+The library honors the user's OS-level [`prefers-reduced-motion: reduce`](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion) media query everywhere it ships autonomous motion. The rule we apply, drawn from [WCAG 2.1 SC 2.3.3 — Animation from Interactions](https://www.w3.org/TR/WCAG21/#animation-from-interactions):
+
+> Motion is for communication, not decoration. When the user asks the OS to reduce motion, every animation that does not carry meaning is disabled or replaced with a static visual.
+
+### What is disabled under reduced motion
+
+These are autonomous or transition-driven motion patterns. With `prefers-reduced-motion: reduce` enabled, they snap to the final state instead of animating:
+
+- **Loading indicators** — `Spinner` (ring, pulse, dots), `Button` and `IconButton` loading spinners, `ProgressBar` indeterminate stripe and circular rotation
+- **Skeleton placeholders** — pulse and wave shimmer
+- **Chat typing indicator** — bouncing dot loop and pulse bar
+- **Dialog mount/unmount** — overlay fade and panel scale-in/out
+- **Toast** — slide-in entry and the auto-dismiss progress bar (the timer still runs; only the visual indicator is hidden)
+- **Popover** — opacity + scale entrance
+- **Tooltip** — opacity + scale entrance, regardless of the `animation` prop
+- **Select / dropdown** — `scaleY` open animation
+- **Accordion / Collapsible** — chevron rotation and `grid-template-rows` height transition
+- **Switch** — thumb travel
+- **Radio** — inner-dot scale-in
+- **Checkbox** — check-mark scale + opacity transition
+- **Avatar (`interactive`)** — hover scale
+- **Slider** — thumb hover scale, value tooltip translate
+- **Color picker presets / palette swatches** — hover scale
+- **TreeView / PropertySection / Select / Accordion / Collapsible / ChatPanel tool-call** — chevron rotations
+- **Defensive `transition: all` blocks** — Button, Checkbox box, IconButton, TextArea, Tabs, Select trigger, VectorInput, InputWrapper
+
+### What is preserved under reduced motion
+
+These are direct manipulation or non-motion changes — disabling them would break the UI rather than help:
+
+- **Drag, scrub, gizmo rotation, color-area picking, slider drag** — interactive direct manipulation
+- **Focus rings** — instant box-shadow, never animated
+- **Hover color / background changes** — color is not motion in the WCAG sense
+- **`opacity` transitions on focus rings or banners** — fade in/out without translation is not vestibular motion
+
+### Authoring custom components
+
+When you build a custom component on top of Entangle's tokens, follow the same pattern. For Vanilla Extract styles:
+
+```ts
+import { style, keyframes } from '@vanilla-extract/css';
+import { vars } from 'entangle-ui/theme';
+
+const slideIn = keyframes({
+  from: { opacity: 0, transform: 'translateY(8px)' },
+  to: { opacity: 1, transform: 'translateY(0)' },
+});
+
+export const banner = style({
+  animation: `${slideIn} ${vars.transitions.normal} ease-out`,
+  transition: `transform ${vars.transitions.fast}`,
+
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      animation: 'none',
+      transition: 'none',
+    },
+  },
+});
+```
+
+For inline styles or imperative animation (`requestAnimationFrame`, FLIP, custom physics), gate the animation behind a `matchMedia` check:
+
+```tsx
+const prefersReducedMotion =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (prefersReducedMotion) {
+  setState(finalState); // snap
+} else {
+  animateTo(finalState); // animate
+}
+```
+
+The shared utilities exported from `entangle-ui` (`animSpin`, `animPulse`, `animBlink`, `animFadeIn`, `animWave`) already include the media query — prefer them over reinventing keyframes. See [Animations](/guides/animations) for the full list.
+
+### Verifying behavior
+
+In Chrome / Edge DevTools: open the Rendering panel (`Cmd/Ctrl + Shift + P` → "Show Rendering") and toggle **Emulate CSS media feature `prefers-reduced-motion: reduce`**. Walk through the affected components — every animation in the list above should stop or snap.

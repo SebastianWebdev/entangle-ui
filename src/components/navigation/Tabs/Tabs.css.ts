@@ -224,6 +224,12 @@ export const tabUnderlineStyle = style({
       background: vars.colors.surface.hover,
     },
   },
+
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      transition: 'none',
+    },
+  },
 });
 
 export const tabUnderlineActiveStyle = style({
@@ -289,6 +295,12 @@ export const tabPillsStyle = style({
   borderRadius: vars.borderRadius.md,
   border: '1px solid transparent',
   transition: `all ${vars.transitions.fast}`,
+
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      transition: 'none',
+    },
+  },
 });
 
 export const tabPillsActiveStyle = style({
@@ -318,6 +330,12 @@ export const tabEnclosedStyle = style({
   selectors: {
     '&:hover:not(:disabled)': {
       color: vars.colors.text.primary,
+    },
+  },
+
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      transition: 'none',
     },
   },
 });
@@ -388,6 +406,12 @@ export const tabCloseButtonStyle = style({
     '&:hover': {
       color: vars.colors.text.primary,
       background: vars.colors.surface.hover,
+    },
+  },
+
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      transition: 'none',
     },
   },
 });

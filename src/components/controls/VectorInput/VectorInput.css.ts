@@ -119,6 +119,12 @@ export const linkButtonRecipe = recipe({
         cursor: 'not-allowed',
       },
     },
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
   variants: {
     active: {

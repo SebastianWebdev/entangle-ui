@@ -131,6 +131,17 @@ export const thumbRecipe = recipe({
       '&:hover': {
         transform: 'translate(-50%, -50%) scale(1.1)',
         boxShadow: vars.shadows.md,
+        '@media': {
+          '(prefers-reduced-motion: reduce)': {
+            transform: 'translate(-50%, -50%)',
+          },
+        },
+      },
+    },
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
       },
     },
   },
@@ -157,6 +168,11 @@ export const thumbRecipe = recipe({
       },
       false: {
         transition: `all ${vars.transitions.fast}`,
+        '@media': {
+          '(prefers-reduced-motion: reduce)': {
+            transition: 'none',
+          },
+        },
       },
     },
   },
@@ -214,6 +230,12 @@ export const tooltipRecipe = recipe({
     pointerEvents: 'none',
     zIndex: vars.zIndex.tooltip,
     transition: `all ${vars.transitions.fast}`,
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
     '::after': {
       content: '""',
       position: 'absolute',
