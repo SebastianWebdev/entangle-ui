@@ -412,6 +412,91 @@ document.body.classList.add(GLOBAL_SCROLLBARS_CLASS);
 
 This is helpful when Entangle is embedded inside another app shell that already manages mount/unmount of the provider.
 
+## Token Export
+
+Entangle UI ships machine-readable copies of every token next to the published
+JS bundle, so design tools and non–Vanilla-Extract projects can consume the
+same values the components compile against. Three artifacts are emitted on
+each release:
+
+| Artifact           | Format                      | Use case                                                       |
+| ------------------ | --------------------------- | -------------------------------------------------------------- |
+| `tokens.json`      | Loosely DTCG-aligned JSON   | Figma plugins, Style Dictionary pipelines, doc generators      |
+| `tokens.dark.css`  | `:root { --etui-*: ... }`   | Drop-in dark stylesheet for projects not using Vanilla Extract |
+| `tokens.light.css` | `.etui-theme-light { ... }` | Companion light stylesheet — apply the class to a wrapper      |
+
+### Plain CSS consumers
+
+Import the stylesheet directly in projects that don't use Vanilla Extract.
+Once it's loaded, every `--etui-*` custom property is available as a normal
+CSS variable:
+
+```css
+@import 'entangle-ui/tokens.dark.css';
+
+.my-button {
+  background: var(--etui-color-accent-primary);
+  padding: var(--etui-spacing-md);
+  border-radius: var(--etui-radius-md);
+  transition: var(--etui-transition-normal);
+}
+```
+
+For the light preset, import the matching stylesheet and apply the
+`etui-theme-light` class to the subtree you want to theme:
+
+```html
+<link
+  rel="stylesheet"
+  href="node_modules/entangle-ui/dist/tokens/tokens.light.css"
+/>
+
+<body class="etui-theme-light">
+  ...
+</body>
+```
+
+> `tokens.light.css` uses the documented class name `etui-theme-light`. This
+> is independent from the hashed runtime class returned by `createLightTheme()`
+> — the runtime class is for Vanilla Extract consumers, the documented class
+> is for plain-CSS consumers.
+
+### JSON consumers (Figma plugins, design tools)
+
+`tokens.json` follows the W3C Design Tokens Community Group structure where it
+fits, with `$value` / `$type` leaves grouped under each theme:
+
+```ts
+import tokens from 'entangle-ui/tokens.json' with { type: 'json' };
+
+console.log(tokens.themes.dark.colors.accent.primary.$value);
+// → '#007acc'
+
+console.log(tokens.themes.light.spacing.md.$type);
+// → 'dimension'
+```
+
+Top-level structure:
+
+```json
+{
+  "$schema": "https://design-tokens.org/schema.json",
+  "$version": "<package version>",
+  "themes": {
+    "dark":  { "colors": { ... }, "spacing": { ... }, "shell": { ... } },
+    "light": { "colors": { ... }, "spacing": { ... }, "shell": { ... } }
+  }
+}
+```
+
+The `$version` field is read from `package.json` at export time, so each
+published artifact carries the exact version it shipped with.
+
+The export is loosely DTCG-aligned rather than spec-strict — the goal is
+completeness over conformance, so the proprietary `shell.*` branch ships
+alongside standard categories. Library-internal tokens under `storybook.*`
+are intentionally excluded.
+
 ## TypeScript Types
 
 ```tsx
