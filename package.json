@@ -24,6 +24,9 @@
       "types": "./dist/types/theme/index.d.ts",
       "default": "./dist/esm/theme/index.js"
     },
+    "./tokens.json": "./dist/tokens/tokens.json",
+    "./tokens.dark.css": "./dist/tokens/tokens.dark.css",
+    "./tokens.light.css": "./dist/tokens/tokens.light.css",
     "./package.json": "./package.json"
   },
   "files": [
@@ -34,7 +37,8 @@
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "rollup -c",
+    "build": "rollup -c && npm run build:tokens",
+    "build:tokens": "tsx scripts/export-tokens.ts",
     "build-storybook": "storybook build",
     "test": "vitest run",
     "test:ui": "vitest --ui",
@@ -127,6 +131,7 @@
     "rollup-plugin-preserve-directives": "^0.4.0",
     "size-limit": "^12.0.0",
     "storybook": "^10.2.8",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
