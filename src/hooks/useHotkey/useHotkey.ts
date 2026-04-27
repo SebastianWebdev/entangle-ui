@@ -189,8 +189,7 @@ export function useHotkey(
   // identity check on the resolved target keeps re-attaches limited to the
   // moments the underlying element actually changes.
   useEffect(() => {
-    const desired =
-      enabled && parsed !== null ? resolveTarget(target) : null;
+    const desired = enabled && parsed !== null ? resolveTarget(target) : null;
     if (desired === attachedTargetRef.current) return;
 
     if (attachedTargetRef.current && listenerRef.current) {
