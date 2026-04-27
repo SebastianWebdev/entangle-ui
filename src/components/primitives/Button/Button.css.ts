@@ -25,6 +25,12 @@ export const buttonRecipe = recipe({
       opacity: 0.5,
       cursor: 'not-allowed',
     },
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
 
   variants: {
@@ -120,6 +126,13 @@ export const loadingSpinnerStyle = style({
   borderTopColor: 'transparent',
   borderRadius: '50%',
   animation: `${spin} 1s linear infinite`,
+
+  '@media': {
+    '(prefers-reduced-motion: reduce)': {
+      animation: 'none',
+      opacity: 0.6,
+    },
+  },
 });
 
 export const iconWrapperStyle = style({

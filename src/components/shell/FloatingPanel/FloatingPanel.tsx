@@ -12,6 +12,7 @@ import React, {
 } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { cx } from '@/utils/cx';
+import { useMergedRef } from '@/hooks/useMergedRef';
 import { ScrollArea } from '@/components/layout/ScrollArea';
 import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { ChevronUpIcon } from '@/components/Icons/ChevronUpIcon';
@@ -177,18 +178,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
 
   // --- Drag ---
   const panelRef = useRef<HTMLDivElement>(null);
-  const setPanelRef = useMemo(
-    () => (node: HTMLDivElement | null) => {
-      panelRef.current = node;
-      if (typeof externalRef === 'function') {
-        externalRef(node);
-      } else if (externalRef && typeof externalRef === 'object') {
-        (externalRef as React.MutableRefObject<HTMLDivElement | null>).current =
-          node;
-      }
-    },
-    [externalRef]
-  );
+  const setPanelRef = useMergedRef<HTMLDivElement>(panelRef, externalRef);
   const dragOffsetRef = useRef<Position>({ x: 0, y: 0 });
 
   const handleDragStart = useCallback(

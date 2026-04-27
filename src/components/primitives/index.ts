@@ -1,3 +1,4 @@
+export { Avatar, AvatarGroup, getAvatarInitials } from './Avatar';
 export { Badge } from './Badge';
 export { Button } from './Button';
 export { Checkbox, CheckboxGroup } from './Checkbox';
@@ -6,6 +7,8 @@ export { Collapsible } from './Collapsible';
 export { Icon } from './Icon';
 export { IconButton } from './IconButton';
 export { Input } from './Input';
+export { Kbd } from './Kbd';
+export { Link } from './Link';
 export { Paper } from './Paper';
 export {
   Popover,
@@ -13,11 +16,21 @@ export {
   PopoverContent,
   PopoverTrigger,
 } from './Popover';
+export { Radio, RadioGroup } from './Radio';
 export { Switch } from './Switch';
 export { Text } from './Text';
 export { TextArea } from './TextArea';
 export { Tooltip } from './Tooltip';
+export { VisuallyHidden } from './VisuallyHidden';
 
+export type {
+  AvatarColor,
+  AvatarGroupProps,
+  AvatarProps,
+  AvatarShape,
+  AvatarSize,
+  AvatarStatus,
+} from './Avatar';
 export type { BadgeProps, BadgeColor, BadgeSize, BadgeVariant } from './Badge';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
 export type {
@@ -36,6 +49,14 @@ export type {
   IconButtonVariant,
 } from './IconButton';
 export type { InputProps, InputSize } from './Input';
+export type { KbdProps, KbdSize, KbdVariant } from './Kbd';
+export type {
+  LinkColor,
+  LinkProps,
+  LinkSize,
+  LinkUnderline,
+  LinkVariant,
+} from './Link';
 export type {
   PaperElevation,
   PaperNestLevel,
@@ -49,6 +70,13 @@ export type {
   PopoverProps,
   PopoverTriggerProps,
 } from './Popover';
+export type {
+  RadioProps,
+  RadioGroupProps,
+  RadioSize,
+  RadioLabelPosition,
+  RadioGroupOrientation,
+} from './Radio';
 export type { SwitchProps, SwitchSize } from './Switch';
 export type { TextAreaProps, TextAreaResize, TextAreaSize } from './TextArea';
 export type {
@@ -71,6 +99,10 @@ export type {
   TooltipPlacement,
   TooltipProps,
 } from './Tooltip';
+export type {
+  VisuallyHiddenElement,
+  VisuallyHiddenProps,
+} from './VisuallyHidden';
 
 // Canvas primitives
 export {

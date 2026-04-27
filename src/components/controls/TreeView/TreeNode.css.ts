@@ -92,6 +92,12 @@ export const chevronRecipe = recipe({
         color: vars.colors.text.primary,
       },
     },
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
   variants: {
     size: {

@@ -6,6 +6,7 @@ import React from 'react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useKeyboardContext } from '@/context/KeyboardContext';
 import { parseNumericInput, isExpression } from '@/utils/mathExpression';
+import { devError } from '@/utils/devWarn';
 
 /**
  * Configuration options for NumberInput behavior
@@ -373,7 +374,7 @@ export function useNumberInput({
       return false;
     } catch (err) {
       setError('Invalid input');
-      console.error('Error parsing input:', err);
+      devError('Error parsing input:', err);
       return false;
     }
   }, [displayValue, parseValue, allowExpressions, applyValue]);

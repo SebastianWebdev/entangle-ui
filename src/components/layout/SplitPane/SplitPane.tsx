@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { cx } from '@/utils/cx';
+import { useResizeObserver } from '@/hooks/useResizeObserver';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { PanelConfig, SplitPaneProps } from './SplitPane.types';
 import {
@@ -347,18 +348,6 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
 
   useEffect(() => {
     recalculate();
-
-    const container = containerRef.current;
-    if (!container || typeof ResizeObserver === 'undefined') return;
-
-    const ro = new ResizeObserver(() => {
-      recalculate();
-    });
-    ro.observe(container);
-
-    return () => {
-      ro.disconnect();
-    };
   }, [
     recalculate,
     panelCount,
@@ -367,6 +356,8 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
     isControlled,
     stablePanelConfigs,
   ]);
+
+  useResizeObserver(containerRef, recalculate);
 
   // -----------------------------------------------------------------------
   // Pointer resize handlers

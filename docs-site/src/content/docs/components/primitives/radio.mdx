@@ -1,0 +1,388 @@
+---
+title: Radio
+description: Radio and RadioGroup for mutually exclusive selection in forms and property panels.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import RadioDemo, {
+  RadioStandalone,
+  RadioSizes,
+  RadioStates,
+  RadioGroupVertical,
+  RadioGroupHorizontal,
+  RadioGroupControlled,
+  RadioGroupRequired,
+  RadioInPropertyPanel,
+} from '../../../../components/demos/primitives/RadioDemo';
+
+`Radio` and `RadioGroup` provide mutually exclusive selection for property panels, settings forms, and editor toolbars. Radios share a `name` so the browser handles single-value form submission natively.
+
+<ComponentPreview title="Live Preview">
+  <RadioDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Radio, RadioGroup } from 'entangle-ui';
+```
+
+## When to use
+
+| Component                   | Use when                                                                    |
+| --------------------------- | --------------------------------------------------------------------------- |
+| `Radio`                     | 2–5 mutually exclusive options that should all be visible at once.          |
+| `Checkbox`                  | A boolean toggle, or independent multi-selection.                           |
+| `Select`                    | 6+ options, or a dynamic / large choice space.                              |
+| `SegmentedControl` _(soon)_ | Toolbar-density mutually exclusive states without surrounding form context. |
+
+## Standalone Radio
+
+A single `Radio` works without a surrounding `RadioGroup` and supports both controlled and uncontrolled modes.
+
+<ComponentPreview>
+  <RadioStandalone client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Radio value="aa" label="Anti-aliasing" defaultChecked />
+```
+
+## Sizes
+
+<ComponentPreview>
+  <RadioSizes client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Radio size="sm" value="sm" label="Small" />
+<Radio size="md" value="md" label="Medium" />
+<Radio size="lg" value="lg" label="Large" />
+```
+
+| Size | Outer | Inner dot |
+| ---- | ----- | --------- |
+| `sm` | 12px  | 6px       |
+| `md` | 14px  | 7px       |
+| `lg` | 16px  | 8px       |
+
+## States
+
+<ComponentPreview>
+  <RadioStates client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Radio value="off" label="Off (unchecked)" />
+<Radio value="on" defaultChecked label="On (checked)" />
+<Radio value="dis-off" disabled label="Disabled — off" />
+<Radio value="dis-on" disabled defaultChecked label="Disabled — on" />
+<Radio value="error" error label="Error state" />
+```
+
+## RadioGroup
+
+`RadioGroup` manages exclusive selection across child `Radio` components via React Context. The group's `name`, `size`, `disabled`, and `error` override the corresponding props on individual radios.
+
+### Vertical
+
+<ComponentPreview>
+  <RadioGroupVertical client:only="react" />
+</ComponentPreview>
+
+```tsx
+<RadioGroup label="Coordinate space" defaultValue="local">
+  <Radio value="local" label="Local" />
+  <Radio value="world" label="World" />
+  <Radio value="parent" label="Parent" />
+  <Radio value="screen" label="Screen" />
+</RadioGroup>
+```
+
+### Horizontal
+
+<ComponentPreview>
+  <RadioGroupHorizontal client:only="react" />
+</ComponentPreview>
+
+```tsx
+<RadioGroup
+  label="Coordinate space"
+  orientation="horizontal"
+  defaultValue="local"
+>
+  <Radio value="local" label="Local" />
+  <Radio value="world" label="World" />
+  <Radio value="parent" label="Parent" />
+</RadioGroup>
+```
+
+### Controlled
+
+Pass `value` and `onChange` for controlled mode. The handler receives the new value as a string.
+
+<ComponentPreview>
+  <RadioGroupControlled client:only="react" />
+</ComponentPreview>
+
+```tsx
+const [space, setSpace] = useState('local');
+
+<RadioGroup label="Coordinate space" value={space} onChange={setSpace}>
+  <Radio value="local" label="Local" />
+  <Radio value="world" label="World" />
+  <Radio value="parent" label="Parent" />
+</RadioGroup>;
+```
+
+### Required & Error
+
+<ComponentPreview>
+  <RadioGroupRequired client:only="react" />
+</ComponentPreview>
+
+```tsx
+<RadioGroup
+  label="Coordinate space"
+  required
+  error
+  errorMessage="Selection required to continue"
+>
+  <Radio value="local" label="Local" />
+  <Radio value="world" label="World" />
+  <Radio value="parent" label="Parent" />
+</RadioGroup>
+```
+
+## In a property panel
+
+<ComponentPreview>
+  <RadioInPropertyPanel client:only="react" />
+</ComponentPreview>
+
+```tsx
+<PropertyRow label="Coordinate space">
+  <RadioGroup
+    orientation="horizontal"
+    size="sm"
+    value={space}
+    onChange={setSpace}
+  >
+    <Radio value="local" label="Local" />
+    <Radio value="world" label="World" />
+    <Radio value="parent" label="Parent" />
+  </RadioGroup>
+</PropertyRow>
+```
+
+## Accessibility
+
+- `Radio` renders a native `<input type="radio">` with `role="radio"` and `aria-checked`.
+- `RadioGroup` renders `role="radiogroup"` with `aria-labelledby`, `aria-required`, `aria-invalid`, `aria-disabled`, and `aria-orientation`.
+- Helper text and error messages are linked to the input via `aria-describedby`.
+- **Tab** moves focus to the group; **Space** selects the focused radio.
+- **Arrow keys** (Up / Down / Left / Right) move selection between radios that share a `name`. This is native browser behavior — `RadioGroup` propagates `name` automatically.
+- The label wraps the input so clicking the label toggles the radio.
+- Animations honor `prefers-reduced-motion`: the inner dot snaps instead of scaling.
+
+## Radio props
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string',
+      description:
+        'Value of this radio option. Used by RadioGroup for selection and as the input value attribute.',
+    },
+    {
+      name: 'checked',
+      type: 'boolean',
+      description:
+        'Whether this radio is selected (controlled, standalone). Ignored when inside a RadioGroup.',
+    },
+    {
+      name: 'defaultChecked',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Default checked state (uncontrolled, standalone). Ignored inside a RadioGroup.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Label text displayed next to the radio.',
+    },
+    {
+      name: 'labelPosition',
+      type: "'left' | 'right'",
+      default: "'right'",
+      description: 'Position of the label relative to the radio.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description:
+        'Radio size. Inside a RadioGroup, the group size overrides this prop.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the radio is disabled. Inside a RadioGroup, the group value overrides this prop.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Visual error state. Inside a RadioGroup, the group value overrides this prop.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description:
+        'Helper text displayed below the radio (standalone use only).',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description:
+        'Error message displayed when error is true (standalone use only).',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description:
+        'Form name attribute. Inside a RadioGroup, the group name overrides this prop.',
+    },
+    {
+      name: 'onChange',
+      type: '(value: string, event: ChangeEvent<HTMLInputElement>) => void',
+      description:
+        'Change handler. Standalone Radio fires when toggled on; rarely used inside a RadioGroup.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLInputElement>',
+      description: 'Ref to the underlying input element.',
+    },
+  ]}
+/>
+
+## RadioGroup props
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Currently selected value (controlled).',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      description: 'Default selected value (uncontrolled).',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Group label rendered above the radios.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text displayed below the group.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disables the entire group.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the group has an error state.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description:
+        'Error message displayed when error is true. Replaces helperText.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether selection is required. Sets aria-required on the group.',
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'vertical'",
+      description: 'Layout direction for the radios.',
+    },
+    {
+      name: 'spacing',
+      type: 'number | string',
+      default: '2',
+      description:
+        'Spacing between radios. Number maps to the theme spacing scale; strings pass through unchanged.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Form name attribute applied to all child radios.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Size applied to all child radios.',
+    },
+    {
+      name: 'onChange',
+      type: '(value: string) => void',
+      description:
+        'Change handler — fires when any radio in the group is selected.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Typically a list of Radio components.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the underlying wrapper element.',
+    },
+  ]}
+/>

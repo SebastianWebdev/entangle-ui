@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type RefObject } from 'react';
-import { FOCUSABLE_SELECTOR } from './useFocusTrap';
+import { FOCUSABLE_SELECTOR } from '@/hooks/useFocusTrap';
 import { DIALOG_ANIMATION_MS } from './Dialog.css';
 
 interface UseDialogAnimationOptions {
@@ -41,9 +41,17 @@ export function useDialogAnimation({
       setMounted(true);
       wasOpenRef.current = true;
     } else if (wasOpenRef.current) {
-      // Closing: start close animation, unmount after delay
+      // Closing: start close animation, unmount after delay. Under
+      // prefers-reduced-motion: reduce, the close animation is suppressed
+      // (Dialog.css.ts), so honor that here too — snap the unmount to
+      // 0 ms instead of holding the dialog focus-trapped for nothing.
       wasOpenRef.current = false;
       setClosing(true);
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const delay = prefersReducedMotion ? 0 : DIALOG_ANIMATION_MS;
       const timer = setTimeout(() => {
         setMounted(false);
         setClosing(false);
@@ -53,7 +61,7 @@ export function useDialogAnimation({
           previousFocusRef.current.focus();
           previousFocusRef.current = null;
         }
-      }, DIALOG_ANIMATION_MS);
+      }, delay);
       return () => clearTimeout(timer);
     }
     return undefined;

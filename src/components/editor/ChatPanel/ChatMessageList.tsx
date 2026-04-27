@@ -8,6 +8,7 @@ import type {
 import { useChatScroll } from './useChatScroll';
 import { ChatMessage } from './ChatMessage';
 import { ScrollArea } from '@/components/layout/ScrollArea';
+import { useMergedRef } from '@/hooks/useMergedRef';
 import {
   messageListContentStyle,
   newMessagesBannerStyle,
@@ -38,20 +39,9 @@ export const ChatMessageList = /*#__PURE__*/ React.memo<ChatMessageListProps>(
       enabled: autoScroll,
     });
 
-    // Merge refs — ScrollArea forwards ref to its viewport div
-    const mergedRef = React.useCallback(
-      (node: HTMLDivElement | null) => {
-        (
-          scrollContainerRef as React.MutableRefObject<HTMLDivElement | null>
-        ).current = node;
-        if (typeof ref === 'function') {
-          ref(node);
-        } else if (ref) {
-          (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
-        }
-      },
-      [scrollContainerRef, ref]
-    );
+    // ScrollArea forwards ref to its viewport div — merge with our internal
+    // scroll container ref and the consumer's ref.
+    const mergedRef = useMergedRef<HTMLDivElement>(scrollContainerRef, ref);
 
     const isAtBottomGetter = React.useCallback(() => {
       const container = scrollContainerRef.current;

@@ -9,6 +9,12 @@ export const inputWrapperRecipe = recipe({
     border: '1px solid',
     borderRadius: vars.borderRadius.md,
     transition: `all ${vars.transitions.normal}`,
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
 
   variants: {

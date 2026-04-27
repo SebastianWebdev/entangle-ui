@@ -107,27 +107,6 @@ export const messageContentStyle = style({
   maxWidth: `var(${messageMaxWidthVarName}, 85%)`,
 });
 
-export const messageAvatarStyle = style({
-  width: '24px',
-  height: '24px',
-  borderRadius: '50%',
-  flexShrink: 0,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: vars.typography.fontSize.xs,
-  fontWeight: vars.typography.fontWeight.semibold,
-  backgroundColor: vars.colors.surface.default,
-  color: vars.colors.text.secondary,
-  overflow: 'hidden',
-});
-
-export const messageAvatarImgStyle = style({
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
-});
-
 export const messageTimestampStyle = style({
   fontSize: vars.typography.fontSize.xxs,
   color: vars.colors.text.muted,
@@ -515,6 +494,12 @@ export const toolCallChevronRecipe = recipe({
     transition: `transform ${vars.transitions.fast}`,
     color: vars.colors.text.muted,
     flexShrink: 0,
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
   variants: {
     open: {

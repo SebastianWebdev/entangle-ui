@@ -1,0 +1,398 @@
+---
+title: SegmentedControl
+description: Toolbar-density mutually exclusive selector for view modes, layout toggles, and other small option groups.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import SegmentedControlDemo, {
+  SegmentedControlVariants,
+  SegmentedControlSizes,
+  SegmentedControlVertical,
+  SegmentedControlWithIcons,
+  SegmentedControlIconOnly,
+  SegmentedControlDisabled,
+  SegmentedControlDisabledItem,
+  SegmentedControlFullWidth,
+  SegmentedControlControlled,
+  SegmentedControlViewportShading,
+} from '../../../../components/demos/navigation/SegmentedControlDemo';
+
+SegmentedControl is a compact, mutually exclusive selector at toolbar density. Use it for view modes, layout toggles, alignment pickers, and other small option groups where each choice **does not** open its own content panel.
+
+<ComponentPreview title="Live Preview">
+  <SegmentedControlDemo client:only="react" />
+</ComponentPreview>
+
+## When to use
+
+- **SegmentedControl** — 2–5 mutually exclusive states **without** separate panels (viewport shading, list/grid toggle, alignment).
+- **Tabs** — when each option has its own content panel underneath.
+- **RadioGroup** — form-style selection, especially with > 5 options or vertical lists with descriptive labels.
+
+## Import
+
+```tsx
+import { SegmentedControl, SegmentedControlItem } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<SegmentedControl defaultValue="week">
+  <SegmentedControlItem value="day">Day</SegmentedControlItem>
+  <SegmentedControlItem value="week">Week</SegmentedControlItem>
+  <SegmentedControlItem value="month">Month</SegmentedControlItem>
+</SegmentedControl>
+```
+
+`SegmentedControl` is a compound component: pair it with one or more `SegmentedControlItem` children. The selected segment is identified by its `value`, not by its child index, so reordering items at runtime does not break selection.
+
+## Controlled vs Uncontrolled
+
+```tsx
+// Controlled
+const [view, setView] = useState('week');
+
+<SegmentedControl value={view} onChange={setView}>
+  <SegmentedControlItem value="day">Day</SegmentedControlItem>
+  <SegmentedControlItem value="week">Week</SegmentedControlItem>
+  <SegmentedControlItem value="month">Month</SegmentedControlItem>
+</SegmentedControl>
+
+// Uncontrolled
+<SegmentedControl defaultValue="week">
+  ...
+</SegmentedControl>
+```
+
+<ComponentPreview title="Controlled">
+  <SegmentedControlControlled client:only="react" />
+</ComponentPreview>
+
+## Variants
+
+<ComponentPreview title="Variants">
+  <SegmentedControlVariants client:only="react" />
+</ComponentPreview>
+
+| Variant   | Container                      | Selected segment                                    |
+| --------- | ------------------------------ | --------------------------------------------------- |
+| `subtle`  | Secondary background           | Lifts to surface with a soft shadow                 |
+| `solid`   | Surface background with border | Filled with the accent color, white text            |
+| `outline` | Transparent with border        | Accent edge bar (bottom horizontal / left vertical) |
+
+```tsx
+<SegmentedControl variant="subtle" defaultValue="b">...</SegmentedControl>
+<SegmentedControl variant="solid"  defaultValue="b">...</SegmentedControl>
+<SegmentedControl variant="outline" defaultValue="b">...</SegmentedControl>
+```
+
+## Sizes
+
+<ComponentPreview title="Sizes">
+  <SegmentedControlSizes client:only="react" />
+</ComponentPreview>
+
+| Size | Height | Use case                         |
+| ---- | ------ | -------------------------------- |
+| `sm` | 20px   | Toolbar density, dense panels    |
+| `md` | 24px   | Default                          |
+| `lg` | 32px   | Comfortable, primary surface use |
+
+## Orientation
+
+<ComponentPreview title="Vertical">
+  <SegmentedControlVertical client:only="react" />
+</ComponentPreview>
+
+```tsx
+<SegmentedControl orientation="vertical" defaultValue="b">
+  <SegmentedControlItem value="a">Top</SegmentedControlItem>
+  <SegmentedControlItem value="b">Middle</SegmentedControlItem>
+  <SegmentedControlItem value="c">Bottom</SegmentedControlItem>
+</SegmentedControl>
+```
+
+In vertical orientation each item stretches to the widest one (or fills the container when `fullWidth` is set). The arrow-key direction switches to `ArrowUp` / `ArrowDown`.
+
+## Icons
+
+<ComponentPreview title="Icons + labels">
+  <SegmentedControlWithIcons client:only="react" />
+</ComponentPreview>
+
+```tsx
+<SegmentedControl defaultValue="grid">
+  <SegmentedControlItem value="list" icon={<ListIcon />}>
+    List
+  </SegmentedControlItem>
+  <SegmentedControlItem value="grid" icon={<GridIcon />}>
+    Grid
+  </SegmentedControlItem>
+  <SegmentedControlItem value="card" icon={<CodeIcon />}>
+    Card
+  </SegmentedControlItem>
+</SegmentedControl>
+```
+
+### Icon-only with tooltips
+
+When you omit the label, the segment becomes square (icon-only). Pair every icon-only segment with a `tooltip` (preferred) or an explicit `aria-label` so the action remains discoverable. When `tooltip` is a string and no `aria-label` is given, the tooltip text is used as the accessible name.
+
+<ComponentPreview title="Icon-only with tooltips">
+  <SegmentedControlIconOnly client:only="react" />
+</ComponentPreview>
+
+```tsx
+<SegmentedControl defaultValue="center" aria-label="Text alignment">
+  <SegmentedControlItem
+    value="left"
+    icon={<AlignLeftIcon />}
+    tooltip="Align left"
+  />
+  <SegmentedControlItem
+    value="center"
+    icon={<AlignCenterIcon />}
+    tooltip="Align center"
+  />
+  <SegmentedControlItem
+    value="right"
+    icon={<AlignRightIcon />}
+    tooltip="Align right"
+  />
+</SegmentedControl>
+```
+
+## Disabled
+
+<ComponentPreview title="Whole control disabled">
+  <SegmentedControlDisabled client:only="react" />
+</ComponentPreview>
+
+```tsx
+<SegmentedControl defaultValue="b" disabled>
+  ...
+</SegmentedControl>
+```
+
+The control-level `disabled` cascades to every segment. Individual segments can also opt out:
+
+<ComponentPreview title="Single segment disabled">
+  <SegmentedControlDisabledItem client:only="react" />
+</ComponentPreview>
+
+```tsx
+<SegmentedControl defaultValue="a">
+  <SegmentedControlItem value="a">Day</SegmentedControlItem>
+  <SegmentedControlItem value="b" disabled>
+    Week
+  </SegmentedControlItem>
+  <SegmentedControlItem value="c">Month</SegmentedControlItem>
+</SegmentedControl>
+```
+
+Disabled segments are skipped during keyboard navigation.
+
+## Full width
+
+<ComponentPreview title="Full width">
+  <SegmentedControlFullWidth client:only="react" />
+</ComponentPreview>
+
+```tsx
+<SegmentedControl fullWidth defaultValue="b">
+  ...
+</SegmentedControl>
+```
+
+When `fullWidth` is set the control stretches to the parent container and every segment grows equally.
+
+## Editor example — viewport shading
+
+A common toolbar pattern: icon-only segments with tooltips for picking the viewport shading mode.
+
+<ComponentPreview title="Viewport shading">
+  <SegmentedControlViewportShading client:only="react" />
+</ComponentPreview>
+
+```tsx
+<SegmentedControl defaultValue="solid" size="sm" aria-label="Viewport shading">
+  <SegmentedControlItem
+    value="wireframe"
+    icon={<WireframeIcon />}
+    tooltip="Wireframe"
+  />
+  <SegmentedControlItem value="solid" icon={<SolidIcon />} tooltip="Solid" />
+  <SegmentedControlItem
+    value="material"
+    icon={<MaterialIcon />}
+    tooltip="Material preview"
+  />
+  <SegmentedControlItem
+    value="rendered"
+    icon={<RenderedIcon />}
+    tooltip="Rendered"
+  />
+</SegmentedControl>
+```
+
+## Keyboard interaction
+
+| Key                        | Action                                               |
+| -------------------------- | ---------------------------------------------------- |
+| `ArrowRight` / `ArrowDown` | Move to the next segment (wraps; skips disabled)     |
+| `ArrowLeft` / `ArrowUp`    | Move to the previous segment (wraps; skips disabled) |
+| `Home`                     | Jump to the first segment                            |
+| `End`                      | Jump to the last segment                             |
+| `Tab`                      | Leave the control                                    |
+
+Arrow direction follows the control's orientation: horizontal uses Left/Right, vertical uses Up/Down.
+
+## Accessibility
+
+- The container has `role="group"` with an `aria-label` (defaults to `"Segmented control"`; override with the `aria-label` prop).
+- Each segment renders as a `role="button"` with `aria-pressed` reflecting its selected state — the same pattern macOS and iOS expose for native segmented controls.
+- Roving tabindex: only the selected segment is in the tab order. Arrow keys move focus and update selection.
+- When no segment is selected (no `value` / `defaultValue`), the first non-disabled segment becomes tabbable so the control is still keyboard-reachable.
+- Icon-only segments fall back to the `tooltip` string for `aria-label` when no explicit `aria-label` is provided. In development, a missing label warns in the console.
+- The control honors `prefers-reduced-motion`: the sliding indicator snaps instead of animating.
+
+## API Reference
+
+### SegmentedControl
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Currently selected value (controlled).',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      description: 'Default selected value (uncontrolled).',
+    },
+    {
+      name: 'variant',
+      type: "'subtle' | 'solid' | 'outline'",
+      default: "'subtle'",
+      description: 'Visual style of the control.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Segment size — sm 20px, md 24px, lg 32px.',
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: 'Layout direction.',
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Stretch the control to fill the parent and grow each segment equally.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disable the entire control.',
+    },
+    {
+      name: 'onChange',
+      type: '(value: string) => void',
+      description: 'Fires when a different segment is selected.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      default: "'Segmented control'",
+      description: 'Accessible name for the control as a whole.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'SegmentedControlItem components.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root element.',
+    },
+  ]}
+/>
+
+### SegmentedControlItem
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Unique value identifying this segment.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Visible label. Optional when icon is provided (icon-only segment).',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description:
+        'Icon rendered before the label, or alone for icon-only segments.',
+    },
+    {
+      name: 'tooltip',
+      type: 'ReactNode',
+      description:
+        'Tooltip shown on hover. Strongly recommended for icon-only segments — also used as a fallback aria-label when it is a string.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disable just this segment.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      description:
+        'Override the accessible name. Required for icon-only segments without a string tooltip.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLButtonElement>',
+      description: 'Ref to the underlying button element.',
+    },
+  ]}
+/>

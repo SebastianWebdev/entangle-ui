@@ -1,4 +1,4 @@
-import { style, createVar } from '@vanilla-extract/css';
+import { style, createVar, globalStyle } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '@/theme/contract.css';
 
@@ -43,6 +43,17 @@ export const axisInputStyle = style({
   display: 'flex',
   alignItems: 'center',
   gap: 0,
+});
+
+// Force the NumberInput container (the last child of the axis row) to
+// fill the remaining space after the axis label, with `min-width: 0` so
+// it actually shrinks under flex pressure. Without this the input takes
+// its intrinsic content width and overflows narrow rows (visible when a
+// VectorInput sits inside a tight property-panel column or alongside a
+// lock toggle).
+globalStyle(`${axisInputStyle} > *:last-child`, {
+  flex: 1,
+  minWidth: 0,
 });
 
 // --- Axis label ---
@@ -106,6 +117,12 @@ export const linkButtonRecipe = recipe({
       '&:disabled': {
         opacity: 0.5,
         cursor: 'not-allowed',
+      },
+    },
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
       },
     },
   },

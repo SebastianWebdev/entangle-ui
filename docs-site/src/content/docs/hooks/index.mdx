@@ -1,0 +1,46 @@
+---
+title: Hooks
+description: Reusable hooks shipped alongside Entangle UI components.
+---
+
+The library exports a set of hooks used internally by components and available for consumer applications. Each hook is small, focused, SSR-safe, and tree-shakeable.
+
+## Available in v0.8
+
+- [`useClickOutside`](/hooks/use-click-outside) — fire a callback when a click lands outside one or more refs
+- [`useClipboard`](/hooks/use-clipboard) — copy text to the clipboard with timeout-driven feedback state
+- [`useControlledState`](/hooks/use-controlled-state) — manage the controlled / uncontrolled state pattern
+- [`useDisclosure`](/hooks/use-disclosure) — `{ isOpen, open, close, toggle }` for overlays and revealed surfaces
+- [`useFocusTrap`](/hooks/use-focus-trap) — trap keyboard focus within a container
+- [`useHotkey`](/hooks/use-hotkey) — bind a single keyboard combo to a callback, with platform-aware Cmd/Ctrl mapping
+- [`useKeyboard`](/hooks/use-keyboard) — read the live keyboard state via context
+- [`useMergedRef`](/hooks/use-merged-ref) — merge multiple refs into a single callback ref
+- [`useResizeObserver`](/hooks/use-resize-observer) — observe element size changes with SSR-safe cleanup
+- [`useTheme`](/hooks/use-theme) — read the current theme at runtime — values, variant, and `getToken` / `getVar` helpers
+
+## Importing
+
+All hooks are exported from the package root:
+
+```ts
+import {
+  useClickOutside,
+  useClipboard,
+  useControlledState,
+  useDisclosure,
+  useFocusTrap,
+  useHotkey,
+  useMergedRef,
+  useResizeObserver,
+  useTheme,
+} from 'entangle-ui';
+```
+
+## Conventions
+
+Every hook in this library follows the same conventions:
+
+- **SSR-safe**: hooks that touch browser globals (`ResizeObserver`, `document`, `navigator`, etc.) check for their existence and silently no-op on the server.
+- **Stable callback identity**: callbacks passed to hooks do not need to be memoized by the consumer. The hook wraps them in a ref so the underlying observer / effect does not re-subscribe on every render.
+- **`enabled` toggles, not unmounts**: when a hook accepts an `enabled` flag, toggling it safely attaches / detaches its effect without unmounting the component.
+- **Dev-only warnings**: misuse warnings (controlled / uncontrolled switches, etc.) only fire in development. Production builds are silent.

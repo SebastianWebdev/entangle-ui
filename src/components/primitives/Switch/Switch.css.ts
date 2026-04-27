@@ -162,6 +162,12 @@ export const thumbRecipe = recipe({
     width: thumbDiameterVar,
     height: thumbDiameterVar,
     transition: `transform ${vars.transitions.fast}`,
+
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
   },
 
   variants: {

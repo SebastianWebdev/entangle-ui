@@ -4,6 +4,9 @@ import react from '@astrojs/react';
 import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import { resolve } from 'path';
+import { fileURLToPath } from 'node:url';
+
+const rootDir = fileURLToPath(new URL('..', import.meta.url));
 
 export default defineConfig({
   integrations: [
@@ -46,9 +49,10 @@ export default defineConfig({
         {
           label: 'Guides',
           items: [
-            { label: 'Theming', slug: 'guides/theming' },
-            { label: 'Styling', slug: 'guides/styling' },
+            { label: 'Accessibility', slug: 'guides/accessibility' },
             { label: 'Animations', slug: 'guides/animations' },
+            { label: 'Styling', slug: 'guides/styling' },
+            { label: 'Theming', slug: 'guides/theming' },
           ],
         },
         {
@@ -58,6 +62,7 @@ export default defineConfig({
               label: 'Primitives',
               collapsed: false,
               items: [
+                { label: 'Avatar', slug: 'components/primitives/avatar' },
                 { label: 'Badge', slug: 'components/primitives/badge' },
                 { label: 'Button', slug: 'components/primitives/button' },
                 { label: 'Checkbox', slug: 'components/primitives/checkbox' },
@@ -72,12 +77,19 @@ export default defineConfig({
                   slug: 'components/primitives/icon-button',
                 },
                 { label: 'Input', slug: 'components/primitives/input' },
+                { label: 'Kbd', slug: 'components/primitives/kbd' },
+                { label: 'Link', slug: 'components/primitives/link' },
                 { label: 'Paper', slug: 'components/primitives/paper' },
                 { label: 'Popover', slug: 'components/primitives/popover' },
+                { label: 'Radio', slug: 'components/primitives/radio' },
                 { label: 'Switch', slug: 'components/primitives/switch' },
                 { label: 'Text', slug: 'components/primitives/text' },
                 { label: 'TextArea', slug: 'components/primitives/text-area' },
                 { label: 'Tooltip', slug: 'components/primitives/tooltip' },
+                {
+                  label: 'VisuallyHidden',
+                  slug: 'components/primitives/visually-hidden',
+                },
               ],
             },
             {
@@ -139,10 +151,18 @@ export default defineConfig({
               label: 'Navigation',
               collapsed: false,
               items: [
-                { label: 'Menu', slug: 'components/navigation/menu' },
+                {
+                  label: 'Breadcrumbs',
+                  slug: 'components/navigation/breadcrumbs',
+                },
                 {
                   label: 'ContextMenu',
                   slug: 'components/navigation/context-menu',
+                },
+                { label: 'Menu', slug: 'components/navigation/menu' },
+                {
+                  label: 'SegmentedControl',
+                  slug: 'components/navigation/segmented-control',
                 },
                 { label: 'Tabs', slug: 'components/navigation/tabs' },
               ],
@@ -151,11 +171,17 @@ export default defineConfig({
               label: 'Feedback',
               collapsed: false,
               items: [
+                { label: 'Alert', slug: 'components/feedback/alert' },
                 { label: 'Dialog', slug: 'components/feedback/dialog' },
                 {
                   label: 'EmptyState',
                   slug: 'components/feedback/empty-state',
                 },
+                {
+                  label: 'ProgressBar',
+                  slug: 'components/feedback/progress-bar',
+                },
+                { label: 'Skeleton', slug: 'components/feedback/skeleton' },
                 { label: 'Spinner', slug: 'components/feedback/spinner' },
                 { label: 'Toast', slug: 'components/feedback/toast' },
               ],
@@ -187,11 +213,37 @@ export default defineConfig({
                   slug: 'components/editor/property-inspector',
                 },
                 {
+                  label: 'TransformControl',
+                  slug: 'components/editor/transform-control',
+                },
+                {
                   label: 'ViewportGizmo',
                   slug: 'components/editor/viewport-gizmo',
                 },
               ],
             },
+          ],
+        },
+        {
+          label: 'Hooks',
+          collapsed: false,
+          items: [
+            { label: 'Overview', slug: 'hooks' },
+            { label: 'useClickOutside', slug: 'hooks/use-click-outside' },
+            { label: 'useClipboard', slug: 'hooks/use-clipboard' },
+            {
+              label: 'useControlledState',
+              slug: 'hooks/use-controlled-state',
+            },
+            { label: 'useDisclosure', slug: 'hooks/use-disclosure' },
+            { label: 'useFocusTrap', slug: 'hooks/use-focus-trap' },
+            { label: 'useHotkey', slug: 'hooks/use-hotkey' },
+            { label: 'useMergedRef', slug: 'hooks/use-merged-ref' },
+            {
+              label: 'useResizeObserver',
+              slug: 'hooks/use-resize-observer',
+            },
+            { label: 'useTheme', slug: 'hooks/use-theme' },
           ],
         },
         {
@@ -211,8 +263,25 @@ export default defineConfig({
     plugins: [vanillaExtractPlugin()],
     resolve: {
       alias: {
-        '@': resolve(new URL('.', import.meta.url).pathname, '../src'),
+        '@': resolve(rootDir, 'src'),
       },
+    },
+    // Keep Vite's dep optimizer out of vanilla-extract land — pre-bundling
+    // these packages races the plugin and triggers "No CSS for file" errors
+    // when navigating to component pages in dev mode.
+    optimizeDeps: {
+      exclude: [
+        '@vanilla-extract/css',
+        '@vanilla-extract/recipes',
+        '@vanilla-extract/dynamic',
+      ],
+    },
+    ssr: {
+      noExternal: [
+        '@vanilla-extract/css',
+        '@vanilla-extract/recipes',
+        '@vanilla-extract/dynamic',
+      ],
     },
   },
 });

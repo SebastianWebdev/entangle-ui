@@ -1,0 +1,112 @@
+---
+title: useClickOutside
+description: Fire a callback when a click occurs outside a referenced element.
+---
+
+import PropsTable from '../../../components/PropsTable.astro';
+import ComponentPreview from '../../../components/ComponentPreview.astro';
+import UseClickOutsideDemo, {
+  UseClickOutsideBasic,
+  UseClickOutsideMultipleRefs,
+} from '../../../components/demos/hooks/UseClickOutsideDemo';
+
+`useClickOutside` attaches a document-level listener that fires only when the click lands outside the referenced element(s). It is the building block behind dismissable popovers, menus, and detail panels — anything that should close when the user clicks "somewhere else".
+
+<ComponentPreview title="Live preview">
+  <UseClickOutsideDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```ts
+import { useClickOutside } from 'entangle-ui';
+```
+
+## Signature
+
+```ts
+function useClickOutside<T extends HTMLElement = HTMLElement>(
+  ref: RefObject<T | null> | Array<RefObject<HTMLElement | null>>,
+  handler: (event: MouseEvent) => void,
+  options?: UseClickOutsideOptions
+): void;
+
+interface UseClickOutsideOptions {
+  enabled?: boolean;
+  event?: 'mousedown' | 'click' | 'pointerdown';
+}
+```
+
+## Usage
+
+```tsx
+function Popover({ onClose }: { onClose: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useClickOutside(ref, onClose);
+
+  return <div ref={ref}>...</div>;
+}
+```
+
+### Basic
+
+<ComponentPreview title="Basic">
+  <UseClickOutsideBasic client:only="react" />
+</ComponentPreview>
+
+### Trigger + popover pair
+
+Pass an array of refs when the "inside" group spans multiple elements — for example a trigger button outside the popover whose click should not close it.
+
+<ComponentPreview title="Multiple refs">
+  <UseClickOutsideMultipleRefs client:only="react" />
+</ComponentPreview>
+
+```tsx
+const triggerRef = useRef<HTMLButtonElement>(null);
+const popoverRef = useRef<HTMLDivElement>(null);
+
+useClickOutside([triggerRef, popoverRef], () => setOpen(false));
+```
+
+## API
+
+<PropsTable
+  props={[
+    {
+      name: 'ref',
+      type: 'RefObject<HTMLElement | null> | RefObject<HTMLElement | null>[]',
+      required: true,
+      description:
+        'Single ref or an array of refs. When an array, the handler fires only when the click is outside ALL refs.',
+    },
+    {
+      name: 'handler',
+      type: '(event: MouseEvent) => void',
+      required: true,
+      description:
+        'Called when an outside click is detected. The latest handler is always invoked — no need to memoize.',
+    },
+    {
+      name: 'options.enabled',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'When false, the listener is detached. Toggle this to disable behavior without unmounting.',
+    },
+    {
+      name: 'options.event',
+      type: "'mousedown' | 'click' | 'pointerdown'",
+      default: "'mousedown'",
+      description:
+        'Which event to listen for. `mousedown` fires before `click`, which prevents a click that closes a popover from also activating something underneath.',
+    },
+  ]}
+/>
+
+## Common pitfalls
+
+- **Triggers outside the ref:** A button that opens a popover is not inside the popover. Pass both refs as an array, otherwise clicking the trigger will immediately close the popover that just opened.
+- **Event timing:** Listening on `click` instead of `mousedown` means the dismiss happens after the click event has already activated other handlers (selecting text, focusing inputs, navigating links). Stick to `mousedown` unless you have a specific reason.
+- **Portals:** Elements rendered into a portal are not descendants of the ref's DOM subtree. Pass a ref to the portal content as well, or close on outside click is going to fire when the user interacts with the popover body.
+- **SSR:** The hook is a no-op on the server. The listener attaches in `useEffect`, which only runs in the browser.

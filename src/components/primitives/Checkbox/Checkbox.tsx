@@ -128,6 +128,14 @@ export const Checkbox: React.FC<CheckboxProps> = ({
     [boxSizeVar]: `${BOX_SIZES[size]}px`,
   });
 
+  // Respect OS-level reduced-motion preference for the inline check-mark
+  // animation. Stylesheet @media queries cover CSS-driven motion elsewhere;
+  // this style is set inline, so the check has to happen here.
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const checkboxBox = (
     <button
       ref={ref}
@@ -178,7 +186,9 @@ export const Checkbox: React.FC<CheckboxProps> = ({
           style={{
             opacity: resolvedChecked ? 1 : 0,
             transform: resolvedChecked ? 'scale(1)' : 'scale(0)',
-            transition: 'opacity 150ms ease-out, transform 150ms ease-out',
+            transition: prefersReducedMotion
+              ? 'none'
+              : 'opacity 150ms ease-out, transform 150ms ease-out',
           }}
         >
           <path

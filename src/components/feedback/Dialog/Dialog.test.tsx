@@ -245,6 +245,57 @@ describe('Dialog', () => {
       expect(screen.queryByTestId('dialog')).not.toBeInTheDocument();
     });
   });
+
+  describe('Reduced motion', () => {
+    const originalMatchMedia = window.matchMedia;
+
+    afterEach(() => {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: originalMatchMedia,
+      });
+    });
+
+    it('unmounts immediately on close when prefers-reduced-motion: reduce', async () => {
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: vi.fn().mockImplementation((query: string) => ({
+          matches: query.includes('prefers-reduced-motion: reduce'),
+          media: query,
+          onchange: null,
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        })),
+      });
+
+      const onClose = vi.fn();
+      const { rerender } = renderWithTheme(
+        <Dialog open={true} onClose={onClose} testId="dialog">
+          <div>Content</div>
+        </Dialog>
+      );
+
+      expect(screen.getByTestId('dialog')).toBeInTheDocument();
+
+      // Trigger close
+      rerender(
+        <Dialog open={false} onClose={onClose} testId="dialog">
+          <div>Content</div>
+        </Dialog>
+      );
+
+      // Flush the 0ms timer scheduled by useDialogAnimation under reduced motion
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(0);
+      });
+
+      // Dialog must be gone — no 200 ms focus-trapped tail
+      expect(screen.queryByTestId('dialog')).not.toBeInTheDocument();
+    });
+  });
 });
 
 describe('DialogHeader', () => {
