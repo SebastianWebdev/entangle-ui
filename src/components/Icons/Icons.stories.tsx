@@ -62,6 +62,24 @@ import { CheckIcon } from './CheckIcon';
 import { AiChatIcon } from './AiChatIcon';
 import { AiSparklesIcon } from './AiSparklesIcon';
 import { RobotIcon } from './RobotIcon';
+import { ArchiveIcon } from './ArchiveIcon';
+import { DotsVerticalIcon } from './DotsVerticalIcon';
+import { DotsHorizontalIcon } from './DotsHorizontalIcon';
+import { ChevronLeftIcon } from './ChevronLeftIcon';
+import { ChevronRightIcon } from './ChevronRightIcon';
+import { FolderOpenIcon } from './FolderOpenIcon';
+import { FolderCogIcon } from './FolderCogIcon';
+import { UsersIcon } from './UsersIcon';
+import { BuildingIcon } from './BuildingIcon';
+import { FileTextIcon } from './FileTextIcon';
+import { PauseIcon } from './PauseIcon';
+import { StopIcon } from './StopIcon';
+import { SendIcon } from './SendIcon';
+import { TerminalIcon } from './TerminalIcon';
+import { GitBranchIcon } from './GitBranchIcon';
+import { BugIcon } from './BugIcon';
+import { MinusIcon } from './MinusIcon';
+import { PinIcon } from './PinIcon';
 
 /**
  * Storybook configuration for all Icon components
@@ -91,7 +109,7 @@ const meta: Meta<IconProps> = {
     docs: {
       description: {
         component:
-          'A comprehensive collection of 40 commonly used icons for editor interfaces. All icons are built using the base Icon component and support consistent sizing and coloring.',
+          'A comprehensive collection of icons for editor interfaces. All icons are built using the base Icon component and support consistent sizing and coloring.',
       },
     },
   },
@@ -129,10 +147,16 @@ const coreIcons = [
   { Component: SettingsIcon, name: 'SettingsIcon' },
   { Component: SearchIcon, name: 'SearchIcon' },
   { Component: AddIcon, name: 'AddIcon' },
+  { Component: MinusIcon, name: 'MinusIcon' },
   { Component: CloseIcon, name: 'CloseIcon' },
   { Component: EditIcon, name: 'EditIcon' },
   { Component: PlayIcon, name: 'PlayIcon' },
+  { Component: PauseIcon, name: 'PauseIcon' },
+  { Component: StopIcon, name: 'StopIcon' },
+  { Component: SendIcon, name: 'SendIcon' },
   { Component: FolderIcon, name: 'FolderIcon' },
+  { Component: FolderOpenIcon, name: 'FolderOpenIcon' },
+  { Component: FolderCogIcon, name: 'FolderCogIcon' },
   { Component: EyeIcon, name: 'EyeIcon' },
   { Component: CodeIcon, name: 'CodeIcon' },
 ];
@@ -144,6 +168,8 @@ const editingIcons = [
   { Component: UndoIcon, name: 'UndoIcon' },
   { Component: RedoIcon, name: 'RedoIcon' },
   { Component: RefreshIcon, name: 'RefreshIcon' },
+  { Component: ArchiveIcon, name: 'ArchiveIcon' },
+  { Component: PinIcon, name: 'PinIcon' },
 ];
 
 const fileIcons = [
@@ -151,17 +177,22 @@ const fileIcons = [
   { Component: UploadIcon, name: 'UploadIcon' },
   { Component: LockIcon, name: 'LockIcon' },
   { Component: UnlockIcon, name: 'UnlockIcon' },
+  { Component: FileTextIcon, name: 'FileTextIcon' },
 ];
 
 const navigationIcons = [
   { Component: HomeIcon, name: 'HomeIcon' },
   { Component: MenuIcon, name: 'MenuIcon' },
+  { Component: DotsVerticalIcon, name: 'DotsVerticalIcon' },
+  { Component: DotsHorizontalIcon, name: 'DotsHorizontalIcon' },
   { Component: ArrowUpIcon, name: 'ArrowUpIcon' },
   { Component: ArrowDownIcon, name: 'ArrowDownIcon' },
   { Component: ArrowLeftIcon, name: 'ArrowLeftIcon' },
   { Component: ArrowRightIcon, name: 'ArrowRightIcon' },
   { Component: ChevronUpIcon, name: 'ChevronUpIcon' },
   { Component: ChevronDownIcon, name: 'ChevronDownIcon' },
+  { Component: ChevronLeftIcon, name: 'ChevronLeftIcon' },
+  { Component: ChevronRightIcon, name: 'ChevronRightIcon' },
 ];
 
 const viewIcons = [
@@ -190,11 +221,19 @@ const socialIcons = [
   { Component: CalendarIcon, name: 'CalendarIcon' },
   { Component: ClockIcon, name: 'ClockIcon' },
   { Component: UserIcon, name: 'UserIcon' },
+  { Component: UsersIcon, name: 'UsersIcon' },
+  { Component: BuildingIcon, name: 'BuildingIcon' },
   { Component: StarIcon, name: 'StarIcon' },
   { Component: HeartIcon, name: 'HeartIcon' },
   { Component: BookmarkIcon, name: 'BookmarkIcon' },
   { Component: TagIcon, name: 'TagIcon' },
   { Component: LinkIcon, name: 'LinkIcon' },
+];
+
+const developerIcons = [
+  { Component: TerminalIcon, name: 'TerminalIcon' },
+  { Component: GitBranchIcon, name: 'GitBranchIcon' },
+  { Component: BugIcon, name: 'BugIcon' },
 ];
 
 const aiIcons = [
@@ -278,6 +317,7 @@ export const AllIcons: Story = {
           viewIcons.length +
           statusIcons.length +
           socialIcons.length +
+          developerIcons.length +
           aiIcons.length}{' '}
         Icons)
       </h2>
@@ -289,6 +329,7 @@ export const AllIcons: Story = {
       <IconGrid icons={viewIcons} title="View Controls" {...args} />
       <IconGrid icons={statusIcons} title="Status & Feedback" {...args} />
       <IconGrid icons={socialIcons} title="Social & Metadata" {...args} />
+      <IconGrid icons={developerIcons} title="Developer Tools" {...args} />
       <IconGrid icons={aiIcons} title="AI & Automation" {...args} />
     </div>
   ),
