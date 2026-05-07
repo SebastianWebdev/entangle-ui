@@ -24,6 +24,24 @@ export type {
   DialogFooterProps,
 } from './Dialog';
 
+export { Drawer } from './Drawer';
+export type {
+  DrawerAnchor,
+  DrawerBaseProps,
+  DrawerBodyBaseProps,
+  DrawerBodyProps,
+  DrawerCloseButtonBaseProps,
+  DrawerCloseButtonProps,
+  DrawerContextValue,
+  DrawerFooterAlign,
+  DrawerFooterBaseProps,
+  DrawerFooterProps,
+  DrawerHeaderBaseProps,
+  DrawerHeaderProps,
+  DrawerProps,
+  DrawerSize,
+} from './Drawer';
+
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps, EmptyStateVariant } from './EmptyState';
 
