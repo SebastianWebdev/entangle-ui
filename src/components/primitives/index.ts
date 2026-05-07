@@ -4,6 +4,7 @@ export { Button } from './Button';
 export { Checkbox, CheckboxGroup } from './Checkbox';
 export { Code } from './Code';
 export { Collapsible } from './Collapsible';
+export { HoverCard } from './HoverCard';
 export { Icon } from './Icon';
 export { IconButton } from './IconButton';
 export { Input } from './Input';
@@ -41,6 +42,15 @@ export type {
 } from './Checkbox';
 export type { CodeProps, CodeSize } from './Code';
 export type { CollapsibleProps, CollapsibleSize } from './Collapsible';
+export type {
+  HoverCardBaseProps,
+  HoverCardContentBaseProps,
+  HoverCardContentProps,
+  HoverCardContextValue,
+  HoverCardProps,
+  HoverCardTriggerBaseProps,
+  HoverCardTriggerProps,
+} from './HoverCard';
 export type { IconColor, IconProps, IconSize } from './Icon';
 export type {
   IconButtonProps,
