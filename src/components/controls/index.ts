@@ -13,6 +13,7 @@ export {
   VINTAGE_PALETTE,
   PROFESSIONAL_PALETTES,
 } from './ColorPicker';
+export { MultiSelect } from './MultiSelect';
 export { NumberInput } from './NumberInput';
 export { Select } from './Select';
 export { Slider } from './Slider';
@@ -41,6 +42,14 @@ export type {
 } from './ColorPicker';
 export type { EyeDropperProps } from './ColorPicker';
 export type { ColorPaletteProps } from './ColorPicker';
+export type {
+  MultiSelectBaseProps,
+  MultiSelectOption,
+  MultiSelectOptionGroup,
+  MultiSelectProps,
+  MultiSelectSize,
+  MultiSelectVariant,
+} from './MultiSelect';
 export type { NumberInputProps } from './NumberInput';
 export type {
   SelectProps,
