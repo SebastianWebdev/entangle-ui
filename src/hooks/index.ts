@@ -57,6 +57,12 @@ export type {
   UseThrottledCallbackOptions,
 } from './useThrottledCallback';
 
+export { useIntersectionObserver } from './useIntersectionObserver';
+export type {
+  UseIntersectionObserverOptions,
+  UseIntersectionObserverReturn,
+} from './useIntersectionObserver';
+
 export { useTheme } from './useTheme';
 export type {
   ResolvedThemeValues,
