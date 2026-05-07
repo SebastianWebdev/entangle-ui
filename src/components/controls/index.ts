@@ -14,6 +14,7 @@ export {
   PROFESSIONAL_PALETTES,
 } from './ColorPicker';
 export { Combobox } from './Combobox';
+export { FileUploader } from './FileUploader';
 export { MultiSelect } from './MultiSelect';
 export { NumberInput } from './NumberInput';
 export { Select } from './Select';
@@ -50,6 +51,15 @@ export type {
   ComboboxSize,
   ComboboxVariant,
 } from './Combobox';
+export type {
+  FileUploaderBaseProps,
+  FileUploaderItem,
+  FileUploaderItemStatus,
+  FileUploaderProps,
+  FileUploaderRejectReason,
+  FileUploaderRenderItemState,
+  FileUploaderSize,
+} from './FileUploader';
 export type {
   MultiSelectBaseProps,
   MultiSelectOption,
