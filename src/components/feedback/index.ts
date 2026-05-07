@@ -24,6 +24,15 @@ export type {
   DialogFooterProps,
 } from './Dialog';
 
+export { CommandPalette, fuzzyFilter, fuzzyScore } from './CommandPalette';
+export type {
+  CommandItem,
+  CommandPaletteBaseProps,
+  CommandPaletteProps,
+  CommandPaletteRenderItemState,
+  FuzzyMatch,
+} from './CommandPalette';
+
 export { Drawer } from './Drawer';
 export type {
   DrawerAnchor,
