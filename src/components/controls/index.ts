@@ -16,6 +16,7 @@ export {
 export { NumberInput } from './NumberInput';
 export { Select } from './Select';
 export { Slider } from './Slider';
+export { TagInput } from './TagInput';
 export { VectorInput } from './VectorInput';
 export { TreeView } from './TreeView';
 export {
@@ -49,6 +50,14 @@ export type {
   SelectOptionGroup,
 } from './Select';
 export type { SliderProps } from './Slider';
+export type {
+  TagInputBaseProps,
+  TagInputProps,
+  TagInputRenderTagState,
+  TagInputSeparator,
+  TagInputSize,
+  TagInputVariant,
+} from './TagInput';
 export type {
   VectorInputProps,
   VectorInputSize,
