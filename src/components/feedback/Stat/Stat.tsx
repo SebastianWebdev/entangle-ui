@@ -36,8 +36,12 @@ function deltaColor(
     return vars.colors.text.muted;
   }
   const isUpGood = semantics === 'positive';
-  const upColor = isUpGood ? vars.colors.accent.success : vars.colors.accent.error;
-  const downColor = isUpGood ? vars.colors.accent.error : vars.colors.accent.success;
+  const upColor = isUpGood
+    ? vars.colors.accent.success
+    : vars.colors.accent.error;
+  const downColor = isUpGood
+    ? vars.colors.accent.error
+    : vars.colors.accent.success;
   return direction === 'up' ? upColor : downColor;
 }
 

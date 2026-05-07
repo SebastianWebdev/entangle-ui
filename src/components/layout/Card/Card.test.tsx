@@ -120,7 +120,10 @@ describe('Card', () => {
           x
         </Card>
       );
-      expect(screen.getByTestId('card')).toHaveAttribute('aria-disabled', 'true');
+      expect(screen.getByTestId('card')).toHaveAttribute(
+        'aria-disabled',
+        'true'
+      );
     });
 
     it('exposes aria-pressed when interactive and selected', () => {
@@ -129,7 +132,10 @@ describe('Card', () => {
           x
         </Card>
       );
-      expect(screen.getByTestId('card')).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getByTestId('card')).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
     });
   });
 });

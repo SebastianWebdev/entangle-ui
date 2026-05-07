@@ -27,10 +27,7 @@ export const Default: Story = {
   render: args => (
     <div style={{ width: 320 }}>
       <Card {...args}>
-        <Card.Header
-          title="Asset preview"
-          subtitle="Updated 2 hours ago"
-        />
+        <Card.Header title="Asset preview" subtitle="Updated 2 hours ago" />
         <Card.Body>
           A short description of the asset, with a couple of supporting
           sentences to fill the layout.
@@ -45,7 +42,13 @@ export const Default: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(3, 240px)' }}>
+    <div
+      style={{
+        display: 'grid',
+        gap: 16,
+        gridTemplateColumns: 'repeat(3, 240px)',
+      }}
+    >
       {(['outlined', 'filled', 'elevated'] as const).map(variant => (
         <Card key={variant} variant={variant}>
           <Card.Header title={variant} subtitle="Variant" />

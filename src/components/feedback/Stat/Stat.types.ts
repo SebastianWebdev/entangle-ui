@@ -21,8 +21,10 @@ export interface StatDelta {
   semantics?: StatDeltaSemantics;
 }
 
-export interface StatBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'title'> {
+export interface StatBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'title'
+> {
   /** Label above the value. */
   label: React.ReactNode;
   /** Primary value (already formatted by the consumer). */

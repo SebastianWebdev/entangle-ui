@@ -40,10 +40,7 @@ export { useMediaQuery } from './useMediaQuery';
 export type { UseMediaQueryOptions } from './useMediaQuery';
 
 export { useBreakpoint } from './useBreakpoint';
-export type {
-  BreakpointMap,
-  UseBreakpointReturn,
-} from './useBreakpoint';
+export type { BreakpointMap, UseBreakpointReturn } from './useBreakpoint';
 
 export { useDebouncedValue, useDebouncedCallback } from './useDebounced';
 export type {

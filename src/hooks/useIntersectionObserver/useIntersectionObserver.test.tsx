@@ -32,7 +32,10 @@ function setupMockIO() {
       return [] as IntersectionObserverEntry[];
     }
     trigger(entry: Partial<IntersectionObserverEntry>) {
-      this.callback([entry as IntersectionObserverEntry], this as unknown as IntersectionObserver);
+      this.callback(
+        [entry as IntersectionObserverEntry],
+        this as unknown as IntersectionObserver
+      );
     }
   }
   // @ts-expect-error — assigning mock
@@ -72,8 +75,10 @@ describe('useIntersectionObserver', () => {
     });
 
     expect(instances).toHaveLength(1);
+    const inst = instances[0];
+    if (!inst) throw new Error('expected an observer instance');
     act(() => {
-      instances[0]!.trigger({ isIntersecting: true });
+      inst.trigger({ isIntersecting: true });
     });
     expect(result.current.isIntersecting).toBe(true);
   });
@@ -87,7 +92,8 @@ describe('useIntersectionObserver', () => {
     act(() => {
       result.current.ref(document.createElement('div'));
     });
-    const first = instances[0]!;
+    const first = instances[0];
+    if (!first) throw new Error('expected an observer instance');
 
     act(() => {
       result.current.ref(null);
@@ -105,7 +111,9 @@ describe('useIntersectionObserver', () => {
       result.current.ref(document.createElement('div'));
     });
     unmount();
-    expect(instances[0]!.disconnected).toBe(true);
+    const first = instances[0];
+    if (!first) throw new Error('expected an observer instance');
+    expect(first.disconnected).toBe(true);
   });
 
   it('disconnects when enabled is toggled off', () => {
@@ -119,7 +127,8 @@ describe('useIntersectionObserver', () => {
     act(() => {
       result.current.ref(document.createElement('div'));
     });
-    const first = instances[0]!;
+    const first = instances[0];
+    if (!first) throw new Error('expected an observer instance');
 
     rerender({ enabled: false });
     expect(first.disconnected).toBe(true);

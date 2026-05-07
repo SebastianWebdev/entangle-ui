@@ -4,8 +4,10 @@ import type { Prettify } from '@/types/utilities';
 
 export type CardVariant = 'outlined' | 'filled' | 'elevated';
 
-export interface CardBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'onClick'> {
+export interface CardBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'onClick'
+> {
   /** Visual variant. @default "outlined" */
   variant?: CardVariant;
   /** Click handler — when set, the whole card becomes interactive (button role). */
@@ -20,8 +22,10 @@ export interface CardBaseProps
 
 export type CardProps = Prettify<CardBaseProps>;
 
-export interface CardHeaderBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'title'> {
+export interface CardHeaderBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'title'
+> {
   /** Title row content. Ignored when `children` is provided. */
   title?: React.ReactNode;
   /** Subtitle below the title. Ignored when `children` is provided. */

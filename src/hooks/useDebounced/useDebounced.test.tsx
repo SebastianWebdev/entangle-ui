@@ -198,9 +198,7 @@ describe('useDebouncedCallback', () => {
 
   it('cleans up timers on unmount', () => {
     const fn = vi.fn();
-    const { result, unmount } = renderHook(() =>
-      useDebouncedCallback(fn, 100)
-    );
+    const { result, unmount } = renderHook(() => useDebouncedCallback(fn, 100));
 
     act(() => {
       result.current('a');

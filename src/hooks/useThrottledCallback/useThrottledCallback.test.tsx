@@ -115,9 +115,7 @@ describe('useThrottledCallback', () => {
 
   it('cleans up timers on unmount', () => {
     const fn = vi.fn();
-    const { result, unmount } = renderHook(() =>
-      useThrottledCallback(fn, 100)
-    );
+    const { result, unmount } = renderHook(() => useThrottledCallback(fn, 100));
 
     act(() => {
       result.current('a');

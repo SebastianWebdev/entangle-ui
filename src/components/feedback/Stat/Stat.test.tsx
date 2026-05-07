@@ -30,9 +30,7 @@ describe('Stat', () => {
     });
 
     it('renders helper text when provided', () => {
-      renderWithTheme(
-        <Stat label="Latency" value="120ms" helper="last 24h" />
-      );
+      renderWithTheme(<Stat label="Latency" value="120ms" helper="last 24h" />);
       expect(screen.getByText('last 24h')).toBeInTheDocument();
     });
 
@@ -60,7 +58,9 @@ describe('Stat', () => {
       const delta = container.querySelector('[style*="--"]');
       expect(delta).not.toBeNull();
       // The CSS var should resolve to the success color.
-      expect(delta?.getAttribute('style') ?? '').toContain('var(--etui-color-accent-success');
+      expect(delta?.getAttribute('style') ?? '').toContain(
+        'var(--etui-color-accent-success'
+      );
     });
 
     it('negative semantics flips the color so up=bad', () => {
@@ -72,7 +72,9 @@ describe('Stat', () => {
         />
       );
       const delta = container.querySelector('[style*="--"]');
-      expect(delta?.getAttribute('style') ?? '').toContain('var(--etui-color-accent-error');
+      expect(delta?.getAttribute('style') ?? '').toContain(
+        'var(--etui-color-accent-error'
+      );
     });
 
     it('neutral semantics uses muted color regardless of direction', () => {
@@ -84,7 +86,9 @@ describe('Stat', () => {
         />
       );
       const delta = container.querySelector('[style*="--"]');
-      expect(delta?.getAttribute('style') ?? '').toContain('var(--etui-color-text-muted');
+      expect(delta?.getAttribute('style') ?? '').toContain(
+        'var(--etui-color-text-muted'
+      );
     });
   });
 });

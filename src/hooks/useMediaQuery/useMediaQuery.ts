@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react';
 import type { UseMediaQueryOptions } from './useMediaQuery.types';
 
 function getInitialMatch(query: string, fallback: boolean): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.matchMedia !== 'function'
+  ) {
     return fallback;
   }
   return window.matchMedia(query).matches;
@@ -35,7 +38,10 @@ export function useMediaQuery(
   );
 
   useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    if (
+      typeof window === 'undefined' ||
+      typeof window.matchMedia !== 'function'
+    ) {
       return;
     }
 

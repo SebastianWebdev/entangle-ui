@@ -8,6 +8,7 @@ export { ContextMenu } from './ContextMenu';
 export { Menu } from './Menu';
 export { useMenu } from './Menu';
 export { useContextMenuTarget } from './ContextMenu';
+export { Pagination } from './Pagination';
 export { SegmentedControl, SegmentedControlItem } from './SegmentedControl';
 export { Tab, TabList, TabPanel, Tabs } from './Tabs';
 
@@ -35,6 +36,14 @@ export type {
   ItemSelectionType,
   SubmenuTrigger,
 } from './Menu';
+export type {
+  PaginationBaseProps,
+  PaginationItem,
+  PaginationItemAriaLabelGetter,
+  PaginationItemType,
+  PaginationProps,
+  PaginationSize,
+} from './Pagination';
 export type {
   SegmentedControlProps,
   SegmentedControlItemProps,
