@@ -90,6 +90,7 @@
   "peerDependencies": {
     "@base-ui/react": "^1.1.0",
     "@floating-ui/react": "^0.27.17",
+    "@tanstack/react-virtual": "^3.13.0",
     "@vanilla-extract/dynamic": "^2.1.5",
     "@vanilla-extract/recipes": "^0.5.7",
     "react": ">=19.1.0",
@@ -108,6 +109,7 @@
     "@storybook/addon-onboarding": "^10.2.8",
     "@storybook/addon-themes": "^10.2.8",
     "@storybook/react-vite": "^10.2.8",
+    "@tanstack/react-virtual": "^3.13.24",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

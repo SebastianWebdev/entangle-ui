@@ -117,6 +117,7 @@ export {
   TabPanel,
   Tabs,
 } from '@/components/navigation';
+export { DataTable } from '@/components/data';
 export { FormHelperText, FormLabel, InputWrapper } from '@/components/form';
 export {
   Alert,
@@ -412,6 +413,19 @@ export type {
   TabsSize,
   TabsVariant,
 } from '@/components/navigation';
+export type {
+  DataTableAlign,
+  DataTableBaseProps,
+  DataTableColumn,
+  DataTableDensity,
+  DataTableProps,
+  DataTableRowRenderInfo,
+  DataTableSelectionMode,
+  DataTableSelectionState,
+  DataTableSortDirection,
+  DataTableSortState,
+  DataTableVirtualizationMode,
+} from '@/components/data';
 export type {
   FormHelperTextProps,
   FormLabelProps,

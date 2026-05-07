@@ -20,6 +20,7 @@ const EXTERNAL_PACKAGES = [
   'react/jsx-runtime',
   '@base-ui/react',
   '@floating-ui/react',
+  '@tanstack/react-virtual',
   '@vanilla-extract/dynamic',
   '@vanilla-extract/recipes',
 ];
