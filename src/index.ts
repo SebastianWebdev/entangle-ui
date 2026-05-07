@@ -518,6 +518,7 @@ export {
   useFocusTrap,
   useHotkey,
   useKeyboard,
+  useMediaQuery,
   useMergedRef,
   useResizeObserver,
   useTheme,
@@ -540,6 +541,7 @@ export type {
   UseDisclosureReturn,
   UseFocusTrapOptions,
   UseHotkeyOptions,
+  UseMediaQueryOptions,
   UseResizeObserverOptions,
   UseThemeReturn,
 } from '@/hooks';

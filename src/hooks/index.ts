@@ -36,6 +36,9 @@ export type { UseClickOutsideOptions } from './useClickOutside';
 export { useHotkey } from './useHotkey';
 export type { UseHotkeyOptions } from './useHotkey';
 
+export { useMediaQuery } from './useMediaQuery';
+export type { UseMediaQueryOptions } from './useMediaQuery';
+
 export { useTheme } from './useTheme';
 export type {
   ResolvedThemeValues,
