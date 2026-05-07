@@ -65,6 +65,24 @@ import { UserIcon } from '@/components/Icons/UserIcon';
 import { WarningIcon } from '@/components/Icons/WarningIcon';
 import { ZoomInIcon } from '@/components/Icons/ZoomInIcon';
 import { ZoomOutIcon } from '@/components/Icons/ZoomOutIcon';
+import { ArchiveIcon } from '@/components/Icons/ArchiveIcon';
+import { DotsVerticalIcon } from '@/components/Icons/DotsVerticalIcon';
+import { DotsHorizontalIcon } from '@/components/Icons/DotsHorizontalIcon';
+import { ChevronLeftIcon } from '@/components/Icons/ChevronLeftIcon';
+import { ChevronRightIcon } from '@/components/Icons/ChevronRightIcon';
+import { FolderOpenIcon } from '@/components/Icons/FolderOpenIcon';
+import { FolderCogIcon } from '@/components/Icons/FolderCogIcon';
+import { UsersIcon } from '@/components/Icons/UsersIcon';
+import { BuildingIcon } from '@/components/Icons/BuildingIcon';
+import { FileTextIcon } from '@/components/Icons/FileTextIcon';
+import { PauseIcon } from '@/components/Icons/PauseIcon';
+import { StopIcon } from '@/components/Icons/StopIcon';
+import { SendIcon } from '@/components/Icons/SendIcon';
+import { TerminalIcon } from '@/components/Icons/TerminalIcon';
+import { GitBranchIcon } from '@/components/Icons/GitBranchIcon';
+import { BugIcon } from '@/components/Icons/BugIcon';
+import { MinusIcon } from '@/components/Icons/MinusIcon';
+import { PinIcon } from '@/components/Icons/PinIcon';
 
 interface IconEntry {
   name: string;
@@ -80,8 +98,15 @@ const ICONS: IconEntry[] = [
   { name: 'ArrowUp', component: ArrowUpIcon, category: 'Navigation' },
   { name: 'ChevronDown', component: ChevronDownIcon, category: 'Navigation' },
   { name: 'ChevronUp', component: ChevronUpIcon, category: 'Navigation' },
+  { name: 'ChevronLeft', component: ChevronLeftIcon, category: 'Navigation' },
+  {
+    name: 'ChevronRight',
+    component: ChevronRightIcon,
+    category: 'Navigation',
+  },
   // Actions
   { name: 'Add', component: AddIcon, category: 'Actions' },
+  { name: 'Minus', component: MinusIcon, category: 'Actions' },
   { name: 'Copy', component: CopyIcon, category: 'Actions' },
   { name: 'Cut', component: CutIcon, category: 'Actions' },
   { name: 'Edit', component: EditIcon, category: 'Actions' },
@@ -92,8 +117,13 @@ const ICONS: IconEntry[] = [
   { name: 'Save', component: SaveIcon, category: 'Actions' },
   { name: 'Download', component: DownloadIcon, category: 'Actions' },
   { name: 'Upload', component: UploadIcon, category: 'Actions' },
+  { name: 'Archive', component: ArchiveIcon, category: 'Actions' },
+  { name: 'Pin', component: PinIcon, category: 'Actions' },
+  { name: 'Send', component: SendIcon, category: 'Actions' },
   // UI
   { name: 'Menu', component: MenuIcon, category: 'UI' },
+  { name: 'DotsVertical', component: DotsVerticalIcon, category: 'UI' },
+  { name: 'DotsHorizontal', component: DotsHorizontalIcon, category: 'UI' },
   { name: 'Grid', component: GridIcon, category: 'UI' },
   { name: 'List', component: ListIcon, category: 'UI' },
   { name: 'Fullscreen', component: FullscreenIcon, category: 'UI' },
@@ -111,17 +141,28 @@ const ICONS: IconEntry[] = [
   { name: 'Success', component: SuccessIcon, category: 'Status' },
   // Media
   { name: 'Play', component: PlayIcon, category: 'Media' },
+  { name: 'Pause', component: PauseIcon, category: 'Media' },
+  { name: 'Stop', component: StopIcon, category: 'Media' },
   { name: 'Bookmark', component: BookmarkIcon, category: 'Media' },
   { name: 'Code', component: CodeIcon, category: 'Media' },
   { name: 'Link', component: LinkIcon, category: 'Media' },
   // Organization
   { name: 'Folder', component: FolderIcon, category: 'Organization' },
+  { name: 'FolderOpen', component: FolderOpenIcon, category: 'Organization' },
+  { name: 'FolderCog', component: FolderCogIcon, category: 'Organization' },
+  { name: 'FileText', component: FileTextIcon, category: 'Organization' },
   { name: 'Tag', component: TagIcon, category: 'Organization' },
   { name: 'Calendar', component: CalendarIcon, category: 'Organization' },
+  { name: 'Building', component: BuildingIcon, category: 'Organization' },
   // User & Security
   { name: 'User', component: UserIcon, category: 'User & Security' },
+  { name: 'Users', component: UsersIcon, category: 'User & Security' },
   { name: 'Lock', component: LockIcon, category: 'User & Security' },
   { name: 'Unlock', component: UnlockIcon, category: 'User & Security' },
+  // Developer Tools
+  { name: 'Terminal', component: TerminalIcon, category: 'Developer Tools' },
+  { name: 'GitBranch', component: GitBranchIcon, category: 'Developer Tools' },
+  { name: 'Bug', component: BugIcon, category: 'Developer Tools' },
   // Misc
   { name: 'Close', component: CloseIcon, category: 'Misc' },
   { name: 'Refresh', component: RefreshIcon, category: 'Misc' },
@@ -184,6 +225,7 @@ const CATEGORIES = [
   'Media',
   'Organization',
   'User & Security',
+  'Developer Tools',
   'Misc',
   'AI',
   'Zoom',

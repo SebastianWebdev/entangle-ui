@@ -147,7 +147,7 @@ imported.
 - `Docs for LLMs` → [reference/llms-txt.md](./reference/llms-txt.md) — Plain-text documentation tuned for LLM coding assistants — short index and full single-file copy of the entangle-ui docs.
 - `Entangle UI` → [reference/overview.md](./reference/overview.md) — React component library for professional editor interfaces
 - `Full Editor` → [reference/showcase/editor.md](./reference/showcase/editor.md) — A complete 3D editor interface built entirely with Entangle UI components.
-- `Icons` → [reference/icons.md](./reference/icons.md) — Browse and use the 63 built-in SVG icons included with Entangle UI.
+- `Icons` → [reference/icons.md](./reference/icons.md) — Browse and use the 81 built-in SVG icons included with Entangle UI.
 - `Installation` → [reference/getting-started/installation.md](./reference/getting-started/installation.md) — How to install and set up Entangle UI in your project.
 - `Introduction` → [reference/getting-started/introduction.md](./reference/getting-started/introduction.md) — Entangle UI is a React component library for building professional editor interfaces — 3D tools, node editors, parameter systems, and more.
 - `Quick Start` → [reference/getting-started/quick-start.md](./reference/getting-started/quick-start.md) — Get up and running with Entangle UI in under five minutes.
