@@ -1,6 +1,6 @@
 ---
 name: entangle-ui
-description: Reference for the entangle-ui React component library (primitives, layout, controls, navigation, feedback, shell, editor components, hooks, theming). Use whenever the user is building UI with `entangle-ui`, importing from `entangle-ui`, or asking how an entangle-ui component or hook works. Each component has its own reference file in components/<category>/<name>.md — load the file matching the component(s) being used.
+description: Reference for the entangle-ui React component library (primitives, layout, controls, navigation, feedback, shell, editor components, hooks, theming). Use whenever the user is building UI with `entangle-ui`, importing from `entangle-ui`, or asking how an entangle-ui component or hook works. Each component has its own reference file in components/{category}/{name}.md — load the file matching the component(s) being used.
 ---
 
 # entangle-ui
@@ -11,9 +11,9 @@ Entangle UI is a React 19 component library for professional editor interfaces (
 
 1. Identify which component(s), hook(s) or guide the user is working with.
 2. Read the matching reference file from this skill directory before generating code:
-   - `components/<category>/<name>.md` for components
-   - `hooks/<name>.md` for hooks
-   - `guides/<name>.md` for theming, styling, animations, accessibility
+   - `components/{category}/{name}.md` for components
+   - `hooks/{name}.md` for hooks
+   - `guides/{name}.md` for theming, styling, animations, accessibility
 3. Follow the project conventions in `CLAUDE.md` and `CONVENTIONS.md` (English-only text, `@/` path aliases, theme tokens via `vars.*`, no `any`).
 
 ## Quick install
@@ -27,10 +27,10 @@ import 'entangle-ui/styles.css';
 import { ThemeProvider, Button } from 'entangle-ui';
 
 export function App() {
-  return (
-    <ThemeProvider>
-      <Button variant="filled">Hello</Button>
-    </ThemeProvider>
+  return React.createElement(
+    ThemeProvider,
+    null,
+    React.createElement(Button, { variant: 'filled' }, 'Hello'),
   );
 }
 ```
@@ -149,7 +149,7 @@ export function App() {
 
 ## Authoring rules
 
-- Always wrap the app once in `<ThemeProvider>` (defaults to dark theme).
+- Always wrap the app once in the `ThemeProvider` component (defaults to dark theme).
 - Import the bundled stylesheet exactly once: `import 'entangle-ui/styles.css'`.
 - Prefer the typed component props documented per file. Do not invent props.
 - For custom styling, read `guides/styling.md` and `guides/theming.md` before adding new styles; theme tokens are exposed as `vars.*` from `@/theme/contract.css`.
