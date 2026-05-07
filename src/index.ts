@@ -9,6 +9,8 @@ export {
   createLightTheme,
   VanillaThemeProvider,
   ThemeProvider,
+  breakpoints,
+  BREAKPOINT_ORDER,
 } from '@/theme';
 export type {
   ThemeVars,
@@ -17,6 +19,7 @@ export type {
   LightThemeValues,
   VanillaThemeProviderProps,
   ThemeProviderProps,
+  Breakpoint,
 } from '@/theme';
 
 // Primitives
@@ -516,6 +519,7 @@ export {
   useControlledState,
   useDisclosure,
   useFocusTrap,
+  useBreakpoint,
   useHotkey,
   useKeyboard,
   useMediaQuery,
@@ -527,6 +531,7 @@ export {
 } from '@/hooks';
 export type {
   AllKeys,
+  BreakpointMap,
   ClipboardStatus,
   KeyboardState,
   KeyCode,
@@ -541,6 +546,7 @@ export type {
   UseDisclosureReturn,
   UseFocusTrapOptions,
   UseHotkeyOptions,
+  UseBreakpointReturn,
   UseMediaQueryOptions,
   UseResizeObserverOptions,
   UseThemeReturn,

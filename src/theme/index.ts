@@ -21,3 +21,5 @@ export type { VanillaThemeProviderProps } from './VanillaThemeProvider';
 export { ThemeProvider } from './ThemeProvider';
 export type { ThemeProviderProps } from './ThemeProvider';
 export { GLOBAL_SCROLLBARS_CLASS } from './globalScrollbars.css';
+export { breakpoints, BREAKPOINT_ORDER } from './breakpoints';
+export type { Breakpoint } from './breakpoints';

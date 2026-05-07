@@ -39,6 +39,12 @@ export type { UseHotkeyOptions } from './useHotkey';
 export { useMediaQuery } from './useMediaQuery';
 export type { UseMediaQueryOptions } from './useMediaQuery';
 
+export { useBreakpoint } from './useBreakpoint';
+export type {
+  BreakpointMap,
+  UseBreakpointReturn,
+} from './useBreakpoint';
+
 export { useTheme } from './useTheme';
 export type {
   ResolvedThemeValues,
