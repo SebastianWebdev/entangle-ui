@@ -1,0 +1,537 @@
+# Theming
+
+> Learn how to customize and extend the Entangle UI theme system — colors, spacing, typography, shadows, and more.
+
+Entangle UI ships with a dark-first theme designed for professional editor interfaces. Every visual value — colors, spacing, typography, shadows — is defined as a **theme token** and exposed as a CSS custom property prefixed with `--etui-`.
+
+The library also ships a maintained **light theme preset** for use in agent UIs, dashboards, and customer-facing surfaces — opt in via `createLightTheme()`.
+
+## Architecture Overview
+
+The theme system is built on CSS custom properties:
+
+```
+                    CSS Custom Properties (--etui-*)
+                    Applied at :root by default
+                    ┌───────────────────────────────────┐
+                    │   contract.css.ts (property names) │
+                    │   darkTheme.css.ts (values)        │
+                    └──────────────┬────────────────────┘
+                                   │
+              ┌────────────────────┼────────────────────┐
+              │                                         │
+     Vanilla Extract                              CSS Override
+     (compile-time)                              (any selector)
+     import { vars }                             --etui-*: value
+```
+
+- **Vanilla Extract** — tokens compile to CSS custom properties at build time. Zero runtime cost. Access via `vars` object.
+- **CSS Override** — any `--etui-*` custom property can be overridden with plain CSS on any selector.
+
+## Default Theme
+
+The dark theme is applied globally on `:root` at build time. No provider is needed for the default look:
+
+```tsx
+import { Button } from 'entangle-ui';
+
+// Works out of the box — dark theme is already active
+<Button variant="filled">Save</Button>;
+```
+
+## Light Theme
+
+The light theme is shipped as a build-time preset. It is **not** applied globally — consumers opt in by generating a class with `createLightTheme()` and applying it to a subtree (typically the entire app, but it can also scope to a single dialog or panel).
+
+### Quick start
+
+The light-theme class is pre-generated at the package's build time, so it's a plain string you can import from anywhere — no consumer-side `.css.ts` file required:
+
+```tsx
+// app/Root.tsx
+import { VanillaThemeProvider, lightThemeClass } from 'entangle-ui';
+
+export function Root() {
+  return (
+    <VanillaThemeProvider className={lightThemeClass}>
+      <App />
+    </VanillaThemeProvider>
+  );
+}
+```
+
+If you prefer a function-style API, `createLightTheme()` returns the same string and is interchangeable:
+
+```tsx
+import { VanillaThemeProvider, createLightTheme } from 'entangle-ui';
+
+const lightThemeClass = createLightTheme();
+
+<VanillaThemeProvider className={lightThemeClass}>
+  <App />
+</VanillaThemeProvider>;
+```
+
+The class flips every `--etui-*` custom property under the wrapped subtree to the light preset.
+
+### What flips and what stays
+
+The light theme only changes **visual** tokens (colors, shadows). Structural tokens — spacing, typography, border-radius, transitions, z-index — are identical between the two themes, so layout and rhythm don't drift when a user switches modes.
+
+A few notes worth flagging:
+
+- `colors.surface.whiteOverlay` keeps its name (the contract is part of the public API), but its value flips polarity in light mode — it becomes a subtle dark overlay (`rgba(0, 0, 0, 0.06)`) so it still reads as "subtle tint over the underlying surface".
+- `colors.backdrop` uses lower opacity in light mode (`0.4` vs dark's `0.6`) — a heavier dim feels harsh against bright underlying content.
+- Shadows use lower opacity and softer spread to remain visible on white surfaces without looking heavy.
+- `shell.statusBar` keeps a solid accent background in both themes — it's a deliberately punchy element regardless of mode.
+
+### Common components
+
+### Property panels
+
+### Alerts
+
+### Scoped overrides — light dialog inside a dark app
+
+`VanillaThemeProvider` is just a `<div>` wrapper for a className, so themes can be scoped to any subtree. A common pattern is a dark editor with a single light-themed settings dialog (for legibility while a long form is being filled out):
+
+```tsx
+import { VanillaThemeProvider, lightThemeClass } from 'entangle-ui';
+
+<VanillaThemeProvider className={lightThemeClass}>
+  <SettingsDialog />
+</VanillaThemeProvider>;
+```
+
+The same pattern works in reverse — embed a dark preview inside a light dashboard by wrapping just that subtree with the dark theme class generated via `createCustomTheme`.
+
+## Token Reference
+
+### Colors
+
+#### Background
+
+| Token                         | CSS Property                | Value                |
+| ----------------------------- | --------------------------- | -------------------- |
+| `colors.background.primary`   | `--etui-color-bg-primary`   | `#1a1a1a`            |
+| `colors.background.secondary` | `--etui-color-bg-secondary` | `#2d2d2d`            |
+| `colors.background.tertiary`  | `--etui-color-bg-tertiary`  | `#3a3a3a`            |
+| `colors.background.elevated`  | `--etui-color-bg-elevated`  | `#404040`            |
+| `colors.background.inset`     | `--etui-color-bg-inset`     | `rgba(0, 0, 0, 0.2)` |
+
+> `background.inset` is a sunken/recessed surface — used by `Code` for inline code, by `ChatMarkdownRenderer` for blockquotes, and recommended for any "preview window" / textarea-style background.
+
+#### Surface (Interactive Elements)
+
+| Token                         | CSS Property                         | Value                       |
+| ----------------------------- | ------------------------------------ | --------------------------- |
+| `colors.surface.default`      | `--etui-color-surface-default`       | `#2d2d2d`                   |
+| `colors.surface.hover`        | `--etui-color-surface-hover`         | `#363636`                   |
+| `colors.surface.active`       | `--etui-color-surface-active`        | `#404040`                   |
+| `colors.surface.disabled`     | `--etui-color-surface-disabled`      | `#1f1f1f`                   |
+| `colors.surface.whiteOverlay` | `--etui-color-surface-white-overlay` | `rgba(255,255,255,0.1)`     |
+| `colors.surface.row`          | `--etui-color-surface-row`           | `transparent`               |
+| `colors.surface.rowHover`     | `--etui-color-surface-row-hover`     | `rgba(255, 255, 255, 0.03)` |
+
+> `surface.row` and `surface.rowHover` are intentionally lighter than `surface.hover` — use them for list and table rows, where the hover state should hint at interactivity without competing with adjacent buttons (`ListItem` uses these out of the box). Reserve `surface.hover` for buttons and other interactive controls.
+
+#### Border
+
+| Token                   | CSS Property                  | Value     |
+| ----------------------- | ----------------------------- | --------- |
+| `colors.border.default` | `--etui-color-border-default` | `#4a4a4a` |
+| `colors.border.focus`   | `--etui-color-border-focus`   | `#007acc` |
+| `colors.border.error`   | `--etui-color-border-error`   | `#f44336` |
+| `colors.border.success` | `--etui-color-border-success` | `#4caf50` |
+
+#### Text
+
+| Token                   | CSS Property                  | Value     |
+| ----------------------- | ----------------------------- | --------- |
+| `colors.text.primary`   | `--etui-color-text-primary`   | `#ffffff` |
+| `colors.text.secondary` | `--etui-color-text-secondary` | `#cccccc` |
+| `colors.text.muted`     | `--etui-color-text-muted`     | `#888888` |
+| `colors.text.disabled`  | `--etui-color-text-disabled`  | `#555555` |
+
+#### Accent
+
+| Token                     | CSS Property                    | Value     |
+| ------------------------- | ------------------------------- | --------- |
+| `colors.accent.primary`   | `--etui-color-accent-primary`   | `#007acc` |
+| `colors.accent.secondary` | `--etui-color-accent-secondary` | `#005a9e` |
+| `colors.accent.success`   | `--etui-color-accent-success`   | `#4caf50` |
+| `colors.accent.warning`   | `--etui-color-accent-warning`   | `#ff9800` |
+| `colors.accent.error`     | `--etui-color-accent-error`     | `#f44336` |
+
+### Spacing
+
+All spacing values in pixels. `md` (8px) is the base unit.
+
+| Token  | CSS Property          | Value |
+| ------ | --------------------- | ----- |
+| `xs`   | `--etui-spacing-xs`   | 2px   |
+| `sm`   | `--etui-spacing-sm`   | 4px   |
+| `md`   | `--etui-spacing-md`   | 8px   |
+| `lg`   | `--etui-spacing-lg`   | 12px  |
+| `xl`   | `--etui-spacing-xl`   | 16px  |
+| `xxl`  | `--etui-spacing-xxl`  | 24px  |
+| `xxxl` | `--etui-spacing-xxxl` | 32px  |
+
+### Typography
+
+#### Font Sizes
+
+| Token | CSS Property           | Value |
+| ----- | ---------------------- | ----- |
+| `xxs` | `--etui-font-size-xxs` | 9px   |
+| `xs`  | `--etui-font-size-xs`  | 10px  |
+| `sm`  | `--etui-font-size-sm`  | 11px  |
+| `md`  | `--etui-font-size-md`  | 12px  |
+| `lg`  | `--etui-font-size-lg`  | 14px  |
+| `xl`  | `--etui-font-size-xl`  | 16px  |
+
+#### Font Weights
+
+| Token      | CSS Property                  | Value |
+| ---------- | ----------------------------- | ----- |
+| `normal`   | `--etui-font-weight-normal`   | 400   |
+| `medium`   | `--etui-font-weight-medium`   | 500   |
+| `semibold` | `--etui-font-weight-semibold` | 600   |
+
+#### Line Heights
+
+| Token     | CSS Property                 | Value |
+| --------- | ---------------------------- | ----- |
+| `tight`   | `--etui-line-height-tight`   | 1.2   |
+| `normal`  | `--etui-line-height-normal`  | 1.4   |
+| `relaxed` | `--etui-line-height-relaxed` | 1.6   |
+
+#### Font Families
+
+| Token  | CSS Property              | Value                                                             |
+| ------ | ------------------------- | ----------------------------------------------------------------- |
+| `mono` | `--etui-font-family-mono` | SF Mono, Monaco, Consolas, "Liberation Mono", monospace           |
+| `sans` | `--etui-font-family-sans` | -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif |
+
+### Border Radius
+
+| Token  | CSS Property         | Value |
+| ------ | -------------------- | ----- |
+| `none` | `--etui-radius-none` | 0px   |
+| `sm`   | `--etui-radius-sm`   | 2px   |
+| `md`   | `--etui-radius-md`   | 4px   |
+| `lg`   | `--etui-radius-lg`   | 6px   |
+
+### Shadows
+
+| Token             | CSS Property                    | Value                           |
+| ----------------- | ------------------------------- | ------------------------------- |
+| `sm`              | `--etui-shadow-sm`              | `0 1px 2px rgba(0,0,0,0.2)`     |
+| `md`              | `--etui-shadow-md`              | `0 2px 4px rgba(0,0,0,0.3)`     |
+| `lg`              | `--etui-shadow-lg`              | `0 4px 8px rgba(0,0,0,0.4)`     |
+| `xl`              | `--etui-shadow-xl`              | `0 8px 16px rgba(0,0,0,0.5)`    |
+| `focus`           | `--etui-shadow-focus`           | `0 0 0 2px rgba(0,122,204,0.4)` |
+| `separatorBottom` | `--etui-shadow-separatorBottom` | `0 1px 2px rgba(0,0,0,0.18)`    |
+| `separatorRight`  | `--etui-shadow-separatorRight`  | `1px 0 2px rgba(0,0,0,0.18)`    |
+| `separatorLeft`   | `--etui-shadow-separatorLeft`   | `-1px 0 2px rgba(0,0,0,0.18)`   |
+| `thumb`           | `--etui-shadow-thumb`           | `0 0 2px rgba(0,0,0,0.5)`       |
+
+### Transitions
+
+| Token    | CSS Property               | Value            |
+| -------- | -------------------------- | ---------------- |
+| `fast`   | `--etui-transition-fast`   | `100ms ease-out` |
+| `normal` | `--etui-transition-normal` | `200ms ease-out` |
+| `slow`   | `--etui-transition-slow`   | `300ms ease-out` |
+
+### Z-Index
+
+| Token      | CSS Property        | Value |
+| ---------- | ------------------- | ----- |
+| `base`     | `--etui-z-base`     | 1     |
+| `dropdown` | `--etui-z-dropdown` | 1000  |
+| `popover`  | `--etui-z-popover`  | 1000  |
+| `tooltip`  | `--etui-z-tooltip`  | 1000  |
+| `modal`    | `--etui-z-modal`    | 1100  |
+
+### Shell Tokens
+
+Specialized tokens for application layout components:
+
+| Token                     | CSS Property                     | Value     |
+| ------------------------- | -------------------------------- | --------- |
+| `shell.menuBar.height`    | `--etui-shell-menubar-height`    | 28px      |
+| `shell.toolbar.height.sm` | `--etui-shell-toolbar-height-sm` | 32px      |
+| `shell.toolbar.height.md` | `--etui-shell-toolbar-height-md` | 40px      |
+| `shell.statusBar.height`  | `--etui-shell-statusbar-height`  | 22px      |
+| `shell.statusBar.bg`      | `--etui-shell-statusbar-bg`      | `#007acc` |
+| `shell.dock.tabHeight`    | `--etui-shell-dock-tabHeight`    | 28px      |
+| `shell.dock.splitterSize` | `--etui-shell-dock-splitterSize` | 4px       |
+
+## Customization
+
+### 1. CSS Override (Simplest)
+
+Override any token for a subtree using plain CSS:
+
+```css
+.my-brand {
+  --etui-color-accent-primary: #ff6600;
+  --etui-color-accent-secondary: #cc5200;
+}
+```
+
+```tsx
+<div className="my-brand">
+  <Button variant="filled">Orange Button</Button>
+</div>
+```
+
+### 2. createCustomTheme (Build-Time)
+
+Create a scoped theme that compiles to CSS at build time. This **must** be called in a `.css.ts` file. Use it for brand palettes or full custom themes — for the standard light preset prefer [`createLightTheme()`](#light-theme).
+
+```typescript
+// src/themes/brand.css.ts
+import { createCustomTheme } from 'entangle-ui';
+
+createCustomTheme('[data-theme="brand"]', {
+  colors: {
+    accent: {
+      primary: '#ff6600',
+      secondary: '#cc5200',
+    },
+    border: {
+      focus: '#ff6600',
+    },
+  },
+});
+```
+
+Apply it:
+
+```tsx
+<div data-theme="brand">
+  <Button variant="filled">Brand-themed button</Button>
+</div>
+```
+
+### 3. VanillaThemeProvider (Scoped Override)
+
+Wrap a section with a className that carries theme overrides:
+
+```tsx
+import { VanillaThemeProvider } from 'entangle-ui';
+
+<VanillaThemeProvider className="light-theme">
+  <SettingsPanel />
+</VanillaThemeProvider>;
+```
+
+## Accessing Tokens in Code
+
+### Vanilla Extract (`.css.ts` files)
+
+```typescript
+import { vars } from 'entangle-ui';
+import { style } from '@vanilla-extract/css';
+
+export const card = style({
+  background: vars.colors.surface.default,
+  color: vars.colors.text.primary,
+  padding: vars.spacing.lg,
+  borderRadius: vars.borderRadius.md,
+  boxShadow: vars.shadows.md,
+  transition: `all ${vars.transitions.normal}`,
+
+  ':hover': {
+    background: vars.colors.surface.hover,
+    boxShadow: vars.shadows.lg,
+  },
+});
+```
+
+`vars` is fully typed — autocomplete guides you through the entire token tree.
+
+### Plain CSS
+
+```css
+.custom-panel {
+  background: var(--etui-color-bg-secondary);
+  padding: var(--etui-spacing-lg);
+  border: 1px solid var(--etui-color-border-default);
+  border-radius: var(--etui-radius-md);
+}
+```
+
+## ThemeProvider
+
+Most apps don't need a provider — the dark theme is applied globally to `:root`. Use `ThemeProvider` for opt-in global behaviors.
+
+```tsx
+import { ThemeProvider } from 'entangle-ui';
+
+<ThemeProvider globalScrollbars>
+  <App />
+</ThemeProvider>;
+```
+
+### Global scrollbars (opt-in)
+
+Set `globalScrollbars` to apply Entangle's dark-theme scrollbar styling to native scrollbars on overflowing elements throughout the document. The provider toggles a class on `document.body`; styles are scoped under that class so they don't leak when the prop is `false` (the default).
+
+| Prop               | Type      | Default | Description                                                                         |
+| ------------------ | --------- | ------- | ----------------------------------------------------------------------------------- |
+| `globalScrollbars` | `boolean` | `false` | Add a class to `document.body` that themes WebKit and Firefox scrollbars dark-thin. |
+
+You can also opt in manually by adding the published class to your own root element:
+
+```tsx
+import { GLOBAL_SCROLLBARS_CLASS } from 'entangle-ui';
+
+document.body.classList.add(GLOBAL_SCROLLBARS_CLASS);
+```
+
+This is helpful when Entangle is embedded inside another app shell that already manages mount/unmount of the provider.
+
+## Token Export
+
+Entangle UI ships machine-readable copies of every token next to the published
+JS bundle, so design tools and non–Vanilla-Extract projects can consume the
+same values the components compile against. Three artifacts are emitted on
+each release:
+
+| Artifact           | Format                      | Use case                                                       |
+| ------------------ | --------------------------- | -------------------------------------------------------------- |
+| `tokens.json`      | Loosely DTCG-aligned JSON   | Figma plugins, Style Dictionary pipelines, doc generators      |
+| `tokens.dark.css`  | `:root { --etui-*: ... }`   | Drop-in dark stylesheet for projects not using Vanilla Extract |
+| `tokens.light.css` | `.etui-theme-light { ... }` | Companion light stylesheet — apply the class to a wrapper      |
+
+### Plain CSS consumers
+
+Import the stylesheet directly in projects that don't use Vanilla Extract.
+Once it's loaded, every `--etui-*` custom property is available as a normal
+CSS variable:
+
+```css
+@import 'entangle-ui/tokens.dark.css';
+
+.my-button {
+  background: var(--etui-color-accent-primary);
+  padding: var(--etui-spacing-md);
+  border-radius: var(--etui-radius-md);
+  transition: var(--etui-transition-normal);
+}
+```
+
+For the light preset, import the matching stylesheet and apply the
+`etui-theme-light` class to the subtree you want to theme:
+
+```html
+<link
+  rel="stylesheet"
+  href="node_modules/entangle-ui/dist/tokens/tokens.light.css"
+/>
+
+<body class="etui-theme-light">
+  ...
+</body>
+```
+
+> `tokens.light.css` uses the documented class name `etui-theme-light`. This
+> is independent from the hashed runtime class returned by `createLightTheme()`
+> — the runtime class is for Vanilla Extract consumers, the documented class
+> is for plain-CSS consumers.
+
+### JSON consumers (Figma plugins, design tools)
+
+`tokens.json` follows the W3C Design Tokens Community Group structure where it
+fits, with `$value` / `$type` leaves grouped under each theme:
+
+```ts
+import tokens from 'entangle-ui/tokens.json' with { type: 'json' };
+
+console.log(tokens.themes.dark.colors.accent.primary.$value);
+// → '#007acc'
+
+console.log(tokens.themes.light.spacing.md.$type);
+// → 'dimension'
+```
+
+Top-level structure:
+
+```json
+{
+  "$schema": "https://design-tokens.org/schema.json",
+  "$version": "<package version>",
+  "themes": {
+    "dark":  { "colors": { ... }, "spacing": { ... }, "shell": { ... } },
+    "light": { "colors": { ... }, "spacing": { ... }, "shell": { ... } }
+  }
+}
+```
+
+The `$version` field is read from `package.json` at export time, so each
+published artifact carries the exact version it shipped with.
+
+The export is loosely DTCG-aligned rather than spec-strict — the goal is
+completeness over conformance, so the proprietary `shell.*` branch ships
+alongside standard categories. Library-internal tokens under `storybook.*`
+are intentionally excluded.
+
+### Node / SSR Data Consumers
+
+Use `entangle-ui/theme-values` when you need the raw theme objects in a Node
+script, server-only route, PDF/email generator, or any other environment that
+does not process CSS imports. This entrypoint contains only plain TypeScript
+data modules and does not import Vanilla Extract CSS files:
+
+```ts
+import {
+  darkThemeValues,
+  lightThemeValues,
+  themeContractData,
+} from 'entangle-ui/theme-values';
+
+console.log(lightThemeValues.colors.accent.primary);
+// -> '#0066cc'
+
+console.log(themeContractData.colors.accent.primary);
+// -> 'etui-color-accent-primary'
+```
+
+Use `entangle-ui/theme` for React UI code that needs `ThemeProvider`, `vars`,
+`createLightTheme()`, or `createCustomTheme()`. That entrypoint intentionally
+loads the CSS runtime and is meant for bundled app code.
+
+## TypeScript Types
+
+```tsx
+import type {
+  Tokens, // Raw token definitions
+  ThemeVars, // Vanilla Extract contract type (CSS variable references)
+  DarkThemeValues, // Dark theme value map
+  LightThemeValues, // Light theme value map (matches DarkThemeValues shape)
+  ThemeValues, // Alias for DarkThemeValues (used in createCustomTheme)
+  DeepPartial, // Recursive Partial<T> for theme overrides
+} from 'entangle-ui';
+```
+
+For CSS-free theme data imports, use:
+
+```ts
+import type {
+  DarkThemeValues,
+  LightThemeValues,
+  ThemeContractData,
+  ThemeValues,
+} from 'entangle-ui/theme-values';
+```
+
+## Design Principles
+
+- **Dark-first** — all default values target dark backgrounds suitable for 3D editors, node editors, and creative tools.
+- **CSS-native** — tokens are CSS custom properties. Override them with CSS, no JavaScript runtime needed.
+- **Type-safe** — `vars` and `Theme` provide full autocomplete and compile-time checks.
+- **Scoped overrides** — custom themes can target any CSS selector for sectional theming.
+- **Stable API** — CSS property names (`--etui-*`) are considered public API. Renaming them requires a major version bump.

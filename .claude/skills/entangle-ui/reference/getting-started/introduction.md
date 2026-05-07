@@ -1,7 +1,6 @@
----
-title: Introduction
-description: Entangle UI is a React component library for building professional editor interfaces — 3D tools, node editors, parameter systems, and more.
----
+# Introduction
+
+> Entangle UI is a React component library for building professional editor interfaces — 3D tools, node editors, parameter systems, and more.
 
 Entangle UI is a specialized React component library for building **professional editor interfaces** — 3D tools, node editors, parameter systems, creative applications, and more.
 
