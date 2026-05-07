@@ -60,6 +60,12 @@ export type {
   UseIntersectionObserverReturn,
 } from './useIntersectionObserver';
 
+export { useListboxNav } from './useListboxNav';
+export type {
+  UseListboxNavOptions,
+  UseListboxNavReturn,
+} from './useListboxNav';
+
 export { useTheme } from './useTheme';
 export type {
   ResolvedThemeValues,
