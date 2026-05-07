@@ -528,6 +528,7 @@ export {
   useMergedRef,
   useResizeObserver,
   useTheme,
+  useThrottledCallback,
   isKeyPressed,
   isModifierKey,
 } from '@/hooks';
@@ -536,6 +537,7 @@ export type {
   BreakpointMap,
   ClipboardStatus,
   DebouncedCallback,
+  ThrottledCallback,
   KeyboardState,
   KeyCode,
   ModifierKeys,
@@ -554,6 +556,7 @@ export type {
   UseMediaQueryOptions,
   UseResizeObserverOptions,
   UseThemeReturn,
+  UseThrottledCallbackOptions,
 } from '@/hooks';
 
 // Utilities

@@ -51,6 +51,12 @@ export type {
   UseDebouncedCallbackOptions,
 } from './useDebounced';
 
+export { useThrottledCallback } from './useThrottledCallback';
+export type {
+  ThrottledCallback,
+  UseThrottledCallbackOptions,
+} from './useThrottledCallback';
+
 export { useTheme } from './useTheme';
 export type {
   ResolvedThemeValues,
