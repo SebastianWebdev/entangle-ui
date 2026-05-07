@@ -13,6 +13,7 @@ export {
   VINTAGE_PALETTE,
   PROFESSIONAL_PALETTES,
 } from './ColorPicker';
+export { Combobox } from './Combobox';
 export { MultiSelect } from './MultiSelect';
 export { NumberInput } from './NumberInput';
 export { Select } from './Select';
@@ -42,6 +43,13 @@ export type {
 } from './ColorPicker';
 export type { EyeDropperProps } from './ColorPicker';
 export type { ColorPaletteProps } from './ColorPicker';
+export type {
+  ComboboxBaseProps,
+  ComboboxOption,
+  ComboboxProps,
+  ComboboxSize,
+  ComboboxVariant,
+} from './Combobox';
 export type {
   MultiSelectBaseProps,
   MultiSelectOption,
