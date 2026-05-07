@@ -6,7 +6,14 @@ import { createContext, useContext, memo, useEffect, useCallback } from 'react';
 import { useKeyboard, isKeyPressed } from '@/hooks/useKeyboard';
 import type { KeyboardState, AllKeys } from '@/hooks/useKeyboard';
 
-const KeyboardContext = /*#__PURE__*/ createContext<KeyboardState | null>(null);
+const NEUTRAL_KEYBOARD_STATE: KeyboardState = {
+  pressedKeys: [],
+  modifiers: { control: false, shift: false, alt: false, meta: false },
+};
+
+const KeyboardContext = /*#__PURE__*/ createContext<KeyboardState>(
+  NEUTRAL_KEYBOARD_STATE
+);
 
 export interface KeyboardContextProviderProps {
   children: React.ReactNode;
@@ -23,15 +30,8 @@ export const KeyboardContextProvider = /*#__PURE__*/ memo(
   }
 );
 
-export const useKeyboardContext = (): KeyboardState => {
-  const context = useContext(KeyboardContext);
-  if (!context) {
-    throw new Error(
-      'useKeyboardContext must be used within a KeyboardContextProvider'
-    );
-  }
-  return context;
-};
+export const useKeyboardContext = (): KeyboardState =>
+  useContext(KeyboardContext);
 
 type KeyboardEffectMode = 'keydown' | 'keyup';
 

@@ -23,7 +23,6 @@ npm install entangle-ui @base-ui/react @floating-ui/react
 ```
 
 ```tsx
-import 'entangle-ui/styles.css';
 import { ThemeProvider, Button } from 'entangle-ui';
 
 export function App() {
@@ -34,6 +33,12 @@ export function App() {
   );
 }
 ```
+
+Component styles are bundled with each module via Vanilla Extract side-effects
+(see `sideEffects: ["*.css", "*.css.ts", "*.css.js"]` in the package's
+`package.json`). No manual stylesheet import is required — your bundler
+(Vite/Rollup/Webpack) collects the CSS automatically as components are
+imported.
 
 ## Component index
 
@@ -150,7 +155,7 @@ export function App() {
 ## Authoring rules
 
 - Always wrap the app once in the `ThemeProvider` component (defaults to dark theme).
-- Import the bundled stylesheet exactly once: `import 'entangle-ui/styles.css'`.
+- Component styles are auto-included via the package's `sideEffects` declaration; no manual `styles.css` import is needed.
 - Prefer the typed component props documented per file. Do not invent props.
 - For custom styling, read `guides/styling.md` and `guides/theming.md` before adding new styles; theme tokens are exposed as `vars.*` from `@/theme/contract.css`.
 - Components are tree-shakeable; import directly from `entangle-ui`.

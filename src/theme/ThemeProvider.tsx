@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { GLOBAL_SCROLLBARS_CLASS } from './globalScrollbars.css';
+import { KeyboardContextProvider } from '@/context/KeyboardContext';
 
 export interface ThemeProviderProps {
   children: React.ReactNode;
@@ -43,5 +44,5 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     };
   }, [globalScrollbars]);
 
-  return <>{children}</>;
+  return <KeyboardContextProvider>{children}</KeyboardContextProvider>;
 };

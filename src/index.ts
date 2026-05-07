@@ -497,6 +497,18 @@ export type {
   ValueOf,
 } from '@/types/utilities';
 
+// Keyboard context (auto-mounted by ThemeProvider; exported for explicit use
+// in apps that don't render a ThemeProvider at the root)
+export {
+  KeyboardContextProvider,
+  useKeyboardContext,
+  useEffectsOnKeyboard,
+} from '@/context/KeyboardContext';
+export type { KeyboardContextProviderProps } from '@/context/KeyboardContext';
+
+// Icons
+export * from '@/components/Icons';
+
 // Hooks
 export {
   useClickOutside,
