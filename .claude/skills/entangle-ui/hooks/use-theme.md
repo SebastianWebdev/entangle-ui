@@ -1,0 +1,131 @@
+# useTheme
+
+> Read the current theme — resolved CSS variable values, the active variant, and helpers for canvas drawing or third-party libraries.
+
+`useTheme` returns a runtime snapshot of the active theme — the resolved CSS variable values, the detected variant, and helpers for reading individual tokens by path. Reach for it when a feature genuinely cannot use compile-time Vanilla Extract tokens: canvas drawing, third-party libraries that take colours as plain strings, or branching logic that depends on whether the user is in dark or light mode.
+
+For ordinary styling, keep using `vars.*` from `@/theme` — it's zero-runtime and tree-shakeable. `useTheme` exists for the cases where Vanilla Extract isn't an option.
+
+**Live preview**
+
+## Import
+
+```ts
+import { useTheme } from 'entangle-ui';
+```
+
+## Signature
+
+```ts
+function useTheme(): UseThemeReturn;
+
+type ThemeVariant = 'dark' | 'light' | 'custom';
+
+interface UseThemeReturn {
+  variant: ThemeVariant;
+  values: ThemeValues;
+  getToken: (path: string) => string;
+  getVar: (path: string) => string;
+}
+```
+
+## Usage
+
+```tsx
+function AccentSwatch() {
+  const { values } = useTheme();
+  return (
+    <div
+      style={{
+        width: 24,
+        height: 24,
+        background: values.colors.accent.primary,
+      }}
+    />
+  );
+}
+```
+
+## Common patterns
+
+### Canvas drawing with theme-aware colours
+
+Vanilla Extract can't reach into a `<canvas>` — the values from `useTheme` can. Pull the resolved CSS-var values out of `values` and use them directly in your draw loop.
+
+**Canvas drawing**
+
+```tsx
+const ref = useRef<HTMLCanvasElement>(null);
+const { values } = useTheme();
+
+useEffect(() => {
+  const ctx = ref.current?.getContext('2d');
+  if (!ctx) return;
+  ctx.fillStyle = values.colors.accent.primary;
+  ctx.fillRect(0, 0, 100, 100);
+}, [values]);
+```
+
+### Conditional logic by variant
+
+When you need to branch on the active theme — preloading dark- or light-tuned image assets, picking a Mapbox basemap style, choosing a Three.js material — read `variant` directly.
+
+**Conditional logic**
+
+```tsx
+const { variant } = useTheme();
+
+if (variant === 'light') {
+  loadLightAssets();
+} else {
+  loadDarkAssets();
+}
+```
+
+### `getToken` — resolve a single token by path
+
+`getToken` walks the theme contract, reads the underlying CSS custom property, and returns the resolved value as a plain string. Repeated calls for the same path are cached.
+
+**getToken**
+
+```tsx
+const { getToken } = useTheme();
+
+const accent = getToken('colors.accent.primary'); // → '#007acc'
+const padding = getToken('spacing.md'); // → '8px'
+const menuBar = getToken('shell.menuBar.height'); // → '28px'
+```
+
+### `getVar` — `var()` references for inline styles
+
+`getVar` returns the `var(--etui-...)` reference string. Unlike `getToken`, the result is SSR-safe (it doesn't read the DOM) and the browser re-resolves the colour automatically if the surrounding theme class changes.
+
+**getVar**
+
+```tsx
+const { getVar } = useTheme();
+
+<div
+  style={{
+    color: getVar('colors.text.primary'),
+    background: getVar('colors.surface.default'),
+  }}
+/>;
+```
+
+## Caveats
+
+- **Root-only scope.** Both `variant` and `values` come from `document.documentElement` — the global root theme. A light-themed subtree wrapped in `VanillaThemeProvider` (e.g. one light dialog inside a dark app) is **not** reflected: `useTheme` called inside that subtree still reports the root variant and root values. For elements inside such a subtree, style with Vanilla Extract `vars.*` so the browser resolves them per scope.
+- **One-shot read on mount.** v0.8 reads the CSS variables once via `useLayoutEffect` and does not subscribe to subsequent class changes. Toggling the root theme at runtime is not reflected — remount the consuming subtree to pick up the new theme. A `MutationObserver`-based subscription may be added in a later release if consumer demand emerges.
+- **SSR fallback is the dark theme.** Without a DOM, `values` mirrors `darkThemeValues`, `getToken` returns the dark-theme defaults, and `getVar` produces the correct `var(--etui-...)` string (which is itself SSR-safe).
+- **Variant detection is root-only.** `'light'` is reported only when the `lightThemeClass` produced by `createLightTheme()` is applied to `document.documentElement` — the same element the hook reads values from, so the two never disagree. `'custom'` is reserved for future explicit detection; themes generated via `createCustomTheme` currently report as `'dark'`.
+- **Prefer `vars.*` for normal styling.** `useTheme` exists for runtime reads that genuinely need plain strings (canvas, third-party libs, branching logic). Anywhere a Vanilla Extract token works, that's the right tool — it has no runtime cost and no re-render.
+
+## API
+
+| Prop       | Type                            | Default | Description                                                                                                                                                    |
+| ---------- | ------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `variant`  | `'dark' \| 'light' \| 'custom'` | —       | Detected theme variant. `'dark'` is the default; `'light'` is reported when the light-theme class is present in the document.                                  |
+| `values`   | `ThemeValues`                   | —       | Resolved theme values — the same shape as `darkThemeValues`/`lightThemeValues`, with each leaf replaced by the current CSS variable value.                     |
+| `getToken` | `(path: string) => string`      | —       | Resolve a single token by path (e.g. `'colors.accent.primary'`). Returns an empty string for unknown paths. Cached per path for the life of the hook instance. |
+| `getVar`   | `(path: string) => string`      | —       | Get the `var(--etui-...)` reference for a token. SSR-safe and ideal for inline styles that should follow theme changes automatically.                          |

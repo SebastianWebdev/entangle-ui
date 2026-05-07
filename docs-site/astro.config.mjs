@@ -44,6 +44,7 @@ export default defineConfig({
             { label: 'Introduction', slug: 'getting-started/introduction' },
             { label: 'Installation', slug: 'getting-started/installation' },
             { label: 'Quick Start', slug: 'getting-started/quick-start' },
+            { label: 'Docs for LLMs', slug: 'llms-txt' },
           ],
         },
         {

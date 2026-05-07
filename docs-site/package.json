@@ -3,9 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview"
+    "dev": "node scripts/generate-llms-txt.mjs && astro dev",
+    "build": "node scripts/generate-llms-txt.mjs && astro build",
+    "preview": "astro preview",
+    "generate:llms": "node scripts/generate-llms-txt.mjs"
   },
   "dependencies": {
     "astro": "^5.0.0",

@@ -1,0 +1,66 @@
+# Icons
+
+> Browse and use the 63 built-in SVG icons included with Entangle UI.
+
+Entangle UI includes 63 built-in SVG icons designed for editor interfaces. All icons use the `Icon` component wrapper, support consistent sizing and coloring through theme tokens, and are tree-shakeable.
+
+**Icon Gallery**
+
+## Import
+
+Import icons individually for optimal tree-shaking:
+
+```tsx
+import { SaveIcon, PlayIcon, AddIcon } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+// Standalone icon
+<SaveIcon size="md" />
+
+// Inside a button
+<Button icon={<SaveIcon />}>Save</Button>
+
+// With IconButton
+<IconButton icon={<TrashIcon />} label="Delete" />
+```
+
+## Sizing
+
+All icons accept the same `size` prop as other components:
+
+| Size | Dimensions |
+| ---- | ---------- |
+| `sm` | 14x14px    |
+| `md` | 16x16px    |
+| `lg` | 20x20px    |
+
+```tsx
+<AddIcon size="sm" />
+<AddIcon size="md" />
+<AddIcon size="lg" />
+```
+
+## Creating Custom Icons
+
+All icons use the `Icon` wrapper component. To create a custom icon:
+
+```tsx
+import { Icon } from 'entangle-ui';
+import type { IconProps } from 'entangle-ui';
+
+export const MyCustomIcon = (props: Omit<IconProps, 'children'>) => (
+  <Icon {...props}>
+    <path d="M12 2L2 22h20L12 2z" />
+  </Icon>
+);
+```
+
+The `Icon` component renders an SVG element with:
+
+- `viewBox="0 0 24 24"` coordinate system
+- `stroke="currentColor"` for color inheritance
+- `fill="none"` and `strokeLinecap="round"` defaults
+- Theme-aware sizing via the `size` prop
