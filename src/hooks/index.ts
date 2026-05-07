@@ -45,6 +45,12 @@ export type {
   UseBreakpointReturn,
 } from './useBreakpoint';
 
+export { useDebouncedValue, useDebouncedCallback } from './useDebounced';
+export type {
+  DebouncedCallback,
+  UseDebouncedCallbackOptions,
+} from './useDebounced';
+
 export { useTheme } from './useTheme';
 export type {
   ResolvedThemeValues,
