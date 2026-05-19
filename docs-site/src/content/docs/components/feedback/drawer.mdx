@@ -1,0 +1,363 @@
+---
+title: Drawer
+description: Anchored sliding panel for filters, navigation, or detail views. Four anchors, modal and non-modal modes, and a compound API.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import DrawerDemo, {
+  DrawerAnchors,
+  DrawerSizes,
+  DrawerNonModal,
+  DrawerCompound,
+} from '../../../../components/demos/feedback/DrawerDemo';
+
+A panel that slides in from one of the four screen edges. Use `Drawer` for filters, secondary navigation, or detail views that should overlay the main canvas without fully blocking it. In modal mode it traps focus and renders a backdrop; in non-modal mode it leaves the rest of the page interactive — useful for persistent inspectors next to a 3D viewport.
+
+<ComponentPreview title="Live Preview">
+  <DrawerDemo client:only="react" />
+</ComponentPreview>
+
+## When to use
+
+- **Drawer** — secondary surface anchored to an edge. Holds filters, navigation, or details for the current selection. May or may not block the page.
+- **Dialog** — modal popup centred on the screen. Demands a response before the user continues.
+- **Popover** — small floating panel anchored to a trigger. For inline controls and short forms.
+
+Reach for a drawer when the content is meaningful on its own (a filter set, a detail panel) and benefits from a stable edge anchor rather than a centred overlay.
+
+## Import
+
+```tsx
+import { Drawer } from 'entangle-ui';
+```
+
+The compound members are attached to `Drawer`:
+
+```tsx
+<Drawer>
+  <Drawer.Header>...</Drawer.Header>
+  <Drawer.Body>...</Drawer.Body>
+  <Drawer.Footer>...</Drawer.Footer>
+</Drawer>
+```
+
+## Usage
+
+`Drawer` is fully controlled. Hold `open` in the parent and pass `onClose` to react to the overlay click, the Escape key, or the built-in close button.
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<Button onClick={() => setOpen(true)}>Open Filters</Button>
+
+<Drawer open={open} onClose={() => setOpen(false)} anchor="right" size="md">
+  <Drawer.Header description="Refine the list below.">
+    Filters
+  </Drawer.Header>
+  <Drawer.Body>...</Drawer.Body>
+  <Drawer.Footer>
+    <Button onClick={() => setOpen(false)}>Cancel</Button>
+    <Button variant="filled" onClick={apply}>Apply</Button>
+  </Drawer.Footer>
+</Drawer>;
+```
+
+## Anchors
+
+The `anchor` prop chooses the edge the panel slides in from.
+
+<ComponentPreview title="Anchors">
+  <DrawerAnchors client:only="react" />
+</ComponentPreview>
+
+| Anchor   | Slides from | Typical use                              |
+| -------- | ----------- | ---------------------------------------- |
+| `left`   | the left    | Primary navigation, file trees           |
+| `right`  | the right   | Filters, detail views, inspectors        |
+| `top`    | the top     | Notifications, command bars              |
+| `bottom` | the bottom  | Action sheets on small viewports         |
+
+```tsx
+<Drawer open={open} onClose={close} anchor="left">...</Drawer>
+<Drawer open={open} onClose={close} anchor="right">...</Drawer>
+<Drawer open={open} onClose={close} anchor="top">...</Drawer>
+<Drawer open={open} onClose={close} anchor="bottom">...</Drawer>
+```
+
+For `left` and `right`, `size` controls the panel **width**; for `top` and `bottom` it controls the **height**.
+
+## Sizes
+
+Use a preset (`sm` / `md` / `lg` / `xl`) or pass any CSS length — numbers are treated as px, strings pass through.
+
+<ComponentPreview title="Sizes">
+  <DrawerSizes client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Drawer open={open} onClose={close} size="sm" />
+<Drawer open={open} onClose={close} size="lg" />
+<Drawer open={open} onClose={close} size={480} />
+<Drawer open={open} onClose={close} size="60vw" />
+```
+
+The panel is capped at `100vw` / `100vh` so an oversized value will never push past the viewport.
+
+## Modal vs non-modal
+
+The default `modal` mode renders a backdrop, traps focus inside the drawer, and blocks interactions with the page behind. Pass `modal={false}` for a persistent side panel that lets the user keep working in the main canvas.
+
+<ComponentPreview title="Non-modal">
+  <DrawerNonModal client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Drawer open={open} onClose={close} modal={false}>
+  <Drawer.Header>Inspector</Drawer.Header>
+  <Drawer.Body>...</Drawer.Body>
+</Drawer>
+```
+
+Non-modal drawers drop the backdrop and the focus trap by default. Re-enable the trap with `trapFocus` if a particular non-modal flow needs it.
+
+## Close behaviour
+
+By default the drawer closes when the user:
+
+- clicks the overlay (modal only),
+- presses Escape,
+- clicks the close button rendered by `Drawer.Header` (or any `Drawer.CloseButton`).
+
+Disable any of these individually:
+
+```tsx
+<Drawer
+  open={open}
+  onClose={close}
+  closeOnOverlayClick={false}
+  closeOnEscape={false}
+>
+  <Drawer.Header showClose={false}>Confirmation required</Drawer.Header>
+  ...
+</Drawer>
+```
+
+## Compound API
+
+Mix and match `Drawer.Header`, `Drawer.Body`, `Drawer.Footer`, and `Drawer.CloseButton` to compose the panel. The members share context with the root and automatically wire up close handling.
+
+<ComponentPreview title="Compound members">
+  <DrawerCompound client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Drawer open={open} onClose={close} anchor="right">
+  <Drawer.Header description="Adjust scene-wide settings.">
+    Scene Settings
+  </Drawer.Header>
+  <Drawer.Body>...</Drawer.Body>
+  <Drawer.Footer align="space-between">
+    <Drawer.CloseButton>Reset</Drawer.CloseButton>
+    <div>
+      <Button onClick={close}>Cancel</Button>
+      <Button variant="filled" onClick={save}>
+        Save
+      </Button>
+    </div>
+  </Drawer.Footer>
+</Drawer>
+```
+
+`Drawer.CloseButton` reads `onClose` from context — drop it anywhere inside the drawer to add an extra dismiss trigger.
+
+## Initial focus
+
+The drawer focuses the first focusable element inside the panel on open. Override this by passing a ref to `initialFocusRef`:
+
+```tsx
+const inputRef = useRef(null);
+
+<Drawer open={open} onClose={close} initialFocusRef={inputRef}>
+  <Drawer.Body>
+    <Input ref={inputRef} placeholder="Search…" />
+  </Drawer.Body>
+</Drawer>;
+```
+
+## Portal
+
+By default the drawer renders into `document.body`. Disable for tests or to keep the drawer inside the local DOM hierarchy:
+
+```tsx
+<Drawer open={open} onClose={close} portal={false}>
+  ...
+</Drawer>
+```
+
+## Accessibility
+
+- Renders with `role="dialog"` and `aria-modal="true"` (modal mode).
+- `aria-labelledby` references the heading rendered by `Drawer.Header` (or the `title` prop).
+- `aria-describedby` references the description when provided.
+- Focus is trapped inside the panel when modal; the first focusable element receives focus on open.
+- Escape closes the drawer unless `closeOnEscape={false}`.
+- Slide-in/out animations are suppressed when the user has `prefers-reduced-motion: reduce`.
+- The default close button has `aria-label="Close drawer"`.
+
+## API Reference
+
+### `<Drawer>`
+
+<PropsTable
+  props={[
+    {
+      name: 'open',
+      type: 'boolean',
+      description: 'Whether the drawer is open.',
+    },
+    {
+      name: 'onClose',
+      type: '() => void',
+      description:
+        'Called when the drawer requests close (overlay click, Escape, close button).',
+    },
+    {
+      name: 'anchor',
+      type: "'left' | 'right' | 'top' | 'bottom'",
+      default: "'right'",
+      description: 'Edge from which the drawer enters.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg' | 'xl' | number | string",
+      default: "'md'",
+      description:
+        'Drawer size on the cross axis. Strings like `sm` use presets, number → px, string → CSS value.',
+    },
+    {
+      name: 'modal',
+      type: 'boolean',
+      default: 'true',
+      description: 'Modal mode renders a backdrop and traps focus.',
+    },
+    {
+      name: 'closeOnOverlayClick',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'Close when the overlay is clicked. Only applies when modal.',
+    },
+    {
+      name: 'closeOnEscape',
+      type: 'boolean',
+      default: 'true',
+      description: 'Close on the Escape key.',
+    },
+    {
+      name: 'trapFocus',
+      type: 'boolean',
+      description: 'Trap focus inside the drawer. Defaults to `modal`.',
+    },
+    {
+      name: 'initialFocusRef',
+      type: 'RefObject<HTMLElement | null>',
+      description: 'Element to focus on open.',
+    },
+    {
+      name: 'portal',
+      type: 'boolean',
+      default: 'true',
+      description: 'Render in a portal on `document.body`.',
+    },
+    {
+      name: 'title',
+      type: 'string',
+      description:
+        'Used as the `aria-labelledby` reference. Pass as a string or use `Drawer.Header`.',
+    },
+    {
+      name: 'description',
+      type: 'string',
+      description: 'Used as the `aria-describedby` reference.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Drawer content (typically `Drawer.Header` / `Drawer.Body` / `Drawer.Footer`).',
+    },
+  ]}
+/>
+
+### `<Drawer.Header>`
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Title content.',
+    },
+    {
+      name: 'description',
+      type: 'string',
+      description: 'Optional description rendered below the title.',
+    },
+    {
+      name: 'showClose',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to render a close button on the right.',
+    },
+  ]}
+/>
+
+### `<Drawer.Body>`
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Body content.',
+    },
+  ]}
+/>
+
+### `<Drawer.Footer>`
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Footer content (typically action buttons).',
+    },
+    {
+      name: 'align',
+      type: "'left' | 'center' | 'right' | 'space-between'",
+      default: "'right'",
+      description: 'Horizontal alignment of footer content.',
+    },
+  ]}
+/>
+
+### `<Drawer.CloseButton>`
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Custom button content; defaults to an X icon.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      default: "'Close drawer'",
+      description: 'Override the aria-label.',
+    },
+  ]}
+/>

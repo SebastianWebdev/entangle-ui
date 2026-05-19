@@ -1,0 +1,131 @@
+---
+title: useIntersectionObserver
+description: Observe element visibility via IntersectionObserver with SSR-safe setup and a togglable `enabled` flag.
+---
+
+import PropsTable from '../../../components/PropsTable.astro';
+import ComponentPreview from '../../../components/ComponentPreview.astro';
+import UseIntersectionObserverDemo, {
+  UseIntersectionObserverLazyImage,
+} from '../../../components/demos/hooks/UseIntersectionObserverDemo';
+
+`useIntersectionObserver` wraps the browser `IntersectionObserver` API with the same conventions used by `useResizeObserver`: SSR-safe (silent no-op when the API is missing), automatic cleanup, and an `enabled` flag for toggling observation without unmounting. The hook returns a ref callback to attach plus the latest `IntersectionObserverEntry` and a convenience `isIntersecting` boolean.
+
+<ComponentPreview title="Live preview">
+  <UseIntersectionObserverDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```ts
+import { useIntersectionObserver } from 'entangle-ui';
+```
+
+## Signature
+
+```ts
+function useIntersectionObserver<T extends Element = Element>(
+  options?: UseIntersectionObserverOptions
+): UseIntersectionObserverReturn<T>;
+
+interface UseIntersectionObserverOptions {
+  root?: Element | null;
+  rootMargin?: string;
+  threshold?: number | number[];
+  enabled?: boolean;
+}
+
+interface UseIntersectionObserverReturn<T extends Element> {
+  ref: React.RefCallback<T>;
+  entry: IntersectionObserverEntry | null;
+  isIntersecting: boolean;
+}
+```
+
+## Usage
+
+```tsx
+function LoadMoreSentinel({ onVisible }: { onVisible: () => void }) {
+  const { ref, isIntersecting } = useIntersectionObserver<HTMLDivElement>({
+    rootMargin: '200px',
+  });
+
+  useEffect(() => {
+    if (isIntersecting) onVisible();
+  }, [isIntersecting, onVisible]);
+
+  return <div ref={ref} />;
+}
+```
+
+### Lazy loading with `rootMargin`
+
+A positive bottom `rootMargin` makes the target report as intersecting slightly before it enters the viewport — useful for preloading images or fetching the next page.
+
+<ComponentPreview title="Lazy load">
+  <UseIntersectionObserverLazyImage client:only="react" />
+</ComponentPreview>
+
+## Options
+
+<PropsTable
+  props={[
+    {
+      name: 'root',
+      type: 'Element | null',
+      default: 'null',
+      description:
+        'Root element. `null` (default) targets the viewport. Pass a scrollable container for nested scroll regions.',
+    },
+    {
+      name: 'rootMargin',
+      type: 'string',
+      description:
+        'Margin around the root, written as a CSS shorthand (`"0px 0px 200px 0px"`). Positive values expand the intersection box.',
+    },
+    {
+      name: 'threshold',
+      type: 'number | number[]',
+      description:
+        'How much of the target must be visible before an intersection callback fires. `0.5` means 50%; an array fires at multiple steps.',
+    },
+    {
+      name: 'enabled',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'When false, the observer is disconnected and `entry` is reset to `null`. Toggling avoids the cost of unmounting the host component.',
+    },
+  ]}
+/>
+
+## Return value
+
+<PropsTable
+  props={[
+    {
+      name: 'ref',
+      type: 'RefCallback<T>',
+      description:
+        'Ref callback to attach to the element you want to observe. Re-attaching to a different node disconnects the previous observer.',
+    },
+    {
+      name: 'entry',
+      type: 'IntersectionObserverEntry | null',
+      description:
+        'Latest entry produced by the observer. `null` until the first callback fires or after `enabled` is set to `false`.',
+    },
+    {
+      name: 'isIntersecting',
+      type: 'boolean',
+      description: 'Convenience accessor for `entry?.isIntersecting ?? false`.',
+    },
+  ]}
+/>
+
+## Common pitfalls
+
+- **SSR safety:** the hook checks `typeof IntersectionObserver === 'undefined'` and silently no-ops on the server, in tests without a polyfill, or in older browsers.
+- **Stale `entry`:** when `enabled` flips to `false`, `entry` resets to `null`. Code that reads `entry` should handle the `null` case rather than relying on the last known value.
+- **Multiple targets:** each call observes exactly one element. To observe several, call the hook multiple times with different refs.
+- **Re-subscription:** the hook re-creates the observer when `root`, `rootMargin`, `threshold`, or `enabled` change. Stabilize array literals (e.g. `[0, 0.5, 1]`) with `useMemo` if you pass them inline and want to avoid churn.
