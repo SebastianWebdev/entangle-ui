@@ -1,23 +1,33 @@
-# Entangle UI — v0.9.x Roadmap (Pre-1.0)
+# Entangle UI — Pre-1.0 Roadmap
 
-> Everything between the current `0.9.0` and the `1.0.0` stabilization release.
-> The full plan is intentionally absorbed into the `0.9.x` line — version stays
-> at `0.9.x` until practical testing on real apps is done. `1.0.0` is reserved
-> for the post-testing stabilization release (see `v1.0-roadmap.md`).
+> Everything between the current `0.9.0` and the `1.0.0` stabilization
+> release. The full plan is absorbed into the `0.x` line — version stays
+> below `1.0.0` until practical testing on real apps is done. `1.0.0` is
+> reserved for the post-testing stabilization release (see
+> `v1.0-roadmap.md`).
 
 ## Version discipline
 
-- **All changesets in this line are `patch`.** A `major` changeset at `0.9.0`
-  would bump to `1.0.0` and burn the stabilization slot. A `minor` changeset
-  would bump to `0.10.0` — also out of scope for this plan.
-- `npx changeset` → always pick **patch**, even for new flagship components.
-  Surface the "is this a new feature?" intent in the changeset body, not in
-  the bump type.
-- Reviewer checklist for every PR merged on this line: confirm the changeset
-  file uses `"entangle-ui": patch`.
-- Expected final version of this line: somewhere around `0.9.15` / `0.9.20`.
-  Exact number doesn't matter — what matters is that we don't accidentally
-  jump to `1.0.0` before the testing phase.
+The only hard rule: **never write a `major` changeset on this line.** At
+any `0.x` version, a `major` bump goes to `1.0.0` and burns the
+stabilization slot. Everything else is fair game:
+
+- **`minor`** for new flagship components, new public hooks, new theme
+  primitives, anything that meaningfully extends the public API. This
+  is the default for Stage 1 work. Bumps `0.9.0 → 0.10.0 → 0.11.0 → …`
+  as we ship.
+- **`patch`** for bug fixes, polish passes, internal refactors,
+  performance tweaks, accessibility fixes, and the token-audit work in
+  Stage 2 (as long as no public token names change). Bumps the trailing
+  number only.
+
+Reviewer checklist for every PR merged on this line: open the changeset
+file and confirm the bump is `patch` or `minor`. **Never `major`.**
+
+Expected final version of this line is somewhere in the `0.x` range
+(`0.15.x`, `0.20.x` — exact number doesn't matter). What matters is
+that we control the jump to `1.0.0` deliberately, in the stabilization
+PR, not by accident.
 
 ## Workflow
 
