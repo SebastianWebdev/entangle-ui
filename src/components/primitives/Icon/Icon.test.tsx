@@ -173,6 +173,43 @@ describe('Icon', () => {
     });
   });
 
+  describe('Custom Size', () => {
+    it('accepts a numeric size as pixel value', () => {
+      renderWithTheme(
+        <Icon testId="test-icon" size={28}>
+          <TestPath />
+        </Icon>
+      );
+      const icon = screen.getByTestId('test-icon');
+      const style = icon.getAttribute('style') ?? '';
+      expect(style).toContain('width: 28px');
+      expect(style).toContain('height: 28px');
+    });
+
+    it('accepts a string size as a CSS length', () => {
+      renderWithTheme(
+        <Icon testId="test-icon" size="1.5em">
+          <TestPath />
+        </Icon>
+      );
+      const icon = screen.getByTestId('test-icon');
+      const style = icon.getAttribute('style') ?? '';
+      expect(style).toContain('width: 1.5em');
+      expect(style).toContain('height: 1.5em');
+    });
+
+    it('still applies recipe class for standard size tokens', () => {
+      renderWithTheme(
+        <Icon testId="test-icon" size="lg">
+          <TestPath />
+        </Icon>
+      );
+      const icon = screen.getByTestId('test-icon');
+      const style = icon.getAttribute('style') ?? '';
+      expect(style).not.toContain('width:');
+    });
+  });
+
   describe('Color Variants', () => {
     it('applies primary color by default', () => {
       renderWithTheme(

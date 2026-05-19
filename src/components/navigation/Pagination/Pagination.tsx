@@ -3,6 +3,8 @@
 import React, { useCallback } from 'react';
 import { ChevronLeftIcon } from '@/components/Icons/ChevronLeftIcon';
 import { ChevronRightIcon } from '@/components/Icons/ChevronRightIcon';
+import { FirstIcon } from '@/components/Icons/FirstIcon';
+import { LastIcon } from '@/components/Icons/LastIcon';
 import { useControlledState } from '@/hooks/useControlledState';
 import { cx } from '@/utils/cx';
 import {
@@ -43,50 +45,6 @@ const defaultGetItemAriaLabel: PaginationItemAriaLabelGetter = (
       return selected ? `page ${String(page)}` : `Go to page ${String(page)}`;
   }
 };
-
-function FirstIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      width="1em"
-      height="1em"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6 5v14M18 5l-7 7 7 7"
-      />
-    </svg>
-  );
-}
-
-function LastIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      width="1em"
-      height="1em"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M18 5v14M6 5l7 7-7 7"
-      />
-    </svg>
-  );
-}
 
 function renderItemContent(
   type: PaginationItemType,

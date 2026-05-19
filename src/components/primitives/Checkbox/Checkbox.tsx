@@ -2,6 +2,8 @@
 
 import React, { useCallback, useId, useContext, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { CheckIcon } from '@/components/Icons/CheckIcon';
+import { MinusIcon } from '@/components/Icons/MinusIcon';
 import { FormHelperText } from '@/components/form/FormHelperText';
 import type { CheckboxProps, CheckboxSize } from './Checkbox.types';
 import { CheckboxGroupContext } from './CheckboxGroup';
@@ -159,46 +161,21 @@ export const Checkbox: React.FC<CheckboxProps> = ({
       {...rest}
     >
       {indeterminate ? (
-        <svg
-          width={iconSize}
-          height={iconSize}
-          viewBox="0 0 12 12"
-          fill="none"
-          aria-hidden="true"
-        >
-          <line
-            x1="2"
-            y1="6"
-            x2="10"
-            y2="6"
-            stroke="white"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
+        <MinusIcon size={iconSize} color="white" decorative />
       ) : (
-        <svg
-          width={iconSize}
-          height={iconSize}
-          viewBox="0 0 12 12"
-          fill="none"
-          aria-hidden="true"
+        <span
           style={{
+            display: 'inline-flex',
             opacity: resolvedChecked ? 1 : 0,
             transform: resolvedChecked ? 'scale(1)' : 'scale(0)',
             transition: prefersReducedMotion
               ? 'none'
               : 'opacity 150ms ease-out, transform 150ms ease-out',
           }}
+          aria-hidden="true"
         >
-          <path
-            d="M2 6L5 9L10 3"
-            stroke="white"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+          <CheckIcon size={iconSize} color="white" decorative />
+        </span>
       )}
       {name && (
         <input

@@ -295,17 +295,17 @@ describe('Checkbox', () => {
       });
 
       const { container } = renderWithTheme(<Checkbox checked />);
-      const checkSvg = container.querySelector('svg[aria-hidden="true"]');
-      expect(checkSvg).not.toBeNull();
-      expect(checkSvg).toHaveStyle({ transition: 'none' });
+      const checkWrapper = container.querySelector('span[aria-hidden="true"]');
+      expect(checkWrapper).not.toBeNull();
+      expect(checkWrapper).toHaveStyle({ transition: 'none' });
     });
 
     it('keeps the animated transition when reduced motion is not requested', () => {
       const { container } = renderWithTheme(<Checkbox checked />);
-      const checkSvg = container.querySelector('svg[aria-hidden="true"]');
-      expect(checkSvg).not.toBeNull();
+      const checkWrapper = container.querySelector('span[aria-hidden="true"]');
+      expect(checkWrapper).not.toBeNull();
       // Inline style is set, so the rendered DOM contains the easing string.
-      expect(checkSvg?.getAttribute('style')).toContain('150ms ease-out');
+      expect(checkWrapper?.getAttribute('style')).toContain('150ms ease-out');
     });
   });
 });

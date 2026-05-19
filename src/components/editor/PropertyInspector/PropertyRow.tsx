@@ -3,6 +3,7 @@
 import React, { useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { cx } from '@/utils/cx';
+import { UndoIcon } from '@/components/Icons';
 import { Tooltip } from '@/components/primitives/Tooltip';
 import { usePropertyPanelContext } from './PropertyPanel';
 import type {
@@ -47,33 +48,6 @@ const ROW_SIZE_MAP: Record<PropertyInspectorSize, RowSizeConfig> = {
     resetIconSize: 14,
   },
 };
-
-// --- Reset icon ---
-
-const ResetIcon: React.FC<{ size: number }> = ({ size }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 12 12"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M2 4.5h6.5a2 2 0 0 1 0 4H6"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M4 2.5L2 4.5L4 6.5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 // --- Component ---
 
@@ -206,7 +180,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
           }}
           data-testid="reset-button"
         >
-          <ResetIcon size={sizeConfig.resetIconSize} />
+          <UndoIcon size={sizeConfig.resetIconSize} decorative />
         </span>
       )}
     </div>

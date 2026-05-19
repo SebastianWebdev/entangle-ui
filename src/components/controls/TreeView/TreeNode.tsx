@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { ChevronRightIcon } from '@/components/Icons';
 import type {
   TreeNodeData,
   TreeNodeState,
@@ -57,15 +58,7 @@ const sizeConfig: Record<
 // --- Chevron icon SVG ---
 
 const ChevronSvg = ({ size }: { size: number }) => (
-  <svg width={size} height={size} viewBox="0 0 12 12" fill="none">
-    <path
-      d="M4.5 2.5L8 6L4.5 9.5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
+  <ChevronRightIcon size={size} color="currentColor" decorative />
 );
 
 // --- TreeNode component ---

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useId, useMemo, useRef, useState } from 'react';
+import { CloudUploadIcon } from '@/components/Icons/CloudUploadIcon';
 import { TrashIcon } from '@/components/Icons/TrashIcon';
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { FormLabel } from '@/components/form/FormLabel';
@@ -72,31 +73,6 @@ function fileMatchesAccept(file: File, accept: string): boolean {
   }
   return false;
 }
-
-const CloudIcon: React.FC<{ size: number }> = ({ size }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M7 18a4 4 0 1 1 .5-7.97A6 6 0 0 1 18 11h.5a3.5 3.5 0 0 1 0 7H7z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M12 13v5m0-5l-2 2m2-2l2 2"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 /**
  * Drag-and-drop file uploader with click-to-browse fallback. Renders a list
@@ -436,7 +412,10 @@ export function FileUploader({
         onDrop={handleDrop}
         data-testid={testId ? `${testId}-dropzone` : undefined}
       >
-        <CloudIcon size={size === 'lg' ? 32 : size === 'sm' ? 18 : 24} />
+        <CloudUploadIcon
+          size={size === 'lg' ? 32 : size === 'sm' ? 18 : 24}
+          decorative
+        />
         <span className={dropZonePrimaryStyle}>{dropZoneText}</span>
         {acceptHint && <span className={dropZoneHintStyle}>{acceptHint}</span>}
 

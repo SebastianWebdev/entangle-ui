@@ -9,6 +9,8 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { CheckIcon } from '@/components/Icons/CheckIcon';
+import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { FormLabel } from '@/components/form/FormLabel';
@@ -76,42 +78,6 @@ const CHEVRON_SIZES: Record<MultiSelectSize, number> = {
   md: 12,
   lg: 14,
 };
-
-const ChevronDownIcon: React.FC<{ size: number }> = ({ size }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 12 12"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M3 4.5L6 7.5L9 4.5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const CheckIcon: React.FC = () => (
-  <svg
-    width="10"
-    height="10"
-    viewBox="0 0 12 12"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M2 6L5 9L10 3"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 /**
  * Multi-value select that lets the user pick several options from a dropdown.
@@ -418,7 +384,7 @@ export function MultiSelect<T extends string = string>({
           className={checkboxRecipe({ selected: isSelected })}
           aria-hidden="true"
         >
-          {isSelected && <CheckIcon />}
+          {isSelected && <CheckIcon size={10} decorative />}
         </span>
         {opt.icon && <span>{opt.icon}</span>}
         <span>{opt.label ?? opt.value}</span>
@@ -520,7 +486,7 @@ export function MultiSelect<T extends string = string>({
         )}
 
         <span className={chevronRecipe({ open: isOpen })}>
-          <ChevronDownIcon size={chevronSize} />
+          <ChevronDownIcon size={chevronSize} decorative />
         </span>
       </button>
 
