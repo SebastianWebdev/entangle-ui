@@ -1,0 +1,446 @@
+---
+title: Combobox
+description: Single-value select with an editable input, built-in fuzzy filtering, and optional free-solo or creatable modes.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import ComboboxDemo, {
+  ComboboxBasic,
+  ComboboxSizes,
+  ComboboxVariants,
+  ComboboxFreeSolo,
+  ComboboxCreatable,
+  ComboboxLoading,
+  ComboboxOpenOnFocus,
+  ComboboxError,
+} from '../../../../components/demos/controls/ComboboxDemo';
+
+A single-value select with an editable input. The option list filters as the user types — by default with the built-in fuzzy matcher shared with [CommandPalette](/components/feedback/command-palette), or with a custom `filterFn`. Reach for `Combobox` when the option set is too large for a plain `Select`, when the user might type a value that isn't there (`freeSolo`), or when they should be able to add new entries on the fly (`creatable`).
+
+<ComponentPreview title="Live Preview">
+  <ComboboxDemo client:only="react" />
+</ComponentPreview>
+
+## When to use
+
+- **Combobox** — long lists where typing is faster than scrolling, or any flow where the user might type a value not in the list.
+- **Select** — short, fixed lists where the value must come from a known set. Lighter weight.
+- **MultiSelect** — same shape as `Combobox` but the user picks several values at once.
+
+## Import
+
+```tsx
+import { Combobox } from 'entangle-ui';
+import type { ComboboxOption } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+const options: ComboboxOption[] = [
+  { value: 'react', label: 'React' },
+  { value: 'vue', label: 'Vue' },
+  { value: 'svelte', label: 'Svelte' },
+];
+
+<Combobox
+  label="Framework"
+  options={options}
+  value={framework}
+  onChange={setFramework}
+/>;
+```
+
+<ComponentPreview title="Basic">
+  <ComboboxBasic client:only="react" />
+</ComponentPreview>
+
+## Controlled vs uncontrolled
+
+Both modes are supported. `onChange` receives `null` when the value is cleared.
+
+```tsx
+// Controlled
+const [value, setValue] = useState<string | null>(null);
+<Combobox options={options} value={value} onChange={setValue} />
+
+// Uncontrolled
+<Combobox options={options} defaultValue="react" />
+```
+
+## Sizes
+
+<ComponentPreview title="Sizes">
+  <ComboboxSizes client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Combobox size="sm" options={options} />
+<Combobox size="md" options={options} />
+<Combobox size="lg" options={options} />
+```
+
+## Variants
+
+<ComponentPreview title="Variants">
+  <ComboboxVariants client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Combobox variant="default" options={options} />
+<Combobox variant="ghost" options={options} />
+<Combobox variant="filled" options={options} />
+```
+
+## Free-solo mode
+
+`freeSolo` lets the user commit an arbitrary string that isn't in the options list. The `onChange` handler fires with the typed value on `Enter` or blur.
+
+<ComponentPreview title="Free-solo">
+  <ComboboxFreeSolo client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Combobox
+  freeSolo
+  label="Tag"
+  options={existingTags}
+  value={tag}
+  onChange={setTag}
+/>
+```
+
+## Creatable
+
+`creatable` surfaces a `Create "<query>"` row when the query has no exact match. Pressing Enter (or clicking the row) invokes `onCreate` with the typed string — the consumer is responsible for adding the new option to the list. Implies `freeSolo`.
+
+<ComponentPreview title="Creatable">
+  <ComboboxCreatable client:only="react" />
+</ComponentPreview>
+
+```tsx
+const [options, setOptions] = useState(initialOptions);
+const [value, setValue] = useState<string | null>(null);
+
+<Combobox
+  creatable
+  options={options}
+  value={value}
+  onChange={setValue}
+  onCreate={input => {
+    const created = { value: input, label: input };
+    setOptions(prev => [...prev, created]);
+    setValue(input);
+  }}
+/>;
+```
+
+Customise the row's label via `createLabel`:
+
+```tsx
+<Combobox
+  creatable
+  createLabel={q => <>Add new tag: <strong>{q}</strong></>}
+  options={options}
+  onCreate={handleCreate}
+/>
+```
+
+## Loading
+
+Async option sources hand the component a `loading` flag — the dropdown shows a spinner row instead of options. Pair with `onInputChange` to debounce a remote search and re-feed `options` once the response lands.
+
+<ComponentPreview title="Loading">
+  <ComboboxLoading client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Combobox
+  options={options}
+  loading={isFetching}
+  loadingMessage="Searching..."
+  onInputChange={query => debouncedSearch(query)}
+/>
+```
+
+## Open on focus
+
+By default the dropdown opens once the user starts typing. `openOnFocus` opens it the moment the input receives focus — useful for short curated lists where the input is more of a "filterable picker".
+
+<ComponentPreview title="Open on focus">
+  <ComboboxOpenOnFocus client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Combobox openOnFocus options={options} placeholder="Click to browse" />
+```
+
+## Custom filter
+
+Replace the built-in fuzzy matcher with your own logic — `filterFn` can return a boolean (keep / drop) or a numeric score (higher = ranked higher).
+
+```tsx
+<Combobox
+  options={options}
+  filterFn={(option, query) =>
+    option.value.startsWith(query.toLowerCase()) ? 2 : 0
+  }
+/>
+```
+
+## Error state
+
+<ComponentPreview title="Error">
+  <ComboboxError client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Combobox
+  label="Country"
+  options={options}
+  error
+  errorMessage="Pick a country to continue"
+  required
+/>
+```
+
+## Form integration
+
+Use `name` to render a hidden `<input>` with the selected value for native form submission.
+
+```tsx
+<Combobox name="country" options={countries} value={country} onChange={setCountry} />
+```
+
+## Accessibility
+
+- Input renders with `role="combobox"`, `aria-haspopup="listbox"`, and `aria-expanded` reflecting the dropdown state.
+- Dropdown is a `role="listbox"` with `role="option"` children; the active option is reflected via `aria-activedescendant`.
+- Keyboard: **Arrow Up / Down** to navigate, **Enter** to select (or create in `creatable` mode), **Escape** to close, **Home / End** for first / last option, **Backspace** on an empty input clears a selected value when `clearable`.
+- `aria-invalid` is set in the error state; `aria-required` when `required` is set.
+- `aria-describedby` links to the helper / error text.
+- Clear button (when shown) has `aria-label="Clear selection"`.
+
+## API Reference
+
+### `<Combobox>`
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'T | null',
+      description: 'Controlled selected value.',
+    },
+    {
+      name: 'defaultValue',
+      type: 'T',
+      description: 'Default selected value (uncontrolled).',
+    },
+    {
+      name: 'options',
+      type: 'ComboboxOption<T>[]',
+      description: 'Available options.',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      description: 'Placeholder rendered when the input is empty.',
+    },
+    {
+      name: 'filterFn',
+      type: '(option: ComboboxOption<T>, query: string) => boolean | number',
+      description:
+        'Custom filter. Boolean keeps / drops; number is a score (higher = ranked higher). Defaults to the built-in fuzzy matcher.',
+    },
+    {
+      name: 'emptyMessage',
+      type: 'string',
+      default: "'No results found'",
+      description: 'Message shown when filtering yields no results.',
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: 'Loading indicator — replaces options with a spinner row.',
+    },
+    {
+      name: 'loadingMessage',
+      type: 'string',
+      default: "'Loading...'",
+      description: 'Message shown while loading.',
+    },
+    {
+      name: 'freeSolo',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Allow values not present in `options`. `onChange` fires with the typed string on blur / Enter.',
+    },
+    {
+      name: 'creatable',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Surface a "Create <query>" row when the query has no exact match. Implies `freeSolo`.',
+    },
+    {
+      name: 'createLabel',
+      type: '(query: string) => ReactNode',
+      description: 'Render the create row label. Defaults to `Create "<query>"`.',
+    },
+    {
+      name: 'openOnFocus',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Open the dropdown automatically when the input gains focus, even with no query.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Component size.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'ghost' | 'filled'",
+      default: "'default'",
+      description: 'Visual variant.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Label rendered above the input.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text rendered below.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Error state.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description: 'Error message — overrides `helperText` when `error` is true.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disable the input.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Mark the field as required.',
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: 'Read-only — input value is fixed.',
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Show a clear button when a value is selected.',
+    },
+    {
+      name: 'maxDropdownHeight',
+      type: 'number',
+      default: '240',
+      description: 'Maximum dropdown height in pixels.',
+    },
+    {
+      name: 'minDropdownWidth',
+      type: 'number',
+      description: 'Minimum dropdown width in pixels.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Hidden form-input name.',
+    },
+    {
+      name: 'onChange',
+      type: '(value: T | null) => void',
+      description: 'Selection change handler. `null` is passed when cleared.',
+    },
+    {
+      name: 'onInputChange',
+      type: '(input: string) => void',
+      description:
+        'Free-text change handler — fires every keystroke regardless of selection.',
+    },
+    {
+      name: 'onCreate',
+      type: '(input: string) => void',
+      description:
+        'Called when the user creates a new option (only with `creatable`). Falls back to `onChange` when omitted.',
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Open state change handler.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLInputElement>',
+      description: 'Ref to the underlying input element.',
+    },
+  ]}
+/>
+
+### `ComboboxOption`
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'T',
+      required: true,
+      description: 'Unique value used for selection.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Display label. Falls back to `value` when omitted.',
+    },
+    {
+      name: 'description',
+      type: 'string',
+      description: 'Optional description rendered next to the label.',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Optional icon rendered before the label.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      description: 'Whether this option is disabled.',
+    },
+  ]}
+/>

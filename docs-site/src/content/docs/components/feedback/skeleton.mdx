@@ -13,6 +13,11 @@ import SkeletonDemo, {
   SkeletonList,
   SkeletonGrid,
   SkeletonInPropertyPanel,
+  SkeletonLayoutCard,
+  SkeletonLayoutList,
+  SkeletonLayoutTable,
+  SkeletonLayoutGrid,
+  SkeletonLayoutChat,
 } from '../../../../components/demos/feedback/SkeletonDemo';
 
 A neutral grey placeholder block to render in place of content while it loads. Use it for lists, cards, and panels that need to feel responsive before the data arrives — keeps the visual language consistent across loading states.
@@ -32,7 +37,7 @@ Reach for `Skeleton` when the placeholder structure is itself information ("ther
 ## Import
 
 ```tsx
-import { Skeleton, SkeletonGroup } from 'entangle-ui';
+import { Skeleton, SkeletonGroup, SkeletonLayout } from 'entangle-ui';
 ```
 
 ## Usage
@@ -152,6 +157,48 @@ For dense surfaces (asset browser, gallery, file picker), drop animation entirel
   ))}
 </div>
 ```
+
+## SkeletonLayout
+
+`SkeletonLayout` is a pre-built alternative to manual composition. Pick a `variant` and the component renders a structured arrangement of `Skeleton` blocks — handy when the surrounding UI shape is well-known (a card, a feed, a data grid) and you don't want to wire up the placeholder by hand.
+
+```tsx
+<SkeletonLayout variant="card" />
+<SkeletonLayout variant="list" count={8} />
+<SkeletonLayout variant="table" columns={5} count={6} />
+<SkeletonLayout variant="grid" columns={3} count={9} />
+<SkeletonLayout variant="chat" count={6} />
+```
+
+<ComponentPreview title="Card">
+  <SkeletonLayoutCard client:only="react" />
+</ComponentPreview>
+
+<ComponentPreview title="List">
+  <SkeletonLayoutList client:only="react" />
+</ComponentPreview>
+
+<ComponentPreview title="Table">
+  <SkeletonLayoutTable client:only="react" />
+</ComponentPreview>
+
+<ComponentPreview title="Grid">
+  <SkeletonLayoutGrid client:only="react" />
+</ComponentPreview>
+
+<ComponentPreview title="Chat">
+  <SkeletonLayoutChat client:only="react" />
+</ComponentPreview>
+
+| Variant | Default count    | Default columns | Default animation |
+| ------- | ---------------- | --------------- | ----------------- |
+| `card`  | 1 (single unit)  | —               | `pulse`           |
+| `list`  | 5 rows           | —               | `pulse`           |
+| `table` | 5 rows + header  | 4               | `pulse`           |
+| `grid`  | 12 cells         | 4               | `none`            |
+| `chat`  | 4 bubbles        | —               | `pulse`           |
+
+`grid` defaults to `animation="none"` because dense grids commonly render dozens of blocks at once; the static treatment reads as "loading" just as clearly without spending GPU cycles. Override `animation` on any variant to opt in or out.
 
 ## In an editor panel
 
@@ -288,6 +335,45 @@ Each animated skeleton runs a CSS animation on the GPU, so a handful is cheap. W
       name: 'ref',
       type: 'Ref<HTMLDivElement>',
       description: 'Ref to the underlying div element.',
+    },
+  ]}
+/>
+
+### `<SkeletonLayout>`
+
+<PropsTable
+  props={[
+    {
+      name: 'variant',
+      type: "'card' | 'list' | 'table' | 'grid' | 'chat'",
+      description:
+        'Which pre-built arrangement to render. Required.',
+    },
+    {
+      name: 'count',
+      type: 'number',
+      description:
+        'Number of repeating units. Defaults per variant: `list` 5 rows, `table` 5 data rows, `grid` 12 cells, `chat` 4 bubbles. Ignored for `card`.',
+    },
+    {
+      name: 'columns',
+      type: 'number',
+      default: '4',
+      description:
+        'Number of columns. Only meaningful for `grid` and `table`.',
+    },
+    {
+      name: 'animation',
+      type: "'pulse' | 'wave' | 'none'",
+      description:
+        'Animation applied to every nested skeleton. Defaults to `pulse` for `card` / `list` / `table` / `chat`, and `none` for `grid`.',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      default: "'100%'",
+      description:
+        'Width of the layout container. Number → px, string → CSS value. Defaults to filling the parent so the layout stays stable while content loads.',
     },
   ]}
 />

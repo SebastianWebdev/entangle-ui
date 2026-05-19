@@ -188,11 +188,20 @@ The `align` prop controls horizontal placement: `left` (default), `right`, or `s
 
 ## Long content
 
-The body wraps naturally. Stack multiple `Alert.Description` blocks for paragraphs.
+The body wraps naturally. Stack multiple `Alert.Description` blocks for paragraphs. Long unbroken strings — URLs, file paths, command snippets — are wrapped with `overflow-wrap: anywhere`, so the alert never pushes its container wider than intended.
 
 <ComponentPreview title="Long content">
   <AlertLongContent client:only="react" />
 </ComponentPreview>
+
+## Width
+
+`Alert` defaults to `width: 100%` so it stretches to fill its parent and keeps a stable footprint regardless of content length. Override with the `width` prop — a number is treated as pixels, a string passes through as a CSS value.
+
+```tsx
+<Alert width={420} variant="info">Fixed-width alert.</Alert>
+<Alert width="32rem" variant="info">Sized to the type scale.</Alert>
+```
 
 ## Editor example
 
@@ -262,6 +271,13 @@ If both the `title` prop and an `<Alert.Title>` child are supplied, both render 
       type: 'ReactNode',
       description:
         'Convenience prop equivalent to wrapping with `<Alert.Title>`.',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      default: "'100%'",
+      description:
+        'Width of the alert. Number → px, string → CSS value. Defaults to filling the parent so the alert keeps a stable width regardless of content length; long strings wrap inside.',
     },
     {
       name: 'children',

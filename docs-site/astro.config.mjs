@@ -81,6 +81,7 @@ export default defineConfig({
                 { label: 'Kbd', slug: 'components/primitives/kbd' },
                 { label: 'Link', slug: 'components/primitives/link' },
                 { label: 'Paper', slug: 'components/primitives/paper' },
+                { label: 'HoverCard', slug: 'components/primitives/hover-card' },
                 { label: 'Popover', slug: 'components/primitives/popover' },
                 { label: 'Radio', slug: 'components/primitives/radio' },
                 { label: 'Switch', slug: 'components/primitives/switch' },
@@ -123,24 +124,34 @@ export default defineConfig({
               label: 'Controls',
               collapsed: false,
               items: [
-                { label: 'Slider', slug: 'components/controls/slider' },
                 {
-                  label: 'NumberInput',
-                  slug: 'components/controls/number-input',
+                  label: 'CartesianPicker',
+                  slug: 'components/controls/cartesian-picker',
                 },
-                { label: 'Select', slug: 'components/controls/select' },
                 {
                   label: 'ColorPicker',
                   slug: 'components/controls/color-picker',
                 },
+                { label: 'Combobox', slug: 'components/controls/combobox' },
                 {
                   label: 'CurveEditor',
                   slug: 'components/controls/curve-editor',
                 },
                 {
-                  label: 'CartesianPicker',
-                  slug: 'components/controls/cartesian-picker',
+                  label: 'FileUploader',
+                  slug: 'components/controls/file-uploader',
                 },
+                {
+                  label: 'MultiSelect',
+                  slug: 'components/controls/multi-select',
+                },
+                {
+                  label: 'NumberInput',
+                  slug: 'components/controls/number-input',
+                },
+                { label: 'Select', slug: 'components/controls/select' },
+                { label: 'Slider', slug: 'components/controls/slider' },
+                { label: 'TagInput', slug: 'components/controls/tag-input' },
                 { label: 'TreeView', slug: 'components/controls/tree-view' },
                 {
                   label: 'VectorInput',
@@ -162,6 +173,10 @@ export default defineConfig({
                 },
                 { label: 'Menu', slug: 'components/navigation/menu' },
                 {
+                  label: 'Pagination',
+                  slug: 'components/navigation/pagination',
+                },
+                {
                   label: 'SegmentedControl',
                   slug: 'components/navigation/segmented-control',
                 },
@@ -173,7 +188,12 @@ export default defineConfig({
               collapsed: false,
               items: [
                 { label: 'Alert', slug: 'components/feedback/alert' },
+                {
+                  label: 'CommandPalette',
+                  slug: 'components/feedback/command-palette',
+                },
                 { label: 'Dialog', slug: 'components/feedback/dialog' },
+                { label: 'Drawer', slug: 'components/feedback/drawer' },
                 {
                   label: 'EmptyState',
                   slug: 'components/feedback/empty-state',
@@ -185,6 +205,13 @@ export default defineConfig({
                 { label: 'Skeleton', slug: 'components/feedback/skeleton' },
                 { label: 'Spinner', slug: 'components/feedback/spinner' },
                 { label: 'Toast', slug: 'components/feedback/toast' },
+              ],
+            },
+            {
+              label: 'Data',
+              collapsed: false,
+              items: [
+                { label: 'DataTable', slug: 'components/data/data-table' },
               ],
             },
             {
