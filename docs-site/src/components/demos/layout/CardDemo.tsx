@@ -69,8 +69,8 @@ export default function CardDemo() {
             }
           />
           <Card.Body>
-            4K PBR material with roughness and normal maps. Tags: outdoor,
-            road, weathered.
+            4K PBR material with roughness and normal maps. Tags: outdoor, road,
+            weathered.
           </Card.Body>
           <Card.Footer align="space-between">
             <Text size="sm" color="muted">
@@ -199,7 +199,9 @@ export function CardDisabled() {
       <div style={{ width: 320 }}>
         <Card variant="elevated" disabled onClick={() => {}}>
           <Card.Header title="Locked preset" subtitle="Pointer events off" />
-          <Card.Body>Body text is dimmed and the card cannot be activated.</Card.Body>
+          <Card.Body>
+            Body text is dimmed and the card cannot be activated.
+          </Card.Body>
         </Card>
       </div>
     </DemoWrapper>
@@ -238,8 +240,8 @@ export function CardCustomHeader() {
             </Flex>
           </Card.Header>
           <Card.Body>
-            When <code>children</code> is passed to <code>Card.Header</code>{' '}
-            the default title/subtitle layout is bypassed.
+            When <code>children</code> is passed to <code>Card.Header</code> the
+            default title/subtitle layout is bypassed.
           </Card.Body>
         </Card>
       </div>
