@@ -1,0 +1,411 @@
+---
+title: TagInput
+description: Multi-value text input that captures a list of strings as removable chips, with configurable commit keys and validation.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import TagInputDemo, {
+  TagInputBasic,
+  TagInputSizes,
+  TagInputVariants,
+  TagInputSeparators,
+  TagInputAddOnBlur,
+  TagInputMax,
+  TagInputValidation,
+  TagInputReadOnly,
+} from '../../../../components/demos/controls/TagInputDemo';
+
+A text input that captures a list of strings — keywords, layer names, asset tags — and renders each one as a removable chip. The user types, presses a commit key (Enter or Comma by default), and the draft becomes a chip. **Backspace** on an empty input removes the trailing chip; pasting a separator-delimited string splits the paste into multiple tags.
+
+<ComponentPreview title="Live Preview">
+  <TagInputDemo client:only="react" />
+</ComponentPreview>
+
+## When to use
+
+- **TagInput** — free-text multi-value entry. The user invents the values.
+- **MultiSelect** — multi-value entry from a known set of options.
+- **Combobox** with `creatable` — single value, but the user can add brand-new options.
+
+## Import
+
+```tsx
+import { TagInput } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+const [tags, setTags] = useState<string[]>([]);
+
+<TagInput
+  label="Keywords"
+  placeholder="Add a keyword and press Enter"
+  value={tags}
+  onChange={setTags}
+/>;
+```
+
+<ComponentPreview title="Basic">
+  <TagInputBasic client:only="react" />
+</ComponentPreview>
+
+## Controlled vs uncontrolled
+
+```tsx
+// Controlled
+const [tags, setTags] = useState<string[]>([]);
+<TagInput value={tags} onChange={setTags} />
+
+// Uncontrolled
+<TagInput defaultValue={['react', 'typescript']} onChange={setTags} />
+```
+
+## Sizes
+
+<ComponentPreview title="Sizes">
+  <TagInputSizes client:only="react" />
+</ComponentPreview>
+
+```tsx
+<TagInput size="sm" />
+<TagInput size="md" />
+<TagInput size="lg" />
+```
+
+## Variants
+
+<ComponentPreview title="Variants">
+  <TagInputVariants client:only="react" />
+</ComponentPreview>
+
+```tsx
+<TagInput variant="default" />
+<TagInput variant="ghost" />
+<TagInput variant="filled" />
+```
+
+## Commit keys
+
+`separators` controls which keys / characters commit the current draft as a tag. The default is `['Enter', 'Comma']`.
+
+<ComponentPreview title="Separators">
+  <TagInputSeparators client:only="react" />
+</ComponentPreview>
+
+| Separator | Commits on             | Notes                                                  |
+| --------- | ---------------------- | ------------------------------------------------------ |
+| `Enter`   | Enter key press        | Default. Always blocks form submit on empty input.     |
+| `Comma`   | `,` keypress or paste  | Default. Pasting `foo,bar,baz` splits into three tags. |
+| `Space`   | Space keypress / paste | Useful for hashtag-style entry.                        |
+| `Tab`     | Tab keypress           | Only commits when the draft is non-empty.              |
+
+```tsx
+<TagInput separators={['Enter', 'Comma', 'Space']} />
+```
+
+Pasting text with separators is split automatically:
+
+```tsx
+// User pastes "react, typescript, vite"
+// → adds three tags: ['react', 'typescript', 'vite']
+```
+
+## Add on blur
+
+`addOnBlur` commits whatever is in the draft when the input loses focus — handy for forms where the user might forget to press Enter before tabbing away.
+
+<ComponentPreview title="Add on blur">
+  <TagInputAddOnBlur client:only="react" />
+</ComponentPreview>
+
+```tsx
+<TagInput addOnBlur />
+```
+
+## Max tags
+
+`max` caps the list. Once reached, the input is disabled until the user removes a tag. The validator receives `'max'` as the reason for further attempts.
+
+<ComponentPreview title="Max">
+  <TagInputMax client:only="react" />
+</ComponentPreview>
+
+```tsx
+<TagInput max={3} defaultValue={['one', 'two']} />
+```
+
+## Validation
+
+Use `validate` to reject candidate values. Return `true` to accept, `false` to reject silently, or a string to use as a custom rejection reason. `onValidate` fires for every rejection with the raw value and the reason.
+
+<ComponentPreview title="Validation">
+  <TagInputValidation client:only="react" />
+</ComponentPreview>
+
+```tsx
+<TagInput
+  validate={value =>
+    /^[a-z0-9-]+$/.test(value) || 'lowercase, digits, hyphens'
+  }
+  onValidate={(rawValue, reason) => {
+    setError(typeof reason === 'string' ? reason : 'invalid');
+  }}
+/>
+```
+
+| Reason        | When                                                                |
+| ------------- | ------------------------------------------------------------------- |
+| `'empty'`     | The normalised value is an empty string.                            |
+| `'duplicate'` | The tag already exists (and `allowDuplicates={false}`).             |
+| `'max'`       | The list already holds `max` tags.                                  |
+| `'invalid'`   | The `validate` callback returned `false`.                           |
+| _custom_      | The string returned from a `validate` callback is forwarded as-is.  |
+
+### Normalisation
+
+`normalize` runs before validation. The default trims whitespace; override for case-folding, slug-ification, or anything else.
+
+```tsx
+<TagInput normalize={value => value.trim().toLowerCase()} />
+```
+
+### Duplicates
+
+By default duplicates are rejected with reason `'duplicate'`. Set `allowDuplicates` to let them through.
+
+```tsx
+<TagInput allowDuplicates />
+```
+
+## Custom chip rendering
+
+Replace the built-in chip with `renderTag` — return any node you like. The render state includes the tag, its index, the disabled flag, and a `remove` callback.
+
+```tsx
+<TagInput
+  renderTag={({ tag, remove }) => (
+    <Badge color="accent" onRemove={remove}>
+      {tag}
+    </Badge>
+  )}
+/>
+```
+
+## Read only
+
+`readOnly` hides the input and disables chip removal — the list is visible but immutable.
+
+<ComponentPreview title="Read only">
+  <TagInputReadOnly client:only="react" />
+</ComponentPreview>
+
+```tsx
+<TagInput readOnly defaultValue={['locked', 'frozen']} />
+```
+
+## Form integration
+
+Use `name` to expose the tags in a native form submit — values are joined by `,`.
+
+```tsx
+<TagInput name="keywords" value={tags} onChange={setTags} />
+```
+
+## Accessibility
+
+- The wrapper is a `role="group"`; clicks on empty padding focus the inner input.
+- Each chip exposes its remove button with `aria-label="Remove <tag>"`.
+- The inner input takes `inputAriaLabel` when no `label` is provided.
+- **Backspace** on an empty draft removes the trailing tag — saves a round-trip to the mouse.
+- `aria-invalid` is set in the error state; `aria-required` when `required` is set.
+- `aria-describedby` links to helper / error text.
+
+## API Reference
+
+### `<TagInput>`
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string[]',
+      description: 'Controlled list of tags.',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string[]',
+      description: 'Default tags (uncontrolled).',
+    },
+    {
+      name: 'onChange',
+      type: '(tags: string[]) => void',
+      description: 'Called whenever the tag list changes.',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      description: 'Placeholder shown in the inner input when empty.',
+    },
+    {
+      name: 'separators',
+      type: "Array<'Enter' | 'Comma' | 'Space' | 'Tab'>",
+      default: "['Enter', 'Comma']",
+      description: 'Keys / characters that commit the current draft to a tag.',
+    },
+    {
+      name: 'addOnBlur',
+      type: 'boolean',
+      default: 'false',
+      description: 'Add the current draft as a tag when the input loses focus.',
+    },
+    {
+      name: 'allowDuplicates',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Allow duplicate tags. When `false`, attempts to add an existing tag are rejected with reason `duplicate`.',
+    },
+    {
+      name: 'max',
+      type: 'number',
+      description: 'Maximum number of tags. When reached the input is disabled.',
+    },
+    {
+      name: 'validate',
+      type: '(value: string, current: string[]) => boolean | string',
+      description:
+        'Synchronous validator. `false` rejects as `invalid`, a string is forwarded as the rejection reason.',
+    },
+    {
+      name: 'normalize',
+      type: '(value: string) => string',
+      default: 'value => value.trim()',
+      description: 'Transform the candidate before validation.',
+    },
+    {
+      name: 'onValidate',
+      type: "(rawValue: string, reason: 'duplicate' | 'max' | 'empty' | 'invalid' | string) => void",
+      description: 'Called when a candidate fails validation.',
+    },
+    {
+      name: 'renderTag',
+      type: '(state: TagInputRenderTagState) => ReactNode',
+      description: 'Custom chip renderer. When omitted the built-in chip is used.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Component size.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'ghost' | 'filled'",
+      default: "'default'",
+      description: 'Visual variant for the wrapper.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Label rendered above the input.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text rendered below the input.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Error state.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description: 'Error message — shown in place of `helperText` when `error` is true.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disable the entire control.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Mark the field as required.',
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: 'Read-only — chips are visible but not removable, input is hidden.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Name attribute used for form submission (joined by `,`).',
+    },
+    {
+      name: 'inputAriaLabel',
+      type: 'string',
+      description: 'ARIA label for the inner text input.',
+    },
+    {
+      name: 'inputRef',
+      type: 'Ref<HTMLInputElement>',
+      description: 'Ref forwarded to the inner `<input>`.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the wrapper element.',
+    },
+  ]}
+/>
+
+### `TagInputRenderTagState`
+
+<PropsTable
+  props={[
+    {
+      name: 'tag',
+      type: 'string',
+      required: true,
+      description: 'Tag value.',
+    },
+    {
+      name: 'index',
+      type: 'number',
+      required: true,
+      description: 'Position in the array.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      required: true,
+      description: 'Whether the parent component is disabled.',
+    },
+    {
+      name: 'remove',
+      type: '() => void',
+      required: true,
+      description: 'Remove this tag.',
+    },
+  ]}
+/>
