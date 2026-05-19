@@ -146,22 +146,20 @@ Use `validate` to reject candidate values. Return `true` to accept, `false` to r
 
 ```tsx
 <TagInput
-  validate={value =>
-    /^[a-z0-9-]+$/.test(value) || 'lowercase, digits, hyphens'
-  }
+  validate={value => /^[a-z0-9-]+$/.test(value) || 'lowercase, digits, hyphens'}
   onValidate={(rawValue, reason) => {
     setError(typeof reason === 'string' ? reason : 'invalid');
   }}
 />
 ```
 
-| Reason        | When                                                                |
-| ------------- | ------------------------------------------------------------------- |
-| `'empty'`     | The normalised value is an empty string.                            |
-| `'duplicate'` | The tag already exists (and `allowDuplicates={false}`).             |
-| `'max'`       | The list already holds `max` tags.                                  |
-| `'invalid'`   | The `validate` callback returned `false`.                           |
-| _custom_      | The string returned from a `validate` callback is forwarded as-is.  |
+| Reason        | When                                                               |
+| ------------- | ------------------------------------------------------------------ |
+| `'empty'`     | The normalised value is an empty string.                           |
+| `'duplicate'` | The tag already exists (and `allowDuplicates={false}`).            |
+| `'max'`       | The list already holds `max` tags.                                 |
+| `'invalid'`   | The `validate` callback returned `false`.                          |
+| _custom_      | The string returned from a `validate` callback is forwarded as-is. |
 
 ### Normalisation
 
@@ -270,7 +268,8 @@ Use `name` to expose the tags in a native form submit — values are joined by `
     {
       name: 'max',
       type: 'number',
-      description: 'Maximum number of tags. When reached the input is disabled.',
+      description:
+        'Maximum number of tags. When reached the input is disabled.',
     },
     {
       name: 'validate',
@@ -292,7 +291,8 @@ Use `name` to expose the tags in a native form submit — values are joined by `
     {
       name: 'renderTag',
       type: '(state: TagInputRenderTagState) => ReactNode',
-      description: 'Custom chip renderer. When omitted the built-in chip is used.',
+      description:
+        'Custom chip renderer. When omitted the built-in chip is used.',
     },
     {
       name: 'size',
@@ -325,7 +325,8 @@ Use `name` to expose the tags in a native form submit — values are joined by `
     {
       name: 'errorMessage',
       type: 'string',
-      description: 'Error message — shown in place of `helperText` when `error` is true.',
+      description:
+        'Error message — shown in place of `helperText` when `error` is true.',
     },
     {
       name: 'disabled',
@@ -343,7 +344,8 @@ Use `name` to expose the tags in a native form submit — values are joined by `
       name: 'readOnly',
       type: 'boolean',
       default: 'false',
-      description: 'Read-only — chips are visible but not removable, input is hidden.',
+      description:
+        'Read-only — chips are visible but not removable, input is hidden.',
     },
     {
       name: 'name',

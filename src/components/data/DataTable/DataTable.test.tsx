@@ -333,6 +333,94 @@ describe('DataTable', () => {
       expect(onSelectionChange).toHaveBeenLastCalledWith(['u3']);
     });
 
+    it('shift-click extends selection to all rows between the anchor and target', () => {
+      const onSelectionChange = vi.fn();
+      const ROWS: User[] = [
+        ...USERS,
+        { id: 'u4', name: 'Dana', age: 28, role: 'engineer' },
+        { id: 'u5', name: 'Evan', age: 35, role: 'pm' },
+      ];
+      renderWithTheme(
+        <DataTable<User>
+          rows={ROWS}
+          columns={COLUMNS}
+          rowKey="id"
+          selectionMode="multiple"
+          onSelectionChange={onSelectionChange}
+          virtualized={false}
+        />
+      );
+
+      const firstCheckbox = within(rowByIndex(0)).getByLabelText(
+        'Select row 1'
+      );
+      fireEvent.click(firstCheckbox);
+      expect(onSelectionChange).toHaveBeenLastCalledWith(['u1']);
+
+      const fourthCheckbox = within(rowByIndex(3)).getByLabelText(
+        'Select row 4'
+      );
+      fireEvent.click(fourthCheckbox, { shiftKey: true });
+      expect(onSelectionChange).toHaveBeenLastCalledWith([
+        'u1',
+        'u2',
+        'u3',
+        'u4',
+      ]);
+    });
+
+    it('shift-click on a selected row deselects the range', () => {
+      const onSelectionChange = vi.fn();
+      renderWithTheme(
+        <DataTable<User>
+          rows={USERS}
+          columns={COLUMNS}
+          rowKey="id"
+          selectionMode="multiple"
+          defaultSelection={['u1', 'u2', 'u3']}
+          onSelectionChange={onSelectionChange}
+          virtualized={false}
+        />
+      );
+
+      const firstCheckbox = within(rowByIndex(0)).getByLabelText(
+        'Select row 1'
+      );
+      fireEvent.click(firstCheckbox);
+      expect(onSelectionChange).toHaveBeenLastCalledWith(['u2', 'u3']);
+
+      const thirdCheckbox = within(rowByIndex(2)).getByLabelText(
+        'Select row 3'
+      );
+      fireEvent.click(thirdCheckbox, { shiftKey: true });
+      expect(onSelectionChange).toHaveBeenLastCalledWith([]);
+    });
+
+    it('skips disabled rows when shift-selecting a range', () => {
+      const onSelectionChange = vi.fn();
+      renderWithTheme(
+        <DataTable<User>
+          rows={USERS}
+          columns={COLUMNS}
+          rowKey="id"
+          selectionMode="multiple"
+          isRowSelectable={row => row.id !== 'u2'}
+          onSelectionChange={onSelectionChange}
+          virtualized={false}
+        />
+      );
+
+      const firstCheckbox = within(rowByIndex(0)).getByLabelText(
+        'Select row 1'
+      );
+      fireEvent.click(firstCheckbox);
+      const thirdCheckbox = within(rowByIndex(2)).getByLabelText(
+        'Select row 3'
+      );
+      fireEvent.click(thirdCheckbox, { shiftKey: true });
+      expect(onSelectionChange).toHaveBeenLastCalledWith(['u1', 'u3']);
+    });
+
     it('respects isRowSelectable', () => {
       const onSelectionChange = vi.fn();
       renderWithTheme(

@@ -39,11 +39,7 @@ For full control, pass `page` and react in `onChange`:
 ```tsx
 const [page, setPage] = useState(1);
 
-<Pagination
-  count={20}
-  page={page}
-  onChange={(_, next) => setPage(next)}
-/>;
+<Pagination count={20} page={page} onChange={(_, next) => setPage(next)} />;
 ```
 
 Pages are 1-based. `count` is the total number of pages; pass `0` to render nothing.
@@ -134,7 +130,8 @@ Override the aria-labels for each item type with `getItemAriaLabel`. Useful for 
     if (type === 'next') return 'Strona następna';
     if (type === 'first') return 'Pierwsza strona';
     if (type === 'last') return 'Ostatnia strona';
-    if (type === 'page') return selected ? `Strona ${page}` : `Idź do strony ${page}`;
+    if (type === 'page')
+      return selected ? `Strona ${page}` : `Idź do strony ${page}`;
     return 'Więcej stron';
   }}
 />
@@ -163,7 +160,8 @@ Override the aria-labels for each item type with `getItemAriaLabel`. Useful for 
     {
       name: 'page',
       type: 'number',
-      description: 'Currently selected page (1-based). Controls the component when set.',
+      description:
+        'Currently selected page (1-based). Controls the component when set.',
     },
     {
       name: 'defaultPage',

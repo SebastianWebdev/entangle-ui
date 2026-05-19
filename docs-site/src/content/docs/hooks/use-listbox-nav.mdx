@@ -25,7 +25,9 @@ import { useListboxNav } from 'entangle-ui';
 ## Signature
 
 ```ts
-function useListboxNav<T>(options: UseListboxNavOptions<T>): UseListboxNavReturn;
+function useListboxNav<T>(
+  options: UseListboxNavOptions<T>
+): UseListboxNavReturn;
 
 interface UseListboxNavOptions<T> {
   items: T[];
@@ -63,11 +65,7 @@ function FruitListbox({ fruits }: { fruits: string[] }) {
   return (
     <ul role="listbox" tabIndex={0} onKeyDown={handleKeyDown}>
       {fruits.map((fruit, index) => (
-        <li
-          key={fruit}
-          role="option"
-          aria-selected={index === activeIndex}
-        >
+        <li key={fruit} role="option" aria-selected={index === activeIndex}>
           {fruit}
         </li>
       ))}

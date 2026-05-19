@@ -20,20 +20,17 @@ export default function UseThrottledCallbackDemo() {
   const [throttled, setThrottled] = useState(0);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
 
-  const onMove = useThrottledCallback(
-    (x: number, y: number) => {
-      setThrottled(prev => prev + 1);
-      setPos({ x, y });
-    },
-    100
-  );
+  const onMove = useThrottledCallback((x: number, y: number) => {
+    setThrottled(prev => prev + 1);
+    setPos({ x, y });
+  }, 100);
 
   return (
     <DemoWrapper>
       <Stack spacing={3}>
         <Text size="sm" color="secondary">
-          Move the pointer over the surface. The throttled handler fires at
-          most once per 100ms.
+          Move the pointer over the surface. The throttled handler fires at most
+          once per 100ms.
         </Text>
         <div
           style={surfaceStyle}

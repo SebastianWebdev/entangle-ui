@@ -113,10 +113,7 @@ export function UseListboxNavWithDisabled() {
         <Text size="sm" color="secondary">
           Arrow keys skip disabled items entirely.
         </Text>
-        <Listbox
-          items={WITH_DISABLED}
-          onPick={item => setPicked(item.label)}
-        />
+        <Listbox items={WITH_DISABLED} onPick={item => setPicked(item.label)} />
         <Text size="sm">Picked: {picked ?? 'none'}</Text>
       </Stack>
     </DemoWrapper>

@@ -12,8 +12,8 @@ export default function UseIntersectionObserverDemo() {
     <DemoWrapper>
       <Stack spacing={3}>
         <Text size="sm" color="secondary">
-          Scroll the inner panel — the target highlights once it's at least
-          50% visible inside the scroll root.
+          Scroll the inner panel — the target highlights once it's at least 50%
+          visible inside the scroll root.
         </Text>
         <div
           style={{
@@ -65,9 +65,9 @@ export function UseIntersectionObserverLazyImage() {
     <DemoWrapper>
       <Stack spacing={3}>
         <Text size="sm" color="secondary">
-          With a positive bottom <code>rootMargin</code>, the target reports
-          as intersecting slightly before it actually enters the viewport —
-          handy for lazy loading.
+          With a positive bottom <code>rootMargin</code>, the target reports as
+          intersecting slightly before it actually enters the viewport — handy
+          for lazy loading.
         </Text>
         <div
           style={{

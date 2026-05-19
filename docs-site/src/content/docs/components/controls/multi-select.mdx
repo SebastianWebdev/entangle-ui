@@ -100,11 +100,7 @@ Pass `searchable` to render a filter input at the top of the dropdown. A custom 
 </ComponentPreview>
 
 ```tsx
-<MultiSelect
-  searchable
-  searchPlaceholder="Filter..."
-  options={options}
-/>
+<MultiSelect searchable searchPlaceholder="Filter..." options={options} />
 ```
 
 ```tsx
@@ -208,7 +204,12 @@ By default the dropdown stays open across selections — useful when the user is
 Use `name` to render a hidden input with the selected values joined by `,`.
 
 ```tsx
-<MultiSelect name="frameworks" options={options} value={value} onChange={setValue} />
+<MultiSelect
+  name="frameworks"
+  options={options}
+  value={value}
+  onChange={setValue}
+/>
 ```
 
 ## Accessibility
@@ -314,7 +315,8 @@ Use `name` to render a hidden input with the selected values joined by `,`.
     {
       name: 'errorMessage',
       type: 'string',
-      description: 'Error message — overrides `helperText` when `error` is true.',
+      description:
+        'Error message — overrides `helperText` when `error` is true.',
     },
     {
       name: 'disabled',
@@ -332,7 +334,8 @@ Use `name` to render a hidden input with the selected values joined by `,`.
       name: 'clearable',
       type: 'boolean',
       default: 'false',
-      description: 'Show a clear-all button when at least one value is selected.',
+      description:
+        'Show a clear-all button when at least one value is selected.',
     },
     {
       name: 'maxDropdownHeight',

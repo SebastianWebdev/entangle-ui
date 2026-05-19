@@ -190,13 +190,13 @@ For dense surfaces (asset browser, gallery, file picker), drop animation entirel
   <SkeletonLayoutChat client:only="react" />
 </ComponentPreview>
 
-| Variant | Default count    | Default columns | Default animation |
-| ------- | ---------------- | --------------- | ----------------- |
-| `card`  | 1 (single unit)  | —               | `pulse`           |
-| `list`  | 5 rows           | —               | `pulse`           |
-| `table` | 5 rows + header  | 4               | `pulse`           |
-| `grid`  | 12 cells         | 4               | `none`            |
-| `chat`  | 4 bubbles        | —               | `pulse`           |
+| Variant | Default count   | Default columns | Default animation |
+| ------- | --------------- | --------------- | ----------------- |
+| `card`  | 1 (single unit) | —               | `pulse`           |
+| `list`  | 5 rows          | —               | `pulse`           |
+| `table` | 5 rows + header | 4               | `pulse`           |
+| `grid`  | 12 cells        | 4               | `none`            |
+| `chat`  | 4 bubbles       | —               | `pulse`           |
 
 `grid` defaults to `animation="none"` because dense grids commonly render dozens of blocks at once; the static treatment reads as "loading" just as clearly without spending GPU cycles. Override `animation` on any variant to opt in or out.
 
@@ -346,8 +346,7 @@ Each animated skeleton runs a CSS animation on the GPU, so a handful is cheap. W
     {
       name: 'variant',
       type: "'card' | 'list' | 'table' | 'grid' | 'chat'",
-      description:
-        'Which pre-built arrangement to render. Required.',
+      description: 'Which pre-built arrangement to render. Required.',
     },
     {
       name: 'count',
@@ -359,8 +358,7 @@ Each animated skeleton runs a CSS animation on the GPU, so a handful is cheap. W
       name: 'columns',
       type: 'number',
       default: '4',
-      description:
-        'Number of columns. Only meaningful for `grid` and `table`.',
+      description: 'Number of columns. Only meaningful for `grid` and `table`.',
     },
     {
       name: 'animation',

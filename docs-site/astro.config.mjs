@@ -81,7 +81,10 @@ export default defineConfig({
                 { label: 'Kbd', slug: 'components/primitives/kbd' },
                 { label: 'Link', slug: 'components/primitives/link' },
                 { label: 'Paper', slug: 'components/primitives/paper' },
-                { label: 'HoverCard', slug: 'components/primitives/hover-card' },
+                {
+                  label: 'HoverCard',
+                  slug: 'components/primitives/hover-card',
+                },
                 { label: 'Popover', slug: 'components/primitives/popover' },
                 { label: 'Radio', slug: 'components/primitives/radio' },
                 { label: 'Switch', slug: 'components/primitives/switch' },

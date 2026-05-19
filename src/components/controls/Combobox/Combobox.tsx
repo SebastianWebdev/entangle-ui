@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { fuzzyScore } from '@/components/feedback/CommandPalette/fuzzySearch';
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { FormLabel } from '@/components/form/FormLabel';
@@ -20,7 +21,8 @@ import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
 import {
   checkmarkStyle,
-  chevronRecipe,
+  chevronButtonStyle,
+  chevronIconRecipe,
   clearButtonStyle,
   containerStyle,
   createRowStyle,
@@ -59,17 +61,6 @@ const ChevronDownIcon: React.FC<{ size: number }> = ({ size }) => (
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const ClearIcon: React.FC = () => (
-  <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
-    <path
-      d="M1 1L7 7M7 1L1 7"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
     />
   </svg>
 );
@@ -589,7 +580,7 @@ export function Combobox<T extends string = string>({
             className={clearButtonStyle}
             onMouseDown={handleClear}
           >
-            <ClearIcon />
+            <CloseIcon size="sm" decorative />
           </button>
         )}
 
@@ -597,14 +588,16 @@ export function Combobox<T extends string = string>({
           type="button"
           tabIndex={-1}
           aria-label={isOpen ? 'Close suggestions' : 'Open suggestions'}
-          className={chevronRecipe({ open: isOpen })}
+          className={chevronButtonStyle}
           onMouseDown={e => {
             e.preventDefault();
           }}
           onClick={handleToggleClick}
           disabled={disabled}
         >
-          <ChevronDownIcon size={chevronSize} />
+          <span className={chevronIconRecipe({ open: isOpen })}>
+            <ChevronDownIcon size={chevronSize} />
+          </span>
         </button>
       </div>
 

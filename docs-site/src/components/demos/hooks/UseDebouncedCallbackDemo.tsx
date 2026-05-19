@@ -18,8 +18,8 @@ export default function UseDebouncedCallbackDemo() {
     <DemoWrapper>
       <Stack spacing={3}>
         <Text size="sm" color="secondary">
-          Click quickly. The debounced callback only fires 400ms after the
-          last click.
+          Click quickly. The debounced callback only fires 400ms after the last
+          click.
         </Text>
         <Flex gap={2}>
           <Button

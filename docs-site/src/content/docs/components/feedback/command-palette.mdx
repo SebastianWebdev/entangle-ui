@@ -157,10 +157,7 @@ Provide a custom `emptyState` node, or let the default "No matches for …" mess
 </ComponentPreview>
 
 ```tsx
-<CommandPalette
-  items={[]}
-  emptyState={<span>Nothing to do here yet.</span>}
-/>
+<CommandPalette items={[]} emptyState={<span>Nothing to do here yet.</span>} />
 ```
 
 ## Custom item renderer
@@ -175,7 +172,13 @@ For richer rows — multi-line descriptions, badges, inline previews — pass `r
 <CommandPalette
   items={items}
   renderItem={(item, state) => (
-    <div style={{ display: 'flex', gap: 12, fontWeight: state.selected ? 600 : 400 }}>
+    <div
+      style={{
+        display: 'flex',
+        gap: 12,
+        fontWeight: state.selected ? 600 : 400,
+      }}
+    >
       <span style={{ flex: 1 }}>{item.label}</span>
       {item.shortcut && <span>{item.shortcut}</span>}
     </div>
@@ -235,7 +238,7 @@ Use `disabled: true` on an item to render it but skip it during keyboard navigat
       name: 'onSelect',
       type: '(item: CommandItem) => void',
       description:
-        "Default handler invoked when an item without its own `onSelect` is chosen.",
+        'Default handler invoked when an item without its own `onSelect` is chosen.',
     },
     {
       name: 'placeholder',
@@ -246,7 +249,8 @@ Use `disabled: true` on an item to render it but skip it during keyboard navigat
     {
       name: 'emptyState',
       type: 'ReactNode',
-      description: 'Custom node rendered when no items match the current query.',
+      description:
+        'Custom node rendered when no items match the current query.',
     },
     {
       name: 'recentKey',

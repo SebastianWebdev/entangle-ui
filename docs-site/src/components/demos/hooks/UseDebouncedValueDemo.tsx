@@ -14,8 +14,7 @@ export default function UseDebouncedValueDemo() {
     <DemoWrapper>
       <Stack spacing={3}>
         <Text size="sm" color="secondary">
-          Type quickly — the debounced value only updates 300ms after you
-          stop.
+          Type quickly — the debounced value only updates 300ms after you stop.
         </Text>
         <Input
           placeholder="Search…"

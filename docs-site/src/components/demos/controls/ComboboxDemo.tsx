@@ -53,9 +53,24 @@ export function ComboboxSizes() {
   return (
     <DemoWrapper withKeyboard>
       <Stack gap={3} style={{ width: '100%', maxWidth: 320 }}>
-        <Combobox size="sm" label="sm" options={COUNTRIES} placeholder="Small" />
-        <Combobox size="md" label="md" options={COUNTRIES} placeholder="Medium" />
-        <Combobox size="lg" label="lg" options={COUNTRIES} placeholder="Large" />
+        <Combobox
+          size="sm"
+          label="sm"
+          options={COUNTRIES}
+          placeholder="Small"
+        />
+        <Combobox
+          size="md"
+          label="md"
+          options={COUNTRIES}
+          placeholder="Medium"
+        />
+        <Combobox
+          size="lg"
+          label="lg"
+          options={COUNTRIES}
+          placeholder="Large"
+        />
       </Stack>
     </DemoWrapper>
   );
@@ -123,7 +138,7 @@ export function ComboboxCreatable() {
             setExtras(prev => [...prev, created]);
             setValue(input);
           }}
-          helperText='Type a new value and press Enter to add'
+          helperText="Type a new value and press Enter to add"
         />
       </div>
     </DemoWrapper>

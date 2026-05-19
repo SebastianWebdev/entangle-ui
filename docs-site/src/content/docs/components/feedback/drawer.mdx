@@ -71,12 +71,12 @@ The `anchor` prop chooses the edge the panel slides in from.
   <DrawerAnchors client:only="react" />
 </ComponentPreview>
 
-| Anchor   | Slides from | Typical use                              |
-| -------- | ----------- | ---------------------------------------- |
-| `left`   | the left    | Primary navigation, file trees           |
-| `right`  | the right   | Filters, detail views, inspectors        |
-| `top`    | the top     | Notifications, command bars              |
-| `bottom` | the bottom  | Action sheets on small viewports         |
+| Anchor   | Slides from | Typical use                       |
+| -------- | ----------- | --------------------------------- |
+| `left`   | the left    | Primary navigation, file trees    |
+| `right`  | the right   | Filters, detail views, inspectors |
+| `top`    | the top     | Notifications, command bars       |
+| `bottom` | the bottom  | Action sheets on small viewports  |
 
 ```tsx
 <Drawer open={open} onClose={close} anchor="left">...</Drawer>
@@ -350,8 +350,7 @@ By default the drawer renders into `document.body`. Disable for tests or to keep
     {
       name: 'children',
       type: 'ReactNode',
-      description:
-        'Custom button content; defaults to an X icon.',
+      description: 'Custom button content; defaults to an X icon.',
     },
     {
       name: 'aria-label',

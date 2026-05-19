@@ -117,14 +117,32 @@ export const clearButtonStyle = style({
   },
 });
 
-export const chevronRecipe = recipe({
+export const chevronButtonStyle = style({
+  padding: 0,
+  margin: 0,
+  border: 'none',
+  background: 'none',
+  outline: 'none',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+  color: vars.colors.text.muted,
+  selectors: {
+    '&:disabled': {
+      cursor: 'not-allowed',
+      opacity: 0.5,
+    },
+  },
+});
+
+export const chevronIconRecipe = recipe({
   base: {
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 0,
     transition: `transform ${vars.transitions.fast}`,
-    color: vars.colors.text.muted,
     '@media': {
       '(prefers-reduced-motion: reduce)': {
         transition: 'none',

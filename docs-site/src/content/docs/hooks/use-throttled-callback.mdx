@@ -49,7 +49,11 @@ function PointerGuide() {
     updateGuide(x, y);
   }, 16); // ~60fps cap
 
-  return <Canvas onPointerMove={event => onPointerMove(event.clientX, event.clientY)} />;
+  return (
+    <Canvas
+      onPointerMove={event => onPointerMove(event.clientX, event.clientY)}
+    />
+  );
 }
 ```
 

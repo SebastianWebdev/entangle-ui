@@ -270,16 +270,46 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
     [setSortState]
   );
 
+  const selectionAnchorRef = useRef<number | null>(null);
+  const selectionShiftKeyRef = useRef(false);
+
   const toggleRowSelection = useCallback(
-    (rowKeyValue: string, row: R, rowIdx: number) => {
+    (rowKeyValue: string, row: R, rowIdx: number, rangeMode = false) => {
       if (!selectionMode) return;
       if (isRowSelectable && !isRowSelectable(row, rowIdx)) return;
       if (selectionMode === 'single') {
+        selectionAnchorRef.current = rowIdx;
         setSelectionState(prev =>
           prev[0] === rowKeyValue ? [] : [rowKeyValue]
         );
         return;
       }
+
+      const anchor = selectionAnchorRef.current;
+      if (rangeMode && anchor !== null && anchor !== rowIdx) {
+        const [start, end] =
+          anchor < rowIdx ? [anchor, rowIdx] : [rowIdx, anchor];
+        const rangeKeys: string[] = [];
+        for (let i = start; i <= end; i += 1) {
+          const candidate = sortedRows[i];
+          const candidateKey = rowKeys[i];
+          if (candidate === undefined || candidateKey === undefined) continue;
+          if (isRowSelectable && !isRowSelectable(candidate, i)) continue;
+          rangeKeys.push(candidateKey);
+        }
+        setSelectionState(prev => {
+          const set = new Set(prev);
+          const shouldDeselect = set.has(rowKeyValue);
+          for (const key of rangeKeys) {
+            if (shouldDeselect) set.delete(key);
+            else set.add(key);
+          }
+          return Array.from(set);
+        });
+        return;
+      }
+
+      selectionAnchorRef.current = rowIdx;
       setSelectionState(prev => {
         const set = new Set(prev);
         if (set.has(rowKeyValue)) set.delete(rowKeyValue);
@@ -287,7 +317,7 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
         return Array.from(set);
       });
     },
-    [selectionMode, isRowSelectable, setSelectionState]
+    [selectionMode, isRowSelectable, setSelectionState, sortedRows, rowKeys]
   );
 
   const toggleSelectAll = useCallback(() => {
@@ -451,7 +481,7 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
           const row = sortedRows[current];
           const k = rowKeys[current];
           if (row === undefined || k === undefined) return;
-          toggleRowSelection(k, row, current);
+          toggleRowSelection(k, row, current, event.shiftKey);
           return;
         }
         default:
@@ -615,6 +645,9 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
           <div
             role="gridcell"
             className={cellRecipe({ selectColumn: true, sticky: true })}
+            onClickCapture={event => {
+              selectionShiftKeyRef.current = event.shiftKey;
+            }}
             onClick={event => {
               event.stopPropagation();
             }}
@@ -623,7 +656,13 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
               checked={isSelected}
               disabled={isRowSelectable ? !isRowSelectable(row, rowIdx) : false}
               onChange={() => {
-                toggleRowSelection(k, row, rowIdx);
+                toggleRowSelection(
+                  k,
+                  row,
+                  rowIdx,
+                  selectionShiftKeyRef.current
+                );
+                selectionShiftKeyRef.current = false;
               }}
               aria-label={`Select row ${rowIdx + 1}`}
               size="sm"

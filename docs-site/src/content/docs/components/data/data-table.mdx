@@ -71,7 +71,7 @@ const columns: DataTableColumn<User>[] = [
   {
     id: 'name',
     header: 'Name',
-    accessor: 'name',         // key into the row
+    accessor: 'name', // key into the row
     sortable: true,
     minWidth: 200,
   },
@@ -79,7 +79,7 @@ const columns: DataTableColumn<User>[] = [
     id: 'status',
     header: 'Status',
     accessor: 'status',
-    width: 120,               // fixed track
+    width: 120, // fixed track
     cell: ({ value }) => <StatusBadge status={value} />,
   },
   {
@@ -91,20 +91,20 @@ const columns: DataTableColumn<User>[] = [
 ];
 ```
 
-| Field            | Purpose                                                                  |
-| ---------------- | ------------------------------------------------------------------------ |
-| `id`             | Required stable identifier.                                              |
-| `header`         | Header content (string or any node).                                     |
-| `accessor`       | `keyof R` or `(row) => unknown` — how to read the cell value.            |
+| Field            | Purpose                                                                    |
+| ---------------- | -------------------------------------------------------------------------- |
+| `id`             | Required stable identifier.                                                |
+| `header`         | Header content (string or any node).                                       |
+| `accessor`       | `keyof R` or `(row) => unknown` — how to read the cell value.              |
 | `cell`           | Custom renderer for the cell. Receives `{ value, row, rowIndex, column }`. |
-| `width`          | Fixed track width. Number → px, string → CSS dimension.                  |
-| `minWidth`       | Minimum width. Used both as the grid floor and the resize floor.         |
-| `maxWidth`       | Maximum width when resizing.                                             |
-| `sortable`       | Enables the header click + sort cycle.                                   |
-| `sortComparator` | Custom comparator. Defaults handle string, number, boolean, Date.        |
-| `align`          | `left` / `center` / `right`. Defaults to `left`.                         |
-| `sticky`         | Pins the column to the left edge while scrolling.                        |
-| `disableResize`  | Locks this column even when `resizableColumns` is on.                    |
+| `width`          | Fixed track width. Number → px, string → CSS dimension.                    |
+| `minWidth`       | Minimum width. Used both as the grid floor and the resize floor.           |
+| `maxWidth`       | Maximum width when resizing.                                               |
+| `sortable`       | Enables the header click + sort cycle.                                     |
+| `sortComparator` | Custom comparator. Defaults handle string, number, boolean, Date.          |
+| `align`          | `left` / `center` / `right`. Defaults to `left`.                           |
+| `sticky`         | Pins the column to the left edge while scrolling.                          |
+| `disableResize`  | Locks this column even when `resizableColumns` is on.                      |
 
 ## Sorting
 
@@ -172,6 +172,12 @@ Use `isRowSelectable={(row) => row.status !== 'archived'}` to disable selection 
 
 `defaultSelection` enables uncontrolled mode; omit `selection` / `onSelectionChange` and the table tracks state internally.
 
+### Range selection
+
+In `multiple` mode the table tracks the last clicked row as a selection anchor. Hold `Shift` while clicking another row's checkbox to toggle every row between the anchor and the target — selecting them when the target was unselected, deselecting them when it was already selected. Disabled rows (`isRowSelectable` returns `false`) are skipped over.
+
+`Shift + Space` does the same with the keyboard once a row is focused. No prop to enable it — range selection is on by default for multi-select tables.
+
 ## Density
 
 Three densities cover most table surfaces.
@@ -180,11 +186,11 @@ Three densities cover most table surfaces.
   <DataTableDensities client:only="react" />
 </ComponentPreview>
 
-| Density       | Row height | Use for                                       |
-| ------------- | ---------- | --------------------------------------------- |
-| `comfortable` | 40 px      | Default. Wide layouts, mixed content.         |
-| `compact`     | 32 px      | Dense lists, secondary tables.                |
-| `dense`       | 24 px      | Logs, telemetry, anything with > 100 rows.    |
+| Density       | Row height | Use for                                    |
+| ------------- | ---------- | ------------------------------------------ |
+| `comfortable` | 40 px      | Default. Wide layouts, mixed content.      |
+| `compact`     | 32 px      | Dense lists, secondary tables.             |
+| `dense`       | 24 px      | Logs, telemetry, anything with > 100 rows. |
 
 ```tsx
 <DataTable density="compact" rows={rows} columns={columns} rowKey="id" />
@@ -269,12 +275,7 @@ When `rows.length === 0` and `loading` is false, the table renders the `emptySta
 </ComponentPreview>
 
 ```tsx
-<DataTable
-  rows={largeList}
-  columns={columns}
-  rowKey="id"
-  height={480}
-/>
+<DataTable rows={largeList} columns={columns} rowKey="id" height={480} />
 ```
 
 Force virtualization with `virtualized={true}`, or disable it entirely (useful for tests or print views) with `virtualized={false}`. Tune the kept-mounted off-screen rows with `overscan` (default `8`).
@@ -302,13 +303,13 @@ Wrap the default cells in your own row element with `renderRow`. The render func
 
 The table is a single focusable region (`tabIndex={0}`) with a [WAI-ARIA grid](https://www.w3.org/WAI/ARIA/apg/patterns/grid/) layout. Once focused:
 
-| Key                  | Action                                               |
-| -------------------- | ---------------------------------------------------- |
-| `ArrowUp` / `ArrowDown` | Move row focus by one.                            |
-| `Home` / `End`       | Jump to the first / last row.                        |
-| `PageUp` / `PageDown` | Jump 10 rows at a time.                             |
-| `Space`              | Toggle the focused row (multi-select only).          |
-| `Enter`              | Activate the focused row (and toggle in single-select). |
+| Key                     | Action                                                  |
+| ----------------------- | ------------------------------------------------------- |
+| `ArrowUp` / `ArrowDown` | Move row focus by one.                                  |
+| `Home` / `End`          | Jump to the first / last row.                           |
+| `PageUp` / `PageDown`   | Jump 10 rows at a time.                                 |
+| `Space`                 | Toggle the focused row (multi-select only).             |
+| `Enter`                 | Activate the focused row (and toggle in single-select). |
 
 Sortable headers are individually focusable and respond to `Enter` / `Space`.
 
@@ -422,7 +423,8 @@ Sortable headers are individually focusable and respond to `Enter` / `Space`.
     {
       name: 'emptyState',
       type: 'ReactNode',
-      description: 'Empty state slot or text. Rendered when `rows.length === 0`.',
+      description:
+        'Empty state slot or text. Rendered when `rows.length === 0`.',
     },
     {
       name: 'loading',
@@ -452,7 +454,8 @@ Sortable headers are individually focusable and respond to `Enter` / `Space`.
     {
       name: 'estimatedRowHeight',
       type: 'number',
-      description: 'Estimated row height in px. Defaults to a density-dependent value.',
+      description:
+        'Estimated row height in px. Defaults to a density-dependent value.',
     },
     {
       name: 'overscan',
@@ -469,7 +472,8 @@ Sortable headers are individually focusable and respond to `Enter` / `Space`.
     {
       name: 'maxHeight',
       type: 'number | string',
-      description: 'Maximum height before scroll engages (non-virtualized mode).',
+      description:
+        'Maximum height before scroll engages (non-virtualized mode).',
     },
     {
       name: 'resizableColumns',
@@ -529,7 +533,8 @@ Sortable headers are individually focusable and respond to `Enter` / `Space`.
     {
       name: 'minWidth',
       type: 'number',
-      description: 'Minimum column width in px (used for resizing and as the grid floor).',
+      description:
+        'Minimum column width in px (used for resizing and as the grid floor).',
     },
     {
       name: 'maxWidth',
@@ -556,17 +561,20 @@ Sortable headers are individually focusable and respond to `Enter` / `Space`.
     {
       name: 'sticky',
       type: 'boolean',
-      description: 'When true, this column sticks to the left edge while scrolling.',
+      description:
+        'When true, this column sticks to the left edge while scrolling.',
     },
     {
       name: 'ariaHidden',
       type: 'boolean',
-      description: 'When true, the column header is not focusable for keyboard users.',
+      description:
+        'When true, the column header is not focusable for keyboard users.',
     },
     {
       name: 'disableResize',
       type: 'boolean',
-      description: 'When true, this column cannot be resized even if `resizableColumns` is on.',
+      description:
+        'When true, this column cannot be resized even if `resizableColumns` is on.',
     },
   ]}
 />

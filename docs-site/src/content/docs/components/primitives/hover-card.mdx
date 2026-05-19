@@ -89,13 +89,13 @@ The full set of placements (`'top' | 'top-start' | 'top-end' | 'right' | 'right-
   <HoverCardDelays client:only="react" />
 </ComponentPreview>
 
-| Setting             | Default | Use when                                                       |
-| ------------------- | ------- | -------------------------------------------------------------- |
-| `openDelay={0}`     | —       | Compact rows where users hover many items in succession.       |
-| `openDelay={400}`   | default | Standard discovery feel — avoids flickering across labels.     |
-| `openDelay={800}`   | —       | Heavy content (avatars + stats + actions) on rarely-used UI.   |
-| `closeDelay={150}`  | default | Enough cushion to move the cursor onto the card.               |
-| `closeDelay={300+}` | —       | Interactive content the user is likely to read for a moment.   |
+| Setting             | Default | Use when                                                     |
+| ------------------- | ------- | ------------------------------------------------------------ |
+| `openDelay={0}`     | —       | Compact rows where users hover many items in succession.     |
+| `openDelay={400}`   | default | Standard discovery feel — avoids flickering across labels.   |
+| `openDelay={800}`   | —       | Heavy content (avatars + stats + actions) on rarely-used UI. |
+| `closeDelay={150}`  | default | Enough cushion to move the cursor onto the card.             |
+| `closeDelay={300+}` | —       | Interactive content the user is likely to read for a moment. |
 
 ```tsx
 <HoverCard openDelay={150} closeDelay={300}>
@@ -140,10 +140,14 @@ The safe polygon means buttons and links inside the card stay reachable — the 
   <HoverCard.Content width={300}>
     <Stack gap={3}>
       <Text weight="bold">Sebastian Reyes</Text>
-      <Text size="sm" color="secondary">Senior Technical Artist</Text>
+      <Text size="sm" color="secondary">
+        Senior Technical Artist
+      </Text>
       <Flex gap={2}>
         <Button size="sm">Follow</Button>
-        <Button size="sm" variant="outlined">Message</Button>
+        <Button size="sm" variant="outlined">
+          Message
+        </Button>
       </Flex>
     </Stack>
   </HoverCard.Content>

@@ -146,14 +146,14 @@ Built-in checks for type, size, and count are available via the matching props. 
 />
 ```
 
-| Reason         | When                                                                |
-| -------------- | ------------------------------------------------------------------- |
-| `'wrong-type'` | File MIME or extension does not match `accept`.                     |
-| `'too-large'`  | `file.size > maxSize`.                                              |
-| `'too-small'`  | `file.size < minSize`.                                              |
-| `'max-files'`  | The list already holds `maxFiles` items.                            |
-| `'invalid'`    | The `validate` callback returned `false`.                           |
-| _custom_       | The string returned from a `validate` callback is forwarded as-is.  |
+| Reason         | When                                                               |
+| -------------- | ------------------------------------------------------------------ |
+| `'wrong-type'` | File MIME or extension does not match `accept`.                    |
+| `'too-large'`  | `file.size > maxSize`.                                             |
+| `'too-small'`  | `file.size < minSize`.                                             |
+| `'max-files'`  | The list already holds `maxFiles` items.                           |
+| `'invalid'`    | The `validate` callback returned `false`.                          |
+| _custom_       | The string returned from a `validate` callback is forwarded as-is. |
 
 ## Error state
 
@@ -294,7 +294,8 @@ When you need to surface a form-level error (e.g. the server rejected the batch)
     {
       name: 'errorMessage',
       type: 'string',
-      description: 'Error message — overrides `helperText` when `error` is true.',
+      description:
+        'Error message — overrides `helperText` when `error` is true.',
     },
     {
       name: 'disabled',
@@ -375,7 +376,7 @@ When you need to surface a form-level error (e.g. the server rejected the batch)
     {
       name: 'errorMessage',
       type: 'string',
-      description: 'Error message displayed when `status === \'error\'`.',
+      description: "Error message displayed when `status === 'error'`.",
     },
   ]}
 />

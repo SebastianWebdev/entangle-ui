@@ -39,7 +39,10 @@ function Search() {
   }, [debounced]);
 
   return (
-    <Input value={text} onChange={event => setText(event.currentTarget.value)} />
+    <Input
+      value={text}
+      onChange={event => setText(event.currentTarget.value)}
+    />
   );
 }
 ```
