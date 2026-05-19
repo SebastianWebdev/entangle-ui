@@ -11,8 +11,9 @@
  * via `tsx` with no bundler.
  *
  * `shell.*` tokens are intentionally INCLUDED (consumers may want the menu
- * bar / toolbar / dock heights for layout). `storybook.*` tokens are
- * intentionally EXCLUDED — they're library-internal canvas styling.
+ * bar / toolbar / dock heights for layout). `demo.*` tokens are
+ * intentionally EXCLUDED — they're library-internal canvas styling for
+ * the documentation site demos.
  *
  * The dark / light light-class fallback selector is the documented
  * `etui-theme-light` class. Vanilla Extract generates a hashed runtime class
@@ -39,7 +40,7 @@ const PACKAGE_VERSION = readPackageVersion();
 const LIGHT_THEME_CLASS_FALLBACK = 'etui-theme-light';
 
 // Top-level keys to drop from the export.
-const EXCLUDED_TOP_LEVEL_KEYS: ReadonlySet<string> = new Set(['storybook']);
+const EXCLUDED_TOP_LEVEL_KEYS: ReadonlySet<string> = new Set(['demo']);
 
 type Plain = Record<string, unknown>;
 

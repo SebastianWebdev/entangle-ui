@@ -206,7 +206,7 @@ export const card = style({
 
 ```bash
 npm install
-npm run dev            # Storybook
+npm run dev            # Astro docs site (docs-site/)
 npm run test           # Vitest
 npm run lint
 npm run type-check

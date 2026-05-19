@@ -148,11 +148,11 @@ export const themeContractData = {
       dropOverlay: 'etui-shell-dock-drop-overlay',
     },
   },
-  storybook: {
+  demo: {
     canvas: {
-      gradientStart: 'etui-storybook-gradient-start',
-      gradientMid: 'etui-storybook-gradient-mid',
-      gradientEnd: 'etui-storybook-gradient-end',
+      gradientStart: 'etui-demo-gradient-start',
+      gradientMid: 'etui-demo-gradient-mid',
+      gradientEnd: 'etui-demo-gradient-end',
     },
   },
 } as const;

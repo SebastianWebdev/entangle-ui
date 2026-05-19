@@ -7,7 +7,7 @@
 - JSDoc comments and documentation
 - Code comments and console logs
 - Type descriptions and error messages
-- Test descriptions and Storybook docs
+- Test descriptions and docs-site content
 - README files and commit messages
 - commit messages
 
@@ -178,12 +178,13 @@ import type { Theme } from '../../theme';
 ```
 ComponentName/
 ├── ComponentName.tsx          # Main component
-├── ComponentName.stories.tsx  # Storybook stories
 ├── ComponentName.test.tsx     # Unit tests
 ├── useComponentName.ts        # Custom hooks (if needed)
 ├── ComponentName.types.ts     # Type definitions (if complex)
 └── index.ts                   # Exports
 ```
+
+Live examples and prose documentation live in `docs-site/src/content/docs/components/<ComponentName>.mdx`.
 
 **Import Order:**
 
@@ -226,32 +227,20 @@ describe('Button', () => {
 });
 ```
 
-## 8. Storybook Stories
+## 8. Component Documentation Pages
 
-```typescript
-/**
- * Storybook configuration for Button component
- */
-const meta: Meta<typeof Button> = {
-  title: 'Primitives/Button',
-  component: Button,
-  parameters: {
-    docs: {
-      description: {
-        component:
-          'A versatile button component optimized for editor interfaces.',
-      },
-    },
-  },
-  argTypes: {
-    variant: {
-      control: 'select',
-      options: ['default', 'ghost', 'filled'],
-      description: 'Visual style variant of the button',
-    },
-  },
-};
-```
+Every component ships with a docs page in
+`docs-site/src/content/docs/components/<Category>/<ComponentName>.mdx`.
+The page renders live examples through `@astrojs/react` and consumes the
+API reference auto-generated from TypeScript by `starlight-typedoc`.
+
+Minimum content for a new component page:
+
+- Short description (mirrors the JSDoc summary).
+- A `Default` live example.
+- One live example per meaningful variant / state.
+- Props table (auto-generated, no manual upkeep).
+- Cross-links to related components.
 
 ## 9. Rate Limit Management - CRITICAL
 
@@ -266,7 +255,7 @@ User: "Add tests"
 AI: Creates only Button.test.tsx
 
 // ❌ WRONG - Multiple artifacts at once
-AI: Creates Button.tsx + tests + stories + exports
+AI: Creates Button.tsx + tests + docs page + exports
 ```
 
 **Task Order:**
@@ -274,7 +263,7 @@ AI: Creates Button.tsx + tests + stories + exports
 1. Component implementation
 2. Type definitions (if complex)
 3. Unit tests
-4. Storybook stories
+4. Docs page (`docs-site/src/content/docs/components/...`)
 5. Index exports
 
 **Communication:**
@@ -282,7 +271,7 @@ AI: Creates Button.tsx + tests + stories + exports
 ```
 "I've created the Button component. Would you like me to:
 - Add unit tests
-- Create Storybook stories
+- Create the docs page
 - Add it to exports"
 ```
 
