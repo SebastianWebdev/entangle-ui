@@ -102,6 +102,7 @@ export default defineConfig({
               collapsed: false,
               items: [
                 { label: 'Accordion', slug: 'components/layout/accordion' },
+                { label: 'Card', slug: 'components/layout/card' },
                 { label: 'Divider', slug: 'components/layout/divider' },
                 { label: 'Flex', slug: 'components/layout/flex' },
                 { label: 'Grid', slug: 'components/layout/grid' },
@@ -207,6 +208,7 @@ export default defineConfig({
                 },
                 { label: 'Skeleton', slug: 'components/feedback/skeleton' },
                 { label: 'Spinner', slug: 'components/feedback/spinner' },
+                { label: 'Stat', slug: 'components/feedback/stat' },
                 { label: 'Toast', slug: 'components/feedback/toast' },
               ],
             },
@@ -260,21 +262,41 @@ export default defineConfig({
           collapsed: false,
           items: [
             { label: 'Overview', slug: 'hooks' },
+            { label: 'useBreakpoint', slug: 'hooks/use-breakpoint' },
             { label: 'useClickOutside', slug: 'hooks/use-click-outside' },
             { label: 'useClipboard', slug: 'hooks/use-clipboard' },
             {
               label: 'useControlledState',
               slug: 'hooks/use-controlled-state',
             },
+            {
+              label: 'useDebouncedCallback',
+              slug: 'hooks/use-debounced-callback',
+            },
+            {
+              label: 'useDebouncedValue',
+              slug: 'hooks/use-debounced-value',
+            },
             { label: 'useDisclosure', slug: 'hooks/use-disclosure' },
             { label: 'useFocusTrap', slug: 'hooks/use-focus-trap' },
             { label: 'useHotkey', slug: 'hooks/use-hotkey' },
+            {
+              label: 'useIntersectionObserver',
+              slug: 'hooks/use-intersection-observer',
+            },
+            { label: 'useKeyboard', slug: 'hooks/use-keyboard' },
+            { label: 'useListboxNav', slug: 'hooks/use-listbox-nav' },
+            { label: 'useMediaQuery', slug: 'hooks/use-media-query' },
             { label: 'useMergedRef', slug: 'hooks/use-merged-ref' },
             {
               label: 'useResizeObserver',
               slug: 'hooks/use-resize-observer',
             },
             { label: 'useTheme', slug: 'hooks/use-theme' },
+            {
+              label: 'useThrottledCallback',
+              slug: 'hooks/use-throttled-callback',
+            },
           ],
         },
         {
