@@ -87,6 +87,7 @@ const AlertImpl = /*#__PURE__*/ React.memo<AlertProps>(
     icon = true,
     onClose,
     title,
+    width = '100%',
     children,
     className,
     style,
@@ -109,13 +110,15 @@ const AlertImpl = /*#__PURE__*/ React.memo<AlertProps>(
       [alertColorVar]: VARIANT_COLOR[variant],
     });
 
+    const resolvedWidth = typeof width === 'number' ? `${width}px` : width;
+
     return (
       <div
         ref={ref}
         role={role}
         aria-label={ariaLabelProp ?? defaultAriaLabel}
         className={cx(alertRecipe({ variant, appearance }), className)}
-        style={{ ...inlineVars, ...style }}
+        style={{ ...inlineVars, width: resolvedWidth, ...style }}
         data-testid={testId}
         data-variant={variant}
         data-appearance={appearance}

@@ -64,10 +64,12 @@ export type {
   ProgressBarSize,
 } from './ProgressBar';
 
-export { Skeleton, SkeletonGroup } from './Skeleton';
+export { Skeleton, SkeletonGroup, SkeletonLayout } from './Skeleton';
 export type {
   SkeletonAnimation,
   SkeletonGroupProps,
+  SkeletonLayoutProps,
+  SkeletonLayoutVariant,
   SkeletonProps,
   SkeletonShape,
 } from './Skeleton';

@@ -322,6 +322,50 @@ describe('Accordion', () => {
     });
   });
 
+  describe('Width', () => {
+    it('defaults to width 100%', () => {
+      renderWithTheme(
+        <Accordion defaultValue="s1" testId="acc">
+          <AccordionItem value="s1">
+            <AccordionTrigger>S1</AccordionTrigger>
+            <AccordionContent>C1</AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      );
+      expect(screen.getByTestId('acc').getAttribute('style')).toContain(
+        'width: 100%'
+      );
+    });
+
+    it('resolves numeric width to px', () => {
+      renderWithTheme(
+        <Accordion defaultValue="s1" testId="acc" width={320}>
+          <AccordionItem value="s1">
+            <AccordionTrigger>S1</AccordionTrigger>
+            <AccordionContent>C1</AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      );
+      expect(screen.getByTestId('acc').getAttribute('style')).toContain(
+        'width: 320px'
+      );
+    });
+
+    it('passes string width through unchanged', () => {
+      renderWithTheme(
+        <Accordion defaultValue="s1" testId="acc" width="40rem">
+          <AccordionItem value="s1">
+            <AccordionTrigger>S1</AccordionTrigger>
+            <AccordionContent>C1</AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      );
+      expect(screen.getByTestId('acc').getAttribute('style')).toContain(
+        'width: 40rem'
+      );
+    });
+  });
+
   describe('Accessibility', () => {
     it('triggers have aria-expanded', () => {
       renderWithTheme(<BasicAccordion defaultValue="section1" />);

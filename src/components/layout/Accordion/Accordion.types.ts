@@ -58,6 +58,14 @@ export interface AccordionBaseProps extends Omit<BaseComponent, 'onChange'> {
   gap?: number;
 
   /**
+   * Width of the accordion. Number → px, string → CSS value.
+   * Defaults to `100%` so the accordion fills its parent and keeps a stable
+   * width when items expand or collapse.
+   * @default "100%"
+   */
+  width?: number | string;
+
+  /**
    * AccordionItem children
    */
   children: React.ReactNode;
