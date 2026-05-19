@@ -300,12 +300,22 @@ export default defineConfig({
     // Keep Vite's dep optimizer out of vanilla-extract land — pre-bundling
     // these packages races the plugin and triggers "No CSS for file" errors
     // when navigating to component pages in dev mode.
+    //
+    // `cssesc` is a CommonJS-only transitive dep of `@vanilla-extract/css`
+    // (used by its browser `transformCss` bundle). Excluding the parent
+    // packages above stops Vite from pre-bundling them, but the browser
+    // build still tries to `import cssesc from 'cssesc'` — that's a default
+    // import against a CJS module with no default export, which Vite only
+    // wires up via its CJS→ESM interop when the dep IS pre-bundled. Force
+    // cssesc into optimizeDeps so the interop kicks in and `default`
+    // resolves to `module.exports`.
     optimizeDeps: {
       exclude: [
         '@vanilla-extract/css',
         '@vanilla-extract/recipes',
         '@vanilla-extract/dynamic',
       ],
+      include: ['cssesc'],
     },
     ssr: {
       noExternal: [
