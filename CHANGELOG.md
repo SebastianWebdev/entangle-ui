@@ -1,5 +1,82 @@
 # entangle-ui
 
+## 0.9.0
+
+### Minor Changes
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `Combobox` component (`@/components/controls/Combobox`). Single-value select with an editable input — filters the option list as the user types using the built-in fuzzy matcher (`fuzzyScore` from CommandPalette), configurable via `filterFn`. Supports controlled and uncontrolled modes, optional `freeSolo` for accepting arbitrary input, optional `creatable` mode that surfaces a `Create "<query>"` row and invokes `onCreate`, an async-friendly `loading` state, optional `openOnFocus`, optional `clearable` button, and shares keyboard navigation with MultiSelect through `useListboxNav`.
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `CommandPalette` component (`@/components/feedback/CommandPalette`). Search-driven command list shown as a centred floating dialog. Type to fuzzy-filter (subsequence + word-boundary scoring), ArrowUp/Down to navigate, Enter to run, Escape to close. Hover mirrors keyboard selection. Groups, descriptions, leading icons, and `<Kbd>`-rendered shortcuts; supports a custom `renderItem` for full layout overrides. Recent selections are tracked in localStorage when `recentKey` is provided (graceful fallback when unavailable). Component does not bind a global hotkey — wire `useHotkey('Mod+K', open)` in the consumer. Also exports the underlying `fuzzyScore` and `fuzzyFilter` helpers.
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `DataTable` component (`@/components/data/DataTable`) — a new `data` category. Sortable columns (three-state cycle asc → desc → none, controllable via `sort` / `onSortChange` / `manualSort`), single or multiple row selection with controlled and uncontrolled modes, custom `rowKey`, three densities (`comfortable` / `compact` / `dense`), sticky header, optional sticky-left columns via per-column `sticky`, optional column resizing via `resizableColumns`, custom row renderer, empty state slot, loading state with skeleton rows, and row virtualization auto-enabled above 100 rows (opt-in / opt-out via `virtualized`). Built on `@tanstack/react-virtual` (added as a peer dependency) and uses CSS grid under `role="grid"` so columns line up across the sticky header and individual virtualized rows. Keyboard navigation supports ArrowUp/Down, Home/End, PageUp/PageDown, Space (toggle in multi mode) and Enter (activate, toggle in single mode).
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `Drawer` component (`@/components/feedback/Drawer`). Anchored sliding panel for filters, navigation, or detail views. Compound API (`Drawer.Header`, `Drawer.Body`, `Drawer.Footer`, `Drawer.CloseButton`), four anchors (left/right/top/bottom), modal and non-modal modes, focus trap when modal, optional close on overlay click and Escape, slide-in/out animations honoring `prefers-reduced-motion`, portal by default, size presets plus arbitrary CSS values.
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `FileUploader` component (`@/components/controls/FileUploader`). Drag-and-drop file uploader with click-to-browse fallback, MIME type and extension matching via `accept`, `maxSize`/`minSize`/`maxFiles` enforcement with reasoned rejections through `onReject`, custom synchronous `validate`, controlled and uncontrolled item lists, optional single-file mode, and a per-row UI showing file name, size, status badge (`pending` / `uploading` / `done` / `error`), and an animated progress bar. The component is presentational around the file list — the consumer drives the actual upload via `onFilesAdd` and reflects progress back through `value`.
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `HoverCard` component (`@/components/primitives/HoverCard`). Hover- and focus-driven floating panel for previews. `HoverCard.Trigger` + `HoverCard.Content` compound, configurable `openDelay` (400ms) and `closeDelay` (150ms), safe-polygon based cursor handover from trigger to content (toggle with `disableSafePolygon`), portal by default, controlled and uncontrolled modes, `disabled` flag.
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `MultiSelect` component (`@/components/controls/MultiSelect`). Multi-value select that renders chosen options as inline chips inside the trigger, with a `+N more` overflow badge once `maxInlineChips` is exceeded. Supports flat or grouped options, optional searchable mode with custom `filterFn`, controlled and uncontrolled modes, keyboard navigation through `useListboxNav`, configurable `max` cap, optional `clearable` button, and `closeOnSelect` to dismiss the dropdown after each pick. Three sizes, three variants, full label/helper/error wiring, and form-friendly hidden input via `name`.
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `Pagination` component (`@/components/navigation/Pagination`). Page navigator with sibling/boundary ellipsis logic (MUI-style), 1-based pages, controlled and uncontrolled modes, optional first/last jump buttons, optional prev/next, three sizes, customisable aria labels.
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `TagInput` component (`@/components/controls/TagInput`). Multi-value text input that captures a list of strings as removable chips. Controlled and uncontrolled modes via `value`/`defaultValue`/`onChange`, configurable commit keys (`Enter`, `Comma`, `Space`, `Tab`), optional `addOnBlur`, duplicate handling, `max` cap, custom `validate`/`normalize` callbacks with reason reporting through `onValidate`, custom chip rendering via `renderTag`, `Backspace` removes the trailing tag when the draft is empty, paste with separators is split into multiple tags, three sizes, three variants, and full label/helper/error wiring.
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `useListboxNav` hook (`@/hooks/useListboxNav`). Generic keyboard navigation primitive for listbox-like surfaces (Select, MultiSelect, Combobox, CommandPalette). Tracks an `activeIndex`, skips disabled items, and exposes a single `handleKeyDown` covering ArrowUp/ArrowDown/Home/End/Enter/Escape with optional looping. The hook is purely logical — consumers render the list and bind the handler to an input or the listbox container. Resets the active index when the items array changes by reference.
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Fixes and additions for the 0.9 release:
+  - `Radio` — inner dot at `size="md"` is now 6 px instead of 7 px so the dot stays pixel-centered inside the 14 px outer ring.
+  - `Accordion` — new `width` prop (defaults to `"100%"`); the accordion now keeps a stable width regardless of which item is expanded.
+  - `Alert` — new `width` prop (defaults to `"100%"`); long unbreakable content now wraps via `overflow-wrap: anywhere` instead of stretching the alert.
+  - `SkeletonLayout` — new component (`@/components/feedback/Skeleton`) with pre-built loading patterns: `card`, `list`, `table`, `grid`, `chat`. Each variant composes the existing `Skeleton` primitive with sensible defaults; configurable `count`, `columns`, `animation`, and `width`. Grid defaults to `animation="none"` for dense surfaces.
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Centralise every icon through the shared `Icon` primitive — no component defines SVGs inline anymore.
+
+  **`Icon` primitive — custom size support**
+
+  `size` now accepts any number (interpreted as pixels) or any CSS length string (`'1.5em'`, `'24px'`, …) in addition to the `'sm' | 'md' | 'lg'` tokens. Custom color via any CSS string was already supported. This unlocks reuse of library icons in chip-sized and inline-text contexts that previously needed bespoke SVGs.
+
+  **New icons**
+  - `FirstIcon`, `LastIcon` — skip-to-edge chevrons for paginators
+  - `CloudUploadIcon` — cloud with up-arrow for upload drop zones
+  - `ExternalLinkIcon` — box with arrow leaving the top-right corner
+  - `UnlinkIcon` — broken chain (pair with `LinkIcon` for coupled-value toggles)
+
+  **Inline SVG removal**
+
+  Every component that drew its own X / chevron / check / upload / unlink icon now imports the matching `*Icon` from `@/components/Icons` and forwards the appropriate `size` and `decorative` props:
+  - Form controls — `Combobox`, `Select`, `MultiSelect` (chevron + check)
+  - Primitives — `Checkbox` (check + minus), `Collapsible` (chevron), `Link` (external link)
+  - Layout — `Accordion` trigger (chevron)
+  - Controls — `VectorInput` (link + unlink), `FileUploader` (cloud upload), `Pagination` (first / last / prev / next)
+  - Feedback — `Toast` (info / success / warning / error)
+  - Editor — `PropertyInspector` (chevron + undo)
+
+  Left intact: `Stat` delta arrows (no library match for the bar + chunky-arrow set), `Tooltip` arrow tail (not a typical icon shape), `CircularProgress` ring, and the `Mini*Icon` family in `ChatPanel/ChatIcons.tsx` whose usage sites live in unowned files — all flagged for a separate follow-up.
+
+### Patch Changes
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Three follow-up fixes/additions for the 0.9 release based on review feedback:
+  - `Combobox` — the open/close trigger rotated the entire button instead of just the chevron icon. The rotation is now scoped to a span wrapping the icon, so the click target stays stable.
+  - `Combobox` — the clear button now uses the shared `CloseIcon` primitive instead of a hand-rolled inline SVG, which rendered with a noticeable seam at the cross point.
+  - `DataTable` — multi-select tables now support range selection. Hold `Shift` while clicking a row's checkbox (or pressing `Space` on a focused row) to toggle every row between the last anchor and the target. Disabled rows are skipped. Behavior is on by default for `selectionMode="multiple"`.
+
+- [#70](https://github.com/SebastianWebdev/entangle-ui/pull/70) [`729f863`](https://github.com/SebastianWebdev/entangle-ui/commit/729f8638f9f53ed268489d564302c6c6743f6103) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Replace inline X / close icon SVGs across the library with the shared `CloseIcon` primitive.
+
+  The hand-rolled SVGs used a single `M…L…M…L…` path for the cross stroke, which rendered with a visible seam at the center on most platforms (same root cause as the earlier Combobox fix). The library `CloseIcon` uses two separate `<line>` elements through the `Icon` primitive, so the cross is clean and stays consistent across components.
+
+  Touched components:
+  - `MultiSelect` — chip remove button and clear-all button
+  - `Select` — clear-all button
+  - `TagInput` — chip remove button
+  - `Drawer` — header close button and `Drawer.CloseButton`
+  - `Dialog` — header close button
+  - `Popover` — `PopoverClose`
+  - `Toast` — dismiss button
+  - `FileUploader` — the inline `TrashIcon` now uses the shared `TrashIcon` primitive
+
+  No public-API changes — only the rendered glyph differs.
+
 ## 0.8.2
 
 ### Patch Changes
