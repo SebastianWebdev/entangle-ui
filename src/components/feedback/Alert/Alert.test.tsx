@@ -246,6 +246,48 @@ describe('Alert', () => {
     });
   });
 
+  describe('Width', () => {
+    it('defaults to width 100%', () => {
+      renderWithTheme(<Alert testId="alert">Hello</Alert>);
+      expect(screen.getByTestId('alert').getAttribute('style')).toContain(
+        'width: 100%'
+      );
+    });
+
+    it('resolves numeric width to px', () => {
+      renderWithTheme(
+        <Alert testId="alert" width={420}>
+          Hello
+        </Alert>
+      );
+      expect(screen.getByTestId('alert').getAttribute('style')).toContain(
+        'width: 420px'
+      );
+    });
+
+    it('passes string width through unchanged', () => {
+      renderWithTheme(
+        <Alert testId="alert" width="60ch">
+          Hello
+        </Alert>
+      );
+      expect(screen.getByTestId('alert').getAttribute('style')).toContain(
+        'width: 60ch'
+      );
+    });
+
+    it('keeps a stable width with very long unbreakable content', () => {
+      const longToken = 'a'.repeat(200);
+      renderWithTheme(
+        <Alert testId="alert" width={300}>
+          {longToken}
+        </Alert>
+      );
+      const style = screen.getByTestId('alert').getAttribute('style') ?? '';
+      expect(style).toContain('width: 300px');
+    });
+  });
+
   describe('Accessibility', () => {
     it('uses role="alert" for error variant', () => {
       renderWithTheme(

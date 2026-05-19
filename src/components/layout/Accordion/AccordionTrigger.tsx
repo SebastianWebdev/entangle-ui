@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback } from 'react';
+import { ChevronRightIcon } from '@/components/Icons/ChevronRightIcon';
 import { useAccordionContext, useAccordionItemContext } from './Accordion';
 import type { AccordionSize, AccordionTriggerProps } from './Accordion.types';
 import { cx } from '@/utils/cx';
@@ -24,26 +25,6 @@ const CHEVRON_SIZE_MAP: Record<AccordionSize, ChevronSizeConfig> = {
   md: { chevronSize: 12 },
   lg: { chevronSize: 14 },
 };
-
-// --- Chevron icon ---
-
-const ChevronRightIcon: React.FC<{ size: number }> = ({ size }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 12 12"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M4.5 3L7.5 6L4.5 9"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 // --- Component ---
 
@@ -106,7 +87,9 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = ({
             height: `${sizeConfig.chevronSize}px`,
           }}
         >
-          {indicator ?? <ChevronRightIcon size={sizeConfig.chevronSize} />}
+          {indicator ?? (
+            <ChevronRightIcon size={sizeConfig.chevronSize} decorative />
+          )}
         </span>
       )}
       {icon && <span className={iconArea}>{icon}</span>}

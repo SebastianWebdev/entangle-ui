@@ -9,6 +9,9 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { CheckIcon } from '@/components/Icons/CheckIcon';
+import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { FormLabel } from '@/components/form/FormLabel';
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { ScrollArea } from '@/components/layout/ScrollArea';
@@ -71,26 +74,6 @@ const CHEVRON_SIZES: Record<SelectSize, number> = {
   md: 12,
   lg: 14,
 };
-
-// --- Chevron icon ---
-
-const ChevronDownIcon: React.FC<{ size: number }> = ({ size }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 12 12"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M3 4.5L6 7.5L9 4.5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 // --- Component ---
 
@@ -473,21 +456,7 @@ export function Select<T extends string = string>({
         <span>{opt.label ?? opt.value}</span>
         {isSelected && (
           <span className={checkmarkStyle}>
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 12 12"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M2 6L5 9L10 3"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <CheckIcon size={10} decorative />
           </span>
         )}
       </div>
@@ -551,25 +520,12 @@ export function Select<T extends string = string>({
             aria-label="Clear selection"
             tabIndex={-1}
           >
-            <svg
-              width="8"
-              height="8"
-              viewBox="0 0 8 8"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M1 1L7 7M7 1L1 7"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <CloseIcon size="sm" decorative />
           </span>
         )}
 
         <span className={chevronRecipe({ open: isOpen })}>
-          <ChevronDownIcon size={chevronSize} />
+          <ChevronDownIcon size={chevronSize} decorative />
         </span>
       </button>
 

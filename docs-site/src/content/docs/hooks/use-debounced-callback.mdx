@@ -1,0 +1,133 @@
+---
+title: useDebouncedCallback
+description: Debounce a function with optional leading edge, maxWait, and cancel/flush controls.
+---
+
+import PropsTable from '../../../components/PropsTable.astro';
+import ComponentPreview from '../../../components/ComponentPreview.astro';
+import UseDebouncedCallbackDemo, {
+  UseDebouncedCallbackLeading,
+} from '../../../components/demos/hooks/UseDebouncedCallbackDemo';
+
+`useDebouncedCallback` wraps a function so rapid calls collapse into one. The default is a trailing-edge debounce — the call fires `delay` ms after the most recent invocation. The returned wrapper has stable identity across renders and exposes `cancel` and `flush` helpers, and you can pass fresh inline functions without resetting pending timers.
+
+<ComponentPreview title="Live preview">
+  <UseDebouncedCallbackDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```ts
+import { useDebouncedCallback } from 'entangle-ui';
+```
+
+## Signature
+
+```ts
+function useDebouncedCallback<Args extends unknown[]>(
+  fn: (...args: Args) => void,
+  delay: number,
+  options?: UseDebouncedCallbackOptions
+): DebouncedCallback<Args>;
+
+interface UseDebouncedCallbackOptions {
+  leading?: boolean;
+  maxWait?: number;
+}
+
+interface DebouncedCallback<Args extends unknown[]> {
+  (...args: Args): void;
+  cancel: () => void;
+  flush: () => void;
+}
+```
+
+## Usage
+
+```tsx
+function Resizer() {
+  const onResize = useDebouncedCallback(() => measure(), 150);
+
+  useEffect(() => {
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [onResize]);
+
+  return null;
+}
+```
+
+### Leading edge
+
+With `leading: true` the wrapper fires immediately on the first call, then suppresses further trailing calls inside the window unless additional invocations land.
+
+<ComponentPreview title="Leading">
+  <UseDebouncedCallbackLeading client:only="react" />
+</ComponentPreview>
+
+## Options
+
+<PropsTable
+  props={[
+    {
+      name: 'fn',
+      type: '(...args: Args) => void',
+      required: true,
+      description:
+        'Function to debounce. The latest identity is always used — no need to memoize.',
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      required: true,
+      description: 'Debounce window in milliseconds.',
+    },
+    {
+      name: 'options.leading',
+      type: 'boolean',
+      default: 'false',
+      description: 'Fire on the leading edge in addition to the trailing edge.',
+    },
+    {
+      name: 'options.maxWait',
+      type: 'number',
+      description:
+        'Upper bound on how long the call may be deferred. When set, the wrapper forces a call once `maxWait` ms have elapsed even if invocations keep arriving.',
+    },
+  ]}
+/>
+
+## Return value
+
+<PropsTable
+  props={[
+    {
+      name: 'wrapper',
+      type: '(...args: Args) => void',
+      description:
+        'Debounced wrapper around `fn`. Identity is stable across renders.',
+    },
+    {
+      name: 'wrapper.cancel',
+      type: '() => void',
+      description: 'Cancel any pending call without invoking `fn`.',
+    },
+    {
+      name: 'wrapper.flush',
+      type: '() => void',
+      description:
+        'Invoke any pending call immediately. No-op when nothing is pending.',
+    },
+  ]}
+/>
+
+## Related
+
+- `useDebouncedValue` — debounce a value rather than a function.
+- `useThrottledCallback` — bound the call rate instead of waiting for quiescence.
+
+## Common pitfalls
+
+- **Unmount during a pending call:** the hook cleans up its timers on unmount automatically, so pending calls are dropped. If you need an in-flight call to land (e.g. a save on close), invoke `flush()` from your cleanup.
+- **`maxWait` < `delay`:** the smaller of the two effectively wins. Pick a `maxWait` that is comfortably larger than `delay`.
+- **Effects keyed on the wrapper:** because the wrapper identity is stable, listing it in an effect's dependency array is safe and does not cause re-subscription on every render.

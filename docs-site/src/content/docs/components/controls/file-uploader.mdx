@@ -1,0 +1,388 @@
+---
+title: FileUploader
+description: Drag-and-drop file uploader with type and size validation, per-row status, and an animated progress bar.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import FileUploaderDemo, {
+  FileUploaderSingle,
+  FileUploaderSizes,
+  FileUploaderWithSimulatedUpload,
+  FileUploaderDisabled,
+  FileUploaderError,
+  FileUploaderWithValidation,
+} from '../../../../components/demos/controls/FileUploaderDemo';
+
+A drag-and-drop dropzone with a click-to-browse fallback. Enforces MIME / extension matching, file size bounds, and per-file count caps, surfaces a list of files with `pending` / `uploading` / `done` / `error` status and an animated progress bar. The component itself is presentational — the consumer drives the actual upload (fetch, XHR, SDK) and reflects progress back through controlled `value`.
+
+<ComponentPreview title="Live Preview">
+  <FileUploaderDemo client:only="react" />
+</ComponentPreview>
+
+## How it works
+
+1. The user drops or selects files. `FileUploader` validates each one against `accept`, `maxSize`, `minSize`, `maxFiles`, and the optional `validate` callback.
+2. Accepted files are appended to the items list with `status: 'pending'` and `onFilesAdd` fires with the raw `File` objects.
+3. The consumer kicks off the upload externally and updates each item's `status` / `progress` by passing a controlled `value`.
+4. Rejected files are reported via `onReject` along with a reason — never silently dropped.
+
+## Import
+
+```tsx
+import { FileUploader } from 'entangle-ui';
+import type { FileUploaderItem } from 'entangle-ui';
+```
+
+## Usage
+
+The simplest usage takes no value at all — the component manages the list internally. Useful for forms where you only need the final list at submit time.
+
+```tsx
+<FileUploader
+  label="Attachments"
+  accept="image/*,.pdf"
+  maxSize={5 * 1024 * 1024}
+/>
+```
+
+For real uploads, control the list:
+
+```tsx
+const [items, setItems] = useState<FileUploaderItem[]>([]);
+
+<FileUploader
+  value={items}
+  onChange={setItems}
+  onFilesAdd={files => uploadAll(files, setItems)}
+  accept="image/*,.pdf"
+  maxSize={5 * 1024 * 1024}
+/>;
+```
+
+## Single file mode
+
+`multiple={false}` switches to single-file mode — selecting a new file replaces the previous one.
+
+<ComponentPreview title="Single file">
+  <FileUploaderSingle client:only="react" />
+</ComponentPreview>
+
+```tsx
+<FileUploader
+  label="Avatar"
+  accept="image/*"
+  multiple={false}
+  maxSize={2 * 1024 * 1024}
+/>
+```
+
+## Sizes
+
+<ComponentPreview title="Sizes">
+  <FileUploaderSizes client:only="react" />
+</ComponentPreview>
+
+```tsx
+<FileUploader size="sm" />
+<FileUploader size="md" />
+<FileUploader size="lg" />
+```
+
+## With simulated upload
+
+A realistic end-to-end demo: drop a file, watch its row progress to `done`. Rejections surface below the dropzone.
+
+<ComponentPreview title="Simulated upload">
+  <FileUploaderWithSimulatedUpload client:only="react" />
+</ComponentPreview>
+
+```tsx
+const [items, setItems] = useState<FileUploaderItem[]>([]);
+
+<FileUploader
+  accept=".pdf,.docx,image/*"
+  maxFiles={5}
+  maxSize={10 * 1024 * 1024}
+  value={items}
+  onChange={setItems}
+  onReject={(file, reason) => toast.error(`${file.name}: ${reason}`)}
+  onFilesAdd={files => {
+    // Kick off the upload for each just-added file
+    files.forEach(file => startUpload(file, setItems));
+  }}
+/>;
+```
+
+The per-row UI shows the file name, formatted size, status badge, and animated progress bar — all driven from the `FileUploaderItem` shape:
+
+```ts
+interface FileUploaderItem {
+  id: string;
+  file: File;
+  status: 'pending' | 'uploading' | 'done' | 'error';
+  progress?: number; // 0–100
+  errorMessage?: string;
+}
+```
+
+## Validation
+
+Built-in checks for type, size, and count are available via the matching props. For anything beyond that, pass a synchronous `validate` callback — return `false` to reject silently, or a string to use as the rejection reason.
+
+<ComponentPreview title="Validation">
+  <FileUploaderWithValidation client:only="react" />
+</ComponentPreview>
+
+```tsx
+<FileUploader
+  accept="image/*"
+  maxSize={1 * 1024 * 1024}
+  validate={file => {
+    if (file.name.startsWith('.')) return 'no-dotfiles';
+    return true;
+  }}
+  onReject={(file, reason) => console.warn(file.name, reason)}
+/>
+```
+
+| Reason         | When                                                               |
+| -------------- | ------------------------------------------------------------------ |
+| `'wrong-type'` | File MIME or extension does not match `accept`.                    |
+| `'too-large'`  | `file.size > maxSize`.                                             |
+| `'too-small'`  | `file.size < minSize`.                                             |
+| `'max-files'`  | The list already holds `maxFiles` items.                           |
+| `'invalid'`    | The `validate` callback returned `false`.                          |
+| _custom_       | The string returned from a `validate` callback is forwarded as-is. |
+
+## Error state
+
+When you need to surface a form-level error (e.g. the server rejected the batch), use the `error` / `errorMessage` props.
+
+<ComponentPreview title="Error">
+  <FileUploaderError client:only="react" />
+</ComponentPreview>
+
+```tsx
+<FileUploader
+  label="Upload"
+  error
+  errorMessage="Could not upload — please try again."
+/>
+```
+
+## Disabled
+
+<ComponentPreview title="Disabled">
+  <FileUploaderDisabled client:only="react" />
+</ComponentPreview>
+
+```tsx
+<FileUploader label="Locked" disabled />
+```
+
+## Accessibility
+
+- Dropzone is keyboard-reachable as `role="button"` with `tabIndex={0}`; **Enter** and **Space** open the native file picker.
+- Drag-over state is reflected visually and via `aria-busy="true"`.
+- `aria-invalid` is set in the error state; `aria-required` when `required` is set.
+- `aria-describedby` links to the helper / error text.
+- Remove buttons on each row have a labelled `aria-label="Remove <filename>"`.
+- The hidden `<input type="file">` carries the `name` attribute when supplied, so native form submission still works for simple use cases.
+
+## API Reference
+
+### `<FileUploader>`
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'FileUploaderItem[]',
+      description: 'Controlled list of items.',
+    },
+    {
+      name: 'defaultValue',
+      type: 'FileUploaderItem[]',
+      description: 'Default list (uncontrolled).',
+    },
+    {
+      name: 'onChange',
+      type: '(items: FileUploaderItem[]) => void',
+      description: 'Called whenever the items list changes.',
+    },
+    {
+      name: 'onFilesAdd',
+      type: '(files: File[]) => void',
+      description:
+        'Called with the raw `File` objects that were just accepted (after validation, before they appear as `pending`). Kick off the upload here.',
+    },
+    {
+      name: 'onFileRemove',
+      type: '(item: FileUploaderItem) => void',
+      description: 'Called when a single item is removed.',
+    },
+    {
+      name: 'onReject',
+      type: '(file: File, reason: FileUploaderRejectReason) => void',
+      description: 'Called for files rejected by validation.',
+    },
+    {
+      name: 'accept',
+      type: 'string',
+      description:
+        'Comma-separated list of accepted MIME types and/or extensions (e.g. `image/*,.pdf`). All types when omitted.',
+    },
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'true',
+      description: 'Allow selecting more than one file at a time.',
+    },
+    {
+      name: 'maxFiles',
+      type: 'number',
+      description:
+        'Maximum number of files the uploader will hold. Extra files are rejected as `max-files`.',
+    },
+    {
+      name: 'maxSize',
+      type: 'number',
+      description:
+        'Maximum file size in bytes. Files above are rejected as `too-large`.',
+    },
+    {
+      name: 'minSize',
+      type: 'number',
+      description:
+        'Minimum file size in bytes. Files below are rejected as `too-small`.',
+    },
+    {
+      name: 'validate',
+      type: '(file: File) => boolean | string',
+      description:
+        'Synchronous validator. `false` rejects as `invalid`, a string is forwarded as the rejection reason.',
+    },
+    {
+      name: 'renderItem',
+      type: '(state: FileUploaderRenderItemState) => ReactNode',
+      description:
+        'Custom row renderer. When omitted the built-in row is used.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Component size.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Label rendered above the dropzone.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text rendered below.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Error state.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description:
+        'Error message — overrides `helperText` when `error` is true.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disable interaction with the uploader.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Mark the field as required.',
+    },
+    {
+      name: 'dropZoneText',
+      type: 'ReactNode',
+      default: "'Drag files here or click to browse'",
+      description: 'Primary text shown inside the dropzone.',
+    },
+    {
+      name: 'dropZoneHint',
+      type: 'ReactNode',
+      description: 'Secondary text shown inside the dropzone.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description:
+        'Hidden form-input name attribute (for native form submission).',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLDivElement>',
+      description: 'Ref to the root element.',
+    },
+  ]}
+/>
+
+### `FileUploaderItem`
+
+<PropsTable
+  props={[
+    {
+      name: 'id',
+      type: 'string',
+      required: true,
+      description:
+        'Stable identifier — generated for new items, preserved across renders.',
+    },
+    {
+      name: 'file',
+      type: 'File',
+      required: true,
+      description: 'Underlying `File` object.',
+    },
+    {
+      name: 'status',
+      type: "'pending' | 'uploading' | 'done' | 'error'",
+      required: true,
+      description: 'Current status of the upload pipeline.',
+    },
+    {
+      name: 'progress',
+      type: 'number',
+      description: 'Upload progress, 0–100. Optional in `pending` / `done`.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description: "Error message displayed when `status === 'error'`.",
+    },
+  ]}
+/>
+
+### `FileUploaderRejectReason`
+
+`'too-large' | 'too-small' | 'wrong-type' | 'max-files' | 'invalid' | string`
+
+Built-in reasons plus any string returned from a `validate` callback.

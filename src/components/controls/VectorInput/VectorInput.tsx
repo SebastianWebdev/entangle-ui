@@ -6,6 +6,7 @@ import type { VectorInputProps } from './VectorInput.types';
 import { NumberInput } from '@/components/controls/NumberInput';
 import { FormLabel } from '@/components/form/FormLabel';
 import { FormHelperText } from '@/components/form/FormHelperText';
+import { LinkIcon, UnlinkIcon } from '@/components/Icons';
 import { cx } from '@/utils/cx';
 import { vars } from '@/theme/contract.css';
 import {
@@ -63,31 +64,6 @@ function getAxisLabels(
   }
   return Array.from({ length: dimension }, (_, i) => String(i));
 }
-
-// SVG icons for link/unlink
-const LinkIcon = ({ size }: { size: number }) => (
-  <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
-    <path
-      d="M6.5 9.5L9.5 6.5M5.5 7.5L4.146 8.854a2 2 0 002.708 2.708L8.5 10.5M7.5 5.5l1.646-1.646a2 2 0 012.708 2.708L10.5 8.5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const UnlinkIcon = ({ size }: { size: number }) => (
-  <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
-    <path
-      d="M5.5 7.5L4.146 8.854a2 2 0 002.708 2.708L8.5 10.5M7.5 5.5l1.646-1.646a2 2 0 012.708 2.708L10.5 8.5M4 4l8 8"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 /**
  * A grouped numeric input for Vec2, Vec3, and Vec4 vectors.
@@ -273,9 +249,9 @@ export const VectorInput = ({
             title={isLinked ? 'Unlink axes' : 'Link axes'}
           >
             {isLinked ? (
-              <LinkIcon size={iconSize} />
+              <LinkIcon size={iconSize} color="currentColor" decorative />
             ) : (
-              <UnlinkIcon size={iconSize} />
+              <UnlinkIcon size={iconSize} color="currentColor" decorative />
             )}
           </button>
         )}

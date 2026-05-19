@@ -1,0 +1,231 @@
+---
+title: Pagination
+description: Page navigator with sibling/boundary ellipsis logic, controlled and uncontrolled modes, three sizes, and optional first/last jump buttons.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import PaginationDemo, {
+  PaginationSizes,
+  PaginationManyPages,
+  PaginationFullControls,
+  PaginationCompact,
+  PaginationControlled,
+  PaginationDisabled,
+} from '../../../../components/demos/navigation/PaginationDemo';
+
+A 1-based page navigator that collapses long page ranges with ellipses. Use it under any list, table, or grid that can be paged through. The MUI-style sibling/boundary algorithm keeps the control compact even for thousands of pages, and the component works in both controlled and uncontrolled modes.
+
+<ComponentPreview title="Live Preview">
+  <PaginationDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { Pagination } from 'entangle-ui';
+```
+
+## Usage
+
+In uncontrolled mode, pass `count` and (optionally) `defaultPage`. The component owns the page state and notifies the consumer via `onChange`.
+
+```tsx
+<Pagination count={20} defaultPage={1} onChange={(_, page) => loadPage(page)} />
+```
+
+For full control, pass `page` and react in `onChange`:
+
+```tsx
+const [page, setPage] = useState(1);
+
+<Pagination count={20} page={page} onChange={(_, next) => setPage(next)} />;
+```
+
+Pages are 1-based. `count` is the total number of pages; pass `0` to render nothing.
+
+## Controlled
+
+<ComponentPreview title="Controlled">
+  <PaginationControlled client:only="react" />
+</ComponentPreview>
+
+## Sizes
+
+Three sizes match the rest of the type scale.
+
+<ComponentPreview title="Sizes">
+  <PaginationSizes client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Pagination size="sm" count={10} />
+<Pagination size="md" count={10} />
+<Pagination size="lg" count={10} />
+```
+
+## Ellipsis logic
+
+`siblingCount` controls how many page numbers are shown on each side of the current page. `boundaryCount` controls how many are pinned to the start and end. Anything skipped collapses into an ellipsis.
+
+<ComponentPreview title="Many pages">
+  <PaginationManyPages client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Pagination count={50} defaultPage={25} />
+// renders: 1 … 24 [25] 26 … 50
+```
+
+Tighter layouts can drop the siblings entirely:
+
+<ComponentPreview title="Compact">
+  <PaginationCompact client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Pagination count={20} defaultPage={10} siblingCount={0} boundaryCount={1} />
+// renders: ‹ 1 … [10] … 20 ›
+```
+
+## First and last jump buttons
+
+For tables with many pages, surface "jump to first" and "jump to last" controls explicitly.
+
+<ComponentPreview title="Full controls">
+  <PaginationFullControls client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Pagination count={50} defaultPage={25} showFirstButton showLastButton />
+```
+
+Conversely, hide the prev/next controls in compact contexts:
+
+```tsx
+<Pagination count={10} hidePrevButton hideNextButton />
+```
+
+## Disabled
+
+Use `disabled` to lock the whole control while the consumer is in a transitional state (e.g. fetching a page).
+
+<ComponentPreview title="Disabled">
+  <PaginationDisabled client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Pagination count={10} defaultPage={4} disabled />
+```
+
+## Localised labels
+
+Override the aria-labels for each item type with `getItemAriaLabel`. Useful for non-English UIs.
+
+```tsx
+<Pagination
+  count={20}
+  getItemAriaLabel={(type, page, selected) => {
+    if (type === 'previous') return 'Strona poprzednia';
+    if (type === 'next') return 'Strona następna';
+    if (type === 'first') return 'Pierwsza strona';
+    if (type === 'last') return 'Ostatnia strona';
+    if (type === 'page')
+      return selected ? `Strona ${page}` : `Idź do strony ${page}`;
+    return 'Więcej stron';
+  }}
+/>
+```
+
+## Accessibility
+
+- The root is a `<nav aria-label="pagination">` so screen readers announce it as a navigation region.
+- The current page has `aria-current="page"`.
+- Each button has a descriptive `aria-label` (`Go to page 5`, `Go to next page`, etc.) — customise with `getItemAriaLabel`.
+- Disabled state is conveyed via the native `disabled` attribute on the button.
+- Ellipses are decorative and use `aria-hidden="true"`.
+- Buttons are keyboard-reachable in the default tab order; `Enter` and `Space` activate them.
+
+## API Reference
+
+### `<Pagination>`
+
+<PropsTable
+  props={[
+    {
+      name: 'count',
+      type: 'number',
+      description: 'Total number of pages.',
+    },
+    {
+      name: 'page',
+      type: 'number',
+      description:
+        'Currently selected page (1-based). Controls the component when set.',
+    },
+    {
+      name: 'defaultPage',
+      type: 'number',
+      default: '1',
+      description: 'Default selected page in uncontrolled mode (1-based).',
+    },
+    {
+      name: 'onChange',
+      type: '(event: SyntheticEvent, page: number) => void',
+      description: 'Called when the user requests a new page.',
+    },
+    {
+      name: 'siblingCount',
+      type: 'number',
+      default: '1',
+      description: 'Pages shown on each side of the current page.',
+    },
+    {
+      name: 'boundaryCount',
+      type: 'number',
+      default: '1',
+      description: 'Pages always shown at the start and end of the list.',
+    },
+    {
+      name: 'showFirstButton',
+      type: 'boolean',
+      default: 'false',
+      description: 'Show the "jump to first" button.',
+    },
+    {
+      name: 'showLastButton',
+      type: 'boolean',
+      default: 'false',
+      description: 'Show the "jump to last" button.',
+    },
+    {
+      name: 'hidePrevButton',
+      type: 'boolean',
+      default: 'false',
+      description: 'Hide the previous-page button.',
+    },
+    {
+      name: 'hideNextButton',
+      type: 'boolean',
+      default: 'false',
+      description: 'Hide the next-page button.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Visual size.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disable the whole control.',
+    },
+    {
+      name: 'getItemAriaLabel',
+      type: '(type, page, selected) => string',
+      description: 'Custom aria-label generator for each item.',
+    },
+  ]}
+/>

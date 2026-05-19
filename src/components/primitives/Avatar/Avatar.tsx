@@ -4,6 +4,7 @@ import React, { useCallback, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
+import { UserIcon } from '@/components/Icons';
 import type { AvatarColor, AvatarProps, AvatarStatus } from './Avatar.types';
 import {
   avatarBgVar,
@@ -91,16 +92,7 @@ function resolveBackgroundColor(
 }
 
 const DefaultUserIcon: React.FC = () => (
-  <svg
-    viewBox="0 0 24 24"
-    width="60%"
-    height="60%"
-    fill="currentColor"
-    aria-hidden="true"
-    focusable="false"
-  >
-    <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-3.314 0-8 1.657-8 4.5V20h16v-1.5c0-2.843-4.686-4.5-8-4.5Z" />
-  </svg>
+  <UserIcon size="60%" color="currentColor" decorative />
 );
 
 /**

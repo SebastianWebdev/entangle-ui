@@ -81,6 +81,10 @@ export default defineConfig({
                 { label: 'Kbd', slug: 'components/primitives/kbd' },
                 { label: 'Link', slug: 'components/primitives/link' },
                 { label: 'Paper', slug: 'components/primitives/paper' },
+                {
+                  label: 'HoverCard',
+                  slug: 'components/primitives/hover-card',
+                },
                 { label: 'Popover', slug: 'components/primitives/popover' },
                 { label: 'Radio', slug: 'components/primitives/radio' },
                 { label: 'Switch', slug: 'components/primitives/switch' },
@@ -98,6 +102,7 @@ export default defineConfig({
               collapsed: false,
               items: [
                 { label: 'Accordion', slug: 'components/layout/accordion' },
+                { label: 'Card', slug: 'components/layout/card' },
                 { label: 'Divider', slug: 'components/layout/divider' },
                 { label: 'Flex', slug: 'components/layout/flex' },
                 { label: 'Grid', slug: 'components/layout/grid' },
@@ -123,24 +128,34 @@ export default defineConfig({
               label: 'Controls',
               collapsed: false,
               items: [
-                { label: 'Slider', slug: 'components/controls/slider' },
                 {
-                  label: 'NumberInput',
-                  slug: 'components/controls/number-input',
+                  label: 'CartesianPicker',
+                  slug: 'components/controls/cartesian-picker',
                 },
-                { label: 'Select', slug: 'components/controls/select' },
                 {
                   label: 'ColorPicker',
                   slug: 'components/controls/color-picker',
                 },
+                { label: 'Combobox', slug: 'components/controls/combobox' },
                 {
                   label: 'CurveEditor',
                   slug: 'components/controls/curve-editor',
                 },
                 {
-                  label: 'CartesianPicker',
-                  slug: 'components/controls/cartesian-picker',
+                  label: 'FileUploader',
+                  slug: 'components/controls/file-uploader',
                 },
+                {
+                  label: 'MultiSelect',
+                  slug: 'components/controls/multi-select',
+                },
+                {
+                  label: 'NumberInput',
+                  slug: 'components/controls/number-input',
+                },
+                { label: 'Select', slug: 'components/controls/select' },
+                { label: 'Slider', slug: 'components/controls/slider' },
+                { label: 'TagInput', slug: 'components/controls/tag-input' },
                 { label: 'TreeView', slug: 'components/controls/tree-view' },
                 {
                   label: 'VectorInput',
@@ -162,6 +177,10 @@ export default defineConfig({
                 },
                 { label: 'Menu', slug: 'components/navigation/menu' },
                 {
+                  label: 'Pagination',
+                  slug: 'components/navigation/pagination',
+                },
+                {
                   label: 'SegmentedControl',
                   slug: 'components/navigation/segmented-control',
                 },
@@ -173,7 +192,12 @@ export default defineConfig({
               collapsed: false,
               items: [
                 { label: 'Alert', slug: 'components/feedback/alert' },
+                {
+                  label: 'CommandPalette',
+                  slug: 'components/feedback/command-palette',
+                },
                 { label: 'Dialog', slug: 'components/feedback/dialog' },
+                { label: 'Drawer', slug: 'components/feedback/drawer' },
                 {
                   label: 'EmptyState',
                   slug: 'components/feedback/empty-state',
@@ -184,7 +208,15 @@ export default defineConfig({
                 },
                 { label: 'Skeleton', slug: 'components/feedback/skeleton' },
                 { label: 'Spinner', slug: 'components/feedback/spinner' },
+                { label: 'Stat', slug: 'components/feedback/stat' },
                 { label: 'Toast', slug: 'components/feedback/toast' },
+              ],
+            },
+            {
+              label: 'Data',
+              collapsed: false,
+              items: [
+                { label: 'DataTable', slug: 'components/data/data-table' },
               ],
             },
             {
@@ -230,21 +262,41 @@ export default defineConfig({
           collapsed: false,
           items: [
             { label: 'Overview', slug: 'hooks' },
+            { label: 'useBreakpoint', slug: 'hooks/use-breakpoint' },
             { label: 'useClickOutside', slug: 'hooks/use-click-outside' },
             { label: 'useClipboard', slug: 'hooks/use-clipboard' },
             {
               label: 'useControlledState',
               slug: 'hooks/use-controlled-state',
             },
+            {
+              label: 'useDebouncedCallback',
+              slug: 'hooks/use-debounced-callback',
+            },
+            {
+              label: 'useDebouncedValue',
+              slug: 'hooks/use-debounced-value',
+            },
             { label: 'useDisclosure', slug: 'hooks/use-disclosure' },
             { label: 'useFocusTrap', slug: 'hooks/use-focus-trap' },
             { label: 'useHotkey', slug: 'hooks/use-hotkey' },
+            {
+              label: 'useIntersectionObserver',
+              slug: 'hooks/use-intersection-observer',
+            },
+            { label: 'useKeyboard', slug: 'hooks/use-keyboard' },
+            { label: 'useListboxNav', slug: 'hooks/use-listbox-nav' },
+            { label: 'useMediaQuery', slug: 'hooks/use-media-query' },
             { label: 'useMergedRef', slug: 'hooks/use-merged-ref' },
             {
               label: 'useResizeObserver',
               slug: 'hooks/use-resize-observer',
             },
             { label: 'useTheme', slug: 'hooks/use-theme' },
+            {
+              label: 'useThrottledCallback',
+              slug: 'hooks/use-throttled-callback',
+            },
           ],
         },
         {
@@ -270,12 +322,22 @@ export default defineConfig({
     // Keep Vite's dep optimizer out of vanilla-extract land — pre-bundling
     // these packages races the plugin and triggers "No CSS for file" errors
     // when navigating to component pages in dev mode.
+    //
+    // `cssesc` is a CommonJS-only transitive dep of `@vanilla-extract/css`
+    // (used by its browser `transformCss` bundle). Excluding the parent
+    // packages above stops Vite from pre-bundling them, but the browser
+    // build still tries to `import cssesc from 'cssesc'` — that's a default
+    // import against a CJS module with no default export, which Vite only
+    // wires up via its CJS→ESM interop when the dep IS pre-bundled. Force
+    // cssesc into optimizeDeps so the interop kicks in and `default`
+    // resolves to `module.exports`.
     optimizeDeps: {
       exclude: [
         '@vanilla-extract/css',
         '@vanilla-extract/recipes',
         '@vanilla-extract/dynamic',
       ],
+      include: ['cssesc'],
     },
     ssr: {
       noExternal: [

@@ -13,9 +13,13 @@ export {
   VINTAGE_PALETTE,
   PROFESSIONAL_PALETTES,
 } from './ColorPicker';
+export { Combobox } from './Combobox';
+export { FileUploader } from './FileUploader';
+export { MultiSelect } from './MultiSelect';
 export { NumberInput } from './NumberInput';
 export { Select } from './Select';
 export { Slider } from './Slider';
+export { TagInput } from './TagInput';
 export { VectorInput } from './VectorInput';
 export { TreeView } from './TreeView';
 export {
@@ -40,6 +44,30 @@ export type {
 } from './ColorPicker';
 export type { EyeDropperProps } from './ColorPicker';
 export type { ColorPaletteProps } from './ColorPicker';
+export type {
+  ComboboxBaseProps,
+  ComboboxOption,
+  ComboboxProps,
+  ComboboxSize,
+  ComboboxVariant,
+} from './Combobox';
+export type {
+  FileUploaderBaseProps,
+  FileUploaderItem,
+  FileUploaderItemStatus,
+  FileUploaderProps,
+  FileUploaderRejectReason,
+  FileUploaderRenderItemState,
+  FileUploaderSize,
+} from './FileUploader';
+export type {
+  MultiSelectBaseProps,
+  MultiSelectOption,
+  MultiSelectOptionGroup,
+  MultiSelectProps,
+  MultiSelectSize,
+  MultiSelectVariant,
+} from './MultiSelect';
 export type { NumberInputProps } from './NumberInput';
 export type {
   SelectProps,
@@ -49,6 +77,14 @@ export type {
   SelectOptionGroup,
 } from './Select';
 export type { SliderProps } from './Slider';
+export type {
+  TagInputBaseProps,
+  TagInputProps,
+  TagInputRenderTagState,
+  TagInputSeparator,
+  TagInputSize,
+  TagInputVariant,
+} from './TagInput';
 export type {
   VectorInputProps,
   VectorInputSize,

@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
+import { CloseIcon } from '@/components/Icons';
 import type { BadgeColor, BadgeProps } from './Badge.types';
 import {
   badgeColorVar,
@@ -44,20 +45,7 @@ function resolveBadgeColor(color: BadgeColor): {
 }
 
 const RemoveIcon: React.FC = () => (
-  <svg
-    width="10"
-    height="10"
-    viewBox="0 0 10 10"
-    aria-hidden="true"
-    focusable="false"
-  >
-    <path
-      d="M2 2 L8 8 M8 2 L2 8"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-  </svg>
+  <CloseIcon size={10} color="currentColor" decorative />
 );
 
 /**

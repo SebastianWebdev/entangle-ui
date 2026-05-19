@@ -80,6 +80,7 @@ export const Accordion: React.FC<AccordionProps> = ({
   variant = 'default',
   size = 'md',
   gap = 0,
+  width = '100%',
   children,
   onChange,
   className,
@@ -141,6 +142,7 @@ export const Accordion: React.FC<AccordionProps> = ({
     ...assignInlineVars({
       [accordionGapVar]: `${gap}px`,
     }),
+    width: typeof width === 'number' ? `${width}px` : width,
     ...style,
   };
 

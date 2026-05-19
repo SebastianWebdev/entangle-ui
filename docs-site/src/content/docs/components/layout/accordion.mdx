@@ -39,6 +39,15 @@ import {
 </Accordion>
 ```
 
+## Width
+
+The accordion defaults to `width: 100%`, filling its parent so the surface keeps a stable width regardless of which item is expanded. Override with the `width` prop when you need a fixed footprint — pass a number for pixels or any CSS length as a string.
+
+```tsx
+<Accordion width={320}>...</Accordion>
+<Accordion width="24rem">...</Accordion>
+```
+
 ## Single vs Multiple
 
 By default, only one item can be expanded at a time. Opening a new item closes the previously open one. Set `multiple` to allow multiple items to be open simultaneously.
@@ -309,6 +318,13 @@ const [expanded, setExpanded] = useState<string[]>(['a', 'b']);
       type: 'number',
       default: '0',
       description: 'Gap between accordion items in pixels.',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      default: "'100%'",
+      description:
+        'Width of the accordion. Number → px, string → CSS value. Defaults to filling the parent so layout stays stable regardless of which item is expanded.',
     },
     {
       name: 'onChange',

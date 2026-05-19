@@ -2,6 +2,11 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
+import { ErrorIcon } from '@/components/Icons/ErrorIcon';
+import { InfoIcon } from '@/components/Icons/InfoIcon';
+import { SuccessIcon } from '@/components/Icons/SuccessIcon';
+import { WarningIcon } from '@/components/Icons/WarningIcon';
 import type { ToastInternalData, ToastSeverity } from './Toast.types';
 import {
   progressDurationVar,
@@ -16,96 +21,18 @@ import {
   progressBar,
 } from './ToastItem.css';
 
-// --- Severity icons (inline SVGs) ---
+// --- Severity icons ---
 
-const SeverityIcon: React.FC<{ severity: ToastSeverity; color: string }> = ({
-  severity,
-  color,
-}) => {
-  const size = 16;
-  const commonProps = {
-    width: size,
-    height: size,
-    viewBox: '0 0 16 16',
-    fill: 'none',
-    'aria-hidden': true as const,
-  };
-
+const SeverityIcon: React.FC<{ severity: ToastSeverity }> = ({ severity }) => {
   switch (severity) {
     case 'info':
-      return (
-        <svg {...commonProps}>
-          <circle cx="8" cy="8" r="7" stroke={color} strokeWidth="1.5" />
-          <line
-            x1="8"
-            y1="7"
-            x2="8"
-            y2="11"
-            stroke={color}
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-          <circle cx="8" cy="5" r="0.75" fill={color} />
-        </svg>
-      );
+      return <InfoIcon size="md" color="currentColor" decorative />;
     case 'success':
-      return (
-        <svg {...commonProps}>
-          <circle cx="8" cy="8" r="7" stroke={color} strokeWidth="1.5" />
-          <path
-            d="M5 8L7 10L11 6"
-            stroke={color}
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
+      return <SuccessIcon size="md" color="currentColor" decorative />;
     case 'warning':
-      return (
-        <svg {...commonProps}>
-          <path
-            d="M8 2L14.5 13H1.5L8 2Z"
-            stroke={color}
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-          />
-          <line
-            x1="8"
-            y1="6"
-            x2="8"
-            y2="9"
-            stroke={color}
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-          <circle cx="8" cy="11" r="0.75" fill={color} />
-        </svg>
-      );
+      return <WarningIcon size="md" color="currentColor" decorative />;
     case 'error':
-      return (
-        <svg {...commonProps}>
-          <circle cx="8" cy="8" r="7" stroke={color} strokeWidth="1.5" />
-          <line
-            x1="5.5"
-            y1="5.5"
-            x2="10.5"
-            y2="10.5"
-            stroke={color}
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-          <line
-            x1="10.5"
-            y1="5.5"
-            x2="5.5"
-            y2="10.5"
-            stroke={color}
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
-      );
+      return <ErrorIcon size="md" color="currentColor" decorative />;
   }
 };
 
@@ -194,7 +121,7 @@ export const ToastItem: React.FC<ToastItemProps> = ({
     >
       <div className={content}>
         <div className={iconWrapper}>
-          {icon ?? <SeverityIcon severity={severity} color="currentColor" />}
+          {icon ?? <SeverityIcon severity={severity} />}
         </div>
         <div className={textContent}>
           {title && <div className={titleStyle}>{title}</div>}
@@ -216,32 +143,7 @@ export const ToastItem: React.FC<ToastItemProps> = ({
             aria-label="Dismiss notification"
             type="button"
           >
-            <svg
-              width={12}
-              height={12}
-              viewBox="0 0 12 12"
-              fill="none"
-              aria-hidden="true"
-            >
-              <line
-                x1="2"
-                y1="2"
-                x2="10"
-                y2="10"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-              <line
-                x1="10"
-                y1="2"
-                x2="2"
-                y2="10"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <CloseIcon size="sm" decorative />
           </button>
         )}
       </div>

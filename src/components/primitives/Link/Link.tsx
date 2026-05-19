@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { ExternalLinkIcon } from '@/components/Icons/ExternalLinkIcon';
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
 import type { LinkColor, LinkProps, LinkVariant } from './Link.types';
@@ -93,38 +94,6 @@ function stripNavProps(
   }
   return cleaned;
 }
-
-const ExternalIcon: React.FC = () => (
-  <svg
-    className={externalIconStyle}
-    viewBox="0 0 12 12"
-    fill="none"
-    aria-hidden="true"
-    focusable="false"
-  >
-    <path
-      d="M4 2h6v6"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M10 2L5 7"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M9 7v3H2V3h3"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 /**
  * Styled anchor primitive.
@@ -248,7 +217,11 @@ function LinkImpl<E extends React.ElementType = 'a'>(
       {children}
       {isExternal && (
         <>
-          <ExternalIcon />
+          <ExternalLinkIcon
+            className={externalIconStyle}
+            size="0.75em"
+            decorative
+          />
           {!ariaLabel && (
             <span className={srOnlyStyle}> (opens in new tab)</span>
           )}

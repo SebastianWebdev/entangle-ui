@@ -4,6 +4,7 @@ export {
   AccordionItem,
   AccordionTrigger,
 } from './Accordion';
+export { Card } from './Card';
 export { Divider } from './Divider';
 export { Flex } from './Flex';
 export { Grid } from './Grid';
@@ -15,6 +16,20 @@ export { Spacer } from './Spacer';
 export { SplitPane, SplitPanePanel } from './SplitPane';
 export { Stack } from './Stack';
 
+export type {
+  CardBaseProps,
+  CardBodyBaseProps,
+  CardBodyProps,
+  CardFooterAlign,
+  CardFooterBaseProps,
+  CardFooterProps,
+  CardHeaderBaseProps,
+  CardHeaderProps,
+  CardMediaBaseProps,
+  CardMediaProps,
+  CardProps,
+  CardVariant,
+} from './Card';
 export type {
   AccordionContentProps,
   AccordionItemProps,

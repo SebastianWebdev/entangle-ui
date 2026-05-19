@@ -4,6 +4,7 @@ import React from 'react';
 import type { ChatMessageProps } from './ChatPanel.types';
 import { cx } from '@/utils/cx';
 import { Avatar } from '@/components/primitives/Avatar';
+import { ErrorIcon } from '@/components/Icons';
 import { ChatBubble } from './ChatBubble';
 import {
   bubbleErrorStyle,
@@ -31,28 +32,6 @@ function formatTimestamp(iso: string): string {
     return '';
   }
 }
-
-const ErrorIcon: React.FC = () => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
-    fill="none"
-    aria-hidden="true"
-  >
-    <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.2" />
-    <line
-      x1="6"
-      y1="3.5"
-      x2="6"
-      y2="6.5"
-      stroke="currentColor"
-      strokeWidth="1.2"
-      strokeLinecap="round"
-    />
-    <circle cx="6" cy="8.5" r="0.6" fill="currentColor" />
-  </svg>
-);
 
 export const ChatMessage = /*#__PURE__*/ React.memo<ChatMessageProps>(
   ({
@@ -113,7 +92,7 @@ export const ChatMessage = /*#__PURE__*/ React.memo<ChatMessageProps>(
           {isError && (
             <span className={messageErrorCaptionStyle}>
               <span className={messageErrorIconStyle}>
-                <ErrorIcon />
+                <ErrorIcon size={12} decorative />
               </span>
               Error generating response
             </span>

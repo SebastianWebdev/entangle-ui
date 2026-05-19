@@ -92,6 +92,8 @@ export const alertContentStyle = style({
   flexDirection: 'column',
   flex: 1,
   minWidth: 0,
+  overflowWrap: 'anywhere',
+  wordBreak: 'break-word',
 });
 
 /**

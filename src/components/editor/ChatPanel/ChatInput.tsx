@@ -4,6 +4,7 @@ import React, { useCallback, useId } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { ChatInputProps } from './ChatPanel.types';
 import { cx } from '@/utils/cx';
+import { SendIcon, StopIcon } from '@/components/Icons';
 import { useChatInput } from './useChatInput';
 import { ChatAttachmentChip } from './ChatAttachment';
 import {
@@ -17,40 +18,6 @@ import {
   inputMaxHeightVar,
   inputBottomBarStyle,
 } from './ChatPanel.css';
-
-// ─── Icons ───────────────────────────────────────────────────────
-
-const SendIcon: React.FC = () => (
-  <svg
-    width="14"
-    height="14"
-    viewBox="0 0 16 16"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M14.5 1.5L7 9M14.5 1.5L10 14.5L7 9M14.5 1.5L1.5 6L7 9"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const StopIcon: React.FC = () => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
-    fill="none"
-    aria-hidden="true"
-  >
-    <rect x="2" y="2" width="8" height="8" rx="1" fill="currentColor" />
-  </svg>
-);
-
-// ─── Component ───────────────────────────────────────────────────
 
 export const ChatInput = /*#__PURE__*/ React.memo<ChatInputProps>(
   ({
@@ -207,7 +174,7 @@ export const ChatInput = /*#__PURE__*/ React.memo<ChatInputProps>(
                 onClick={onStop}
                 aria-label="Stop generating"
               >
-                <StopIcon />
+                <StopIcon size={12} decorative />
               </button>
             ) : (
               <button
@@ -217,7 +184,7 @@ export const ChatInput = /*#__PURE__*/ React.memo<ChatInputProps>(
                 disabled={!canSubmit}
                 aria-label="Send message"
               >
-                <SendIcon />
+                <SendIcon size={14} decorative />
               </button>
             )}
           </div>

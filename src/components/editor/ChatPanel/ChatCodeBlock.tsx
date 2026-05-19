@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import type { ChatCodeBlockProps } from './ChatPanel.types';
 import { cx } from '@/utils/cx';
+import { CheckIcon, CopyIcon } from '@/components/Icons';
 import {
   codeBlockContainerStyle,
   codeBlockHeaderStyle,
@@ -16,53 +17,6 @@ import {
   codeBlockPreStyle,
   codeBlockMaxHeightVar,
 } from './ChatPanel.css';
-
-// ─── Icons ───────────────────────────────────────────────────────
-
-const CopyIcon: React.FC = () => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 16 16"
-    fill="none"
-    aria-hidden="true"
-  >
-    <rect
-      x="5"
-      y="5"
-      width="9"
-      height="9"
-      rx="1.5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    />
-    <path
-      d="M11 5V3.5A1.5 1.5 0 009.5 2H3.5A1.5 1.5 0 002 3.5V9.5A1.5 1.5 0 003.5 11H5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    />
-  </svg>
-);
-
-const CheckIcon: React.FC = () => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 16 16"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M3 8.5L6.5 12L13 4"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-// ─── Component ───────────────────────────────────────────────────
 
 export const ChatCodeBlock = /*#__PURE__*/ React.memo<ChatCodeBlockProps>(
   ({
@@ -117,7 +71,11 @@ export const ChatCodeBlock = /*#__PURE__*/ React.memo<ChatCodeBlockProps>(
                   onClick={handleCopy}
                   aria-label={copied ? 'Copied' : 'Copy code'}
                 >
-                  {copied ? <CheckIcon /> : <CopyIcon />}
+                  {copied ? (
+                    <CheckIcon size={12} decorative />
+                  ) : (
+                    <CopyIcon size={12} decorative />
+                  )}
                 </button>
               )}
             </div>

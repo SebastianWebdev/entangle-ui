@@ -1,0 +1,361 @@
+---
+title: Card
+description: Bounded surface for a single semantic unit, with outlined, filled, and elevated variants and a compound API for header / media / body / footer.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import CardDemo, {
+  CardVariants,
+  CardInteractive,
+  CardWithMedia,
+  CardListItem,
+  CardDisabled,
+  CardFooterAlignments,
+  CardCustomHeader,
+} from '../../../../components/demos/layout/CardDemo';
+
+A bounded surface representing a single semantic unit — an asset, a summary, a preview, a list row. `Card` is distinct from `Paper` (a generic surface): it ships with a header / media / body / footer convention and can be made interactive by passing `onClick`, giving the whole card a `button` role with keyboard support.
+
+<ComponentPreview title="Live Preview">
+  <CardDemo client:only="react" />
+</ComponentPreview>
+
+## When to use
+
+- **Card** — one self-contained item (an asset, a preset, a result). Has a fixed slot grammar (header / media / body / footer) and can become a clickable target.
+- **Paper** — a generic raised / bordered surface with no semantics. Use when you just need "a box".
+- **PanelSurface** — a structural panel inside an editor shell (header + scrollable body + footer). Anchored, not a discrete item.
+
+Reach for `Card` when you're rendering a collection of discrete units — an asset grid, a list of presets, a feed of results. Reach for `Paper` when you just need a styled container.
+
+## Import
+
+```tsx
+import { Card } from 'entangle-ui';
+```
+
+The compound members are attached to `Card`:
+
+```tsx
+<Card>
+  <Card.Header>...</Card.Header>
+  <Card.Media>...</Card.Media>
+  <Card.Body>...</Card.Body>
+  <Card.Footer>...</Card.Footer>
+</Card>
+```
+
+## Usage
+
+```tsx
+<Card variant="elevated">
+  <Card.Header title="Asphalt 02" subtitle="Updated 2 hours ago" />
+  <Card.Media src="/preview.png" alt="Preview" aspectRatio={16 / 9} />
+  <Card.Body>4K PBR material with roughness and normal maps.</Card.Body>
+  <Card.Footer align="space-between">
+    <span>12.4 MB</span>
+    <Button variant="filled">Open</Button>
+  </Card.Footer>
+</Card>
+```
+
+All compound members are optional and can appear in any order — though the canonical order (header → media → body → footer) reads best in most layouts.
+
+## Variants
+
+`variant` chooses the surface treatment. `outlined` is the default.
+
+<ComponentPreview title="Variants">
+  <CardVariants client:only="react" />
+</ComponentPreview>
+
+| Variant    | Treatment                            | Use when                                         |
+| ---------- | ------------------------------------ | ------------------------------------------------ |
+| `outlined` | Transparent background, 1px border   | Default. Quiet card that sits on any surface.    |
+| `filled`   | Surface-tinted background, no border | Cards on the canvas background; gives mild lift. |
+| `elevated` | Surface background plus drop shadow  | Interactive cards (asset grids, result lists).   |
+
+```tsx
+<Card variant="outlined">...</Card>
+<Card variant="filled">...</Card>
+<Card variant="elevated">...</Card>
+```
+
+## Interactive
+
+Pass `onClick` to turn the whole card into a button: `role="button"`, `tabIndex=0`, Enter and Space activation, and a focus ring on `:focus-visible`. Combine with `selected` for grid-style selection.
+
+<ComponentPreview title="Interactive">
+  <CardInteractive client:only="react" />
+</ComponentPreview>
+
+```tsx
+const [picked, setPicked] = useState<string | null>(null);
+
+<Card
+  variant="elevated"
+  onClick={() => setPicked(item.id)}
+  selected={picked === item.id}
+>
+  <Card.Header title={item.title} subtitle={item.subtitle} />
+</Card>;
+```
+
+`selected` cards receive the accent border and a tinted background; the component also sets `aria-pressed="true"` when interactive and selected.
+
+## With media
+
+`Card.Media` renders edge-to-edge inside the card and respects its own aspect ratio. Pass `src` for the common `<img>` case, or drop arbitrary children (video, canvas, `<picture>`) for everything else.
+
+<ComponentPreview title="With media">
+  <CardWithMedia client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Card variant="elevated">
+  <Card.Media src="/preview.png" alt="Preview" aspectRatio={16 / 9} />
+  <Card.Header title="Lobby render" subtitle="Saved 5 min ago" />
+  <Card.Body>Description...</Card.Body>
+</Card>
+```
+
+The default aspect ratio is `16 / 9`. Pass any number to override (e.g. `aspectRatio={1}` for a square thumbnail, `aspectRatio={4 / 3}` for legacy footage). Numeric `aspectRatio` is interpreted as `width / height`.
+
+## List-item layout
+
+For dense lists (file rows, search results, asset rows) use `outlined` cards with `Card.Header` only — `leading` carries the icon and `trailing` carries the affordance.
+
+<ComponentPreview title="List rows">
+  <CardListItem client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Card variant="outlined" onClick={open}>
+  <Card.Header
+    leading={<FolderIcon />}
+    title="Concrete 04"
+    subtitle="PBR material — 8.2 MB"
+    trailing={
+      <Text size="xs" color="muted">
+        Open
+      </Text>
+    }
+  />
+</Card>
+```
+
+## Disabled
+
+`disabled` dims the card, drops `pointer-events`, and sets `aria-disabled="true"`. It also short-circuits `onClick`, so a disabled card never becomes interactive.
+
+<ComponentPreview title="Disabled">
+  <CardDisabled client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Card variant="elevated" disabled onClick={open}>
+  <Card.Header title="Locked preset" subtitle="Pointer events off" />
+  <Card.Body>Body text is dimmed.</Card.Body>
+</Card>
+```
+
+## Footer alignment
+
+`Card.Footer` is a flex row with a top border. `align` controls horizontal placement.
+
+<ComponentPreview title="Footer alignment">
+  <CardFooterAlignments client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Card.Footer align="left">...</Card.Footer>
+<Card.Footer align="center">...</Card.Footer>
+<Card.Footer align="right">...</Card.Footer>
+<Card.Footer align="space-between">...</Card.Footer>
+```
+
+`right` is the default — fits the "Cancel + Confirm" button pattern most cards end with.
+
+## Custom header content
+
+When `children` is passed to `Card.Header`, the default title/subtitle layout is bypassed and your nodes are rendered in the text column instead. `leading` and `trailing` still render in their respective columns.
+
+<ComponentPreview title="Custom header">
+  <CardCustomHeader client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Card.Header>
+  <Flex justify="space-between" align="center">
+    <Text weight="semibold">Custom header layout</Text>
+    <Text size="xs" color="muted">
+      Free-form children
+    </Text>
+  </Flex>
+</Card.Header>
+```
+
+## Compound API
+
+`Card` is a compound component. The members below are attached to `Card` (`Card.Header`, `Card.Media`, `Card.Body`, `Card.Footer`) and are all optional — pick the ones you need.
+
+| Member        | Role                                                                        |
+| ------------- | --------------------------------------------------------------------------- |
+| `Card`        | Root surface. Owns variant, selection, disabled state, and interactivity.   |
+| `Card.Header` | Title / subtitle row with optional `leading` and `trailing` slots.          |
+| `Card.Media`  | Edge-to-edge image (via `src`) or arbitrary children at a fixed aspect.     |
+| `Card.Body`   | Descriptive body copy. Flex-grows so the footer stays pinned to the bottom. |
+| `Card.Footer` | Action row with a top border and configurable alignment.                    |
+
+All members accept their own ARIA / data attributes (passed through to the underlying `div`), so you can tag any slot for testing or screen-reader hints without wrapping.
+
+## Accessibility
+
+- Static cards render as a `<div>` with no role; they participate in the document outline through their children.
+- When `onClick` is set and the card is not `disabled`, the root receives `role="button"`, `tabIndex=0`, and a Space / Enter keyboard handler. `aria-pressed` reflects `selected`.
+- When `disabled` is set, the card sets `aria-disabled="true"` and short-circuits `onClick`; the keyboard handler is not attached.
+- Focus state uses `:focus-visible` so keyboard users see the focus ring without it appearing on mouse clicks.
+- `Card.Header` renders its `title` as `<h3>` and its `subtitle` as `<p>` — pick custom children when the heading level needs to differ.
+- `Card.Media` requires `alt` whenever `src` is set; pass an empty string for purely decorative imagery.
+
+## API Reference
+
+### `<Card>`
+
+<PropsTable
+  props={[
+    {
+      name: 'variant',
+      type: "'outlined' | 'filled' | 'elevated'",
+      default: "'outlined'",
+      description: 'Visual variant.',
+    },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent<HTMLDivElement>) => void',
+      description:
+        'Click handler. When set, the whole card becomes interactive (button role, keyboard activation, focus ring).',
+    },
+    {
+      name: 'selected',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Selected state — applies the accent border and tint. Combine with `onClick` for grid-style selection.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Disabled state. Dims the card, removes pointer events, and short-circuits `onClick`.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Card content — typically `Card.Header`, `Card.Media`, `Card.Body`, and/or `Card.Footer`.',
+    },
+  ]}
+/>
+
+### `<Card.Header>`
+
+<PropsTable
+  props={[
+    {
+      name: 'title',
+      type: 'ReactNode',
+      description:
+        'Title rendered as `<h3>`. Ignored when `children` is provided.',
+    },
+    {
+      name: 'subtitle',
+      type: 'ReactNode',
+      description:
+        'Subtitle rendered as `<p>` below the title. Ignored when `children` is provided.',
+    },
+    {
+      name: 'leading',
+      type: 'ReactNode',
+      description:
+        'Leading visual (icon, Avatar) rendered to the left of the text column.',
+    },
+    {
+      name: 'trailing',
+      type: 'ReactNode',
+      description:
+        'Trailing slot (IconButton, Menu) rendered to the right of the text column.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Custom content for the text column. Overrides the default title/subtitle layout when provided.',
+    },
+  ]}
+/>
+
+### `<Card.Media>`
+
+<PropsTable
+  props={[
+    {
+      name: 'src',
+      type: 'string',
+      description:
+        'Image source — shortcut for rendering an `<img>` inside the media slot.',
+    },
+    {
+      name: 'alt',
+      type: 'string',
+      description:
+        'Alt text for the image. Defaults to an empty string when omitted; pass an empty string explicitly for decorative imagery.',
+    },
+    {
+      name: 'aspectRatio',
+      type: 'number',
+      default: '16 / 9',
+      description:
+        'Aspect ratio of the media slot (width / height). Use `1` for square thumbnails, `4 / 3` for legacy footage.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Arbitrary children rendered inside the media slot. Used when `src` is not set — drop in a `<video>`, `<canvas>`, or `<picture>`.',
+    },
+  ]}
+/>
+
+### `<Card.Body>`
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Body content. Flex-grows so the footer stays pinned to the bottom of the card.',
+    },
+  ]}
+/>
+
+### `<Card.Footer>`
+
+<PropsTable
+  props={[
+    {
+      name: 'align',
+      type: "'left' | 'center' | 'right' | 'space-between'",
+      default: "'right'",
+      description: 'Horizontal alignment of footer content.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Footer content — typically action buttons.',
+    },
+  ]}
+/>

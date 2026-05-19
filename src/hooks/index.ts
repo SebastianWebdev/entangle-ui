@@ -36,6 +36,36 @@ export type { UseClickOutsideOptions } from './useClickOutside';
 export { useHotkey } from './useHotkey';
 export type { UseHotkeyOptions } from './useHotkey';
 
+export { useMediaQuery } from './useMediaQuery';
+export type { UseMediaQueryOptions } from './useMediaQuery';
+
+export { useBreakpoint } from './useBreakpoint';
+export type { BreakpointMap, UseBreakpointReturn } from './useBreakpoint';
+
+export { useDebouncedValue, useDebouncedCallback } from './useDebounced';
+export type {
+  DebouncedCallback,
+  UseDebouncedCallbackOptions,
+} from './useDebounced';
+
+export { useThrottledCallback } from './useThrottledCallback';
+export type {
+  ThrottledCallback,
+  UseThrottledCallbackOptions,
+} from './useThrottledCallback';
+
+export { useIntersectionObserver } from './useIntersectionObserver';
+export type {
+  UseIntersectionObserverOptions,
+  UseIntersectionObserverReturn,
+} from './useIntersectionObserver';
+
+export { useListboxNav } from './useListboxNav';
+export type {
+  UseListboxNavOptions,
+  UseListboxNavReturn,
+} from './useListboxNav';
+
 export { useTheme } from './useTheme';
 export type {
   ResolvedThemeValues,

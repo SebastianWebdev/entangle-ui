@@ -25,7 +25,7 @@ const OUTER_SIZES: Record<RadioSize, number> = {
 
 const INNER_SIZES: Record<RadioSize, number> = {
   sm: 6,
-  md: 7,
+  md: 6,
   lg: 8,
 };
 

@@ -65,6 +65,14 @@ export interface AlertBaseProps extends Omit<
   title?: React.ReactNode;
 
   /**
+   * Width of the alert. Number → px, string → CSS value.
+   * Defaults to `100%` so the alert fills its parent and keeps a stable width
+   * regardless of content length; long text wraps inside.
+   * @default "100%"
+   */
+  width?: number | string;
+
+  /**
    * Children — typically `Alert.Title` / `Alert.Description` / `Alert.Actions`.
    * Plain string content is also fine (treated as description).
    */

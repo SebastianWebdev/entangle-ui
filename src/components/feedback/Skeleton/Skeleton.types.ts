@@ -91,3 +91,53 @@ export interface SkeletonGroupBaseProps extends BaseComponent<HTMLDivElement> {
 }
 
 export type SkeletonGroupProps = Prettify<SkeletonGroupBaseProps>;
+
+/**
+ * Pre-built skeleton arrangement.
+ *
+ * - `card`  — circular avatar, a few text lines, and a thumbnail block
+ * - `list`  — vertical rows of avatar + two text lines
+ * - `table` — header row + data rows laid out on a CSS grid
+ * - `grid`  — uniform grid of square blocks (no animation by default)
+ * - `chat`  — alternating left/right message bubbles
+ */
+export type SkeletonLayoutVariant = 'card' | 'list' | 'table' | 'grid' | 'chat';
+
+export interface SkeletonLayoutBaseProps extends BaseComponent<HTMLDivElement> {
+  /**
+   * Which pre-built arrangement to render.
+   */
+  variant: SkeletonLayoutVariant;
+
+  /**
+   * Number of repeating units in the layout.
+   *
+   * - `list` — number of rows (default 5)
+   * - `table` — number of data rows excluding the header (default 5)
+   * - `grid` — total number of cells (default 12)
+   * - `chat` — number of message bubbles (default 4)
+   * - `card` — ignored (a card is a single unit)
+   */
+  count?: number;
+
+  /**
+   * Number of columns. Only meaningful for `grid` and `table` variants.
+   * @default 4
+   */
+  columns?: number;
+
+  /**
+   * Animation applied to every nested skeleton.
+   * Defaults to `pulse` for most variants and `none` for `grid` — running
+   * dozens of animations at once is more noise than help on dense surfaces.
+   */
+  animation?: SkeletonAnimation;
+
+  /**
+   * Width of the layout container. Number → px, string → CSS value.
+   * @default "100%"
+   */
+  width?: number | string;
+}
+
+export type SkeletonLayoutProps = Prettify<SkeletonLayoutBaseProps>;

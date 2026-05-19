@@ -1,0 +1,362 @@
+---
+title: CommandPalette
+description: Search-driven command list shown as a centred floating dialog, with fuzzy filtering, keyboard navigation, grouping, and recent-item tracking.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import CommandPaletteDemo, {
+  CommandPaletteWithHotkey,
+  CommandPaletteWithGroups,
+  CommandPaletteEmpty,
+  CommandPaletteCustomRenderer,
+} from '../../../../components/demos/feedback/CommandPaletteDemo';
+
+A centred floating dialog with a search input and a list of commands. Use it as the top-level "do anything" surface in an editor or app — open it with a global hotkey, type to filter, and press Enter to run. The component handles fuzzy matching, keyboard navigation, grouping, and recent-item tracking; the consumer wires up the hotkey and the command handlers.
+
+<ComponentPreview title="Live Preview">
+  <CommandPaletteDemo client:only="react" />
+</ComponentPreview>
+
+## When to use
+
+- **CommandPalette** — searchable surface for any action in the app. Lives outside the chrome and is summoned by a hotkey.
+- **Menu** — short, fixed list of actions anchored to a trigger. No search.
+- **ContextMenu** — actions scoped to a right-clicked target.
+
+Reach for `CommandPalette` once your command set grows past what fits in a menu, or when keyboard-first users need to find things by name.
+
+## Import
+
+```tsx
+import { CommandPalette } from 'entangle-ui';
+import type { CommandItem } from 'entangle-ui';
+```
+
+The fuzzy-matching helpers are exported too — useful if you want to power a custom UI with the same scoring:
+
+```tsx
+import { fuzzyFilter, fuzzyScore } from 'entangle-ui';
+```
+
+## Usage
+
+`CommandPalette` is fully controlled. Hold the `open` state in the parent and bind a hotkey to toggle it:
+
+```tsx
+const [open, setOpen] = useState(false);
+
+useHotkey('Mod+K', () => {
+  setOpen(true);
+});
+
+<CommandPalette
+  open={open}
+  onClose={() => setOpen(false)}
+  items={[
+    { id: 'open', label: 'Open File', shortcut: 'Cmd+O', group: 'File' },
+    { id: 'save', label: 'Save', shortcut: 'Cmd+S', group: 'File' },
+  ]}
+  onSelect={item => runCommand(item.id)}
+  recentKey="myapp:command-palette"
+/>;
+```
+
+The component does **not** bind a global hotkey itself — that belongs in the consumer so the binding can be configured, disabled in modals, or swapped to match the host application's conventions.
+
+## Binding a global hotkey
+
+Wire the open state to `useHotkey('Mod+K', ...)` (or your hotkey library of choice). The example below uses a raw `keydown` listener for portability.
+
+<ComponentPreview title="With a global hotkey">
+  <CommandPaletteWithHotkey client:only="react" />
+</ComponentPreview>
+
+```tsx
+useEffect(() => {
+  function handler(e: KeyboardEvent) {
+    const isCmdK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k';
+    if (isCmdK) {
+      e.preventDefault();
+      setOpen(o => !o);
+    }
+  }
+  window.addEventListener('keydown', handler);
+  return () => window.removeEventListener('keydown', handler);
+}, []);
+```
+
+## Fuzzy filtering
+
+Typing in the input fuzzy-matches against each item's `label`, `description`, and `keywords`. The matcher scores subsequence hits and rewards matches that land on word boundaries — so "of" matches "**O**pen **F**ile" higher than "Pre**of**". The filter is debounced (150 ms by default) and re-sorts the list by score on every keystroke.
+
+```tsx
+<CommandPalette
+  items={[
+    {
+      id: 'theme',
+      label: 'Switch Theme',
+      group: 'Preferences',
+      keywords: ['dark', 'light', 'appearance'],
+    },
+  ]}
+/>
+```
+
+Tune the responsiveness with the `debounceMs` prop. Set it to `0` for snappy lists, raise it for very large item sets where filtering is expensive in the consumer's `onSelect` chain.
+
+## Groups
+
+Each item's `group` field becomes a section header. Items without a `group` go into an unlabelled default section that renders first.
+
+<ComponentPreview title="Grouped commands">
+  <CommandPaletteWithGroups client:only="react" />
+</ComponentPreview>
+
+```tsx
+<CommandPalette
+  items={[
+    { id: 'open', label: 'Open File', group: 'File' },
+    { id: 'save', label: 'Save', group: 'File' },
+    { id: 'find', label: 'Find in Files', group: 'Search' },
+  ]}
+/>
+```
+
+## Recent items
+
+Pass a `recentKey` to track the last few selections in `localStorage`. When the input is empty, recents render in their own group at the top of the list. The component falls back gracefully when storage is unavailable (private browsing, SSR).
+
+```tsx
+<CommandPalette
+  recentKey="myapp:command-palette"
+  maxRecent={5}
+  recentLabel="Recent"
+/>
+```
+
+Omit `recentKey` to disable tracking entirely.
+
+## Keyboard shortcuts on items
+
+Pass a `shortcut` string to render a trailing `<Kbd>` chip. The shortcut is for display only — it doesn't bind a global key, so the consumer is still responsible for wiring it up at the application level.
+
+```tsx
+const items = [
+  { id: 'save', label: 'Save', shortcut: 'Cmd+S' },
+  { id: 'find', label: 'Find in Files', shortcut: 'Shift+Cmd+F' },
+];
+```
+
+## Empty state
+
+Provide a custom `emptyState` node, or let the default "No matches for …" message render.
+
+<ComponentPreview title="Empty state">
+  <CommandPaletteEmpty client:only="react" />
+</ComponentPreview>
+
+```tsx
+<CommandPalette items={[]} emptyState={<span>Nothing to do here yet.</span>} />
+```
+
+## Custom item renderer
+
+For richer rows — multi-line descriptions, badges, inline previews — pass `renderItem` to replace the default layout. The renderer receives the item and a `{ selected, query }` state object.
+
+<ComponentPreview title="Custom row renderer">
+  <CommandPaletteCustomRenderer client:only="react" />
+</ComponentPreview>
+
+```tsx
+<CommandPalette
+  items={items}
+  renderItem={(item, state) => (
+    <div
+      style={{
+        display: 'flex',
+        gap: 12,
+        fontWeight: state.selected ? 600 : 400,
+      }}
+    >
+      <span style={{ flex: 1 }}>{item.label}</span>
+      {item.shortcut && <span>{item.shortcut}</span>}
+    </div>
+  )}
+/>
+```
+
+## Item handlers
+
+Each item can supply its own `onSelect` callback for a one-shot action. When omitted, the top-level `onSelect` on `CommandPalette` is called with the item.
+
+```tsx
+<CommandPalette
+  items={[
+    { id: 'open', label: 'Open File', onSelect: () => openFileDialog() },
+    { id: 'save', label: 'Save' },
+  ]}
+  onSelect={item => runCommand(item.id)}
+/>
+```
+
+Use `disabled: true` on an item to render it but skip it during keyboard navigation and click.
+
+## Accessibility
+
+- The dialog uses `role="dialog"` with `aria-modal="true"` and `aria-label="Command palette"`.
+- The input is a `role="combobox"` with `aria-controls` pointing at the listbox and `aria-activedescendant` reflecting the highlighted item.
+- The list is a `role="listbox"` of `role="option"` items; the active option has `aria-selected="true"`.
+- Keyboard: `ArrowUp` / `ArrowDown` to navigate, `Home` / `End` to jump, `Enter` to run, `Escape` to close. Hover mirrors keyboard selection.
+- Disabled items receive `aria-disabled="true"` and are skipped by keyboard navigation.
+- Focus moves to the input on open. The consumer is responsible for restoring focus to the trigger on close.
+
+## API Reference
+
+### `<CommandPalette>`
+
+<PropsTable
+  props={[
+    {
+      name: 'open',
+      type: 'boolean',
+      description: 'Whether the palette is open.',
+    },
+    {
+      name: 'onClose',
+      type: '() => void',
+      description:
+        'Called when the palette requests close (Escape, overlay click, after selection).',
+    },
+    {
+      name: 'items',
+      type: 'readonly CommandItem[]',
+      description:
+        'All commands. The component filters them as the user types.',
+    },
+    {
+      name: 'onSelect',
+      type: '(item: CommandItem) => void',
+      description:
+        'Default handler invoked when an item without its own `onSelect` is chosen.',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      default: "'Type a command or search...'",
+      description: 'Placeholder text for the search input.',
+    },
+    {
+      name: 'emptyState',
+      type: 'ReactNode',
+      description:
+        'Custom node rendered when no items match the current query.',
+    },
+    {
+      name: 'recentKey',
+      type: 'string',
+      description:
+        '`localStorage` key for tracking recently selected items. Recent tracking is off when omitted.',
+    },
+    {
+      name: 'recentLabel',
+      type: 'string',
+      default: "'Recent'",
+      description: 'Localised label for the recent items group header.',
+    },
+    {
+      name: 'maxRecent',
+      type: 'number',
+      default: '5',
+      description: 'Maximum number of recent items to track.',
+    },
+    {
+      name: 'debounceMs',
+      type: 'number',
+      default: '150',
+      description: 'Debounce applied to the search query, in ms.',
+    },
+    {
+      name: 'renderItem',
+      type: '(item: CommandItem, state: { selected: boolean; query: string }) => ReactNode',
+      description:
+        'Custom renderer for each item — replaces the default row layout.',
+    },
+    {
+      name: 'portal',
+      type: 'boolean',
+      default: 'true',
+      description: 'Render in a portal on `document.body`.',
+    },
+    {
+      name: 'maxHeight',
+      type: 'number',
+      default: '400',
+      description: 'Maximum height of the results list, in px.',
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      default: '640',
+      description: 'Width of the panel. Number → px, string → CSS value.',
+    },
+  ]}
+/>
+
+### `CommandItem`
+
+<PropsTable
+  props={[
+    {
+      name: 'id',
+      type: 'string',
+      description:
+        'Stable unique identifier — used for keys and the recent list.',
+    },
+    { name: 'label', type: 'string', description: 'Visible label.' },
+    {
+      name: 'description',
+      type: 'string',
+      description: 'Optional secondary description rendered below the label.',
+    },
+    {
+      name: 'group',
+      type: 'string',
+      description:
+        'Group name for sectioning the list. Items without a group fall into the default section.',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Leading icon rendered before the label.',
+    },
+    {
+      name: 'shortcut',
+      type: 'string',
+      description:
+        'Keyboard shortcut to display (e.g. "Cmd+S"). Rendered as a `<Kbd>` chip.',
+    },
+    {
+      name: 'keywords',
+      type: 'string[]',
+      description:
+        'Extra strings used by the fuzzy matcher in addition to label and description.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      description:
+        'When true, the item is rendered but cannot be selected and is skipped by keyboard navigation.',
+    },
+    {
+      name: 'onSelect',
+      type: '() => void',
+      description:
+        'Callback fired when this item is chosen. Falls back to the top-level `onSelect`.',
+    },
+  ]}
+/>
+
+## Helpers
+
+`fuzzyFilter(query, items, getStrings)` and `fuzzyScore(query, target)` are exported for building custom search UIs that match the palette's behaviour. `fuzzyFilter` returns `{ item, score }[]` sorted by descending score, with non-matches dropped.

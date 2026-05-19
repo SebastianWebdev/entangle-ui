@@ -24,6 +24,33 @@ export type {
   DialogFooterProps,
 } from './Dialog';
 
+export { CommandPalette, fuzzyFilter, fuzzyScore } from './CommandPalette';
+export type {
+  CommandItem,
+  CommandPaletteBaseProps,
+  CommandPaletteProps,
+  CommandPaletteRenderItemState,
+  FuzzyMatch,
+} from './CommandPalette';
+
+export { Drawer } from './Drawer';
+export type {
+  DrawerAnchor,
+  DrawerBaseProps,
+  DrawerBodyBaseProps,
+  DrawerBodyProps,
+  DrawerCloseButtonBaseProps,
+  DrawerCloseButtonProps,
+  DrawerContextValue,
+  DrawerFooterAlign,
+  DrawerFooterBaseProps,
+  DrawerFooterProps,
+  DrawerHeaderBaseProps,
+  DrawerHeaderProps,
+  DrawerProps,
+  DrawerSize,
+} from './Drawer';
+
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps, EmptyStateVariant } from './EmptyState';
 
@@ -37,10 +64,12 @@ export type {
   ProgressBarSize,
 } from './ProgressBar';
 
-export { Skeleton, SkeletonGroup } from './Skeleton';
+export { Skeleton, SkeletonGroup, SkeletonLayout } from './Skeleton';
 export type {
   SkeletonAnimation,
   SkeletonGroupProps,
+  SkeletonLayoutProps,
+  SkeletonLayoutVariant,
   SkeletonProps,
   SkeletonShape,
 } from './Skeleton';
@@ -52,6 +81,16 @@ export type {
   SpinnerSize,
   SpinnerVariant,
 } from './Spinner';
+
+export { Stat } from './Stat';
+export type {
+  StatBaseProps,
+  StatDelta,
+  StatDeltaDirection,
+  StatDeltaSemantics,
+  StatProps,
+  StatSize,
+} from './Stat';
 
 export { ToastProvider, useToast } from './Toast';
 

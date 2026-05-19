@@ -1,5 +1,5 @@
 import DemoWrapper from '../DemoWrapper';
-import { Skeleton, SkeletonGroup } from '@/components/feedback';
+import { Skeleton, SkeletonGroup, SkeletonLayout } from '@/components/feedback';
 import { Flex, Stack } from '@/components/layout';
 import { PropertyPanel, PropertySection } from '@/components/editor';
 
@@ -158,6 +158,46 @@ export function SkeletonInPropertyPanel() {
           </PropertySection>
         </PropertyPanel>
       </div>
+    </DemoWrapper>
+  );
+}
+
+export function SkeletonLayoutCard() {
+  return (
+    <DemoWrapper>
+      <SkeletonLayout variant="card" width={360} />
+    </DemoWrapper>
+  );
+}
+
+export function SkeletonLayoutList() {
+  return (
+    <DemoWrapper>
+      <SkeletonLayout variant="list" width={360} />
+    </DemoWrapper>
+  );
+}
+
+export function SkeletonLayoutTable() {
+  return (
+    <DemoWrapper>
+      <SkeletonLayout variant="table" width={480} />
+    </DemoWrapper>
+  );
+}
+
+export function SkeletonLayoutGrid() {
+  return (
+    <DemoWrapper>
+      <SkeletonLayout variant="grid" width={360} />
+    </DemoWrapper>
+  );
+}
+
+export function SkeletonLayoutChat() {
+  return (
+    <DemoWrapper>
+      <SkeletonLayout variant="chat" width={360} />
     </DemoWrapper>
   );
 }

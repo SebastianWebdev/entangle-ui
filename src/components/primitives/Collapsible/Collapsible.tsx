@@ -2,6 +2,7 @@
 
 import React, { useCallback, useId, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { ChevronRightIcon } from '@/components/Icons/ChevronRightIcon';
 import type { CollapsibleProps, CollapsibleSize } from './Collapsible.types';
 import { cx } from '@/utils/cx';
 import {
@@ -60,26 +61,6 @@ const CONTENT_SIZE_MAP: Record<CollapsibleSize, ContentSizeConfig> = {
   md: { paddingV: vars.spacing.md, paddingH: vars.spacing.lg },
   lg: { paddingV: vars.spacing.lg, paddingH: vars.spacing.xl },
 };
-
-// --- Chevron icon ---
-
-const ChevronRightIcon: React.FC<{ size: number }> = ({ size }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 12 12"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M4.5 3L7.5 6L4.5 9"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 // --- Component ---
 
@@ -164,7 +145,9 @@ export const Collapsible: React.FC<CollapsibleProps> = ({
               [chevronSizeVar]: `${sizeConfig.chevronSize}px`,
             })}
           >
-            {indicator ?? <ChevronRightIcon size={sizeConfig.chevronSize} />}
+            {indicator ?? (
+              <ChevronRightIcon size={sizeConfig.chevronSize} decorative />
+            )}
           </span>
         )}
         <span>{trigger}</span>

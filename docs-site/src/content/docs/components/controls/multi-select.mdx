@@ -1,0 +1,436 @@
+---
+title: MultiSelect
+description: Multi-value select that renders chosen options as inline chips, with a "+N more" overflow badge and optional search.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import MultiSelectDemo, {
+  MultiSelectBasic,
+  MultiSelectSizes,
+  MultiSelectVariants,
+  MultiSelectSearchable,
+  MultiSelectGrouped,
+  MultiSelectMax,
+  MultiSelectManyChips,
+  MultiSelectError,
+} from '../../../../components/demos/controls/MultiSelectDemo';
+
+A dropdown that lets the user pick several values from a flat or grouped list. Selected values surface as inline chips inside the trigger; once the count exceeds `maxInlineChips`, the rest collapses into a `+N more` badge so the trigger never grows out of its slot. Supports optional in-dropdown search, a `max` cap, and a clear-all button.
+
+<ComponentPreview title="Live Preview">
+  <MultiSelectDemo client:only="react" />
+</ComponentPreview>
+
+## When to use
+
+- **MultiSelect** — picking several values from a known set; the chips show the current selection at a glance.
+- **Combobox** — single value, with typing-as-search.
+- **TagInput** — multi-value where the entries are free text, not options from a list.
+
+## Import
+
+```tsx
+import { MultiSelect } from 'entangle-ui';
+import type { MultiSelectOption } from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+const options: MultiSelectOption[] = [
+  { value: 'react', label: 'React' },
+  { value: 'vue', label: 'Vue' },
+  { value: 'svelte', label: 'Svelte' },
+];
+
+<MultiSelect
+  label="Frameworks"
+  options={options}
+  value={selected}
+  onChange={setSelected}
+/>;
+```
+
+<ComponentPreview title="Basic">
+  <MultiSelectBasic client:only="react" />
+</ComponentPreview>
+
+## Controlled vs uncontrolled
+
+```tsx
+// Controlled
+const [value, setValue] = useState<string[]>([]);
+<MultiSelect options={options} value={value} onChange={setValue} />
+
+// Uncontrolled
+<MultiSelect options={options} defaultValue={['react']} />
+```
+
+## Sizes
+
+<ComponentPreview title="Sizes">
+  <MultiSelectSizes client:only="react" />
+</ComponentPreview>
+
+```tsx
+<MultiSelect size="sm" options={options} />
+<MultiSelect size="md" options={options} />
+<MultiSelect size="lg" options={options} />
+```
+
+## Variants
+
+<ComponentPreview title="Variants">
+  <MultiSelectVariants client:only="react" />
+</ComponentPreview>
+
+```tsx
+<MultiSelect variant="default" options={options} />
+<MultiSelect variant="ghost" options={options} />
+<MultiSelect variant="filled" options={options} />
+```
+
+## Searchable
+
+Pass `searchable` to render a filter input at the top of the dropdown. A custom `filterFn` overrides the default substring match.
+
+<ComponentPreview title="Searchable">
+  <MultiSelectSearchable client:only="react" />
+</ComponentPreview>
+
+```tsx
+<MultiSelect searchable searchPlaceholder="Filter..." options={options} />
+```
+
+```tsx
+// Custom filter
+<MultiSelect
+  searchable
+  filterFn={(option, query) => option.value.startsWith(query.toLowerCase())}
+  options={options}
+/>
+```
+
+## Grouped options
+
+Options can be organised under non-selectable group headers.
+
+<ComponentPreview title="Grouped">
+  <MultiSelectGrouped client:only="react" />
+</ComponentPreview>
+
+```tsx
+<MultiSelect
+  label="Fruits"
+  options={[
+    {
+      label: 'Citrus',
+      options: [
+        { value: 'lemon', label: 'Lemon' },
+        { value: 'lime', label: 'Lime' },
+      ],
+    },
+    {
+      label: 'Berries',
+      options: [
+        { value: 'strawberry', label: 'Strawberry' },
+        { value: 'blueberry', label: 'Blueberry' },
+      ],
+    },
+  ]}
+/>
+```
+
+## Max selection
+
+`max` caps the number of selections. Once reached, additional options become un-selectable until the user removes one.
+
+<ComponentPreview title="Max">
+  <MultiSelectMax client:only="react" />
+</ComponentPreview>
+
+```tsx
+<MultiSelect
+  label="Pick up to 2"
+  options={options}
+  max={2}
+  helperText="Maximum 2 frameworks"
+/>
+```
+
+## Inline chips overflow
+
+`maxInlineChips` controls how many selected chips render in the trigger before the rest collapse into a `+N more` badge. Set to `Infinity` to render every chip; `0` shows only the count.
+
+<ComponentPreview title="Many chips">
+  <MultiSelectManyChips client:only="react" />
+</ComponentPreview>
+
+```tsx
+<MultiSelect
+  options={options}
+  defaultValue={['react', 'vue', 'svelte', 'angular']}
+  maxInlineChips={2}
+/>
+```
+
+## Close on select
+
+By default the dropdown stays open across selections — useful when the user is picking several values in a row. Set `closeOnSelect` to dismiss after each pick.
+
+```tsx
+<MultiSelect closeOnSelect options={options} />
+```
+
+## Error state
+
+<ComponentPreview title="Error">
+  <MultiSelectError client:only="react" />
+</ComponentPreview>
+
+```tsx
+<MultiSelect
+  label="Frameworks"
+  options={options}
+  error
+  errorMessage="Pick at least one framework"
+  required
+/>
+```
+
+## Form integration
+
+Use `name` to render a hidden input with the selected values joined by `,`.
+
+```tsx
+<MultiSelect
+  name="frameworks"
+  options={options}
+  value={value}
+  onChange={setValue}
+/>
+```
+
+## Accessibility
+
+- Trigger is a `<button>` with `role="combobox"`, `aria-haspopup="listbox"`, and `aria-expanded`.
+- Dropdown is a `role="listbox"` with `aria-multiselectable="true"`; each row is a `role="option"` with `aria-selected`.
+- Grouped options use `role="group"` with `aria-label`.
+- Keyboard: **Arrow Up / Down** to navigate, **Enter** / **Space** to toggle, **Escape** to close, **Home / End** for first / last, **Backspace** removes the trailing chip.
+- `aria-invalid` is set in the error state; `aria-required` when `required` is set.
+- `aria-describedby` links to helper / error text.
+- Chip remove buttons have `aria-label="Remove <label>"`; the clear-all button has `aria-label="Clear selection"`.
+
+## API Reference
+
+### `<MultiSelect>`
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'T[]',
+      description: 'Controlled list of selected values.',
+    },
+    {
+      name: 'defaultValue',
+      type: 'T[]',
+      description: 'Default selection (uncontrolled).',
+    },
+    {
+      name: 'options',
+      type: 'Array<MultiSelectOption<T> | MultiSelectOptionGroup<T>>',
+      description: 'Options — flat list or grouped.',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      default: "'Select...'",
+      description: 'Placeholder shown when nothing is selected.',
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether to render a search input inside the dropdown.',
+    },
+    {
+      name: 'searchPlaceholder',
+      type: 'string',
+      default: "'Search...'",
+      description: 'Placeholder for the search input.',
+    },
+    {
+      name: 'filterFn',
+      type: '(option: MultiSelectOption<T>, query: string) => boolean',
+      description: 'Custom filter for searchable mode.',
+    },
+    {
+      name: 'emptyMessage',
+      type: 'string',
+      default: "'No results found'",
+      description: 'Message shown when search yields no results.',
+    },
+    {
+      name: 'max',
+      type: 'number',
+      description: 'Maximum number of selected items.',
+    },
+    {
+      name: 'maxInlineChips',
+      type: 'number',
+      default: '3',
+      description:
+        'Cap of inline chips rendered in the trigger before falling back to a `+N more` badge. `Infinity` to render every chip; `0` to show only the count.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Component size.',
+    },
+    {
+      name: 'variant',
+      type: "'default' | 'ghost' | 'filled'",
+      default: "'default'",
+      description: 'Visual variant.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Label rendered above the trigger.',
+    },
+    {
+      name: 'helperText',
+      type: 'string',
+      description: 'Helper text rendered below.',
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: 'Error state.',
+    },
+    {
+      name: 'errorMessage',
+      type: 'string',
+      description:
+        'Error message — overrides `helperText` when `error` is true.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disable the entire control.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Mark the field as required.',
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Show a clear-all button when at least one value is selected.',
+    },
+    {
+      name: 'maxDropdownHeight',
+      type: 'number',
+      default: '240',
+      description: 'Maximum dropdown height in pixels.',
+    },
+    {
+      name: 'minDropdownWidth',
+      type: 'number',
+      description: 'Minimum dropdown width in pixels.',
+    },
+    {
+      name: 'closeOnSelect',
+      type: 'boolean',
+      default: 'false',
+      description: 'Close the dropdown after each selection.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Hidden form-input name. Selected values are joined by `,`.',
+    },
+    {
+      name: 'onChange',
+      type: '(values: T[]) => void',
+      description: 'Selection change handler.',
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Open state change handler.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names.',
+    },
+    { name: 'style', type: 'CSSProperties', description: 'Inline styles.' },
+    {
+      name: 'testId',
+      type: 'string',
+      description: 'Test identifier for automated testing.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<HTMLButtonElement>',
+      description: 'Ref to the trigger button element.',
+    },
+  ]}
+/>
+
+### `MultiSelectOption`
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'T',
+      required: true,
+      description: 'Unique value used for selection.',
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: 'Display label. Falls back to `value` when omitted.',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Optional icon rendered before the label.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      description: 'Whether this option is disabled.',
+    },
+  ]}
+/>
+
+### `MultiSelectOptionGroup`
+
+<PropsTable
+  props={[
+    {
+      name: 'label',
+      type: 'string',
+      required: true,
+      description: 'Group header label (non-selectable).',
+    },
+    {
+      name: 'options',
+      type: 'MultiSelectOption<T>[]',
+      required: true,
+      description: 'Options inside this group.',
+    },
+  ]}
+/>
