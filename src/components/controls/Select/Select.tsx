@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { FormLabel } from '@/components/form/FormLabel';
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { ScrollArea } from '@/components/layout/ScrollArea';
@@ -551,20 +552,7 @@ export function Select<T extends string = string>({
             aria-label="Clear selection"
             tabIndex={-1}
           >
-            <svg
-              width="8"
-              height="8"
-              viewBox="0 0 8 8"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M1 1L7 7M7 1L1 7"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <CloseIcon size="sm" decorative />
           </span>
         )}
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useId, useMemo, useRef, useState } from 'react';
+import { TrashIcon } from '@/components/Icons/TrashIcon';
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { FormLabel } from '@/components/form/FormLabel';
 import { useControlledState } from '@/hooks/useControlledState';
@@ -71,29 +72,6 @@ function fileMatchesAccept(file: File, accept: string): boolean {
   }
   return false;
 }
-
-const TrashIcon: React.FC = () => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M3 4h6v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"
-      stroke="currentColor"
-      strokeWidth="1"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M2 3h8M5 2h2"
-      stroke="currentColor"
-      strokeWidth="1"
-      strokeLinecap="round"
-    />
-  </svg>
-);
 
 const CloudIcon: React.FC<{ size: number }> = ({ size }) => (
   <svg
@@ -401,7 +379,7 @@ export function FileUploader({
             removeAt(index);
           }}
         >
-          <TrashIcon />
+          <TrashIcon size="sm" decorative />
         </button>
       </div>
     );

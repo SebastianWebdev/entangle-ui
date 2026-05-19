@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { FormLabel } from '@/components/form/FormLabel';
 import { ScrollArea } from '@/components/layout/ScrollArea';
@@ -108,17 +109,6 @@ const CheckIcon: React.FC = () => (
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const ClearIcon: React.FC = () => (
-  <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
-    <path
-      d="M1 1L7 7M7 1L1 7"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
     />
   </svg>
 );
@@ -505,7 +495,7 @@ export function MultiSelect<T extends string = string>({
                         removeValue(opt.value);
                       }}
                     >
-                      <ClearIcon />
+                      <CloseIcon size="sm" decorative />
                     </span>
                   )}
                 </span>
@@ -525,7 +515,7 @@ export function MultiSelect<T extends string = string>({
             className={clearButtonStyle}
             onClick={handleClearAll}
           >
-            <ClearIcon />
+            <CloseIcon size="sm" decorative />
           </span>
         )}
 

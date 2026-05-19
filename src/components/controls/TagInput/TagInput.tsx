@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useId, useMemo, useRef, useState } from 'react';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { FormLabel } from '@/components/form/FormLabel';
 import { useControlledState } from '@/hooks/useControlledState';
@@ -264,20 +265,7 @@ export function TagInput({
             className={tagRemoveStyle}
             onClick={remove}
           >
-            <svg
-              width="8"
-              height="8"
-              viewBox="0 0 8 8"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M1 1L7 7M7 1L1 7"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <CloseIcon size="sm" decorative />
           </button>
         )}
       </span>

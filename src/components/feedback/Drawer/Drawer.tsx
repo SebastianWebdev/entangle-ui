@@ -8,6 +8,7 @@ import React, {
   useRef,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
@@ -242,7 +243,7 @@ const DrawerHeader: React.FC<DrawerHeaderProps> = ({
           className={drawerCloseButtonStyle}
           data-testid={testId ? `${testId}-close` : undefined}
         >
-          <CloseSvg />
+          <CloseIcon size="sm" decorative />
         </button>
       )}
     </div>
@@ -315,32 +316,12 @@ const DrawerCloseButton: React.FC<DrawerCloseButtonProps> = ({
       data-testid={testId}
       {...rest}
     >
-      {children ?? <CloseSvg />}
+      {children ?? <CloseIcon size="sm" decorative />}
     </button>
   );
 };
 
 DrawerCloseButton.displayName = 'Drawer.CloseButton';
-
-function CloseSvg() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        d="M1 1L11 11M11 1L1 11"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 
 interface DrawerComponent extends React.FC<DrawerProps> {
   Header: React.FC<DrawerHeaderProps>;
