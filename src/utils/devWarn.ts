@@ -3,7 +3,7 @@
 /**
  * Whether the current build is a development build.
  *
- * Resolves to `true` in Vite/Vitest/Storybook dev mode, `false` in production
+ * Resolves to `true` in Vite/Vitest dev mode, `false` in production
  * builds, and `false` (silent) in environments where `import.meta.env` is not
  * defined (e.g. consumer apps using Webpack without an env shim).
  */

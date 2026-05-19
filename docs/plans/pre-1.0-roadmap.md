@@ -52,17 +52,17 @@ own planning session, then its own implementation PR.
 
 Suggested order, based on dependencies and shared primitives:
 
-| # | Component        | Status     | Notes |
-|---|------------------|------------|-------|
-| 1 | Viewport         | Foundation | Generalize the existing `primitives/canvas/CanvasContainer` + `useCanvasRenderer` / `useCanvasSetup` / `canvasCoords` / `canvasDrawing` into a public Viewport surface. Selection rectangles, overlay UI slot, perf-isolated rendering layer. Pre-work for NodeGraph + Timeline + AssetBrowser thumbnails. |
-| 2 | Minimap          | Shared     | Shared primitive consumed by NodeGraph + Timeline. Build first so both consumers can land against a stable surface. |
-| 3 | NodeGraph        | Flagship   | Ports, bezier edges, zoom/pan, multi-selection, minimap slot, context menu, grouping, keyboard navigation. Composes ScrollArea + Popover + primitives + hooks + canvas/viewport. |
-| 4 | Timeline         | Flagship   | Horizontal, multi-track, keyframes, zoom/scrub, snap-to-frame, playhead. Composes Slider + ResizeObserver + CurveEditor patterns + canvas/viewport. |
-| 5 | AssetBrowser     | Flagship   | Grid + list toggle, thumbnails, drag-drop, search, filter, folder nav. Composes DataTable patterns + Card grid + TreeView for folders. |
-| 6 | GradientEditor   | Spec       | Linear + radial, draggable stops, CSS import/export. Composes ColorPicker + canvas. |
-| 7 | FileTree         | Spec       | TreeView specialization with file-type icons, drag-drop import. |
-| 8 | LogView          | Spec       | Console output with level coloring, filter, auto-scroll, search. Virtualized. |
-| 9 | PathBar          | Spec       | File-path breadcrumbs like VS Code. Specialization of Breadcrumbs. |
+| #   | Component      | Status     | Notes                                                                                                                                                                                                                                                                                                      |
+| --- | -------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Viewport       | Foundation | Generalize the existing `primitives/canvas/CanvasContainer` + `useCanvasRenderer` / `useCanvasSetup` / `canvasCoords` / `canvasDrawing` into a public Viewport surface. Selection rectangles, overlay UI slot, perf-isolated rendering layer. Pre-work for NodeGraph + Timeline + AssetBrowser thumbnails. |
+| 2   | Minimap        | Shared     | Shared primitive consumed by NodeGraph + Timeline. Build first so both consumers can land against a stable surface.                                                                                                                                                                                        |
+| 3   | NodeGraph      | Flagship   | Ports, bezier edges, zoom/pan, multi-selection, minimap slot, context menu, grouping, keyboard navigation. Composes ScrollArea + Popover + primitives + hooks + canvas/viewport.                                                                                                                           |
+| 4   | Timeline       | Flagship   | Horizontal, multi-track, keyframes, zoom/scrub, snap-to-frame, playhead. Composes Slider + ResizeObserver + CurveEditor patterns + canvas/viewport.                                                                                                                                                        |
+| 5   | AssetBrowser   | Flagship   | Grid + list toggle, thumbnails, drag-drop, search, filter, folder nav. Composes DataTable patterns + Card grid + TreeView for folders.                                                                                                                                                                     |
+| 6   | GradientEditor | Spec       | Linear + radial, draggable stops, CSS import/export. Composes ColorPicker + canvas.                                                                                                                                                                                                                        |
+| 7   | FileTree       | Spec       | TreeView specialization with file-type icons, drag-drop import.                                                                                                                                                                                                                                            |
+| 8   | LogView        | Spec       | Console output with level coloring, filter, auto-scroll, search. Virtualized.                                                                                                                                                                                                                              |
+| 9   | PathBar        | Spec       | File-path breadcrumbs like VS Code. Specialization of Breadcrumbs.                                                                                                                                                                                                                                         |
 
 **One planning session per row, then one PR per row.** The order is a
 recommendation, not a contract — if a real-world need flips priorities, we
@@ -85,13 +85,13 @@ to apply the requested changes, not to make taste decisions.
 Goals:
 
 - **Default theme tuning.** Spacing scale, font sizes, line heights, border
-  radii, color ramps reviewed against the full component set in Storybook
-  + docs site. Adjust tokens, not individual components.
+  radii, color ramps reviewed against the full component set in the docs
+  site. Adjust tokens, not individual components.
 - **Token-usage audit.** Every `.css.ts` file uses `vars.*` from
   `@/theme/contract.css` and never hardcodes colors / spacings. Verifies
   the "change the theme, the whole UI changes" guarantee.
 - **Light theme parity.** Light theme shipped in v0.8 — walk every
-  component in Storybook with the light theme active and fix anything
+  component on the docs site with the light theme active and fix anything
   that breaks (contrast, borders disappearing, etc.).
 - **Token surface cleanup.** Drop unused tokens. Add tokens where
   components currently inline values. Document the public `--etui-*`
@@ -102,7 +102,7 @@ Workflow:
 - One PR per audit area (e.g., `polish: primitives`, `polish: controls`,
   `polish: overlays`, `polish: editor surfaces`) so reviews stay focused.
 - Each PR's changeset describes which tokens / components moved and why.
-- Visual diffs (Storybook screenshots) attached to each PR.
+- Visual diffs (docs-site screenshots) attached to each PR.
 
 ## Stage 3 — Performance & accessibility audits
 
@@ -152,7 +152,7 @@ Goals:
   the result against representative components (button, input, panel,
   table, etc.).
 - Export the result as a ready-to-paste call to `createCustomTheme(...)`
-  + optional download as JSON for tooling sync.
+  - optional download as JSON for tooling sync.
 - Anchored on the existing `createCustomTheme` API and the stable
   `--etui-*` CSS variable surface — no new public theming API required.
 
@@ -174,9 +174,9 @@ Items deliberately not done before 1.0 — revisit after the testing phase:
   is a 1.0-line milestone if we pursue it at all.
 - Tokens JSON export for Figma sync — nice-to-have, defer unless a real
   consumer asks.
-- Visual regression CI (Chromatic) — was deferred out of v0.9; reconsider
-  during the audit stage if the manual style passes turn out to be
-  unsustainable.
+- Visual regression CI (Playwright screenshot diffs against the docs
+  site, or an equivalent) — was deferred out of v0.9; reconsider during
+  the audit stage if the manual style passes turn out to be unsustainable.
 - DatePicker / KanbanBoard / RTL / mobile patterns / i18n / form library
   / state management / data fetching / routing — all explicit non-goals
   per the original roadmap.

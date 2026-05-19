@@ -13,7 +13,6 @@ Button/
 ├── Button.tsx
 ├── Button.css.ts      ← styles
 ├── Button.test.tsx
-├── Button.stories.tsx
 └── index.ts
 ```
 
@@ -402,11 +401,11 @@ import { Button } from 'entangle-ui';
 
 ### For Library Contributors
 
-The build uses Rollup with the `@vanilla-extract/rollup-plugin` to compile `.css.ts` files. Storybook uses `@vanilla-extract/vite-plugin` for dev mode.
+The build uses Rollup with the `@vanilla-extract/rollup-plugin` to compile `.css.ts` files. Vitest uses `@vanilla-extract/vite-plugin` to compile styles for the jsdom test environment.
 
 | Task            | Command              |
 | --------------- | -------------------- |
-| Dev (Storybook) | `npm run dev`        |
+| Dev (docs site) | `npm run dev`        |
 | Build           | `npm run build`      |
 | Type check      | `npm run type-check` |
 

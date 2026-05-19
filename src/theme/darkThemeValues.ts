@@ -142,7 +142,7 @@ export const darkThemeValues = {
       dropOverlay: 'rgba(0, 122, 204, 0.2)',
     },
   },
-  storybook: {
+  demo: {
     canvas: {
       gradientStart: '#061f21',
       gradientMid: '#031a1a',

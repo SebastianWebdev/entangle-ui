@@ -151,7 +151,7 @@ export const lightThemeValues = {
       dropOverlay: 'rgba(0, 102, 204, 0.15)',
     },
   },
-  storybook: {
+  demo: {
     canvas: {
       gradientStart: '#fafafa',
       gradientMid: '#f0f0f3',

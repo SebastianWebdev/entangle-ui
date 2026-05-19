@@ -10,7 +10,9 @@ Entangle UI is a React component library for professional editor interfaces (3D 
 
 | Task            | Command                                                                     |
 | --------------- | --------------------------------------------------------------------------- |
-| Dev (Storybook) | `npm dev` or `npm storybook` (port 6006)                                    |
+| Dev (docs site) | `npm run dev` (proxies to `docs-site` Astro dev server)                     |
+| Docs build      | `npm run docs:build`                                                        |
+| Docs preview    | `npm run docs:preview`                                                      |
 | Build           | `npm build` (Rollup → ESM + DTS in `dist/`)                                 |
 | Test            | `npm test` (Vitest, run mode)                                               |
 | Test with UI    | `npm test:ui`                                                               |
@@ -61,11 +63,12 @@ ComponentName/
 ├── ComponentName.tsx
 ├── ComponentName.css.ts       (Vanilla Extract styles)
 ├── ComponentName.test.tsx
-├── ComponentName.stories.tsx
 ├── ComponentName.types.ts     (if types are complex)
 ├── useComponentName.ts        (if hooks needed)
 └── index.ts
 ```
+
+Documentation and live examples live in `docs-site/` (Astro Starlight) — every new component must ship with an MDX docs page in `docs-site/src/content/docs/components/`.
 
 ## Testing
 
@@ -80,17 +83,17 @@ ComponentName/
 - **Rollup** produces ESM modules (`dist/esm/`) with `preserveModules` and types (`dist/types/`)
 - **No CJS output** — package is ESM-only (`"type": "module"`)
 - **Tree-shakeable**: `sideEffects: false` + `preserveModules` + `/*#__PURE__*/` annotations
-- **Build config**: `tsconfig.build.json` (extends `tsconfig.json`, excludes tests/stories)
-- **Vite** is only used for Storybook dev server, not library builds
-- **Vanilla Extract**: Rollup uses `@vanilla-extract/rollup-plugin`, Storybook uses `@vanilla-extract/vite-plugin`
+- **Build config**: `tsconfig.build.json` (extends `tsconfig.json`, excludes tests)
+- **Vite** is only used by Vitest (jsdom test runner) — not library builds
+- **Vanilla Extract**: Rollup uses `@vanilla-extract/rollup-plugin`; Vitest uses `@vanilla-extract/vite-plugin`
 - Externals: react, react-dom, react/jsx-runtime, @base-ui/react, @floating-ui/react
 - Peer deps: React 19.1+, @base-ui/react ^1.1.0, @floating-ui/react ^0.27.17
 - Deep imports: `entangle-ui/palettes` available via `"exports"` field
 - Size guard: `npm run size` (size-limit)
 
-## Storybook
+## Documentation Site
 
-Storybook 10 with Vite. Dark theme CSS is loaded globally via `@vanilla-extract/vite-plugin`. Dark background default. Story pattern: Meta config with argTypes + individual Story exports for each variant/state.
+Official docs live in `docs-site/` (Astro 5 + Starlight). It renders live `entangle-ui` components inside MDX pages via `@astrojs/react` and auto-generates API reference from TypeScript types with `starlight-typedoc`. Every new component must ship with a docs page.
 
 ## Branch Rules
 

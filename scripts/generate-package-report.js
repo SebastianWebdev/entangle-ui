@@ -100,14 +100,12 @@ function generatePackageReport() {
           fs.existsSync('eslint.config.js') || fs.existsSync('.eslintrc.js'),
         hasPrettier:
           fs.existsSync('prettier.config.js') || fs.existsSync('.prettierrc'),
-        hasStorybook: fs.existsSync('.storybook'),
         hasContinuousIntegration:
           fs.existsSync('.github/workflows') || fs.existsSync('.gitlab-ci.yml'),
       },
       files: {
         sourceFiles: countFiles('src', ['.ts', '.tsx']),
         testFiles: countFiles('src', ['.test.ts', '.test.tsx']),
-        storyFiles: countFiles('src', ['.stories.ts', '.stories.tsx']),
         totalSize: calculateDirectorySize('src'),
       },
       generatedAt: new Date().toISOString(),
@@ -267,7 +265,6 @@ ${Object.entries({
   Prettier: report.quality.hasPrettier,
   Tests: report.quality.hasTests,
   Coverage: report.quality.hasCoverage,
-  Storybook: report.quality.hasStorybook,
   'CI/CD': report.quality.hasContinuousIntegration,
 })
   .map(([name, has]) => `- ${has ? '✅' : '❌'} ${name}`)
@@ -276,8 +273,7 @@ ${Object.entries({
 ### Package Stats
 
 - **Source Files**: ${report.files.sourceFiles}
-- **Test Files**: ${report.files.testFiles} 
-- **Story Files**: ${report.files.storyFiles}
+- **Test Files**: ${report.files.testFiles}
 - **Total Size**: ${report.files.totalSize}KB
 `;
 }

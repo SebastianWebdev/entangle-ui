@@ -76,8 +76,8 @@ describe('export-tokens script', () => {
     const lightPaths = collectLeafPaths(json.themes.light).sort();
     expect(lightPaths).toEqual(darkPaths);
 
-    // The `storybook` branch is intentionally excluded from the public export.
-    expect(JSON.stringify(json.themes.dark)).not.toContain('"storybook"');
-    expect(darkCss).not.toContain('etui-storybook');
+    // The `demo` branch is intentionally excluded from the public export.
+    expect(JSON.stringify(json.themes.dark)).not.toContain('"demo"');
+    expect(darkCss).not.toContain('etui-demo');
   });
 });

@@ -109,25 +109,25 @@ import {
   UploadIcon,
 } from '@/components/Icons';
 
-const shellGradient = `radial-gradient(160% 130% at 100% 0%, ${vars.storybook.canvas.gradientStart} 0%, ${vars.storybook.canvas.gradientMid} 48%, ${vars.storybook.canvas.gradientEnd} 100%)`;
+const shellGradient = `radial-gradient(160% 130% at 100% 0%, ${vars.demo.canvas.gradientStart} 0%, ${vars.demo.canvas.gradientMid} 48%, ${vars.demo.canvas.gradientEnd} 100%)`;
 
-const topToolbarGradient = `linear-gradient(90deg, #093236 0%, ${vars.storybook.canvas.gradientMid} 52%, ${vars.storybook.canvas.gradientEnd} 100%)`;
+const topToolbarGradient = `linear-gradient(90deg, #093236 0%, ${vars.demo.canvas.gradientMid} 52%, ${vars.demo.canvas.gradientEnd} 100%)`;
 
-const asideToolbarGradient = `linear-gradient(180deg, #093236 0%, ${vars.storybook.canvas.gradientMid} 52%, ${vars.storybook.canvas.gradientEnd} 100%)`;
+const asideToolbarGradient = `linear-gradient(180deg, #093236 0%, ${vars.demo.canvas.gradientMid} 52%, ${vars.demo.canvas.gradientEnd} 100%)`;
 
 const topToolbarGradientStyles: CSSProperties = {
   backgroundImage: topToolbarGradient,
-  backgroundColor: vars.storybook.canvas.gradientEnd,
+  backgroundColor: vars.demo.canvas.gradientEnd,
 };
 
 const asideToolbarGradientStyles: CSSProperties = {
   backgroundImage: asideToolbarGradient,
-  backgroundColor: vars.storybook.canvas.gradientEnd,
+  backgroundColor: vars.demo.canvas.gradientEnd,
 };
 
 const panelGradientStyles: CSSProperties = {
   backgroundImage: shellGradient,
-  backgroundColor: vars.storybook.canvas.gradientEnd,
+  backgroundColor: vars.demo.canvas.gradientEnd,
 };
 
 // ---------------------------------------------------------------------------
@@ -992,7 +992,7 @@ export default function FullEditorDemo() {
                 <>
                   <PanelSurface.Header
                     style={{
-                      backgroundColor: vars.storybook.canvas.gradientEnd,
+                      backgroundColor: vars.demo.canvas.gradientEnd,
                       borderBottom: '1px solid rgba(111, 204, 182, 0.18)',
                     }}
                     actions={
@@ -1277,7 +1277,7 @@ export default function FullEditorDemo() {
             <PanelSurface bordered={false} style={panelGradientStyles}>
               <PanelSurface.Header
                 style={{
-                  backgroundColor: vars.storybook.canvas.gradientEnd,
+                  backgroundColor: vars.demo.canvas.gradientEnd,
                   borderBottom: '1px solid rgba(111, 204, 182, 0.18)',
                 }}
                 actions={
@@ -1304,7 +1304,7 @@ export default function FullEditorDemo() {
                   contentTopSpacing={8}
                   contentBottomSpacing={12}
                   style={{
-                    background: vars.storybook.canvas.gradientEnd,
+                    background: vars.demo.canvas.gradientEnd,
                   }}
                 >
                   <PropertySection title="Transform">

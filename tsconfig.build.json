@@ -13,7 +13,6 @@
     "node_modules",
     "dist",
     "src/**/*.test.*",
-    "src/**/*.stories.*",
     "src/**/*.spec.*",
     "src/**/__fixtures__/**",
     "src/tests/**",
