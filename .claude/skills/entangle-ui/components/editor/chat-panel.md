@@ -381,139 +381,139 @@ The DOM `ref` on `ChatMessageList` still points to the scroll container element 
 
 ### ChatPanel
 
-| Prop                    | Type                         | Default         | Description                                                                                                                                                                          |
-| ----------------------- | ---------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `density`               | `'comfortable' \| 'compact'` | `'comfortable'` | Visual density of the chat layout. Comfortable has more spacing for side panels; compact is for constrained areas.                                                                   |
-| `messageMaxWidth`       | `number \| string`           | —               | Maximum width of message bubbles inside this panel. Cascades to every ChatMessage via the --etui-chat-message-max-width CSS variable. Numbers are pixels; strings are used verbatim. |
-| `children` _(required)_ | `ReactNode`                  | —               | Panel content, typically ChatMessageList and ChatInput.                                                                                                                              |
-| `className`             | `string`                     | —               | Additional CSS class names.                                                                                                                                                          |
-| `style`                 | `CSSProperties`              | —               | Inline styles.                                                                                                                                                                       |
-| `testId`                | `string`                     | —               | Test identifier for automated testing.                                                                                                                                               |
-| `ref`                   | `Ref`                        | —               | Ref to the root element.                                                                                                                                                             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `density` | `'comfortable' \| 'compact'` | `'comfortable'` | Visual density of the chat layout. Comfortable has more spacing for side panels; compact is for constrained areas. |
+| `messageMaxWidth` | `number \| string` | — | Maximum width of message bubbles inside this panel. Cascades to every ChatMessage via the --etui-chat-message-max-width CSS variable. Numbers are pixels; strings are used verbatim. |
+| `children` *(required)* | `ReactNode` | — | Panel content, typically ChatMessageList and ChatInput. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root element. |
 
 ### ChatMessageList
 
-| Prop                    | Type                                                     | Default | Description                                                                                                      |
-| ----------------------- | -------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------- |
-| `messages` _(required)_ | `ChatMessageData[]`                                      | —       | Array of messages to render.                                                                                     |
-| `renderMessage`         | `(message: ChatMessageData, index: number) => ReactNode` | —       | Custom renderer for individual messages.                                                                         |
-| `emptyState`            | `ReactNode`                                              | —       | Content shown when the messages array is empty.                                                                  |
-| `autoScroll`            | `boolean`                                                | `true`  | Auto-scroll to bottom on new messages and during streaming. Pauses when user scrolls up, resumes at bottom.      |
-| `scrollApiRef`          | `Ref`                                                    | —       | Imperative handle exposing scrollToBottom, scrollTo, scrollToElement, and isAtBottom. Separate from the DOM ref. |
-| `className`             | `string`                                                 | —       | Additional CSS class names.                                                                                      |
-| `style`                 | `CSSProperties`                                          | —       | Inline styles.                                                                                                   |
-| `testId`                | `string`                                                 | —       | Test identifier for automated testing.                                                                           |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `messages` *(required)* | `ChatMessageData[]` | — | Array of messages to render. |
+| `renderMessage` | `(message: ChatMessageData, index: number) => ReactNode` | — | Custom renderer for individual messages. |
+| `emptyState` | `ReactNode` | — | Content shown when the messages array is empty. |
+| `autoScroll` | `boolean` | `true` | Auto-scroll to bottom on new messages and during streaming. Pauses when user scrolls up, resumes at bottom. |
+| `scrollApiRef` | `Ref` | — | Imperative handle exposing scrollToBottom, scrollTo, scrollToElement, and isAtBottom. Separate from the DOM ref. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### ChatMessage
 
-| Prop                   | Type                             | Default | Description                                                                                                                           |
-| ---------------------- | -------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `message` _(required)_ | `ChatMessageData`                | —       | Message data object.                                                                                                                  |
-| `showTimestamp`        | `boolean`                        | —       | Show timestamp below the message content.                                                                                             |
-| `showAvatar`           | `boolean`                        | —       | Show avatar next to the message.                                                                                                      |
-| `actions`              | `ReactNode`                      | —       | Action buttons rendered below the message (typically a ChatActionBar).                                                                |
-| `renderContent`        | `(content: string) => ReactNode` | —       | Custom content renderer for markdown, LaTeX, or other rich formats. Pair with ChatMarkdownRenderer for built-in markdown support.     |
-| `maxWidth`             | `number \| string`               | —       | Per-message bubble max width. Overrides ChatPanel.messageMaxWidth and the 85% default. Numbers are pixels; strings are used verbatim. |
-| `className`            | `string`                         | —       | Additional CSS class names.                                                                                                           |
-| `style`                | `CSSProperties`                  | —       | Inline styles.                                                                                                                        |
-| `testId`               | `string`                         | —       | Test identifier for automated testing.                                                                                                |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `message` *(required)* | `ChatMessageData` | — | Message data object. |
+| `showTimestamp` | `boolean` | — | Show timestamp below the message content. |
+| `showAvatar` | `boolean` | — | Show avatar next to the message. |
+| `actions` | `ReactNode` | — | Action buttons rendered below the message (typically a ChatActionBar). |
+| `renderContent` | `(content: string) => ReactNode` | — | Custom content renderer for markdown, LaTeX, or other rich formats. Pair with ChatMarkdownRenderer for built-in markdown support. |
+| `maxWidth` | `number \| string` | — | Per-message bubble max width. Overrides ChatPanel.messageMaxWidth and the 85% default. Numbers are pixels; strings are used verbatim. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### ChatInput
 
-| Prop                 | Type                                                         | Default   | Description                                                                        |
-| -------------------- | ------------------------------------------------------------ | --------- | ---------------------------------------------------------------------------------- |
-| `value`              | `string`                                                     | —         | Current input value (controlled).                                                  |
-| `onChange`           | `(value: string) => void`                                    | —         | Change handler for controlled usage.                                               |
-| `onSubmit`           | `(value: string, attachments: ChatAttachmentData[]) => void` | —         | Called when the user submits the message.                                          |
-| `onStop`             | `() => void`                                                 | —         | Called when the user clicks the stop generation button.                            |
-| `placeholder`        | `string`                                                     | —         | Placeholder text for the input.                                                    |
-| `streaming`          | `boolean`                                                    | `false`   | Whether the assistant is currently streaming. Shows stop button instead of send.   |
-| `disabled`           | `boolean`                                                    | —         | Disable the input.                                                                 |
-| `submitKey`          | `'enter' \| 'ctrl+enter'`                                    | `'enter'` | Key combination that submits the message. The other combination inserts a newline. |
-| `maxLines`           | `number`                                                     | `6`       | Maximum visible lines before the input scrolls.                                    |
-| `attachments`        | `ChatAttachmentData[]`                                       | —         | Currently attached items shown as chips above the input.                           |
-| `onRemoveAttachment` | `(attachmentId: string) => void`                             | —         | Called when user removes an attachment chip.                                       |
-| `prefix`             | `ReactNode`                                                  | —         | Content rendered before the textarea (e.g., context chips).                        |
-| `suffix`             | `ReactNode`                                                  | —         | Content rendered after the textarea (e.g., additional action buttons).             |
-| `toolbar`            | `ReactNode`                                                  | —         | Toolbar rendered below the input area (use ChatInputToolbar as the wrapper).       |
-| `className`          | `string`                                                     | —         | Additional CSS class names.                                                        |
-| `style`              | `CSSProperties`                                              | —         | Inline styles.                                                                     |
-| `testId`             | `string`                                                     | —         | Test identifier for automated testing.                                             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Current input value (controlled). |
+| `onChange` | `(value: string) => void` | — | Change handler for controlled usage. |
+| `onSubmit` | `(value: string, attachments: ChatAttachmentData[]) => void` | — | Called when the user submits the message. |
+| `onStop` | `() => void` | — | Called when the user clicks the stop generation button. |
+| `placeholder` | `string` | — | Placeholder text for the input. |
+| `streaming` | `boolean` | `false` | Whether the assistant is currently streaming. Shows stop button instead of send. |
+| `disabled` | `boolean` | — | Disable the input. |
+| `submitKey` | `'enter' \| 'ctrl+enter'` | `'enter'` | Key combination that submits the message. The other combination inserts a newline. |
+| `maxLines` | `number` | `6` | Maximum visible lines before the input scrolls. |
+| `attachments` | `ChatAttachmentData[]` | — | Currently attached items shown as chips above the input. |
+| `onRemoveAttachment` | `(attachmentId: string) => void` | — | Called when user removes an attachment chip. |
+| `prefix` | `ReactNode` | — | Content rendered before the textarea (e.g., context chips). |
+| `suffix` | `ReactNode` | — | Content rendered after the textarea (e.g., additional action buttons). |
+| `toolbar` | `ReactNode` | — | Toolbar rendered below the input area (use ChatInputToolbar as the wrapper). |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### ChatTypingIndicator
 
-| Prop        | Type                | Default         | Description                                            |
-| ----------- | ------------------- | --------------- | ------------------------------------------------------ |
-| `label`     | `string`            | `'Thinking...'` | Label shown alongside the animation.                   |
-| `variant`   | `'dots' \| 'pulse'` | `'dots'`        | Animation style: three animated dots or a pulsing bar. |
-| `visible`   | `boolean`           | —               | Whether the indicator is visible.                      |
-| `className` | `string`            | —               | Additional CSS class names.                            |
-| `style`     | `CSSProperties`     | —               | Inline styles.                                         |
-| `testId`    | `string`            | —               | Test identifier for automated testing.                 |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `label` | `string` | `'Thinking...'` | Label shown alongside the animation. |
+| `variant` | `'dots' \| 'pulse'` | `'dots'` | Animation style: three animated dots or a pulsing bar. |
+| `visible` | `boolean` | — | Whether the indicator is visible. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### ChatToolCall
 
-| Prop                    | Type                                             | Default | Description                                                                      |
-| ----------------------- | ------------------------------------------------ | ------- | -------------------------------------------------------------------------------- |
-| `toolCall` _(required)_ | `ChatToolCallData`                               | —       | Tool call data object with id, name, status, input, output, error, and duration. |
-| `collapsible`           | `boolean`                                        | `true`  | Whether the input/output details can be expanded.                                |
-| `defaultExpanded`       | `boolean`                                        | `false` | Whether details are initially expanded.                                          |
-| `icon`                  | `ReactNode`                                      | —       | Custom icon for the tool (defaults to a wrench icon).                            |
-| `renderOutput`          | `(output: Record<string, unknown>) => ReactNode` | —       | Custom renderer for the tool output.                                             |
-| `className`             | `string`                                         | —       | Additional CSS class names.                                                      |
-| `style`                 | `CSSProperties`                                  | —       | Inline styles.                                                                   |
-| `testId`                | `string`                                         | —       | Test identifier for automated testing.                                           |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `toolCall` *(required)* | `ChatToolCallData` | — | Tool call data object with id, name, status, input, output, error, and duration. |
+| `collapsible` | `boolean` | `true` | Whether the input/output details can be expanded. |
+| `defaultExpanded` | `boolean` | `false` | Whether details are initially expanded. |
+| `icon` | `ReactNode` | — | Custom icon for the tool (defaults to a wrench icon). |
+| `renderOutput` | `(output: Record<string, unknown>) => ReactNode` | — | Custom renderer for the tool output. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### ChatCodeBlock
 
-| Prop                | Type            | Default | Description                                                          |
-| ------------------- | --------------- | ------- | -------------------------------------------------------------------- |
-| `code` _(required)_ | `string`        | —       | Code content to display.                                             |
-| `language`          | `string`        | —       | Programming language for syntax highlighting.                        |
-| `copyable`          | `boolean`       | `true`  | Show a copy-to-clipboard button.                                     |
-| `lineNumbers`       | `boolean`       | `false` | Show line numbers.                                                   |
-| `maxHeight`         | `number`        | `400`   | Maximum visible height in pixels before the block scrolls.           |
-| `actions`           | `ReactNode`     | —       | Actions rendered in the code block header alongside the copy button. |
-| `className`         | `string`        | —       | Additional CSS class names.                                          |
-| `style`             | `CSSProperties` | —       | Inline styles.                                                       |
-| `testId`            | `string`        | —       | Test identifier for automated testing.                               |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `code` *(required)* | `string` | — | Code content to display. |
+| `language` | `string` | — | Programming language for syntax highlighting. |
+| `copyable` | `boolean` | `true` | Show a copy-to-clipboard button. |
+| `lineNumbers` | `boolean` | `false` | Show line numbers. |
+| `maxHeight` | `number` | `400` | Maximum visible height in pixels before the block scrolls. |
+| `actions` | `ReactNode` | — | Actions rendered in the code block header alongside the copy button. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### ChatAttachmentChip
 
-| Prop                      | Type                                       | Default | Description                                                |
-| ------------------------- | ------------------------------------------ | ------- | ---------------------------------------------------------- |
-| `attachment` _(required)_ | `ChatAttachmentData`                       | —       | Attachment data object.                                    |
-| `onRemove`                | `(id: string) => void`                     | —       | Called when the remove button is clicked.                  |
-| `onClick`                 | `(attachment: ChatAttachmentData) => void` | —       | Called when the chip itself is clicked (e.g., to preview). |
-| `removable`               | `boolean`                                  | `false` | Whether to show the remove button.                         |
-| `className`               | `string`                                   | —       | Additional CSS class names.                                |
-| `style`                   | `CSSProperties`                            | —       | Inline styles.                                             |
-| `testId`                  | `string`                                   | —       | Test identifier for automated testing.                     |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `attachment` *(required)* | `ChatAttachmentData` | — | Attachment data object. |
+| `onRemove` | `(id: string) => void` | — | Called when the remove button is clicked. |
+| `onClick` | `(attachment: ChatAttachmentData) => void` | — | Called when the chip itself is clicked (e.g., to preview). |
+| `removable` | `boolean` | `false` | Whether to show the remove button. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### ChatContextChip
 
-| Prop                 | Type            | Default | Description                                                     |
-| -------------------- | --------------- | ------- | --------------------------------------------------------------- |
-| `label` _(required)_ | `string`        | —       | Label describing the context (e.g., "Selected", "Active file"). |
-| `items` _(required)_ | `string[]`      | —       | Items in this context group.                                    |
-| `icon`               | `ReactNode`     | —       | Icon shown before the label.                                    |
-| `onDismiss`          | `() => void`    | —       | Called when the chip is dismissed.                              |
-| `className`          | `string`        | —       | Additional CSS class names.                                     |
-| `style`              | `CSSProperties` | —       | Inline styles.                                                  |
-| `testId`             | `string`        | —       | Test identifier for automated testing.                          |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `label` *(required)* | `string` | — | Label describing the context (e.g., "Selected", "Active file"). |
+| `items` *(required)* | `string[]` | — | Items in this context group. |
+| `icon` | `ReactNode` | — | Icon shown before the label. |
+| `onDismiss` | `() => void` | — | Called when the chip is dismissed. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### ChatEmptyState
 
-| Prop                | Type                           | Default | Description                                                        |
-| ------------------- | ------------------------------ | ------- | ------------------------------------------------------------------ |
-| `title`             | `string`                       | —       | Main heading text.                                                 |
-| `description`       | `string`                       | —       | Supporting description text.                                       |
-| `icon`              | `ReactNode`                    | —       | Icon or illustration.                                              |
-| `suggestions`       | `string[]`                     | —       | Quick-start suggestion chips that populate the input when clicked. |
-| `onSuggestionClick` | `(suggestion: string) => void` | —       | Called when a suggestion chip is clicked.                          |
-| `className`         | `string`                       | —       | Additional CSS class names.                                        |
-| `style`             | `CSSProperties`                | —       | Inline styles.                                                     |
-| `testId`            | `string`                       | —       | Test identifier for automated testing.                             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `title` | `string` | — | Main heading text. |
+| `description` | `string` | — | Supporting description text. |
+| `icon` | `ReactNode` | — | Icon or illustration. |
+| `suggestions` | `string[]` | — | Quick-start suggestion chips that populate the input when clicked. |
+| `onSuggestionClick` | `(suggestion: string) => void` | — | Called when a suggestion chip is clicked. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ## Data Types
 

@@ -40,7 +40,7 @@ A single `Radio` works without a surrounding `RadioGroup` and supports both cont
 | Size | Outer | Inner dot |
 | ---- | ----- | --------- |
 | `sm` | 12px  | 6px       |
-| `md` | 14px  | 7px       |
+| `md` | 14px  | 6px       |
 | `lg` | 16px  | 8px       |
 
 ## States
@@ -140,44 +140,44 @@ const [space, setSpace] = useState('local');
 
 ## Radio props
 
-| Prop             | Type                                          | Default   | Description                                                                                    |
-| ---------------- | --------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------- |
-| `value`          | `string`                                      | —         | Value of this radio option. Used by RadioGroup for selection and as the input value attribute. |
-| `checked`        | `boolean`                                     | —         | Whether this radio is selected (controlled, standalone). Ignored when inside a RadioGroup.     |
-| `defaultChecked` | `boolean`                                     | `false`   | Default checked state (uncontrolled, standalone). Ignored inside a RadioGroup.                 |
-| `label`          | `string`                                      | —         | Label text displayed next to the radio.                                                        |
-| `labelPosition`  | `'left' \| 'right'`                           | `'right'` | Position of the label relative to the radio.                                                   |
-| `size`           | `'sm' \| 'md' \| 'lg'`                        | `'md'`    | Radio size. Inside a RadioGroup, the group size overrides this prop.                           |
-| `disabled`       | `boolean`                                     | `false`   | Whether the radio is disabled. Inside a RadioGroup, the group value overrides this prop.       |
-| `error`          | `boolean`                                     | `false`   | Visual error state. Inside a RadioGroup, the group value overrides this prop.                  |
-| `helperText`     | `string`                                      | —         | Helper text displayed below the radio (standalone use only).                                   |
-| `errorMessage`   | `string`                                      | —         | Error message displayed when error is true (standalone use only).                              |
-| `name`           | `string`                                      | —         | Form name attribute. Inside a RadioGroup, the group name overrides this prop.                  |
-| `onChange`       | `(value: string, event: ChangeEvent) => void` | —         | Change handler. Standalone Radio fires when toggled on; rarely used inside a RadioGroup.       |
-| `className`      | `string`                                      | —         | Additional CSS class names.                                                                    |
-| `style`          | `CSSProperties`                               | —         | Inline styles.                                                                                 |
-| `testId`         | `string`                                      | —         | Test identifier for automated testing.                                                         |
-| `ref`            | `Ref`                                         | —         | Ref to the underlying input element.                                                           |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Value of this radio option. Used by RadioGroup for selection and as the input value attribute. |
+| `checked` | `boolean` | — | Whether this radio is selected (controlled, standalone). Ignored when inside a RadioGroup. |
+| `defaultChecked` | `boolean` | `false` | Default checked state (uncontrolled, standalone). Ignored inside a RadioGroup. |
+| `label` | `string` | — | Label text displayed next to the radio. |
+| `labelPosition` | `'left' \| 'right'` | `'right'` | Position of the label relative to the radio. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Radio size. Inside a RadioGroup, the group size overrides this prop. |
+| `disabled` | `boolean` | `false` | Whether the radio is disabled. Inside a RadioGroup, the group value overrides this prop. |
+| `error` | `boolean` | `false` | Visual error state. Inside a RadioGroup, the group value overrides this prop. |
+| `helperText` | `string` | — | Helper text displayed below the radio (standalone use only). |
+| `errorMessage` | `string` | — | Error message displayed when error is true (standalone use only). |
+| `name` | `string` | — | Form name attribute. Inside a RadioGroup, the group name overrides this prop. |
+| `onChange` | `(value: string, event: ChangeEvent) => void` | — | Change handler. Standalone Radio fires when toggled on; rarely used inside a RadioGroup. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying input element. |
 
 ## RadioGroup props
 
-| Prop           | Type                         | Default      | Description                                                                                     |
-| -------------- | ---------------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
-| `value`        | `string`                     | —            | Currently selected value (controlled).                                                          |
-| `defaultValue` | `string`                     | —            | Default selected value (uncontrolled).                                                          |
-| `label`        | `string`                     | —            | Group label rendered above the radios.                                                          |
-| `helperText`   | `string`                     | —            | Helper text displayed below the group.                                                          |
-| `disabled`     | `boolean`                    | `false`      | Disables the entire group.                                                                      |
-| `error`        | `boolean`                    | `false`      | Whether the group has an error state.                                                           |
-| `errorMessage` | `string`                     | —            | Error message displayed when error is true. Replaces helperText.                                |
-| `required`     | `boolean`                    | `false`      | Whether selection is required. Sets aria-required on the group.                                 |
-| `orientation`  | `'horizontal' \| 'vertical'` | `'vertical'` | Layout direction for the radios.                                                                |
-| `spacing`      | `number \| string`           | `2`          | Spacing between radios. Number maps to the theme spacing scale; strings pass through unchanged. |
-| `name`         | `string`                     | —            | Form name attribute applied to all child radios.                                                |
-| `size`         | `'sm' \| 'md' \| 'lg'`       | `'md'`       | Size applied to all child radios.                                                               |
-| `onChange`     | `(value: string) => void`    | —            | Change handler — fires when any radio in the group is selected.                                 |
-| `children`     | `ReactNode`                  | —            | Typically a list of Radio components.                                                           |
-| `className`    | `string`                     | —            | Additional CSS class names.                                                                     |
-| `style`        | `CSSProperties`              | —            | Inline styles.                                                                                  |
-| `testId`       | `string`                     | —            | Test identifier for automated testing.                                                          |
-| `ref`          | `Ref`                        | —            | Ref to the underlying wrapper element.                                                          |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Currently selected value (controlled). |
+| `defaultValue` | `string` | — | Default selected value (uncontrolled). |
+| `label` | `string` | — | Group label rendered above the radios. |
+| `helperText` | `string` | — | Helper text displayed below the group. |
+| `disabled` | `boolean` | `false` | Disables the entire group. |
+| `error` | `boolean` | `false` | Whether the group has an error state. |
+| `errorMessage` | `string` | — | Error message displayed when error is true. Replaces helperText. |
+| `required` | `boolean` | `false` | Whether selection is required. Sets aria-required on the group. |
+| `orientation` | `'horizontal' \| 'vertical'` | `'vertical'` | Layout direction for the radios. |
+| `spacing` | `number \| string` | `2` | Spacing between radios. Number maps to the theme spacing scale; strings pass through unchanged. |
+| `name` | `string` | — | Form name attribute applied to all child radios. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Size applied to all child radios. |
+| `onChange` | `(value: string) => void` | — | Change handler — fires when any radio in the group is selected. |
+| `children` | `ReactNode` | — | Typically a list of Radio components. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying wrapper element. |

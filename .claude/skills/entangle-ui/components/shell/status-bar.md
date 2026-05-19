@@ -133,41 +133,41 @@ Use `StatusBar.Section` to align items to the left or right side of the status b
 
 ### StatusBar
 
-| Prop        | Type                               | Default     | Description                                 |
-| ----------- | ---------------------------------- | ----------- | ------------------------------------------- |
-| `size`      | `'sm' \| 'md'`                     | `'sm'`      | Size of the status bar.                     |
-| `variant`   | `'default' \| 'error' \| 'accent'` | `'default'` | Color variant indicating application state. |
-| `children`  | `ReactNode`                        | —           | StatusBar.Section components.               |
-| `className` | `string`                           | —           | Additional CSS class names.                 |
-| `style`     | `CSSProperties`                    | —           | Inline styles.                              |
-| `testId`    | `string`                           | —           | Test identifier for automated testing.      |
-| `ref`       | `Ref`                              | —           | Ref to the root element.                    |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `size` | `'sm' \| 'md'` | `'sm'` | Size of the status bar. |
+| `variant` | `'default' \| 'error' \| 'accent'` | `'default'` | Color variant indicating application state. |
+| `children` | `ReactNode` | — | StatusBar.Section components. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root element. |
 
 ### StatusBar.Section
 
-| Prop        | Type                | Default  | Description                                         |
-| ----------- | ------------------- | -------- | --------------------------------------------------- |
-| `side`      | `'left' \| 'right'` | `'left'` | Which side of the status bar the section aligns to. |
-| `children`  | `ReactNode`         | —        | StatusBar.Item components.                          |
-| `className` | `string`            | —        | Additional CSS class names.                         |
-| `style`     | `CSSProperties`     | —        | Inline styles.                                      |
-| `testId`    | `string`            | —        | Test identifier for automated testing.              |
-| `ref`       | `Ref`               | —        | Ref to the section element.                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `side` | `'left' \| 'right'` | `'left'` | Which side of the status bar the section aligns to. |
+| `children` | `ReactNode` | — | StatusBar.Item components. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the section element. |
 
 ### StatusBar.Item
 
-| Prop        | Type                | Default | Description                                                                                                      |
-| ----------- | ------------------- | ------- | ---------------------------------------------------------------------------------------------------------------- |
-| `children`  | `ReactNode`         | —       | Item label text.                                                                                                 |
-| `icon`      | `ReactNode`         | —       | Icon element displayed before the label.                                                                         |
-| `onClick`   | `() => void`        | —       | Click handler. When provided, the item renders as a button instead of a span.                                    |
-| `title`     | `string`            | —       | Tooltip text shown on hover.                                                                                     |
-| `badge`     | `number \| boolean` | —       | Badge indicator. A number shows a count badge. `true` shows a dot badge. `false` or `undefined` hides the badge. |
-| `disabled`  | `boolean`           | `false` | Whether the item is disabled (only applies to interactive items).                                                |
-| `className` | `string`            | —       | Additional CSS class names.                                                                                      |
-| `style`     | `CSSProperties`     | —       | Inline styles.                                                                                                   |
-| `testId`    | `string`            | —       | Test identifier for automated testing.                                                                           |
-| `ref`       | `Ref`               | —       | Ref to the item element (HTMLButtonElement when clickable, HTMLSpanElement when static).                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Item label text. |
+| `icon` | `ReactNode` | — | Icon element displayed before the label. |
+| `onClick` | `() => void` | — | Click handler. When provided, the item renders as a button instead of a span. |
+| `title` | `string` | — | Tooltip text shown on hover. |
+| `badge` | `number \| boolean` | — | Badge indicator. A number shows a count badge. `true` shows a dot badge. `false` or `undefined` hides the badge. |
+| `disabled` | `boolean` | `false` | Whether the item is disabled (only applies to interactive items). |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the item element (HTMLButtonElement when clickable, HTMLSpanElement when static). |
 
 ## Accessibility
 

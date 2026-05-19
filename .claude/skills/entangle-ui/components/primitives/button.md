@@ -27,20 +27,20 @@ The `variant` prop controls the button's visual style.
 **default** — Transparent with border, fills on hover. Use for secondary actions.
 
 ```tsx
-<Button variant="default">Default</Button>
-```
+  <Button variant="default">Default</Button>
+  ```
 
 **ghost** — No border, subtle hover state. Use for inline or low-emphasis actions.
 
 ```tsx
-<Button variant="ghost">Ghost</Button>
-```
+  <Button variant="ghost">Ghost</Button>
+  ```
 
 **filled** — Solid background with accent color. Use for primary actions.
 
 ```tsx
-<Button variant="filled">Filled</Button>
-```
+  <Button variant="filled">Filled</Button>
+  ```
 
 ## Sizes
 
@@ -111,20 +111,20 @@ The `fullWidth` prop makes the button span the full width of its container. Usef
 
 ## Props
 
-| Prop        | Type                               | Default     | Description                                                     |
-| ----------- | ---------------------------------- | ----------- | --------------------------------------------------------------- |
-| `children`  | `ReactNode`                        | —           | Button content — text, icons, or other React elements.          |
-| `variant`   | `'default' \| 'ghost' \| 'filled'` | `'default'` | Visual variant of the button.                                   |
-| `size`      | `'sm' \| 'md' \| 'lg'`             | `'md'`      | Size variant optimized for editor interfaces.                   |
-| `disabled`  | `boolean`                          | `false`     | Whether the button is disabled.                                 |
-| `loading`   | `boolean`                          | `false`     | Loading state — shows spinner and disables interaction.         |
-| `icon`      | `ReactNode`                        | —           | Icon element to display before text. Should be 16x16px.         |
-| `fullWidth` | `boolean`                          | `false`     | Whether the button should take the full width of the container. |
-| `onClick`   | `(event: MouseEvent) => void`      | —           | Click event handler.                                            |
-| `className` | `string`                           | —           | Additional CSS class names.                                     |
-| `style`     | `CSSProperties`                    | —           | Inline styles.                                                  |
-| `testId`    | `string`                           | —           | Test identifier for automated testing.                          |
-| `ref`       | `Ref`                              | —           | Ref to the underlying button element.                           |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Button content — text, icons, or other React elements. |
+| `variant` | `'default' \| 'ghost' \| 'filled'` | `'default'` | Visual variant of the button. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Size variant optimized for editor interfaces. |
+| `disabled` | `boolean` | `false` | Whether the button is disabled. |
+| `loading` | `boolean` | `false` | Loading state — shows spinner and disables interaction. |
+| `icon` | `ReactNode` | — | Icon element to display before text. Should be 16x16px. |
+| `fullWidth` | `boolean` | `false` | Whether the button should take the full width of the container. |
+| `onClick` | `(event: MouseEvent) => void` | — | Click event handler. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying button element. |
 
 The component also accepts all standard HTML `<button>` attributes.
 

@@ -71,10 +71,10 @@ via `coordinateSpaceOptions`.
 
 **Custom spaces**
 
-Changing the coordinate-space dropdown does **not** transform the numeric
-values. The component is purely a UI control -- your editor logic is
-responsible for re-projecting positions and rotations when the active space
-changes.
+  Changing the coordinate-space dropdown does **not** transform the numeric
+  values. The component is purely a UI control -- your editor logic is
+  responsible for re-projecting positions and rotations when the active space
+  changes.
 
 ## Inside a PropertyPanel
 
@@ -109,23 +109,23 @@ controls. The component itself adds no new interactions:
 
 ### TransformControl
 
-| Prop                      | Type                                                                                 | Default                                                                                         | Description                                                                                                 |
-| ------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `value`                   | `TransformValue`                                                                     | —                                                                                               | Controlled transform value. Pair with onChange.                                                             |
-| `defaultValue`            | `TransformValue`                                                                     | —                                                                                               | Initial transform value when the component is uncontrolled.                                                 |
-| `onChange`                | `(next: TransformValue) => void`                                                     | —                                                                                               | Called with the full TransformValue whenever any axis of any subgroup changes.                              |
-| `coordinateSpace`         | `'local' \| 'world' \| 'parent' \| (string & {})`                                    | —                                                                                               | Controlled coordinate space for position/rotation rows.                                                     |
-| `defaultCoordinateSpace`  | `CoordinateSpace`                                                                    | `'local'`                                                                                       | Initial coordinate space when uncontrolled.                                                                 |
-| `onCoordinateSpaceChange` | `(next: CoordinateSpace) => void`                                                    | —                                                                                               | Called when the coordinate-space dropdown changes.                                                          |
-| `coordinateSpaceOptions`  | `{ value: string; label: string }[]`                                                 | `[{value:'local',label:'Local'},{value:'world',label:'World'},{value:'parent',label:'Parent'}]` | Custom coordinate-space options. Replaces the default triple when provided.                                 |
-| `linkedScale`             | `boolean`                                                                            | —                                                                                               | Whether scale axes are linked (controlled). When linked, editing one axis sets all three to the same value. |
-| `defaultLinkedScale`      | `boolean`                                                                            | `true`                                                                                          | Initial linked-scale state when uncontrolled.                                                               |
-| `onLinkedScaleChange`     | `(linked: boolean) => void`                                                          | —                                                                                               | Called when the lock toggle is clicked.                                                                     |
-| `show`                    | `{ position?: boolean; rotation?: boolean; scale?: boolean }`                        | `all true`                                                                                      | Which subgroups to render. Hiding both position and rotation also hides the coordinate-space row.           |
-| `labels`                  | `{ position?: string; rotation?: string; scale?: string; coordinateSpace?: string }` | `{ position: 'Position', rotation: 'Rotation', scale: 'Scale', coordinateSpace: 'Space' }`      | Display labels for each row and the coordinate-space dropdown.                                              |
-| `precision`               | `{ position?: number; rotation?: number; scale?: number }`                           | `{ position: 3, rotation: 1, scale: 3 }`                                                        | Decimal places per row. Forwarded to each VectorInput.                                                      |
-| `step`                    | `{ position?: number; rotation?: number; scale?: number }`                           | `{ position: 0.1, rotation: 1, scale: 0.01 }`                                                   | Step values per row. Forwarded to each VectorInput.                                                         |
-| `units`                   | `{ position?: string; rotation?: string; scale?: string }`                           | `{ position: 'm', rotation: '°', scale: '' }`                                                   | Unit suffix appended to each axis input.                                                                    |
-| `size`                    | `'sm' \| 'md' \| 'lg'`                                                               | `'sm'`                                                                                          | Size for the underlying VectorInput and Select controls. Defaults to sm to match property-panel density.    |
-| `disabled`                | `boolean`                                                                            | `false`                                                                                         | Disable all interactions.                                                                                   |
-| `showReset`               | `boolean`                                                                            | `false`                                                                                         | Render a reset button next to each row. Position/rotation reset to (0,0,0); scale resets to (1,1,1).        |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `TransformValue` | — | Controlled transform value. Pair with onChange. |
+| `defaultValue` | `TransformValue` | — | Initial transform value when the component is uncontrolled. |
+| `onChange` | `(next: TransformValue) => void` | — | Called with the full TransformValue whenever any axis of any subgroup changes. |
+| `coordinateSpace` | `'local' \| 'world' \| 'parent' \| (string & {})` | — | Controlled coordinate space for position/rotation rows. |
+| `defaultCoordinateSpace` | `CoordinateSpace` | `'local'` | Initial coordinate space when uncontrolled. |
+| `onCoordinateSpaceChange` | `(next: CoordinateSpace) => void` | — | Called when the coordinate-space dropdown changes. |
+| `coordinateSpaceOptions` | `{ value: string; label: string }[]` | `[{value:'local',label:'Local'},{value:'world',label:'World'},{value:'parent',label:'Parent'}]` | Custom coordinate-space options. Replaces the default triple when provided. |
+| `linkedScale` | `boolean` | — | Whether scale axes are linked (controlled). When linked, editing one axis sets all three to the same value. |
+| `defaultLinkedScale` | `boolean` | `true` | Initial linked-scale state when uncontrolled. |
+| `onLinkedScaleChange` | `(linked: boolean) => void` | — | Called when the lock toggle is clicked. |
+| `show` | `{ position?: boolean; rotation?: boolean; scale?: boolean }` | `all true` | Which subgroups to render. Hiding both position and rotation also hides the coordinate-space row. |
+| `labels` | `{ position?: string; rotation?: string; scale?: string; coordinateSpace?: string }` | `{ position: 'Position', rotation: 'Rotation', scale: 'Scale', coordinateSpace: 'Space' }` | Display labels for each row and the coordinate-space dropdown. |
+| `precision` | `{ position?: number; rotation?: number; scale?: number }` | `{ position: 3, rotation: 1, scale: 3 }` | Decimal places per row. Forwarded to each VectorInput. |
+| `step` | `{ position?: number; rotation?: number; scale?: number }` | `{ position: 0.1, rotation: 1, scale: 0.01 }` | Step values per row. Forwarded to each VectorInput. |
+| `units` | `{ position?: string; rotation?: string; scale?: string }` | `{ position: 'm', rotation: '°', scale: '' }` | Unit suffix appended to each axis input. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'sm'` | Size for the underlying VectorInput and Select controls. Defaults to sm to match property-panel density. |
+| `disabled` | `boolean` | `false` | Disable all interactions. |
+| `showReset` | `boolean` | `false` | Render a reset button next to each row. Position/rotation reset to (0,0,0); scale resets to (1,1,1). |

@@ -70,14 +70,14 @@ Inherits text color from its parent, so it plays nicely with colored anchors.
 
 ## Props
 
-| Prop        | Type                   | Default | Description                                    |
-| ----------- | ---------------------- | ------- | ---------------------------------------------- |
-| `children`  | `ReactNode`            | —       | Inline code content.                           |
-| `size`      | `'xs' \| 'sm' \| 'md'` | `'sm'`  | Font size scale, relative to surrounding text. |
-| `className` | `string`               | —       | Additional CSS class names.                    |
-| `style`     | `CSSProperties`        | —       | Inline styles.                                 |
-| `testId`    | `string`               | —       | Test identifier for automated testing.         |
-| `ref`       | `Ref`                  | —       | Ref to the underlying code element.            |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Inline code content. |
+| `size` | `'xs' \| 'sm' \| 'md'` | `'sm'` | Font size scale, relative to surrounding text. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying code element. |
 
 ## Theme Tokens
 

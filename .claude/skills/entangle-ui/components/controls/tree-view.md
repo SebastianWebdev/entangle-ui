@@ -186,32 +186,32 @@ Customize the content shown when the tree is empty.
 
 ## Props
 
-| Prop                 | Type                                                      | Default    | Description                                                |
-| -------------------- | --------------------------------------------------------- | ---------- | ---------------------------------------------------------- |
-| `nodes`              | `TreeNodeData[]`                                          | —          | Tree data — array of root-level nodes.                     |
-| `expandedIds`        | `string[]`                                                | —          | Expanded node IDs (controlled).                            |
-| `defaultExpandedIds` | `string[]`                                                | —          | Default expanded node IDs (uncontrolled).                  |
-| `selectedIds`        | `string[]`                                                | —          | Selected node IDs (controlled).                            |
-| `defaultSelectedIds` | `string[]`                                                | —          | Default selected node IDs (uncontrolled).                  |
-| `selectionMode`      | `'single' \| 'multiple' \| 'none'`                        | `'single'` | Selection mode for the tree.                               |
-| `renamable`          | `boolean`                                                 | `false`    | Whether to allow inline renaming via double-click.         |
-| `size`               | `'sm' \| 'md' \| 'lg'`                                    | `'md'`     | Tree node size.                                            |
-| `indent`             | `number`                                                  | `16`       | Indentation per depth level in pixels.                     |
-| `showChevrons`       | `boolean`                                                 | `true`     | Whether to show expand/collapse chevrons for parent nodes. |
-| `showGuideLines`     | `boolean`                                                 | `false`    | Whether to show connecting guide lines.                    |
-| `expandOnSelect`     | `boolean`                                                 | `false`    | Whether to expand parent nodes when selected.              |
-| `maxHeight`          | `number \| string`                                        | —          | Maximum height before scrolling.                           |
-| `renderNode`         | `(node: TreeNodeData, state: TreeNodeState) => ReactNode` | —          | Custom render function for node content.                   |
-| `renderActions`      | `(node: TreeNodeData, state: TreeNodeState) => ReactNode` | —          | Custom render function for trailing actions (right side).  |
-| `emptyContent`       | `ReactNode`                                               | —          | Content shown when nodes array is empty.                   |
-| `onExpandedChange`   | `(expandedIds: string[]) => void`                         | —          | Fired when expanded nodes change.                          |
-| `onSelectionChange`  | `(selectedIds: string[]) => void`                         | —          | Fired when selected nodes change.                          |
-| `onNodeClick`        | `(node: TreeNodeData, event: MouseEvent) => void`         | —          | Fired when a node is clicked.                              |
-| `onNodeDoubleClick`  | `(node: TreeNodeData, event: MouseEvent) => void`         | —          | Fired when a node is double-clicked.                       |
-| `onNodeContextMenu`  | `(node: TreeNodeData, event: MouseEvent) => void`         | —          | Fired when a node is right-clicked.                        |
-| `onNodeRename`       | `(nodeId: string, newLabel: string) => void`              | —          | Fired when a node is renamed.                              |
-| `className`          | `string`                                                  | —          | Additional CSS class names.                                |
-| `testId`             | `string`                                                  | —          | Test identifier for automated testing.                     |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `nodes` | `TreeNodeData[]` | — | Tree data — array of root-level nodes. |
+| `expandedIds` | `string[]` | — | Expanded node IDs (controlled). |
+| `defaultExpandedIds` | `string[]` | — | Default expanded node IDs (uncontrolled). |
+| `selectedIds` | `string[]` | — | Selected node IDs (controlled). |
+| `defaultSelectedIds` | `string[]` | — | Default selected node IDs (uncontrolled). |
+| `selectionMode` | `'single' \| 'multiple' \| 'none'` | `'single'` | Selection mode for the tree. |
+| `renamable` | `boolean` | `false` | Whether to allow inline renaming via double-click. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Tree node size. |
+| `indent` | `number` | `16` | Indentation per depth level in pixels. |
+| `showChevrons` | `boolean` | `true` | Whether to show expand/collapse chevrons for parent nodes. |
+| `showGuideLines` | `boolean` | `false` | Whether to show connecting guide lines. |
+| `expandOnSelect` | `boolean` | `false` | Whether to expand parent nodes when selected. |
+| `maxHeight` | `number \| string` | — | Maximum height before scrolling. |
+| `renderNode` | `(node: TreeNodeData, state: TreeNodeState) => ReactNode` | — | Custom render function for node content. |
+| `renderActions` | `(node: TreeNodeData, state: TreeNodeState) => ReactNode` | — | Custom render function for trailing actions (right side). |
+| `emptyContent` | `ReactNode` | — | Content shown when nodes array is empty. |
+| `onExpandedChange` | `(expandedIds: string[]) => void` | — | Fired when expanded nodes change. |
+| `onSelectionChange` | `(selectedIds: string[]) => void` | — | Fired when selected nodes change. |
+| `onNodeClick` | `(node: TreeNodeData, event: MouseEvent) => void` | — | Fired when a node is clicked. |
+| `onNodeDoubleClick` | `(node: TreeNodeData, event: MouseEvent) => void` | — | Fired when a node is double-clicked. |
+| `onNodeContextMenu` | `(node: TreeNodeData, event: MouseEvent) => void` | — | Fired when a node is right-clicked. |
+| `onNodeRename` | `(nodeId: string, newLabel: string) => void` | — | Fired when a node is renamed. |
+| `className` | `string` | — | Additional CSS class names. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### TreeNodeData
 

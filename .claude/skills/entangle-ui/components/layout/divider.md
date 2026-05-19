@@ -99,16 +99,16 @@ The label is rendered with the theme's `xxs` font size, `text.muted` color, and 
 
 ## Props
 
-| Prop          | Type                                             | Default        | Description                                                                                             |
-| ------------- | ------------------------------------------------ | -------------- | ------------------------------------------------------------------------------------------------------- |
-| `orientation` | `'horizontal' \| 'vertical'`                     | `'horizontal'` | Divider axis.                                                                                           |
-| `variant`     | `'solid' \| 'dashed' \| 'dotted'`                | `'solid'`      | Line style.                                                                                             |
-| `spacing`     | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| string` | `0`            | Margin along the axis. Numbers index into the theme spacing scale; strings are passed through verbatim. |
-| `label`       | `ReactNode`                                      | —              | Optional centered label. Only honored for horizontal dividers.                                          |
-| `className`   | `string`                                         | —              | Additional CSS class names.                                                                             |
-| `style`       | `CSSProperties`                                  | —              | Inline styles.                                                                                          |
-| `testId`      | `string`                                         | —              | Test identifier for automated testing.                                                                  |
-| `ref`         | `Ref`                                            | —              | Ref to the underlying div element.                                                                      |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Divider axis. |
+| `variant` | `'solid' \| 'dashed' \| 'dotted'` | `'solid'` | Line style. |
+| `spacing` | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| string` | `0` | Margin along the axis. Numbers index into the theme spacing scale; strings are passed through verbatim. |
+| `label` | `ReactNode` | — | Optional centered label. Only honored for horizontal dividers. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
 
 ## Accessibility
 

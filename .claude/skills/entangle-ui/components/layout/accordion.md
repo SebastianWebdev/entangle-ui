@@ -32,6 +32,15 @@ import {
 </Accordion>
 ```
 
+## Width
+
+The accordion defaults to `width: 100%`, filling its parent so the surface keeps a stable width regardless of which item is expanded. Override with the `width` prop when you need a fixed footprint — pass a number for pixels or any CSS length as a string.
+
+```tsx
+<Accordion width={320}>...</Accordion>
+<Accordion width="24rem">...</Accordion>
+```
+
 ## Single vs Multiple
 
 By default, only one item can be expanded at a time. Opening a new item closes the previously open one. Set `multiple` to allow multiple items to be open simultaneously.
@@ -254,57 +263,58 @@ const [expanded, setExpanded] = useState<string[]>(['a', 'b']);
 
 ### Accordion
 
-| Prop           | Type                                  | Default     | Description                                                                                          |
-| -------------- | ------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------- |
-| `children`     | `ReactNode`                           | —           | AccordionItem children. Required.                                                                    |
-| `value`        | `string \| string[]`                  | —           | Controlled expanded item(s). String for single mode, string array for multiple mode.                 |
-| `defaultValue` | `string \| string[]`                  | —           | Default expanded item(s) for uncontrolled mode.                                                      |
-| `multiple`     | `boolean`                             | `false`     | Whether multiple items can be expanded simultaneously.                                               |
-| `collapsible`  | `boolean`                             | `false`     | Whether all items can be collapsed in single mode. When false, one item must remain open.            |
-| `variant`      | `'default' \| 'ghost' \| 'filled'`    | `'default'` | Visual variant applied to all accordion headers.                                                     |
-| `size`         | `'sm' \| 'md' \| 'lg'`                | `'md'`      | Size controlling header and content density.                                                         |
-| `gap`          | `number`                              | `0`         | Gap between accordion items in pixels.                                                               |
-| `onChange`     | `(value: string \| string[]) => void` | —           | Callback when expanded items change. Returns a string in single mode, string array in multiple mode. |
-| `className`    | `string`                              | —           | Additional CSS class names.                                                                          |
-| `style`        | `CSSProperties`                       | —           | Inline styles.                                                                                       |
-| `testId`       | `string`                              | —           | Test identifier for automated testing.                                                               |
-| `ref`          | `Ref`                                 | —           | Ref to the root div element.                                                                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | AccordionItem children. Required. |
+| `value` | `string \| string[]` | — | Controlled expanded item(s). String for single mode, string array for multiple mode. |
+| `defaultValue` | `string \| string[]` | — | Default expanded item(s) for uncontrolled mode. |
+| `multiple` | `boolean` | `false` | Whether multiple items can be expanded simultaneously. |
+| `collapsible` | `boolean` | `false` | Whether all items can be collapsed in single mode. When false, one item must remain open. |
+| `variant` | `'default' \| 'ghost' \| 'filled'` | `'default'` | Visual variant applied to all accordion headers. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Size controlling header and content density. |
+| `gap` | `number` | `0` | Gap between accordion items in pixels. |
+| `width` | `number \| string` | `'100%'` | Width of the accordion. Number → px, string → CSS value. Defaults to filling the parent so layout stays stable regardless of which item is expanded. |
+| `onChange` | `(value: string \| string[]) => void` | — | Callback when expanded items change. Returns a string in single mode, string array in multiple mode. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root div element. |
 
 ### AccordionItem
 
-| Prop        | Type            | Default | Description                                                                                             |
-| ----------- | --------------- | ------- | ------------------------------------------------------------------------------------------------------- |
-| `value`     | `string`        | —       | Unique identifier for this item. Must match the value used in Accordion's value/defaultValue. Required. |
-| `disabled`  | `boolean`       | `false` | Whether this item is disabled (cannot be expanded or collapsed).                                        |
-| `children`  | `ReactNode`     | —       | AccordionTrigger and AccordionContent children. Required.                                               |
-| `className` | `string`        | —       | Additional CSS class names.                                                                             |
-| `style`     | `CSSProperties` | —       | Inline styles.                                                                                          |
-| `testId`    | `string`        | —       | Test identifier for automated testing.                                                                  |
-| `ref`       | `Ref`           | —       | Ref to the item div element.                                                                            |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Unique identifier for this item. Must match the value used in Accordion's value/defaultValue. Required. |
+| `disabled` | `boolean` | `false` | Whether this item is disabled (cannot be expanded or collapsed). |
+| `children` | `ReactNode` | — | AccordionTrigger and AccordionContent children. Required. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the item div element. |
 
 ### AccordionTrigger
 
-| Prop        | Type                | Default | Description                                                                                              |
-| ----------- | ------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| `children`  | `ReactNode`         | —       | Header content, typically a text label. Required.                                                        |
-| `icon`      | `ReactNode`         | —       | Icon element displayed before the label.                                                                 |
-| `actions`   | `ReactNode`         | —       | Action elements rendered on the right side of the header. Clicks on actions do not toggle the accordion. |
-| `indicator` | `ReactNode \| null` | —       | Custom chevron indicator element. Pass null to hide the indicator entirely.                              |
-| `className` | `string`            | —       | Additional CSS class names.                                                                              |
-| `style`     | `CSSProperties`     | —       | Inline styles.                                                                                           |
-| `testId`    | `string`            | —       | Test identifier for automated testing.                                                                   |
-| `ref`       | `Ref`               | —       | Ref to the trigger button element.                                                                       |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Header content, typically a text label. Required. |
+| `icon` | `ReactNode` | — | Icon element displayed before the label. |
+| `actions` | `ReactNode` | — | Action elements rendered on the right side of the header. Clicks on actions do not toggle the accordion. |
+| `indicator` | `ReactNode \| null` | — | Custom chevron indicator element. Pass null to hide the indicator entirely. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the trigger button element. |
 
 ### AccordionContent
 
-| Prop          | Type            | Default | Description                                                                          |
-| ------------- | --------------- | ------- | ------------------------------------------------------------------------------------ |
-| `children`    | `ReactNode`     | —       | Collapsible content. Required.                                                       |
-| `keepMounted` | `boolean`       | `false` | Whether to keep content in the DOM when collapsed. Useful for preserving form state. |
-| `className`   | `string`        | —       | Additional CSS class names.                                                          |
-| `style`       | `CSSProperties` | —       | Inline styles.                                                                       |
-| `testId`      | `string`        | —       | Test identifier for automated testing.                                               |
-| `ref`         | `Ref`           | —       | Ref to the content body div element.                                                 |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Collapsible content. Required. |
+| `keepMounted` | `boolean` | `false` | Whether to keep content in the DOM when collapsed. Useful for preserving form state. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the content body div element. |
 
 ## Accessibility
 

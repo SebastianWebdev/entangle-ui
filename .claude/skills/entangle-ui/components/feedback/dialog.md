@@ -201,49 +201,49 @@ Use `title` and `description` props for screen-reader-friendly labels without vi
 
 ### Dialog
 
-| Prop                  | Type                                           | Default | Description                                                                    |
-| --------------------- | ---------------------------------------------- | ------- | ------------------------------------------------------------------------------ |
-| `open`                | `boolean`                                      | —       | Whether the dialog is open.                                                    |
-| `onClose`             | `() => void`                                   | —       | Callback fired when the dialog should close.                                   |
-| `size`                | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'fullscreen'` | `'md'`  | Dialog width preset.                                                           |
-| `title`               | `string`                                       | —       | Dialog title for aria-labelledby (hidden, use DialogHeader for visible title). |
-| `description`         | `string`                                       | —       | Dialog description for aria-describedby.                                       |
-| `closeOnOverlayClick` | `boolean`                                      | `true`  | Whether clicking the overlay closes the dialog.                                |
-| `closeOnEscape`       | `boolean`                                      | `true`  | Whether pressing Escape closes the dialog.                                     |
-| `showOverlay`         | `boolean`                                      | `true`  | Whether to show the overlay backdrop.                                          |
-| `trapFocus`           | `boolean`                                      | `true`  | Whether to trap focus within the dialog.                                       |
-| `initialFocusRef`     | `RefObject`                                    | —       | Ref to the element that should receive initial focus.                          |
-| `portal`              | `boolean`                                      | `true`  | Whether to render the dialog in a portal (document.body).                      |
-| `children`            | `ReactNode`                                    | —       | Dialog content (DialogHeader, DialogBody, DialogFooter).                       |
-| `className`           | `string`                                       | —       | Additional CSS class names for the dialog panel.                               |
-| `style`               | `CSSProperties`                                | —       | Inline styles for the dialog panel.                                            |
-| `testId`              | `string`                                       | —       | Test identifier for automated testing.                                         |
-| `id`                  | `string`                                       | —       | HTML id attribute.                                                             |
-| `ref`                 | `Ref`                                          | —       | Ref to the dialog panel element.                                               |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `open` | `boolean` | — | Whether the dialog is open. |
+| `onClose` | `() => void` | — | Callback fired when the dialog should close. |
+| `size` | `'sm' \| 'md' \| 'lg' \| 'xl' \| 'fullscreen'` | `'md'` | Dialog width preset. |
+| `title` | `string` | — | Dialog title for aria-labelledby (hidden, use DialogHeader for visible title). |
+| `description` | `string` | — | Dialog description for aria-describedby. |
+| `closeOnOverlayClick` | `boolean` | `true` | Whether clicking the overlay closes the dialog. |
+| `closeOnEscape` | `boolean` | `true` | Whether pressing Escape closes the dialog. |
+| `showOverlay` | `boolean` | `true` | Whether to show the overlay backdrop. |
+| `trapFocus` | `boolean` | `true` | Whether to trap focus within the dialog. |
+| `initialFocusRef` | `RefObject` | — | Ref to the element that should receive initial focus. |
+| `portal` | `boolean` | `true` | Whether to render the dialog in a portal (document.body). |
+| `children` | `ReactNode` | — | Dialog content (DialogHeader, DialogBody, DialogFooter). |
+| `className` | `string` | — | Additional CSS class names for the dialog panel. |
+| `style` | `CSSProperties` | — | Inline styles for the dialog panel. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `id` | `string` | — | HTML id attribute. |
+| `ref` | `Ref` | — | Ref to the dialog panel element. |
 
 ### DialogHeader
 
-| Prop          | Type        | Default | Description                                |
-| ------------- | ----------- | ------- | ------------------------------------------ |
-| `children`    | `ReactNode` | —       | Header content (typically a title string). |
-| `showClose`   | `boolean`   | —       | Whether to show the close button.          |
-| `description` | `string`    | —       | Optional description text below the title. |
-| `className`   | `string`    | —       | Additional CSS class names.                |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Header content (typically a title string). |
+| `showClose` | `boolean` | — | Whether to show the close button. |
+| `description` | `string` | — | Optional description text below the title. |
+| `className` | `string` | — | Additional CSS class names. |
 
 ### DialogBody
 
-| Prop        | Type        | Default | Description                 |
-| ----------- | ----------- | ------- | --------------------------- |
-| `children`  | `ReactNode` | —       | Body content.               |
-| `className` | `string`    | —       | Additional CSS class names. |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Body content. |
+| `className` | `string` | — | Additional CSS class names. |
 
 ### DialogFooter
 
-| Prop        | Type                                               | Default | Description                                |
-| ----------- | -------------------------------------------------- | ------- | ------------------------------------------ |
-| `children`  | `ReactNode`                                        | —       | Footer content (typically action buttons). |
-| `align`     | `'left' \| 'center' \| 'right' \| 'space-between'` | —       | Horizontal alignment of footer content.    |
-| `className` | `string`                                           | —       | Additional CSS class names.                |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Footer content (typically action buttons). |
+| `align` | `'left' \| 'center' \| 'right' \| 'space-between'` | — | Horizontal alignment of footer content. |
+| `className` | `string` | — | Additional CSS class names. |
 
 ## Accessibility
 

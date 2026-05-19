@@ -158,21 +158,21 @@ The `loading` prop shows a spinner and disables interaction.
 
 ## Props
 
-| Prop         | Type                                       | Default   | Description                                                             |
-| ------------ | ------------------------------------------ | --------- | ----------------------------------------------------------------------- |
-| `children`   | `ReactNode`                                | —         | Icon component to display inside the button.                            |
-| `aria-label` | `string (required)`                        | —         | Accessible label for screen readers. Required for proper accessibility. |
-| `variant`    | `'default' \| 'ghost' \| 'filled'`         | `'ghost'` | Visual variant of the button.                                           |
-| `size`       | `'sm' \| 'md' \| 'lg'`                     | `'md'`    | Button size. The button is always square.                               |
-| `radius`     | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` | `'md'`    | Border radius for button shape control.                                 |
-| `disabled`   | `boolean`                                  | `false`   | Whether the button is disabled.                                         |
-| `loading`    | `boolean`                                  | `false`   | Loading state -- shows spinner and disables interaction.                |
-| `pressed`    | `boolean`                                  | `false`   | Whether the button appears pressed/active. Sets aria-pressed.           |
-| `onClick`    | `(event: MouseEvent) => void`              | —         | Click event handler.                                                    |
-| `className`  | `string`                                   | —         | Additional CSS class names.                                             |
-| `style`      | `CSSProperties`                            | —         | Inline styles.                                                          |
-| `testId`     | `string`                                   | —         | Test identifier for automated testing.                                  |
-| `ref`        | `Ref`                                      | —         | Ref to the underlying button element.                                   |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Icon component to display inside the button. |
+| `aria-label` | `string (required)` | — | Accessible label for screen readers. Required for proper accessibility. |
+| `variant` | `'default' \| 'ghost' \| 'filled'` | `'ghost'` | Visual variant of the button. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Button size. The button is always square. |
+| `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` | `'md'` | Border radius for button shape control. |
+| `disabled` | `boolean` | `false` | Whether the button is disabled. |
+| `loading` | `boolean` | `false` | Loading state -- shows spinner and disables interaction. |
+| `pressed` | `boolean` | `false` | Whether the button appears pressed/active. Sets aria-pressed. |
+| `onClick` | `(event: MouseEvent) => void` | — | Click event handler. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying button element. |
 
 The component also accepts all standard HTML `<button>` attributes (except `children`).
 

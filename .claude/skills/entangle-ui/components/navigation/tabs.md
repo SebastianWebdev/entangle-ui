@@ -254,45 +254,45 @@ When a panel is mounted but inactive, it is hidden via `display: none` and its `
 
 ### Tabs (Root)
 
-| Prop           | Type                                   | Default        | Description                                                                                                                            |
-| -------------- | -------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `value`        | `string`                               | —              | Currently active tab value (controlled).                                                                                               |
-| `defaultValue` | `string`                               | —              | Default active tab (uncontrolled).                                                                                                     |
-| `variant`      | `'underline' \| 'pills' \| 'enclosed'` | `'underline'`  | Visual variant of the tab list.                                                                                                        |
-| `size`         | `'sm' \| 'md' \| 'lg'`                 | `'md'`         | Tab size.                                                                                                                              |
-| `orientation`  | `'horizontal' \| 'vertical'`           | `'horizontal'` | Orientation of the tab list.                                                                                                           |
-| `fullWidth`    | `boolean`                              | `false`        | Whether tabs fill the available width equally.                                                                                         |
-| `pillsFrame`   | `boolean`                              | `true`         | Whether pills variant renders a framed container.                                                                                      |
-| `keepMounted`  | `boolean`                              | `false`        | When true, every TabPanel stays mounted even when its tab is not active. Individual panels can opt out by passing keepMounted={false}. |
-| `children`     | `ReactNode`                            | —              | TabList and TabPanel components.                                                                                                       |
-| `onChange`     | `(value: string) => void`              | —              | Callback when the active tab changes.                                                                                                  |
-| `className`    | `string`                               | —              | Additional CSS class names.                                                                                                            |
-| `style`        | `CSSProperties`                        | —              | Inline styles.                                                                                                                         |
-| `testId`       | `string`                               | —              | Test identifier for automated testing.                                                                                                 |
-| `ref`          | `Ref`                                  | —              | Ref to the root element.                                                                                                               |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Currently active tab value (controlled). |
+| `defaultValue` | `string` | — | Default active tab (uncontrolled). |
+| `variant` | `'underline' \| 'pills' \| 'enclosed'` | `'underline'` | Visual variant of the tab list. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Tab size. |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Orientation of the tab list. |
+| `fullWidth` | `boolean` | `false` | Whether tabs fill the available width equally. |
+| `pillsFrame` | `boolean` | `true` | Whether pills variant renders a framed container. |
+| `keepMounted` | `boolean` | `false` | When true, every TabPanel stays mounted even when its tab is not active. Individual panels can opt out by passing keepMounted={false}. |
+| `children` | `ReactNode` | — | TabList and TabPanel components. |
+| `onChange` | `(value: string) => void` | — | Callback when the active tab changes. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root element. |
 
 ### Tab
 
-| Prop        | Type                      | Default | Description                                                     |
-| ----------- | ------------------------- | ------- | --------------------------------------------------------------- |
-| `value`     | `string`                  | —       | Unique value identifying this tab. Must match a TabPanel value. |
-| `children`  | `ReactNode`               | —       | Tab label content.                                              |
-| `icon`      | `ReactNode`               | —       | Icon displayed before the label.                                |
-| `disabled`  | `boolean`                 | `false` | Whether this tab is disabled.                                   |
-| `closable`  | `boolean`                 | `false` | Whether this tab shows a close button.                          |
-| `onClose`   | `(value: string) => void` | —       | Callback when the close button is clicked.                      |
-| `className` | `string`                  | —       | Additional CSS class names.                                     |
-| `testId`    | `string`                  | —       | Test identifier for automated testing.                          |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Unique value identifying this tab. Must match a TabPanel value. |
+| `children` | `ReactNode` | — | Tab label content. |
+| `icon` | `ReactNode` | — | Icon displayed before the label. |
+| `disabled` | `boolean` | `false` | Whether this tab is disabled. |
+| `closable` | `boolean` | `false` | Whether this tab shows a close button. |
+| `onClose` | `(value: string) => void` | — | Callback when the close button is clicked. |
+| `className` | `string` | — | Additional CSS class names. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### TabPanel
 
-| Prop          | Type        | Default | Description                                                                                                                            |
-| ------------- | ----------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `value`       | `string`    | —       | Value matching a Tab value.                                                                                                            |
-| `children`    | `ReactNode` | —       | Panel content, only rendered when active.                                                                                              |
-| `keepMounted` | `boolean`   | —       | Whether to keep the panel mounted when inactive (preserves state). When undefined, inherits from the parent Tabs root (default false). |
-| `className`   | `string`    | —       | Additional CSS class names.                                                                                                            |
-| `testId`      | `string`    | —       | Test identifier for automated testing.                                                                                                 |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Value matching a Tab value. |
+| `children` | `ReactNode` | — | Panel content, only rendered when active. |
+| `keepMounted` | `boolean` | — | Whether to keep the panel mounted when inactive (preserves state). When undefined, inherits from the parent Tabs root (default false). |
+| `className` | `string` | — | Additional CSS class names. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ## Accessibility
 

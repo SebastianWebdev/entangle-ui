@@ -145,21 +145,21 @@ The `trigger` prop accepts any React node, so you can include icons or badges in
 
 ## Props
 
-| Prop          | Type                      | Default | Description                                                        |
-| ------------- | ------------------------- | ------- | ------------------------------------------------------------------ |
-| `trigger`     | `ReactNode`               | —       | Content shown in the collapsible header/trigger.                   |
-| `children`    | `ReactNode`               | —       | Content to render when expanded.                                   |
-| `open`        | `boolean`                 | —       | Whether the section is expanded (controlled mode).                 |
-| `defaultOpen` | `boolean`                 | `false` | Default expanded state (uncontrolled mode).                        |
-| `size`        | `'sm' \| 'md' \| 'lg'`    | `'sm'`  | Size controlling header height, padding, and font size.            |
-| `indicator`   | `ReactNode \| null`       | —       | Custom indicator icon. Defaults to a chevron. Set to null to hide. |
-| `disabled`    | `boolean`                 | `false` | Whether the collapsible is disabled.                               |
-| `keepMounted` | `boolean`                 | `false` | Whether to keep content in the DOM when collapsed.                 |
-| `onChange`    | `(open: boolean) => void` | —       | Callback when the open state changes.                              |
-| `className`   | `string`                  | —       | Additional CSS class names.                                        |
-| `style`       | `CSSProperties`           | —       | Inline styles.                                                     |
-| `testId`      | `string`                  | —       | Test identifier for automated testing.                             |
-| `ref`         | `Ref`                     | —       | Ref to the root div element.                                       |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `trigger` | `ReactNode` | — | Content shown in the collapsible header/trigger. |
+| `children` | `ReactNode` | — | Content to render when expanded. |
+| `open` | `boolean` | — | Whether the section is expanded (controlled mode). |
+| `defaultOpen` | `boolean` | `false` | Default expanded state (uncontrolled mode). |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'sm'` | Size controlling header height, padding, and font size. |
+| `indicator` | `ReactNode \| null` | — | Custom indicator icon. Defaults to a chevron. Set to null to hide. |
+| `disabled` | `boolean` | `false` | Whether the collapsible is disabled. |
+| `keepMounted` | `boolean` | `false` | Whether to keep content in the DOM when collapsed. |
+| `onChange` | `(open: boolean) => void` | — | Callback when the open state changes. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root div element. |
 
 ## Accessibility
 

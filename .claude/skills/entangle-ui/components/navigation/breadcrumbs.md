@@ -179,52 +179,52 @@ Use Breadcrumbs for hierarchical paths: files, folders, nested categories, scene
 
 ### Breadcrumbs
 
-| Prop                    | Type                   | Default | Description                                                                                      |
-| ----------------------- | ---------------------- | ------- | ------------------------------------------------------------------------------------------------ |
-| `children` _(required)_ | `ReactNode`            | —       | BreadcrumbItem children, optionally mixed with BreadcrumbSeparator for manual separator control. |
-| `separator`             | `ReactNode`            | ``      | Default separator inserted between items.                                                        |
-| `maxItems`              | `number`               | `0`     | Maximum item count before collapsing. Use 0 to never collapse.                                   |
-| `itemsBeforeCollapse`   | `number`               | `1`     | Number of leading items to keep visible when collapsed.                                          |
-| `itemsAfterCollapse`    | `number`               | `2`     | Number of trailing items to keep visible when collapsed.                                         |
-| `expandable`            | `boolean`              | `true`  | Allow clicking the ellipsis to reveal all items.                                                 |
-| `size`                  | `'sm' \| 'md' \| 'lg'` | `'sm'`  | Typography and separator spacing scale.                                                          |
-| `className`             | `string`               | —       | Additional CSS class names.                                                                      |
-| `style`                 | `CSSProperties`        | —       | Inline styles.                                                                                   |
-| `testId`                | `string`               | —       | Test identifier for automated testing.                                                           |
-| `ref`                   | `Ref`                  | —       | Ref to the underlying nav element.                                                               |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` *(required)* | `ReactNode` | — | BreadcrumbItem children, optionally mixed with BreadcrumbSeparator for manual separator control. |
+| `separator` | `ReactNode` | `` | Default separator inserted between items. |
+| `maxItems` | `number` | `0` | Maximum item count before collapsing. Use 0 to never collapse. |
+| `itemsBeforeCollapse` | `number` | `1` | Number of leading items to keep visible when collapsed. |
+| `itemsAfterCollapse` | `number` | `2` | Number of trailing items to keep visible when collapsed. |
+| `expandable` | `boolean` | `true` | Allow clicking the ellipsis to reveal all items. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'sm'` | Typography and separator spacing scale. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying nav element. |
 
 ### BreadcrumbItem
 
-| Prop                    | Type                          | Default | Description                                                  |
-| ----------------------- | ----------------------------- | ------- | ------------------------------------------------------------ |
-| `children` _(required)_ | `ReactNode`                   | —       | Segment label, typically a string.                           |
-| `href`                  | `string`                      | —       | Render the segment as a link.                                |
-| `onClick`               | `(event: MouseEvent) => void` | —       | Click handler for client-side routing.                       |
-| `isCurrent`             | `boolean`                     | `false` | Mark the segment as the current page.                        |
-| `icon`                  | `ReactNode`                   | —       | Icon rendered before the label.                              |
-| `maxLength`             | `number`                      | —       | Maximum string length before truncating and showing Tooltip. |
-| `className`             | `string`                      | —       | Additional CSS class names.                                  |
-| `style`                 | `CSSProperties`               | —       | Inline styles.                                               |
-| `testId`                | `string`                      | —       | Test identifier for automated testing.                       |
-| `ref`                   | `Ref`                         | —       | Ref to the underlying list item.                             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` *(required)* | `ReactNode` | — | Segment label, typically a string. |
+| `href` | `string` | — | Render the segment as a link. |
+| `onClick` | `(event: MouseEvent) => void` | — | Click handler for client-side routing. |
+| `isCurrent` | `boolean` | `false` | Mark the segment as the current page. |
+| `icon` | `ReactNode` | — | Icon rendered before the label. |
+| `maxLength` | `number` | — | Maximum string length before truncating and showing Tooltip. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying list item. |
 
 ### BreadcrumbSeparator
 
-| Prop        | Type            | Default | Description                            |
-| ----------- | --------------- | ------- | -------------------------------------- |
-| `children`  | `ReactNode`     | —       | Custom separator content.              |
-| `className` | `string`        | —       | Additional CSS class names.            |
-| `style`     | `CSSProperties` | —       | Inline styles.                         |
-| `testId`    | `string`        | —       | Test identifier for automated testing. |
-| `ref`       | `Ref`           | —       | Ref to the underlying list item.       |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Custom separator content. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying list item. |
 
 ### BreadcrumbEllipsis
 
-| Prop        | Type            | Default | Description                                   |
-| ----------- | --------------- | ------- | --------------------------------------------- |
-| `onClick`   | `() => void`    | —       | Click handler used to expand collapsed items. |
-| `tooltip`   | `ReactNode`     | —       | Tooltip content describing collapsed labels.  |
-| `className` | `string`        | —       | Additional CSS class names.                   |
-| `style`     | `CSSProperties` | —       | Inline styles.                                |
-| `testId`    | `string`        | —       | Test identifier for automated testing.        |
-| `ref`       | `Ref`           | —       | Ref to the underlying list item.              |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `onClick` | `() => void` | — | Click handler used to expand collapsed items. |
+| `tooltip` | `ReactNode` | — | Tooltip content describing collapsed labels. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying list item. |

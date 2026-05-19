@@ -17,7 +17,7 @@ Reach for `Skeleton` when the placeholder structure is itself information ("ther
 ## Import
 
 ```tsx
-import { Skeleton, SkeletonGroup } from 'entangle-ui';
+import { Skeleton, SkeletonGroup, SkeletonLayout } from 'entangle-ui';
 ```
 
 ## Usage
@@ -126,6 +126,38 @@ For dense surfaces (asset browser, gallery, file picker), drop animation entirel
 </div>
 ```
 
+## SkeletonLayout
+
+`SkeletonLayout` is a pre-built alternative to manual composition. Pick a `variant` and the component renders a structured arrangement of `Skeleton` blocks — handy when the surrounding UI shape is well-known (a card, a feed, a data grid) and you don't want to wire up the placeholder by hand.
+
+```tsx
+<SkeletonLayout variant="card" />
+<SkeletonLayout variant="list" count={8} />
+<SkeletonLayout variant="table" columns={5} count={6} />
+<SkeletonLayout variant="grid" columns={3} count={9} />
+<SkeletonLayout variant="chat" count={6} />
+```
+
+**Card**
+
+**List**
+
+**Table**
+
+**Grid**
+
+**Chat**
+
+| Variant | Default count   | Default columns | Default animation |
+| ------- | --------------- | --------------- | ----------------- |
+| `card`  | 1 (single unit) | —               | `pulse`           |
+| `list`  | 5 rows          | —               | `pulse`           |
+| `table` | 5 rows + header | 4               | `pulse`           |
+| `grid`  | 12 cells        | 4               | `none`            |
+| `chat`  | 4 bubbles       | —               | `pulse`           |
+
+`grid` defaults to `animation="none"` because dense grids commonly render dozens of blocks at once; the static treatment reads as "loading" just as clearly without spending GPU cycles. Override `animation` on any variant to opt in or out.
+
 ## In an editor panel
 
 Use `shape="line"` skeletons inside `PropertySection` to reflect the panel's editor density while data loads.
@@ -157,28 +189,38 @@ Each animated skeleton runs a CSS animation on the GPU, so a handful is cheap. W
 
 ### `<Skeleton>`
 
-| Prop           | Type                           | Default   | Description                                                                                         |
-| -------------- | ------------------------------ | --------- | --------------------------------------------------------------------------------------------------- |
-| `shape`        | `'rect' \| 'circle' \| 'line'` | `'rect'`  | Visual shape. Determines the default border radius and the height fallback for `line`.              |
-| `width`        | `number \| string`             | `'100%'`  | Width. Number → px, string → CSS value.                                                             |
-| `height`       | `number \| string`             | —         | Height. Number → px, string → CSS value. Defaults to 12px for `line`; matches `width` for `circle`. |
-| `borderRadius` | `number \| string`             | —         | Override the radius. Defaults are derived from the shape.                                           |
-| `animation`    | `'pulse' \| 'wave' \| 'none'`  | `'pulse'` | Animation style. Both pulse and wave honor `prefers-reduced-motion`.                                |
-| `className`    | `string`                       | —         | Additional CSS class names.                                                                         |
-| `style`        | `CSSProperties`                | —         | Inline styles.                                                                                      |
-| `testId`       | `string`                       | —         | Test identifier for automated testing.                                                              |
-| `ref`          | `Ref`                          | —         | Ref to the underlying div element.                                                                  |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `shape` | `'rect' \| 'circle' \| 'line'` | `'rect'` | Visual shape. Determines the default border radius and the height fallback for `line`. |
+| `width` | `number \| string` | `'100%'` | Width. Number → px, string → CSS value. |
+| `height` | `number \| string` | — | Height. Number → px, string → CSS value. Defaults to 12px for `line`; matches `width` for `circle`. |
+| `borderRadius` | `number \| string` | — | Override the radius. Defaults are derived from the shape. |
+| `animation` | `'pulse' \| 'wave' \| 'none'` | `'pulse'` | Animation style. Both pulse and wave honor `prefers-reduced-motion`. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
 
 ### `<SkeletonGroup>`
 
-| Prop        | Type                | Default    | Description                                                                                                                                     |
-| ----------- | ------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `count`     | `number`            | —          | Number of skeletons to auto-generate. Ignored when `children` is provided.                                                                      |
-| `spacing`   | `number \| string`  | `2`        | Number maps onto the spacing scale (0 → 0, 1 → xs, 2 → sm, 3 → md, 4 → lg, 5 → xl, 6 → xxl, 7+ → xxxl). String passes through as a raw CSS gap. |
-| `direction` | `'row' \| 'column'` | `'column'` | Flex layout direction.                                                                                                                          |
-| `itemProps` | `Partial`           | —          | Props applied to each auto-generated `Skeleton` (used only with `count`).                                                                       |
-| `children`  | `ReactNode`         | —          | When provided, overrides `count` and the wrapper just lays the children out.                                                                    |
-| `className` | `string`            | —          | Additional CSS class names.                                                                                                                     |
-| `style`     | `CSSProperties`     | —          | Inline styles.                                                                                                                                  |
-| `testId`    | `string`            | —          | Test identifier for automated testing.                                                                                                          |
-| `ref`       | `Ref`               | —          | Ref to the underlying div element.                                                                                                              |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `count` | `number` | — | Number of skeletons to auto-generate. Ignored when `children` is provided. |
+| `spacing` | `number \| string` | `2` | Number maps onto the spacing scale (0 → 0, 1 → xs, 2 → sm, 3 → md, 4 → lg, 5 → xl, 6 → xxl, 7+ → xxxl). String passes through as a raw CSS gap. |
+| `direction` | `'row' \| 'column'` | `'column'` | Flex layout direction. |
+| `itemProps` | `Partial` | — | Props applied to each auto-generated `Skeleton` (used only with `count`). |
+| `children` | `ReactNode` | — | When provided, overrides `count` and the wrapper just lays the children out. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
+
+### `<SkeletonLayout>`
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `variant` | `'card' \| 'list' \| 'table' \| 'grid' \| 'chat'` | — | Which pre-built arrangement to render. Required. |
+| `count` | `number` | — | Number of repeating units. Defaults per variant: `list` 5 rows, `table` 5 data rows, `grid` 12 cells, `chat` 4 bubbles. Ignored for `card`. |
+| `columns` | `number` | `4` | Number of columns. Only meaningful for `grid` and `table`. |
+| `animation` | `'pulse' \| 'wave' \| 'none'` | — | Animation applied to every nested skeleton. Defaults to `pulse` for `card` / `list` / `table` / `chat`, and `none` for `grid`. |
+| `width` | `number \| string` | `'100%'` | Width of the layout container. Number → px, string → CSS value. Defaults to filling the parent so the layout stays stable while content loads. |

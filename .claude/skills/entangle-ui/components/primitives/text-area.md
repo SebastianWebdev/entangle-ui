@@ -127,34 +127,34 @@ When auto-resize is active (`minRows` or `maxRows` set), `resize` is forced to `
 
 ## Props
 
-| Prop           | Type                                             | Default      | Description                                                         |
-| -------------- | ------------------------------------------------ | ------------ | ------------------------------------------------------------------- |
-| `value`        | `string`                                         | —            | Controlled value.                                                   |
-| `defaultValue` | `string`                                         | —            | Uncontrolled initial value.                                         |
-| `placeholder`  | `string`                                         | —            | Placeholder text.                                                   |
-| `size`         | `'sm' \| 'md' \| 'lg'`                           | `'md'`       | Size scale.                                                         |
-| `disabled`     | `boolean`                                        | `false`      | Whether the textarea is disabled.                                   |
-| `error`        | `boolean`                                        | `false`      | Whether to render in error state.                                   |
-| `required`     | `boolean`                                        | `false`      | Whether the textarea is required.                                   |
-| `readOnly`     | `boolean`                                        | `false`      | Whether the textarea is read-only.                                  |
-| `label`        | `string`                                         | —            | Label rendered above the textarea (uses FormLabel).                 |
-| `helperText`   | `string`                                         | —            | Helper text below the textarea.                                     |
-| `errorMessage` | `string`                                         | —            | Error message when error is true; overrides helperText.             |
-| `resize`       | `'none' \| 'vertical' \| 'horizontal' \| 'both'` | `'vertical'` | User resize direction. Forced to "none" when auto-resize is active. |
-| `rows`         | `number`                                         | `3`          | Initial number of rows when not auto-sizing.                        |
-| `minRows`      | `number`                                         | —            | Minimum rows when auto-sizing. Setting this enables auto-resize.    |
-| `maxRows`      | `number`                                         | —            | Maximum rows when auto-sizing. Overflow scrolls above this.         |
-| `monospace`    | `boolean`                                        | `false`      | Render in monospace font.                                           |
-| `maxLength`    | `number`                                         | —            | Maximum allowed character count (HTML attribute).                   |
-| `showCount`    | `boolean`                                        | `false`      | Show a character counter below the textarea.                        |
-| `onChange`     | `(value: string) => void`                        | —            | Called with the string value on each change.                        |
-| `onFocus`      | `(event: FocusEvent) => void`                    | —            | Focus event handler.                                                |
-| `onBlur`       | `(event: FocusEvent) => void`                    | —            | Blur event handler.                                                 |
-| `onKeyDown`    | `(event: KeyboardEvent) => void`                 | —            | Keydown event handler.                                              |
-| `className`    | `string`                                         | —            | Additional CSS class names.                                         |
-| `style`        | `CSSProperties`                                  | —            | Inline styles.                                                      |
-| `testId`       | `string`                                         | —            | Test identifier for automated testing.                              |
-| `ref`          | `Ref`                                            | —            | Ref to the underlying textarea element.                             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Controlled value. |
+| `defaultValue` | `string` | — | Uncontrolled initial value. |
+| `placeholder` | `string` | — | Placeholder text. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Size scale. |
+| `disabled` | `boolean` | `false` | Whether the textarea is disabled. |
+| `error` | `boolean` | `false` | Whether to render in error state. |
+| `required` | `boolean` | `false` | Whether the textarea is required. |
+| `readOnly` | `boolean` | `false` | Whether the textarea is read-only. |
+| `label` | `string` | — | Label rendered above the textarea (uses FormLabel). |
+| `helperText` | `string` | — | Helper text below the textarea. |
+| `errorMessage` | `string` | — | Error message when error is true; overrides helperText. |
+| `resize` | `'none' \| 'vertical' \| 'horizontal' \| 'both'` | `'vertical'` | User resize direction. Forced to "none" when auto-resize is active. |
+| `rows` | `number` | `3` | Initial number of rows when not auto-sizing. |
+| `minRows` | `number` | — | Minimum rows when auto-sizing. Setting this enables auto-resize. |
+| `maxRows` | `number` | — | Maximum rows when auto-sizing. Overflow scrolls above this. |
+| `monospace` | `boolean` | `false` | Render in monospace font. |
+| `maxLength` | `number` | — | Maximum allowed character count (HTML attribute). |
+| `showCount` | `boolean` | `false` | Show a character counter below the textarea. |
+| `onChange` | `(value: string) => void` | — | Called with the string value on each change. |
+| `onFocus` | `(event: FocusEvent) => void` | — | Focus event handler. |
+| `onBlur` | `(event: FocusEvent) => void` | — | Blur event handler. |
+| `onKeyDown` | `(event: KeyboardEvent) => void` | — | Keydown event handler. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying textarea element. |
 
 ## Accessibility
 

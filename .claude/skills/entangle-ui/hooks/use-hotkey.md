@@ -72,15 +72,15 @@ Examples: `"Ctrl+S"`, `"Cmd+Shift+P"`, `"Escape"`, `"Alt+ArrowUp"`.
 
 ## API
 
-| Prop                      | Type                               | Default | Description                                                                                                                                                                                           |
-| ------------------------- | ---------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `combo` _(required)_      | `string`                           | —       | `+`-separated combo string. Modifiers in any order; the non-modifier key comes last.                                                                                                                  |
-| `handler` _(required)_    | `(event: KeyboardEvent) => void`   | —       | Called when the combo matches. The latest handler is invoked even if its identity changed since the listener was attached.                                                                            |
-| `options.enabled`         | `boolean`                          | `true`  | When false, the listener is detached.                                                                                                                                                                 |
-| `options.enableInInputs`  | `boolean`                          | `false` | When true, the hotkey fires even while focus is in an editable element.                                                                                                                               |
-| `options.preventDefault`  | `boolean`                          | `true`  | Whether to call `event.preventDefault()` before invoking the handler.                                                                                                                                 |
-| `options.stopPropagation` | `boolean`                          | `false` | Whether to call `event.stopPropagation()` after the handler runs.                                                                                                                                     |
-| `options.target`          | `EventTarget \| RefObject \| null` | —       | Override the listener target. Accepts an `EventTarget` directly or a `RefObject` whose `.current` resolves to one — the latter form attaches the listener after the ref mounts. Defaults to `window`. |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `combo` *(required)* | `string` | — | `+`-separated combo string. Modifiers in any order; the non-modifier key comes last. |
+| `handler` *(required)* | `(event: KeyboardEvent) => void` | — | Called when the combo matches. The latest handler is invoked even if its identity changed since the listener was attached. |
+| `options.enabled` | `boolean` | `true` | When false, the listener is detached. |
+| `options.enableInInputs` | `boolean` | `false` | When true, the hotkey fires even while focus is in an editable element. |
+| `options.preventDefault` | `boolean` | `true` | Whether to call `event.preventDefault()` before invoking the handler. |
+| `options.stopPropagation` | `boolean` | `false` | Whether to call `event.stopPropagation()` after the handler runs. |
+| `options.target` | `EventTarget \| RefObject \| null` | — | Override the listener target. Accepts an `EventTarget` directly or a `RefObject` whose `.current` resolves to one — the latter form attaches the listener after the ref mounts. Defaults to `window`. |
 
 ## Common pitfalls
 

@@ -64,12 +64,12 @@ A `[value, setValue]` tuple, like `useState`. `setValue` accepts either a next v
 
 ## API
 
-| Prop                    | Type                 | Default | Description                                                                                                                                  |
-| ----------------------- | -------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `value`                 | `T`                  | —       | When defined, drives the returned value. Switching this from defined to undefined (or vice versa) at runtime triggers a development warning. |
-| `defaultValue`          | `T`                  | —       | Initial value used in uncontrolled mode.                                                                                                     |
-| `onChange`              | `(value: T) => void` | —       | Called when the consumer requests a change. Fires in both controlled and uncontrolled modes.                                                 |
-| `fallback` _(required)_ | `T`                  | —       | Value used when both value and defaultValue are undefined. Required so the hook never returns undefined.                                     |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `T` | — | When defined, drives the returned value. Switching this from defined to undefined (or vice versa) at runtime triggers a development warning. |
+| `defaultValue` | `T` | — | Initial value used in uncontrolled mode. |
+| `onChange` | `(value: T) => void` | — | Called when the consumer requests a change. Fires in both controlled and uncontrolled modes. |
+| `fallback` *(required)* | `T` | — | Value used when both value and defaultValue are undefined. Required so the hook never returns undefined. |
 
 ## Common pitfalls
 

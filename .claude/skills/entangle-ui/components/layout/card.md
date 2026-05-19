@@ -53,11 +53,11 @@ All compound members are optional and can appear in any order — though the can
 
 **Variants**
 
-| Variant    | Treatment                                          | Use when                                          |
-| ---------- | -------------------------------------------------- | ------------------------------------------------- |
-| `outlined` | Transparent background, 1px border                 | Default. Quiet card that sits on any surface.     |
-| `filled`   | Surface-tinted background, no border               | Cards on the canvas background; gives mild lift.  |
-| `elevated` | Surface background plus drop shadow                | Interactive cards (asset grids, result lists).    |
+| Variant    | Treatment                            | Use when                                         |
+| ---------- | ------------------------------------ | ------------------------------------------------ |
+| `outlined` | Transparent background, 1px border   | Default. Quiet card that sits on any surface.    |
+| `filled`   | Surface-tinted background, no border | Cards on the canvas background; gives mild lift. |
+| `elevated` | Surface background plus drop shadow  | Interactive cards (asset grids, result lists).   |
 
 ```tsx
 <Card variant="outlined">...</Card>
@@ -113,7 +113,11 @@ For dense lists (file rows, search results, asset rows) use `outlined` cards wit
     leading={<FolderIcon />}
     title="Concrete 04"
     subtitle="PBR material — 8.2 MB"
-    trailing={<Text size="xs" color="muted">Open</Text>}
+    trailing={
+      <Text size="xs" color="muted">
+        Open
+      </Text>
+    }
   />
 </Card>
 ```
@@ -156,7 +160,9 @@ When `children` is passed to `Card.Header`, the default title/subtitle layout is
 <Card.Header>
   <Flex justify="space-between" align="center">
     <Text weight="semibold">Custom header layout</Text>
-    <Text size="xs" color="muted">Free-form children</Text>
+    <Text size="xs" color="muted">
+      Free-form children
+    </Text>
   </Flex>
 </Card.Header>
 ```
@@ -165,13 +171,13 @@ When `children` is passed to `Card.Header`, the default title/subtitle layout is
 
 `Card` is a compound component. The members below are attached to `Card` (`Card.Header`, `Card.Media`, `Card.Body`, `Card.Footer`) and are all optional — pick the ones you need.
 
-| Member        | Role                                                                       |
-| ------------- | -------------------------------------------------------------------------- |
-| `Card`        | Root surface. Owns variant, selection, disabled state, and interactivity.  |
-| `Card.Header` | Title / subtitle row with optional `leading` and `trailing` slots.         |
-| `Card.Media`  | Edge-to-edge image (via `src`) or arbitrary children at a fixed aspect.    |
-| `Card.Body`   | Descriptive body copy. Flex-grows so the footer stays pinned to the bottom.|
-| `Card.Footer` | Action row with a top border and configurable alignment.                   |
+| Member        | Role                                                                        |
+| ------------- | --------------------------------------------------------------------------- |
+| `Card`        | Root surface. Owns variant, selection, disabled state, and interactivity.   |
+| `Card.Header` | Title / subtitle row with optional `leading` and `trailing` slots.          |
+| `Card.Media`  | Edge-to-edge image (via `src`) or arbitrary children at a fixed aspect.     |
+| `Card.Body`   | Descriptive body copy. Flex-grows so the footer stays pinned to the bottom. |
+| `Card.Footer` | Action row with a top border and configurable alignment.                    |
 
 All members accept their own ARIA / data attributes (passed through to the underlying `div`), so you can tag any slot for testing or screen-reader hints without wrapping.
 

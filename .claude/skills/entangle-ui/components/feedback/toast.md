@@ -202,14 +202,14 @@ Bottom positions stack toasts with the newest at the bottom (using `column-rever
 
 ### ToastProvider
 
-| Prop              | Type                                                                                              | Default          | Description                                    |
-| ----------------- | ------------------------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------- |
-| `children`        | `ReactNode`                                                                                       | —                | Application content.                           |
-| `position`        | `'top-right' \| 'top-left' \| 'top-center' \| 'bottom-right' \| 'bottom-left' \| 'bottom-center'` | `'bottom-right'` | Screen position for the toast container.       |
-| `maxVisible`      | `number`                                                                                          | `5`              | Maximum number of visible toasts at once.      |
-| `defaultDuration` | `number`                                                                                          | `5000`           | Default auto-dismiss duration in milliseconds. |
-| `gap`             | `number`                                                                                          | `8`              | Gap between toasts in pixels.                  |
-| `zIndex`          | `number`                                                                                          | `1200`           | Z-index of the toast container.                |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Application content. |
+| `position` | `'top-right' \| 'top-left' \| 'top-center' \| 'bottom-right' \| 'bottom-left' \| 'bottom-center'` | `'bottom-right'` | Screen position for the toast container. |
+| `maxVisible` | `number` | `5` | Maximum number of visible toasts at once. |
+| `defaultDuration` | `number` | `5000` | Default auto-dismiss duration in milliseconds. |
+| `gap` | `number` | `8` | Gap between toasts in pixels. |
+| `zIndex` | `number` | `1200` | Z-index of the toast container. |
 
 ### useToast() Return Value
 

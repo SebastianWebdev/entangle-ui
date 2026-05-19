@@ -197,38 +197,38 @@ Control the spacing between axis inputs.
 
 ## Props
 
-| Prop               | Type                                           | Default     | Description                                                           |
-| ------------------ | ---------------------------------------------- | ----------- | --------------------------------------------------------------------- |
-| `value`            | `number[]`                                     | —           | Current vector value (controlled). Array length must match dimension. |
-| `defaultValue`     | `number[]`                                     | —           | Default vector value (uncontrolled).                                  |
-| `dimension`        | `2 \| 3 \| 4`                                  | `3`         | Number of vector components.                                          |
-| `labelPreset`      | `'xyz' \| 'rgba' \| 'uvw' \| 'custom'`         | `'xyz'`     | Axis label preset configuration.                                      |
-| `axisLabels`       | `string[]`                                     | —           | Custom axis labels (when labelPreset is "custom").                    |
-| `colorPreset`      | `'spatial' \| 'color' \| 'none' \| 'custom'`   | `'spatial'` | Color coding preset for axis labels.                                  |
-| `axisColors`       | `string[]`                                     | —           | Custom axis colors (when colorPreset is "custom"). CSS color strings. |
-| `min`              | `number`                                       | —           | Minimum allowed value (applies to all axes).                          |
-| `max`              | `number`                                       | —           | Maximum allowed value (applies to all axes).                          |
-| `step`             | `number`                                       | `1`         | Step size for value increments.                                       |
-| `precisionStep`    | `number`                                       | —           | Step size when Shift is held (precision mode).                        |
-| `largeStep`        | `number`                                       | —           | Step size when Ctrl is held (large steps).                            |
-| `precision`        | `number`                                       | `2`         | Number of decimal places.                                             |
-| `unit`             | `string`                                       | —           | Unit suffix displayed in each input (e.g., "px", "deg").              |
-| `size`             | `'sm' \| 'md' \| 'lg'`                         | `'md'`      | Component size.                                                       |
-| `label`            | `string`                                       | —           | Label displayed above the vector input.                               |
-| `helperText`       | `string`                                       | —           | Helper text displayed below.                                          |
-| `error`            | `boolean`                                      | `false`     | Error state.                                                          |
-| `errorMessage`     | `string`                                       | —           | Error message.                                                        |
-| `disabled`         | `boolean`                                      | `false`     | Whether the vector input is disabled.                                 |
-| `showLink`         | `boolean`                                      | `false`     | Whether to show the link/unlink proportions toggle.                   |
-| `defaultLinked`    | `boolean`                                      | `false`     | Whether axes are linked by default (uncontrolled).                    |
-| `linked`           | `boolean`                                      | —           | Whether axes are linked (controlled).                                 |
-| `onLinkedChange`   | `(linked: boolean) => void`                    | —           | Callback when the linked state changes.                               |
-| `direction`        | `'row' \| 'column'`                            | `'row'`     | Layout direction of axis inputs.                                      |
-| `gap`              | `number`                                       | `2`         | Gap between axis inputs in pixels.                                    |
-| `onChange`         | `(value: number[], axisIndex: number) => void` | —           | Callback when any axis value changes.                                 |
-| `onChangeComplete` | `(value: number[]) => void`                    | —           | Callback when editing is committed (blur, Enter).                     |
-| `className`        | `string`                                       | —           | Additional CSS class names.                                           |
-| `testId`           | `string`                                       | —           | Test identifier for automated testing.                                |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `number[]` | — | Current vector value (controlled). Array length must match dimension. |
+| `defaultValue` | `number[]` | — | Default vector value (uncontrolled). |
+| `dimension` | `2 \| 3 \| 4` | `3` | Number of vector components. |
+| `labelPreset` | `'xyz' \| 'rgba' \| 'uvw' \| 'custom'` | `'xyz'` | Axis label preset configuration. |
+| `axisLabels` | `string[]` | — | Custom axis labels (when labelPreset is "custom"). |
+| `colorPreset` | `'spatial' \| 'color' \| 'none' \| 'custom'` | `'spatial'` | Color coding preset for axis labels. |
+| `axisColors` | `string[]` | — | Custom axis colors (when colorPreset is "custom"). CSS color strings. |
+| `min` | `number` | — | Minimum allowed value (applies to all axes). |
+| `max` | `number` | — | Maximum allowed value (applies to all axes). |
+| `step` | `number` | `1` | Step size for value increments. |
+| `precisionStep` | `number` | — | Step size when Shift is held (precision mode). |
+| `largeStep` | `number` | — | Step size when Ctrl is held (large steps). |
+| `precision` | `number` | `2` | Number of decimal places. |
+| `unit` | `string` | — | Unit suffix displayed in each input (e.g., "px", "deg"). |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Component size. |
+| `label` | `string` | — | Label displayed above the vector input. |
+| `helperText` | `string` | — | Helper text displayed below. |
+| `error` | `boolean` | `false` | Error state. |
+| `errorMessage` | `string` | — | Error message. |
+| `disabled` | `boolean` | `false` | Whether the vector input is disabled. |
+| `showLink` | `boolean` | `false` | Whether to show the link/unlink proportions toggle. |
+| `defaultLinked` | `boolean` | `false` | Whether axes are linked by default (uncontrolled). |
+| `linked` | `boolean` | — | Whether axes are linked (controlled). |
+| `onLinkedChange` | `(linked: boolean) => void` | — | Callback when the linked state changes. |
+| `direction` | `'row' \| 'column'` | `'row'` | Layout direction of axis inputs. |
+| `gap` | `number` | `2` | Gap between axis inputs in pixels. |
+| `onChange` | `(value: number[], axisIndex: number) => void` | — | Callback when any axis value changes. |
+| `onChangeComplete` | `(value: number[]) => void` | — | Callback when editing is committed (blur, Enter). |
+| `className` | `string` | — | Additional CSS class names. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ## Accessibility
 

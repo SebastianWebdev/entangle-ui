@@ -189,36 +189,36 @@ Use `onChangeComplete` for undo integration. It fires on pointer up after a drag
 
 ## Props
 
-| Prop               | Type                                                                  | Default          | Description                                                       |
-| ------------------ | --------------------------------------------------------------------- | ---------------- | ----------------------------------------------------------------- |
-| `value`            | `Point2D`                                                             | —                | Current point value (controlled). Object with x and y properties. |
-| `defaultValue`     | `Point2D`                                                             | `{ x: 0, y: 0 }` | Default point value (uncontrolled).                               |
-| `domainX`          | `[number, number]`                                                    | `[-1, 1]`        | Domain range for the X axis.                                      |
-| `domainY`          | `[number, number]`                                                    | `[-1, 1]`        | Domain range for the Y axis.                                      |
-| `showGrid`         | `boolean`                                                             | `true`           | Whether to show grid lines.                                       |
-| `gridSubdivisions` | `number`                                                              | `4`              | Number of grid subdivision lines.                                 |
-| `showAxisLabels`   | `boolean`                                                             | `true`           | Whether to show X/Y axis value labels.                            |
-| `showOriginAxes`   | `boolean`                                                             | `true`           | Whether to draw emphasized origin axes (X=0, Y=0).                |
-| `showCrosshair`    | `boolean`                                                             | `true`           | Whether to draw crosshair lines from the point to edges.          |
-| `crosshairStyle`   | `'solid' \| 'dashed'`                                                 | `'dashed'`       | Crosshair line style.                                             |
-| `labelX`           | `string`                                                              | —                | X axis name label.                                                |
-| `labelY`           | `string`                                                              | —                | Y axis name label.                                                |
-| `markerRadius`     | `number`                                                              | `6`              | Point marker radius in pixels.                                    |
-| `snapToGrid`       | `boolean`                                                             | `false`          | Snap to grid subdivisions while dragging (Ctrl toggles).          |
-| `step`             | `number \| [number, number]`                                          | —                | Discrete step for value snapping. Single value or [stepX, stepY]. |
-| `clampToRange`     | `boolean`                                                             | `true`           | Whether to clamp the point within domain bounds.                  |
-| `precision`        | `number`                                                              | `2`              | Number format precision for displayed values.                     |
-| `width`            | `number`                                                              | `200`            | Width of the picker in pixels.                                    |
-| `height`           | `number`                                                              | `200`            | Height of the picker in pixels.                                   |
-| `responsive`       | `boolean`                                                             | `false`          | Whether the picker fills its parent container via ResizeObserver. |
-| `disabled`         | `boolean`                                                             | `false`          | Whether the picker is disabled.                                   |
-| `readOnly`         | `boolean`                                                             | `false`          | Whether the picker is read-only.                                  |
-| `onChange`         | `(point: Point2D) => void`                                            | —                | Callback fired continuously during drag.                          |
-| `onChangeComplete` | `(point: Point2D) => void`                                            | —                | Callback fired when editing is committed (pointer up).            |
-| `renderBackground` | `(ctx: CanvasRenderingContext2D, info: CanvasBackgroundInfo) => void` | —                | Custom background renderer for the canvas.                        |
-| `renderBottomBar`  | `(info: CartesianPickerInfo) => ReactNode`                            | —                | Render prop for custom content below the canvas.                  |
-| `className`        | `string`                                                              | —                | Additional CSS class names.                                       |
-| `testId`           | `string`                                                              | —                | Test identifier for automated testing.                            |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `Point2D` | — | Current point value (controlled). Object with x and y properties. |
+| `defaultValue` | `Point2D` | `{ x: 0, y: 0 }` | Default point value (uncontrolled). |
+| `domainX` | `[number, number]` | `[-1, 1]` | Domain range for the X axis. |
+| `domainY` | `[number, number]` | `[-1, 1]` | Domain range for the Y axis. |
+| `showGrid` | `boolean` | `true` | Whether to show grid lines. |
+| `gridSubdivisions` | `number` | `4` | Number of grid subdivision lines. |
+| `showAxisLabels` | `boolean` | `true` | Whether to show X/Y axis value labels. |
+| `showOriginAxes` | `boolean` | `true` | Whether to draw emphasized origin axes (X=0, Y=0). |
+| `showCrosshair` | `boolean` | `true` | Whether to draw crosshair lines from the point to edges. |
+| `crosshairStyle` | `'solid' \| 'dashed'` | `'dashed'` | Crosshair line style. |
+| `labelX` | `string` | — | X axis name label. |
+| `labelY` | `string` | — | Y axis name label. |
+| `markerRadius` | `number` | `6` | Point marker radius in pixels. |
+| `snapToGrid` | `boolean` | `false` | Snap to grid subdivisions while dragging (Ctrl toggles). |
+| `step` | `number \| [number, number]` | — | Discrete step for value snapping. Single value or [stepX, stepY]. |
+| `clampToRange` | `boolean` | `true` | Whether to clamp the point within domain bounds. |
+| `precision` | `number` | `2` | Number format precision for displayed values. |
+| `width` | `number` | `200` | Width of the picker in pixels. |
+| `height` | `number` | `200` | Height of the picker in pixels. |
+| `responsive` | `boolean` | `false` | Whether the picker fills its parent container via ResizeObserver. |
+| `disabled` | `boolean` | `false` | Whether the picker is disabled. |
+| `readOnly` | `boolean` | `false` | Whether the picker is read-only. |
+| `onChange` | `(point: Point2D) => void` | — | Callback fired continuously during drag. |
+| `onChangeComplete` | `(point: Point2D) => void` | — | Callback fired when editing is committed (pointer up). |
+| `renderBackground` | `(ctx: CanvasRenderingContext2D, info: CanvasBackgroundInfo) => void` | — | Custom background renderer for the canvas. |
+| `renderBottomBar` | `(info: CartesianPickerInfo) => ReactNode` | — | Render prop for custom content below the canvas. |
+| `className` | `string` | — | Additional CSS class names. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ## Accessibility
 

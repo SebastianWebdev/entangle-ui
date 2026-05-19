@@ -184,34 +184,34 @@ Use the `name` prop for native form submission. A hidden `<input>` is rendered w
 
 ## Props
 
-| Prop                | Type                                                   | Default              | Description                                              |
-| ------------------- | ------------------------------------------------------ | -------------------- | -------------------------------------------------------- |
-| `value`             | `T \| null`                                            | —                    | Selected value (controlled).                             |
-| `defaultValue`      | `T`                                                    | —                    | Default selected value (uncontrolled).                   |
-| `options`           | `Array \| SelectOptionGroup>`                          | —                    | Options to display — flat list or grouped.               |
-| `placeholder`       | `string`                                               | `'Select...'`        | Placeholder text when no value is selected.              |
-| `searchable`        | `boolean`                                              | `false`              | Whether to show a search input inside the dropdown.      |
-| `searchPlaceholder` | `string`                                               | `'Search...'`        | Placeholder for the search input.                        |
-| `filterFn`          | `(option: SelectOptionItem, query: string) => boolean` | —                    | Custom filter function for searchable mode.              |
-| `emptyMessage`      | `string`                                               | `'No results found'` | Message shown when search yields no results.             |
-| `size`              | `'sm' \| 'md' \| 'lg'`                                 | `'md'`               | Size of the trigger button.                              |
-| `variant`           | `'default' \| 'ghost' \| 'filled'`                     | `'default'`          | Visual variant of the trigger button.                    |
-| `label`             | `string`                                               | —                    | Label displayed above the select.                        |
-| `helperText`        | `string`                                               | —                    | Helper text displayed below the select.                  |
-| `error`             | `boolean`                                              | `false`              | Error state.                                             |
-| `errorMessage`      | `string`                                               | —                    | Error message shown when in error state.                 |
-| `disabled`          | `boolean`                                              | `false`              | Whether the select is disabled.                          |
-| `required`          | `boolean`                                              | `false`              | Whether the select is required.                          |
-| `clearable`         | `boolean`                                              | `false`              | Whether a clear button appears when a value is selected. |
-| `maxDropdownHeight` | `number`                                               | `240`                | Maximum height of the dropdown in pixels.                |
-| `minDropdownWidth`  | `number`                                               | —                    | Minimum width of the dropdown in pixels.                 |
-| `name`              | `string`                                               | —                    | Name attribute for hidden input (form submission).       |
-| `onChange`          | `(value: T \| null) => void`                           | —                    | Callback when the selected value changes.                |
-| `onOpenChange`      | `(open: boolean) => void`                              | —                    | Callback when the dropdown open state changes.           |
-| `className`         | `string`                                               | —                    | Additional CSS class names.                              |
-| `style`             | `CSSProperties`                                        | —                    | Inline styles.                                           |
-| `testId`            | `string`                                               | —                    | Test identifier for automated testing.                   |
-| `ref`               | `Ref`                                                  | —                    | Ref to the trigger button element.                       |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `T \| null` | — | Selected value (controlled). |
+| `defaultValue` | `T` | — | Default selected value (uncontrolled). |
+| `options` | `Array \| SelectOptionGroup>` | — | Options to display — flat list or grouped. |
+| `placeholder` | `string` | `'Select...'` | Placeholder text when no value is selected. |
+| `searchable` | `boolean` | `false` | Whether to show a search input inside the dropdown. |
+| `searchPlaceholder` | `string` | `'Search...'` | Placeholder for the search input. |
+| `filterFn` | `(option: SelectOptionItem, query: string) => boolean` | — | Custom filter function for searchable mode. |
+| `emptyMessage` | `string` | `'No results found'` | Message shown when search yields no results. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Size of the trigger button. |
+| `variant` | `'default' \| 'ghost' \| 'filled'` | `'default'` | Visual variant of the trigger button. |
+| `label` | `string` | — | Label displayed above the select. |
+| `helperText` | `string` | — | Helper text displayed below the select. |
+| `error` | `boolean` | `false` | Error state. |
+| `errorMessage` | `string` | — | Error message shown when in error state. |
+| `disabled` | `boolean` | `false` | Whether the select is disabled. |
+| `required` | `boolean` | `false` | Whether the select is required. |
+| `clearable` | `boolean` | `false` | Whether a clear button appears when a value is selected. |
+| `maxDropdownHeight` | `number` | `240` | Maximum height of the dropdown in pixels. |
+| `minDropdownWidth` | `number` | — | Minimum width of the dropdown in pixels. |
+| `name` | `string` | — | Name attribute for hidden input (form submission). |
+| `onChange` | `(value: T \| null) => void` | — | Callback when the selected value changes. |
+| `onOpenChange` | `(open: boolean) => void` | — | Callback when the dropdown open state changes. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the trigger button element. |
 
 ### SelectOptionItem
 

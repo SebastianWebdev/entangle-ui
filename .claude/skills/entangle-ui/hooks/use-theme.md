@@ -123,9 +123,9 @@ const { getVar } = useTheme();
 
 ## API
 
-| Prop       | Type                            | Default | Description                                                                                                                                                    |
-| ---------- | ------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `variant`  | `'dark' \| 'light' \| 'custom'` | —       | Detected theme variant. `'dark'` is the default; `'light'` is reported when the light-theme class is present in the document.                                  |
-| `values`   | `ThemeValues`                   | —       | Resolved theme values — the same shape as `darkThemeValues`/`lightThemeValues`, with each leaf replaced by the current CSS variable value.                     |
-| `getToken` | `(path: string) => string`      | —       | Resolve a single token by path (e.g. `'colors.accent.primary'`). Returns an empty string for unknown paths. Cached per path for the life of the hook instance. |
-| `getVar`   | `(path: string) => string`      | —       | Get the `var(--etui-...)` reference for a token. SSR-safe and ideal for inline styles that should follow theme changes automatically.                          |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `variant` | `'dark' \| 'light' \| 'custom'` | — | Detected theme variant. `'dark'` is the default; `'light'` is reported when the light-theme class is present in the document. |
+| `values` | `ThemeValues` | — | Resolved theme values — the same shape as `darkThemeValues`/`lightThemeValues`, with each leaf replaced by the current CSS variable value. |
+| `getToken` | `(path: string) => string` | — | Resolve a single token by path (e.g. `'colors.accent.primary'`). Returns an empty string for unknown paths. Cached per path for the life of the hook instance. |
+| `getVar` | `(path: string) => string` | — | Get the `var(--etui-...)` reference for a token. SSR-safe and ideal for inline styles that should follow theme changes automatically. |

@@ -172,75 +172,75 @@ Use `Toolbar.Group` to logically group related buttons and `Toolbar.Separator` t
 
 ### Toolbar
 
-| Prop          | Type                         | Default        | Description                                                        |
-| ------------- | ---------------------------- | -------------- | ------------------------------------------------------------------ |
-| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Layout orientation. Arrow key navigation adapts to match.          |
-| `size`        | `'sm' \| 'md'`               | `'md'`         | Size of toolbar items.                                             |
-| `children`    | `ReactNode`                  | —              | Toolbar sub-components (Button, Toggle, Group, Separator, Spacer). |
-| `aria-label`  | `string`                     | —              | Accessible label for the toolbar.                                  |
-| `className`   | `string`                     | —              | Additional CSS class names.                                        |
-| `style`       | `CSSProperties`              | —              | Inline styles.                                                     |
-| `testId`      | `string`                     | —              | Test identifier for automated testing.                             |
-| `ref`         | `Ref`                        | —              | Ref to the root element.                                           |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Layout orientation. Arrow key navigation adapts to match. |
+| `size` | `'sm' \| 'md'` | `'md'` | Size of toolbar items. |
+| `children` | `ReactNode` | — | Toolbar sub-components (Button, Toggle, Group, Separator, Spacer). |
+| `aria-label` | `string` | — | Accessible label for the toolbar. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root element. |
 
 ### Toolbar.Button
 
-| Prop        | Type                               | Default     | Description                                                               |
-| ----------- | ---------------------------------- | ----------- | ------------------------------------------------------------------------- |
-| `icon`      | `ReactNode`                        | —           | Icon element to display. When provided, children text is visually hidden. |
-| `children`  | `ReactNode`                        | —           | Label text. Hidden when an icon is provided.                              |
-| `variant`   | `'default' \| 'ghost' \| 'filled'` | `'default'` | Visual variant of the button.                                             |
-| `tooltip`   | `string`                           | —           | Tooltip text shown on hover (rendered as the native title attribute).     |
-| `onClick`   | `() => void`                       | —           | Click handler.                                                            |
-| `disabled`  | `boolean`                          | `false`     | Whether the button is disabled.                                           |
-| `className` | `string`                           | —           | Additional CSS class names.                                               |
-| `style`     | `CSSProperties`                    | —           | Inline styles.                                                            |
-| `testId`    | `string`                           | —           | Test identifier for automated testing.                                    |
-| `ref`       | `Ref`                              | —           | Ref to the button element.                                                |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `icon` | `ReactNode` | — | Icon element to display. When provided, children text is visually hidden. |
+| `children` | `ReactNode` | — | Label text. Hidden when an icon is provided. |
+| `variant` | `'default' \| 'ghost' \| 'filled'` | `'default'` | Visual variant of the button. |
+| `tooltip` | `string` | — | Tooltip text shown on hover (rendered as the native title attribute). |
+| `onClick` | `() => void` | — | Click handler. |
+| `disabled` | `boolean` | `false` | Whether the button is disabled. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the button element. |
 
 ### Toolbar.Toggle
 
-| Prop                           | Type                         | Default | Description                                  |
-| ------------------------------ | ---------------------------- | ------- | -------------------------------------------- |
-| `pressed` _(required)_         | `boolean`                    | —       | Whether the toggle is in the pressed state.  |
-| `onPressedChange` _(required)_ | `(pressed: boolean) => void` | —       | Called when the pressed state should change. |
-| `icon`                         | `ReactNode`                  | —       | Icon element to display.                     |
-| `children`                     | `ReactNode`                  | —       | Label text.                                  |
-| `tooltip`                      | `string`                     | —       | Tooltip text shown on hover.                 |
-| `disabled`                     | `boolean`                    | `false` | Whether the toggle is disabled.              |
-| `className`                    | `string`                     | —       | Additional CSS class names.                  |
-| `style`                        | `CSSProperties`              | —       | Inline styles.                               |
-| `testId`                       | `string`                     | —       | Test identifier for automated testing.       |
-| `ref`                          | `Ref`                        | —       | Ref to the button element.                   |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `pressed` *(required)* | `boolean` | — | Whether the toggle is in the pressed state. |
+| `onPressedChange` *(required)* | `(pressed: boolean) => void` | — | Called when the pressed state should change. |
+| `icon` | `ReactNode` | — | Icon element to display. |
+| `children` | `ReactNode` | — | Label text. |
+| `tooltip` | `string` | — | Tooltip text shown on hover. |
+| `disabled` | `boolean` | `false` | Whether the toggle is disabled. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the button element. |
 
 ### Toolbar.Group
 
-| Prop         | Type            | Default | Description                            |
-| ------------ | --------------- | ------- | -------------------------------------- |
-| `children`   | `ReactNode`     | —       | Grouped toolbar items.                 |
-| `aria-label` | `string`        | —       | Accessible label for the group.        |
-| `className`  | `string`        | —       | Additional CSS class names.            |
-| `style`      | `CSSProperties` | —       | Inline styles.                         |
-| `testId`     | `string`        | —       | Test identifier for automated testing. |
-| `ref`        | `Ref`           | —       | Ref to the group element.              |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Grouped toolbar items. |
+| `aria-label` | `string` | — | Accessible label for the group. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the group element. |
 
 ### Toolbar.Separator
 
-| Prop        | Type            | Default | Description                            |
-| ----------- | --------------- | ------- | -------------------------------------- |
-| `className` | `string`        | —       | Additional CSS class names.            |
-| `style`     | `CSSProperties` | —       | Inline styles.                         |
-| `testId`    | `string`        | —       | Test identifier for automated testing. |
-| `ref`       | `Ref`           | —       | Ref to the separator element.          |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the separator element. |
 
 ### Toolbar.Spacer
 
-| Prop        | Type            | Default | Description                            |
-| ----------- | --------------- | ------- | -------------------------------------- |
-| `className` | `string`        | —       | Additional CSS class names.            |
-| `style`     | `CSSProperties` | —       | Inline styles.                         |
-| `testId`    | `string`        | —       | Test identifier for automated testing. |
-| `ref`       | `Ref`           | —       | Ref to the spacer element.             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the spacer element. |
 
 ## Accessibility
 

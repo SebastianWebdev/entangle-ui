@@ -194,42 +194,42 @@ Control the visual size (width or height) of the draggable divider.
 
 ### SplitPane
 
-| Prop               | Type                                               | Default        | Description                                                                                             |
-| ------------------ | -------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------- |
-| `children`         | `ReactNode`                                        | —              | SplitPanePanel children (minimum 2). Required.                                                          |
-| `direction`        | `'horizontal' \| 'vertical'`                       | `'horizontal'` | Layout direction. Horizontal places panels side by side, vertical stacks them.                          |
-| `panels`           | `PanelConfig[]`                                    | `[]`           | Array of panel configuration objects defining default size, min/max constraints, and collapse behavior. |
-| `sizes`            | `number[]`                                         | —              | Controlled panel sizes in pixels. When provided, the component operates in controlled mode.             |
-| `dividerSize`      | `number`                                           | `4`            | Divider width (horizontal) or height (vertical) in pixels.                                              |
-| `onResize`         | `(sizes: number[]) => void`                        | —              | Callback fired continuously during drag with the current panel sizes.                                   |
-| `onResizeEnd`      | `(sizes: number[]) => void`                        | —              | Callback fired when a drag ends. Useful for persisting layout to storage.                               |
-| `onCollapseChange` | `(panelIndex: number, collapsed: boolean) => void` | —              | Callback fired when a collapsible panel collapses or expands.                                           |
-| `className`        | `string`                                           | —              | Additional CSS class names.                                                                             |
-| `style`            | `CSSProperties`                                    | —              | Inline styles.                                                                                          |
-| `testId`           | `string`                                           | —              | Test identifier for automated testing.                                                                  |
-| `ref`              | `Ref`                                              | —              | Ref to the container div element.                                                                       |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | SplitPanePanel children (minimum 2). Required. |
+| `direction` | `'horizontal' \| 'vertical'` | `'horizontal'` | Layout direction. Horizontal places panels side by side, vertical stacks them. |
+| `panels` | `PanelConfig[]` | `[]` | Array of panel configuration objects defining default size, min/max constraints, and collapse behavior. |
+| `sizes` | `number[]` | — | Controlled panel sizes in pixels. When provided, the component operates in controlled mode. |
+| `dividerSize` | `number` | `4` | Divider width (horizontal) or height (vertical) in pixels. |
+| `onResize` | `(sizes: number[]) => void` | — | Callback fired continuously during drag with the current panel sizes. |
+| `onResizeEnd` | `(sizes: number[]) => void` | — | Callback fired when a drag ends. Useful for persisting layout to storage. |
+| `onCollapseChange` | `(panelIndex: number, collapsed: boolean) => void` | — | Callback fired when a collapsible panel collapses or expands. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the container div element. |
 
 ### PanelConfig
 
 Configuration object for each panel in the `panels` array.
 
-| Prop                | Type               | Default | Description                                                                       |
-| ------------------- | ------------------ | ------- | --------------------------------------------------------------------------------- |
-| `defaultSize`       | `number \| string` | —       | Initial panel size in pixels (number) or as a CSS value (e.g. "30%").             |
-| `minSize`           | `number`           | —       | Minimum panel size in pixels.                                                     |
-| `maxSize`           | `number`           | —       | Maximum panel size in pixels.                                                     |
-| `collapsible`       | `boolean`          | `false` | Whether this panel can collapse to zero size.                                     |
-| `collapseThreshold` | `number`           | —       | Size in pixels below which the panel snaps to collapsed. Defaults to minSize / 2. |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `defaultSize` | `number \| string` | — | Initial panel size in pixels (number) or as a CSS value (e.g. "30%"). |
+| `minSize` | `number` | — | Minimum panel size in pixels. |
+| `maxSize` | `number` | — | Maximum panel size in pixels. |
+| `collapsible` | `boolean` | `false` | Whether this panel can collapse to zero size. |
+| `collapseThreshold` | `number` | — | Size in pixels below which the panel snaps to collapsed. Defaults to minSize / 2. |
 
 ### SplitPanePanel
 
-| Prop        | Type            | Default | Description                            |
-| ----------- | --------------- | ------- | -------------------------------------- |
-| `children`  | `ReactNode`     | —       | Panel content.                         |
-| `className` | `string`        | —       | Additional CSS class names.            |
-| `style`     | `CSSProperties` | —       | Inline styles.                         |
-| `testId`    | `string`        | —       | Test identifier for automated testing. |
-| `ref`       | `Ref`           | —       | Ref to the panel div element.          |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Panel content. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the panel div element. |
 
 Both SplitPane and SplitPanePanel accept all standard HTML `<div>` attributes.
 

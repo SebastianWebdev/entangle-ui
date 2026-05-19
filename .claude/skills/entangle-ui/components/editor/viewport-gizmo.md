@@ -200,32 +200,32 @@ The `diameter` prop controls the pixel size of the canvas. The `size` prop affec
 
 ## Props
 
-| Prop                       | Type                                                                          | Default     | Description                                                                                                       |
-| -------------------------- | ----------------------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------- |
-| `orientation` _(required)_ | `{ yaw: number; pitch: number; roll?: number }`                               | —           | Current viewport orientation in degrees. The gizmo always reflects this value (fully controlled).                 |
-| `upAxis`                   | `'y-up' \| 'z-up'`                                                            | `'y-up'`    | Which axis points up. Y-up for Three.js/Babylon/Maya, Z-up for Blender/Unreal/CAD.                                |
-| `axisColorPreset`          | `'blender' \| 'unreal' \| 'custom'`                                           | `'blender'` | Axis color convention. Use "custom" with axisConfig for custom colors.                                            |
-| `axisConfig`               | `[GizmoAxisConfig, GizmoAxisConfig, GizmoAxisConfig]`                         | —           | Per-axis configuration [X, Y, Z] with custom label, color, and visibility. Used when axisColorPreset is "custom". |
-| `showLabels`               | `boolean`                                                                     | `true`      | Whether to show axis labels (X, Y, Z) at arm tips.                                                                |
-| `showNegativeAxes`         | `boolean`                                                                     | `true`      | Whether to show negative axis arms (dimmed, shorter).                                                             |
-| `showOrbitRing`            | `boolean`                                                                     | `true`      | Whether to show a thin orbit ring around the gizmo.                                                               |
-| `showOriginHandle`         | `boolean`                                                                     | `true`      | Whether to show a clickable origin handle at the center.                                                          |
-| `background`               | `'transparent' \| 'subtle' \| 'solid'`                                        | `'subtle'`  | Background style of the gizmo container.                                                                          |
-| `interactionMode`          | `'full' \| 'snap-only' \| 'orbit-only' \| 'display-only'`                     | `'full'`    | Which interactions are enabled.                                                                                   |
-| `orbitSpeed`               | `number`                                                                      | `1`         | Orbit speed multiplier for drag interactions.                                                                     |
-| `constrainPitch`           | `boolean`                                                                     | `true`      | Whether to constrain pitch rotation to [-90, 90] degrees.                                                         |
-| `onOrbit`                  | `(delta: { deltaYaw: number; deltaPitch: number }) => void`                   | —           | Called continuously while the user drags to orbit.                                                                |
-| `onOrbitEnd`               | `(finalOrientation: GizmoOrientation) => void`                                | —           | Called when the user finishes an orbit drag.                                                                      |
-| `onSnapToView`             | `(view: 'front' \| 'back' \| 'left' \| 'right' \| 'top' \| 'bottom') => void` | —           | Called when the user clicks an axis to snap to a preset view.                                                     |
-| `onAxisClick`              | `(axis: 'x' \| 'y' \| 'z', positive: boolean) => void`                        | —           | Called when the user clicks a specific axis arm.                                                                  |
-| `onOriginClick`            | `() => void`                                                                  | —           | Called when the user clicks the origin handle.                                                                    |
-| `diameter`                 | `number`                                                                      | `120`       | Gizmo diameter in pixels.                                                                                         |
-| `size`                     | `'sm' \| 'md' \| 'lg'`                                                        | `'md'`      | Component size, affecting label font size.                                                                        |
-| `disabled`                 | `boolean`                                                                     | `false`     | Whether the gizmo is disabled.                                                                                    |
-| `className`                | `string`                                                                      | —           | Additional CSS class names on the wrapper element.                                                                |
-| `style`                    | `CSSProperties`                                                               | —           | Inline styles on the wrapper element.                                                                             |
-| `testId`                   | `string`                                                                      | —           | Test identifier for automated testing.                                                                            |
-| `id`                       | `string`                                                                      | —           | HTML id attribute on the wrapper element.                                                                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `orientation` *(required)* | `{ yaw: number; pitch: number; roll?: number }` | — | Current viewport orientation in degrees. The gizmo always reflects this value (fully controlled). |
+| `upAxis` | `'y-up' \| 'z-up'` | `'y-up'` | Which axis points up. Y-up for Three.js/Babylon/Maya, Z-up for Blender/Unreal/CAD. |
+| `axisColorPreset` | `'blender' \| 'unreal' \| 'custom'` | `'blender'` | Axis color convention. Use "custom" with axisConfig for custom colors. |
+| `axisConfig` | `[GizmoAxisConfig, GizmoAxisConfig, GizmoAxisConfig]` | — | Per-axis configuration [X, Y, Z] with custom label, color, and visibility. Used when axisColorPreset is "custom". |
+| `showLabels` | `boolean` | `true` | Whether to show axis labels (X, Y, Z) at arm tips. |
+| `showNegativeAxes` | `boolean` | `true` | Whether to show negative axis arms (dimmed, shorter). |
+| `showOrbitRing` | `boolean` | `true` | Whether to show a thin orbit ring around the gizmo. |
+| `showOriginHandle` | `boolean` | `true` | Whether to show a clickable origin handle at the center. |
+| `background` | `'transparent' \| 'subtle' \| 'solid'` | `'subtle'` | Background style of the gizmo container. |
+| `interactionMode` | `'full' \| 'snap-only' \| 'orbit-only' \| 'display-only'` | `'full'` | Which interactions are enabled. |
+| `orbitSpeed` | `number` | `1` | Orbit speed multiplier for drag interactions. |
+| `constrainPitch` | `boolean` | `true` | Whether to constrain pitch rotation to [-90, 90] degrees. |
+| `onOrbit` | `(delta: { deltaYaw: number; deltaPitch: number }) => void` | — | Called continuously while the user drags to orbit. |
+| `onOrbitEnd` | `(finalOrientation: GizmoOrientation) => void` | — | Called when the user finishes an orbit drag. |
+| `onSnapToView` | `(view: 'front' \| 'back' \| 'left' \| 'right' \| 'top' \| 'bottom') => void` | — | Called when the user clicks an axis to snap to a preset view. |
+| `onAxisClick` | `(axis: 'x' \| 'y' \| 'z', positive: boolean) => void` | — | Called when the user clicks a specific axis arm. |
+| `onOriginClick` | `() => void` | — | Called when the user clicks the origin handle. |
+| `diameter` | `number` | `120` | Gizmo diameter in pixels. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Component size, affecting label font size. |
+| `disabled` | `boolean` | `false` | Whether the gizmo is disabled. |
+| `className` | `string` | — | Additional CSS class names on the wrapper element. |
+| `style` | `CSSProperties` | — | Inline styles on the wrapper element. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `id` | `string` | — | HTML id attribute on the wrapper element. |
 
 ## Accessibility
 

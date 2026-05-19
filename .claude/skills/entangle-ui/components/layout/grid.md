@@ -141,35 +141,35 @@ Grids can be nested by placing a container Grid inside a Grid item.
 
 Props that apply when `container` is `true`.
 
-| Prop        | Type                                        | Default | Description                                                                              |
-| ----------- | ------------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
-| `children`  | `ReactNode`                                 | —       | Grid content -- Grid items or any React elements. Required.                              |
-| `container` | `boolean`                                   | `false` | Whether this Grid acts as a container enabling CSS Grid layout.                          |
-| `columns`   | `number`                                    | `12`    | Total number of columns in the grid. Only applies to containers.                         |
-| `spacing`   | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| 8` | `2`     | Gap between grid items as a multiplier of the 4px base unit. Only applies to containers. |
-| `gap`       | `string \| number`                          | —       | Custom gap override as a CSS value. Overrides the spacing prop when provided.            |
-| `className` | `string`                                    | —       | Additional CSS class names.                                                              |
-| `style`     | `CSSProperties`                             | —       | Inline styles.                                                                           |
-| `testId`    | `string`                                    | —       | Test identifier for automated testing.                                                   |
-| `ref`       | `Ref`                                       | —       | Ref to the underlying div element.                                                       |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Grid content -- Grid items or any React elements. Required. |
+| `container` | `boolean` | `false` | Whether this Grid acts as a container enabling CSS Grid layout. |
+| `columns` | `number` | `12` | Total number of columns in the grid. Only applies to containers. |
+| `spacing` | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| 8` | `2` | Gap between grid items as a multiplier of the 4px base unit. Only applies to containers. |
+| `gap` | `string \| number` | — | Custom gap override as a CSS value. Overrides the spacing prop when provided. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
 
 ### Grid (Item)
 
 Props that apply when `container` is `false` (the default).
 
-| Prop        | Type             | Default | Description                                                |
-| ----------- | ---------------- | ------- | ---------------------------------------------------------- |
-| `children`  | `ReactNode`      | —       | Item content. Required.                                    |
-| `size`      | `1-12 \| 'auto'` | —       | Number of columns to span (out of the total column count). |
-| `xs`        | `1-12 \| 'auto'` | —       | Column span at extra-small breakpoint (0px+).              |
-| `sm`        | `1-12 \| 'auto'` | —       | Column span at small breakpoint (576px+).                  |
-| `md`        | `1-12 \| 'auto'` | —       | Column span at medium breakpoint (768px+).                 |
-| `lg`        | `1-12 \| 'auto'` | —       | Column span at large breakpoint (992px+).                  |
-| `xl`        | `1-12 \| 'auto'` | —       | Column span at extra-large breakpoint (1200px+).           |
-| `className` | `string`         | —       | Additional CSS class names.                                |
-| `style`     | `CSSProperties`  | —       | Inline styles.                                             |
-| `testId`    | `string`         | —       | Test identifier for automated testing.                     |
-| `ref`       | `Ref`            | —       | Ref to the underlying div element.                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Item content. Required. |
+| `size` | `1-12 \| 'auto'` | — | Number of columns to span (out of the total column count). |
+| `xs` | `1-12 \| 'auto'` | — | Column span at extra-small breakpoint (0px+). |
+| `sm` | `1-12 \| 'auto'` | — | Column span at small breakpoint (576px+). |
+| `md` | `1-12 \| 'auto'` | — | Column span at medium breakpoint (768px+). |
+| `lg` | `1-12 \| 'auto'` | — | Column span at large breakpoint (992px+). |
+| `xl` | `1-12 \| 'auto'` | — | Column span at extra-large breakpoint (1200px+). |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
 
 Both container and item modes accept all standard HTML `<div>` attributes.
 

@@ -154,28 +154,28 @@ Use `onChangeComplete` for actions that should only run when the user finishes a
 
 ## Props
 
-| Prop               | Type                                  | Default                 | Description                                                                           |
-| ------------------ | ------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------- |
-| `value`            | `string`                              | —                       | Current color value (controlled). Accepts any valid CSS color string.                 |
-| `defaultValue`     | `string`                              | `'#007acc'`             | Default color value (uncontrolled).                                                   |
-| `format`           | `'hex' \| 'rgb' \| 'hsl'`             | `'hex'`                 | Output format for the onChange callback.                                              |
-| `showAlpha`        | `boolean`                             | `false`                 | Whether to show the alpha channel slider.                                             |
-| `inputModes`       | `('hex' \| 'rgb' \| 'hsl')[]`         | `['hex', 'rgb', 'hsl']` | Available input mode tabs in the picker.                                              |
-| `defaultInputMode` | `'hex' \| 'rgb' \| 'hsl'`             | `'hex'`                 | Default active input mode.                                                            |
-| `presets`          | `ColorPreset[]`                       | —                       | Array of preset colors for quick selection. Each preset has color and optional label. |
-| `palette`          | `string \| Palette \| PaletteColor[]` | —                       | Built-in palette name, custom Palette object, or array of PaletteColor.               |
-| `showEyeDropper`   | `boolean`                             | `false`                 | Whether to show the EyeDropper button (Chromium-only).                                |
-| `size`             | `'sm' \| 'md' \| 'lg'`                | `'md'`                  | Size of the swatch trigger.                                                           |
-| `swatchShape`      | `'square' \| 'circle'`                | `'square'`              | Shape of the swatch trigger.                                                          |
-| `label`            | `string`                              | —                       | Label displayed next to the swatch trigger.                                           |
-| `disabled`         | `boolean`                             | `false`                 | Whether the picker is disabled.                                                       |
-| `inline`           | `boolean`                             | `false`                 | Whether to render the picker inline (no popover).                                     |
-| `pickerWidth`      | `number`                              | `240`                   | Width of the picker panel in pixels.                                                  |
-| `onChange`         | `(color: string) => void`             | —                       | Callback fired continuously as the color changes.                                     |
-| `onChangeComplete` | `(color: string) => void`             | —                       | Callback fired when a color change is committed (drag end).                           |
-| `className`        | `string`                              | —                       | Additional CSS class names.                                                           |
-| `style`            | `CSSProperties`                       | —                       | Inline styles.                                                                        |
-| `testId`           | `string`                              | —                       | Test identifier for automated testing.                                                |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Current color value (controlled). Accepts any valid CSS color string. |
+| `defaultValue` | `string` | `'#007acc'` | Default color value (uncontrolled). |
+| `format` | `'hex' \| 'rgb' \| 'hsl'` | `'hex'` | Output format for the onChange callback. |
+| `showAlpha` | `boolean` | `false` | Whether to show the alpha channel slider. |
+| `inputModes` | `('hex' \| 'rgb' \| 'hsl')[]` | `['hex', 'rgb', 'hsl']` | Available input mode tabs in the picker. |
+| `defaultInputMode` | `'hex' \| 'rgb' \| 'hsl'` | `'hex'` | Default active input mode. |
+| `presets` | `ColorPreset[]` | — | Array of preset colors for quick selection. Each preset has color and optional label. |
+| `palette` | `string \| Palette \| PaletteColor[]` | — | Built-in palette name, custom Palette object, or array of PaletteColor. |
+| `showEyeDropper` | `boolean` | `false` | Whether to show the EyeDropper button (Chromium-only). |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Size of the swatch trigger. |
+| `swatchShape` | `'square' \| 'circle'` | `'square'` | Shape of the swatch trigger. |
+| `label` | `string` | — | Label displayed next to the swatch trigger. |
+| `disabled` | `boolean` | `false` | Whether the picker is disabled. |
+| `inline` | `boolean` | `false` | Whether to render the picker inline (no popover). |
+| `pickerWidth` | `number` | `240` | Width of the picker panel in pixels. |
+| `onChange` | `(color: string) => void` | — | Callback fired continuously as the color changes. |
+| `onChangeComplete` | `(color: string) => void` | — | Callback fired when a color change is committed (drag end). |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ## Accessibility
 

@@ -160,9 +160,18 @@ The `align` prop controls horizontal placement: `left` (default), `right`, or `s
 
 ## Long content
 
-The body wraps naturally. Stack multiple `Alert.Description` blocks for paragraphs.
+The body wraps naturally. Stack multiple `Alert.Description` blocks for paragraphs. Long unbroken strings — URLs, file paths, command snippets — are wrapped with `overflow-wrap: anywhere`, so the alert never pushes its container wider than intended.
 
 **Long content**
+
+## Width
+
+`Alert` defaults to `width: 100%` so it stretches to fill its parent and keeps a stable footprint regardless of content length. Override with the `width` prop — a number is treated as pixels, a string passes through as a CSS value.
+
+```tsx
+<Alert width={420} variant="info">Fixed-width alert.</Alert>
+<Alert width="32rem" variant="info">Sized to the type scale.</Alert>
+```
 
 ## Editor example
 
@@ -198,46 +207,47 @@ If both the `title` prop and an `<Alert.Title>` child are supplied, both render 
 
 ### Alert
 
-| Prop         | Type                                                       | Default    | Description                                                                                     |
-| ------------ | ---------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------- |
-| `variant`    | `'info' \| 'success' \| 'warning' \| 'error' \| 'neutral'` | `'info'`   | Semantic intent. Drives color and the default icon.                                             |
-| `appearance` | `'subtle' \| 'solid' \| 'outline'`                         | `'subtle'` | Visual treatment.                                                                               |
-| `icon`       | `ReactNode \| false`                                       | `true`     | Icon at the start. `false` hides the icon; any ReactNode overrides the default.                 |
-| `onClose`    | `() => void`                                               | —          | When provided, renders a close button and calls this on click.                                  |
-| `title`      | `ReactNode`                                                | —          | Convenience prop equivalent to wrapping with `<Alert.Title>`.                                   |
-| `children`   | `ReactNode`                                                | —          | Compound children (Title / Description / Actions) or a plain string treated as the description. |
-| `className`  | `string`                                                   | —          | Additional CSS class names.                                                                     |
-| `style`      | `CSSProperties`                                            | —          | Inline styles.                                                                                  |
-| `testId`     | `string`                                                   | —          | Test identifier for automated testing.                                                          |
-| `ref`        | `Ref`                                                      | —          | Ref to the alert root element.                                                                  |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `variant` | `'info' \| 'success' \| 'warning' \| 'error' \| 'neutral'` | `'info'` | Semantic intent. Drives color and the default icon. |
+| `appearance` | `'subtle' \| 'solid' \| 'outline'` | `'subtle'` | Visual treatment. |
+| `icon` | `ReactNode \| false` | `true` | Icon at the start. `false` hides the icon; any ReactNode overrides the default. |
+| `onClose` | `() => void` | — | When provided, renders a close button and calls this on click. |
+| `title` | `ReactNode` | — | Convenience prop equivalent to wrapping with `<Alert.Title>`. |
+| `width` | `number \| string` | `'100%'` | Width of the alert. Number → px, string → CSS value. Defaults to filling the parent so the alert keeps a stable width regardless of content length; long strings wrap inside. |
+| `children` | `ReactNode` | — | Compound children (Title / Description / Actions) or a plain string treated as the description. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the alert root element. |
 
 ### Alert.Title
 
-| Prop        | Type            | Default | Description                            |
-| ----------- | --------------- | ------- | -------------------------------------- |
-| `children`  | `ReactNode`     | —       | Title content.                         |
-| `className` | `string`        | —       | Additional CSS class names.            |
-| `style`     | `CSSProperties` | —       | Inline styles.                         |
-| `testId`    | `string`        | —       | Test identifier for automated testing. |
-| `ref`       | `Ref`           | —       | Ref to the title element.              |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Title content. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the title element. |
 
 ### Alert.Description
 
-| Prop        | Type            | Default | Description                            |
-| ----------- | --------------- | ------- | -------------------------------------- |
-| `children`  | `ReactNode`     | —       | Description body content.              |
-| `className` | `string`        | —       | Additional CSS class names.            |
-| `style`     | `CSSProperties` | —       | Inline styles.                         |
-| `testId`    | `string`        | —       | Test identifier for automated testing. |
-| `ref`       | `Ref`           | —       | Ref to the description element.        |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Description body content. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the description element. |
 
 ### Alert.Actions
 
-| Prop        | Type                                   | Default  | Description                             |
-| ----------- | -------------------------------------- | -------- | --------------------------------------- |
-| `children`  | `ReactNode`                            | —        | Action buttons.                         |
-| `align`     | `'left' \| 'right' \| 'space-between'` | `'left'` | Horizontal alignment of the action row. |
-| `className` | `string`                               | —        | Additional CSS class names.             |
-| `style`     | `CSSProperties`                        | —        | Inline styles.                          |
-| `testId`    | `string`                               | —        | Test identifier for automated testing.  |
-| `ref`       | `Ref`                                  | —        | Ref to the actions row element.         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Action buttons. |
+| `align` | `'left' \| 'right' \| 'space-between'` | `'left'` | Horizontal alignment of the action row. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the actions row element. |

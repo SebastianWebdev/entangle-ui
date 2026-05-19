@@ -49,139 +49,139 @@ The full catalog grouped by category. Each row lists the export name and a short
 
 ### Navigation
 
-| Icon                | Description                                         |
-| ------------------- | --------------------------------------------------- |
-| `ArrowUpIcon`       | Solid up arrow for moves and ordering.              |
-| `ArrowDownIcon`     | Solid down arrow for moves and ordering.            |
-| `ArrowLeftIcon`     | Solid left arrow for back navigation.               |
-| `ArrowRightIcon`    | Solid right arrow for forward navigation.           |
-| `ChevronUpIcon`     | Subtle up chevron for collapse and accordion.       |
-| `ChevronDownIcon`   | Subtle down chevron for expand and dropdown.        |
-| `ChevronLeftIcon`   | Subtle left chevron for previous and collapse.      |
-| `ChevronRightIcon`  | Subtle right chevron for next, expand, disclosure.  |
-| `HomeIcon`          | House silhouette for dashboard or root navigation.  |
-| `MenuIcon`          | Three horizontal lines (hamburger) for side nav.    |
-| `DotsVerticalIcon`  | Vertical 3-dot trigger for item action menus.       |
-| `DotsHorizontalIcon`| Horizontal 3-dot trigger for inline overflow menus. |
+| Icon                 | Description                                         |
+| -------------------- | --------------------------------------------------- |
+| `ArrowUpIcon`        | Solid up arrow for moves and ordering.              |
+| `ArrowDownIcon`      | Solid down arrow for moves and ordering.            |
+| `ArrowLeftIcon`      | Solid left arrow for back navigation.               |
+| `ArrowRightIcon`     | Solid right arrow for forward navigation.           |
+| `ChevronUpIcon`      | Subtle up chevron for collapse and accordion.       |
+| `ChevronDownIcon`    | Subtle down chevron for expand and dropdown.        |
+| `ChevronLeftIcon`    | Subtle left chevron for previous and collapse.      |
+| `ChevronRightIcon`   | Subtle right chevron for next, expand, disclosure.  |
+| `HomeIcon`           | House silhouette for dashboard or root navigation.  |
+| `MenuIcon`           | Three horizontal lines (hamburger) for side nav.    |
+| `DotsVerticalIcon`   | Vertical 3-dot trigger for item action menus.       |
+| `DotsHorizontalIcon` | Horizontal 3-dot trigger for inline overflow menus. |
 
 ### Actions
 
-| Icon              | Description                                            |
-| ----------------- | ------------------------------------------------------ |
-| `AddIcon`         | Plus sign for create/add actions.                      |
-| `MinusIcon`       | Single horizontal stroke for remove/decrement.         |
-| `EditIcon`        | Pencil for edit and rename actions.                    |
-| `TrashIcon`       | Trash can for delete actions.                          |
-| `SaveIcon`        | Floppy disk for save actions.                          |
-| `CopyIcon`        | Two stacked sheets for copy actions.                   |
-| `CutIcon`         | Scissors for cut actions.                              |
-| `PasteIcon`       | Clipboard with sheet for paste actions.                |
-| `UndoIcon`        | Counter-clockwise arrow for undo.                      |
-| `RedoIcon`        | Clockwise arrow for redo.                              |
-| `RefreshIcon`     | Circular arrow for reload and refetch.                 |
-| `DownloadIcon`    | Tray with down arrow for download.                     |
-| `UploadIcon`      | Tray with up arrow for upload.                         |
-| `ArchiveIcon`     | Box with lid for archiving / moving to long-term.      |
-| `PinIcon`         | Push-pin for keeping items visible.                    |
-| `SendIcon`        | Paper plane for submitting messages and forms.         |
+| Icon           | Description                                       |
+| -------------- | ------------------------------------------------- |
+| `AddIcon`      | Plus sign for create/add actions.                 |
+| `MinusIcon`    | Single horizontal stroke for remove/decrement.    |
+| `EditIcon`     | Pencil for edit and rename actions.               |
+| `TrashIcon`    | Trash can for delete actions.                     |
+| `SaveIcon`     | Floppy disk for save actions.                     |
+| `CopyIcon`     | Two stacked sheets for copy actions.              |
+| `CutIcon`      | Scissors for cut actions.                         |
+| `PasteIcon`    | Clipboard with sheet for paste actions.           |
+| `UndoIcon`     | Counter-clockwise arrow for undo.                 |
+| `RedoIcon`     | Clockwise arrow for redo.                         |
+| `RefreshIcon`  | Circular arrow for reload and refetch.            |
+| `DownloadIcon` | Tray with down arrow for download.                |
+| `UploadIcon`   | Tray with up arrow for upload.                    |
+| `ArchiveIcon`  | Box with lid for archiving / moving to long-term. |
+| `PinIcon`      | Push-pin for keeping items visible.               |
+| `SendIcon`     | Paper plane for submitting messages and forms.    |
 
 ### Media & Playback
 
-| Icon         | Description                                             |
-| ------------ | ------------------------------------------------------- |
-| `PlayIcon`   | Right-pointing triangle for start playback.             |
-| `PauseIcon`  | Two vertical bars for pause playback.                   |
-| `StopIcon`   | Solid square for stop playback or stop streaming.       |
-| `BookmarkIcon` | Ribbon for bookmarking items.                         |
-| `CodeIcon`   | Angle brackets for code blocks and snippets.            |
-| `LinkIcon`   | Chain link for hyperlinks.                              |
+| Icon           | Description                                       |
+| -------------- | ------------------------------------------------- |
+| `PlayIcon`     | Right-pointing triangle for start playback.       |
+| `PauseIcon`    | Two vertical bars for pause playback.             |
+| `StopIcon`     | Solid square for stop playback or stop streaming. |
+| `BookmarkIcon` | Ribbon for bookmarking items.                     |
+| `CodeIcon`     | Angle brackets for code blocks and snippets.      |
+| `LinkIcon`     | Chain link for hyperlinks.                        |
 
 ### View Controls
 
-| Icon            | Description                                          |
-| --------------- | ---------------------------------------------------- |
-| `GridIcon`      | 2x2 grid for grid view.                              |
-| `ListIcon`      | Stacked horizontal lines for list view.              |
-| `FilterIcon`    | Funnel for filtering.                                |
-| `SortIcon`      | Two-direction arrows for sorting.                    |
-| `ZoomInIcon`    | Magnifier with plus for zoom in.                     |
-| `ZoomOutIcon`   | Magnifier with minus for zoom out.                   |
-| `FullscreenIcon`| Outward arrows for fullscreen toggle.                |
-| `MaximizeIcon`  | Square outline for maximize window.                  |
-| `MinimizeIcon`  | Bottom bar for minimize window.                      |
+| Icon             | Description                             |
+| ---------------- | --------------------------------------- |
+| `GridIcon`       | 2x2 grid for grid view.                 |
+| `ListIcon`       | Stacked horizontal lines for list view. |
+| `FilterIcon`     | Funnel for filtering.                   |
+| `SortIcon`       | Two-direction arrows for sorting.       |
+| `ZoomInIcon`     | Magnifier with plus for zoom in.        |
+| `ZoomOutIcon`    | Magnifier with minus for zoom out.      |
+| `FullscreenIcon` | Outward arrows for fullscreen toggle.   |
+| `MaximizeIcon`   | Square outline for maximize window.     |
+| `MinimizeIcon`   | Bottom bar for minimize window.         |
 
 ### Status & Feedback
 
-| Icon          | Description                                            |
-| ------------- | ------------------------------------------------------ |
-| `InfoIcon`    | Circle with "i" for informational messages.            |
-| `HelpIcon`    | Circle with "?" for help and documentation entries.    |
-| `WarningIcon` | Triangle with "!" for warnings.                        |
-| `ErrorIcon`   | Circle with "x" for errors.                            |
-| `SuccessIcon` | Circle with checkmark for success states.              |
-| `CheckIcon`   | Plain checkmark for selected/applied indicators.       |
-| `CircleIcon`  | Empty circle for status dots and radio-like markers.   |
+| Icon          | Description                                          |
+| ------------- | ---------------------------------------------------- |
+| `InfoIcon`    | Circle with "i" for informational messages.          |
+| `HelpIcon`    | Circle with "?" for help and documentation entries.  |
+| `WarningIcon` | Triangle with "!" for warnings.                      |
+| `ErrorIcon`   | Circle with "x" for errors.                          |
+| `SuccessIcon` | Circle with checkmark for success states.            |
+| `CheckIcon`   | Plain checkmark for selected/applied indicators.     |
+| `CircleIcon`  | Empty circle for status dots and radio-like markers. |
 
 ### Search & Discovery
 
-| Icon         | Description                                              |
-| ------------ | -------------------------------------------------------- |
-| `SearchIcon` | Magnifier for search inputs.                             |
-| `EyeIcon`    | Eye for show/visibility toggles.                         |
-| `EyeDropperIcon` | Color picker dropper for sampling colors.            |
+| Icon             | Description                               |
+| ---------------- | ----------------------------------------- |
+| `SearchIcon`     | Magnifier for search inputs.              |
+| `EyeIcon`        | Eye for show/visibility toggles.          |
+| `EyeDropperIcon` | Color picker dropper for sampling colors. |
 
 ### Organization
 
-| Icon            | Description                                              |
-| --------------- | -------------------------------------------------------- |
-| `FolderIcon`    | Closed folder for directory navigation.                  |
-| `FolderOpenIcon`| Opened folder for revealed directories.                  |
-| `FolderCogIcon` | Folder with a gear overlay for project-scoped settings.  |
-| `FileTextIcon`  | Document with text lines for notes and docs.             |
-| `TagIcon`       | Tag for labels and categorization.                       |
-| `CalendarIcon`  | Calendar grid for date selection.                        |
-| `ClockIcon`     | Clock face for time and history.                         |
-| `BuildingIcon`  | Multi-story building for organizations and architecture. |
+| Icon             | Description                                              |
+| ---------------- | -------------------------------------------------------- |
+| `FolderIcon`     | Closed folder for directory navigation.                  |
+| `FolderOpenIcon` | Opened folder for revealed directories.                  |
+| `FolderCogIcon`  | Folder with a gear overlay for project-scoped settings.  |
+| `FileTextIcon`   | Document with text lines for notes and docs.             |
+| `TagIcon`        | Tag for labels and categorization.                       |
+| `CalendarIcon`   | Calendar grid for date selection.                        |
+| `ClockIcon`      | Clock face for time and history.                         |
+| `BuildingIcon`   | Multi-story building for organizations and architecture. |
 
 ### User & Security
 
-| Icon         | Description                                              |
-| ------------ | -------------------------------------------------------- |
-| `UserIcon`   | Single user silhouette for profile and account.          |
-| `UsersIcon`  | Two overlapping silhouettes for teams and groups.        |
-| `LockIcon`   | Closed padlock for locked states.                        |
-| `UnlockIcon` | Open padlock for unlocked states.                        |
-| `StarIcon`   | Star for favorites and ratings.                          |
-| `HeartIcon`  | Heart for likes.                                         |
+| Icon         | Description                                       |
+| ------------ | ------------------------------------------------- |
+| `UserIcon`   | Single user silhouette for profile and account.   |
+| `UsersIcon`  | Two overlapping silhouettes for teams and groups. |
+| `LockIcon`   | Closed padlock for locked states.                 |
+| `UnlockIcon` | Open padlock for unlocked states.                 |
+| `StarIcon`   | Star for favorites and ratings.                   |
+| `HeartIcon`  | Heart for likes.                                  |
 
 ### Developer Tools
 
-| Icon            | Description                                            |
-| --------------- | ------------------------------------------------------ |
-| `TerminalIcon`  | Caret with underscore for shells and command palette.  |
-| `GitBranchIcon` | Trunk with side fork for VCS branch indicators.        |
-| `BugIcon`       | Insect for debugger panels and bug reports.            |
-| `SettingsIcon`  | Gear for general application settings.                 |
-| `CloseIcon`     | "x" for close, dismiss, and clear actions.             |
+| Icon            | Description                                           |
+| --------------- | ----------------------------------------------------- |
+| `TerminalIcon`  | Caret with underscore for shells and command palette. |
+| `GitBranchIcon` | Trunk with side fork for VCS branch indicators.       |
+| `BugIcon`       | Insect for debugger panels and bug reports.           |
+| `SettingsIcon`  | Gear for general application settings.                |
+| `CloseIcon`     | "x" for close, dismiss, and clear actions.            |
 
 ### AI & Automation
 
-| Icon            | Description                                             |
-| --------------- | ------------------------------------------------------- |
-| `AiChatIcon`    | Chat bubble with AI accent for AI conversations.        |
-| `AiSparklesIcon`| Sparkles for AI-generated content and suggestions.      |
-| `RobotIcon`     | Robot head for automated agents.                        |
+| Icon             | Description                                        |
+| ---------------- | -------------------------------------------------- |
+| `AiChatIcon`     | Chat bubble with AI accent for AI conversations.   |
+| `AiSparklesIcon` | Sparkles for AI-generated content and suggestions. |
+| `RobotIcon`      | Robot head for automated agents.                   |
 
 ### Curves (animation tangents)
 
-| Icon                  | Description                                       |
-| --------------------- | ------------------------------------------------- |
-| `TangentFreeIcon`     | Free tangent handles indicator.                   |
-| `TangentAlignedIcon`  | Aligned (continuous direction) tangents.          |
-| `TangentMirroredIcon` | Mirrored (continuous magnitude) tangents.         |
-| `TangentAutoIcon`     | Auto-tangent indicator.                           |
-| `TangentLinearIcon`   | Linear interpolation indicator.                   |
-| `TangentStepIcon`     | Stepped (constant) interpolation indicator.       |
+| Icon                  | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `TangentFreeIcon`     | Free tangent handles indicator.             |
+| `TangentAlignedIcon`  | Aligned (continuous direction) tangents.    |
+| `TangentMirroredIcon` | Mirrored (continuous magnitude) tangents.   |
+| `TangentAutoIcon`     | Auto-tangent indicator.                     |
+| `TangentLinearIcon`   | Linear interpolation indicator.             |
+| `TangentStepIcon`     | Stepped (constant) interpolation indicator. |
 
 ## Creating Custom Icons
 

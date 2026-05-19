@@ -43,11 +43,11 @@ function Box() {
 
 ## API
 
-| Prop                    | Type                                   | Default | Description                                                                                                                                                                                       |
-| ----------------------- | -------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ref` _(required)_      | `RefObject`                            | —       | Ref pointing to the element you want to observe.                                                                                                                                                  |
-| `callback` _(required)_ | `(entry: ResizeObserverEntry) => void` | —       | Called for each observed entry on every size change. Does not need to be memoized — the hook stores it in a ref so the underlying observer never resubscribes when the callback identity changes. |
-| `options.enabled`       | `boolean`                              | `true`  | When false, the observer is detached. Toggling between true and false attaches / disconnects without unmounting the host component.                                                               |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `ref` *(required)* | `RefObject` | — | Ref pointing to the element you want to observe. |
+| `callback` *(required)* | `(entry: ResizeObserverEntry) => void` | — | Called for each observed entry on every size change. Does not need to be memoized — the hook stores it in a ref so the underlying observer never resubscribes when the callback identity changes. |
+| `options.enabled` | `boolean` | `true` | When false, the observer is detached. Toggling between true and false attaches / disconnects without unmounting the host component. |
 
 ## Returns
 

@@ -132,31 +132,31 @@ Hold modifier keys while dragging or using arrow keys for different step sizes:
 
 ## Props
 
-| Prop                    | Type                        | Default     | Description                                       |
-| ----------------------- | --------------------------- | ----------- | ------------------------------------------------- |
-| `value` _(required)_    | `number`                    | —           | Current numeric value.                            |
-| `onChange` _(required)_ | `(value: number) => void`   | —           | Callback when value changes.                      |
-| `min`                   | `number`                    | `0`         | Minimum allowed value.                            |
-| `max`                   | `number`                    | `100`       | Maximum allowed value.                            |
-| `step`                  | `number`                    | `1`         | Step size for value increments.                   |
-| `precisionStep`         | `number`                    | `step / 10` | Step size when Shift is held (fine control).      |
-| `largeStep`             | `number`                    | `step * 10` | Step size when Ctrl/Cmd is held (coarse control). |
-| `precision`             | `number`                    | `2`         | Number of decimal places to round to.             |
-| `size`                  | `'sm' \| 'md' \| 'lg'`      | `'md'`      | Slider size variant.                              |
-| `disabled`              | `boolean`                   | `false`     | Whether the slider is disabled.                   |
-| `readOnly`              | `boolean`                   | `false`     | Whether the slider is read-only.                  |
-| `label`                 | `string`                    | —           | Label text displayed above the slider.            |
-| `helperText`            | `string`                    | —           | Helper text displayed below the slider.           |
-| `error`                 | `boolean`                   | `false`     | Whether the slider has an error state.            |
-| `errorMessage`          | `string`                    | —           | Error message displayed when error is true.       |
-| `required`              | `boolean`                   | `false`     | Whether the slider is required.                   |
-| `unit`                  | `string`                    | —           | Unit suffix to display (e.g., "px", "%", "°").    |
-| `formatValue`           | `(value: number) => string` | —           | Custom value formatter for display.               |
-| `showTooltip`           | `boolean`                   | `true`      | Show value tooltip while dragging.                |
-| `showTicks`             | `boolean`                   | `false`     | Show tick marks along the track.                  |
-| `tickCount`             | `number`                    | `5`         | Number of tick marks to show.                     |
-| `className`             | `string`                    | —           | Additional CSS class names.                       |
-| `testId`                | `string`                    | —           | Test identifier for automated testing.            |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` *(required)* | `number` | — | Current numeric value. |
+| `onChange` *(required)* | `(value: number) => void` | — | Callback when value changes. |
+| `min` | `number` | `0` | Minimum allowed value. |
+| `max` | `number` | `100` | Maximum allowed value. |
+| `step` | `number` | `1` | Step size for value increments. |
+| `precisionStep` | `number` | `step / 10` | Step size when Shift is held (fine control). |
+| `largeStep` | `number` | `step * 10` | Step size when Ctrl/Cmd is held (coarse control). |
+| `precision` | `number` | `2` | Number of decimal places to round to. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Slider size variant. |
+| `disabled` | `boolean` | `false` | Whether the slider is disabled. |
+| `readOnly` | `boolean` | `false` | Whether the slider is read-only. |
+| `label` | `string` | — | Label text displayed above the slider. |
+| `helperText` | `string` | — | Helper text displayed below the slider. |
+| `error` | `boolean` | `false` | Whether the slider has an error state. |
+| `errorMessage` | `string` | — | Error message displayed when error is true. |
+| `required` | `boolean` | `false` | Whether the slider is required. |
+| `unit` | `string` | — | Unit suffix to display (e.g., "px", "%", "°"). |
+| `formatValue` | `(value: number) => string` | — | Custom value formatter for display. |
+| `showTooltip` | `boolean` | `true` | Show value tooltip while dragging. |
+| `showTicks` | `boolean` | `false` | Show tick marks along the track. |
+| `tickCount` | `number` | `5` | Number of tick marks to show. |
+| `className` | `string` | — | Additional CSS class names. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ## Accessibility
 
