@@ -739,6 +739,32 @@ describe('Viewport', () => {
       expect(t.zoom).toBe(1);
     });
 
+    it('overlay button click still fires when marquee is enabled', () => {
+      const onClick = vi.fn();
+      const onSelectionChange = vi.fn();
+      renderWithTheme(
+        <Viewport
+          testId="viewport"
+          selectionRect={{ enabled: true, button: 'left' }}
+          onSelectionChange={onSelectionChange}
+        >
+          <ViewportOverlay>
+            <button
+              data-testid="overlay-btn"
+              style={{ pointerEvents: 'auto' }}
+              onClick={onClick}
+            >
+              click me
+            </button>
+          </ViewportOverlay>
+        </Viewport>
+      );
+      fireEvent.click(screen.getByTestId('overlay-btn'));
+      expect(onClick).toHaveBeenCalledTimes(1);
+      // Marquee gesture must NOT have fired — the overlay swallows pointer events.
+      expect(onSelectionChange).not.toHaveBeenCalled();
+    });
+
     it('invalidate triggers layer redraw', () => {
       const drawFn = vi.fn();
       let invalidate: (() => void) | null = null;
