@@ -1,0 +1,84 @@
+# useKeyboard
+
+> Track the live state of modifier keys and currently pressed keys.
+
+`useKeyboard` tracks the global keyboard state — every modifier key and the set of currently pressed non-modifier keys. It is the right primitive for behaviors that depend on what is being held down right now, such as Ctrl-drag to snap, Shift for precision mode, or Space for camera pan. For single combo-to-callback bindings reach for `useHotkey` instead.
+
+**Live preview**
+
+## Import
+
+```ts
+import { useKeyboard, isKeyPressed, isModifierKey } from 'entangle-ui';
+```
+
+## Signature
+
+```ts
+function useKeyboard(): KeyboardState;
+
+interface KeyboardState {
+  pressedKeys: string[];
+  modifiers: {
+    control: boolean;
+    shift: boolean;
+    alt: boolean;
+    meta: boolean;
+  };
+}
+
+function isKeyPressed(state: KeyboardState, key: string): boolean;
+function isModifierKey(key: string): boolean;
+```
+
+## Usage
+
+```tsx
+function CanvasDragHandle() {
+  const keyboard = useKeyboard();
+
+  const handlePointerMove = (event: PointerEvent) => {
+    if (keyboard.modifiers.control) {
+      snapToGrid(event);
+    } else if (keyboard.modifiers.shift) {
+      preciseMove(event);
+    } else {
+      freeMove(event);
+    }
+  };
+
+  return <Canvas onPointerMove={handlePointerMove} />;
+}
+```
+
+### Modifier-gated mode switch
+
+**Drag mode**
+
+## Helpers
+
+`isKeyPressed(state, key)` returns whether a specific key is currently down — it handles both modifier names (`'shift'`, `'control'`) and ordinary keys (`'a'`, `'enter'`).
+
+`isModifierKey(key)` checks whether a string is one of the recognised modifier names.
+
+```tsx
+const keyboard = useKeyboard();
+const space = isKeyPressed(keyboard, ' ');
+```
+
+## Return value
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `pressedKeys` | `string[]` | — | Lower-cased `event.key` values for every non-modifier key currently held down. Updated on every `keydown` and `keyup`. |
+| `modifiers.control` | `boolean` | — | True while Control (or `ctrl`) is held. |
+| `modifiers.shift` | `boolean` | — | True while Shift is held. |
+| `modifiers.alt` | `boolean` | — | True while Alt / Option is held. |
+| `modifiers.meta` | `boolean` | — | True while Meta / Command (macOS) or the Windows key is held. |
+
+## Common pitfalls
+
+- **Every keystroke re-renders the consumer.** The hook owns the state in `useState`, so any component that calls it re-renders on every key event. Push it down to the smallest component that actually needs the state, or memoize derived values.
+- **Focus loss drops keys.** If the window loses focus while a key is held, the matching `keyup` may never fire. Components that care about "still held" semantics should also listen for `blur`.
+- **Repeat events:** holding a key fires `keydown` repeatedly. Because the state is a `Set` keyed by the lower-cased key, repeats are no-ops — but the consumer still re-renders on every event.
+- **Key names are lower-cased.** Compare against `'shift'`, `'enter'`, `'arrowup'` — not `'Shift'`, `'Enter'`, `'ArrowUp'`.

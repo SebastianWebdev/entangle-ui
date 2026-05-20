@@ -1,0 +1,193 @@
+# HoverCard
+
+> Hover- and focus-driven floating panel for previews, with safe-polygon cursor handover from trigger to content.
+
+A floating panel anchored to a trigger and shown on hover or keyboard focus. Use `HoverCard` for read-only previews — user avatars, file metadata, linked-node summaries — where the user wants more context without clicking. The cursor can travel from the trigger onto the content through a safe polygon, so the card stays open while the user reads it.
+
+**Live Preview**
+
+## When to use
+
+- **HoverCard** — read-only preview that's nice to have, not critical. Opens on hover, dismisses when the cursor leaves. Don't put primary actions inside.
+- **Popover** — interactive content (forms, menus, multi-step pickers) that needs an explicit click to open.
+- **Tooltip** — single-line label for an icon or truncated text. Smaller surface, faster open.
+
+`HoverCard` is the right pick when the preview is informational, the user might want to skim a few in a row, and a click would feel heavy.
+
+## Import
+
+```tsx
+import { HoverCard } from 'entangle-ui';
+```
+
+The compound members come along automatically:
+
+```tsx
+<HoverCard>
+  <HoverCard.Trigger>...</HoverCard.Trigger>
+  <HoverCard.Content>...</HoverCard.Content>
+</HoverCard>
+```
+
+## Usage
+
+Wrap any single-element trigger and pair it with `HoverCard.Content`:
+
+```tsx
+<HoverCard>
+  <HoverCard.Trigger>
+    <Link href="/user/octocat">@octocat</Link>
+  </HoverCard.Trigger>
+  <HoverCard.Content width={280}>
+    <UserPreview user={...} />
+  </HoverCard.Content>
+</HoverCard>
+```
+
+`HoverCard.Trigger` clones its single child and attaches the hover / focus listeners to it — pass exactly one React element.
+
+**Basic**
+
+## Placements
+
+`placement` controls which side of the trigger the card opens on. The default is `bottom-start`. Each placement automatically flips when there's not enough room.
+
+**Placements**
+
+```tsx
+<HoverCard placement="top">...</HoverCard>
+<HoverCard placement="right">...</HoverCard>
+<HoverCard placement="bottom">...</HoverCard>
+<HoverCard placement="left">...</HoverCard>
+```
+
+The full set of placements (`'top' | 'top-start' | 'top-end' | 'right' | 'right-start' | 'right-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end'`) is shared with [Popover](/components/primitives/popover).
+
+## Delays
+
+`openDelay` and `closeDelay` (both in ms) tune how eager the card is to appear and how forgiving it is once the cursor leaves.
+
+**Delays**
+
+| Setting             | Default | Use when                                                     |
+| ------------------- | ------- | ------------------------------------------------------------ |
+| `openDelay={0}`     | —       | Compact rows where users hover many items in succession.     |
+| `openDelay={400}`   | default | Standard discovery feel — avoids flickering across labels.   |
+| `openDelay={800}`   | —       | Heavy content (avatars + stats + actions) on rarely-used UI. |
+| `closeDelay={150}`  | default | Enough cushion to move the cursor onto the card.             |
+| `closeDelay={300+}` | —       | Interactive content the user is likely to read for a moment. |
+
+```tsx
+<HoverCard openDelay={150} closeDelay={300}>
+  ...
+</HoverCard>
+```
+
+## Controlled
+
+Pass `open` and `onOpenChange` to drive the card from external state — useful for tests, automation, or pairing the card with another UI surface.
+
+**Controlled**
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<HoverCard open={open} onOpenChange={setOpen}>
+  <HoverCard.Trigger>
+    <Button>Trigger</Button>
+  </HoverCard.Trigger>
+  <HoverCard.Content>...</HoverCard.Content>
+</HoverCard>;
+```
+
+When `open` is controlled, hover and focus still fire `onOpenChange`, so you can intercept or ignore as needed.
+
+## Interactive content
+
+The safe polygon means buttons and links inside the card stay reachable — the cursor's path from the trigger keeps the card alive. Reach for `Popover` if the interaction is the point (forms, multi-step pickers).
+
+**Interactive content**
+
+```tsx
+<HoverCard openDelay={150} closeDelay={300}>
+  <HoverCard.Trigger>
+    <Button>Profile preview</Button>
+  </HoverCard.Trigger>
+  <HoverCard.Content width={300}>
+    <Stack gap={3}>
+      <Text weight="bold">Sebastian Reyes</Text>
+      <Text size="sm" color="secondary">
+        Senior Technical Artist
+      </Text>
+      <Flex gap={2}>
+        <Button size="sm">Follow</Button>
+        <Button size="sm" variant="outlined">
+          Message
+        </Button>
+      </Flex>
+    </Stack>
+  </HoverCard.Content>
+</HoverCard>
+```
+
+Set `disableSafePolygon` if you want the card to close the moment the cursor leaves the trigger rect — useful when the content has no interactive children and you want a snappier dismiss.
+
+## Disabled
+
+`disabled` short-circuits open requests entirely — the card never appears regardless of hover or focus.
+
+**Disabled**
+
+```tsx
+<HoverCard disabled>
+  <HoverCard.Trigger>
+    <Button>Won't preview</Button>
+  </HoverCard.Trigger>
+  <HoverCard.Content>...</HoverCard.Content>
+</HoverCard>
+```
+
+## Accessibility
+
+- Opens on **hover** and on keyboard **focus** — works without a pointing device.
+- The trigger receives `aria-describedby` pointing at the content while open.
+- Content renders with `role="tooltip"` so assistive tech announces it as supplementary information.
+- `prefers-reduced-motion` users get the same transition timing — there's no large motion to suppress, just a small opacity fade.
+- The card is not focus-trapped; keep primary interactions in surrounding UI (or reach for `Popover`).
+
+## API Reference
+
+### `<HoverCard>`
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `open` | `boolean` | — | Controlled open state. |
+| `defaultOpen` | `boolean` | `false` | Default open state (uncontrolled). |
+| `placement` | `'top' \| 'top-start' \| 'top-end' \| 'right' \| 'right-start' \| 'right-end' \| 'bottom' \| 'bottom-start' \| 'bottom-end' \| 'left' \| 'left-start' \| 'left-end'` | `'bottom-start'` | Side relative to the trigger. |
+| `offset` | `number` | `8` | Distance in pixels from the trigger. |
+| `openDelay` | `number` | `400` | Delay before opening on hover, in ms. |
+| `closeDelay` | `number` | `150` | Delay before closing once the cursor leaves, in ms. |
+| `portal` | `boolean` | `true` | Render the content in a portal. |
+| `disableSafePolygon` | `boolean` | `false` | Disable the safe polygon that lets the cursor move from trigger onto content without closing. |
+| `disabled` | `boolean` | `false` | Disable the entire HoverCard (never opens). |
+| `onOpenChange` | `(open: boolean) => void` | — | Callback when the open state changes. |
+| `children` | `ReactNode` | — | `HoverCard.Trigger` + `HoverCard.Content` children. |
+
+### `<HoverCard.Trigger>`
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactElement` | — | Trigger element — must be a single React element. The hover and focus listeners are attached to it. |
+
+### `<HoverCard.Content>`
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Content rendered inside the floating panel. |
+| `width` | `number \| string` | — | Width of the content. Number → px, string → CSS value. |
+| `maxHeight` | `number \| string` | — | Maximum height with internal scroll. Number → px, string → CSS value. |
+| `padding` | `'none' \| 'sm' \| 'md' \| 'lg'` | `'md'` | Padding inside the content. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the content element. |
