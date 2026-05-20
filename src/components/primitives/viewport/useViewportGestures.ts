@@ -45,7 +45,6 @@ interface UseViewportGesturesReturn {
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerCancel: (e: React.PointerEvent<HTMLDivElement>) => void;
-    onWheel: (e: React.WheelEvent<HTMLDivElement>) => void;
     onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => void;
   };
 }
@@ -159,29 +158,100 @@ export function useViewportGestures(
   const zoomEndTimerRef = useRef<number | null>(null);
   const zoomActiveRef = useRef(false);
 
-  // ── Space key tracking (global) ──
+  // ── Space key tracking ──
+  // We listen on `window` so Space works no matter which descendant of the
+  // viewport currently has focus, but we only act when focus is inside the
+  // viewport — otherwise we'd hijack Space across the whole page.
   useEffect(() => {
     if (!panCfg.spaceKey || disabled) {
       spaceHeldRef.current = false;
       return;
     }
+    const focusIsInViewport = (): boolean => {
+      const root = viewportRef.current;
+      const active = document.activeElement;
+      if (!root || !active) return false;
+      return root === active || root.contains(active);
+    };
     const handleDown = (e: KeyboardEvent): void => {
-      if (e.code === 'Space') {
-        spaceHeldRef.current = true;
-      }
+      if (e.code !== 'Space') return;
+      if (!focusIsInViewport()) return;
+      spaceHeldRef.current = true;
+      // Suppress the browser's default page-scroll on Space.
+      e.preventDefault();
     };
     const handleUp = (e: KeyboardEvent): void => {
       if (e.code === 'Space') {
         spaceHeldRef.current = false;
       }
     };
+    const handleBlur = (): void => {
+      spaceHeldRef.current = false;
+    };
     window.addEventListener('keydown', handleDown);
     window.addEventListener('keyup', handleUp);
+    window.addEventListener('blur', handleBlur);
     return () => {
       window.removeEventListener('keydown', handleDown);
       window.removeEventListener('keyup', handleUp);
+      window.removeEventListener('blur', handleBlur);
     };
-  }, [panCfg.spaceKey, disabled]);
+  }, [panCfg.spaceKey, disabled, viewportRef]);
+
+  // ── Native wheel listener ──
+  // React's synthetic `onWheel` is registered passively, so `preventDefault()`
+  // there is a no-op. Attach a native non-passive listener so we can suppress
+  // page scroll when the viewport handles the wheel.
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el || disabled) return;
+    if (zoomCfg.wheel === false && zoomCfg.pinch === false) return;
+
+    const handler = (e: WheelEvent): void => {
+      const isPinch = e.ctrlKey;
+      if (isPinch && !zoomCfg.pinch) return;
+      if (!isPinch && !zoomCfg.wheel) return;
+
+      // We're going to consume this wheel event — stop the page from scrolling.
+      e.preventDefault();
+
+      if (!zoomActiveRef.current) {
+        zoomActiveRef.current = true;
+        callbacksRef.current.onZoomStart?.();
+      }
+      if (zoomEndTimerRef.current !== null) {
+        window.clearTimeout(zoomEndTimerRef.current);
+      }
+      zoomEndTimerRef.current = window.setTimeout(() => {
+        zoomActiveRef.current = false;
+        zoomEndTimerRef.current = null;
+        callbacksRef.current.onZoomEnd?.();
+      }, ZOOM_END_DELAY_MS);
+
+      const rect = el.getBoundingClientRect();
+      const pivot: Point2D = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
+      const factor = Math.exp(-e.deltaY * zoomCfg.speed);
+      const next = computeZoomTowardPivot(pivot, factor, transformRef.current, {
+        minZoom,
+        maxZoom,
+      });
+      setTransformRef.current(next);
+    };
+
+    el.addEventListener('wheel', handler, { passive: false });
+    return () => el.removeEventListener('wheel', handler);
+  }, [
+    viewportRef,
+    disabled,
+    zoomCfg.wheel,
+    zoomCfg.pinch,
+    zoomCfg.speed,
+    minZoom,
+    maxZoom,
+  ]);
 
   const resolveGesture = useCallback(
     (buttonNum: number): GestureKind | null => {
@@ -378,47 +448,6 @@ export function useViewportGestures(
     [endGesture]
   );
 
-  const onWheel = useCallback(
-    (e: React.WheelEvent<HTMLDivElement>) => {
-      if (disabled) return;
-      const isPinch = e.ctrlKey;
-      if (isPinch && !zoomCfg.pinch) return;
-      if (!isPinch && !zoomCfg.wheel) return;
-
-      // Lifecycle: fire onZoomStart once, schedule onZoomEnd via timer
-      if (!zoomActiveRef.current) {
-        zoomActiveRef.current = true;
-        callbacksRef.current.onZoomStart?.();
-      }
-      if (zoomEndTimerRef.current !== null) {
-        window.clearTimeout(zoomEndTimerRef.current);
-      }
-      zoomEndTimerRef.current = window.setTimeout(() => {
-        zoomActiveRef.current = false;
-        zoomEndTimerRef.current = null;
-        callbacksRef.current.onZoomEnd?.();
-      }, ZOOM_END_DELAY_MS);
-
-      const pivot = getLocalPoint(e);
-      // Negative deltaY in browsers = scroll up = zoom in
-      const factor = Math.exp(-e.deltaY * zoomCfg.speed);
-      const next = computeZoomTowardPivot(pivot, factor, transformRef.current, {
-        minZoom,
-        maxZoom,
-      });
-      setTransformRef.current(next);
-    },
-    [
-      disabled,
-      zoomCfg.wheel,
-      zoomCfg.pinch,
-      zoomCfg.speed,
-      minZoom,
-      maxZoom,
-      getLocalPoint,
-    ]
-  );
-
   // Suppress native context menu when middle/right-button pan is enabled,
   // so right-drag works as a pan gesture without popping the OS menu.
   const onContextMenu = useCallback(
@@ -444,7 +473,6 @@ export function useViewportGestures(
       onPointerMove,
       onPointerUp,
       onPointerCancel,
-      onWheel,
       onContextMenu,
     },
   };

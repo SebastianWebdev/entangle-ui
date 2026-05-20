@@ -373,7 +373,6 @@ export const Viewport = ({
       onPointerMove={handlers.onPointerMove}
       onPointerUp={handlers.onPointerUp}
       onPointerCancel={handlers.onPointerCancel}
-      onWheel={handlers.onWheel}
       onContextMenu={handlers.onContextMenu}
       {...rest}
     >

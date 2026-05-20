@@ -357,6 +357,79 @@ describe('Viewport', () => {
       expect(screenAfter.y).toBeCloseTo(100, 3);
     });
 
+    it('prevents default on wheel events (no page scroll)', () => {
+      renderWithTheme(<Viewport testId="viewport" />);
+      const root = getRoot();
+      const wheelEvent = new WheelEvent('wheel', {
+        deltaY: -50,
+        clientX: 20,
+        clientY: 20,
+        bubbles: true,
+        cancelable: true,
+      });
+      let defaultPrevented = false;
+      act(() => {
+        defaultPrevented = !root.dispatchEvent(wheelEvent);
+      });
+      expect(defaultPrevented).toBe(true);
+    });
+
+    it('does not handle wheel when zoom={false}', () => {
+      const onTransformChange = vi.fn();
+      renderWithTheme(
+        <Viewport
+          testId="viewport"
+          zoom={false}
+          onTransformChange={onTransformChange}
+        />
+      );
+      const root = getRoot();
+      const wheelEvent = new WheelEvent('wheel', {
+        deltaY: -50,
+        clientX: 20,
+        clientY: 20,
+        bubbles: true,
+        cancelable: true,
+      });
+      const defaultPrevented = !root.dispatchEvent(wheelEvent);
+      expect(defaultPrevented).toBe(false);
+      expect(onTransformChange).not.toHaveBeenCalled();
+    });
+
+    it('intercepts Space and prevents page scroll when viewport is focused', () => {
+      renderWithTheme(<Viewport testId="viewport" />);
+      const root = getRoot();
+      root.focus();
+      expect(document.activeElement).toBe(root);
+
+      const event = new KeyboardEvent('keydown', {
+        code: 'Space',
+        bubbles: true,
+        cancelable: true,
+      });
+      const defaultPrevented = !window.dispatchEvent(event);
+      expect(defaultPrevented).toBe(true);
+    });
+
+    it('ignores Space when focus is outside the viewport', () => {
+      renderWithTheme(
+        <>
+          <Viewport testId="viewport" />
+          <button data-testid="outside">outside</button>
+        </>
+      );
+      const outside = screen.getByTestId('outside');
+      outside.focus();
+
+      const event = new KeyboardEvent('keydown', {
+        code: 'Space',
+        bubbles: true,
+        cancelable: true,
+      });
+      const defaultPrevented = !window.dispatchEvent(event);
+      expect(defaultPrevented).toBe(false);
+    });
+
     it('fires pan lifecycle callbacks with end velocity', () => {
       const onPanStart = vi.fn();
       const onPanEnd = vi.fn();
@@ -527,19 +600,6 @@ describe('Viewport', () => {
         clientX: 50,
         clientY: 50,
       });
-      expect(onTransformChange).not.toHaveBeenCalled();
-    });
-
-    it('respects zoom=false (ignores wheel events)', () => {
-      const onTransformChange = vi.fn();
-      renderWithTheme(
-        <Viewport
-          testId="viewport"
-          zoom={false}
-          onTransformChange={onTransformChange}
-        />
-      );
-      fireEvent.wheel(getRoot(), { deltaY: -100, clientX: 50, clientY: 50 });
       expect(onTransformChange).not.toHaveBeenCalled();
     });
   });
