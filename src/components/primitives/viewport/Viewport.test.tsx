@@ -411,7 +411,22 @@ describe('Viewport', () => {
       expect(defaultPrevented).toBe(true);
     });
 
-    it('ignores Space when focus is outside the viewport', () => {
+    it('intercepts Space when the pointer is over the viewport (no click required)', () => {
+      renderWithTheme(<Viewport testId="viewport" />);
+      const root = getRoot();
+      // Simulate pointer moving over the viewport without clicking
+      fireEvent.pointerEnter(root, { pointerId: 1, clientX: 50, clientY: 50 });
+
+      const event = new KeyboardEvent('keydown', {
+        code: 'Space',
+        bubbles: true,
+        cancelable: true,
+      });
+      const defaultPrevented = !window.dispatchEvent(event);
+      expect(defaultPrevented).toBe(true);
+    });
+
+    it('ignores Space when neither focus nor pointer is in the viewport', () => {
       renderWithTheme(
         <>
           <Viewport testId="viewport" />
@@ -420,6 +435,21 @@ describe('Viewport', () => {
       );
       const outside = screen.getByTestId('outside');
       outside.focus();
+
+      const event = new KeyboardEvent('keydown', {
+        code: 'Space',
+        bubbles: true,
+        cancelable: true,
+      });
+      const defaultPrevented = !window.dispatchEvent(event);
+      expect(defaultPrevented).toBe(false);
+    });
+
+    it('stops intercepting Space after the pointer leaves the viewport', () => {
+      renderWithTheme(<Viewport testId="viewport" />);
+      const root = getRoot();
+      fireEvent.pointerEnter(root, { pointerId: 1, clientX: 50, clientY: 50 });
+      fireEvent.pointerLeave(root, { pointerId: 1, clientX: 50, clientY: 50 });
 
       const event = new KeyboardEvent('keydown', {
         code: 'Space',

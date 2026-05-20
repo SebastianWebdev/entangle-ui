@@ -149,6 +149,7 @@ export function useViewportGestures(
   const [isPanning, setIsPanning] = useState(false);
   const activeRef = useRef<ActiveGesture | null>(null);
   const spaceHeldRef = useRef(false);
+  const pointerInsideRef = useRef(false);
 
   // Velocity smoothing — track last two moves to compute pointer-up velocity
   const lastMoveRef = useRef<{ point: Point2D; time: number } | null>(null);
@@ -158,16 +159,40 @@ export function useViewportGestures(
   const zoomEndTimerRef = useRef<number | null>(null);
   const zoomActiveRef = useRef(false);
 
+  // ── Pointer-in-viewport tracking ──
+  // Track whether the pointer is currently hovering the viewport. We use this
+  // (plus DOM focus) to decide whether to intercept Space — matches the way
+  // Figma / Miro behave: Space pans whenever the pointer is over the canvas,
+  // no explicit click-to-focus required.
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const handleEnter = (): void => {
+      pointerInsideRef.current = true;
+    };
+    const handleLeave = (): void => {
+      pointerInsideRef.current = false;
+    };
+    el.addEventListener('pointerenter', handleEnter);
+    el.addEventListener('pointerleave', handleLeave);
+    return () => {
+      el.removeEventListener('pointerenter', handleEnter);
+      el.removeEventListener('pointerleave', handleLeave);
+    };
+  }, [viewportRef]);
+
   // ── Space key tracking ──
-  // We listen on `window` so Space works no matter which descendant of the
-  // viewport currently has focus, but we only act when focus is inside the
-  // viewport — otherwise we'd hijack Space across the whole page.
+  // Listen on `window` so Space works regardless of focused descendant, but
+  // only act when the user is "interacting" with the viewport — defined as
+  // pointer over the viewport OR DOM focus inside it. Without this guard
+  // Space would hijack page scroll globally.
   useEffect(() => {
     if (!panCfg.spaceKey || disabled) {
       spaceHeldRef.current = false;
       return;
     }
-    const focusIsInViewport = (): boolean => {
+    const isInteractingWithViewport = (): boolean => {
+      if (pointerInsideRef.current) return true;
       const root = viewportRef.current;
       const active = document.activeElement;
       if (!root || !active) return false;
@@ -175,7 +200,7 @@ export function useViewportGestures(
     };
     const handleDown = (e: KeyboardEvent): void => {
       if (e.code !== 'Space') return;
-      if (!focusIsInViewport()) return;
+      if (!isInteractingWithViewport()) return;
       spaceHeldRef.current = true;
       // Suppress the browser's default page-scroll on Space.
       e.preventDefault();
