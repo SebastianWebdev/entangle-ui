@@ -76,7 +76,7 @@ Zoom is automatically clamped to `[minZoom, maxZoom]` (defaults `0.1`–`8`).
   pan={{ button: 'middle', spaceKey: true }}
   zoom={{ wheel: true, pinch: true, speed: 0.0015 }}
   selectionRect={{ enabled: true, button: 'left', additiveModifier: 'shift' }}
-  onSelectionChange={(info) => {
+  onSelectionChange={info => {
     // info.rect is in world coordinates, normalized
     // info.additive is true when the modifier was held
     // info.inProgress is false on the final pointerup
@@ -101,12 +101,12 @@ Stack layers in JSX order — earlier = behind:
   <ViewportLayer
     name="grid"
     draw={drawGrid}
-    invalidateOn={[gridStep]}      // only redraws when gridStep changes (+ transform/size)
+    invalidateOn={[gridStep]} // only redraws when gridStep changes (+ transform/size)
   />
   <ViewportLayer
     name="content"
     draw={drawNodes}
-    invalidateOn={[nodes]}          // unaffected by gridStep changes
+    invalidateOn={[nodes]} // unaffected by gridStep changes
   />
 </Viewport>
 ```
@@ -115,12 +115,12 @@ The `draw` callback receives:
 
 ```ts
 draw(ctx, {
-  size,            // { width, height } in CSS px
-  transform,       // current transform
-  theme,           // resolved theme colors (CanvasThemeColors)
-  worldToScreen,   // helper bound to current transform
-  screenToWorld,   // inverse helper
-})
+  size, // { width, height } in CSS px
+  transform, // current transform
+  theme, // resolved theme colors (CanvasThemeColors)
+  worldToScreen, // helper bound to current transform
+  screenToWorld, // inverse helper
+});
 ```
 
 DPR scaling is applied automatically — draw using CSS-pixel coordinates.
@@ -187,7 +187,7 @@ const [t, setT] = useState({ x: 0, y: 0, zoom: 1 });
 
 <Viewport
   transform={t}
-  onTransformChange={(next) => setT({ ...next, zoom: snapZoom(next.zoom) })}
+  onTransformChange={next => setT({ ...next, zoom: snapZoom(next.zoom) })}
 />;
 ```
 
@@ -237,7 +237,7 @@ function Minimap({ worldBounds }: { worldBounds: WorldRect }) {
       width={120}
       height={80}
       style={{ pointerEvents: 'auto', cursor: 'crosshair' }}
-      onPointerDown={(e) => {
+      onPointerDown={e => {
         const rect = e.currentTarget.getBoundingClientRect();
         const localX = e.clientX - rect.left;
         const localY = e.clientY - rect.top;
@@ -257,7 +257,14 @@ function Minimap({ worldBounds }: { worldBounds: WorldRect }) {
 <Viewport>
   {/* layers + world... */}
   <ViewportOverlay>
-    <div style={{ position: 'absolute', bottom: 8, right: 8, pointerEvents: 'auto' }}>
+    <div
+      style={{
+        position: 'absolute',
+        bottom: 8,
+        right: 8,
+        pointerEvents: 'auto',
+      }}
+    >
       <Minimap worldBounds={{ x: 0, y: 0, width: 1000, height: 800 }} />
     </div>
   </ViewportOverlay>
@@ -289,8 +296,12 @@ function useInertia(handleRef: React.RefObject<ViewportHandle>) {
       if (!t) return;
       handleRef.current!.centerOn(
         {
-          x: -(t.x + vx * dt) / t.zoom + handleRef.current!.getSize().width / 2 / t.zoom,
-          y: -(t.y + vy * dt) / t.zoom + handleRef.current!.getSize().height / 2 / t.zoom,
+          x:
+            -(t.x + vx * dt) / t.zoom +
+            handleRef.current!.getSize().width / 2 / t.zoom,
+          y:
+            -(t.y + vy * dt) / t.zoom +
+            handleRef.current!.getSize().height / 2 / t.zoom,
         },
         t.zoom
       );
@@ -313,11 +324,11 @@ Replace the `0.92` constant with whatever deceleration curve fits your editor fe
 
 ## Why these aren't built in
 
-| Feature | Why it lives in user code |
-| --- | --- |
-| **Snap** | Snap rules vary per editor (frame-rate stops in Timeline vs zoom presets in NodeGraph). One built-in rule would be opinionated; the recipe above is a few lines. |
-| **Minimap** | A minimap needs to know **what to draw at small scale** — that's scene-specific. The `Overlay` slot + `useViewportContext` give you everything else. |
-| **Inertia** | Deceleration feel is a per-product decision (Figma vs Blender vs custom). `onPanEnd` exposes the velocity so any curve works. |
+| Feature     | Why it lives in user code                                                                                                                                        |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Snap**    | Snap rules vary per editor (frame-rate stops in Timeline vs zoom presets in NodeGraph). One built-in rule would be opinionated; the recipe above is a few lines. |
+| **Minimap** | A minimap needs to know **what to draw at small scale** — that's scene-specific. The `Overlay` slot + `useViewportContext` give you everything else.             |
+| **Inertia** | Deceleration feel is a per-product decision (Figma vs Blender vs custom). `onPanEnd` exposes the velocity so any curve works.                                    |
 
 If you find yourself copy-pasting the same recipe across three components, that's the signal to ask for it as a first-class prop.
 
@@ -330,8 +341,8 @@ interface ViewportProps {
   transform?: ViewportTransform;
   defaultTransform?: ViewportTransform;
   onTransformChange?: (t: ViewportTransform) => void;
-  minZoom?: number;        // default 0.1
-  maxZoom?: number;        // default 8
+  minZoom?: number; // default 0.1
+  maxZoom?: number; // default 8
   pan?: ViewportPanConfig | false;
   zoom?: ViewportZoomConfig | false;
   selectionRect?: ViewportSelectionConfig;
@@ -340,8 +351,8 @@ interface ViewportProps {
   onPanEnd?: (info: ViewportPanEndInfo) => void;
   onZoomStart?: () => void;
   onZoomEnd?: () => void;
-  responsive?: boolean;    // default false
-  height?: number;         // default 300, ignored when responsive
+  responsive?: boolean; // default false
+  height?: number; // default 300, ignored when responsive
   disabled?: boolean;
   role?: string;
   ariaLabel?: string;
