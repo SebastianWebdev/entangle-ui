@@ -2,36 +2,20 @@
 
 import React, {
   useCallback,
-  useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
-  useState,
+  useSyncExternalStore,
 } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { useControlledState, useResizeObserver } from '@/hooks';
 import { clamp } from '@/utils/mathUtils';
 import { cx } from '@/utils/cx';
-import { useControlledState } from '@/hooks';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
-import type {
-  ViewportContextValue,
-  ViewportHandle,
-  ViewportProps,
-  ViewportSelectionEvent,
-  ViewportSize,
-  ViewportTransform,
-} from './Viewport.types';
-import { LayerSubscriptionContext, ViewportContext } from './ViewportContext';
-import { ViewportLayer } from './ViewportLayer';
-import { ViewportWorld } from './ViewportWorld';
-import { ViewportOverlay } from './ViewportOverlay';
+import type { ViewportProps, ViewportTransform } from './Viewport.types';
+import { ViewportStoreContext, useViewportStore } from './ViewportContext';
+import { ViewportStore } from './ViewportStore';
 import { useViewportGestures } from './useViewportGestures';
-import {
-  computeCenterTransform,
-  computeFitTransform,
-  normalizeRect,
-} from './viewportMath';
-import { worldToScreen } from './viewportCoords';
 import {
   viewportRootRecipe,
   viewportHeightVar,
@@ -40,15 +24,27 @@ import {
 
 const IDENTITY_TRANSFORM: ViewportTransform = { x: 0, y: 0, zoom: 1 };
 
-interface InvalidateBus {
-  byName: Map<string, Set<() => void>>;
-  all: Set<() => void>;
-}
+// Stable empty defaults so `useViewportGestures` does not re-compute config
+// objects on every render when the consumer passes nothing.
+const EMPTY_PAN = {};
+const EMPTY_ZOOM = {};
+const EMPTY_SELECTION = {};
 
 interface CategorizedChildren {
   layers: React.ReactElement[];
   worldChildren: React.ReactElement[];
   overlayChildren: React.ReactElement[];
+}
+
+function getSlotKind(
+  child: React.ReactElement
+): 'layer' | 'world' | 'overlay' | null {
+  const displayName = (child.type as { displayName?: string } | undefined)
+    ?.displayName;
+  if (displayName === 'ViewportLayer') return 'layer';
+  if (displayName === 'ViewportWorld') return 'world';
+  if (displayName === 'ViewportOverlay') return 'overlay';
+  return null;
 }
 
 function categorizeChildren(children: React.ReactNode): CategorizedChildren {
@@ -58,13 +54,10 @@ function categorizeChildren(children: React.ReactNode): CategorizedChildren {
 
   React.Children.forEach(children, child => {
     if (!React.isValidElement(child)) return;
-    if (child.type === ViewportLayer) {
-      layers.push(child);
-    } else if (child.type === ViewportWorld) {
-      worldChildren.push(child);
-    } else if (child.type === ViewportOverlay) {
-      overlayChildren.push(child);
-    }
+    const kind = getSlotKind(child);
+    if (kind === 'layer') layers.push(child);
+    else if (kind === 'world') worldChildren.push(child);
+    else if (kind === 'overlay') overlayChildren.push(child);
   });
 
   return { layers, worldChildren, overlayChildren };
@@ -81,7 +74,9 @@ function categorizeChildren(children: React.ReactNode): CategorizedChildren {
  *
  * Owns pan/zoom gestures (drag-to-pan, wheel-zoom-toward-cursor, optional
  * pinch and space-to-pan) and optional marquee selection. Transform is
- * controlled or uncontrolled (`useControlledState`-style).
+ * controlled or uncontrolled (`useControlledState`-style) and mirrored
+ * into an internal `ViewportStore` that powers slice-level subscriptions
+ * for layers, world, and overlay children.
  *
  * @example
  * ```tsx
@@ -127,7 +122,10 @@ export const Viewport = ({
 }: ViewportProps): React.ReactElement => {
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // ── Transform (controlled/uncontrolled) ──
+  // One store per <Viewport> instance, stable for the lifetime of the component.
+  const store = useMemo(() => new ViewportStore(), []);
+
+  // ── Controlled / uncontrolled transform (React state) ──
   const clampTransform = useCallback(
     (t: ViewportTransform): ViewportTransform => ({
       x: t.x,
@@ -146,7 +144,6 @@ export const Viewport = ({
     }
   );
 
-  // Apply zoom clamping at the edge so downstream code can assume valid range.
   const transform = useMemo(
     () => clampTransform(transformRaw),
     [transformRaw, clampTransform]
@@ -156,183 +153,61 @@ export const Viewport = ({
     [setTransformRaw, clampTransform]
   );
 
-  // ── Size tracking via ResizeObserver ──
-  const [size, setSize] = useState<ViewportSize>({ width: 0, height: 0 });
-  const sizeRef = useRef(size);
-  sizeRef.current = size;
-  const transformRef = useRef(transform);
-  transformRef.current = transform;
+  // Mirror React state → store before paint so layer/world subscribers see the
+  // latest transform in the same frame.
+  useLayoutEffect(() => {
+    store.setTransform(transform);
+  }, [store, transform]);
 
-  useEffect(() => {
-    const el = rootRef.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const initial = el.getBoundingClientRect();
-    setSize({ width: initial.width, height: initial.height });
-    const observer = new ResizeObserver(entries => {
-      const entry = entries[0];
-      if (!entry) return;
-      const next = {
-        width: entry.contentRect.width,
-        height: entry.contentRect.height,
-      };
-      setSize(prev =>
-        prev.width === next.width && prev.height === next.height ? prev : next
-      );
+  // Wire the store's imperative methods (fitToContent etc.) to React's
+  // setTransform and current zoom limits.
+  useLayoutEffect(() => {
+    store.configureImperative({ setTransform, minZoom, maxZoom });
+  }, [store, setTransform, minZoom, maxZoom]);
+
+  // ── Size tracking ──
+  useResizeObserver(rootRef, entry => {
+    store.setSize({
+      width: entry.contentRect.width,
+      height: entry.contentRect.height,
     });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  // ── Invalidation bus (per-layer + all) ──
-  const invalidateBus = useRef<InvalidateBus>({
-    byName: new Map(),
-    all: new Set(),
   });
 
-  const subscribeLayer = useCallback(
-    (name: string, cb: () => void): (() => void) => {
-      const bus = invalidateBus.current;
-      let set = bus.byName.get(name);
-      if (!set) {
-        set = new Set();
-        bus.byName.set(name, set);
-      }
-      set.add(cb);
-      bus.all.add(cb);
-      return () => {
-        set?.delete(cb);
-        bus.all.delete(cb);
-        if (set?.size === 0) bus.byName.delete(name);
-      };
-    },
-    []
-  );
+  // Seed size on mount in case ResizeObserver fires asynchronously.
+  useLayoutEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    store.setSize({ width: rect.width, height: rect.height });
+  }, [store]);
 
-  const invalidate = useCallback((layerName?: string): void => {
-    const bus = invalidateBus.current;
-    if (layerName === undefined) {
-      bus.all.forEach(cb => cb());
-    } else {
-      bus.byName.get(layerName)?.forEach(cb => cb());
-    }
-  }, []);
-
-  // ── Imperative handle ──
-  const setTransformRef = useRef(setTransform);
-  setTransformRef.current = setTransform;
-  const minZoomRef = useRef(minZoom);
-  minZoomRef.current = minZoom;
-  const maxZoomRef = useRef(maxZoom);
-  maxZoomRef.current = maxZoom;
-
-  const handle = useMemo<ViewportHandle>(
-    () => ({
-      fitToContent(bounds, padding = 0): void {
-        setTransformRef.current(
-          computeFitTransform(bounds, sizeRef.current, padding, {
-            minZoom: minZoomRef.current,
-            maxZoom: maxZoomRef.current,
-          })
-        );
-      },
-      zoomToRect(rect, padding = 0): void {
-        setTransformRef.current(
-          computeFitTransform(rect, sizeRef.current, padding, {
-            minZoom: minZoomRef.current,
-            maxZoom: maxZoomRef.current,
-          })
-        );
-      },
-      centerOn(point: Point2D, nextZoom?: number): void {
-        setTransformRef.current(
-          computeCenterTransform(
-            point,
-            sizeRef.current,
-            transformRef.current,
-            {
-              minZoom: minZoomRef.current,
-              maxZoom: maxZoomRef.current,
-            },
-            nextZoom
-          )
-        );
-      },
-      getTransform(): ViewportTransform {
-        return transformRef.current;
-      },
-      getSize(): ViewportSize {
-        return sizeRef.current;
-      },
-      invalidate(layerName?: string): void {
-        invalidate(layerName);
-      },
-    }),
-    [invalidate]
-  );
-
-  useImperativeHandle(ref, () => handle, [handle]);
-
-  // ── Marquee visual rect (screen-space) ──
-  const [marqueeScreenRect, setMarqueeScreenRect] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
-
-  const handleSelectionChange = useCallback(
-    (info: ViewportSelectionEvent): void => {
-      // Convert world rect back to screen for the visual overlay
-      const t = transformRef.current;
-      const topLeft = worldToScreen({ x: info.rect.x, y: info.rect.y }, t);
-      const bottomRight = worldToScreen(
-        { x: info.rect.x + info.rect.width, y: info.rect.y + info.rect.height },
-        t
-      );
-      const screenRect = normalizeRect({
-        x: topLeft.x,
-        y: topLeft.y,
-        width: bottomRight.x - topLeft.x,
-        height: bottomRight.y - topLeft.y,
-      });
-      if (info.inProgress) {
-        setMarqueeScreenRect(screenRect);
-      } else {
-        setMarqueeScreenRect(null);
-      }
-      onSelectionChange?.(info);
-    },
-    [onSelectionChange]
-  );
+  // ── Imperative ref ──
+  useImperativeHandle(ref, () => store.handle, [store]);
 
   // ── Gestures ──
-  const { isPanning, handlers } = useViewportGestures({
+  const { handlers } = useViewportGestures({
     viewportRef: rootRef,
-    transform,
+    store,
     setTransform,
-    getSize: () => sizeRef.current,
     disabled,
     minZoom,
     maxZoom,
-    pan: pan ?? {},
-    zoom: zoom ?? {},
-    selectionRect: selectionRect ?? {},
-    onPanStart,
-    onPanEnd,
-    onZoomStart,
-    onZoomEnd,
-    onSelectionChange: handleSelectionChange,
+    pan: pan ?? EMPTY_PAN,
+    zoom: zoom ?? EMPTY_ZOOM,
+    selectionRect: selectionRect ?? EMPTY_SELECTION,
+    callbacks: {
+      onPanStart,
+      onPanEnd,
+      onZoomStart,
+      onZoomEnd,
+      onSelectionChange,
+    },
   });
 
-  // ── Context value (stable across non-context state changes) ──
-  const contextValue = useMemo<ViewportContextValue>(
-    () => ({
-      transform,
-      size,
-      handle,
-      isPanning,
-    }),
-    [transform, size, handle, isPanning]
+  // Subscribe to isPanning only — drives the cursor class on the wrapper.
+  const isPanning = useSyncExternalStore(
+    store.subscribeIsPanning,
+    store.getIsPanning
   );
 
   // ── Children categorization ──
@@ -341,9 +216,14 @@ export const Viewport = ({
     [children]
   );
 
-  const layerInvalidateBusContext = useMemo(
-    () => ({ subscribeLayer }),
-    [subscribeLayer]
+  const rootStyle = useMemo(
+    () => ({
+      ...style,
+      ...(!responsive
+        ? assignInlineVars({ [viewportHeightVar]: `${height}px` })
+        : {}),
+    }),
+    [style, responsive, height]
   );
 
   return (
@@ -363,40 +243,50 @@ export const Viewport = ({
         }),
         className
       )}
-      style={{
-        ...style,
-        ...(!responsive
-          ? assignInlineVars({ [viewportHeightVar]: `${height}px` })
-          : {}),
-      }}
+      style={rootStyle}
       onPointerDown={handlers.onPointerDown}
       onPointerMove={handlers.onPointerMove}
       onPointerUp={handlers.onPointerUp}
       onPointerCancel={handlers.onPointerCancel}
+      onPointerEnter={handlers.onPointerEnter}
+      onPointerLeave={handlers.onPointerLeave}
       onContextMenu={handlers.onContextMenu}
       {...rest}
     >
-      <ViewportContext.Provider value={contextValue}>
-        <LayerSubscriptionContext.Provider value={layerInvalidateBusContext}>
-          {layers}
-          {worldChildren}
-          {overlayChildren}
-        </LayerSubscriptionContext.Provider>
-      </ViewportContext.Provider>
-      {marqueeScreenRect && (
-        <div
-          className={marqueeRectStyle}
-          style={{
-            left: marqueeScreenRect.x,
-            top: marqueeScreenRect.y,
-            width: marqueeScreenRect.width,
-            height: marqueeScreenRect.height,
-          }}
-          data-viewport-marquee=""
-        />
-      )}
+      <ViewportStoreContext.Provider value={store}>
+        {layers}
+        {worldChildren}
+        {overlayChildren}
+        <MarqueeRect />
+      </ViewportStoreContext.Provider>
     </div>
   );
 };
 
 Viewport.displayName = 'Viewport';
+
+/**
+ * Internal — renders the marquee selection rectangle. Subscribes only to
+ * the marquee slice so it re-renders only when the rectangle changes,
+ * never on transform/size/isPanning mutations.
+ */
+const MarqueeRect: React.FC = () => {
+  const store = useViewportStore();
+  const rect = useSyncExternalStore(
+    store.subscribeMarquee,
+    store.getMarqueeRect
+  );
+  if (!rect) return null;
+  return (
+    <div
+      className={marqueeRectStyle}
+      style={{
+        left: rect.x,
+        top: rect.y,
+        width: rect.width,
+        height: rect.height,
+      }}
+      data-viewport-marquee=""
+    />
+  );
+};

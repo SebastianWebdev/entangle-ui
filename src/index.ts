@@ -657,6 +657,7 @@ export {
   useKeyboard,
   useListboxNav,
   useMediaQuery,
+  useLatest,
   useMergedRef,
   useResizeObserver,
   useTheme,

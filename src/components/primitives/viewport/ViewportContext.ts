@@ -1,28 +1,33 @@
 'use client';
 
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useSyncExternalStore } from 'react';
 import type { ViewportContextValue } from './Viewport.types';
+import type { ViewportStore } from './ViewportStore';
 
-export const ViewportContext =
-  /*#__PURE__*/ createContext<ViewportContextValue | null>(null);
+export const ViewportStoreContext =
+  /*#__PURE__*/ createContext<ViewportStore | null>(null);
 
-export interface LayerSubscriptionContextValue {
-  /**
-   * Subscribe a layer's redraw trigger to the viewport's invalidation bus.
-   * Returns an unsubscribe function.
-   */
-  subscribeLayer: (name: string, cb: () => void) => () => void;
+/**
+ * Internal hook returning the store instance. Throws when called outside
+ * a `<Viewport>` subtree.
+ */
+export function useViewportStore(): ViewportStore {
+  const store = useContext(ViewportStoreContext);
+  if (!store) {
+    throw new Error(
+      'useViewportContext must be used inside a <Viewport> subtree.'
+    );
+  }
+  return store;
 }
-
-export const LayerSubscriptionContext =
-  /*#__PURE__*/ createContext<LayerSubscriptionContextValue | null>(null);
 
 /**
  * Read viewport state from inside `<Viewport>` children.
  *
- * Returns the current `transform`, `size`, imperative `handle`, and
- * `isPanning` flag. Use this in custom Overlay components (e.g., a minimap)
- * that need to react to transform or size changes.
+ * Returns `transform`, `size`, `isPanning`, and the imperative `handle`.
+ * The hook subscribes to every store mutation — if you only need one slice
+ * (e.g. just the transform) reach for `useViewportStore()` directly and
+ * subscribe to a single slice with `useSyncExternalStore`.
  *
  * @throws If called outside a `<Viewport>` subtree.
  *
@@ -35,11 +40,13 @@ export const LayerSubscriptionContext =
  * ```
  */
 export function useViewportContext(): ViewportContextValue {
-  const ctx = useContext(ViewportContext);
-  if (!ctx) {
-    throw new Error(
-      'useViewportContext must be used inside a <Viewport> subtree.'
-    );
-  }
-  return ctx;
+  const store = useViewportStore();
+  const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
+
+  return {
+    transform: snapshot.transform,
+    size: snapshot.size,
+    isPanning: snapshot.isPanning,
+    handle: store.handle,
+  };
 }

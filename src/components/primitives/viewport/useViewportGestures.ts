@@ -1,34 +1,26 @@
 'use client';
 
 import type React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useDebouncedCallback, useLatest } from '@/hooks';
 import { clamp } from '@/utils/mathUtils';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type {
+  ScreenRect,
   ViewportMouseButton,
   ViewportPanConfig,
   ViewportPanEndInfo,
   ViewportSelectionConfig,
   ViewportSelectionEvent,
-  ViewportSize,
   ViewportTransform,
   ViewportZoomConfig,
   WorldRect,
 } from './Viewport.types';
+import type { ViewportStore } from './ViewportStore';
 import { screenToWorld } from './viewportCoords';
 import { computeZoomTowardPivot, normalizeRect } from './viewportMath';
 
-interface UseViewportGesturesOptions {
-  viewportRef: React.RefObject<HTMLDivElement | null>;
-  transform: ViewportTransform;
-  setTransform: (next: ViewportTransform) => void;
-  getSize: () => ViewportSize;
-  disabled: boolean;
-  minZoom: number;
-  maxZoom: number;
-  pan: ViewportPanConfig | false;
-  zoom: ViewportZoomConfig | false;
-  selectionRect: ViewportSelectionConfig;
+interface GestureCallbacks {
   onPanStart?: () => void;
   onPanEnd?: (info: ViewportPanEndInfo) => void;
   onZoomStart?: () => void;
@@ -36,15 +28,28 @@ interface UseViewportGesturesOptions {
   onSelectionChange?: (info: ViewportSelectionEvent) => void;
 }
 
+interface UseViewportGesturesOptions {
+  viewportRef: React.RefObject<HTMLDivElement | null>;
+  store: ViewportStore;
+  /** Called to push a new transform through React state. */
+  setTransform: (next: ViewportTransform) => void;
+  disabled: boolean;
+  minZoom: number;
+  maxZoom: number;
+  pan: ViewportPanConfig | false;
+  zoom: ViewportZoomConfig | false;
+  selectionRect: ViewportSelectionConfig;
+  callbacks: GestureCallbacks;
+}
+
 interface UseViewportGesturesReturn {
-  /** True while a pan gesture is active. */
-  isPanning: boolean;
-  /** Pointer/wheel/keyboard handlers to spread on the viewport wrapper. */
   handlers: {
     onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerCancel: (e: React.PointerEvent<HTMLDivElement>) => void;
+    onPointerEnter: (e: React.PointerEvent<HTMLDivElement>) => void;
+    onPointerLeave: (e: React.PointerEvent<HTMLDivElement>) => void;
     onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => void;
   };
 }
@@ -74,6 +79,7 @@ const DEFAULT_SELECTION: Required<ViewportSelectionConfig> = {
 
 const ZOOM_END_DELAY_MS = 180;
 const MAX_VELOCITY_PX_PER_MS = 3;
+const VELOCITY_SAMPLE_COUNT = 5;
 
 type GestureKind = 'pan' | 'marquee';
 
@@ -87,105 +93,67 @@ interface ActiveGesture {
 }
 
 /**
- * Resolves gesture event handlers (pan, zoom, marquee, keyboard helpers)
- * for the Viewport wrapper. Used internally by `<Viewport>`.
+ * Resolves gesture event handlers (pan, zoom, marquee) for the Viewport
+ * wrapper. Used internally by `<Viewport>` — every "live" value (current
+ * transform, current size, latest callbacks) is read through the store
+ * or through a `useLatest` ref so the wheel/keyboard listeners never
+ * re-attach on prop changes.
  */
 export function useViewportGestures(
   options: UseViewportGesturesOptions
 ): UseViewportGesturesReturn {
   const {
     viewportRef,
-    transform,
+    store,
     setTransform,
-    getSize,
     disabled,
     minZoom,
     maxZoom,
     pan,
     zoom,
     selectionRect,
-    onPanStart,
-    onPanEnd,
-    onZoomStart,
-    onZoomEnd,
-    onSelectionChange,
+    callbacks,
   } = options;
 
-  const panCfg: Required<ViewportPanConfig> =
-    pan === false
-      ? { button: false, spaceKey: false }
-      : { ...DEFAULT_PAN, ...pan };
-  const zoomCfg: Required<ViewportZoomConfig> =
-    zoom === false
-      ? { wheel: false, pinch: false, speed: DEFAULT_ZOOM.speed }
-      : { ...DEFAULT_ZOOM, ...zoom };
-  const selCfg: Required<ViewportSelectionConfig> = {
-    ...DEFAULT_SELECTION,
-    ...selectionRect,
-  };
+  const panCfg = useMemo<Required<ViewportPanConfig>>(
+    () =>
+      pan === false
+        ? { button: false, spaceKey: false }
+        : { ...DEFAULT_PAN, ...pan },
+    [pan]
+  );
+  const zoomCfg = useMemo<Required<ViewportZoomConfig>>(
+    () =>
+      zoom === false
+        ? { wheel: false, pinch: false, speed: DEFAULT_ZOOM.speed }
+        : { ...DEFAULT_ZOOM, ...zoom },
+    [zoom]
+  );
+  const selCfg = useMemo<Required<ViewportSelectionConfig>>(
+    () => ({ ...DEFAULT_SELECTION, ...selectionRect }),
+    [selectionRect]
+  );
 
-  // Stable refs for the things gesture handlers read at "runtime"
-  const transformRef = useRef(transform);
-  transformRef.current = transform;
-  const setTransformRef = useRef(setTransform);
-  setTransformRef.current = setTransform;
-  const getSizeRef = useRef(getSize);
-  getSizeRef.current = getSize;
-  const callbacksRef = useRef({
-    onPanStart,
-    onPanEnd,
-    onZoomStart,
-    onZoomEnd,
-    onSelectionChange,
-  });
-  callbacksRef.current = {
-    onPanStart,
-    onPanEnd,
-    onZoomStart,
-    onZoomEnd,
-    onSelectionChange,
-  };
+  const callbacksRef = useLatest(callbacks);
+  const setTransformRef = useLatest(setTransform);
+  const limitsRef = useLatest({ minZoom, maxZoom });
+  const zoomSpeedRef = useLatest(zoomCfg.speed);
 
-  const [isPanning, setIsPanning] = useState(false);
   const activeRef = useRef<ActiveGesture | null>(null);
   const spaceHeldRef = useRef(false);
   const pointerInsideRef = useRef(false);
 
-  // Velocity smoothing — track last two moves to compute pointer-up velocity
-  const lastMoveRef = useRef<{ point: Point2D; time: number } | null>(null);
-  const prevMoveRef = useRef<{ point: Point2D; time: number } | null>(null);
+  // Ring-buffer of recent pointer-move samples for velocity smoothing.
+  const samplesRef = useRef<Array<{ point: Point2D; time: number }>>([]);
 
-  // Zoom-end debounce
-  const zoomEndTimerRef = useRef<number | null>(null);
   const zoomActiveRef = useRef(false);
 
-  // ── Pointer-in-viewport tracking ──
-  // Track whether the pointer is currently hovering the viewport. We use this
-  // (plus DOM focus) to decide whether to intercept Space — matches the way
-  // Figma / Miro behave: Space pans whenever the pointer is over the canvas,
-  // no explicit click-to-focus required.
-  useEffect(() => {
-    const el = viewportRef.current;
-    if (!el) return;
-    const handleEnter = (): void => {
-      pointerInsideRef.current = true;
-    };
-    const handleLeave = (): void => {
-      pointerInsideRef.current = false;
-    };
-    el.addEventListener('pointerenter', handleEnter);
-    el.addEventListener('pointerleave', handleLeave);
-    return () => {
-      el.removeEventListener('pointerenter', handleEnter);
-      el.removeEventListener('pointerleave', handleLeave);
-    };
-  }, [viewportRef]);
+  const fireZoomEnd = useDebouncedCallback(() => {
+    zoomActiveRef.current = false;
+    callbacksRef.current.onZoomEnd?.();
+  }, ZOOM_END_DELAY_MS);
 
-  // ── Space key tracking ──
-  // Listen on `window` so Space works regardless of focused descendant, but
-  // only act when the user is "interacting" with the viewport — defined as
-  // pointer over the viewport OR DOM focus inside it. Without this guard
-  // Space would hijack page scroll globally.
+  // ── Space-key tracking (window-scoped, gated by pointer/focus state) ──
   useEffect(() => {
     if (!panCfg.spaceKey || disabled) {
       spaceHeldRef.current = false;
@@ -202,7 +170,6 @@ export function useViewportGestures(
       if (e.code !== 'Space') return;
       if (!isInteractingWithViewport()) return;
       spaceHeldRef.current = true;
-      // Suppress the browser's default page-scroll on Space.
       e.preventDefault();
     };
     const handleUp = (e: KeyboardEvent): void => {
@@ -223,10 +190,7 @@ export function useViewportGestures(
     };
   }, [panCfg.spaceKey, disabled, viewportRef]);
 
-  // ── Native wheel listener ──
-  // React's synthetic `onWheel` is registered passively, so `preventDefault()`
-  // there is a no-op. Attach a native non-passive listener so we can suppress
-  // page scroll when the viewport handles the wheel.
+  // ── Native wheel listener (non-passive so we can preventDefault page scroll) ──
   useEffect(() => {
     const el = viewportRef.current;
     if (!el || disabled) return;
@@ -237,32 +201,26 @@ export function useViewportGestures(
       if (isPinch && !zoomCfg.pinch) return;
       if (!isPinch && !zoomCfg.wheel) return;
 
-      // We're going to consume this wheel event — stop the page from scrolling.
       e.preventDefault();
 
       if (!zoomActiveRef.current) {
         zoomActiveRef.current = true;
         callbacksRef.current.onZoomStart?.();
       }
-      if (zoomEndTimerRef.current !== null) {
-        window.clearTimeout(zoomEndTimerRef.current);
-      }
-      zoomEndTimerRef.current = window.setTimeout(() => {
-        zoomActiveRef.current = false;
-        zoomEndTimerRef.current = null;
-        callbacksRef.current.onZoomEnd?.();
-      }, ZOOM_END_DELAY_MS);
+      fireZoomEnd();
 
       const rect = el.getBoundingClientRect();
       const pivot: Point2D = {
         x: e.clientX - rect.left,
         y: e.clientY - rect.top,
       };
-      const factor = Math.exp(-e.deltaY * zoomCfg.speed);
-      const next = computeZoomTowardPivot(pivot, factor, transformRef.current, {
-        minZoom,
-        maxZoom,
-      });
+      const factor = Math.exp(-e.deltaY * zoomSpeedRef.current);
+      const next = computeZoomTowardPivot(
+        pivot,
+        factor,
+        store.getTransform(),
+        limitsRef.current
+      );
       setTransformRef.current(next);
     };
 
@@ -273,9 +231,12 @@ export function useViewportGestures(
     disabled,
     zoomCfg.wheel,
     zoomCfg.pinch,
-    zoomCfg.speed,
-    minZoom,
-    maxZoom,
+    store,
+    callbacksRef,
+    fireZoomEnd,
+    limitsRef,
+    setTransformRef,
+    zoomSpeedRef,
   ]);
 
   const resolveGesture = useCallback(
@@ -283,15 +244,12 @@ export function useViewportGestures(
       const button = BUTTON_TO_NAME[buttonNum];
       if (!button) return null;
 
-      // Space override: any button while space held → pan
       if (panCfg.spaceKey && spaceHeldRef.current && panCfg.button !== false) {
         return 'pan';
       }
-      // Direct pan-button match
       if (panCfg.button !== false && button === panCfg.button) {
         return 'pan';
       }
-      // Marquee
       if (selCfg.enabled && button === selCfg.button) {
         return 'marquee';
       }
@@ -317,7 +275,7 @@ export function useViewportGestures(
       additive: boolean,
       inProgress: boolean
     ): void => {
-      const t = transformRef.current;
+      const t = store.getTransform();
       const startWorld = screenToWorld(startScreen, t);
       const endWorld = screenToWorld(endScreen, t);
       const rect: WorldRect = normalizeRect({
@@ -326,13 +284,20 @@ export function useViewportGestures(
         width: endWorld.x - startWorld.x,
         height: endWorld.y - startWorld.y,
       });
+      const screenRect: ScreenRect = normalizeRect({
+        x: startScreen.x,
+        y: startScreen.y,
+        width: endScreen.x - startScreen.x,
+        height: endScreen.y - startScreen.y,
+      });
+      store.setMarqueeRect(inProgress ? screenRect : null);
       callbacksRef.current.onSelectionChange?.({
         rect,
         additive,
         inProgress,
       });
     },
-    []
+    [store, callbacksRef]
   );
 
   const onPointerDown = useCallback(
@@ -349,7 +314,7 @@ export function useViewportGestures(
         kind,
         pointerId: e.pointerId,
         startScreen: local,
-        startTransform: transformRef.current,
+        startTransform: store.getTransform(),
         additive: ((): boolean => {
           switch (selCfg.additiveModifier) {
             case 'shift':
@@ -366,18 +331,15 @@ export function useViewportGestures(
         })(),
       };
 
-      lastMoveRef.current = { point: local, time: performance.now() };
-      prevMoveRef.current = null;
+      samplesRef.current = [{ point: local, time: performance.now() }];
 
       e.currentTarget.setPointerCapture(e.pointerId);
-      // Prevent text selection during marquee/pan
       e.preventDefault();
 
       if (kind === 'pan') {
-        setIsPanning(true);
+        store.setIsPanning(true);
         callbacksRef.current.onPanStart?.();
       } else {
-        // marquee — emit zero-size selection so consumers can start rendering it
         emitSelection(local, local, activeRef.current.additive, true);
       }
     },
@@ -385,8 +347,10 @@ export function useViewportGestures(
       disabled,
       resolveGesture,
       getLocalPoint,
+      store,
       selCfg.additiveModifier,
       emitSelection,
+      callbacksRef,
     ]
   );
 
@@ -397,9 +361,9 @@ export function useViewportGestures(
 
       const local = getLocalPoint(e);
 
-      // Velocity smoothing
-      prevMoveRef.current = lastMoveRef.current;
-      lastMoveRef.current = { point: local, time: performance.now() };
+      const samples = samplesRef.current;
+      samples.push({ point: local, time: performance.now() });
+      if (samples.length > VELOCITY_SAMPLE_COUNT) samples.shift();
 
       if (g.kind === 'pan') {
         const dx = local.x - g.startScreen.x;
@@ -413,7 +377,7 @@ export function useViewportGestures(
         emitSelection(g.startScreen, local, g.additive, true);
       }
     },
-    [getLocalPoint, emitSelection]
+    [getLocalPoint, emitSelection, setTransformRef]
   );
 
   const endGesture = useCallback(
@@ -424,39 +388,44 @@ export function useViewportGestures(
       const local = getLocalPoint(e);
 
       if (g.kind === 'pan') {
-        // Compute end velocity from the smoothing window
         let vx = 0;
         let vy = 0;
-        const last = lastMoveRef.current;
-        const prev = prevMoveRef.current;
-        if (last && prev && last.time > prev.time) {
-          const dt = last.time - prev.time;
-          vx = clamp(
-            (last.point.x - prev.point.x) / dt,
-            -MAX_VELOCITY_PX_PER_MS,
-            MAX_VELOCITY_PX_PER_MS
-          );
-          vy = clamp(
-            (last.point.y - prev.point.y) / dt,
-            -MAX_VELOCITY_PX_PER_MS,
-            MAX_VELOCITY_PX_PER_MS
-          );
+        const samples = samplesRef.current;
+        if (samples.length >= 2) {
+          const first = samples[0];
+          const last = samples[samples.length - 1];
+          if (first && last) {
+            const dt = last.time - first.time;
+            if (dt > 0) {
+              vx = clamp(
+                (last.point.x - first.point.x) / dt,
+                -MAX_VELOCITY_PX_PER_MS,
+                MAX_VELOCITY_PX_PER_MS
+              );
+              vy = clamp(
+                (last.point.y - first.point.y) / dt,
+                -MAX_VELOCITY_PX_PER_MS,
+                MAX_VELOCITY_PX_PER_MS
+              );
+            }
+          }
         }
-        setIsPanning(false);
+        store.setIsPanning(false);
         callbacksRef.current.onPanEnd?.({ velocity: { x: vx, y: vy } });
       } else if (!cancelled) {
         emitSelection(g.startScreen, local, g.additive, false);
+      } else {
+        store.setMarqueeRect(null);
       }
 
       activeRef.current = null;
-      lastMoveRef.current = null;
-      prevMoveRef.current = null;
+      samplesRef.current = [];
 
       if (e.currentTarget.hasPointerCapture(e.pointerId)) {
         e.currentTarget.releasePointerCapture(e.pointerId);
       }
     },
-    [getLocalPoint, emitSelection]
+    [getLocalPoint, emitSelection, store, callbacksRef]
   );
 
   const onPointerUp = useCallback(
@@ -473,8 +442,14 @@ export function useViewportGestures(
     [endGesture]
   );
 
-  // Suppress native context menu when middle/right-button pan is enabled,
-  // so right-drag works as a pan gesture without popping the OS menu.
+  const onPointerEnter = useCallback(() => {
+    pointerInsideRef.current = true;
+  }, []);
+
+  const onPointerLeave = useCallback(() => {
+    pointerInsideRef.current = false;
+  }, []);
+
   const onContextMenu = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (panCfg.button === 'right') e.preventDefault();
@@ -482,22 +457,14 @@ export function useViewportGestures(
     [panCfg.button]
   );
 
-  // Cleanup pending zoom-end timer
-  useEffect(() => {
-    return () => {
-      if (zoomEndTimerRef.current !== null) {
-        window.clearTimeout(zoomEndTimerRef.current);
-      }
-    };
-  }, []);
-
   return {
-    isPanning,
     handlers: {
       onPointerDown,
       onPointerMove,
       onPointerUp,
       onPointerCancel,
+      onPointerEnter,
+      onPointerLeave,
       onContextMenu,
     },
   };

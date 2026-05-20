@@ -40,6 +40,14 @@ export interface ViewportSize {
   height: number;
 }
 
+/** Axis-aligned rectangle in screen (CSS-pixel) coordinates. */
+export interface ScreenRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 // ─── Gesture configuration ───
 
 export type ViewportMouseButton = 'left' | 'middle' | 'right';

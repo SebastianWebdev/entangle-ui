@@ -14,6 +14,8 @@ export type { UseFocusTrapOptions } from './useFocusTrap';
 
 export { useMergedRef } from './useMergedRef';
 
+export { useLatest } from './useLatest';
+
 export { useResizeObserver } from './useResizeObserver';
 export type { UseResizeObserverOptions } from './useResizeObserver';
 
