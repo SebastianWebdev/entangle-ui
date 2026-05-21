@@ -125,6 +125,7 @@ export function App() {
 
 - `ChatPanel` → [components/editor/chat-panel.md](./components/editor/chat-panel.md) — Complete chat interface system for AI assistant integration with messages, input, tool calls, code blocks, and attachments.
 - `Minimap` → [components/editor/minimap.md](./components/editor/minimap.md) — Shared navigation primitive that renders a miniature of editor content alongside a draggable rectangle mirroring the main viewport's visible region. Designed for NodeGraph, Timeline, and custom 2D editor surfaces.
+- `NodeGraph` → [components/editor/nodegraph.md](./components/editor/nodegraph.md) — Data-driven node editor surface with ports, Bézier edges, multi-select, drag, marquee, snap-to-grid, keyboard navigation and a built-in minimap slot. Composes the Viewport primitive.
 - `PropertyInspector` → [components/editor/property-inspector.md](./components/editor/property-inspector.md) — Property inspector system with collapsible sections, label-value rows, groups, search filtering, and undo support.
 - `TransformControl` → [components/editor/transform-control.md](./components/editor/transform-control.md) — The canonical position / rotation / scale property control for 3D editor interfaces. Composes VectorInput, Select and PropertyRow into one high-level component.
 - `ViewportGizmo` → [components/editor/viewport-gizmo.md](./components/editor/viewport-gizmo.md) — 3D orientation gizmo for viewport navigation with orbit, snap-to-view, axis colors, and multiple interaction modes.

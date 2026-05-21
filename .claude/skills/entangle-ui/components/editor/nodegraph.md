@@ -1,0 +1,351 @@
+# NodeGraph
+
+> Data-driven node editor surface with ports, Bézier edges, multi-select, drag, marquee, snap-to-grid, keyboard navigation and a built-in minimap slot. Composes the Viewport primitive.
+
+`NodeGraph` is the flagship editor surface — a controlled-or-uncontrolled, data-driven node editor with ports, Bézier edges, multi-selection, drag, marquee, snap-to-grid, connection validation, keyboard navigation, a context-menu event, optional groups, and a `<Minimap>` slot. It composes `Viewport` for pan/zoom + canvas layers, so all of `Viewport`'s gesture, accessibility, and performance work is inherited for free.
+
+**Live Preview**
+
+## Import
+
+```tsx
+import {
+  NodeGraph,
+  useNodeGraphData,
+  useNodeGraphSelection,
+} from 'entangle-ui';
+import type {
+  NodeGraphNode,
+  NodeGraphEdge,
+  NodeGraphSelection,
+  NodeGraphPortRef,
+  NodeGraphHandle,
+} from 'entangle-ui';
+```
+
+## Quick start
+
+A minimal graph is just a `nodes` array and an `edges` array. Each node has a `position` (world units), an optional `width` / `height`, and a list of `ports`. Each edge references a source and target port by id.
+
+```tsx
+const [nodes, setNodes] = useState<NodeGraphNode[]>([
+  {
+    id: 'a',
+    position: { x: 0, y: 0 },
+    ports: [{ id: 'out', side: 'right' }],
+  },
+  {
+    id: 'b',
+    position: { x: 240, y: 60 },
+    ports: [{ id: 'in', side: 'left' }],
+  },
+]);
+
+const [edges, setEdges] = useState<NodeGraphEdge[]>([
+  {
+    id: 'e1',
+    source: { node: 'a', port: 'out' },
+    target: { node: 'b', port: 'in' },
+  },
+]);
+
+<NodeGraph
+  nodes={nodes}
+  edges={edges}
+  onNodesChange={setNodes}
+  onEdgesChange={setEdges}
+  responsive
+/>;
+```
+
+Every change emits the **full** next array — no patches, no reducers. That keeps the integration with downstream state management (Redux, Zustand, Jotai, plain `useState`) trivial: assign and you're done.
+
+## Data model
+
+```ts
+interface NodeGraphNode {
+  id: string;
+  position: { x: number; y: number }; // world coordinates
+  width?: number; // defaults to defaultNodeSize.width (180)
+  height?: number; // defaults to defaultNodeSize.height (80)
+  ports?: NodeGraphPort[];
+  data?: unknown; // arbitrary consumer payload (passed to renderNode)
+  draggable?: boolean; // default true
+  selectable?: boolean; // default true
+}
+
+interface NodeGraphPort {
+  id: string;
+  side: 'left' | 'right' | 'top' | 'bottom';
+  offset?: number; // 0..1 along the side; even distribution when omitted
+  dataType?: string; // opaque token for `isValidConnection`
+  label?: string; // surfaced via aria-label
+}
+
+interface NodeGraphEdge {
+  id: string;
+  source: { node: string; port: string };
+  target: { node: string; port: string };
+  data?: unknown;
+  label?: React.ReactNode; // optional HTML overlay at the edge midpoint
+}
+
+interface NodeGraphGroup {
+  id: string;
+  bounds: { x: number; y: number; width: number; height: number };
+  label?: string;
+  color?: string;
+}
+
+interface NodeGraphSelection {
+  nodes: string[];
+  edges: string[];
+  groups: string[];
+}
+```
+
+## Rendering nodes
+
+Pass `renderNode={(node, ctx) => ...}` to control the body. The wrapper handles positioning, ports, and selection state — your job is the content.
+
+```tsx
+<NodeGraph
+  nodes={nodes}
+  onNodesChange={setNodes}
+  renderNode={(node, ctx) => (
+    <div
+      style={{
+        background: ctx.selected ? '#3b82f6' : '#1f2937',
+        color: 'white',
+        padding: 8,
+      }}
+    >
+      {(node.data as { label?: string })?.label ?? node.id}
+    </div>
+  )}
+/>
+```
+
+The render context carries live status — `selected`, `dragging`, `hovered`, and the current `zoom` (useful for LOD swaps when zoomed out).
+
+## Connections
+
+Connection drags start on a port pointer-down and end on pointer-up. While the drag is in flight, the source port is highlighted, a dashed (or solid) Bézier follows the cursor, and any port under the cursor is treated as a candidate. Drop on a port to create an edge; drop on empty space (or an invalid candidate) cancels.
+
+### Validating connections
+
+`isValidConnection` is called continuously during the drag and once at drop. Return `false` to mark the current candidate as invalid (preview goes dashed + red) and to refuse the drop.
+
+```tsx
+<NodeGraph
+  isValidConnection={(source, target, info) => {
+    if (info.sameNode) return false; // no self-loops
+    // Only connect output ports (right side) to input ports (left side).
+    return info.sideCombo === 'right->left';
+  }}
+/>
+```
+
+With no validator supplied, the library still refuses **same-node** connections by default. Pass an explicit validator (`() => true`) to opt back in.
+
+### `onConnectStart` / `onConnectEnd`
+
+For undo grouping, telemetry, or just custom drop animations:
+
+```tsx
+<NodeGraph
+  onConnectStart={({ source, worldPoint }) => {
+    console.log('drag from', source, 'at', worldPoint);
+  }}
+  onConnectEnd={({ source, target, cancelled }) => {
+    if (cancelled) return;
+    console.log('connected', source, '→', target);
+  }}
+/>
+```
+
+## Selection
+
+Selection is a tri-list of ids: `{ nodes, edges, groups }`. It's controlled-or-uncontrolled like every other piece of data.
+
+| Gesture                | Effect                                          |
+| ---------------------- | ----------------------------------------------- |
+| Click a node           | Replace selection with that node                |
+| Shift/Cmd/Ctrl + click | Toggle that node in the existing selection      |
+| Drag on empty space    | Marquee; selects nodes intersecting the rect    |
+| Shift + marquee        | Additive marquee — union with current selection |
+| Escape                 | Clear selection (or cancel a connection drag)   |
+| Cmd/Ctrl + A           | Select all nodes                                |
+
+The `selectionRect` prop toggles the marquee gesture; it defaults to `true`. Set it to `false` to disable the rectangle entirely.
+
+## Keyboard
+
+| Keys                   | Action                                                       |
+| ---------------------- | ------------------------------------------------------------ |
+| `←` `↑` `↓` `→`        | Nudge selected nodes by one grid step (or 1 world unit)      |
+| `Shift` + arrows       | Nudge by 10× the base step                                   |
+| `Delete` / `Backspace` | Emit `onDelete(selection)` — the consumer applies the change |
+| `Enter`                | Emit `onActivate(node)` when exactly one node is selected    |
+| `Cmd/Ctrl + A`         | Select all nodes                                             |
+| `Esc`                  | Cancel an in-flight connection, otherwise clear selection    |
+
+Focus inside an editable element (e.g. an `<input>` in a custom node body) bypasses the graph's keyboard handler — typing in nodes works as expected.
+
+## Snap to grid
+
+Pass `snapToGrid={N}` (world units) to snap drag movements to the nearest `N`. Keyboard nudges use the same step. Pass `snapToGrid={false}` (the default) to disable.
+
+```tsx
+<NodeGraph snapToGrid={20} />
+```
+
+## Slots
+
+### `<NodeGraph.Background />`
+
+Optional canvas background with a `'dots'` or `'grid'` pattern that adapts to the viewport zoom. Place it as a child of `<NodeGraph>`.
+
+```tsx
+<NodeGraph>
+  <NodeGraph.Background variant="dots" gap={24} />
+</NodeGraph>
+```
+
+### `<NodeGraph.Minimap />`
+
+A pre-wired minimap overlay anchored to a corner (or custom anchor). Reads the live node list from the store and renders each as a `rect` item; selected nodes can be tinted via the `selectedColor` prop on `NodeGraphMinimapInner` (advanced) — by default, the standard minimap accent is used.
+
+```tsx
+<NodeGraph>
+  <NodeGraph.Minimap placement="bottom-right" width={220} title="Overview" />
+</NodeGraph>
+```
+
+Both slots are identified by a unique Symbol marker (`NODE_GRAPH_SLOT`), not by `displayName` — they survive `React.memo`, minification, and HOC wrapping (as long as the marker is copied).
+
+## Context menu
+
+`NodeGraph` doesn't ship a built-in menu component — it just emits a structured event so the consumer can drop in any popover / `<Menu>` / custom UI.
+
+```tsx
+const [menu, setMenu] = useState<{
+  x: number;
+  y: number;
+  target: NodeGraphTarget;
+} | null>(null);
+
+<NodeGraph
+  onContextMenu={info => {
+    setMenu({
+      x: info.screenPoint.x,
+      y: info.screenPoint.y,
+      target: info.target,
+    });
+  }}
+/>;
+
+{
+  menu ? (
+    <ContextMenu
+      position={menu}
+      target={menu.target}
+      onClose={() => setMenu(null)}
+    />
+  ) : null;
+}
+```
+
+The `target` is a discriminated union: `node`, `edge`, `port`, `group`, or `empty` (with the world point). That makes it easy to render different menus for "right-click on a node" vs. "right-click on background".
+
+## Imperative handle
+
+```tsx
+const ref = useRef<NodeGraphHandle>(null);
+
+ref.current?.fitToContent(32);
+ref.current?.fitToSelection(64);
+ref.current?.focusNode('node-id');
+ref.current?.centerOn({ x: 0, y: 0 }, 1);
+ref.current?.zoomToRect({ x: 0, y: 0, width: 400, height: 200 });
+
+const transform = ref.current?.getTransform();
+const size = ref.current?.getSize();
+const screenPoint = ref.current?.worldToScreen({ x: 100, y: 50 });
+const worldPoint = ref.current?.screenToWorld({ x: 100, y: 50 });
+
+ref.current?.invalidate('edges'); // force redraw of one layer
+```
+
+## Hooks for advanced consumers
+
+Inside the `<NodeGraph>` subtree (e.g., custom node bodies) you can subscribe to specific store slices for fine-grained re-renders.
+
+```tsx
+import {
+  useNodeGraphData,
+  useNodeGraphSelection,
+  useNodeGraphInteraction,
+  useNodeGraphHover,
+  useNodeGraphStore,
+} from 'entangle-ui';
+
+function NodeBadge({ nodeId }: { nodeId: string }) {
+  // Subscribes ONLY to selection — re-renders only when selection changes.
+  const selection = useNodeGraphSelection();
+  return <span>{selection.nodes.includes(nodeId) ? 'selected' : 'idle'}</span>;
+}
+```
+
+| Hook                        | What it subscribes to                               |
+| --------------------------- | --------------------------------------------------- |
+| `useNodeGraphData()`        | Data slice — nodes / edges / groups changes         |
+| `useNodeGraphSelection()`   | Selection slice                                     |
+| `useNodeGraphInteraction()` | Active gesture (drag-nodes / connect / marquee)     |
+| `useNodeGraphHover()`       | Hover slice — hovered node / edge / port            |
+| `useNodeGraphStore()`       | Raw store instance — escape hatch for custom slices |
+
+## Performance notes
+
+- **Each node body subscribes to only the slices it needs.** The `NodeGraphNodeView` internal subscribes to `selection`, `interaction`, and `hover` — but `Object.is` no-op guards on the store prevent re-renders when _another_ node's drag changes but this one's state doesn't.
+- **Edge / group / preview layers each get their own `<ViewportLayer>` canvas.** Per-frame work is per-layer, not global.
+- **The store has shallow-equal guards on every mutator.** Setting the same selection twice doesn't fire listeners.
+- **Connection drag uses document-level pointer listeners** attached once for the component's lifetime — drag identity churn doesn't re-attach.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `nodes` | `NodeGraphNode[]` | — | Controlled list of nodes. Pair with onNodesChange. Use defaultNodes for uncontrolled mode. |
+| `defaultNodes` | `NodeGraphNode[]` | — | Initial nodes when uncontrolled. Ignored if `nodes` is set. |
+| `onNodesChange` | `(nodes: NodeGraphNode[]) => void` | — | Fires with the full next nodes array on every mutation (drag, delete, nudge). |
+| `edges` | `NodeGraphEdge[]` | — | Controlled list of edges. Pair with onEdgesChange. |
+| `defaultEdges` | `NodeGraphEdge[]` | — | Initial edges when uncontrolled. |
+| `onEdgesChange` | `(edges: NodeGraphEdge[]) => void` | — | Fires with the full next edges array on connection drop, delete, etc. |
+| `groups` | `NodeGraphGroup[]` | — | Controlled list of visual group backdrops drawn under nodes. |
+| `defaultGroups` | `NodeGraphGroup[]` | — | Initial groups when uncontrolled. |
+| `onGroupsChange` | `(groups: NodeGraphGroup[]) => void` | — | Fires with the full next groups array. |
+| `selection` | `NodeGraphSelection` | — | Controlled selection { nodes, edges, groups } (arrays of ids). Pair with onSelectionChange. |
+| `defaultSelection` | `NodeGraphSelection` | — | Initial selection when uncontrolled. |
+| `onSelectionChange` | `(selection: NodeGraphSelection) => void` | — | Fires on click, Shift-click, marquee, Cmd+A, Escape. |
+| `renderNode` | `(node, ctx) => React.ReactNode` | — | Render the body of each node. ctx carries selected / dragging / hovered / zoom. Default renders a labelled panel. |
+| `renderEdgeLabel` | `(edge: NodeGraphEdge) => React.ReactNode` | — | Render an HTML overlay at each edge midpoint. Overrides edge.label. |
+| `isValidConnection` | `(source, target, info) => boolean` | — | Validate a connection drag. Return false to mark the candidate invalid and refuse the drop. With no validator, same-node drops are refused by default. |
+| `snapToGrid` | `number \| false` | `false` | Snap drag deltas and keyboard nudges to this world-unit grid step. Pass `false` to disable. |
+| `onConnectStart` | `(info: NodeGraphConnectStartInfo) => void` | — | Fires on port pointer-down (drag start). |
+| `onConnectEnd` | `(info: NodeGraphConnectEndInfo) => void` | — | Fires on pointer-up after a connection drag (success or cancel). |
+| `onContextMenu` | `(info: NodeGraphContextMenuInfo) => void` | — | Fires on right-click. info.target is a discriminated union: node / edge / port / group / empty. |
+| `onDelete` | `(selection: NodeGraphSelection) => void` | — | Fires on Delete/Backspace when the selection is non-empty. |
+| `onActivate` | `(node: NodeGraphNode) => void` | — | Fires on Enter when exactly one node is selected. |
+| `pan` | `ViewportPanConfig \| false` | `{ button: 'middle', spaceKey: true }` | Pan gesture configuration, forwarded to the underlying Viewport. |
+| `zoom` | `ViewportZoomConfig \| false` | `{ wheel: true, pinch: true, speed: 0.0015 }` | Zoom gesture configuration, forwarded to the underlying Viewport. |
+| `minZoom` | `number` | `0.1` | Minimum zoom level. |
+| `maxZoom` | `number` | `4` | Maximum zoom level. |
+| `selectionRect` | `boolean` | `true` | Enable marquee selection on drag from empty background. |
+| `responsive` | `boolean` | `false` | Track parent size via ResizeObserver. When false, uses `height`. |
+| `height` | `number` | `480` | Fixed height in CSS pixels when not responsive. |
+| `defaultNodeSize` | `{ width: number; height: number }` | `{ width: 180, height: 80 }` | Size used for nodes that omit width/height. |
+| `disabled` | `boolean` | `false` | Disable all interaction and dim the surface. |
+| `ariaLabel` | `string` | `'Node graph'` | Accessible label applied to the underlying viewport. |
+| `children` | `React.ReactNode` | — | Slot subcomponents: `<NodeGraph.Minimap>` and/or `<NodeGraph.Background>`. |
+| `ref` | `React.Ref` | — | Imperative handle (fitToContent, fitToSelection, focusNode, centerOn, zoomToRect, world/screen conversions, invalidate). |
