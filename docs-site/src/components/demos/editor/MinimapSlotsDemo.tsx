@@ -5,79 +5,65 @@ import {
   type MinimapItem,
 } from '@/components/editor/Minimap';
 import { useFakeViewport } from './minimapDemoUtils';
+import { prettyEdge, prettyNode } from './minimapPresentation';
 
-const ITEMS: MinimapItem[] = [
-  {
-    id: 'a',
-    type: 'rect',
-    x: 20,
-    y: 20,
-    width: 80,
-    height: 50,
-    color: '#4a86c8',
-  },
-  {
-    id: 'b',
-    type: 'rect',
-    x: 180,
-    y: 100,
-    width: 80,
-    height: 50,
-    color: '#6aa84f',
-  },
-  {
-    id: 'c',
-    type: 'rect',
-    x: 340,
-    y: 60,
-    width: 80,
-    height: 50,
-    color: '#e63946',
-  },
-  {
-    id: 'd',
-    type: 'rect',
-    x: 520,
-    y: 160,
-    width: 80,
-    height: 50,
-    color: '#f4a261',
-  },
-  {
-    id: 'e1',
-    type: 'line',
-    x1: 100,
-    y1: 45,
-    x2: 180,
-    y2: 125,
-    color: 'rgba(255,255,255,0.4)',
-  },
-  {
-    id: 'e2',
-    type: 'line',
-    x1: 260,
-    y1: 125,
-    x2: 340,
-    y2: 85,
-    color: 'rgba(255,255,255,0.4)',
-  },
-  {
-    id: 'e3',
-    type: 'line',
-    x1: 420,
-    y1: 85,
-    x2: 520,
-    y2: 185,
-    color: 'rgba(255,255,255,0.4)',
-  },
+interface NodeDef {
+  id: string;
+  x: number;
+  y: number;
+  hue: number;
+}
+
+const NODE_W = 80;
+const NODE_H = 50;
+
+const NODES: NodeDef[] = [
+  { id: 'A', x: 20, y: 20, hue: 200 },
+  { id: 'B', x: 180, y: 100, hue: 130 },
+  { id: 'C', x: 340, y: 60, hue: 350 },
+  { id: 'D', x: 520, y: 160, hue: 35 },
+];
+
+const EDGES: Array<[string, string]> = [
+  ['A', 'B'],
+  ['B', 'C'],
+  ['C', 'D'],
 ];
 
 export default function MinimapSlotsDemo(): React.ReactElement {
   const fake = useFakeViewport({ width: 280, height: 160 });
-  const worldBounds = useMemo(() => computeBoundsFromItems(ITEMS, 40), []);
+
+  const items = useMemo<MinimapItem[]>(() => {
+    const byId = new Map(NODES.map(n => [n.id, n] as const));
+    const nodes = NODES.map(n =>
+      prettyNode({
+        id: n.id,
+        x: n.x,
+        y: n.y,
+        width: NODE_W,
+        height: NODE_H,
+        hue: n.hue,
+      })
+    );
+    const edges = EDGES.map(([from, to], i) => {
+      const a = byId.get(from);
+      const b = byId.get(to);
+      if (!a || !b) return null;
+      return prettyEdge({
+        id: `edge-${i}`,
+        from: { x: a.x + NODE_W, y: a.y + NODE_H / 2 },
+        to: { x: b.x, y: b.y + NODE_H / 2 },
+      });
+    }).filter((it): it is MinimapItem => it !== null);
+    // Edges first so they render under the nodes.
+    return [...edges, ...nodes];
+  }, []);
+
+  const worldBounds = useMemo(() => computeBoundsFromItems(items, 40), [items]);
+
   return (
     <Minimap
-      items={ITEMS}
+      items={items}
       worldBounds={worldBounds}
       transform={fake.transform}
       viewportSize={fake.viewportSize}

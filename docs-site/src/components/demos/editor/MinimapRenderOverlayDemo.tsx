@@ -1,63 +1,42 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Minimap, type MinimapItem } from '@/components/editor/Minimap';
 import { useFakeViewport } from './minimapDemoUtils';
+import { prettyClip, prettyPlayhead } from './minimapPresentation';
 
 const TRACK_HEIGHT = 24;
 const TRACK_GAP = 8;
 const TRACKS = 3;
-
-// Pre-baked timeline clips on three tracks
-const ITEMS: MinimapItem[] = [
-  {
-    id: 'a',
-    type: 'rect',
-    x: 0,
-    y: 0,
-    width: 220,
-    height: TRACK_HEIGHT,
-    color: '#4a86c8',
-  },
-  {
-    id: 'b',
-    type: 'rect',
-    x: 280,
-    y: 0,
-    width: 320,
-    height: TRACK_HEIGHT,
-    color: '#4a86c8',
-  },
-  {
-    id: 'c',
-    type: 'rect',
-    x: 60,
-    y: TRACK_HEIGHT + TRACK_GAP,
-    width: 480,
-    height: TRACK_HEIGHT,
-    color: '#6aa84f',
-  },
-  {
-    id: 'd',
-    type: 'rect',
-    x: 120,
-    y: (TRACK_HEIGHT + TRACK_GAP) * 2,
-    width: 180,
-    height: TRACK_HEIGHT,
-    color: '#e63946',
-  },
-  {
-    id: 'e',
-    type: 'rect',
-    x: 380,
-    y: (TRACK_HEIGHT + TRACK_GAP) * 2,
-    width: 220,
-    height: TRACK_HEIGHT,
-    color: '#e63946',
-  },
-];
-
 const TOTAL_HEIGHT = TRACKS * TRACK_HEIGHT + (TRACKS - 1) * TRACK_GAP;
 const TIMELINE_DURATION = 700;
 const PLAYBACK_MS_PER_UNIT = 12;
+
+interface ClipDef {
+  track: number;
+  start: number;
+  duration: number;
+  hue: number;
+  fadeOut?: boolean;
+}
+
+const CLIPS: ClipDef[] = [
+  { track: 0, start: 0, duration: 220, hue: 200 },
+  { track: 0, start: 280, duration: 320, hue: 200, fadeOut: true },
+  { track: 1, start: 60, duration: 480, hue: 130 },
+  { track: 2, start: 120, duration: 180, hue: 350 },
+  { track: 2, start: 380, duration: 220, hue: 350, fadeOut: true },
+];
+
+const ITEMS: MinimapItem[] = CLIPS.map((c, i) =>
+  prettyClip({
+    id: `clip-${i}`,
+    x: c.start,
+    y: c.track * (TRACK_HEIGHT + TRACK_GAP),
+    width: c.duration,
+    height: TRACK_HEIGHT,
+    hue: c.hue,
+    ...(c.fadeOut ? { fadeOut: true } : {}),
+  })
+);
 
 export default function MinimapRenderOverlayDemo(): React.ReactElement {
   const fake = useFakeViewport({ width: 700, height: TOTAL_HEIGHT });
@@ -65,7 +44,7 @@ export default function MinimapRenderOverlayDemo(): React.ReactElement {
 
   useEffect(() => {
     let raf = 0;
-    let start = performance.now();
+    const start = performance.now();
     const tick = (now: number): void => {
       const elapsed = now - start;
       const pos = (elapsed / PLAYBACK_MS_PER_UNIT) % TIMELINE_DURATION;
@@ -94,21 +73,10 @@ export default function MinimapRenderOverlayDemo(): React.ReactElement {
       viewportSize={fake.viewportSize}
       onNavigate={fake.onNavigate}
       width={520}
-      minHeight={48}
-      maxHeight={120}
+      minHeight={64}
+      maxHeight={140}
       renderOverlay={(ctx, info) => {
-        const p = info.worldToMinimap({ x: playhead, y: 0 });
-        ctx.strokeStyle = '#ff3860';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(p.x + 0.5, 0);
-        ctx.lineTo(p.x + 0.5, info.minimapSize.height);
-        ctx.stroke();
-        // Playhead dot at the top
-        ctx.fillStyle = '#ff3860';
-        ctx.beginPath();
-        ctx.arc(p.x + 0.5, 3, 3, 0, Math.PI * 2);
-        ctx.fill();
+        prettyPlayhead(ctx, info, playhead);
       }}
     >
       <Minimap.Title>Playhead via renderOverlay</Minimap.Title>

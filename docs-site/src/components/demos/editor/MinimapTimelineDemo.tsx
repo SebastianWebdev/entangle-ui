@@ -1,38 +1,59 @@
 import { useMemo } from 'react';
 import { Minimap, type MinimapItem } from '@/components/editor/Minimap';
 import { useFakeViewport } from './minimapDemoUtils';
+import { prettyClip, prettyKeyframe } from './minimapPresentation';
 
 const TRACK_HEIGHT = 24;
 const TRACK_GAP = 6;
 const TRACKS = 4;
 
-const CLIPS: Array<[number, number, number, string]> = [
-  // [trackIndex, startTime, duration, color]
-  [0, 0, 2400, '#4a86c8'],
-  [0, 3000, 4200, '#4a86c8'],
-  [1, 600, 1800, '#6aa84f'],
-  [1, 2800, 2200, '#6aa84f'],
-  [1, 5400, 1800, '#6aa84f'],
-  [2, 1200, 4800, '#e63946'],
-  [3, 0, 800, '#f4a261'],
-  [3, 1600, 1600, '#f4a261'],
-  [3, 4200, 2400, '#f4a261'],
+interface Clip {
+  track: number;
+  start: number;
+  duration: number;
+  hue: number;
+  fadeOut?: boolean;
+}
+
+const CLIPS: Clip[] = [
+  { track: 0, start: 0, duration: 2400, hue: 200 },
+  { track: 0, start: 3000, duration: 4200, hue: 200, fadeOut: true },
+  { track: 1, start: 600, duration: 1800, hue: 130 },
+  { track: 1, start: 2800, duration: 2200, hue: 130 },
+  { track: 1, start: 5400, duration: 1800, hue: 130, fadeOut: true },
+  { track: 2, start: 1200, duration: 4800, hue: 350 },
+  { track: 3, start: 0, duration: 800, hue: 35 },
+  { track: 3, start: 1600, duration: 1600, hue: 35 },
+  { track: 3, start: 4200, duration: 2400, hue: 35, fadeOut: true },
 ];
+
+// Keyframes on the automation row (track 2 — middle of timeline).
+const KEYFRAMES: number[] = [400, 1800, 3600, 5200, 6800];
 
 const TIMELINE_TOTAL = 8000;
 const TOTAL_H = TRACKS * TRACK_HEIGHT + (TRACKS - 1) * TRACK_GAP;
 
-const ITEMS: MinimapItem[] = CLIPS.map(
-  ([track, start, duration, color], i) => ({
-    id: `clip-${i}`,
-    type: 'rect',
-    x: start,
-    y: track * (TRACK_HEIGHT + TRACK_GAP),
-    width: duration,
-    height: TRACK_HEIGHT,
-    color,
-  })
-);
+const ITEMS: MinimapItem[] = [
+  ...CLIPS.map((c, i) =>
+    prettyClip({
+      id: `clip-${i}`,
+      x: c.start,
+      y: c.track * (TRACK_HEIGHT + TRACK_GAP),
+      width: c.duration,
+      height: TRACK_HEIGHT,
+      hue: c.hue,
+      ...(c.fadeOut ? { fadeOut: true } : {}),
+    })
+  ),
+  ...KEYFRAMES.map((t, i) =>
+    prettyKeyframe({
+      id: `kf-${i}`,
+      cx: t,
+      cy: 2 * (TRACK_HEIGHT + TRACK_GAP) + TRACK_HEIGHT / 2,
+      size: 70,
+    })
+  ),
+];
 
 export default function MinimapTimelineDemo(): React.ReactElement {
   const fake = useFakeViewport({ width: 2000, height: TOTAL_H });
@@ -53,11 +74,13 @@ export default function MinimapTimelineDemo(): React.ReactElement {
       viewportSize={fake.viewportSize}
       onNavigate={fake.onNavigate}
       width={600}
-      minHeight={56}
-      maxHeight={96}
+      minHeight={64}
+      maxHeight={112}
     >
       <Minimap.Title>Master timeline</Minimap.Title>
-      <Minimap.Footer>8000 frames · 4 tracks · 9 clips</Minimap.Footer>
+      <Minimap.Footer>
+        8000 frames · 4 tracks · 9 clips · 5 keyframes
+      </Minimap.Footer>
     </Minimap>
   );
 }

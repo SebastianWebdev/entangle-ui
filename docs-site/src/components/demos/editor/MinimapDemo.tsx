@@ -13,9 +13,10 @@ import {
   Minimap,
   ViewportMinimap,
   computeBoundsFromItems,
-  useMinimapContext,
+  useMinimapHover,
   type MinimapItem,
 } from '@/components/editor/Minimap';
+import { prettyEdge, prettyNode } from './minimapPresentation';
 
 interface DemoNode {
   id: string;
@@ -75,7 +76,7 @@ function drawGrid(
 }
 
 function CoordReadout(): React.ReactElement {
-  const { hoverWorldPoint, hoveredItemId } = useMinimapContext();
+  const { hoverWorldPoint, hoveredItemId } = useMinimapHover();
   if (!hoverWorldPoint) {
     return <span style={{ opacity: 0.6 }}>—</span>;
   }
@@ -95,40 +96,28 @@ export default function MinimapDemo(): React.ReactElement {
 
   const items = useMemo<MinimapItem[]>(() => {
     const byId = new Map(NODES.map(n => [n.id, n] as const));
-    const rects: MinimapItem[] = NODES.map(n => ({
-      id: n.id,
-      type: 'rect',
-      x: n.x,
-      y: n.y,
-      width: NODE_W,
-      height: NODE_H,
-      color: `hsl(${n.hue} 70% 55%)`,
-    }));
-    if (!showEdges) return rects;
-    const lines: MinimapItem[] = EDGES.map(([from, to], i) => {
+    const nodeItems = NODES.map(n =>
+      prettyNode({
+        id: n.id,
+        x: n.x,
+        y: n.y,
+        width: NODE_W,
+        height: NODE_H,
+        hue: n.hue,
+      })
+    );
+    if (!showEdges) return nodeItems;
+    const edgeItems = EDGES.map(([from, to], i) => {
       const a = byId.get(from);
       const b = byId.get(to);
-      if (!a || !b) {
-        return {
-          id: `edge-${i}`,
-          type: 'line',
-          x1: 0,
-          y1: 0,
-          x2: 0,
-          y2: 0,
-        };
-      }
-      return {
+      if (!a || !b) return null;
+      return prettyEdge({
         id: `edge-${i}`,
-        type: 'line',
-        x1: a.x + NODE_W,
-        y1: a.y + NODE_H / 2,
-        x2: b.x,
-        y2: b.y + NODE_H / 2,
-        color: 'rgba(255, 255, 255, 0.35)',
-      };
-    });
-    return [...lines, ...rects];
+        from: { x: a.x + NODE_W, y: a.y + NODE_H / 2 },
+        to: { x: b.x, y: b.y + NODE_H / 2 },
+      });
+    }).filter((it): it is MinimapItem => it !== null);
+    return [...edgeItems, ...nodeItems];
   }, [showEdges]);
 
   const worldBounds = useMemo(() => computeBoundsFromItems(items, 60), [items]);
