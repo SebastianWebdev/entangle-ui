@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import type React from 'react';
+import { useLatest } from '@/hooks';
 import type {
-  ViewportTransform,
   ViewportSize,
+  ViewportTransform,
   WorldRect,
 } from '@/components/primitives/viewport';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
@@ -19,6 +20,7 @@ import {
   minimapToWorld,
 } from './minimapCoords';
 import { hitTestItems } from './minimapHitTest';
+import type { MinimapStore } from './MinimapStore';
 
 const CLICK_THRESHOLD_PX = 3;
 /** Hover line-picking tolerance, in minimap CSS px. Translated to world units per gesture. */
@@ -26,6 +28,7 @@ const LINE_HIT_TOLERANCE_MINIMAP_PX = 4;
 
 interface UseMinimapGesturesOptions {
   containerRef: React.RefObject<HTMLDivElement | null>;
+  store: MinimapStore;
   worldBounds: WorldRect;
   transform: ViewportTransform;
   viewportSize: ViewportSize;
@@ -56,10 +59,6 @@ interface UseMinimapGesturesReturn {
     onPointerLeave: (e: React.PointerEvent<HTMLDivElement>) => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
   };
-  isDragging: boolean;
-  hoverMinimapPoint: Point2D | null;
-  hoverWorldPoint: Point2D | null;
-  hoveredItemId: string | null;
 }
 
 function getLocalPointerPosition(
@@ -80,67 +79,79 @@ function pointInRect(
   );
 }
 
+/**
+ * Pointer + keyboard gesture machine for `<Minimap>`. All live props and
+ * the `onNavigate` callback are read through `useLatest` refs so the
+ * returned handlers are stable for the lifetime of the component —
+ * pointer event listeners never re-attach on prop changes.
+ *
+ * Hover state and drag state are written directly to the `MinimapStore`,
+ * not local React state, so slice subscribers (`useMinimapHover`,
+ * `useMinimapDragState`) re-render independently and don't see the rest
+ * of the world thrash.
+ */
 export function useMinimapGestures(
   opts: UseMinimapGesturesOptions
 ): UseMinimapGesturesReturn {
-  const {
-    containerRef,
-    worldBounds,
-    transform,
-    viewportSize,
-    minimapSize,
-    items,
-    interactions,
-    keyboardPanStep,
-    disabled,
-    onNavigate,
-  } = opts;
+  const { containerRef, store } = opts;
+
+  // Live refs — handlers always see the latest values without re-binding.
+  const worldBoundsRef = useLatest(opts.worldBounds);
+  const transformRef = useLatest(opts.transform);
+  const viewportSizeRef = useLatest(opts.viewportSize);
+  const minimapSizeRef = useLatest(opts.minimapSize);
+  const itemsRef = useLatest(opts.items);
+  const interactionsRef = useLatest(opts.interactions);
+  const keyboardPanStepRef = useLatest(opts.keyboardPanStep);
+  const disabledRef = useLatest(opts.disabled);
+  const onNavigateRef = useLatest(opts.onNavigate);
 
   const stateRef = useRef<PointerState | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [hoverMinimapPoint, setHoverMinimapPoint] = useState<Point2D | null>(
-    null
+
+  const emit = useCallback(
+    (info: MinimapNavigateInfo): void => {
+      onNavigateRef.current?.(info);
+    },
+    [onNavigateRef]
   );
-  const [hoverWorldPoint, setHoverWorldPoint] = useState<Point2D | null>(null);
-  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
 
   const updateHover = useCallback(
-    (screen: Point2D | null) => {
+    (screen: Point2D | null): void => {
       if (!screen) {
-        setHoverMinimapPoint(null);
-        setHoverWorldPoint(null);
-        setHoveredItemId(null);
+        store.setHover({ hoverWorldPoint: null, hoveredItemId: null });
         return;
       }
+      const worldBounds = worldBoundsRef.current;
+      const minimapSize = minimapSizeRef.current;
+      const items = itemsRef.current;
       const worldPoint = minimapToWorld(screen, worldBounds, minimapSize);
-      setHoverMinimapPoint(screen);
-      setHoverWorldPoint(worldPoint);
-      // Translate pixel tolerance into world units via the current scale.
       const scaleX =
         worldBounds.width > 0 ? minimapSize.width / worldBounds.width : 1;
       const scaleY =
         worldBounds.height > 0 ? minimapSize.height / worldBounds.height : 1;
       const scale = Math.min(scaleX, scaleY) || 1;
       const tolerance = LINE_HIT_TOLERANCE_MINIMAP_PX / scale;
-      setHoveredItemId(hitTestItems(worldPoint, items, tolerance));
+      store.setHover({
+        hoverWorldPoint: worldPoint,
+        hoveredItemId: hitTestItems(worldPoint, items, tolerance),
+      });
     },
-    [items, minimapSize, worldBounds]
-  );
-
-  const emit = useCallback(
-    (info: MinimapNavigateInfo): void => {
-      onNavigate?.(info);
-    },
-    [onNavigate]
+    [store, worldBoundsRef, minimapSizeRef, itemsRef]
   );
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>): void => {
-      if (disabled || e.button !== 0) return;
+      if (disabledRef.current || e.button !== 0) return;
       const container = containerRef.current;
       if (!container) return;
 
       const screen = getLocalPointerPosition(e, container);
+      const worldBounds = worldBoundsRef.current;
+      const minimapSize = minimapSizeRef.current;
+      const transform = transformRef.current;
+      const viewportSize = viewportSizeRef.current;
+      const interactions = interactionsRef.current;
+
       const viewportRect = getViewportRectOnMinimap(
         transform,
         viewportSize,
@@ -182,22 +193,23 @@ export function useMinimapGestures(
 
       if (mode === 'drag-pan') {
         const worldPoint = minimapToWorld(screen, worldBounds, minimapSize);
-        setIsDragging(true);
+        store.setIsDragging(true);
         emit({ worldPoint, phase: 'drag-start' });
       } else if (mode === 'drag-rect') {
-        setIsDragging(true);
+        store.setIsDragging(true);
         const center = getViewportCenterWorld(transform, viewportSize);
         emit({ worldPoint: center, phase: 'drag-start' });
       }
     },
     [
       containerRef,
-      disabled,
-      interactions,
-      transform,
-      viewportSize,
-      worldBounds,
-      minimapSize,
+      disabledRef,
+      interactionsRef,
+      transformRef,
+      viewportSizeRef,
+      worldBoundsRef,
+      minimapSizeRef,
+      store,
       emit,
     ]
   );
@@ -213,6 +225,10 @@ export function useMinimapGestures(
       const state = stateRef.current;
       if (state?.pointerId !== e.pointerId) return;
 
+      const worldBounds = worldBoundsRef.current;
+      const minimapSize = minimapSizeRef.current;
+      const interactions = interactionsRef.current;
+
       const dx = screen.x - state.startScreen.x;
       const dy = screen.y - state.startScreen.y;
       const moved = Math.hypot(dx, dy) >= CLICK_THRESHOLD_PX;
@@ -221,7 +237,7 @@ export function useMinimapGestures(
         if (!moved) return;
         if (interactions.dragFromEmpty) {
           state.mode = 'drag-pan';
-          setIsDragging(true);
+          store.setIsDragging(true);
           const worldPoint = minimapToWorld(screen, worldBounds, minimapSize);
           emit({ worldPoint, phase: 'drag-start' });
         } else {
@@ -251,7 +267,15 @@ export function useMinimapGestures(
         });
       }
     },
-    [containerRef, worldBounds, minimapSize, interactions, emit, updateHover]
+    [
+      containerRef,
+      worldBoundsRef,
+      minimapSizeRef,
+      interactionsRef,
+      store,
+      emit,
+      updateHover,
+    ]
   );
 
   const handlePointerLeave = useCallback((): void => {
@@ -269,6 +293,8 @@ export function useMinimapGestures(
       }
 
       if (!cancelled) {
+        const worldBounds = worldBoundsRef.current;
+        const minimapSize = minimapSizeRef.current;
         const screen = getLocalPointerPosition(e, container);
         if (state.mode === 'pending-click') {
           const worldPoint = minimapToWorld(
@@ -294,9 +320,9 @@ export function useMinimapGestures(
       }
 
       stateRef.current = null;
-      setIsDragging(false);
+      store.setIsDragging(false);
     },
-    [containerRef, worldBounds, minimapSize, emit]
+    [containerRef, worldBoundsRef, minimapSizeRef, store, emit]
   );
 
   const handlePointerUp = useCallback(
@@ -315,7 +341,7 @@ export function useMinimapGestures(
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>): void => {
-      if (disabled) return;
+      if (disabledRef.current) return;
       let dx = 0;
       let dy = 0;
       switch (e.key) {
@@ -336,6 +362,10 @@ export function useMinimapGestures(
       }
       e.preventDefault();
 
+      const transform = transformRef.current;
+      const viewportSize = viewportSizeRef.current;
+      const keyboardPanStep = keyboardPanStepRef.current;
+
       const zoom = transform.zoom === 0 ? 1 : transform.zoom;
       const worldViewW = viewportSize.width / zoom;
       const worldViewH = viewportSize.height / zoom;
@@ -352,21 +382,27 @@ export function useMinimapGestures(
         phase: 'click',
       });
     },
-    [disabled, transform, viewportSize, keyboardPanStep, emit]
+    [disabledRef, transformRef, viewportSizeRef, keyboardPanStepRef, emit]
   );
 
-  return {
-    handlers: {
+  const handlers = useMemo(
+    () => ({
       onPointerDown: handlePointerDown,
       onPointerMove: handlePointerMove,
       onPointerUp: handlePointerUp,
       onPointerCancel: handlePointerCancel,
       onPointerLeave: handlePointerLeave,
       onKeyDown: handleKeyDown,
-    },
-    isDragging,
-    hoverMinimapPoint,
-    hoverWorldPoint,
-    hoveredItemId,
-  };
+    }),
+    [
+      handlePointerDown,
+      handlePointerMove,
+      handlePointerUp,
+      handlePointerCancel,
+      handlePointerLeave,
+      handleKeyDown,
+    ]
+  );
+
+  return { handlers };
 }

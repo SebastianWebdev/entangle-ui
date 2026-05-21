@@ -467,4 +467,50 @@ describe('Minimap', () => {
       expect(onNavigate).not.toHaveBeenCalled();
     });
   });
+
+  describe('Cancelled gesture (click=true, dragFromEmpty=false)', () => {
+    beforeEach(() => stubBoundingRect(200, 100));
+
+    it('does not fire when pointer crosses threshold but dragFromEmpty is disabled', () => {
+      const onNavigate = vi.fn();
+      renderMinimap({
+        onNavigate,
+        interactions: {
+          click: true,
+          dragFromEmpty: false,
+          dragViewportRect: true,
+        },
+      });
+      const root = getRoot();
+
+      // Press outside the rect, move past the 3px threshold, release.
+      fireEvent(root, pointerEvent('pointerdown', 180, 90));
+      fireEvent(root, pointerEvent('pointermove', 195, 95));
+      fireEvent(root, pointerEvent('pointerup', 195, 95));
+
+      // Click is cancelled — no navigation event at all.
+      expect(onNavigate).not.toHaveBeenCalled();
+    });
+
+    it('still fires click when pointer stays within threshold', () => {
+      const onNavigate = vi.fn();
+      renderMinimap({
+        onNavigate,
+        interactions: {
+          click: true,
+          dragFromEmpty: false,
+          dragViewportRect: true,
+        },
+      });
+      const root = getRoot();
+
+      fireEvent(root, pointerEvent('pointerdown', 180, 90));
+      fireEvent(root, pointerEvent('pointerup', 180, 90));
+
+      expect(onNavigate).toHaveBeenCalledTimes(1);
+      expect((onNavigate.mock.calls[0]?.[0] as { phase: string }).phase).toBe(
+        'click'
+      );
+    });
+  });
 });

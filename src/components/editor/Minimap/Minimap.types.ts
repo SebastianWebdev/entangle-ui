@@ -119,7 +119,21 @@ export interface MinimapInteractionConfig {
   dragFromEmpty?: boolean;
 }
 
-// ─── Subcomponent placement ───
+// ─── Slot markers ───
+
+/**
+ * Symbol attached to `Minimap.Title` / `.Footer` / `.Corner` so the parent
+ * `<Minimap>` can identify slot children without relying on `displayName`
+ * (which gets clobbered by wrappers like `React.memo`, `React.forwardRef`,
+ * or Vanilla Extract recipes).
+ */
+export const MINIMAP_SLOT: unique symbol = Symbol.for('etui.minimap.slot');
+
+export type MinimapSlotKind = 'title' | 'footer' | 'corner';
+
+export interface MinimapSlotMarker {
+  [MINIMAP_SLOT]: MinimapSlotKind;
+}
 
 export type MinimapTitlePlacement = 'top-outside' | 'top-inside';
 export type MinimapFooterPlacement = 'bottom-outside' | 'bottom-inside';
@@ -129,11 +143,28 @@ export type MinimapCornerSide =
   | 'bottom-left'
   | 'bottom-right';
 
+// ─── Imperative handle ───
+
+/**
+ * Imperative handle exposed via `ref` on `<Minimap>` and `<ViewportMinimap>`.
+ * Stable for the lifetime of the component.
+ */
+export interface MinimapHandle {
+  /** Focus the minimap body so arrow keys start working. */
+  focus(): void;
+  /** Access the underlying body DOM element (the `role="region"` div). */
+  getElement(): HTMLDivElement | null;
+  /** Convert a world-space point to minimap CSS-pixel coordinates. */
+  worldToMinimap(point: Point2D): Point2D;
+  /** Inverse of `worldToMinimap`. */
+  minimapToWorld(point: Point2D): Point2D;
+}
+
 // ─── Props ───
 
 export interface MinimapBaseProps extends Omit<
   BaseComponent<HTMLDivElement>,
-  'onChange'
+  'onChange' | 'ref'
 > {
   /** Items rendered as the content miniature. */
   items: ReadonlyArray<MinimapItem>;
@@ -215,6 +246,9 @@ export interface MinimapBaseProps extends Omit<
    * recognised slot markers render as a free-form overlay layer.
    */
   children?: React.ReactNode;
+
+  /** Imperative handle. */
+  ref?: React.Ref<MinimapHandle>;
 }
 
 export type MinimapProps = Prettify<MinimapBaseProps>;
@@ -245,13 +279,15 @@ export interface MinimapCornerProps {
   style?: React.CSSProperties;
 }
 
-// ─── MinimapContext ───
+// ─── MinimapContext value ───
 
 /**
  * Live state available to children of a `<Minimap>` via `useMinimapContext()`.
- * Includes hover information so consumers can build coordinate readouts,
- * tooltips, or "show selected item" widgets without re-implementing
- * hit-testing.
+ *
+ * For perf-conscious consumers, prefer the per-slice hooks
+ * (`useMinimapHover`, `useMinimapGeometry`, `useMinimapDragState`) — each
+ * subscribes to a single slice and re-renders only when that slice
+ * changes. `useMinimapContext()` re-renders on every store mutation.
  */
 export interface MinimapContextValue {
   worldBounds: WorldRect;
@@ -260,10 +296,15 @@ export interface MinimapContextValue {
   viewportSize: ViewportSize;
   /** Current pointer position in world coordinates, or null when not hovering. */
   hoverWorldPoint: Point2D | null;
-  /** Current pointer position in minimap CSS coords, or null when not hovering. */
-  hoverMinimapPoint: Point2D | null;
   /** Id of the item currently under the pointer (hit-test), or null. */
   hoveredItemId: string | null;
   /** True during an active drag (rect or pan). */
   isDragging: boolean;
+  /** Uniform world → minimap scale. */
+  scale: number;
+  /** Letterbox offset. */
+  offset: Point2D;
+  /** Same helpers exposed in `MinimapDrawInfo`, for symmetry. */
+  worldToMinimap: (point: Point2D) => Point2D;
+  minimapToWorld: (point: Point2D) => Point2D;
 }

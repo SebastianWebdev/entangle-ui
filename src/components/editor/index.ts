@@ -53,6 +53,10 @@ export {
   ViewportMinimap,
   computeBoundsFromItems,
   useMinimapContext,
+  useMinimapHover,
+  useMinimapGeometry,
+  useMinimapDragState,
+  MINIMAP_SLOT,
 } from './Minimap';
 
 export type {
@@ -67,6 +71,11 @@ export type {
   MinimapInteractionConfig,
   MinimapDrawInfo,
   MinimapContextValue,
+  MinimapHandle,
+  MinimapSlotKind,
+  MinimapSlotMarker,
+  MinimapGeometryState,
+  MinimapHoverState,
   MinimapTitleProps,
   MinimapFooterProps,
   MinimapCornerProps,

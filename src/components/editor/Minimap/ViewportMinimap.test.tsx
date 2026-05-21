@@ -3,6 +3,7 @@ import { screen, fireEvent } from '@testing-library/react';
 import { renderWithTheme } from '@/tests/testUtils';
 import { Viewport } from '@/components/primitives/viewport';
 import { ViewportMinimap } from './ViewportMinimap';
+import type { MinimapHandle } from './Minimap.types';
 
 import '@/theme/darkTheme.css';
 
@@ -151,6 +152,23 @@ describe('ViewportMinimap', () => {
     ) as HTMLElement | undefined;
     expect(wrapper).toBeDefined();
     expect(wrapper?.style.left).toBe('50px');
+  });
+
+  it('forwards ref to the inner Minimap handle', () => {
+    const handle: { current: MinimapHandle | null } = { current: null };
+    renderWithTheme(
+      <Viewport>
+        <ViewportMinimap
+          items={[]}
+          worldBounds={{ x: 0, y: 0, width: 100, height: 100 }}
+          ref={handle}
+          testId="vmm"
+        />
+      </Viewport>
+    );
+    const h = handle.current;
+    if (!h) throw new Error('ref not populated');
+    expect(h.getElement()?.getAttribute('role')).toBe('region');
   });
 
   it('wires onNavigate to viewport.centerOn (via context handle)', () => {

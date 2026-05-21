@@ -18,7 +18,13 @@ export const Minimap = MinimapWithSlots;
 export { MinimapTitle, MinimapFooter, MinimapCorner };
 export { ViewportMinimap } from './ViewportMinimap';
 export { computeBoundsFromItems } from './computeBoundsFromItems';
-export { useMinimapContext } from './MinimapContext';
+export {
+  useMinimapContext,
+  useMinimapHover,
+  useMinimapGeometry,
+  useMinimapDragState,
+} from './MinimapContext';
+export { MINIMAP_SLOT } from './Minimap.types';
 
 export type {
   MinimapProps,
@@ -32,6 +38,9 @@ export type {
   MinimapInteractionConfig,
   MinimapDrawInfo,
   MinimapContextValue,
+  MinimapHandle,
+  MinimapSlotKind,
+  MinimapSlotMarker,
   MinimapTitleProps,
   MinimapFooterProps,
   MinimapCornerProps,
@@ -39,6 +48,7 @@ export type {
   MinimapFooterPlacement,
   MinimapCornerSide,
 } from './Minimap.types';
+export type { MinimapGeometryState, MinimapHoverState } from './MinimapStore';
 export type {
   ViewportMinimapProps,
   ViewportMinimapPlacement,

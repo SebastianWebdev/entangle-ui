@@ -1,14 +1,15 @@
-'use client';
-
-import React from 'react';
+import { MINIMAP_SLOT } from './Minimap.types';
 import type { MinimapFooterProps } from './Minimap.types';
 
 /**
- * Footer strip rendered below (or inside the bottom of) the Minimap canvas
- * body. Picked out of `<Minimap>` children by display name — does not
- * render itself in place, so its tree position has no effect on its
- * placement.
+ * Footer strip rendered below (or inside the bottom of) the Minimap
+ * canvas body. Picked out of `<Minimap>` children by the `MINIMAP_SLOT`
+ * symbol — does not render itself in place, so its tree position has no
+ * effect on its placement.
  */
-export const MinimapFooter: React.FC<MinimapFooterProps> = () => null;
+const MinimapFooterImpl: (props: MinimapFooterProps) => null = () => null;
 
-MinimapFooter.displayName = 'Minimap.Footer';
+export const MinimapFooter = Object.assign(MinimapFooterImpl, {
+  displayName: 'Minimap.Footer',
+  [MINIMAP_SLOT]: 'footer' as const,
+});

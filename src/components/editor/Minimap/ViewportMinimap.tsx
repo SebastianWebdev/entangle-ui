@@ -1,9 +1,14 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useLatest, useResizeObserver } from '@/hooks';
 import { useViewportContext } from '@/components/primitives/viewport';
 import { Minimap } from './Minimap';
-import type { MinimapNavigateInfo, MinimapProps } from './Minimap.types';
+import type {
+  MinimapHandle,
+  MinimapNavigateInfo,
+  MinimapProps,
+} from './Minimap.types';
 
 export type ViewportMinimapPlacement =
   | 'top-left'
@@ -21,7 +26,7 @@ export type ViewportMinimapPlacement =
 
 export interface ViewportMinimapProps extends Omit<
   MinimapProps,
-  'transform' | 'viewportSize'
+  'transform' | 'viewportSize' | 'ref'
 > {
   /**
    * Anchored position inside the parent `<Viewport>`. Use a preset for
@@ -43,6 +48,8 @@ export interface ViewportMinimapProps extends Omit<
    * @default false
    */
   responsive?: boolean;
+  /** Imperative handle (same shape as `<Minimap>`'s). */
+  ref?: React.Ref<MinimapHandle>;
 }
 
 function placementToStyle(
@@ -73,29 +80,26 @@ function placementToStyle(
  * Recognized by `<Viewport>` as an overlay child — drop it among layers
  * and world/overlay siblings without an explicit `<ViewportOverlay>` wrapper.
  */
-export const ViewportMinimap: React.FC<ViewportMinimapProps> = ({
+export const ViewportMinimap = ({
   placement = 'bottom-right',
   margin = 12,
   responsive = false,
   width: widthProp,
   onNavigate: userOnNavigate,
+  ref,
   ...minimapProps
-}) => {
+}: ViewportMinimapProps): React.ReactElement => {
   const { transform, size, handle } = useViewportContext();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [measuredWidth, setMeasuredWidth] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (!responsive) return;
-    const wrapper = wrapperRef.current;
-    if (!wrapper || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(entries => {
-      const entry = entries[0];
-      if (entry) setMeasuredWidth(entry.contentRect.width);
-    });
-    observer.observe(wrapper);
-    return () => observer.disconnect();
-  }, [responsive]);
+  useResizeObserver(
+    wrapperRef,
+    entry => {
+      setMeasuredWidth(entry.contentRect.width);
+    },
+    { enabled: responsive }
+  );
 
   const wrapperStyle = useMemo(
     () => placementToStyle(placement, margin),
@@ -106,15 +110,20 @@ export const ViewportMinimap: React.FC<ViewportMinimapProps> = ({
     ? (measuredWidth ?? widthProp ?? 200)
     : widthProp;
 
-  const handleNavigate = (info: MinimapNavigateInfo): void => {
-    handle.centerOn(info.worldPoint);
-    userOnNavigate?.(info);
-  };
+  const userOnNavigateRef = useLatest(userOnNavigate);
+  const handleNavigate = useCallback(
+    (info: MinimapNavigateInfo): void => {
+      handle.centerOn(info.worldPoint);
+      userOnNavigateRef.current?.(info);
+    },
+    [handle, userOnNavigateRef]
+  );
 
   return (
     <div ref={wrapperRef} style={wrapperStyle}>
       <Minimap
         {...minimapProps}
+        ref={ref}
         transform={transform}
         viewportSize={size}
         width={effectiveWidth}
