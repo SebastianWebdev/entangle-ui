@@ -115,35 +115,27 @@ type MinimapItem =
 - **`line`** — edges between nodes, range markers. `lineWidth` is in minimap CSS px and does not scale with world content.
 - **`custom`** — caller-drawn shapes. `bounds` (world coords) is used for hover hit-testing; `draw` receives the canvas context and `MinimapDrawInfo` with `worldToMinimap`/`minimapToWorld`/`scale`/`offset` helpers.
 
-```tsx
-const items: MinimapItem[] = [
-  { id: 'A', type: 'rect', x: 0, y: 0, width: 100, height: 50 },
-  {
-    id: 'star',
-    type: 'custom',
-    bounds: { x: 200, y: 200, width: 40, height: 40 },
-    draw: (ctx, info) => {
-      const center = info.worldToMinimap({ x: 220, y: 220 });
+ {
+      const center = info.worldToMinimap({ x: 350, y: 250 });
       ctx.fillStyle = 'gold';
-      drawStar(ctx, center.x, center.y, 5, 8, 4);
+      drawStar(ctx, center.x, center.y, 5, 10, 4);
     },
   },
 ];
-```
+
+`}
+>
 
 ## Slots — title, footer, corners
 
 Pass `<Minimap.Title>`, `<Minimap.Footer>`, and `<Minimap.Corner>` as children to add chrome around (or inside) the minimap body. Any other child becomes a free-form overlay positioned absolutely above the canvas.
 
-```tsx
-<Minimap items={items} worldBounds={bounds} transform={t} viewportSize={s}>
-  <Minimap.Title>Asset Pipeline</Minimap.Title>
-  <Minimap.Corner side="top-right">
-    <ZoomReadout />
-  </Minimap.Corner>
-  <Minimap.Footer>Drag · Arrows · Click to jump</Minimap.Footer>
-</Minimap>
-```
+  Pipeline overview
+  v1.2
+  4 nodes
+  Drag to navigate · Arrow keys to pan
+`}
+>
 
 | Subcomponent       | Props                                                                          |
 | ------------------ | ------------------------------------------------------------------------------ |
@@ -155,24 +147,19 @@ Pass `<Minimap.Title>`, `<Minimap.Footer>`, and `<Minimap.Corner>` as children t
 
 Children rendered inside a `<Minimap>` (or `<ViewportMinimap>`) can read live hover state, transform, and bounds via `useMinimapContext()`. Use it to build coordinate readouts, "show selected" badges, or zoom-level chips without re-implementing hit-testing.
 
-```tsx
-function CoordReadout() {
-  const { hoverWorldPoint, hoveredItemId } = useMinimapContext();
-  if (!hoverWorldPoint) return <span>—</span>;
+Hover the minimap…</span>;
   return (
     <span>
-      {Math.round(hoverWorldPoint.x)}, {Math.round(hoverWorldPoint.y)}
-      {hoveredItemId && ` · ${hoveredItemId}`}
+      x: {Math.round(hoverWorldPoint.x)} · y: {Math.round(hoverWorldPoint.y)}
+      {hoveredItemId && \` · \${hoveredItemId}\`}
     </span>
   );
 }
 
-<Minimap ...>
-  <Minimap.Corner side="bottom-right">
-    <CoordReadout />
-  </Minimap.Corner>
-</Minimap>;
-```
+  Hover an item
+
+`}
+>
 
 `MinimapContextValue` includes `worldBounds`, `minimapSize`, `transform`, `viewportSize`, `hoverWorldPoint`, `hoverMinimapPoint`, `hoveredItemId`, and `isDragging`.
 
@@ -180,21 +167,23 @@ function CoordReadout() {
 
 Pass a `renderOverlay` callback to draw on the canvas after items and before the viewport-rect shroud. Useful for playheads, selection regions, grid overlays, debug markers.
 
-```tsx
-<Minimap
-  {...rest}
-  renderOverlay={(ctx, info) => {
-    // Vertical playhead line through the current playback position.
-    const x = info.worldToMinimap({ x: playheadTime, y: 0 }).x;
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 1;
+ {
+    const p = info.worldToMinimap({ x: playhead, y: 0 });
+    ctx.strokeStyle = '#ff3860';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(x + 0.5, 0);
-    ctx.lineTo(x + 0.5, info.minimapSize.height);
+    ctx.moveTo(p.x + 0.5, 0);
+    ctx.lineTo(p.x + 0.5, info.minimapSize.height);
     ctx.stroke();
+    ctx.fillStyle = '#ff3860';
+    ctx.beginPath();
+    ctx.arc(p.x + 0.5, 3, 3, 0, Math.PI * 2);
+    ctx.fill();
   }}
-/>
-```
+>
+  Playhead via renderOverlay
+`}
+>
 
 ## Sizing
 
@@ -226,6 +215,11 @@ Pass a `renderOverlay` callback to draw on the canvas after items and before the
   {...rest}
 />;
 ```
+
+  Master timeline
+  8000 frames · 4 tracks · 9 clips
+`}
+>
 
 ## Interactions
 

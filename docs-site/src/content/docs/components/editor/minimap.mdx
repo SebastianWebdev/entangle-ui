@@ -5,7 +5,13 @@ description: Shared navigation primitive that renders a miniature of editor cont
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import PreviewToggle from '../../../../components/PreviewToggle.astro';
 import MinimapDemo from '../../../../components/demos/editor/MinimapDemo';
+import MinimapItemsDemo from '../../../../components/demos/editor/MinimapItemsDemo';
+import MinimapSlotsDemo from '../../../../components/demos/editor/MinimapSlotsDemo';
+import MinimapContextDemo from '../../../../components/demos/editor/MinimapContextDemo';
+import MinimapRenderOverlayDemo from '../../../../components/demos/editor/MinimapRenderOverlayDemo';
+import MinimapTimelineDemo from '../../../../components/demos/editor/MinimapTimelineDemo';
 
 A compact navigation widget that renders a miniature of editor content and a draggable rectangle reflecting the main viewport's visible region. Built as a shared primitive consumed by `NodeGraph`, `Timeline`, and any custom 2D editor surface that wants overview navigation.
 
@@ -122,35 +128,52 @@ type MinimapItem =
 - **`line`** — edges between nodes, range markers. `lineWidth` is in minimap CSS px and does not scale with world content.
 - **`custom`** — caller-drawn shapes. `bounds` (world coords) is used for hover hit-testing; `draw` receives the canvas context and `MinimapDrawInfo` with `worldToMinimap`/`minimapToWorld`/`scale`/`offset` helpers.
 
-```tsx
-const items: MinimapItem[] = [
-  { id: 'A', type: 'rect', x: 0, y: 0, width: 100, height: 50 },
+<PreviewToggle
+  title="All four item shapes in one minimap"
+  code={`const ITEMS: MinimapItem[] = [
+  { id: 'r1', type: 'rect', x: 40, y: 40, width: 120, height: 60, color: '#4a86c8' },
+  { id: 'r2', type: 'rect', x: 220, y: 140, width: 100, height: 60, color: '#6aa84f' },
+  { id: 'c1', type: 'circle', cx: 420, cy: 80, r: 30, color: '#e63946' },
+  { id: 'l1', type: 'line', x1: 100, y1: 100, x2: 220, y2: 170, color: 'rgba(255,255,255,0.5)' },
   {
     id: 'star',
     type: 'custom',
-    bounds: { x: 200, y: 200, width: 40, height: 40 },
+    bounds: { x: 320, y: 220, width: 60, height: 60 },
     draw: (ctx, info) => {
-      const center = info.worldToMinimap({ x: 220, y: 220 });
+      const center = info.worldToMinimap({ x: 350, y: 250 });
       ctx.fillStyle = 'gold';
-      drawStar(ctx, center.x, center.y, 5, 8, 4);
+      drawStar(ctx, center.x, center.y, 5, 10, 4);
     },
   },
 ];
-```
+
+<Minimap
+  items={ITEMS}
+  worldBounds={computeBoundsFromItems(ITEMS, 30)}
+  transform={transform}
+  viewportSize={viewportSize}
+  onNavigate={onNavigate}
+  width={300}
+/>`}
+>
+  <MinimapItemsDemo client:only="react" />
+</PreviewToggle>
 
 ## Slots — title, footer, corners
 
 Pass `<Minimap.Title>`, `<Minimap.Footer>`, and `<Minimap.Corner>` as children to add chrome around (or inside) the minimap body. Any other child becomes a free-form overlay positioned absolutely above the canvas.
 
-```tsx
-<Minimap items={items} worldBounds={bounds} transform={t} viewportSize={s}>
-  <Minimap.Title>Asset Pipeline</Minimap.Title>
-  <Minimap.Corner side="top-right">
-    <ZoomReadout />
-  </Minimap.Corner>
-  <Minimap.Footer>Drag · Arrows · Click to jump</Minimap.Footer>
-</Minimap>
-```
+<PreviewToggle
+  title="Title outside + two corners + footer"
+  code={`<Minimap items={items} worldBounds={bounds} transform={t} viewportSize={s}>
+  <Minimap.Title>Pipeline overview</Minimap.Title>
+  <Minimap.Corner side="top-right">v1.2</Minimap.Corner>
+  <Minimap.Corner side="bottom-left">4 nodes</Minimap.Corner>
+  <Minimap.Footer>Drag to navigate · Arrow keys to pan</Minimap.Footer>
+</Minimap>`}
+>
+  <MinimapSlotsDemo client:only="react" />
+</PreviewToggle>
 
 | Subcomponent       | Props                                                                          |
 | ------------------ | ------------------------------------------------------------------------------ |
@@ -162,24 +185,27 @@ Pass `<Minimap.Title>`, `<Minimap.Footer>`, and `<Minimap.Corner>` as children t
 
 Children rendered inside a `<Minimap>` (or `<ViewportMinimap>`) can read live hover state, transform, and bounds via `useMinimapContext()`. Use it to build coordinate readouts, "show selected" badges, or zoom-level chips without re-implementing hit-testing.
 
-```tsx
-function CoordReadout() {
+<PreviewToggle
+  title="Coordinate + hovered-item readout"
+  description="Hover the minimap below — coordinates and item id update live in the footer."
+  code={`function Readout() {
   const { hoverWorldPoint, hoveredItemId } = useMinimapContext();
-  if (!hoverWorldPoint) return <span>—</span>;
+  if (!hoverWorldPoint) return <span>Hover the minimap…</span>;
   return (
     <span>
-      {Math.round(hoverWorldPoint.x)}, {Math.round(hoverWorldPoint.y)}
-      {hoveredItemId && ` · ${hoveredItemId}`}
+      x: {Math.round(hoverWorldPoint.x)} · y: {Math.round(hoverWorldPoint.y)}
+      {hoveredItemId && \` · \${hoveredItemId}\`}
     </span>
   );
 }
 
-<Minimap ...>
-  <Minimap.Corner side="bottom-right">
-    <CoordReadout />
-  </Minimap.Corner>
-</Minimap>;
-```
+<Minimap items={items} worldBounds={bounds} transform={t} viewportSize={s}>
+  <Minimap.Title>Hover an item</Minimap.Title>
+  <Minimap.Footer><Readout /></Minimap.Footer>
+</Minimap>`}
+>
+  <MinimapContextDemo client:only="react" />
+</PreviewToggle>
 
 `MinimapContextValue` includes `worldBounds`, `minimapSize`, `transform`, `viewportSize`, `hoverWorldPoint`, `hoverMinimapPoint`, `hoveredItemId`, and `isDragging`.
 
@@ -187,21 +213,34 @@ function CoordReadout() {
 
 Pass a `renderOverlay` callback to draw on the canvas after items and before the viewport-rect shroud. Useful for playheads, selection regions, grid overlays, debug markers.
 
-```tsx
-<Minimap
-  {...rest}
+<PreviewToggle
+  title="Animated timeline playhead"
+  description="The red playhead line is drawn via renderOverlay using a world-space x driven by a rAF tick."
+  code={`<Minimap
+  items={clips}
+  worldBounds={timelineBounds}
+  transform={t}
+  viewportSize={s}
+  width={520}
   renderOverlay={(ctx, info) => {
-    // Vertical playhead line through the current playback position.
-    const x = info.worldToMinimap({ x: playheadTime, y: 0 }).x;
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 1;
+    const p = info.worldToMinimap({ x: playhead, y: 0 });
+    ctx.strokeStyle = '#ff3860';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(x + 0.5, 0);
-    ctx.lineTo(x + 0.5, info.minimapSize.height);
+    ctx.moveTo(p.x + 0.5, 0);
+    ctx.lineTo(p.x + 0.5, info.minimapSize.height);
     ctx.stroke();
+    ctx.fillStyle = '#ff3860';
+    ctx.beginPath();
+    ctx.arc(p.x + 0.5, 3, 3, 0, Math.PI * 2);
+    ctx.fill();
   }}
-/>
-```
+>
+  <Minimap.Title>Playhead via renderOverlay</Minimap.Title>
+</Minimap>`}
+>
+  <MinimapRenderOverlayDemo client:only="react" />
+</PreviewToggle>
 
 ## Sizing
 
@@ -233,6 +272,25 @@ Pass a `renderOverlay` callback to draw on the canvas after items and before the
   {...rest}
 />;
 ```
+
+<PreviewToggle
+  title="Timeline-style wide-thin minimap"
+  description="Wide worldBounds + tight minHeight/maxHeight clamps produce a strip suitable for Timeline-style editors."
+  code={`<Minimap
+  items={clips}
+  worldBounds={{ x: -100, y: -10, width: 8200, height: 124 }}
+  transform={t}
+  viewportSize={s}
+  width={600}
+  minHeight={56}
+  maxHeight={96}
+>
+  <Minimap.Title>Master timeline</Minimap.Title>
+  <Minimap.Footer>8000 frames · 4 tracks · 9 clips</Minimap.Footer>
+</Minimap>`}
+>
+  <MinimapTimelineDemo client:only="react" />
+</PreviewToggle>
 
 ## Interactions
 
