@@ -332,12 +332,14 @@ function NodeBadge({ nodeId }: { nodeId: string }) {
     {
       name: 'defaultNodes',
       type: 'NodeGraphNode[]',
-      description: 'Initial nodes when uncontrolled. Ignored if `nodes` is set.',
+      description:
+        'Initial nodes when uncontrolled. Ignored if `nodes` is set.',
     },
     {
       name: 'onNodesChange',
       type: '(nodes: NodeGraphNode[]) => void',
-      description: 'Fires with the full next nodes array on every mutation (drag, delete, nudge).',
+      description:
+        'Fires with the full next nodes array on every mutation (drag, delete, nudge).',
     },
     {
       name: 'edges',
@@ -352,12 +354,14 @@ function NodeBadge({ nodeId }: { nodeId: string }) {
     {
       name: 'onEdgesChange',
       type: '(edges: NodeGraphEdge[]) => void',
-      description: 'Fires with the full next edges array on connection drop, delete, etc.',
+      description:
+        'Fires with the full next edges array on connection drop, delete, etc.',
     },
     {
       name: 'groups',
       type: 'NodeGraphGroup[]',
-      description: 'Controlled list of visual group backdrops drawn under nodes.',
+      description:
+        'Controlled list of visual group backdrops drawn under nodes.',
     },
     {
       name: 'defaultGroups',
@@ -418,7 +422,8 @@ function NodeBadge({ nodeId }: { nodeId: string }) {
     {
       name: 'onConnectEnd',
       type: '(info: NodeGraphConnectEndInfo) => void',
-      description: 'Fires on pointer-up after a connection drag (success or cancel).',
+      description:
+        'Fires on pointer-up after a connection drag (success or cancel).',
     },
     {
       name: 'onContextMenu',
@@ -440,13 +445,15 @@ function NodeBadge({ nodeId }: { nodeId: string }) {
       name: 'pan',
       type: 'ViewportPanConfig | false',
       default: "{ button: 'middle', spaceKey: true }",
-      description: 'Pan gesture configuration, forwarded to the underlying Viewport.',
+      description:
+        'Pan gesture configuration, forwarded to the underlying Viewport.',
     },
     {
       name: 'zoom',
       type: 'ViewportZoomConfig | false',
       default: '{ wheel: true, pinch: true, speed: 0.0015 }',
-      description: 'Zoom gesture configuration, forwarded to the underlying Viewport.',
+      description:
+        'Zoom gesture configuration, forwarded to the underlying Viewport.',
     },
     {
       name: 'minZoom',
@@ -470,7 +477,8 @@ function NodeBadge({ nodeId }: { nodeId: string }) {
       name: 'responsive',
       type: 'boolean',
       default: 'false',
-      description: 'Track parent size via ResizeObserver. When false, uses `height`.',
+      description:
+        'Track parent size via ResizeObserver. When false, uses `height`.',
     },
     {
       name: 'height',
@@ -499,7 +507,8 @@ function NodeBadge({ nodeId }: { nodeId: string }) {
     {
       name: 'children',
       type: 'React.ReactNode',
-      description: 'Slot subcomponents: `<NodeGraph.Minimap>` and/or `<NodeGraph.Background>`.',
+      description:
+        'Slot subcomponents: `<NodeGraph.Minimap>` and/or `<NodeGraph.Background>`.',
     },
     {
       name: 'ref',
