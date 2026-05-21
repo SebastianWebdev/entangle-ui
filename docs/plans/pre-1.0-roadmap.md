@@ -114,6 +114,13 @@ Workflow:
 - **Re-render audit** on dense components (DataTable, NodeGraph, Timeline,
   PropertyInspector). React DevTools profiling, `React.memo` + selector
   patterns where they earn their keep.
+- **`useDeferredValue` pass on filter-heavy components.** From the Viewport
+  refactor code review (point 13): `CommandPalette` (replaces the existing
+  `useDebouncedValue` — `useDeferredValue` yields better interactivity for
+  large item lists), `Combobox`, `MultiSelect`, `PropertyPanel`. Each is a
+  one-line change (`useDeferredValue(query)`) plus a reference swap inside
+  the filtering `useMemo`. Ship as one small PR rather than four — same
+  pattern, same review surface.
 - **Tree-shake verification.** Confirm `preserveModules` + `sideEffects: false`
   still hold after the flagship additions — a single accidental side-effect
   import can defeat the whole strategy.
