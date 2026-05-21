@@ -179,20 +179,20 @@ Pair with `ListItem` (or a plain row) for status-tagged lists.
 
 ## Props
 
-| Prop        | Type                                                                              | Default     | Description                                                           |
-| ----------- | --------------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------------- |
-| `children`  | `ReactNode`                                                                       | —           | Label content.                                                        |
-| `variant`   | `'subtle' \| 'solid' \| 'outline' \| 'dot'`                                       | `'subtle'`  | Visual style.                                                         |
-| `size`      | `'xs' \| 'sm' \| 'md' \| 'lg'`                                                    | `'sm'`      | Size scale.                                                           |
-| `color`     | `'neutral' \| 'primary' \| 'info' \| 'success' \| 'warning' \| 'error' \| string` | `'neutral'` | Semantic color name (mapped to theme accent) or any CSS color string. |
-| `uppercase` | `boolean`                                                                         | `false`     | Auto-uppercase the label and apply a small letter-spacing.            |
-| `icon`      | `ReactNode`                                                                       | —           | Icon rendered before the label.                                       |
-| `removable` | `boolean`                                                                         | `false`     | Render a remove (×) button after the label.                           |
-| `onRemove`  | `(event: MouseEvent) => void`                                                     | —           | Called when the remove button is clicked.                             |
-| `className` | `string`                                                                          | —           | Additional CSS class names.                                           |
-| `style`     | `CSSProperties`                                                                   | —           | Inline styles.                                                        |
-| `testId`    | `string`                                                                          | —           | Test identifier for automated testing.                                |
-| `ref`       | `Ref`                                                                             | —           | Ref to the underlying span element.                                   |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Label content. |
+| `variant` | `'subtle' \| 'solid' \| 'outline' \| 'dot'` | `'subtle'` | Visual style. |
+| `size` | `'xs' \| 'sm' \| 'md' \| 'lg'` | `'sm'` | Size scale. |
+| `color` | `'neutral' \| 'primary' \| 'info' \| 'success' \| 'warning' \| 'error' \| string` | `'neutral'` | Semantic color name (mapped to theme accent) or any CSS color string. |
+| `uppercase` | `boolean` | `false` | Auto-uppercase the label and apply a small letter-spacing. |
+| `icon` | `ReactNode` | — | Icon rendered before the label. |
+| `removable` | `boolean` | `false` | Render a remove (×) button after the label. |
+| `onRemove` | `(event: MouseEvent) => void` | — | Called when the remove button is clicked. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying span element. |
 
 The component also accepts all standard HTML `<span>` attributes.
 

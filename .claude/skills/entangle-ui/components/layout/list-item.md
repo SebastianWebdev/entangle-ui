@@ -104,20 +104,20 @@ Pair with `Stack` (with `gap={1}`) for a clean selectable list.
 
 ## Props
 
-| Prop        | Type                          | Default         | Description                                                      |
-| ----------- | ----------------------------- | --------------- | ---------------------------------------------------------------- |
-| `children`  | `ReactNode`                   | —               | Primary content (typically a title + optional description).      |
-| `leading`   | `ReactNode`                   | —               | Leading content (icon, checkbox, avatar).                        |
-| `trailing`  | `ReactNode`                   | —               | Trailing content (actions, badge, chevron).                      |
-| `onClick`   | `(event: MouseEvent) => void` | —               | Click handler — when set, the item becomes keyboard-activatable. |
-| `selected`  | `boolean`                     | `false`         | Persistent selection state.                                      |
-| `active`    | `boolean`                     | `false`         | Pressed / opened state — typically transient.                    |
-| `disabled`  | `boolean`                     | `false`         | Disables hover and pointer events; skips keyboard activation.    |
-| `density`   | `'compact' \| 'comfortable'`  | `'comfortable'` | Row density — compact (24px) or comfortable (32px).              |
-| `className` | `string`                      | —               | Additional CSS class names.                                      |
-| `style`     | `CSSProperties`               | —               | Inline styles.                                                   |
-| `testId`    | `string`                      | —               | Test identifier for automated testing.                           |
-| `ref`       | `Ref`                         | —               | Ref to the underlying div element.                               |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Primary content (typically a title + optional description). |
+| `leading` | `ReactNode` | — | Leading content (icon, checkbox, avatar). |
+| `trailing` | `ReactNode` | — | Trailing content (actions, badge, chevron). |
+| `onClick` | `(event: MouseEvent) => void` | — | Click handler — when set, the item becomes keyboard-activatable. |
+| `selected` | `boolean` | `false` | Persistent selection state. |
+| `active` | `boolean` | `false` | Pressed / opened state — typically transient. |
+| `disabled` | `boolean` | `false` | Disables hover and pointer events; skips keyboard activation. |
+| `density` | `'compact' \| 'comfortable'` | `'comfortable'` | Row density — compact (24px) or comfortable (32px). |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
 
 ## Theme Tokens
 

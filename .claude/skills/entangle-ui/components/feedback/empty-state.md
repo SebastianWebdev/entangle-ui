@@ -118,18 +118,18 @@ Combine with `PanelSurface` to give the empty state a contained look:
 
 ## Props
 
-| Prop          | Type                     | Default     | Description                                                                |
-| ------------- | ------------------------ | ----------- | -------------------------------------------------------------------------- |
-| `icon`        | `ReactNode`              | —           | Icon or illustration (typically 48–64px).                                  |
-| `title`       | `ReactNode`              | —           | Main heading.                                                              |
-| `description` | `ReactNode`              | —           | Supporting description — one short paragraph.                              |
-| `action`      | `ReactNode`              | —           | CTA buttons rendered below the description.                                |
-| `variant`     | `'default' \| 'compact'` | `'default'` | Layout — centered column ("default") or single horizontal row ("compact"). |
-| `loading`     | `boolean`                | `false`     | Render a Spinner in place of the icon and mark the root as role="status".  |
-| `className`   | `string`                 | —           | Additional CSS class names.                                                |
-| `style`       | `CSSProperties`          | —           | Inline styles.                                                             |
-| `testId`      | `string`                 | —           | Test identifier for automated testing.                                     |
-| `ref`         | `Ref`                    | —           | Ref to the underlying div element.                                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `icon` | `ReactNode` | — | Icon or illustration (typically 48–64px). |
+| `title` | `ReactNode` | — | Main heading. |
+| `description` | `ReactNode` | — | Supporting description — one short paragraph. |
+| `action` | `ReactNode` | — | CTA buttons rendered below the description. |
+| `variant` | `'default' \| 'compact'` | `'default'` | Layout — centered column ("default") or single horizontal row ("compact"). |
+| `loading` | `boolean` | `false` | Render a Spinner in place of the icon and mark the root as role="status". |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
 
 ## Accessibility
 

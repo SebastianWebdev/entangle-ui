@@ -85,15 +85,15 @@ For most cases, prefer `aria-label="Search"` on the button itself — that's ter
 
 ## Props
 
-| Prop                    | Type                                | Default  | Description                                                                                    |
-| ----------------------- | ----------------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
-| `children` _(required)_ | `ReactNode`                         | —        | Content rendered inside the hidden region.                                                     |
-| `as`                    | `'span' \| 'div' \| 'label' \| 'p'` | `'span'` | Element to render. Use `div` for block content or `label`/`p` when the semantics fit.          |
-| `focusable`             | `boolean`                           | `false`  | When true, becomes visible when the element (or a descendant) is focused. Used for skip links. |
-| `className`             | `string`                            | —        | Additional CSS class names.                                                                    |
-| `style`                 | `CSSProperties`                     | —        | Inline styles applied to the rendered element.                                                 |
-| `testId`                | `string`                            | —        | Test identifier for automated testing.                                                         |
-| `ref`                   | `Ref`                               | —        | Ref to the rendered element.                                                                   |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` *(required)* | `ReactNode` | — | Content rendered inside the hidden region. |
+| `as` | `'span' \| 'div' \| 'label' \| 'p'` | `'span'` | Element to render. Use `div` for block content or `label`/`p` when the semantics fit. |
+| `focusable` | `boolean` | `false` | When true, becomes visible when the element (or a descendant) is focused. Used for skip links. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles applied to the rendered element. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the rendered element. |
 
 ## Accessibility
 

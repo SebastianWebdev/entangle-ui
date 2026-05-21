@@ -179,26 +179,26 @@ With the default `platform="auto"`, Kbd renders Windows-style keys on the server
 
 ## API Reference
 
-| Prop                    | Type                                      | Default     | Description                                                                                                      |
-| ----------------------- | ----------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------- |
-| `children` _(required)_ | `ReactNode`                               | —           | Shortcut content. Strings split on "+", arrays render as separate keycaps, and other nodes render as one keycap. |
-| `size`                  | `'sm' \| 'md' \| 'lg'`                    | `'md'`      | Keycap size.                                                                                                     |
-| `variant`               | `'solid' \| 'outline' \| 'ghost'`         | `'outline'` | Visual variant.                                                                                                  |
-| `glyphs`                | `boolean`                                 | `true`      | Render OS-specific glyphs when possible.                                                                         |
-| `platform`              | `'auto' \| 'mac' \| 'windows' \| 'linux'` | `'auto'`    | Platform detection override.                                                                                     |
-| `separator`             | `ReactNode`                               | `'+'`       | Separator rendered between multiple keycaps. Use null for adjacent keycaps.                                      |
-| `className`             | `string`                                  | —           | Additional CSS class names.                                                                                      |
-| `style`                 | `CSSProperties`                           | —           | Inline styles.                                                                                                   |
-| `testId`                | `string`                                  | —           | Test identifier for automated testing.                                                                           |
-| `ref`                   | `Ref`                                     | —           | Ref to the wrapper span.                                                                                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` *(required)* | `ReactNode` | — | Shortcut content. Strings split on "+", arrays render as separate keycaps, and other nodes render as one keycap. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Keycap size. |
+| `variant` | `'solid' \| 'outline' \| 'ghost'` | `'outline'` | Visual variant. |
+| `glyphs` | `boolean` | `true` | Render OS-specific glyphs when possible. |
+| `platform` | `'auto' \| 'mac' \| 'windows' \| 'linux'` | `'auto'` | Platform detection override. |
+| `separator` | `ReactNode` | `'+'` | Separator rendered between multiple keycaps. Use null for adjacent keycaps. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the wrapper span. |
 
 ## Utility Helpers
 
-| Prop            | Type                                          | Default | Description                                                                         |
-| --------------- | --------------------------------------------- | ------- | ----------------------------------------------------------------------------------- |
-| `getPlatform`   | `() => Platform`                              | —       | Detects the current platform from navigator and falls back to 'windows' during SSR. |
-| `getKeyGlyph`   | `(key: string, platform: Platform) => string` | —       | Maps a logical key name to its display representation.                              |
-| `parseShortcut` | `(shortcut: string) => string[]`              | —       | Splits shortcut strings on "+", trimming whitespace.                                |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `getPlatform` | `() => Platform` | — | Detects the current platform from navigator and falls back to 'windows' during SSR. |
+| `getKeyGlyph` | `(key: string, platform: Platform) => string` | — | Maps a logical key name to its display representation. |
+| `parseShortcut` | `(shortcut: string) => string[]` | — | Splits shortcut strings on "+", trimming whitespace. |
 
 ## Migration Note
 

@@ -41,9 +41,9 @@ A `RefCallback<T>` that fans the node out to every provided ref. Pass it directl
 
 The hook accepts a variadic list of refs:
 
-| Prop      | Type                          | Default | Description                                                                                                                |
-| --------- | ----------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `...refs` | `Array \| undefined \| null>` | —       | Any number of refs to merge. Object refs are mutated, callback refs are invoked, and null / undefined entries are skipped. |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `...refs` | `Array \| undefined \| null>` | — | Any number of refs to merge. Object refs are mutated, callback refs are invoked, and null / undefined entries are skipped. |
 
 ## Common pitfalls
 

@@ -224,33 +224,33 @@ Arrow direction follows the control's orientation: horizontal uses Left/Right, v
 
 ### SegmentedControl
 
-| Prop           | Type                               | Default               | Description                                                           |
-| -------------- | ---------------------------------- | --------------------- | --------------------------------------------------------------------- |
-| `value`        | `string`                           | —                     | Currently selected value (controlled).                                |
-| `defaultValue` | `string`                           | —                     | Default selected value (uncontrolled).                                |
-| `variant`      | `'subtle' \| 'solid' \| 'outline'` | `'subtle'`            | Visual style of the control.                                          |
-| `size`         | `'sm' \| 'md' \| 'lg'`             | `'md'`                | Segment size — sm 20px, md 24px, lg 32px.                             |
-| `orientation`  | `'horizontal' \| 'vertical'`       | `'horizontal'`        | Layout direction.                                                     |
-| `fullWidth`    | `boolean`                          | `false`               | Stretch the control to fill the parent and grow each segment equally. |
-| `disabled`     | `boolean`                          | `false`               | Disable the entire control.                                           |
-| `onChange`     | `(value: string) => void`          | —                     | Fires when a different segment is selected.                           |
-| `aria-label`   | `string`                           | `'Segmented control'` | Accessible name for the control as a whole.                           |
-| `children`     | `ReactNode`                        | —                     | SegmentedControlItem components.                                      |
-| `className`    | `string`                           | —                     | Additional CSS class names.                                           |
-| `style`        | `CSSProperties`                    | —                     | Inline styles.                                                        |
-| `testId`       | `string`                           | —                     | Test identifier for automated testing.                                |
-| `ref`          | `Ref`                              | —                     | Ref to the root element.                                              |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Currently selected value (controlled). |
+| `defaultValue` | `string` | — | Default selected value (uncontrolled). |
+| `variant` | `'subtle' \| 'solid' \| 'outline'` | `'subtle'` | Visual style of the control. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Segment size — sm 20px, md 24px, lg 32px. |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Layout direction. |
+| `fullWidth` | `boolean` | `false` | Stretch the control to fill the parent and grow each segment equally. |
+| `disabled` | `boolean` | `false` | Disable the entire control. |
+| `onChange` | `(value: string) => void` | — | Fires when a different segment is selected. |
+| `aria-label` | `string` | `'Segmented control'` | Accessible name for the control as a whole. |
+| `children` | `ReactNode` | — | SegmentedControlItem components. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root element. |
 
 ### SegmentedControlItem
 
-| Prop         | Type        | Default | Description                                                                                                                   |
-| ------------ | ----------- | ------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `value`      | `string`    | —       | Unique value identifying this segment.                                                                                        |
-| `children`   | `ReactNode` | —       | Visible label. Optional when icon is provided (icon-only segment).                                                            |
-| `icon`       | `ReactNode` | —       | Icon rendered before the label, or alone for icon-only segments.                                                              |
-| `tooltip`    | `ReactNode` | —       | Tooltip shown on hover. Strongly recommended for icon-only segments — also used as a fallback aria-label when it is a string. |
-| `disabled`   | `boolean`   | `false` | Disable just this segment.                                                                                                    |
-| `aria-label` | `string`    | —       | Override the accessible name. Required for icon-only segments without a string tooltip.                                       |
-| `className`  | `string`    | —       | Additional CSS class names.                                                                                                   |
-| `testId`     | `string`    | —       | Test identifier for automated testing.                                                                                        |
-| `ref`        | `Ref`       | —       | Ref to the underlying button element.                                                                                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Unique value identifying this segment. |
+| `children` | `ReactNode` | — | Visible label. Optional when icon is provided (icon-only segment). |
+| `icon` | `ReactNode` | — | Icon rendered before the label, or alone for icon-only segments. |
+| `tooltip` | `ReactNode` | — | Tooltip shown on hover. Strongly recommended for icon-only segments — also used as a fallback aria-label when it is a string. |
+| `disabled` | `boolean` | `false` | Disable just this segment. |
+| `aria-label` | `string` | — | Override the accessible name. Required for icon-only segments without a string tooltip. |
+| `className` | `string` | — | Additional CSS class names. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying button element. |

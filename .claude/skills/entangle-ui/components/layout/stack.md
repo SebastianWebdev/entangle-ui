@@ -141,24 +141,24 @@ Allow items to wrap to new lines when they overflow the container.
 
 ## Props
 
-| Prop        | Type                                                                                            | Default        | Description                                                                           |
-| ----------- | ----------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------- |
-| `children`  | `ReactNode`                                                                                     | —              | Stack content -- any React elements. Required.                                        |
-| `direction` | `'row' \| 'column'`                                                                             | `'column'`     | Stack direction controlling main axis orientation.                                    |
-| `sm`        | `'row' \| 'column'`                                                                             | —              | Direction override at the small breakpoint (576px).                                   |
-| `md`        | `'row' \| 'column'`                                                                             | —              | Direction override at the medium breakpoint (768px).                                  |
-| `lg`        | `'row' \| 'column'`                                                                             | —              | Direction override at the large breakpoint (992px).                                   |
-| `xl`        | `'row' \| 'column'`                                                                             | —              | Direction override at the extra-large breakpoint (1200px).                            |
-| `wrap`      | `'nowrap' \| 'wrap' \| 'wrap-reverse'`                                                          | `'nowrap'`     | Flex wrap behavior when items overflow.                                               |
-| `expand`    | `boolean`                                                                                       | `false`        | Whether the stack fills available space (100% width for row, 100% height for column). |
-| `spacing`   | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| 8`                                                     | `0`            | Gap between stack items as a multiplier of the 4px base spacing unit.                 |
-| `customGap` | `string \| number`                                                                              | —              | Custom gap override as a CSS value. Overrides the spacing prop when provided.         |
-| `justify`   | `'flex-start' \| 'flex-end' \| 'center' \| 'space-between' \| 'space-around' \| 'space-evenly'` | `'flex-start'` | Distributes space along the main axis.                                                |
-| `align`     | `'flex-start' \| 'flex-end' \| 'center' \| 'stretch' \| 'baseline'`                             | `'flex-start'` | Aligns items along the cross axis.                                                    |
-| `className` | `string`                                                                                        | —              | Additional CSS class names.                                                           |
-| `style`     | `CSSProperties`                                                                                 | —              | Inline styles.                                                                        |
-| `testId`    | `string`                                                                                        | —              | Test identifier for automated testing.                                                |
-| `ref`       | `Ref`                                                                                           | —              | Ref to the underlying div element.                                                    |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Stack content -- any React elements. Required. |
+| `direction` | `'row' \| 'column'` | `'column'` | Stack direction controlling main axis orientation. |
+| `sm` | `'row' \| 'column'` | — | Direction override at the small breakpoint (576px). |
+| `md` | `'row' \| 'column'` | — | Direction override at the medium breakpoint (768px). |
+| `lg` | `'row' \| 'column'` | — | Direction override at the large breakpoint (992px). |
+| `xl` | `'row' \| 'column'` | — | Direction override at the extra-large breakpoint (1200px). |
+| `wrap` | `'nowrap' \| 'wrap' \| 'wrap-reverse'` | `'nowrap'` | Flex wrap behavior when items overflow. |
+| `expand` | `boolean` | `false` | Whether the stack fills available space (100% width for row, 100% height for column). |
+| `spacing` | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| 8` | `0` | Gap between stack items as a multiplier of the 4px base spacing unit. |
+| `customGap` | `string \| number` | — | Custom gap override as a CSS value. Overrides the spacing prop when provided. |
+| `justify` | `'flex-start' \| 'flex-end' \| 'center' \| 'space-between' \| 'space-around' \| 'space-evenly'` | `'flex-start'` | Distributes space along the main axis. |
+| `align` | `'flex-start' \| 'flex-end' \| 'center' \| 'stretch' \| 'baseline'` | `'flex-start'` | Aligns items along the cross axis. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
 
 The component also accepts all standard HTML `<div>` attributes.
 

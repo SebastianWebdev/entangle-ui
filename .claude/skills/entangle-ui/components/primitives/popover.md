@@ -176,34 +176,34 @@ Control how the popover closes.
 
 ### Popover
 
-| Prop                  | Type                                                                                                                                                                 | Default          | Description                                                  |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------ |
-| `children`            | `ReactNode`                                                                                                                                                          | —                | PopoverTrigger and PopoverContent elements.                  |
-| `open`                | `boolean`                                                                                                                                                            | —                | Whether the popover is open (controlled mode).               |
-| `defaultOpen`         | `boolean`                                                                                                                                                            | `false`          | Default open state (uncontrolled mode).                      |
-| `placement`           | `'top' \| 'top-start' \| 'top-end' \| 'bottom' \| 'bottom-start' \| 'bottom-end' \| 'left' \| 'left-start' \| 'left-end' \| 'right' \| 'right-start' \| 'right-end'` | `'bottom-start'` | Popover placement relative to the trigger.                   |
-| `offset`              | `number`                                                                                                                                                             | `8`              | Distance in pixels from the trigger element.                 |
-| `closeOnClickOutside` | `boolean`                                                                                                                                                            | `true`           | Whether clicking outside closes the popover.                 |
-| `closeOnEscape`       | `boolean`                                                                                                                                                            | `true`           | Whether pressing Escape closes the popover.                  |
-| `returnFocus`         | `boolean`                                                                                                                                                            | `true`           | Whether to return focus to the trigger when popover closes.  |
-| `portal`              | `boolean`                                                                                                                                                            | `true`           | Whether to render the popover in a React Portal.             |
-| `matchTriggerWidth`   | `boolean`                                                                                                                                                            | `false`          | Whether the popover content width matches the trigger width. |
-| `onOpenChange`        | `(open: boolean) => void`                                                                                                                                            | —                | Callback when the open state changes.                        |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | PopoverTrigger and PopoverContent elements. |
+| `open` | `boolean` | — | Whether the popover is open (controlled mode). |
+| `defaultOpen` | `boolean` | `false` | Default open state (uncontrolled mode). |
+| `placement` | `'top' \| 'top-start' \| 'top-end' \| 'bottom' \| 'bottom-start' \| 'bottom-end' \| 'left' \| 'left-start' \| 'left-end' \| 'right' \| 'right-start' \| 'right-end'` | `'bottom-start'` | Popover placement relative to the trigger. |
+| `offset` | `number` | `8` | Distance in pixels from the trigger element. |
+| `closeOnClickOutside` | `boolean` | `true` | Whether clicking outside closes the popover. |
+| `closeOnEscape` | `boolean` | `true` | Whether pressing Escape closes the popover. |
+| `returnFocus` | `boolean` | `true` | Whether to return focus to the trigger when popover closes. |
+| `portal` | `boolean` | `true` | Whether to render the popover in a React Portal. |
+| `matchTriggerWidth` | `boolean` | `false` | Whether the popover content width matches the trigger width. |
+| `onOpenChange` | `(open: boolean) => void` | — | Callback when the open state changes. |
 
 ### PopoverContent
 
-| Prop        | Type                             | Default | Description                                                        |
-| ----------- | -------------------------------- | ------- | ------------------------------------------------------------------ |
-| `children`  | `ReactNode`                      | —       | Popover content -- any React elements.                             |
-| `width`     | `number \| string`               | —       | Width of the popover content. Number = pixels, string = CSS value. |
-| `maxHeight` | `number \| string`               | —       | Maximum height with scroll.                                        |
-| `padding`   | `'none' \| 'sm' \| 'md' \| 'lg'` | `'md'`  | Padding inside the popover using theme spacing tokens.             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Popover content -- any React elements. |
+| `width` | `number \| string` | — | Width of the popover content. Number = pixels, string = CSS value. |
+| `maxHeight` | `number \| string` | — | Maximum height with scroll. |
+| `padding` | `'none' \| 'sm' \| 'md' \| 'lg'` | `'md'` | Padding inside the popover using theme spacing tokens. |
 
 ### PopoverClose
 
-| Prop       | Type        | Default | Description                                          |
-| ---------- | ----------- | ------- | ---------------------------------------------------- |
-| `children` | `ReactNode` | —       | Close button content. Defaults to a built-in X icon. |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Close button content. Defaults to a built-in X icon. |
 
 ## Accessibility
 

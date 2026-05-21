@@ -70,11 +70,11 @@ The hook is uncontrolled by default — pass `defaultOpen` to seed the initial v
 
 ## API
 
-| Prop           | Type                      | Default | Description                                                                    |
-| -------------- | ------------------------- | ------- | ------------------------------------------------------------------------------ |
-| `defaultOpen`  | `boolean`                 | `false` | Initial open state used in uncontrolled mode. Ignored when `open` is provided. |
-| `open`         | `boolean`                 | —       | Controlled open state. When defined, drives the returned `isOpen`.             |
-| `onOpenChange` | `(open: boolean) => void` | —       | Called when state changes — fires for both controlled and uncontrolled paths.  |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `defaultOpen` | `boolean` | `false` | Initial open state used in uncontrolled mode. Ignored when `open` is provided. |
+| `open` | `boolean` | — | Controlled open state. When defined, drives the returned `isOpen`. |
+| `onOpenChange` | `(open: boolean) => void` | — | Called when state changes — fires for both controlled and uncontrolled paths. |
 
 ## Returns
 

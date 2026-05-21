@@ -64,9 +64,9 @@ The hook does not throw — failures surface through `status === 'error'` and `e
 
 ## API
 
-| Prop      | Type     | Default | Description                                                     |
-| --------- | -------- | ------- | --------------------------------------------------------------- |
-| `timeout` | `number` | `2000`  | Time in ms the `copied` state stays before resetting to `idle`. |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `timeout` | `number` | `2000` | Time in ms the `copied` state stays before resetting to `idle`. |
 
 ## Returns
 

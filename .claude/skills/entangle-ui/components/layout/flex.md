@@ -196,31 +196,31 @@ Apply `minHeight` and `maxWidth` to constrain the flex container.
 
 ## Props
 
-| Prop           | Type                                                                                            | Default        | Description                                                                          |
-| -------------- | ----------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------ |
-| `children`     | `ReactNode`                                                                                     | —              | Flex content -- any React elements.                                                  |
-| `direction`    | `'row' \| 'row-reverse' \| 'column' \| 'column-reverse'`                                        | `'row'`        | Flex direction controlling main axis orientation.                                    |
-| `sm`           | `'row' \| 'row-reverse' \| 'column' \| 'column-reverse'`                                        | —              | Flex direction override at the small breakpoint (576px).                             |
-| `md`           | `'row' \| 'row-reverse' \| 'column' \| 'column-reverse'`                                        | —              | Flex direction override at the medium breakpoint (768px).                            |
-| `lg`           | `'row' \| 'row-reverse' \| 'column' \| 'column-reverse'`                                        | —              | Flex direction override at the large breakpoint (992px).                             |
-| `xl`           | `'row' \| 'row-reverse' \| 'column' \| 'column-reverse'`                                        | —              | Flex direction override at the extra-large breakpoint (1200px).                      |
-| `wrap`         | `'nowrap' \| 'wrap' \| 'wrap-reverse'`                                                          | `'nowrap'`     | Flex wrap behavior for overflowing items.                                            |
-| `justify`      | `'flex-start' \| 'flex-end' \| 'center' \| 'space-between' \| 'space-around' \| 'space-evenly'` | `'flex-start'` | Distributes space along the main axis.                                               |
-| `align`        | `'flex-start' \| 'flex-end' \| 'center' \| 'stretch' \| 'baseline'`                             | `'stretch'`    | Aligns items along the cross axis.                                                   |
-| `alignContent` | `'flex-start' \| 'flex-end' \| 'center' \| 'stretch' \| 'space-between' \| 'space-around'`      | `'stretch'`    | Aligns wrapped lines. Only applies when wrap is enabled with multiple lines.         |
-| `gap`          | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| 8`                                                     | `0`            | Gap between flex items as a multiplier of the 4px base spacing unit.                 |
-| `customGap`    | `string \| number`                                                                              | —              | Custom gap override as a CSS value. Overrides the gap prop when provided.            |
-| `grow`         | `number`                                                                                        | `0`            | Flex grow factor controlling how much the item should grow relative to siblings.     |
-| `shrink`       | `number`                                                                                        | `1`            | Flex shrink factor controlling how much the item should shrink relative to siblings. |
-| `basis`        | `string \| number`                                                                              | `'auto'`       | Flex basis defining the initial size before free space is distributed.               |
-| `fullWidth`    | `boolean`                                                                                       | `false`        | Whether the flex container should fill available width (100%).                       |
-| `fullHeight`   | `boolean`                                                                                       | `false`        | Whether the flex container should fill available height (100%).                      |
-| `minHeight`    | `string \| number`                                                                              | —              | Minimum height constraint for the flex container.                                    |
-| `maxWidth`     | `string \| number`                                                                              | —              | Maximum width constraint for the flex container.                                     |
-| `className`    | `string`                                                                                        | —              | Additional CSS class names.                                                          |
-| `style`        | `CSSProperties`                                                                                 | —              | Inline styles.                                                                       |
-| `testId`       | `string`                                                                                        | —              | Test identifier for automated testing.                                               |
-| `ref`          | `Ref`                                                                                           | —              | Ref to the underlying div element.                                                   |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Flex content -- any React elements. |
+| `direction` | `'row' \| 'row-reverse' \| 'column' \| 'column-reverse'` | `'row'` | Flex direction controlling main axis orientation. |
+| `sm` | `'row' \| 'row-reverse' \| 'column' \| 'column-reverse'` | — | Flex direction override at the small breakpoint (576px). |
+| `md` | `'row' \| 'row-reverse' \| 'column' \| 'column-reverse'` | — | Flex direction override at the medium breakpoint (768px). |
+| `lg` | `'row' \| 'row-reverse' \| 'column' \| 'column-reverse'` | — | Flex direction override at the large breakpoint (992px). |
+| `xl` | `'row' \| 'row-reverse' \| 'column' \| 'column-reverse'` | — | Flex direction override at the extra-large breakpoint (1200px). |
+| `wrap` | `'nowrap' \| 'wrap' \| 'wrap-reverse'` | `'nowrap'` | Flex wrap behavior for overflowing items. |
+| `justify` | `'flex-start' \| 'flex-end' \| 'center' \| 'space-between' \| 'space-around' \| 'space-evenly'` | `'flex-start'` | Distributes space along the main axis. |
+| `align` | `'flex-start' \| 'flex-end' \| 'center' \| 'stretch' \| 'baseline'` | `'stretch'` | Aligns items along the cross axis. |
+| `alignContent` | `'flex-start' \| 'flex-end' \| 'center' \| 'stretch' \| 'space-between' \| 'space-around'` | `'stretch'` | Aligns wrapped lines. Only applies when wrap is enabled with multiple lines. |
+| `gap` | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| 8` | `0` | Gap between flex items as a multiplier of the 4px base spacing unit. |
+| `customGap` | `string \| number` | — | Custom gap override as a CSS value. Overrides the gap prop when provided. |
+| `grow` | `number` | `0` | Flex grow factor controlling how much the item should grow relative to siblings. |
+| `shrink` | `number` | `1` | Flex shrink factor controlling how much the item should shrink relative to siblings. |
+| `basis` | `string \| number` | `'auto'` | Flex basis defining the initial size before free space is distributed. |
+| `fullWidth` | `boolean` | `false` | Whether the flex container should fill available width (100%). |
+| `fullHeight` | `boolean` | `false` | Whether the flex container should fill available height (100%). |
+| `minHeight` | `string \| number` | — | Minimum height constraint for the flex container. |
+| `maxWidth` | `string \| number` | — | Maximum width constraint for the flex container. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
 
 The component also accepts all standard HTML `<div>` attributes.
 

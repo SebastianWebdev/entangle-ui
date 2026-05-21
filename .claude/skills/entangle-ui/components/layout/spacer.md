@@ -85,13 +85,13 @@ In fixed mode, both width and height are set to the same value. The parent flex 
 
 ## Props
 
-| Prop        | Type               | Default | Description                                                                                                         |
-| ----------- | ------------------ | ------- | ------------------------------------------------------------------------------------------------------------------- |
-| `size`      | `string \| number` | —       | Fixed size for the spacer. When omitted, the spacer expands to fill available space. Numbers are treated as pixels. |
-| `className` | `string`           | —       | Additional CSS class names.                                                                                         |
-| `style`     | `CSSProperties`    | —       | Inline styles.                                                                                                      |
-| `testId`    | `string`           | —       | Test identifier for automated testing.                                                                              |
-| `ref`       | `Ref`              | —       | Ref to the underlying div element.                                                                                  |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `size` | `string \| number` | — | Fixed size for the spacer. When omitted, the spacer expands to fill available space. Numbers are treated as pixels. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
 
 The component also accepts all standard HTML `<div>` attributes.
 

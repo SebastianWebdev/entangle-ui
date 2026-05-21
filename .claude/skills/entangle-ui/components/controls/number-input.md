@@ -167,39 +167,39 @@ Provide a `validate` function that returns an error message string if the value 
 
 ## Props
 
-| Prop               | Type                                     | Default     | Description                                                                                |
-| ------------------ | ---------------------------------------- | ----------- | ------------------------------------------------------------------------------------------ |
-| `value`            | `number`                                 | —           | Current numeric value.                                                                     |
-| `onChange`         | `(value: number) => void`                | —           | Callback when value changes.                                                               |
-| `unit`             | `string \| ((value: number) => string)`  | —           | Unit suffix to display (e.g., "px", "%", "deg"). Can be a function for dynamic formatting. |
-| `showStepButtons`  | `boolean`                                | `true`      | Whether to show increment/decrement chevron buttons on hover.                              |
-| `validate`         | `(value: number) => string \| undefined` | —           | Custom validation function. Return error message string if invalid.                        |
-| `formatValue`      | `(value: number) => string`              | —           | Format value for display (e.g., add commas, currency symbols).                             |
-| `parseValue`       | `(input: string) => number \| null`      | —           | Parse custom formatted input back to number. Used with formatValue.                        |
-| `min`              | `number`                                 | —           | Minimum allowed value (hard limit).                                                        |
-| `max`              | `number`                                 | —           | Maximum allowed value (hard limit).                                                        |
-| `softMin`          | `number`                                 | —           | Soft minimum for drag operations. Can be overridden by keyboard input.                     |
-| `softMax`          | `number`                                 | —           | Soft maximum for drag operations. Can be overridden by keyboard input.                     |
-| `step`             | `number`                                 | `1`         | Step size for increment/decrement and drag operations.                                     |
-| `precisionStep`    | `number`                                 | `step / 10` | Step size when Shift is held (precision mode).                                             |
-| `largeStep`        | `number`                                 | `step * 10` | Step size when Ctrl is held (large steps).                                                 |
-| `precision`        | `number`                                 | —           | Number of decimal places for display.                                                      |
-| `allowExpressions` | `boolean`                                | `true`      | Whether to allow mathematical expression input (pi, sqrt, sin, etc.).                      |
-| `dragSensitivity`  | `number`                                 | `1`         | Sensitivity multiplier for mouse drag scrubbing.                                           |
-| `size`             | `'sm' \| 'md' \| 'lg'`                   | `'md'`      | Input size variant.                                                                        |
-| `disabled`         | `boolean`                                | `false`     | Whether the input is disabled.                                                             |
-| `readOnly`         | `boolean`                                | `false`     | Whether the input is read-only.                                                            |
-| `errorMessage`     | `string`                                 | —           | Error message displayed below the input.                                                   |
-| `placeholder`      | `string`                                 | —           | Placeholder text shown in edit mode.                                                       |
-| `label`            | `string`                                 | —           | Input label displayed above the field.                                                     |
-| `helperText`       | `string`                                 | —           | Helper text displayed below the input.                                                     |
-| `required`         | `boolean`                                | `false`     | Whether the input is required.                                                             |
-| `onFocus`          | `(event: FocusEvent) => void`            | —           | Focus event handler.                                                                       |
-| `onBlur`           | `(event: FocusEvent) => void`            | —           | Blur event handler.                                                                        |
-| `onKeyDown`        | `(event: KeyboardEvent) => void`         | —           | Key down event handler.                                                                    |
-| `className`        | `string`                                 | —           | Additional CSS class names.                                                                |
-| `testId`           | `string`                                 | —           | Test identifier for automated testing.                                                     |
-| `ref`              | `Ref`                                    | —           | Ref to the underlying input element.                                                       |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `number` | — | Current numeric value. |
+| `onChange` | `(value: number) => void` | — | Callback when value changes. |
+| `unit` | `string \| ((value: number) => string)` | — | Unit suffix to display (e.g., "px", "%", "deg"). Can be a function for dynamic formatting. |
+| `showStepButtons` | `boolean` | `true` | Whether to show increment/decrement chevron buttons on hover. |
+| `validate` | `(value: number) => string \| undefined` | — | Custom validation function. Return error message string if invalid. |
+| `formatValue` | `(value: number) => string` | — | Format value for display (e.g., add commas, currency symbols). |
+| `parseValue` | `(input: string) => number \| null` | — | Parse custom formatted input back to number. Used with formatValue. |
+| `min` | `number` | — | Minimum allowed value (hard limit). |
+| `max` | `number` | — | Maximum allowed value (hard limit). |
+| `softMin` | `number` | — | Soft minimum for drag operations. Can be overridden by keyboard input. |
+| `softMax` | `number` | — | Soft maximum for drag operations. Can be overridden by keyboard input. |
+| `step` | `number` | `1` | Step size for increment/decrement and drag operations. |
+| `precisionStep` | `number` | `step / 10` | Step size when Shift is held (precision mode). |
+| `largeStep` | `number` | `step * 10` | Step size when Ctrl is held (large steps). |
+| `precision` | `number` | — | Number of decimal places for display. |
+| `allowExpressions` | `boolean` | `true` | Whether to allow mathematical expression input (pi, sqrt, sin, etc.). |
+| `dragSensitivity` | `number` | `1` | Sensitivity multiplier for mouse drag scrubbing. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Input size variant. |
+| `disabled` | `boolean` | `false` | Whether the input is disabled. |
+| `readOnly` | `boolean` | `false` | Whether the input is read-only. |
+| `errorMessage` | `string` | — | Error message displayed below the input. |
+| `placeholder` | `string` | — | Placeholder text shown in edit mode. |
+| `label` | `string` | — | Input label displayed above the field. |
+| `helperText` | `string` | — | Helper text displayed below the input. |
+| `required` | `boolean` | `false` | Whether the input is required. |
+| `onFocus` | `(event: FocusEvent) => void` | — | Focus event handler. |
+| `onBlur` | `(event: FocusEvent) => void` | — | Blur event handler. |
+| `onKeyDown` | `(event: KeyboardEvent) => void` | — | Key down event handler. |
+| `className` | `string` | — | Additional CSS class names. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying input element. |
 
 ## Accessibility
 

@@ -123,38 +123,38 @@ Panel content is automatically wrapped in a `ScrollArea` that scrolls in both di
 
 ### FloatingPanel
 
-| Prop                 | Type                                                | Default                       | Description                                                                           |
-| -------------------- | --------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------- |
-| `title` _(required)_ | `string`                                            | —                             | Panel title displayed in the header bar.                                              |
-| `position`           | `{ x: number; y: number }`                          | —                             | Controlled position in pixels.                                                        |
-| `defaultPosition`    | `{ x: number; y: number }`                          | `{ x: 100, y: 100 }`          | Initial position for uncontrolled mode.                                               |
-| `onPositionChange`   | `(position: { x: number; y: number }) => void`      | —                             | Called when position changes during drag.                                             |
-| `size`               | `{ width: number; height: number }`                 | —                             | Controlled size in pixels.                                                            |
-| `defaultSize`        | `{ width: number; height: number }`                 | `{ width: 280, height: 200 }` | Initial size for uncontrolled mode.                                                   |
-| `onSizeChange`       | `(size: { width: number; height: number }) => void` | —                             | Called when size changes during resize.                                               |
-| `minWidth`           | `number`                                            | `150`                         | Minimum panel width in pixels.                                                        |
-| `minHeight`          | `number`                                            | `100`                         | Minimum panel height in pixels.                                                       |
-| `maxWidth`           | `number`                                            | `Infinity`                    | Maximum panel width in pixels.                                                        |
-| `maxHeight`          | `number`                                            | `Infinity`                    | Maximum panel height in pixels.                                                       |
-| `collapsed`          | `boolean`                                           | —                             | Controlled collapsed state.                                                           |
-| `defaultCollapsed`   | `boolean`                                           | `false`                       | Initial collapsed state for uncontrolled mode.                                        |
-| `onCollapsedChange`  | `(collapsed: boolean) => void`                      | —                             | Called when collapsed state changes.                                                  |
-| `onClose`            | `() => void`                                        | —                             | Called when the close button is clicked.                                              |
-| `closable`           | `boolean`                                           | `true`                        | Whether to show the close button (requires onClose handler to actually render).       |
-| `resizable`          | `boolean`                                           | `true`                        | Whether the panel can be resized via the bottom-right corner handle.                  |
-| `panelId`            | `string`                                            | —                             | Unique panel ID for FloatingManager z-index tracking. Auto-generated if not provided. |
-| `children`           | `ReactNode`                                         | —                             | Panel body content.                                                                   |
-| `className`          | `string`                                            | —                             | Additional CSS class names.                                                           |
-| `style`              | `CSSProperties`                                     | —                             | Inline styles.                                                                        |
-| `testId`             | `string`                                            | —                             | Test identifier for automated testing.                                                |
-| `ref`                | `Ref`                                               | —                             | Ref to the panel root element.                                                        |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `title` *(required)* | `string` | — | Panel title displayed in the header bar. |
+| `position` | `{ x: number; y: number }` | — | Controlled position in pixels. |
+| `defaultPosition` | `{ x: number; y: number }` | `{ x: 100, y: 100 }` | Initial position for uncontrolled mode. |
+| `onPositionChange` | `(position: { x: number; y: number }) => void` | — | Called when position changes during drag. |
+| `size` | `{ width: number; height: number }` | — | Controlled size in pixels. |
+| `defaultSize` | `{ width: number; height: number }` | `{ width: 280, height: 200 }` | Initial size for uncontrolled mode. |
+| `onSizeChange` | `(size: { width: number; height: number }) => void` | — | Called when size changes during resize. |
+| `minWidth` | `number` | `150` | Minimum panel width in pixels. |
+| `minHeight` | `number` | `100` | Minimum panel height in pixels. |
+| `maxWidth` | `number` | `Infinity` | Maximum panel width in pixels. |
+| `maxHeight` | `number` | `Infinity` | Maximum panel height in pixels. |
+| `collapsed` | `boolean` | — | Controlled collapsed state. |
+| `defaultCollapsed` | `boolean` | `false` | Initial collapsed state for uncontrolled mode. |
+| `onCollapsedChange` | `(collapsed: boolean) => void` | — | Called when collapsed state changes. |
+| `onClose` | `() => void` | — | Called when the close button is clicked. |
+| `closable` | `boolean` | `true` | Whether to show the close button (requires onClose handler to actually render). |
+| `resizable` | `boolean` | `true` | Whether the panel can be resized via the bottom-right corner handle. |
+| `panelId` | `string` | — | Unique panel ID for FloatingManager z-index tracking. Auto-generated if not provided. |
+| `children` | `ReactNode` | — | Panel body content. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the panel root element. |
 
 ### FloatingManager
 
-| Prop         | Type        | Default | Description                                                         |
-| ------------ | ----------- | ------- | ------------------------------------------------------------------- |
-| `baseZIndex` | `number`    | `100`   | Base z-index value. Each panel stacks one level above the previous. |
-| `children`   | `ReactNode` | —       | FloatingPanel components to manage.                                 |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `baseZIndex` | `number` | `100` | Base z-index value. Each panel stacks one level above the previous. |
+| `children` | `ReactNode` | — | FloatingPanel components to manage. |
 
 ## Accessibility
 

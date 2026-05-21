@@ -131,19 +131,19 @@ Override the default border radius with a custom value.
 
 ## Props
 
-| Prop           | Type                                                      | Default | Description                                                   |
-| -------------- | --------------------------------------------------------- | ------- | ------------------------------------------------------------- |
-| `children`     | `ReactNode`                                               | —       | Paper content -- any React elements.                          |
-| `elevation`    | `0 \| 1 \| 2 \| 3`                                        | `1`     | Shadow intensity level for visual depth.                      |
-| `bordered`     | `boolean`                                                 | `false` | Whether to show a subtle border around the paper.             |
-| `padding`      | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| 'xxl' \| 'xxxl'` | `'md'`  | Internal padding using theme spacing tokens.                  |
-| `nestLevel`    | `0 \| 1 \| 2 \| 3`                                        | `0`     | Nesting level for automatic background brightness adjustment. |
-| `expand`       | `boolean`                                                 | `false` | Whether the paper should fill available width and height.     |
-| `customRadius` | `string \| number`                                        | —       | Custom border radius override. Numbers are treated as pixels. |
-| `className`    | `string`                                                  | —       | Additional CSS class names.                                   |
-| `style`        | `CSSProperties`                                           | —       | Inline styles.                                                |
-| `testId`       | `string`                                                  | —       | Test identifier for automated testing.                        |
-| `ref`          | `Ref`                                                     | —       | Ref to the underlying div element.                            |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Paper content -- any React elements. |
+| `elevation` | `0 \| 1 \| 2 \| 3` | `1` | Shadow intensity level for visual depth. |
+| `bordered` | `boolean` | `false` | Whether to show a subtle border around the paper. |
+| `padding` | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| 'xxl' \| 'xxxl'` | `'md'` | Internal padding using theme spacing tokens. |
+| `nestLevel` | `0 \| 1 \| 2 \| 3` | `0` | Nesting level for automatic background brightness adjustment. |
+| `expand` | `boolean` | `false` | Whether the paper should fill available width and height. |
+| `customRadius` | `string \| number` | — | Custom border radius override. Numbers are treated as pixels. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
 
 The component also accepts all standard HTML `<div>` attributes.
 

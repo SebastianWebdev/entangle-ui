@@ -193,25 +193,25 @@ For power users, `rootProps` and `positionerProps` provide direct access to the 
 
 ## Props
 
-| Prop              | Type                                                                                                                                                                 | Default   | Description                                                         |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------- |
-| `children`        | `ReactElement`                                                                                                                                                       | —         | The trigger element that shows the tooltip on hover.                |
-| `title`           | `ReactNode`                                                                                                                                                          | —         | Content displayed in the tooltip. Text or React elements.           |
-| `placement`       | `'top' \| 'top-start' \| 'top-end' \| 'bottom' \| 'bottom-start' \| 'bottom-end' \| 'left' \| 'left-start' \| 'left-end' \| 'right' \| 'right-start' \| 'right-end'` | `'top'`   | Tooltip placement relative to the trigger.                          |
-| `collision`       | `'flip' \| 'shift' \| 'hide' \| 'flip-shift' \| 'smart' \| 'none'`                                                                                                   | `'smart'` | Collision handling strategy when tooltip overflows viewport.        |
-| `collisionConfig` | `{ side?: string; align?: string; fallbackAxisSide?: string }`                                                                                                       | —         | Advanced collision configuration. Overrides the collision strategy. |
-| `positioner`      | `{ offset?: number; padding?: number; sticky?: boolean; boundary?: string \| HTMLElement; trackCursor?: string }`                                                    | —         | Advanced positioning configuration.                                 |
-| `animation`       | `{ animated?: boolean; duration?: number; easing?: string }`                                                                                                         | —         | Animation configuration for show/hide transitions.                  |
-| `delay`           | `number`                                                                                                                                                             | `600`     | Delay in milliseconds before showing the tooltip.                   |
-| `closeDelay`      | `number`                                                                                                                                                             | `0`       | Delay in milliseconds before hiding the tooltip.                    |
-| `arrow`           | `boolean`                                                                                                                                                            | `true`    | Whether to show the arrow pointing to the trigger.                  |
-| `disabled`        | `boolean`                                                                                                                                                            | `false`   | Whether the tooltip is disabled.                                    |
-| `rootProps`       | `Partial`                                                                                                                                                            | —         | Direct props for the Base UI Root component.                        |
-| `positionerProps` | `Partial`                                                                                                                                                            | —         | Direct props for the Base UI Positioner component.                  |
-| `className`       | `string`                                                                                                                                                             | —         | Additional CSS class names for the tooltip popup.                   |
-| `style`           | `CSSProperties`                                                                                                                                                      | —         | Inline styles for the tooltip popup.                                |
-| `testId`          | `string`                                                                                                                                                             | —         | Test identifier for automated testing.                              |
-| `ref`             | `Ref`                                                                                                                                                                | —         | Ref to the tooltip popup element.                                   |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactElement` | — | The trigger element that shows the tooltip on hover. |
+| `title` | `ReactNode` | — | Content displayed in the tooltip. Text or React elements. |
+| `placement` | `'top' \| 'top-start' \| 'top-end' \| 'bottom' \| 'bottom-start' \| 'bottom-end' \| 'left' \| 'left-start' \| 'left-end' \| 'right' \| 'right-start' \| 'right-end'` | `'top'` | Tooltip placement relative to the trigger. |
+| `collision` | `'flip' \| 'shift' \| 'hide' \| 'flip-shift' \| 'smart' \| 'none'` | `'smart'` | Collision handling strategy when tooltip overflows viewport. |
+| `collisionConfig` | `{ side?: string; align?: string; fallbackAxisSide?: string }` | — | Advanced collision configuration. Overrides the collision strategy. |
+| `positioner` | `{ offset?: number; padding?: number; sticky?: boolean; boundary?: string \| HTMLElement; trackCursor?: string }` | — | Advanced positioning configuration. |
+| `animation` | `{ animated?: boolean; duration?: number; easing?: string }` | — | Animation configuration for show/hide transitions. |
+| `delay` | `number` | `600` | Delay in milliseconds before showing the tooltip. |
+| `closeDelay` | `number` | `0` | Delay in milliseconds before hiding the tooltip. |
+| `arrow` | `boolean` | `true` | Whether to show the arrow pointing to the trigger. |
+| `disabled` | `boolean` | `false` | Whether the tooltip is disabled. |
+| `rootProps` | `Partial` | — | Direct props for the Base UI Root component. |
+| `positionerProps` | `Partial` | — | Direct props for the Base UI Positioner component. |
+| `className` | `string` | — | Additional CSS class names for the tooltip popup. |
+| `style` | `CSSProperties` | — | Inline styles for the tooltip popup. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the tooltip popup element. |
 
 ## Accessibility
 

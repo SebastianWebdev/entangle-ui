@@ -47,13 +47,13 @@ Three sizes drive the value typography and overall density. Label and helper siz
 
 ## Delta semantics
 
-`delta.semantics` tells the component what "up" *means* for this metric. The arrow direction is purely visual; the colour comes from the combination of `direction` and `semantics`.
+`delta.semantics` tells the component what "up" _means_ for this metric. The arrow direction is purely visual; the colour comes from the combination of `direction` and `semantics`.
 
-| Semantics  | Up direction | Down direction | Use for                       |
-| ---------- | ------------ | -------------- | ----------------------------- |
-| `positive` | green        | red            | Revenue, signups, conversion  |
-| `negative` | red          | green          | Errors, latency, crash rate   |
-| `neutral`  | muted        | muted          | Counters with no value-tilt   |
+| Semantics  | Up direction | Down direction | Use for                      |
+| ---------- | ------------ | -------------- | ---------------------------- |
+| `positive` | green        | red            | Revenue, signups, conversion |
+| `negative` | red          | green          | Errors, latency, crash rate  |
+| `neutral`  | muted        | muted          | Counters with no value-tilt  |
 
 `positive` is the default — fits most "more is better" metrics.
 

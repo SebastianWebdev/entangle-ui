@@ -176,24 +176,24 @@ Override line height with the `lineHeight` prop.
 
 ## Props
 
-| Prop         | Type                                                                                                               | Default     | Description                                                                |
-| ------------ | ------------------------------------------------------------------------------------------------------------------ | ----------- | -------------------------------------------------------------------------- |
-| `children`   | `ReactNode`                                                                                                        | —           | Text content.                                                              |
-| `as`         | `'h1' \| 'h2' \| 'h3' \| 'h4' \| 'h5' \| 'h6' \| 'p' \| 'span' \| 'div' \| 'label' \| 'strong' \| 'em' \| 'small'` | `'span'`    | HTML element to render as.                                                 |
-| `variant`    | `'display' \| 'heading' \| 'subheading' \| 'body' \| 'caption' \| 'code' \| 'inherit'`                             | `'body'`    | Semantic variant with predefined styling.                                  |
-| `size`       | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                                                                             | —           | Text size using theme typography tokens. Overrides variant size.           |
-| `weight`     | `'normal' \| 'medium' \| 'semibold'`                                                                               | —           | Text weight using theme typography tokens. Overrides variant weight.       |
-| `color`      | `'primary' \| 'secondary' \| 'muted' \| 'disabled' \| 'accent' \| 'success' \| 'warning' \| 'error'`               | `'primary'` | Text color using theme color tokens.                                       |
-| `lineHeight` | `'tight' \| 'normal' \| 'relaxed'`                                                                                 | —           | Line height. Overrides variant line height.                                |
-| `align`      | `'left' \| 'center' \| 'right' \| 'justify'`                                                                       | —           | Text alignment.                                                            |
-| `truncate`   | `boolean`                                                                                                          | `false`     | Whether to truncate text with ellipsis on overflow.                        |
-| `maxLines`   | `number`                                                                                                           | —           | Maximum lines before truncating. Requires truncate=true.                   |
-| `nowrap`     | `boolean`                                                                                                          | `false`     | Whether text should not wrap to the next line.                             |
-| `mono`       | `boolean`                                                                                                          | `false`     | Whether to use monospace font family. Automatically true for code variant. |
-| `className`  | `string`                                                                                                           | —           | Additional CSS class name.                                                 |
-| `style`      | `CSSProperties`                                                                                                    | —           | Inline styles.                                                             |
-| `testId`     | `string`                                                                                                           | —           | Test identifier for automated testing.                                     |
-| `ref`        | `Ref`                                                                                                              | —           | Ref to the underlying HTML element.                                        |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Text content. |
+| `as` | `'h1' \| 'h2' \| 'h3' \| 'h4' \| 'h5' \| 'h6' \| 'p' \| 'span' \| 'div' \| 'label' \| 'strong' \| 'em' \| 'small'` | `'span'` | HTML element to render as. |
+| `variant` | `'display' \| 'heading' \| 'subheading' \| 'body' \| 'caption' \| 'code' \| 'inherit'` | `'body'` | Semantic variant with predefined styling. |
+| `size` | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'` | — | Text size using theme typography tokens. Overrides variant size. |
+| `weight` | `'normal' \| 'medium' \| 'semibold'` | — | Text weight using theme typography tokens. Overrides variant weight. |
+| `color` | `'primary' \| 'secondary' \| 'muted' \| 'disabled' \| 'accent' \| 'success' \| 'warning' \| 'error'` | `'primary'` | Text color using theme color tokens. |
+| `lineHeight` | `'tight' \| 'normal' \| 'relaxed'` | — | Line height. Overrides variant line height. |
+| `align` | `'left' \| 'center' \| 'right' \| 'justify'` | — | Text alignment. |
+| `truncate` | `boolean` | `false` | Whether to truncate text with ellipsis on overflow. |
+| `maxLines` | `number` | — | Maximum lines before truncating. Requires truncate=true. |
+| `nowrap` | `boolean` | `false` | Whether text should not wrap to the next line. |
+| `mono` | `boolean` | `false` | Whether to use monospace font family. Automatically true for code variant. |
+| `className` | `string` | — | Additional CSS class name. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying HTML element. |
 
 The component also accepts all standard HTML attributes for the rendered element.
 

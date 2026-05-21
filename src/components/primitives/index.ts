@@ -145,3 +145,39 @@ export type {
   PointMarkerOptions,
   CanvasContainerProps,
 } from './canvas';
+
+// Viewport
+export {
+  Viewport,
+  ViewportLayer,
+  ViewportWorld,
+  ViewportOverlay,
+  useViewportContext,
+  worldToScreen,
+  screenToWorld,
+  getViewportPointerPosition,
+  computeFitTransform,
+  computeCenterTransform,
+  computeZoomTowardPivot,
+  normalizeRect,
+} from './viewport';
+
+export type {
+  ViewportProps,
+  ViewportLayerProps,
+  ViewportWorldProps,
+  ViewportOverlayProps,
+  ViewportTransform,
+  ViewportSize,
+  WorldRect,
+  ViewportHandle,
+  ViewportContextValue,
+  ViewportLayerDrawInfo,
+  ViewportSelectionEvent,
+  ViewportPanEndInfo,
+  ViewportPanConfig,
+  ViewportZoomConfig,
+  ViewportSelectionConfig,
+  ViewportMouseButton,
+  ViewportModifier,
+} from './viewport';

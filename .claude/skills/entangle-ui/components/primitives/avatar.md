@@ -196,35 +196,35 @@ A collaborators row in a project header.
 
 ### Avatar
 
-| Prop           | Type                                                                                        | Default    | Description                                                                       |
-| -------------- | ------------------------------------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------- |
-| `src`          | `string`                                                                                    | —          | Image source URL. Falls back to initials, then to an icon, on error.              |
-| `alt`          | `string`                                                                                    | —          | Image alt text and accessible name fallback.                                      |
-| `name`         | `string`                                                                                    | —          | Display name. Drives initials and the auto color hash.                            |
-| `initials`     | `string`                                                                                    | —          | Manual initials override. Truncated to two characters and uppercased.             |
-| `fallbackIcon` | `ReactNode`                                                                                 | —          | Icon shown when neither image nor initials resolve.                               |
-| `size`         | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| 'xxl'`                                             | `'md'`     | Diameter (16 / 20 / 24 / 32 / 40 / 56 px).                                        |
-| `shape`        | `'circle' \| 'square' \| 'rounded'`                                                         | `'circle'` | Border radius treatment.                                                          |
-| `color`        | `'auto' \| 'neutral' \| 'primary' \| 'success' \| 'warning' \| 'error' \| 'info' \| string` | `'auto'`   | Background colour for the initials / icon surface.                                |
-| `status`       | `'online' \| 'away' \| 'busy' \| 'offline'`                                                 | —          | Optional presence indicator in the bottom-right corner.                           |
-| `onClick`      | `(event) => void`                                                                           | —          | When provided, the avatar becomes a focusable button with Enter/Space activation. |
-| `bordered`     | `boolean`                                                                                   | `false`    | Render a 2px ring matching the surrounding background.                            |
-| `className`    | `string`                                                                                    | —          | Additional CSS class names.                                                       |
-| `style`        | `CSSProperties`                                                                             | —          | Inline styles.                                                                    |
-| `testId`       | `string`                                                                                    | —          | Test identifier for automated testing.                                            |
-| `ref`          | `Ref`                                                                                       | —          | Ref to the avatar root element.                                                   |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `src` | `string` | — | Image source URL. Falls back to initials, then to an icon, on error. |
+| `alt` | `string` | — | Image alt text and accessible name fallback. |
+| `name` | `string` | — | Display name. Drives initials and the auto color hash. |
+| `initials` | `string` | — | Manual initials override. Truncated to two characters and uppercased. |
+| `fallbackIcon` | `ReactNode` | — | Icon shown when neither image nor initials resolve. |
+| `size` | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| 'xxl'` | `'md'` | Diameter (16 / 20 / 24 / 32 / 40 / 56 px). |
+| `shape` | `'circle' \| 'square' \| 'rounded'` | `'circle'` | Border radius treatment. |
+| `color` | `'auto' \| 'neutral' \| 'primary' \| 'success' \| 'warning' \| 'error' \| 'info' \| string` | `'auto'` | Background colour for the initials / icon surface. |
+| `status` | `'online' \| 'away' \| 'busy' \| 'offline'` | — | Optional presence indicator in the bottom-right corner. |
+| `onClick` | `(event) => void` | — | When provided, the avatar becomes a focusable button with Enter/Space activation. |
+| `bordered` | `boolean` | `false` | Render a 2px ring matching the surrounding background. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the avatar root element. |
 
 ### AvatarGroup
 
-| Prop                    | Type                                            | Default | Description                                                                  |
-| ----------------------- | ----------------------------------------------- | ------- | ---------------------------------------------------------------------------- |
-| `max`                   | `number`                                        | `4`     | Maximum number of visible avatars before the +N indicator appears.           |
-| `spacing`               | `number \| string`                              | `-8`    | Spacing between avatars. Negative values overlap. Numbers are pixels.        |
-| `size`                  | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| 'xxl'` | `'md'`  | Size applied to every child avatar.                                          |
-| `bordered`              | `boolean`                                       | `true`  | Force a border on every child, separating overlapping avatars.               |
-| `showOverflowTooltip`   | `boolean`                                       | `true`  | Show a tooltip listing hidden avatar names when the +N indicator is visible. |
-| `children` _(required)_ | `ReactNode`                                     | —       | Avatar children.                                                             |
-| `className`             | `string`                                        | —       | Additional CSS class names.                                                  |
-| `style`                 | `CSSProperties`                                 | —       | Inline styles.                                                               |
-| `testId`                | `string`                                        | —       | Test identifier for automated testing.                                       |
-| `ref`                   | `Ref`                                           | —       | Ref to the group root element.                                               |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `max` | `number` | `4` | Maximum number of visible avatars before the +N indicator appears. |
+| `spacing` | `number \| string` | `-8` | Spacing between avatars. Negative values overlap. Numbers are pixels. |
+| `size` | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl' \| 'xxl'` | `'md'` | Size applied to every child avatar. |
+| `bordered` | `boolean` | `true` | Force a border on every child, separating overlapping avatars. |
+| `showOverflowTooltip` | `boolean` | `true` | Show a tooltip listing hidden avatar names when the +N indicator is visible. |
+| `children` *(required)* | `ReactNode` | — | Avatar children. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the group root element. |

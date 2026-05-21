@@ -107,57 +107,57 @@ function ToggleToolbarButton() {
 
 ### AppShell
 
-| Prop                  | Type                                       | Default    | Description                                                                              |
-| --------------------- | ------------------------------------------ | ---------- | ---------------------------------------------------------------------------------------- |
-| `viewportLock`        | `boolean`                                  | `false`    | Lock the shell to the viewport, preventing page scroll. Injects global html/body styles. |
-| `topChromeSeparator`  | `'none' \| 'border' \| 'shadow' \| 'both'` | `'border'` | Visual separator under the top chrome area (menu + top toolbar).                         |
-| `sideChromeSeparator` | `'none' \| 'border' \| 'shadow' \| 'both'` | `'border'` | Visual separator between side toolbars and dock content.                                 |
-| `children`            | `ReactNode`                                | —          | Slot components (AppShell.MenuBar, AppShell.Toolbar, AppShell.Dock, AppShell.StatusBar). |
-| `className`           | `string`                                   | —          | Additional CSS class names.                                                              |
-| `style`               | `CSSProperties`                            | —          | Inline styles.                                                                           |
-| `testId`              | `string`                                   | —          | Test identifier for automated testing.                                                   |
-| `ref`                 | `Ref`                                      | —          | Ref to the root element.                                                                 |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `viewportLock` | `boolean` | `false` | Lock the shell to the viewport, preventing page scroll. Injects global html/body styles. |
+| `topChromeSeparator` | `'none' \| 'border' \| 'shadow' \| 'both'` | `'border'` | Visual separator under the top chrome area (menu + top toolbar). |
+| `sideChromeSeparator` | `'none' \| 'border' \| 'shadow' \| 'both'` | `'border'` | Visual separator between side toolbars and dock content. |
+| `children` | `ReactNode` | — | Slot components (AppShell.MenuBar, AppShell.Toolbar, AppShell.Dock, AppShell.StatusBar). |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root element. |
 
 ### AppShell.MenuBar
 
-| Prop        | Type            | Default | Description                            |
-| ----------- | --------------- | ------- | -------------------------------------- |
-| `children`  | `ReactNode`     | —       | Menu bar content.                      |
-| `className` | `string`        | —       | Additional CSS class names.            |
-| `style`     | `CSSProperties` | —       | Inline styles.                         |
-| `testId`    | `string`        | —       | Test identifier for automated testing. |
-| `ref`       | `Ref`           | —       | Ref to the header element.             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Menu bar content. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the header element. |
 
 ### AppShell.Toolbar
 
-| Prop        | Type                         | Default | Description                                                                 |
-| ----------- | ---------------------------- | ------- | --------------------------------------------------------------------------- |
-| `position`  | `'top' \| 'left' \| 'right'` | `'top'` | Toolbar placement in the layout. Side positions render as <aside> elements. |
-| `children`  | `ReactNode`                  | —       | Toolbar content.                                                            |
-| `className` | `string`                     | —       | Additional CSS class names.                                                 |
-| `style`     | `CSSProperties`              | —       | Inline styles.                                                              |
-| `testId`    | `string`                     | —       | Test identifier for automated testing.                                      |
-| `ref`       | `Ref`                        | —       | Ref to the toolbar element.                                                 |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `position` | `'top' \| 'left' \| 'right'` | `'top'` | Toolbar placement in the layout. Side positions render as <aside> elements. |
+| `children` | `ReactNode` | — | Toolbar content. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the toolbar element. |
 
 ### AppShell.Dock
 
-| Prop        | Type            | Default | Description                            |
-| ----------- | --------------- | ------- | -------------------------------------- |
-| `children`  | `ReactNode`     | —       | Main content area.                     |
-| `className` | `string`        | —       | Additional CSS class names.            |
-| `style`     | `CSSProperties` | —       | Inline styles.                         |
-| `testId`    | `string`        | —       | Test identifier for automated testing. |
-| `ref`       | `Ref`           | —       | Ref to the main element.               |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Main content area. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the main element. |
 
 ### AppShell.StatusBar
 
-| Prop        | Type            | Default | Description                            |
-| ----------- | --------------- | ------- | -------------------------------------- |
-| `children`  | `ReactNode`     | —       | Status bar content.                    |
-| `className` | `string`        | —       | Additional CSS class names.            |
-| `style`     | `CSSProperties` | —       | Inline styles.                         |
-| `testId`    | `string`        | —       | Test identifier for automated testing. |
-| `ref`       | `Ref`           | —       | Ref to the footer element.             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Status bar content. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the footer element. |
 
 ## Accessibility
 

@@ -106,19 +106,19 @@ The bottom border is on by default. Pass `bordered={false}` when the header sits
 
 ## Props
 
-| Prop                 | Type                   | Default | Description                                                  |
-| -------------------- | ---------------------- | ------- | ------------------------------------------------------------ |
-| `title` _(required)_ | `ReactNode`            | —       | Title — plain string or custom ReactNode.                    |
-| `icon`               | `ReactNode`            | —       | Icon rendered before the title.                              |
-| `subtitle`           | `ReactNode`            | —       | Optional subtitle below the title.                           |
-| `actions`            | `ReactNode`            | —       | Actions rendered on the right (buttons, menus, IconButtons). |
-| `breadcrumbs`        | `ReactNode`            | —       | Breadcrumb slot rendered above the title.                    |
-| `size`               | `'sm' \| 'md' \| 'lg'` | `'md'`  | Size scale.                                                  |
-| `bordered`           | `boolean`              | `true`  | Render a bottom border separating the header from content.   |
-| `className`          | `string`               | —       | Additional CSS class names.                                  |
-| `style`              | `CSSProperties`        | —       | Inline styles.                                               |
-| `testId`             | `string`               | —       | Test identifier for automated testing.                       |
-| `ref`                | `Ref`                  | —       | Ref to the underlying header element.                        |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `title` *(required)* | `ReactNode` | — | Title — plain string or custom ReactNode. |
+| `icon` | `ReactNode` | — | Icon rendered before the title. |
+| `subtitle` | `ReactNode` | — | Optional subtitle below the title. |
+| `actions` | `ReactNode` | — | Actions rendered on the right (buttons, menus, IconButtons). |
+| `breadcrumbs` | `ReactNode` | — | Breadcrumb slot rendered above the title. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Size scale. |
+| `bordered` | `boolean` | `true` | Render a bottom border separating the header from content. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying header element. |
 
 ## Accessibility
 

@@ -124,30 +124,30 @@ The `type` prop supports common HTML input types.
 
 ## Props
 
-| Prop           | Type                                                                        | Default  | Description                                                       |
-| -------------- | --------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------- |
-| `value`        | `string`                                                                    | —        | Input value (controlled mode).                                    |
-| `defaultValue` | `string`                                                                    | —        | Default value (uncontrolled mode).                                |
-| `placeholder`  | `string`                                                                    | —        | Placeholder text displayed when input is empty.                   |
-| `type`         | `'text' \| 'email' \| 'password' \| 'number' \| 'search' \| 'url' \| 'tel'` | `'text'` | HTML input type.                                                  |
-| `size`         | `'sm' \| 'md' \| 'lg'`                                                      | `'md'`   | Input size optimized for editor interfaces.                       |
-| `disabled`     | `boolean`                                                                   | `false`  | Whether the input is disabled.                                    |
-| `error`        | `boolean`                                                                   | `false`  | Whether the input has an error state.                             |
-| `required`     | `boolean`                                                                   | `false`  | Whether the input is required. Shows a red asterisk on the label. |
-| `readOnly`     | `boolean`                                                                   | `false`  | Whether the input is read-only.                                   |
-| `label`        | `string`                                                                    | —        | Input label displayed above the field.                            |
-| `helperText`   | `string`                                                                    | —        | Helper text displayed below the input.                            |
-| `errorMessage` | `string`                                                                    | —        | Error message displayed when error is true. Replaces helperText.  |
-| `startIcon`    | `ReactNode`                                                                 | —        | Icon displayed at the start of the input.                         |
-| `endIcon`      | `ReactNode`                                                                 | —        | Icon displayed at the end of the input.                           |
-| `onChange`     | `(value: string) => void`                                                   | —        | Change event handler — receives the new string value directly.    |
-| `onFocus`      | `(event: FocusEvent) => void`                                               | —        | Focus event handler.                                              |
-| `onBlur`       | `(event: FocusEvent) => void`                                               | —        | Blur event handler.                                               |
-| `onKeyDown`    | `(event: KeyboardEvent) => void`                                            | —        | Key down event handler.                                           |
-| `className`    | `string`                                                                    | —        | Additional CSS class names.                                       |
-| `style`        | `CSSProperties`                                                             | —        | Inline styles.                                                    |
-| `testId`       | `string`                                                                    | —        | Test identifier for automated testing.                            |
-| `ref`          | `Ref`                                                                       | —        | Ref to the underlying input element.                              |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Input value (controlled mode). |
+| `defaultValue` | `string` | — | Default value (uncontrolled mode). |
+| `placeholder` | `string` | — | Placeholder text displayed when input is empty. |
+| `type` | `'text' \| 'email' \| 'password' \| 'number' \| 'search' \| 'url' \| 'tel'` | `'text'` | HTML input type. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Input size optimized for editor interfaces. |
+| `disabled` | `boolean` | `false` | Whether the input is disabled. |
+| `error` | `boolean` | `false` | Whether the input has an error state. |
+| `required` | `boolean` | `false` | Whether the input is required. Shows a red asterisk on the label. |
+| `readOnly` | `boolean` | `false` | Whether the input is read-only. |
+| `label` | `string` | — | Input label displayed above the field. |
+| `helperText` | `string` | — | Helper text displayed below the input. |
+| `errorMessage` | `string` | — | Error message displayed when error is true. Replaces helperText. |
+| `startIcon` | `ReactNode` | — | Icon displayed at the start of the input. |
+| `endIcon` | `ReactNode` | — | Icon displayed at the end of the input. |
+| `onChange` | `(value: string) => void` | — | Change event handler — receives the new string value directly. |
+| `onFocus` | `(event: FocusEvent) => void` | — | Focus event handler. |
+| `onBlur` | `(event: FocusEvent) => void` | — | Blur event handler. |
+| `onKeyDown` | `(event: KeyboardEvent) => void` | — | Key down event handler. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying input element. |
 
 The component also accepts all standard HTML `<input>` attributes (except `onChange` and `size`, which are replaced by the custom props above).
 

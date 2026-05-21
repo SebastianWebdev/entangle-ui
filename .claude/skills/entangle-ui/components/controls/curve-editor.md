@@ -194,41 +194,41 @@ Use `onChangeComplete` for undo system integration. It fires on drag end, keyfra
 
 ## Props
 
-| Prop                  | Type                                                                 | Default              | Description                                                        |
-| --------------------- | -------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------ |
-| `value`               | `CurveData`                                                          | —                    | Curve data (controlled).                                           |
-| `defaultValue`        | `CurveData`                                                          | `ease-in-out preset` | Default curve data (uncontrolled).                                 |
-| `width`               | `number`                                                             | `320`                | Width of the editor in pixels.                                     |
-| `height`              | `number`                                                             | `200`                | Height of the editor in pixels.                                    |
-| `responsive`          | `boolean`                                                            | `false`              | Whether the editor fills its parent container via ResizeObserver.  |
-| `showToolbar`         | `boolean`                                                            | `true`               | Whether to show the toolbar with presets and tangent mode buttons. |
-| `showGrid`            | `boolean`                                                            | `true`               | Whether to show grid lines.                                        |
-| `gridSubdivisions`    | `number`                                                             | `4`                  | Number of grid subdivision lines between domain bounds.            |
-| `showAxisLabels`      | `boolean`                                                            | `true`               | Whether to display X/Y axis value labels on the grid.              |
-| `allowAdd`            | `boolean`                                                            | `true`               | Whether double-clicking the curve adds a new keyframe.             |
-| `allowDelete`         | `boolean`                                                            | `true`               | Whether Delete/Backspace removes selected keyframes.               |
-| `maxKeyframes`        | `number`                                                             | `Infinity`           | Maximum number of keyframes allowed.                               |
-| `lockEndpoints`       | `boolean`                                                            | `true`               | Whether first/last keyframe X positions are locked.                |
-| `minKeyframeDistance` | `number`                                                             | `0.001`              | Minimum distance between keyframes on the X axis.                  |
-| `clampY`              | `boolean`                                                            | `true`               | Whether Y values are clamped to domain bounds.                     |
-| `snapToGrid`          | `boolean`                                                            | `false`              | Snap to grid while dragging (Ctrl toggles).                        |
-| `precision`           | `number`                                                             | `3`                  | Number format precision for displayed values.                      |
-| `labelX`              | `string`                                                             | —                    | X axis label (e.g., "Time", "Input").                              |
-| `labelY`              | `string`                                                             | —                    | Y axis label (e.g., "Value", "Output").                            |
-| `presets`             | `CurvePreset[]`                                                      | —                    | Custom preset curves, merged with built-in presets.                |
-| `size`                | `'sm' \| 'md' \| 'lg'`                                               | `'md'`               | Component size affecting toolbar and label sizing.                 |
-| `disabled`            | `boolean`                                                            | `false`              | Whether the editor is disabled.                                    |
-| `readOnly`            | `boolean`                                                            | `false`              | Whether the editor is read-only (viewable but not editable).       |
-| `curveColor`          | `string`                                                             | `theme accent color` | CSS color for the curve line.                                      |
-| `curveWidth`          | `number`                                                             | `2`                  | Curve line width in pixels.                                        |
-| `lockTangents`        | `boolean`                                                            | `false`              | Hides tangent handles and disables tangent editing UI.             |
-| `onChange`            | `(curve: CurveData) => void`                                         | —                    | Callback fired continuously during drag.                           |
-| `onChangeComplete`    | `(curve: CurveData) => void`                                         | —                    | Callback fired when editing is committed (drag end, add, delete).  |
-| `onSelectionChange`   | `(selectedIds: string[]) => void`                                    | —                    | Callback when keyframe selection changes.                          |
-| `renderBackground`    | `(ctx: CanvasRenderingContext2D, info: CurveBackgroundInfo) => void` | —                    | Custom background renderer for the canvas.                         |
-| `renderBottomBar`     | `(info: CurveBottomBarInfo) => ReactNode`                            | —                    | Render prop for custom content below the canvas.                   |
-| `className`           | `string`                                                             | —                    | Additional CSS class names.                                        |
-| `testId`              | `string`                                                             | —                    | Test identifier for automated testing.                             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `CurveData` | — | Curve data (controlled). |
+| `defaultValue` | `CurveData` | `ease-in-out preset` | Default curve data (uncontrolled). |
+| `width` | `number` | `320` | Width of the editor in pixels. |
+| `height` | `number` | `200` | Height of the editor in pixels. |
+| `responsive` | `boolean` | `false` | Whether the editor fills its parent container via ResizeObserver. |
+| `showToolbar` | `boolean` | `true` | Whether to show the toolbar with presets and tangent mode buttons. |
+| `showGrid` | `boolean` | `true` | Whether to show grid lines. |
+| `gridSubdivisions` | `number` | `4` | Number of grid subdivision lines between domain bounds. |
+| `showAxisLabels` | `boolean` | `true` | Whether to display X/Y axis value labels on the grid. |
+| `allowAdd` | `boolean` | `true` | Whether double-clicking the curve adds a new keyframe. |
+| `allowDelete` | `boolean` | `true` | Whether Delete/Backspace removes selected keyframes. |
+| `maxKeyframes` | `number` | `Infinity` | Maximum number of keyframes allowed. |
+| `lockEndpoints` | `boolean` | `true` | Whether first/last keyframe X positions are locked. |
+| `minKeyframeDistance` | `number` | `0.001` | Minimum distance between keyframes on the X axis. |
+| `clampY` | `boolean` | `true` | Whether Y values are clamped to domain bounds. |
+| `snapToGrid` | `boolean` | `false` | Snap to grid while dragging (Ctrl toggles). |
+| `precision` | `number` | `3` | Number format precision for displayed values. |
+| `labelX` | `string` | — | X axis label (e.g., "Time", "Input"). |
+| `labelY` | `string` | — | Y axis label (e.g., "Value", "Output"). |
+| `presets` | `CurvePreset[]` | — | Custom preset curves, merged with built-in presets. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Component size affecting toolbar and label sizing. |
+| `disabled` | `boolean` | `false` | Whether the editor is disabled. |
+| `readOnly` | `boolean` | `false` | Whether the editor is read-only (viewable but not editable). |
+| `curveColor` | `string` | `theme accent color` | CSS color for the curve line. |
+| `curveWidth` | `number` | `2` | Curve line width in pixels. |
+| `lockTangents` | `boolean` | `false` | Hides tangent handles and disables tangent editing UI. |
+| `onChange` | `(curve: CurveData) => void` | — | Callback fired continuously during drag. |
+| `onChangeComplete` | `(curve: CurveData) => void` | — | Callback fired when editing is committed (drag end, add, delete). |
+| `onSelectionChange` | `(selectedIds: string[]) => void` | — | Callback when keyframe selection changes. |
+| `renderBackground` | `(ctx: CanvasRenderingContext2D, info: CurveBackgroundInfo) => void` | — | Custom background renderer for the canvas. |
+| `renderBottomBar` | `(info: CurveBottomBarInfo) => ReactNode` | — | Render prop for custom content below the canvas. |
+| `className` | `string` | — | Additional CSS class names. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### CurveData
 

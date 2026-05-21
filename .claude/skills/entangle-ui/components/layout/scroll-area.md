@@ -170,27 +170,27 @@ The `onScrollBottom` callback is useful for implementing infinite scrolling patt
 
 ## Props
 
-| Prop                  | Type                                       | Default      | Description                                                                                         |
-| --------------------- | ------------------------------------------ | ------------ | --------------------------------------------------------------------------------------------------- |
-| `children`            | `ReactNode`                                | —            | Scrollable content. Required.                                                                       |
-| `direction`           | `'vertical' \| 'horizontal' \| 'both'`     | `'vertical'` | Which axes can scroll.                                                                              |
-| `scrollbarVisibility` | `'auto' \| 'always' \| 'hover' \| 'never'` | `'auto'`     | Scrollbar visibility behavior.                                                                      |
-| `hideDelay`           | `number`                                   | `1000`       | Delay in milliseconds before scrollbar auto-hides. Only applies when scrollbarVisibility is "auto". |
-| `scrollbarWidth`      | `number`                                   | `6`          | Scrollbar track width in pixels.                                                                    |
-| `minThumbLength`      | `number`                                   | `30`         | Minimum scrollbar thumb length in pixels.                                                           |
-| `scrollbarPadding`    | `number`                                   | `2`          | Padding between scrollbar track and content edge in pixels.                                         |
-| `fadeMask`            | `boolean`                                  | `false`      | Whether to show gradient fade masks at scroll boundaries.                                           |
-| `fadeMaskHeight`      | `number`                                   | `24`         | Height of the fade mask gradient in pixels.                                                         |
-| `maxHeight`           | `number \| string`                         | —            | Maximum height of the scroll area. Required to enable vertical scrolling.                           |
-| `maxWidth`            | `number \| string`                         | —            | Maximum width of the scroll area. Required to enable horizontal scrolling.                          |
-| `autoFill`            | `boolean`                                  | `false`      | When true, sets width and height to 100% to fill the parent container.                              |
-| `onScroll`            | `(event: UIEvent) => void`                 | —            | Callback fired when the scroll position changes.                                                    |
-| `onScrollTop`         | `() => void`                               | —            | Callback fired when scroll reaches the top edge.                                                    |
-| `onScrollBottom`      | `() => void`                               | —            | Callback fired when scroll reaches the bottom edge.                                                 |
-| `className`           | `string`                                   | —            | Additional CSS class names applied to the root element.                                             |
-| `style`               | `CSSProperties`                            | —            | Inline styles applied to the root element.                                                          |
-| `testId`              | `string`                                   | —            | Test identifier for automated testing.                                                              |
-| `ref`                 | `Ref`                                      | —            | Ref to the scrollable viewport element.                                                             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Scrollable content. Required. |
+| `direction` | `'vertical' \| 'horizontal' \| 'both'` | `'vertical'` | Which axes can scroll. |
+| `scrollbarVisibility` | `'auto' \| 'always' \| 'hover' \| 'never'` | `'auto'` | Scrollbar visibility behavior. |
+| `hideDelay` | `number` | `1000` | Delay in milliseconds before scrollbar auto-hides. Only applies when scrollbarVisibility is "auto". |
+| `scrollbarWidth` | `number` | `6` | Scrollbar track width in pixels. |
+| `minThumbLength` | `number` | `30` | Minimum scrollbar thumb length in pixels. |
+| `scrollbarPadding` | `number` | `2` | Padding between scrollbar track and content edge in pixels. |
+| `fadeMask` | `boolean` | `false` | Whether to show gradient fade masks at scroll boundaries. |
+| `fadeMaskHeight` | `number` | `24` | Height of the fade mask gradient in pixels. |
+| `maxHeight` | `number \| string` | — | Maximum height of the scroll area. Required to enable vertical scrolling. |
+| `maxWidth` | `number \| string` | — | Maximum width of the scroll area. Required to enable horizontal scrolling. |
+| `autoFill` | `boolean` | `false` | When true, sets width and height to 100% to fill the parent container. |
+| `onScroll` | `(event: UIEvent) => void` | — | Callback fired when the scroll position changes. |
+| `onScrollTop` | `() => void` | — | Callback fired when scroll reaches the top edge. |
+| `onScrollBottom` | `() => void` | — | Callback fired when scroll reaches the bottom edge. |
+| `className` | `string` | — | Additional CSS class names applied to the root element. |
+| `style` | `CSSProperties` | — | Inline styles applied to the root element. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the scrollable viewport element. |
 
 The component also accepts all standard HTML `<div>` attributes on the root element.
 

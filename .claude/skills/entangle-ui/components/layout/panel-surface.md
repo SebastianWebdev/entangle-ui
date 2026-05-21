@@ -178,49 +178,49 @@ Control the inner padding of the body area. Accepts numbers (treated as pixels) 
 
 ### PanelSurface
 
-| Prop         | Type                   | Default | Description                                                                                          |
-| ------------ | ---------------------- | ------- | ---------------------------------------------------------------------------------------------------- |
-| `children`   | `ReactNode`            | —       | Panel content. Typically PanelSurface.Header, PanelSurface.Body, and optionally PanelSurface.Footer. |
-| `size`       | `'sm' \| 'md' \| 'lg'` | `'md'`  | Visual density for header and footer chrome. Shared via context to sub-components.                   |
-| `bordered`   | `boolean`              | `true`  | Whether to show a border around the panel.                                                           |
-| `background` | `string`               | —       | Custom background color or gradient. Defaults to the theme secondary background.                     |
-| `className`  | `string`               | —       | Additional CSS class names.                                                                          |
-| `style`      | `CSSProperties`        | —       | Inline styles.                                                                                       |
-| `testId`     | `string`               | —       | Test identifier for automated testing.                                                               |
-| `ref`        | `Ref`                  | —       | Ref to the root div element.                                                                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Panel content. Typically PanelSurface.Header, PanelSurface.Body, and optionally PanelSurface.Footer. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Visual density for header and footer chrome. Shared via context to sub-components. |
+| `bordered` | `boolean` | `true` | Whether to show a border around the panel. |
+| `background` | `string` | — | Custom background color or gradient. Defaults to the theme secondary background. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root div element. |
 
 ### PanelSurface.Header
 
-| Prop        | Type            | Default | Description                                                                   |
-| ----------- | --------------- | ------- | ----------------------------------------------------------------------------- |
-| `children`  | `ReactNode`     | —       | Header content such as a title or label.                                      |
-| `actions`   | `ReactNode`     | —       | Action elements rendered on the right side of the header (e.g. icon buttons). |
-| `className` | `string`        | —       | Additional CSS class names.                                                   |
-| `style`     | `CSSProperties` | —       | Inline styles.                                                                |
-| `testId`    | `string`        | —       | Test identifier for automated testing.                                        |
-| `ref`       | `Ref`           | —       | Ref to the header div element.                                                |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Header content such as a title or label. |
+| `actions` | `ReactNode` | — | Action elements rendered on the right side of the header (e.g. icon buttons). |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the header div element. |
 
 ### PanelSurface.Body
 
-| Prop        | Type               | Default | Description                                                    |
-| ----------- | ------------------ | ------- | -------------------------------------------------------------- |
-| `children`  | `ReactNode`        | —       | Main panel content.                                            |
-| `scroll`    | `boolean`          | `false` | Enables automatic overflow scrolling for the body area.        |
-| `padding`   | `number \| string` | `0`     | Inner padding of the body area. Numbers are treated as pixels. |
-| `className` | `string`           | —       | Additional CSS class names.                                    |
-| `style`     | `CSSProperties`    | —       | Inline styles.                                                 |
-| `testId`    | `string`           | —       | Test identifier for automated testing.                         |
-| `ref`       | `Ref`              | —       | Ref to the body div element.                                   |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Main panel content. |
+| `scroll` | `boolean` | `false` | Enables automatic overflow scrolling for the body area. |
+| `padding` | `number \| string` | `0` | Inner padding of the body area. Numbers are treated as pixels. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the body div element. |
 
 ### PanelSurface.Footer
 
-| Prop        | Type            | Default | Description                            |
-| ----------- | --------------- | ------- | -------------------------------------- |
-| `children`  | `ReactNode`     | —       | Footer content such as action buttons. |
-| `className` | `string`        | —       | Additional CSS class names.            |
-| `style`     | `CSSProperties` | —       | Inline styles.                         |
-| `testId`    | `string`        | —       | Test identifier for automated testing. |
-| `ref`       | `Ref`           | —       | Ref to the footer div element.         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Footer content such as action buttons. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the footer div element. |
 
 All sub-components also accept standard HTML `<div>` attributes.
 

@@ -98,23 +98,23 @@ Use the `name` prop for form integration. A hidden input is rendered with the va
 
 ## Props
 
-| Prop             | Type                         | Default   | Description                                                      |
-| ---------------- | ---------------------------- | --------- | ---------------------------------------------------------------- |
-| `checked`        | `boolean`                    | —         | Whether the switch is on (controlled mode).                      |
-| `defaultChecked` | `boolean`                    | `false`   | Default on/off state (uncontrolled mode).                        |
-| `label`          | `string`                     | —         | Switch label text.                                               |
-| `labelPosition`  | `'left' \| 'right'`          | `'right'` | Position of the label relative to the switch.                    |
-| `size`           | `'sm' \| 'md' \| 'lg'`       | `'md'`    | Switch size controlling track and thumb dimensions.              |
-| `disabled`       | `boolean`                    | `false`   | Whether the switch is disabled.                                  |
-| `helperText`     | `string`                     | —         | Helper text displayed below the switch.                          |
-| `error`          | `boolean`                    | `false`   | Whether the switch has an error state.                           |
-| `errorMessage`   | `string`                     | —         | Error message displayed when error is true. Replaces helperText. |
-| `name`           | `string`                     | —         | Name attribute for form submission.                              |
-| `onChange`       | `(checked: boolean) => void` | —         | Change event handler receiving the new on/off state.             |
-| `className`      | `string`                     | —         | Additional CSS class names.                                      |
-| `style`          | `CSSProperties`              | —         | Inline styles.                                                   |
-| `testId`         | `string`                     | —         | Test identifier for automated testing.                           |
-| `ref`            | `Ref`                        | —         | Ref to the underlying button element.                            |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `checked` | `boolean` | — | Whether the switch is on (controlled mode). |
+| `defaultChecked` | `boolean` | `false` | Default on/off state (uncontrolled mode). |
+| `label` | `string` | — | Switch label text. |
+| `labelPosition` | `'left' \| 'right'` | `'right'` | Position of the label relative to the switch. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Switch size controlling track and thumb dimensions. |
+| `disabled` | `boolean` | `false` | Whether the switch is disabled. |
+| `helperText` | `string` | — | Helper text displayed below the switch. |
+| `error` | `boolean` | `false` | Whether the switch has an error state. |
+| `errorMessage` | `string` | — | Error message displayed when error is true. Replaces helperText. |
+| `name` | `string` | — | Name attribute for form submission. |
+| `onChange` | `(checked: boolean) => void` | — | Change event handler receiving the new on/off state. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying button element. |
 
 The component also accepts all standard HTML `<button>` attributes (except `onChange`).
 

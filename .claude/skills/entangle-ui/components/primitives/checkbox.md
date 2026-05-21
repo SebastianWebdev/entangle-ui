@@ -125,27 +125,27 @@ Use the `name` and `value` props for form integration. A hidden input is rendere
 
 ## Props
 
-| Prop             | Type                         | Default     | Description                                                           |
-| ---------------- | ---------------------------- | ----------- | --------------------------------------------------------------------- |
-| `checked`        | `boolean`                    | —           | Whether the checkbox is checked (controlled mode).                    |
-| `defaultChecked` | `boolean`                    | `false`     | Default checked state (uncontrolled mode).                            |
-| `indeterminate`  | `boolean`                    | `false`     | Whether the checkbox is in an indeterminate state. Shows a dash icon. |
-| `label`          | `string`                     | —           | Label text displayed next to the checkbox.                            |
-| `labelPosition`  | `'left' \| 'right'`          | `'right'`   | Position of the label relative to the checkbox.                       |
-| `size`           | `'sm' \| 'md' \| 'lg'`       | `'md'`      | Checkbox size.                                                        |
-| `variant`        | `'default' \| 'filled'`      | `'default'` | Visual variant controlling unchecked/checked appearance.              |
-| `disabled`       | `boolean`                    | `false`     | Whether the checkbox is disabled.                                     |
-| `required`       | `boolean`                    | `false`     | Whether the checkbox is required.                                     |
-| `error`          | `boolean`                    | `false`     | Whether the checkbox has an error state.                              |
-| `helperText`     | `string`                     | —           | Helper text displayed below the checkbox.                             |
-| `errorMessage`   | `string`                     | —           | Error message displayed when error is true. Replaces helperText.      |
-| `value`          | `string`                     | —           | Value attribute for CheckboxGroup integration and form submission.    |
-| `name`           | `string`                     | —           | Name attribute for form submission.                                   |
-| `onChange`       | `(checked: boolean) => void` | —           | Change event handler receiving the new checked state.                 |
-| `className`      | `string`                     | —           | Additional CSS class names.                                           |
-| `style`          | `CSSProperties`              | —           | Inline styles.                                                        |
-| `testId`         | `string`                     | —           | Test identifier for automated testing.                                |
-| `ref`            | `Ref`                        | —           | Ref to the underlying button element.                                 |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `checked` | `boolean` | — | Whether the checkbox is checked (controlled mode). |
+| `defaultChecked` | `boolean` | `false` | Default checked state (uncontrolled mode). |
+| `indeterminate` | `boolean` | `false` | Whether the checkbox is in an indeterminate state. Shows a dash icon. |
+| `label` | `string` | — | Label text displayed next to the checkbox. |
+| `labelPosition` | `'left' \| 'right'` | `'right'` | Position of the label relative to the checkbox. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Checkbox size. |
+| `variant` | `'default' \| 'filled'` | `'default'` | Visual variant controlling unchecked/checked appearance. |
+| `disabled` | `boolean` | `false` | Whether the checkbox is disabled. |
+| `required` | `boolean` | `false` | Whether the checkbox is required. |
+| `error` | `boolean` | `false` | Whether the checkbox has an error state. |
+| `helperText` | `string` | — | Helper text displayed below the checkbox. |
+| `errorMessage` | `string` | — | Error message displayed when error is true. Replaces helperText. |
+| `value` | `string` | — | Value attribute for CheckboxGroup integration and form submission. |
+| `name` | `string` | — | Name attribute for form submission. |
+| `onChange` | `(checked: boolean) => void` | — | Change event handler receiving the new checked state. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying button element. |
 
 ## Accessibility
 

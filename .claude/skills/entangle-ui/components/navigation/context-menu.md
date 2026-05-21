@@ -165,20 +165,20 @@ const config = {
 
 ## Props
 
-| Prop            | Type                                                              | Default | Description                                                                 |
-| --------------- | ----------------------------------------------------------------- | ------- | --------------------------------------------------------------------------- |
-| `config`        | `MenuConfig \| (context: ContextMenuTargetDetails) => MenuConfig` | —       | Static menu config or resolver function called with trigger context.        |
-| `selectedItems` | `Record<string, string[]>`                                        | —       | Currently selected items grouped by group ID.                               |
-| `onChange`      | `(selection: MenuSelection) => void`                              | —       | Callback when selection state changes.                                      |
-| `children`      | `ReactNode`                                                       | —       | Content that acts as the right-click trigger area.                          |
-| `payload`       | `TPayload`                                                        | —       | Optional data attached to this trigger area, passed to the config resolver. |
-| `checkboxIcon`  | `ReactNode`                                                       | ``      | Custom icon for checkbox selected state.                                    |
-| `radioIcon`     | `ReactNode`                                                       | ``      | Custom icon for radio selected state.                                       |
-| `disabled`      | `boolean`                                                         | `false` | Disables opening the context menu.                                          |
-| `className`     | `string`                                                          | —       | Additional CSS class names for the menu popup.                              |
-| `style`         | `CSSProperties`                                                   | —       | Inline styles for the menu popup.                                           |
-| `testId`        | `string`                                                          | —       | Test identifier for automated testing.                                      |
-| `ref`           | `Ref`                                                             | —       | Ref to the menu popup element.                                              |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `config` | `MenuConfig \| (context: ContextMenuTargetDetails) => MenuConfig` | — | Static menu config or resolver function called with trigger context. |
+| `selectedItems` | `Record<string, string[]>` | — | Currently selected items grouped by group ID. |
+| `onChange` | `(selection: MenuSelection) => void` | — | Callback when selection state changes. |
+| `children` | `ReactNode` | — | Content that acts as the right-click trigger area. |
+| `payload` | `TPayload` | — | Optional data attached to this trigger area, passed to the config resolver. |
+| `checkboxIcon` | `ReactNode` | `` | Custom icon for checkbox selected state. |
+| `radioIcon` | `ReactNode` | `` | Custom icon for radio selected state. |
+| `disabled` | `boolean` | `false` | Disables opening the context menu. |
+| `className` | `string` | — | Additional CSS class names for the menu popup. |
+| `style` | `CSSProperties` | — | Inline styles for the menu popup. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the menu popup element. |
 
 The ContextMenu shares the same `MenuConfig`, `MenuGroup`, and `MenuItem` types as the [Menu](/components/navigation/menu) component.
 

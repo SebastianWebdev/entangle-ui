@@ -46,10 +46,10 @@ A keyboard event handler. Attach it to the container's `onKeyDown` prop.
 
 ## API
 
-| Prop                        | Type        | Default | Description                                                                                                        |
-| --------------------------- | ----------- | ------- | ------------------------------------------------------------------------------------------------------------------ |
-| `containerRef` _(required)_ | `RefObject` | —       | Ref to the element whose focusable descendants are trapped.                                                        |
-| `enabled`                   | `boolean`   | `true`  | When false, Tab works normally and focus escapes the container. Useful for toggling trap state without unmounting. |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `containerRef` *(required)* | `RefObject` | — | Ref to the element whose focusable descendants are trapped. |
+| `enabled` | `boolean` | `true` | When false, Tab works normally and focus escapes the container. Useful for toggling trap state without unmounting. |
 
 ## Focusable selector
 

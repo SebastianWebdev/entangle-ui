@@ -175,39 +175,39 @@ Long-running operations benefit from a custom label that names the unit of work 
 
 ## ProgressBar Props
 
-| Prop            | Type                                                       | Default     | Description                                                                                                |
-| --------------- | ---------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------- |
-| `value`         | `number`                                                   | —           | Current progress value. Omit to render the indeterminate variant.                                          |
-| `min`           | `number`                                                   | `0`         | Minimum value.                                                                                             |
-| `max`           | `number`                                                   | `100`       | Maximum value.                                                                                             |
-| `size`          | `'sm' \| 'md' \| 'lg'`                                     | `'md'`      | Bar height.                                                                                                |
-| `color`         | `'primary' \| 'success' \| 'warning' \| 'error' \| string` | `'primary'` | Named theme color or any CSS color string.                                                                 |
-| `showLabel`     | `false \| 'inline' \| 'overlay'`                           | `false`     | How (or whether) to render the percentage.                                                                 |
-| `label`         | `ReactNode`                                                | —           | Custom label override; replaces the percentage text.                                                       |
-| `striped`       | `boolean`                                                  | `false`     | Add a diagonal stripe overlay to the fill.                                                                 |
-| `animated`      | `boolean`                                                  | `false`     | Animate the stripes; honored only when striped is true.                                                    |
-| `ariaLabel`     | `string`                                                   | —           | Accessible label. Defaults to "Loading" for indeterminate bars.                                            |
-| `ariaValueText` | `string`                                                   | —           | Human-readable description exposed via aria-valuetext. Falls back to the string/number label when omitted. |
-| `className`     | `string`                                                   | —           | Additional CSS class names.                                                                                |
-| `style`         | `CSSProperties`                                            | —           | Inline styles.                                                                                             |
-| `testId`        | `string`                                                   | —           | Test identifier for automated testing.                                                                     |
-| `ref`           | `Ref`                                                      | —           | Ref to the underlying div element.                                                                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `number` | — | Current progress value. Omit to render the indeterminate variant. |
+| `min` | `number` | `0` | Minimum value. |
+| `max` | `number` | `100` | Maximum value. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Bar height. |
+| `color` | `'primary' \| 'success' \| 'warning' \| 'error' \| string` | `'primary'` | Named theme color or any CSS color string. |
+| `showLabel` | `false \| 'inline' \| 'overlay'` | `false` | How (or whether) to render the percentage. |
+| `label` | `ReactNode` | — | Custom label override; replaces the percentage text. |
+| `striped` | `boolean` | `false` | Add a diagonal stripe overlay to the fill. |
+| `animated` | `boolean` | `false` | Animate the stripes; honored only when striped is true. |
+| `ariaLabel` | `string` | — | Accessible label. Defaults to "Loading" for indeterminate bars. |
+| `ariaValueText` | `string` | — | Human-readable description exposed via aria-valuetext. Falls back to the string/number label when omitted. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |
 
 ## CircularProgress Props
 
-| Prop            | Type                                                       | Default     | Description                                                                                                |
-| --------------- | ---------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------- |
-| `value`         | `number`                                                   | —           | Current progress value. Omit to render the indeterminate variant.                                          |
-| `min`           | `number`                                                   | `0`         | Minimum value.                                                                                             |
-| `max`           | `number`                                                   | `100`       | Maximum value.                                                                                             |
-| `size`          | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`                     | `'md'`      | Diameter.                                                                                                  |
-| `thickness`     | `number`                                                   | —           | Stroke thickness in px. Derived from size when omitted.                                                    |
-| `color`         | `'primary' \| 'success' \| 'warning' \| 'error' \| string` | `'primary'` | Named theme color or any CSS color string.                                                                 |
-| `showLabel`     | `boolean`                                                  | `false`     | Render the percentage in the center of the circle.                                                         |
-| `label`         | `ReactNode`                                                | —           | Custom center label; replaces the percentage text.                                                         |
-| `ariaLabel`     | `string`                                                   | —           | Accessible label. Defaults to "Loading" for indeterminate progress.                                        |
-| `ariaValueText` | `string`                                                   | —           | Human-readable description exposed via aria-valuetext. Falls back to the string/number label when omitted. |
-| `className`     | `string`                                                   | —           | Additional CSS class names.                                                                                |
-| `style`         | `CSSProperties`                                            | —           | Inline styles.                                                                                             |
-| `testId`        | `string`                                                   | —           | Test identifier for automated testing.                                                                     |
-| `ref`           | `Ref`                                                      | —           | Ref to the underlying div element.                                                                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `number` | — | Current progress value. Omit to render the indeterminate variant. |
+| `min` | `number` | `0` | Minimum value. |
+| `max` | `number` | `100` | Maximum value. |
+| `size` | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'` | `'md'` | Diameter. |
+| `thickness` | `number` | — | Stroke thickness in px. Derived from size when omitted. |
+| `color` | `'primary' \| 'success' \| 'warning' \| 'error' \| string` | `'primary'` | Named theme color or any CSS color string. |
+| `showLabel` | `boolean` | `false` | Render the percentage in the center of the circle. |
+| `label` | `ReactNode` | — | Custom center label; replaces the percentage text. |
+| `ariaLabel` | `string` | — | Accessible label. Defaults to "Loading" for indeterminate progress. |
+| `ariaValueText` | `string` | — | Human-readable description exposed via aria-valuetext. Falls back to the string/number label when omitted. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying div element. |

@@ -57,12 +57,12 @@ useClickOutside([triggerRef, popoverRef], () => setOpen(false));
 
 ## API
 
-| Prop                   | Type                                      | Default       | Description                                                                                                                                          |
-| ---------------------- | ----------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ref` _(required)_     | `RefObject \| RefObject[]`                | —             | Single ref or an array of refs. When an array, the handler fires only when the click is outside ALL refs.                                            |
-| `handler` _(required)_ | `(event: MouseEvent) => void`             | —             | Called when an outside click is detected. The latest handler is always invoked — no need to memoize.                                                 |
-| `options.enabled`      | `boolean`                                 | `true`        | When false, the listener is detached. Toggle this to disable behavior without unmounting.                                                            |
-| `options.event`        | `'mousedown' \| 'click' \| 'pointerdown'` | `'mousedown'` | Which event to listen for. `mousedown` fires before `click`, which prevents a click that closes a popover from also activating something underneath. |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `ref` *(required)* | `RefObject \| RefObject[]` | — | Single ref or an array of refs. When an array, the handler fires only when the click is outside ALL refs. |
+| `handler` *(required)* | `(event: MouseEvent) => void` | — | Called when an outside click is detected. The latest handler is always invoked — no need to memoize. |
+| `options.enabled` | `boolean` | `true` | When false, the listener is detached. Toggle this to disable behavior without unmounting. |
+| `options.event` | `'mousedown' \| 'click' \| 'pointerdown'` | `'mousedown'` | Which event to listen for. `mousedown` fires before `click`, which prevents a click that closes a popover from also activating something underneath. |
 
 ## Common pitfalls
 

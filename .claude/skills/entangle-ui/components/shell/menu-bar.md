@@ -142,62 +142,62 @@ The `menuOffset` prop controls the vertical gap between the top-level trigger an
 
 ### MenuBar
 
-| Prop         | Type            | Default | Description                                                               |
-| ------------ | --------------- | ------- | ------------------------------------------------------------------------- |
-| `size`       | `'sm' \| 'md'`  | `'md'`  | Size of the menu bar, controlling overall density.                        |
-| `menuOffset` | `number`        | `2`     | Vertical gap in pixels between the trigger button and the dropdown panel. |
-| `children`   | `ReactNode`     | —       | MenuBar.Menu components.                                                  |
-| `className`  | `string`        | —       | Additional CSS class names.                                               |
-| `style`      | `CSSProperties` | —       | Inline styles.                                                            |
-| `testId`     | `string`        | —       | Test identifier for automated testing.                                    |
-| `ref`        | `Ref`           | —       | Ref to the root element.                                                  |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `size` | `'sm' \| 'md'` | `'md'` | Size of the menu bar, controlling overall density. |
+| `menuOffset` | `number` | `2` | Vertical gap in pixels between the trigger button and the dropdown panel. |
+| `children` | `ReactNode` | — | MenuBar.Menu components. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root element. |
 
 ### MenuBar.Menu
 
-| Prop                 | Type            | Default | Description                                                |
-| -------------------- | --------------- | ------- | ---------------------------------------------------------- |
-| `label` _(required)_ | `string`        | —       | Text displayed on the trigger button.                      |
-| `disabled`           | `boolean`       | `false` | Whether the entire menu is disabled.                       |
-| `children`           | `ReactNode`     | —       | Menu items (MenuBar.Item, MenuBar.Sub, MenuBar.Separator). |
-| `className`          | `string`        | —       | Additional CSS class names.                                |
-| `style`              | `CSSProperties` | —       | Inline styles.                                             |
-| `testId`             | `string`        | —       | Test identifier for automated testing.                     |
-| `ref`                | `Ref`           | —       | Ref to the menu container element.                         |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `label` *(required)* | `string` | — | Text displayed on the trigger button. |
+| `disabled` | `boolean` | `false` | Whether the entire menu is disabled. |
+| `children` | `ReactNode` | — | Menu items (MenuBar.Item, MenuBar.Sub, MenuBar.Separator). |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the menu container element. |
 
 ### MenuBar.Item
 
-| Prop        | Type            | Default | Description                                                                                                  |
-| ----------- | --------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
-| `children`  | `ReactNode`     | —       | Item label text.                                                                                             |
-| `onClick`   | `() => void`    | —       | Click handler. The menu closes automatically after the handler fires.                                        |
-| `shortcut`  | `string`        | —       | Keyboard shortcut display text (e.g., "Ctrl+S"). This is a visual label only and does not bind the shortcut. |
-| `icon`      | `ReactNode`     | —       | Icon element displayed before the label.                                                                     |
-| `disabled`  | `boolean`       | `false` | Whether the item is disabled.                                                                                |
-| `className` | `string`        | —       | Additional CSS class names.                                                                                  |
-| `style`     | `CSSProperties` | —       | Inline styles.                                                                                               |
-| `testId`    | `string`        | —       | Test identifier for automated testing.                                                                       |
-| `ref`       | `Ref`           | —       | Ref to the button element.                                                                                   |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Item label text. |
+| `onClick` | `() => void` | — | Click handler. The menu closes automatically after the handler fires. |
+| `shortcut` | `string` | — | Keyboard shortcut display text (e.g., "Ctrl+S"). This is a visual label only and does not bind the shortcut. |
+| `icon` | `ReactNode` | — | Icon element displayed before the label. |
+| `disabled` | `boolean` | `false` | Whether the item is disabled. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the button element. |
 
 ### MenuBar.Sub
 
-| Prop                 | Type            | Default | Description                            |
-| -------------------- | --------------- | ------- | -------------------------------------- |
-| `label` _(required)_ | `string`        | —       | Sub-menu trigger label text.           |
-| `disabled`           | `boolean`       | `false` | Whether the sub-menu is disabled.      |
-| `children`           | `ReactNode`     | —       | Sub-menu items.                        |
-| `className`          | `string`        | —       | Additional CSS class names.            |
-| `style`              | `CSSProperties` | —       | Inline styles.                         |
-| `testId`             | `string`        | —       | Test identifier for automated testing. |
-| `ref`                | `Ref`           | —       | Ref to the sub-menu container element. |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `label` *(required)* | `string` | — | Sub-menu trigger label text. |
+| `disabled` | `boolean` | `false` | Whether the sub-menu is disabled. |
+| `children` | `ReactNode` | — | Sub-menu items. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the sub-menu container element. |
 
 ### MenuBar.Separator
 
-| Prop        | Type            | Default | Description                            |
-| ----------- | --------------- | ------- | -------------------------------------- |
-| `className` | `string`        | —       | Additional CSS class names.            |
-| `style`     | `CSSProperties` | —       | Inline styles.                         |
-| `testId`    | `string`        | —       | Test identifier for automated testing. |
-| `ref`       | `Ref`           | —       | Ref to the separator element.          |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the separator element. |
 
 ## Accessibility
 

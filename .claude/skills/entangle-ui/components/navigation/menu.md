@@ -238,17 +238,17 @@ Override the default check and radio icons.
 
 ## Props
 
-| Prop            | Type                                 | Default | Description                                          |
-| --------------- | ------------------------------------ | ------- | ---------------------------------------------------- |
-| `config`        | `MenuConfig`                         | —       | Menu configuration object defining groups and items. |
-| `selectedItems` | `Record<string, string[]>`           | —       | Currently selected items organized by group ID.      |
-| `onChange`      | `(selection: MenuSelection) => void` | —       | Callback when selection state changes.               |
-| `children`      | `ReactNode`                          | —       | Menu trigger element rendered inside a Button.       |
-| `checkboxIcon`  | `ReactNode`                          | ``      | Custom icon for checkbox selected state.             |
-| `radioIcon`     | `ReactNode`                          | ``      | Custom icon for radio selected state.                |
-| `disabled`      | `boolean`                            | `false` | Whether the menu trigger is disabled.                |
-| `className`     | `string`                             | —       | Additional CSS class names for the menu popup.       |
-| `testId`        | `string`                             | —       | Test identifier for automated testing.               |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `config` | `MenuConfig` | — | Menu configuration object defining groups and items. |
+| `selectedItems` | `Record<string, string[]>` | — | Currently selected items organized by group ID. |
+| `onChange` | `(selection: MenuSelection) => void` | — | Callback when selection state changes. |
+| `children` | `ReactNode` | — | Menu trigger element rendered inside a Button. |
+| `checkboxIcon` | `ReactNode` | `` | Custom icon for checkbox selected state. |
+| `radioIcon` | `ReactNode` | `` | Custom icon for radio selected state. |
+| `disabled` | `boolean` | `false` | Whether the menu trigger is disabled. |
+| `className` | `string` | — | Additional CSS class names for the menu popup. |
+| `testId` | `string` | — | Test identifier for automated testing. |
 
 ### MenuConfig
 

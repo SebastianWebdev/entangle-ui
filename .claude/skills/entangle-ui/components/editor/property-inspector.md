@@ -223,77 +223,77 @@ function handleChange(newValue: number) {
 
 ### PropertyPanel
 
-| Prop                    | Type                      | Default                  | Description                                                                       |
-| ----------------------- | ------------------------- | ------------------------ | --------------------------------------------------------------------------------- |
-| `children` _(required)_ | `ReactNode`               | —                        | Panel content -- PropertySection, PropertyGroup, or any elements.                 |
-| `header`                | `ReactNode`               | —                        | Content rendered in the fixed header area above scrollable content.               |
-| `footer`                | `ReactNode`               | —                        | Content rendered in the fixed footer area below scrollable content.               |
-| `size`                  | `'sm' \| 'md' \| 'lg'`    | `'md'`                   | Size applied to all nested sections and rows. Individual components can override. |
-| `maxHeight`             | `number \| string`        | —                        | Maximum height of the panel. Enables scrolling via ScrollArea when set.           |
-| `searchable`            | `boolean`                 | `false`                  | Whether to show a search/filter input in the header.                              |
-| `searchPlaceholder`     | `string`                  | `'Search properties...'` | Placeholder for the search input.                                                 |
-| `onSearchChange`        | `(query: string) => void` | —                        | Callback when search query changes.                                               |
-| `contentTopSpacing`     | `number`                  | —                        | Top padding for the scrollable content area in pixels.                            |
-| `contentBottomSpacing`  | `number`                  | —                        | Bottom padding for the scrollable content area in pixels.                         |
-| `className`             | `string`                  | —                        | Additional CSS class names.                                                       |
-| `style`                 | `CSSProperties`           | —                        | Inline styles.                                                                    |
-| `testId`                | `string`                  | —                        | Test identifier for automated testing.                                            |
-| `ref`                   | `Ref`                     | —                        | Ref to the root element.                                                          |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` *(required)* | `ReactNode` | — | Panel content -- PropertySection, PropertyGroup, or any elements. |
+| `header` | `ReactNode` | — | Content rendered in the fixed header area above scrollable content. |
+| `footer` | `ReactNode` | — | Content rendered in the fixed footer area below scrollable content. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Size applied to all nested sections and rows. Individual components can override. |
+| `maxHeight` | `number \| string` | — | Maximum height of the panel. Enables scrolling via ScrollArea when set. |
+| `searchable` | `boolean` | `false` | Whether to show a search/filter input in the header. |
+| `searchPlaceholder` | `string` | `'Search properties...'` | Placeholder for the search input. |
+| `onSearchChange` | `(query: string) => void` | — | Callback when search query changes. |
+| `contentTopSpacing` | `number` | — | Top padding for the scrollable content area in pixels. |
+| `contentBottomSpacing` | `number` | — | Bottom padding for the scrollable content area in pixels. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root element. |
 
 ### PropertySection
 
-| Prop                    | Type                          | Default | Description                                                                                |
-| ----------------------- | ----------------------------- | ------- | ------------------------------------------------------------------------------------------ |
-| `title` _(required)_    | `string`                      | —       | Section title displayed in the collapsible header.                                         |
-| `icon`                  | `ReactNode`                   | —       | Icon displayed before the section title.                                                   |
-| `actions`               | `ReactNode`                   | —       | Action buttons on the right side of the header. Clicking them does not toggle the section. |
-| `expanded`              | `boolean`                     | —       | Whether the section is expanded (controlled mode).                                         |
-| `defaultExpanded`       | `boolean`                     | `true`  | Whether the section starts expanded (uncontrolled mode).                                   |
-| `onExpandedChange`      | `(expanded: boolean) => void` | —       | Callback when expanded state changes.                                                      |
-| `keepMounted`           | `boolean`                     | `false` | Whether to keep content mounted in the DOM when collapsed.                                 |
-| `disabled`              | `boolean`                     | `false` | Whether the section is disabled (not collapsible, dimmed).                                 |
-| `size`                  | `'sm' \| 'md' \| 'lg'`        | —       | Size override for this section and its rows. Inherits from PropertyPanel if not set.       |
-| `indicator`             | `ReactNode \| null`           | —       | Custom chevron indicator. Pass null to hide the default chevron.                           |
-| `onContextMenu`         | `(event: MouseEvent) => void` | —       | Right-click context menu handler on the section header.                                    |
-| `children` _(required)_ | `ReactNode`                   | —       | Section content -- PropertyRow, PropertyGroup, or any elements.                            |
-| `className`             | `string`                      | —       | Additional CSS class names.                                                                |
-| `style`                 | `CSSProperties`               | —       | Inline styles.                                                                             |
-| `testId`                | `string`                      | —       | Test identifier for automated testing.                                                     |
-| `ref`                   | `Ref`                         | —       | Ref to the root element.                                                                   |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `title` *(required)* | `string` | — | Section title displayed in the collapsible header. |
+| `icon` | `ReactNode` | — | Icon displayed before the section title. |
+| `actions` | `ReactNode` | — | Action buttons on the right side of the header. Clicking them does not toggle the section. |
+| `expanded` | `boolean` | — | Whether the section is expanded (controlled mode). |
+| `defaultExpanded` | `boolean` | `true` | Whether the section starts expanded (uncontrolled mode). |
+| `onExpandedChange` | `(expanded: boolean) => void` | — | Callback when expanded state changes. |
+| `keepMounted` | `boolean` | `false` | Whether to keep content mounted in the DOM when collapsed. |
+| `disabled` | `boolean` | `false` | Whether the section is disabled (not collapsible, dimmed). |
+| `size` | `'sm' \| 'md' \| 'lg'` | — | Size override for this section and its rows. Inherits from PropertyPanel if not set. |
+| `indicator` | `ReactNode \| null` | — | Custom chevron indicator. Pass null to hide the default chevron. |
+| `onContextMenu` | `(event: MouseEvent) => void` | — | Right-click context menu handler on the section header. |
+| `children` *(required)* | `ReactNode` | — | Section content -- PropertyRow, PropertyGroup, or any elements. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root element. |
 
 ### PropertyRow
 
-| Prop                    | Type                          | Default    | Description                                                                                          |
-| ----------------------- | ----------------------------- | ---------- | ---------------------------------------------------------------------------------------------------- |
-| `label` _(required)_    | `string`                      | —          | Property label text.                                                                                 |
-| `tooltip`               | `string`                      | —          | Tooltip text shown on hover over the label.                                                          |
-| `children` _(required)_ | `ReactNode`                   | —          | Control content displayed on the right side.                                                         |
-| `fullWidth`             | `boolean`                     | `false`    | Whether the row spans full width with label above and control below.                                 |
-| `splitRatio`            | `[number, number]`            | `[40, 60]` | Label/value split ratio as percentages.                                                              |
-| `modified`              | `boolean`                     | `false`    | Whether this property has been modified from its default. Shows a dot indicator and bolds the label. |
-| `disabled`              | `boolean`                     | `false`    | Whether the row is disabled (dimmed, non-interactive).                                               |
-| `visible`               | `boolean`                     | `true`     | Whether the row is visible. Use with search filtering.                                               |
-| `size`                  | `'sm' \| 'md' \| 'lg'`        | —          | Size override. Inherits from PropertyPanel if not set.                                               |
-| `action`                | `ReactNode`                   | —          | Action button on the right edge of the row.                                                          |
-| `onLabelContextMenu`    | `(event: MouseEvent) => void` | —          | Right-click handler on the label area.                                                               |
-| `onReset`               | `() => void`                  | —          | Reset callback. When provided, a reset button automatically appears on hover.                        |
-| `className`             | `string`                      | —          | Additional CSS class names.                                                                          |
-| `style`                 | `CSSProperties`               | —          | Inline styles.                                                                                       |
-| `testId`                | `string`                      | —          | Test identifier for automated testing.                                                               |
-| `ref`                   | `Ref`                         | —          | Ref to the root element.                                                                             |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `label` *(required)* | `string` | — | Property label text. |
+| `tooltip` | `string` | — | Tooltip text shown on hover over the label. |
+| `children` *(required)* | `ReactNode` | — | Control content displayed on the right side. |
+| `fullWidth` | `boolean` | `false` | Whether the row spans full width with label above and control below. |
+| `splitRatio` | `[number, number]` | `[40, 60]` | Label/value split ratio as percentages. |
+| `modified` | `boolean` | `false` | Whether this property has been modified from its default. Shows a dot indicator and bolds the label. |
+| `disabled` | `boolean` | `false` | Whether the row is disabled (dimmed, non-interactive). |
+| `visible` | `boolean` | `true` | Whether the row is visible. Use with search filtering. |
+| `size` | `'sm' \| 'md' \| 'lg'` | — | Size override. Inherits from PropertyPanel if not set. |
+| `action` | `ReactNode` | — | Action button on the right edge of the row. |
+| `onLabelContextMenu` | `(event: MouseEvent) => void` | — | Right-click handler on the label area. |
+| `onReset` | `() => void` | — | Reset callback. When provided, a reset button automatically appears on hover. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root element. |
 
 ### PropertyGroup
 
-| Prop                    | Type            | Default | Description                                              |
-| ----------------------- | --------------- | ------- | -------------------------------------------------------- |
-| `title`                 | `string`        | —       | Optional group title rendered as a small label divider.  |
-| `children` _(required)_ | `ReactNode`     | —       | Group content -- PropertyRow elements.                   |
-| `indent`                | `number`        | `0`     | Indent level for nested groups (number of indent steps). |
-| `disabled`              | `boolean`       | `false` | Whether all rows in this group are disabled.             |
-| `className`             | `string`        | —       | Additional CSS class names.                              |
-| `style`                 | `CSSProperties` | —       | Inline styles.                                           |
-| `testId`                | `string`        | —       | Test identifier for automated testing.                   |
-| `ref`                   | `Ref`           | —       | Ref to the root element.                                 |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `title` | `string` | — | Optional group title rendered as a small label divider. |
+| `children` *(required)* | `ReactNode` | — | Group content -- PropertyRow elements. |
+| `indent` | `number` | `0` | Indent level for nested groups (number of indent steps). |
+| `disabled` | `boolean` | `false` | Whether all rows in this group are disabled. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root element. |
 
 ## Accessibility
 

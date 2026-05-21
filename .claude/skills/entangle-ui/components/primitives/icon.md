@@ -89,16 +89,16 @@ When `decorative` is `true`, the icon renders with `aria-hidden="true"` and `rol
 
 ## Props
 
-| Prop         | Type                                                                                             | Default     | Description                                                                  |
-| ------------ | ------------------------------------------------------------------------------------------------ | ----------- | ---------------------------------------------------------------------------- |
-| `children`   | `ReactNode`                                                                                      | —           | SVG content (paths, circles, etc.) to render inside the icon.                |
-| `size`       | `'sm' \| 'md' \| 'lg'`                                                                           | `'md'`      | Icon size controlling width and height.                                      |
-| `color`      | `'primary' \| 'secondary' \| 'muted' \| 'accent' \| 'success' \| 'warning' \| 'error' \| string` | `'primary'` | Icon color. Standard theme tokens or any CSS color value.                    |
-| `title`      | `string`                                                                                         | —           | Accessible title for the icon. Renders a <title> element inside the SVG.     |
-| `decorative` | `boolean`                                                                                        | `false`     | Whether the icon is decorative only. Sets aria-hidden and role=presentation. |
-| `className`  | `string`                                                                                         | —           | Additional CSS class names.                                                  |
-| `testId`     | `string`                                                                                         | —           | Test identifier for automated testing.                                       |
-| `ref`        | `Ref`                                                                                            | —           | Ref to the underlying SVG element.                                           |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | SVG content (paths, circles, etc.) to render inside the icon. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Icon size controlling width and height. |
+| `color` | `'primary' \| 'secondary' \| 'muted' \| 'accent' \| 'success' \| 'warning' \| 'error' \| string` | `'primary'` | Icon color. Standard theme tokens or any CSS color value. |
+| `title` | `string` | — | Accessible title for the icon. Renders a <title> element inside the SVG. |
+| `decorative` | `boolean` | `false` | Whether the icon is decorative only. Sets aria-hidden and role=presentation. |
+| `className` | `string` | — | Additional CSS class names. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying SVG element. |
 
 ## Accessibility
 

@@ -1,6 +1,6 @@
 ---
 name: entangle-ui
-description: Reference for the entangle-ui React component library (primitives, layout, controls, navigation, feedback, shell, editor components, hooks, theming). Use whenever the user is building UI with `entangle-ui`, importing from `entangle-ui`, or asking how an entangle-ui component or hook works. Each component has its own reference file in components/{category}/{name}.md — load the file matching the component(s) being used.
+description: Reference for the entangle-ui React component library (primitives, layout, controls, navigation, feedback, shell, editor components, hooks, theming). Use whenever the user is building UI with `entangle-ui`, importing from `entangle-ui`, or asking how an entangle-ui component or hook works. Each component has its own reference file in components/<category>/<name>.md — load the file matching the component(s) being used.
 ---
 
 # entangle-ui
@@ -11,9 +11,9 @@ Entangle UI is a React 19 component library for professional editor interfaces (
 
 1. Identify which component(s), hook(s) or guide the user is working with.
 2. Read the matching reference file from this skill directory before generating code:
-   - `components/{category}/{name}.md` for components
-   - `hooks/{name}.md` for hooks
-   - `guides/{name}.md` for theming, styling, animations, accessibility
+   - `components/<category>/<name>.md` for components
+   - `hooks/<name>.md` for hooks
+   - `guides/<name>.md` for theming, styling, animations, accessibility
 3. Follow the project conventions in `CLAUDE.md` and `CONVENTIONS.md` (English-only text, `@/` path aliases, theme tokens via `vars.*`, no `any`).
 
 ## Quick install
@@ -23,22 +23,17 @@ npm install entangle-ui @base-ui/react @floating-ui/react
 ```
 
 ```tsx
+import 'entangle-ui/styles.css';
 import { ThemeProvider, Button } from 'entangle-ui';
 
 export function App() {
-  return React.createElement(
-    ThemeProvider,
-    null,
-    React.createElement(Button, { variant: 'filled' }, 'Hello'),
+  return (
+    <ThemeProvider>
+      <Button variant="filled">Hello</Button>
+    </ThemeProvider>
   );
 }
 ```
-
-Component styles are bundled with each module via Vanilla Extract side-effects
-(see `sideEffects: ["*.css", "*.css.ts", "*.css.js"]` in the package's
-`package.json`). No manual stylesheet import is required — your bundler
-(Vite/Rollup/Webpack) collects the CSS automatically as components are
-imported.
 
 ## Component index
 
@@ -50,6 +45,7 @@ imported.
 - `Checkbox` → [components/primitives/checkbox.md](./components/primitives/checkbox.md) — Checkbox component for boolean selection with indeterminate state, labels, and group support.
 - `Code` → [components/primitives/code.md](./components/primitives/code.md) — Inline code primitive backed by the theme inset background and monospace font.
 - `Collapsible` → [components/primitives/collapsible.md](./components/primitives/collapsible.md) — Expandable/collapsible section component for organizing content in panels and settings interfaces.
+- `HoverCard` → [components/primitives/hover-card.md](./components/primitives/hover-card.md) — Hover- and focus-driven floating panel for previews, with safe-polygon cursor handover from trigger to content.
 - `Icon` → [components/primitives/icon.md](./components/primitives/icon.md) — SVG icon wrapper component with standardized sizing and color theming for editor interfaces.
 - `IconButton` → [components/primitives/icon-button.md](./components/primitives/icon-button.md) — Square button component for icon-based actions in toolbars and editor interfaces.
 - `Input` → [components/primitives/input.md](./components/primitives/input.md) — Versatile text input component for editor interfaces with labels, icons, error states, and multiple sizes.
@@ -62,11 +58,13 @@ imported.
 - `Text` → [components/primitives/text.md](./components/primitives/text.md) — Versatile typography component with semantic variants, flexible sizing, and text styling for editor interfaces.
 - `TextArea` → [components/primitives/text-area.md](./components/primitives/text-area.md) — Multi-line text input with optional auto-resize, character count, monospace mode, and Input-parity styling.
 - `Tooltip` → [components/primitives/tooltip.md](./components/primitives/tooltip.md) — Contextual information tooltip with flexible positioning, collision handling, and animation support.
+- `Viewport` → [components/primitives/viewport.md](./components/primitives/viewport.md) — Pan/zoom canvas + HTML container for editor-style surfaces — node graphs, timelines, 2D world editors. Multi-layer rendering, world/screen overlays, marquee selection.
 - `VisuallyHidden` → [components/primitives/visually-hidden.md](./components/primitives/visually-hidden.md) — Hide content visually while keeping it announced by screen readers.
 
 ### Layout
 
 - `Accordion` → [components/layout/accordion.md](./components/layout/accordion.md) — Collapsible sections component using a compound pattern for property inspectors, settings panels, and grouped content.
+- `Card` → [components/layout/card.md](./components/layout/card.md) — Bounded surface for a single semantic unit, with outlined, filled, and elevated variants and a compound API for header / media / body / footer.
 - `Divider` → [components/layout/divider.md](./components/layout/divider.md) — Thin horizontal or vertical rule for separating content, with optional centered label.
 - `Flex` → [components/layout/flex.md](./components/layout/flex.md) — Comprehensive flexbox layout component with full control over direction, alignment, wrapping, spacing, and responsive breakpoints.
 - `Grid` → [components/layout/grid.md](./components/layout/grid.md) — A responsive 12-column grid system built on CSS Grid for creating structured layouts with flexible column spans.
@@ -82,10 +80,14 @@ imported.
 
 - `CartesianPicker` → [components/controls/cartesian-picker.md](./components/controls/cartesian-picker.md) — 2D point picker for selecting coordinates on a cartesian grid with crosshair, snap-to-grid, and custom rendering.
 - `ColorPicker` → [components/controls/color-picker.md](./components/controls/color-picker.md) — Full-featured color picker with saturation/value area, hue slider, alpha channel, input modes, presets, and built-in palettes.
+- `Combobox` → [components/controls/combobox.md](./components/controls/combobox.md) — Single-value select with an editable input, built-in fuzzy filtering, and optional free-solo or creatable modes.
 - `CurveEditor` → [components/controls/curve-editor.md](./components/controls/curve-editor.md) — Interactive bezier curve editor for animation timing, color grading, and value remapping with keyframes, tangent modes, and presets.
+- `FileUploader` → [components/controls/file-uploader.md](./components/controls/file-uploader.md) — Drag-and-drop file uploader with type and size validation, per-row status, and an animated progress bar.
+- `MultiSelect` → [components/controls/multi-select.md](./components/controls/multi-select.md) — Multi-value select that renders chosen options as inline chips, with a "+N more" overflow badge and optional search.
 - `NumberInput` → [components/controls/number-input.md](./components/controls/number-input.md) — Blender-style numeric input with drag-to-scrub, step buttons, expression evaluation, and modifier key support.
 - `Select` → [components/controls/select.md](./components/controls/select.md) — Dropdown select component with searchable mode, grouped options, keyboard navigation, and clearable state.
 - `Slider` → [components/controls/slider.md](./components/controls/slider.md) — A professional slider component with drag interaction, keyboard navigation, and modifier key support.
+- `TagInput` → [components/controls/tag-input.md](./components/controls/tag-input.md) — Multi-value text input that captures a list of strings as removable chips, with configurable commit keys and validation.
 - `TreeView` → [components/controls/tree-view.md](./components/controls/tree-view.md) — Hierarchical collapsible tree for scene hierarchies, file browsers, and layer stacks with multi-selection and inline renaming.
 - `VectorInput` → [components/controls/vector-input.md](./components/controls/vector-input.md) — Grouped numeric input for Vec2, Vec3, and Vec4 vectors with per-axis labels, color coding, and linked proportional editing.
 
@@ -94,17 +96,21 @@ imported.
 - `Breadcrumbs` → [components/navigation/breadcrumbs.md](./components/navigation/breadcrumbs.md) — Hierarchical navigation trail for pages, editor paths, and nested resources.
 - `ContextMenu` → [components/navigation/context-menu.md](./components/navigation/context-menu.md) — Right-click context menu with dynamic configuration, payload-aware items, selection states, and nested submenus.
 - `Menu` → [components/navigation/menu.md](./components/navigation/menu.md) — Configuration-driven menu component with radio/checkbox selection, grouped items, nested submenus, and keyboard navigation.
+- `Pagination` → [components/navigation/pagination.md](./components/navigation/pagination.md) — Page navigator with sibling/boundary ellipsis logic, controlled and uncontrolled modes, three sizes, and optional first/last jump buttons.
 - `SegmentedControl` → [components/navigation/segmented-control.md](./components/navigation/segmented-control.md) — Toolbar-density mutually exclusive selector for view modes, layout toggles, and other small option groups.
 - `Tabs` → [components/navigation/tabs.md](./components/navigation/tabs.md) — Compound tab component for switching between views with underline, pills, and enclosed variants.
 
 ### Feedback
 
 - `Alert` → [components/feedback/alert.md](./components/feedback/alert.md) — Persistent inline status banner with semantic variants, three appearances, optional close button, and a compound API for richer layouts.
+- `CommandPalette` → [components/feedback/command-palette.md](./components/feedback/command-palette.md) — Search-driven command list shown as a centred floating dialog, with fuzzy filtering, keyboard navigation, grouping, and recent-item tracking.
 - `Dialog` → [components/feedback/dialog.md](./components/feedback/dialog.md) — Accessible modal dialog with overlay, focus trap, keyboard support, and compound sub-components for headers, bodies, and footers.
+- `Drawer` → [components/feedback/drawer.md](./components/feedback/drawer.md) — Anchored sliding panel for filters, navigation, or detail views. Four anchors, modal and non-modal modes, and a compound API.
 - `EmptyState` → [components/feedback/empty-state.md](./components/feedback/empty-state.md) — Generic empty / loading state surface with icon, title, description, and action slots.
 - `ProgressBar` → [components/feedback/progress-bar.md](./components/feedback/progress-bar.md) — Linear and circular progress indicators with determinate, indeterminate, striped, and labeled variants.
 - `Skeleton` → [components/feedback/skeleton.md](./components/feedback/skeleton.md) — Loading-placeholder primitive with rect, circle, and line shapes plus pulse, wave, and static animations.
 - `Spinner` → [components/feedback/spinner.md](./components/feedback/spinner.md) — Loading and activity indicator with ring, dots, and pulse variants. Honors prefers-reduced-motion.
+- `Stat` → [components/feedback/stat.md](./components/feedback/stat.md) — KPI / metric display with label, value, optional trend delta, helper, and leading icon.
 - `Toast` → [components/feedback/toast.md](./components/feedback/toast.md) — Toast notification system with severity levels, auto-dismiss, progress indicator, action buttons, and configurable positioning.
 
 ### Shell
@@ -122,18 +128,30 @@ imported.
 - `TransformControl` → [components/editor/transform-control.md](./components/editor/transform-control.md) — The canonical position / rotation / scale property control for 3D editor interfaces. Composes VectorInput, Select and PropertyRow into one high-level component.
 - `ViewportGizmo` → [components/editor/viewport-gizmo.md](./components/editor/viewport-gizmo.md) — 3D orientation gizmo for viewport navigation with orbit, snap-to-view, axis colors, and multiple interaction modes.
 
+### components/data
+
+- `DataTable` → [components/data/data-table.md](./components/data/data-table.md) — Data-driven table with sortable columns, row selection, sticky header, optional column resizing, and row virtualization for large datasets.
+
 ### Hooks
 
 - `Hooks` → [hooks.md](./hooks.md) — Reusable hooks shipped alongside Entangle UI components.
+- `useBreakpoint` → [hooks/use-breakpoint.md](./hooks/use-breakpoint.md) — Reactive named-breakpoint matcher for the library's responsive scale.
 - `useClickOutside` → [hooks/use-click-outside.md](./hooks/use-click-outside.md) — Fire a callback when a click occurs outside a referenced element.
 - `useClipboard` → [hooks/use-clipboard.md](./hooks/use-clipboard.md) — Copy text to the clipboard with a built-in timeout-driven feedback state.
 - `useControlledState` → [hooks/use-controlled-state.md](./hooks/use-controlled-state.md) — Manage a value that may be either controlled by a prop or uncontrolled with an internal default.
+- `useDebouncedCallback` → [hooks/use-debounced-callback.md](./hooks/use-debounced-callback.md) — Debounce a function with optional leading edge, maxWait, and cancel/flush controls.
+- `useDebouncedValue` → [hooks/use-debounced-value.md](./hooks/use-debounced-value.md) — Trailing-edge debounce for a reactive value — defer expensive work until input settles.
 - `useDisclosure` → [hooks/use-disclosure.md](./hooks/use-disclosure.md) — Manage an open/closed state with stable open, close, and toggle callbacks.
 - `useFocusTrap` → [hooks/use-focus-trap.md](./hooks/use-focus-trap.md) — Trap keyboard focus within a container element so Tab and Shift+Tab cycle without escaping.
 - `useHotkey` → [hooks/use-hotkey.md](./hooks/use-hotkey.md) — Bind a single keyboard combo to a callback with platform-aware Cmd/Ctrl mapping.
+- `useIntersectionObserver` → [hooks/use-intersection-observer.md](./hooks/use-intersection-observer.md) — Observe element visibility via IntersectionObserver with SSR-safe setup and a togglable `enabled` flag.
+- `useKeyboard` → [hooks/use-keyboard.md](./hooks/use-keyboard.md) — Track the live state of modifier keys and currently pressed keys.
+- `useListboxNav` → [hooks/use-listbox-nav.md](./hooks/use-listbox-nav.md) — Shared keyboard navigation for listbox-like surfaces — tracks an active index, skips disabled items, and exposes a single keydown handler.
+- `useMediaQuery` → [hooks/use-media-query.md](./hooks/use-media-query.md) — Reactive `matchMedia` listener with an SSR-safe fallback.
 - `useMergedRef` → [hooks/use-merged-ref.md](./hooks/use-merged-ref.md) — Merge multiple refs (object or callback) into a single callback ref.
 - `useResizeObserver` → [hooks/use-resize-observer.md](./hooks/use-resize-observer.md) — Observe size changes on an element with SSR-safe setup and automatic cleanup.
 - `useTheme` → [hooks/use-theme.md](./hooks/use-theme.md) — Read the current theme — resolved CSS variable values, the active variant, and helpers for canvas drawing or third-party libraries.
+- `useThrottledCallback` → [hooks/use-throttled-callback.md](./hooks/use-throttled-callback.md) — Rate-limit a function so it fires at most once per delay window, with optional leading/trailing edges.
 
 ### Guides
 
@@ -154,8 +172,8 @@ imported.
 
 ## Authoring rules
 
-- Always wrap the app once in the `ThemeProvider` component (defaults to dark theme).
-- Component styles are auto-included via the package's `sideEffects` declaration; no manual `styles.css` import is needed.
+- Always wrap the app once in `<ThemeProvider>` (defaults to dark theme).
+- Import the bundled stylesheet exactly once: `import 'entangle-ui/styles.css'`.
 - Prefer the typed component props documented per file. Do not invent props.
 - For custom styling, read `guides/styling.md` and `guides/theming.md` before adding new styles; theme tokens are exposed as `vars.*` from `@/theme/contract.css`.
 - Components are tree-shakeable; import directly from `entangle-ui`.

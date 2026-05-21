@@ -103,17 +103,17 @@ When the user enables `prefers-reduced-motion: reduce` in their OS, animation is
 
 ## Props
 
-| Prop        | Type                                                        | Default        | Description                                  |
-| ----------- | ----------------------------------------------------------- | -------------- | -------------------------------------------- |
-| `variant`   | `'ring' \| 'dots' \| 'pulse'`                               | `'ring'`       | Visual style.                                |
-| `size`      | `'xs' \| 'sm' \| 'md' \| 'lg'`                              | `'md'`         | Size scale.                                  |
-| `color`     | `'accent' \| 'primary' \| 'secondary' \| 'muted' \| string` | `'accent'`     | Named theme color or any CSS color string.   |
-| `label`     | `string`                                                    | `'Loading...'` | Visible text and aria-label content.         |
-| `showLabel` | `boolean`                                                   | `false`        | Show the label visually next to the spinner. |
-| `className` | `string`                                                    | —              | Additional CSS class names.                  |
-| `style`     | `CSSProperties`                                             | —              | Inline styles.                               |
-| `testId`    | `string`                                                    | —              | Test identifier for automated testing.       |
-| `ref`       | `Ref`                                                       | —              | Ref to the underlying span element.          |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `variant` | `'ring' \| 'dots' \| 'pulse'` | `'ring'` | Visual style. |
+| `size` | `'xs' \| 'sm' \| 'md' \| 'lg'` | `'md'` | Size scale. |
+| `color` | `'accent' \| 'primary' \| 'secondary' \| 'muted' \| string` | `'accent'` | Named theme color or any CSS color string. |
+| `label` | `string` | `'Loading...'` | Visible text and aria-label content. |
+| `showLabel` | `boolean` | `false` | Show the label visually next to the spinner. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the underlying span element. |
 
 ## Accessibility
 
