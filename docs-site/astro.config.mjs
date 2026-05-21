@@ -247,6 +247,10 @@ export default defineConfig({
                   slug: 'components/editor/minimap',
                 },
                 {
+                  label: 'NodeGraph',
+                  slug: 'components/editor/nodegraph',
+                },
+                {
                   label: 'PropertyInspector',
                   slug: 'components/editor/property-inspector',
                 },
