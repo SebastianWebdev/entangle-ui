@@ -1,0 +1,189 @@
+---
+import { Code } from 'astro:components';
+
+interface Props {
+  /** Optional header title shown above the preview. */
+  title?: string;
+  /** Optional one-line description shown under the title. */
+  description?: string;
+  /** Source code to show in the Code tab. */
+  code: string;
+  /** Shiki language id. @default 'tsx' */
+  lang?: string;
+  /** Height of the preview pane. */
+  height?: string;
+  /** Padding inside the preview pane. @default '1rem' */
+  padding?: string;
+  /** Which tab is active on first render. @default 'preview' */
+  defaultTab?: 'preview' | 'code';
+}
+
+const {
+  title,
+  description,
+  code,
+  lang = 'tsx',
+  height,
+  padding = '1rem',
+  defaultTab = 'preview',
+} = Astro.props;
+
+const id = `pt-${Math.random().toString(36).slice(2, 11)}`;
+const previewActive = defaultTab === 'preview';
+---
+
+<div class="preview-toggle" data-toggle-root>
+  {(title || description) && (
+    <div class="preview-header">
+      {title && <h4 class="preview-title">{title}</h4>}
+      {description && <p class="preview-description">{description}</p>}
+    </div>
+  )}
+
+  <div class="preview-tabs" role="tablist" aria-label="Preview and code">
+    <button
+      type="button"
+      role="tab"
+      class="preview-tab"
+      aria-selected={previewActive ? 'true' : 'false'}
+      aria-controls={`${id}-preview`}
+      id={`${id}-tab-preview`}
+      data-pane="preview"
+    >
+      Preview
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="preview-tab"
+      aria-selected={previewActive ? 'false' : 'true'}
+      aria-controls={`${id}-code`}
+      id={`${id}-tab-code`}
+      data-pane="code"
+    >
+      Code
+    </button>
+  </div>
+
+  <div
+    class="preview-pane preview-pane-live not-content"
+    role="tabpanel"
+    id={`${id}-preview`}
+    aria-labelledby={`${id}-tab-preview`}
+    data-active={previewActive ? 'true' : 'false'}
+    style={`padding: ${padding}; ${height ? `height: ${height};` : ''}`}
+  >
+    <slot />
+  </div>
+
+  <div
+    class="preview-pane preview-pane-code"
+    role="tabpanel"
+    id={`${id}-code`}
+    aria-labelledby={`${id}-tab-code`}
+    data-active={previewActive ? 'false' : 'true'}
+  >
+    <Code code={code} lang={lang} />
+  </div>
+</div>
+
+<style>
+  .preview-toggle {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    overflow: hidden;
+    background: var(--sl-color-bg);
+  }
+
+  .preview-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-gray-6);
+  }
+  .preview-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+  .preview-description {
+    margin: 0.25rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--sl-color-gray-2);
+  }
+
+  .preview-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 4px 4px 0 4px;
+    background: var(--sl-color-gray-6);
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+
+  .preview-tab {
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    background: transparent;
+    color: var(--sl-color-gray-2);
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 120ms, color 120ms, border-color 120ms;
+  }
+  .preview-tab:hover {
+    color: var(--sl-color-white);
+  }
+  .preview-tab:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: -2px;
+  }
+  .preview-tab[aria-selected='true'] {
+    background: var(--sl-color-bg);
+    color: var(--sl-color-white);
+    border-color: var(--sl-color-gray-5);
+  }
+
+  .preview-pane[data-active='false'] {
+    display: none;
+  }
+
+  .preview-pane-code :global(pre) {
+    margin: 0;
+    border-radius: 0;
+    border: none;
+  }
+</style>
+
+<script>
+  // Tab toggling — vanilla JS, no client island needed.
+  function wireToggle(root: HTMLElement): void {
+    const tabs = root.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+    const panes = root.querySelectorAll<HTMLElement>('.preview-pane');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.pane;
+        tabs.forEach(t => {
+          t.setAttribute(
+            'aria-selected',
+            t.dataset.pane === target ? 'true' : 'false'
+          );
+        });
+        panes.forEach(p => {
+          const isLive = p.classList.contains('preview-pane-live');
+          const matches =
+            (isLive && target === 'preview') ||
+            (!isLive && target === 'code');
+          p.setAttribute('data-active', matches ? 'true' : 'false');
+        });
+      });
+    });
+  }
+
+  document
+    .querySelectorAll<HTMLElement>('[data-toggle-root]')
+    .forEach(wireToggle);
+</script>

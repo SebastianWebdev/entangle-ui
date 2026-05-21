@@ -45,6 +45,47 @@ export type {
 
 export { TransformControl } from './TransformControl';
 
+export {
+  Minimap,
+  MinimapTitle,
+  MinimapFooter,
+  MinimapCorner,
+  ViewportMinimap,
+  computeBoundsFromItems,
+  useMinimapContext,
+  useMinimapHover,
+  useMinimapGeometry,
+  useMinimapDragState,
+  MINIMAP_SLOT,
+} from './Minimap';
+
+export type {
+  MinimapProps,
+  MinimapItem,
+  MinimapRectItem,
+  MinimapCircleItem,
+  MinimapLineItem,
+  MinimapCustomItem,
+  MinimapNavigateInfo,
+  MinimapNavigatePhase,
+  MinimapInteractionConfig,
+  MinimapDrawInfo,
+  MinimapContextValue,
+  MinimapHandle,
+  MinimapSlotKind,
+  MinimapSlotMarker,
+  MinimapGeometryState,
+  MinimapHoverState,
+  MinimapTitleProps,
+  MinimapFooterProps,
+  MinimapCornerProps,
+  MinimapTitlePlacement,
+  MinimapFooterPlacement,
+  MinimapCornerSide,
+  ViewportMinimapProps,
+  ViewportMinimapPlacement,
+} from './Minimap';
+
 export type {
   TransformControlProps,
   TransformValue,

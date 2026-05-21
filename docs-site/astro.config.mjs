@@ -243,6 +243,10 @@ export default defineConfig({
                   slug: 'components/editor/chat-panel',
                 },
                 {
+                  label: 'Minimap',
+                  slug: 'components/editor/minimap',
+                },
+                {
                   label: 'PropertyInspector',
                   slug: 'components/editor/property-inspector',
                 },

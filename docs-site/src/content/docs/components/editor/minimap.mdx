@@ -1,0 +1,499 @@
+---
+title: Minimap
+description: Shared navigation primitive that renders a miniature of editor content alongside a draggable rectangle mirroring the main viewport's visible region. Designed for NodeGraph, Timeline, and custom 2D editor surfaces.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import PreviewToggle from '../../../../components/PreviewToggle.astro';
+import MinimapDemo from '../../../../components/demos/editor/MinimapDemo';
+import MinimapItemsDemo from '../../../../components/demos/editor/MinimapItemsDemo';
+import MinimapSlotsDemo from '../../../../components/demos/editor/MinimapSlotsDemo';
+import MinimapContextDemo from '../../../../components/demos/editor/MinimapContextDemo';
+import MinimapRenderOverlayDemo from '../../../../components/demos/editor/MinimapRenderOverlayDemo';
+import MinimapTimelineDemo from '../../../../components/demos/editor/MinimapTimelineDemo';
+
+A compact navigation widget that renders a miniature of editor content and a draggable rectangle reflecting the main viewport's visible region. Built as a shared primitive consumed by `NodeGraph`, `Timeline`, and any custom 2D editor surface that wants overview navigation.
+
+<ComponentPreview title="Live Preview">
+  <MinimapDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import {
+  Minimap,
+  ViewportMinimap,
+  computeBoundsFromItems,
+  useMinimapContext,
+} from 'entangle-ui';
+import type { MinimapItem, MinimapNavigateInfo } from 'entangle-ui';
+```
+
+## Two ways to wire it up
+
+`Minimap` is a controlled primitive — pass `transform`, `viewportSize`, and translate `onNavigate.worldPoint` into a `viewport.centerOn(...)` call. `ViewportMinimap` is a compound subcomponent that does this wiring automatically when used inside a `<Viewport>` tree.
+
+### `ViewportMinimap` — for use inside `<Viewport>`
+
+Reads live `transform`/`size` from `useViewportContext()`, positions itself in a corner (or custom anchor), and wires `onNavigate` to the viewport handle's `centerOn`. The 12-line "drop-in overlay" recipe baked into the library.
+
+```tsx
+<Viewport ref={viewportRef} responsive>
+  <ViewportLayer name="grid" draw={drawGrid} />
+  <ViewportWorld>{nodes}</ViewportWorld>
+
+  <ViewportMinimap
+    items={items}
+    worldBounds={computeBoundsFromItems(items, 40)}
+    placement="bottom-right"
+    width={240}
+  />
+</Viewport>
+```
+
+`placement` accepts the four corner presets or a custom object — `{ top, right, bottom, left, width, height }`. `responsive` makes the minimap track its wrapper width via `ResizeObserver` so the consumer can drive size from CSS.
+
+### `Minimap` — for use outside `<Viewport>` (sidebars, custom surfaces)
+
+The plain primitive — fully controlled. Useful when the minimap lives in a sidebar, when you're driving a non-Viewport surface, or when you want manual control over the wiring.
+
+```tsx
+const viewportRef = useRef<ViewportHandle>(null);
+const [transform, setTransform] = useState<ViewportTransform>({ x: 0, y: 0, zoom: 1 });
+const [size, setSize] = useState<ViewportSize>({ width: 0, height: 0 });
+
+<Viewport
+  ref={viewportRef}
+  transform={transform}
+  onTransformChange={setTransform}
+  responsive
+>
+  ...
+</Viewport>
+
+<Minimap
+  items={items}
+  worldBounds={computeBoundsFromItems(items, 40)}
+  transform={transform}
+  viewportSize={size}
+  onNavigate={info => viewportRef.current?.centerOn(info.worldPoint)}
+/>;
+```
+
+## Item shapes
+
+`MinimapItem` is a discriminated union of four primitives. Mix them freely.
+
+```tsx
+type MinimapItem =
+  | {
+      id: string;
+      type: 'rect';
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      color?: string;
+    }
+  | {
+      id: string;
+      type: 'circle';
+      cx: number;
+      cy: number;
+      r: number;
+      color?: string;
+    }
+  | {
+      id: string;
+      type: 'line';
+      x1: number;
+      y1: number;
+      x2: number;
+      y2: number;
+      color?: string;
+      lineWidth?: number;
+    }
+  | {
+      id: string;
+      type: 'custom';
+      bounds: WorldRect;
+      draw: (ctx, info: MinimapDrawInfo) => void;
+    };
+```
+
+- **`rect`** — node bodies in a NodeGraph, clips on tracks in a Timeline.
+- **`circle`** — compact node markers, keyframes.
+- **`line`** — edges between nodes, range markers. `lineWidth` is in minimap CSS px and does not scale with world content.
+- **`custom`** — caller-drawn shapes. `bounds` (world coords) is used for hover hit-testing; `draw` receives the canvas context and `MinimapDrawInfo` with `worldToMinimap`/`minimapToWorld`/`scale`/`offset` helpers.
+
+<PreviewToggle
+  title="All four item shapes in one minimap"
+  code={`const ITEMS: MinimapItem[] = [
+  { id: 'r1', type: 'rect', x: 40, y: 40, width: 120, height: 60, color: '#4a86c8' },
+  { id: 'r2', type: 'rect', x: 220, y: 140, width: 100, height: 60, color: '#6aa84f' },
+  { id: 'c1', type: 'circle', cx: 420, cy: 80, r: 30, color: '#e63946' },
+  { id: 'l1', type: 'line', x1: 100, y1: 100, x2: 220, y2: 170, color: 'rgba(255,255,255,0.5)' },
+  {
+    id: 'star',
+    type: 'custom',
+    bounds: { x: 320, y: 220, width: 60, height: 60 },
+    draw: (ctx, info) => {
+      const center = info.worldToMinimap({ x: 350, y: 250 });
+      ctx.fillStyle = 'gold';
+      drawStar(ctx, center.x, center.y, 5, 10, 4);
+    },
+  },
+];
+
+<Minimap
+  items={ITEMS}
+  worldBounds={computeBoundsFromItems(ITEMS, 30)}
+  transform={transform}
+  viewportSize={viewportSize}
+  onNavigate={onNavigate}
+  width={300}
+/>`}
+>
+  <MinimapItemsDemo client:only="react" />
+</PreviewToggle>
+
+## Slots — title, footer, corners
+
+Pass `<Minimap.Title>`, `<Minimap.Footer>`, and `<Minimap.Corner>` as children to add chrome around (or inside) the minimap body. Any other child becomes a free-form overlay positioned absolutely above the canvas.
+
+<PreviewToggle
+  title="Title outside + two corners + footer"
+  code={`<Minimap items={items} worldBounds={bounds} transform={t} viewportSize={s}>
+  <Minimap.Title>Pipeline overview</Minimap.Title>
+  <Minimap.Corner side="top-right">v1.2</Minimap.Corner>
+  <Minimap.Corner side="bottom-left">4 nodes</Minimap.Corner>
+  <Minimap.Footer>Drag to navigate · Arrow keys to pan</Minimap.Footer>
+</Minimap>`}
+>
+  <MinimapSlotsDemo client:only="react" />
+</PreviewToggle>
+
+| Subcomponent       | Props                                                                          |
+| ------------------ | ------------------------------------------------------------------------------ |
+| `<Minimap.Title>`  | `placement?: 'top-outside' \| 'top-inside'` (default `'top-outside'`)          |
+| `<Minimap.Footer>` | `placement?: 'bottom-outside' \| 'bottom-inside'` (default `'bottom-outside'`) |
+| `<Minimap.Corner>` | `side: 'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'`           |
+
+## Live state — `useMinimapContext`
+
+Children rendered inside a `<Minimap>` (or `<ViewportMinimap>`) can read live hover state, transform, and bounds via `useMinimapContext()`. Use it to build coordinate readouts, "show selected" badges, or zoom-level chips without re-implementing hit-testing.
+
+<PreviewToggle
+  title="Coordinate + hovered-item readout"
+  description="Hover the minimap below — coordinates and item id update live in the footer."
+  code={`function Readout() {
+  const { hoverWorldPoint, hoveredItemId } = useMinimapContext();
+  if (!hoverWorldPoint) return <span>Hover the minimap…</span>;
+  return (
+    <span>
+      x: {Math.round(hoverWorldPoint.x)} · y: {Math.round(hoverWorldPoint.y)}
+      {hoveredItemId && \` · \${hoveredItemId}\`}
+    </span>
+  );
+}
+
+<Minimap items={items} worldBounds={bounds} transform={t} viewportSize={s}>
+  <Minimap.Title>Hover an item</Minimap.Title>
+  <Minimap.Footer><Readout /></Minimap.Footer>
+</Minimap>`}
+>
+  <MinimapContextDemo client:only="react" />
+</PreviewToggle>
+
+`MinimapContextValue` includes `worldBounds`, `minimapSize`, `transform`, `viewportSize`, `hoverWorldPoint`, `hoverMinimapPoint`, `hoveredItemId`, and `isDragging`.
+
+## `renderOverlay` — global canvas annotations
+
+Pass a `renderOverlay` callback to draw on the canvas after items and before the viewport-rect shroud. Useful for playheads, selection regions, grid overlays, debug markers.
+
+<PreviewToggle
+  title="Animated timeline playhead"
+  description="The red playhead line is drawn via renderOverlay using a world-space x driven by a rAF tick."
+  code={`<Minimap
+  items={clips}
+  worldBounds={timelineBounds}
+  transform={t}
+  viewportSize={s}
+  width={520}
+  renderOverlay={(ctx, info) => {
+    const p = info.worldToMinimap({ x: playhead, y: 0 });
+    ctx.strokeStyle = '#ff3860';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(p.x + 0.5, 0);
+    ctx.lineTo(p.x + 0.5, info.minimapSize.height);
+    ctx.stroke();
+    ctx.fillStyle = '#ff3860';
+    ctx.beginPath();
+    ctx.arc(p.x + 0.5, 3, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }}
+>
+  <Minimap.Title>Playhead via renderOverlay</Minimap.Title>
+</Minimap>`}
+>
+  <MinimapRenderOverlayDemo client:only="react" />
+</PreviewToggle>
+
+## Sizing
+
+`Minimap` exposes a single `width` prop; height is derived from the `worldBounds` aspect ratio and clamped to `[minHeight, maxHeight]`. `ViewportMinimap` additionally supports a `responsive` prop that tracks the wrapper width via `ResizeObserver` — combine with a custom `placement` object to drive width from CSS.
+
+```tsx
+{
+  /* Compact 220×variable for a NodeGraph */
+}
+<Minimap width={220} {...rest} />;
+
+{
+  /* Timeline-style wide strip — clamps keep it from collapsing to a hairline */
+}
+<Minimap
+  width={600}
+  minHeight={24}
+  maxHeight={64}
+  worldBounds={{ x: 0, y: 0, width: 12000, height: 200 }}
+  {...rest}
+/>;
+
+{
+  /* Responsive via wrapper width */
+}
+<ViewportMinimap
+  responsive
+  placement={{ bottom: 12, left: 12, width: '30%' }}
+  {...rest}
+/>;
+```
+
+<PreviewToggle
+  title="Timeline-style wide-thin minimap"
+  description="Wide worldBounds + tight minHeight/maxHeight clamps produce a strip suitable for Timeline-style editors."
+  code={`<Minimap
+  items={clips}
+  worldBounds={{ x: -100, y: -10, width: 8200, height: 124 }}
+  transform={t}
+  viewportSize={s}
+  width={600}
+  minHeight={56}
+  maxHeight={96}
+>
+  <Minimap.Title>Master timeline</Minimap.Title>
+  <Minimap.Footer>8000 frames · 4 tracks · 9 clips</Minimap.Footer>
+</Minimap>`}
+>
+  <MinimapTimelineDemo client:only="react" />
+</PreviewToggle>
+
+## Interactions
+
+`Minimap` supports three pointer gestures plus arrow-key navigation. Every navigation event flows through a single `onNavigate` callback that carries a `phase` field — enough to drive undo groups, smooth-follow, or analytics without forcing the consumer into multiple handlers.
+
+| Gesture                       | Phase sequence                          |
+| ----------------------------- | --------------------------------------- |
+| Tap outside the viewport rect | `'click'`                               |
+| Drag from outside             | `'drag-start' → 'drag'… → 'drag-end'`   |
+| Drag the viewport rect itself | `'drag-start' → 'drag'… → 'drag-end'`   |
+| Arrow keys (when focused)     | `'click'` per keypress (Shift × 5 step) |
+
+Each gesture is independently toggleable:
+
+```tsx
+<Minimap
+  interactions={{ click: true, dragViewportRect: true, dragFromEmpty: false }}
+  {...rest}
+/>;
+
+{
+  /* Or disable everything for a read-only preview */
+}
+<Minimap interactions={false} {...rest} />;
+```
+
+## Theming
+
+The default look uses theme tokens: `--etui-color-bg-secondary` for the background, `--etui-color-accent-primary` for items and the viewport-rect outline, and `--etui-color-border-default` for the wrapper border. Each can be overridden per-instance:
+
+```tsx
+<Minimap
+  backgroundColor="#0c0c10"
+  defaultItemColor="#7da4ff"
+  viewportRectStroke="#7da4ff"
+  outsideOverlay="rgba(0, 0, 0, 0.55)"
+  {...rest}
+/>
+```
+
+Individual items can carry their own `color` (overrides `defaultItemColor`).
+
+## Accessibility
+
+- The minimap is focusable (`tabindex=0`); arrow keys pan the main viewport by `keyboardPanStep` of the current viewport's world extent per press. Shift × 5.
+- `role="region"` with `aria-label` (default `"Minimap"`, configurable).
+- A visually-hidden `aria-live="polite"` region announces panning state for screen readers.
+- Disabling the minimap (`disabled`) sets `tabindex=-1` and suppresses all interactions.
+
+## Props
+
+### `Minimap`
+
+<PropsTable
+  props={[
+    {
+      name: 'items',
+      type: 'ReadonlyArray<MinimapItem>',
+      required: true,
+      description:
+        'Items rendered as the content miniature. Discriminated union of rect / circle / line / custom shapes.',
+    },
+    {
+      name: 'worldBounds',
+      type: 'WorldRect',
+      required: true,
+      description:
+        'World-space rectangle the minimap maps to. Use computeBoundsFromItems(items, padding?) for an ergonomic default.',
+    },
+    {
+      name: 'transform',
+      type: 'ViewportTransform',
+      required: true,
+      description:
+        'Current main-viewport transform ({ x, y, zoom }) — drives the viewport rect overlay.',
+    },
+    {
+      name: 'viewportSize',
+      type: 'ViewportSize',
+      required: true,
+      description:
+        'Current main-viewport size in CSS pixels — drives the viewport rect overlay.',
+    },
+    {
+      name: 'onNavigate',
+      type: '(info: MinimapNavigateInfo) => void',
+      description:
+        'Called for click, drag, or arrow-key navigation. info.worldPoint is the world point that should sit at the main viewport center; info.phase is one of "click" | "drag-start" | "drag" | "drag-end".',
+    },
+    {
+      name: 'width',
+      type: 'number',
+      default: '200',
+      description:
+        'Minimap width in CSS pixels. Height is derived from worldBounds aspect ratio and clamped to [minHeight, maxHeight].',
+    },
+    {
+      name: 'minHeight',
+      type: 'number',
+      default: '60',
+      description: 'Lower bound for the derived height.',
+    },
+    {
+      name: 'maxHeight',
+      type: 'number',
+      default: '200',
+      description: 'Upper bound for the derived height.',
+    },
+    {
+      name: 'interactions',
+      type: 'MinimapInteractionConfig | false',
+      default: '{ click: true, dragViewportRect: true, dragFromEmpty: true }',
+      description:
+        'Gesture configuration. Pass false to disable all interactions, or an object to fine-tune individual gestures.',
+    },
+    {
+      name: 'keyboardPanStep',
+      type: 'number',
+      default: '0.1',
+      description:
+        'Keyboard pan step, as a fraction of the current viewport world extent per arrow-key press. Shift × 5.',
+    },
+    {
+      name: 'renderOverlay',
+      type: '(ctx, info: MinimapDrawInfo) => void',
+      description:
+        'Custom canvas drawing pass executed after items and before the viewport-rect shroud + outline.',
+    },
+    {
+      name: 'backgroundColor',
+      type: 'string',
+      description:
+        'Override background color. Defaults to the theme --etui-color-bg-secondary.',
+    },
+    {
+      name: 'defaultItemColor',
+      type: 'string',
+      description:
+        'Default color for items without an explicit color. Defaults to the theme accent.',
+    },
+    {
+      name: 'viewportRectStroke',
+      type: 'string',
+      description: 'Viewport-rect outline color. Defaults to the theme accent.',
+    },
+    {
+      name: 'outsideOverlay',
+      type: 'string',
+      default: "'rgba(0, 0, 0, 0.4)'",
+      description:
+        'Dimmed shroud color covering the area outside the viewport rect.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disable interactions and dim the minimap.',
+    },
+    {
+      name: 'ariaLabel',
+      type: 'string',
+      default: "'Minimap'",
+      description: 'Accessible label for the minimap region.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description:
+        'Slot subcomponents (Minimap.Title / Footer / Corner) and/or free-form overlay nodes.',
+    },
+  ]}
+/>
+
+### `ViewportMinimap`
+
+<PropsTable
+  props={[
+    {
+      name: 'placement',
+      type: "'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | { top?, right?, bottom?, left?, width?, height? }",
+      default: "'bottom-right'",
+      description:
+        'Anchored position inside the parent <Viewport>. Use a preset or pass an object for custom anchoring.',
+    },
+    {
+      name: 'margin',
+      type: 'number',
+      default: '12',
+      description:
+        'Distance (CSS px) from the viewport edge when using a preset placement.',
+    },
+    {
+      name: 'responsive',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'When true, the minimap width tracks the wrapper width via ResizeObserver. Wrapper size must be set externally (custom placement / parent CSS).',
+    },
+    {
+      name: '...rest',
+      type: 'MinimapProps (except transform / viewportSize)',
+      description:
+        'All other Minimap props pass through. transform and viewportSize are read from useViewportContext().',
+    },
+  ]}
+/>
