@@ -217,4 +217,111 @@ Individual items can carry their own `color` (overrides `defaultItemColor`).
 
 ## Props
 
-<PropsTable name="MinimapProps" />
+<PropsTable
+  props={[
+    {
+      name: 'items',
+      type: 'ReadonlyArray<MinimapItem>',
+      required: true,
+      description:
+        'Items rendered as the content miniature. Discriminated union of rect / circle / line shapes.',
+    },
+    {
+      name: 'worldBounds',
+      type: 'WorldRect',
+      required: true,
+      description:
+        'World-space rectangle the minimap maps to. Use computeBoundsFromItems(items, padding?) for an ergonomic default.',
+    },
+    {
+      name: 'transform',
+      type: 'ViewportTransform',
+      required: true,
+      description:
+        "Current main-viewport transform ({ x, y, zoom }) — drives the viewport rect overlay.",
+    },
+    {
+      name: 'viewportSize',
+      type: 'ViewportSize',
+      required: true,
+      description:
+        'Current main-viewport size in CSS pixels — drives the viewport rect overlay.',
+    },
+    {
+      name: 'onNavigate',
+      type: '(info: MinimapNavigateInfo) => void',
+      description:
+        'Called for click, drag, or arrow-key navigation. info.worldPoint is the world point that should sit at the main viewport center; info.phase is one of "click" | "drag-start" | "drag" | "drag-end".',
+    },
+    {
+      name: 'width',
+      type: 'number',
+      default: '200',
+      description:
+        'Minimap width in CSS pixels. Height is derived from worldBounds aspect ratio and clamped to [minHeight, maxHeight].',
+    },
+    {
+      name: 'minHeight',
+      type: 'number',
+      default: '60',
+      description: 'Lower bound for the derived height.',
+    },
+    {
+      name: 'maxHeight',
+      type: 'number',
+      default: '200',
+      description: 'Upper bound for the derived height.',
+    },
+    {
+      name: 'interactions',
+      type: 'MinimapInteractionConfig | false',
+      default: "{ click: true, dragViewportRect: true, dragFromEmpty: true }",
+      description:
+        'Gesture configuration. Pass false to disable all interactions, or an object to fine-tune individual gestures.',
+    },
+    {
+      name: 'keyboardPanStep',
+      type: 'number',
+      default: '0.1',
+      description:
+        'Keyboard pan step, as a fraction of the current viewport world extent per arrow-key press. Shift × 5.',
+    },
+    {
+      name: 'backgroundColor',
+      type: 'string',
+      description:
+        'Override background color. Defaults to the theme --etui-color-bg-secondary.',
+    },
+    {
+      name: 'defaultItemColor',
+      type: 'string',
+      description:
+        'Default color for items without an explicit color. Defaults to the theme accent.',
+    },
+    {
+      name: 'viewportRectStroke',
+      type: 'string',
+      description:
+        'Viewport-rect outline color. Defaults to the theme accent.',
+    },
+    {
+      name: 'outsideOverlay',
+      type: 'string',
+      default: "'rgba(0, 0, 0, 0.4)'",
+      description:
+        'Dimmed shroud color covering the area outside the viewport rect.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disable interactions and dim the minimap.',
+    },
+    {
+      name: 'ariaLabel',
+      type: 'string',
+      default: "'Minimap'",
+      description: 'Accessible label for the minimap region.',
+    },
+  ]}
+/>
