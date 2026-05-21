@@ -321,4 +321,191 @@ function NodeBadge({ nodeId }: { nodeId: string }) {
 
 ## Props
 
-<PropsTable name="NodeGraph" />
+<PropsTable
+  props={[
+    {
+      name: 'nodes',
+      type: 'NodeGraphNode[]',
+      description:
+        'Controlled list of nodes. Pair with onNodesChange. Use defaultNodes for uncontrolled mode.',
+    },
+    {
+      name: 'defaultNodes',
+      type: 'NodeGraphNode[]',
+      description: 'Initial nodes when uncontrolled. Ignored if `nodes` is set.',
+    },
+    {
+      name: 'onNodesChange',
+      type: '(nodes: NodeGraphNode[]) => void',
+      description: 'Fires with the full next nodes array on every mutation (drag, delete, nudge).',
+    },
+    {
+      name: 'edges',
+      type: 'NodeGraphEdge[]',
+      description: 'Controlled list of edges. Pair with onEdgesChange.',
+    },
+    {
+      name: 'defaultEdges',
+      type: 'NodeGraphEdge[]',
+      description: 'Initial edges when uncontrolled.',
+    },
+    {
+      name: 'onEdgesChange',
+      type: '(edges: NodeGraphEdge[]) => void',
+      description: 'Fires with the full next edges array on connection drop, delete, etc.',
+    },
+    {
+      name: 'groups',
+      type: 'NodeGraphGroup[]',
+      description: 'Controlled list of visual group backdrops drawn under nodes.',
+    },
+    {
+      name: 'defaultGroups',
+      type: 'NodeGraphGroup[]',
+      description: 'Initial groups when uncontrolled.',
+    },
+    {
+      name: 'onGroupsChange',
+      type: '(groups: NodeGraphGroup[]) => void',
+      description: 'Fires with the full next groups array.',
+    },
+    {
+      name: 'selection',
+      type: 'NodeGraphSelection',
+      description:
+        'Controlled selection { nodes, edges, groups } (arrays of ids). Pair with onSelectionChange.',
+    },
+    {
+      name: 'defaultSelection',
+      type: 'NodeGraphSelection',
+      description: 'Initial selection when uncontrolled.',
+    },
+    {
+      name: 'onSelectionChange',
+      type: '(selection: NodeGraphSelection) => void',
+      description: 'Fires on click, Shift-click, marquee, Cmd+A, Escape.',
+    },
+    {
+      name: 'renderNode',
+      type: '(node, ctx) => React.ReactNode',
+      description:
+        'Render the body of each node. ctx carries selected / dragging / hovered / zoom. Default renders a labelled panel.',
+    },
+    {
+      name: 'renderEdgeLabel',
+      type: '(edge: NodeGraphEdge) => React.ReactNode',
+      description:
+        'Render an HTML overlay at each edge midpoint. Overrides edge.label.',
+    },
+    {
+      name: 'isValidConnection',
+      type: '(source, target, info) => boolean',
+      description:
+        'Validate a connection drag. Return false to mark the candidate invalid and refuse the drop. With no validator, same-node drops are refused by default.',
+    },
+    {
+      name: 'snapToGrid',
+      type: 'number | false',
+      default: 'false',
+      description:
+        'Snap drag deltas and keyboard nudges to this world-unit grid step. Pass `false` to disable.',
+    },
+    {
+      name: 'onConnectStart',
+      type: '(info: NodeGraphConnectStartInfo) => void',
+      description: 'Fires on port pointer-down (drag start).',
+    },
+    {
+      name: 'onConnectEnd',
+      type: '(info: NodeGraphConnectEndInfo) => void',
+      description: 'Fires on pointer-up after a connection drag (success or cancel).',
+    },
+    {
+      name: 'onContextMenu',
+      type: '(info: NodeGraphContextMenuInfo) => void',
+      description:
+        'Fires on right-click. info.target is a discriminated union: node / edge / port / group / empty.',
+    },
+    {
+      name: 'onDelete',
+      type: '(selection: NodeGraphSelection) => void',
+      description: 'Fires on Delete/Backspace when the selection is non-empty.',
+    },
+    {
+      name: 'onActivate',
+      type: '(node: NodeGraphNode) => void',
+      description: 'Fires on Enter when exactly one node is selected.',
+    },
+    {
+      name: 'pan',
+      type: 'ViewportPanConfig | false',
+      default: "{ button: 'middle', spaceKey: true }",
+      description: 'Pan gesture configuration, forwarded to the underlying Viewport.',
+    },
+    {
+      name: 'zoom',
+      type: 'ViewportZoomConfig | false',
+      default: '{ wheel: true, pinch: true, speed: 0.0015 }',
+      description: 'Zoom gesture configuration, forwarded to the underlying Viewport.',
+    },
+    {
+      name: 'minZoom',
+      type: 'number',
+      default: '0.1',
+      description: 'Minimum zoom level.',
+    },
+    {
+      name: 'maxZoom',
+      type: 'number',
+      default: '4',
+      description: 'Maximum zoom level.',
+    },
+    {
+      name: 'selectionRect',
+      type: 'boolean',
+      default: 'true',
+      description: 'Enable marquee selection on drag from empty background.',
+    },
+    {
+      name: 'responsive',
+      type: 'boolean',
+      default: 'false',
+      description: 'Track parent size via ResizeObserver. When false, uses `height`.',
+    },
+    {
+      name: 'height',
+      type: 'number',
+      default: '480',
+      description: 'Fixed height in CSS pixels when not responsive.',
+    },
+    {
+      name: 'defaultNodeSize',
+      type: '{ width: number; height: number }',
+      default: '{ width: 180, height: 80 }',
+      description: 'Size used for nodes that omit width/height.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disable all interaction and dim the surface.',
+    },
+    {
+      name: 'ariaLabel',
+      type: 'string',
+      default: "'Node graph'",
+      description: 'Accessible label applied to the underlying viewport.',
+    },
+    {
+      name: 'children',
+      type: 'React.ReactNode',
+      description: 'Slot subcomponents: `<NodeGraph.Minimap>` and/or `<NodeGraph.Background>`.',
+    },
+    {
+      name: 'ref',
+      type: 'React.Ref<NodeGraphHandle>',
+      description:
+        'Imperative handle (fitToContent, fitToSelection, focusNode, centerOn, zoomToRect, world/screen conversions, invalidate).',
+    },
+  ]}
+/>
