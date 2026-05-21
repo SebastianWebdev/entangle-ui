@@ -9,33 +9,47 @@ A compact navigation widget that renders a miniature of editor content and a dra
 ## Import
 
 ```tsx
-import { Minimap, computeBoundsFromItems } from 'entangle-ui';
+import {
+  Minimap,
+  ViewportMinimap,
+  computeBoundsFromItems,
+  useMinimapContext,
+} from 'entangle-ui';
 import type { MinimapItem, MinimapNavigateInfo } from 'entangle-ui';
 ```
 
-## Usage
+## Two ways to wire it up
 
-`Minimap` is a controlled primitive — pass the current `transform` and `viewportSize` from your `<Viewport>` and translate `onNavigate.worldPoint` into a `viewport.centerOn(...)` call.
+`Minimap` is a controlled primitive — pass `transform`, `viewportSize`, and translate `onNavigate.worldPoint` into a `viewport.centerOn(...)` call. `ViewportMinimap` is a compound subcomponent that does this wiring automatically when used inside a `<Viewport>` tree.
+
+### `ViewportMinimap` — for use inside `<Viewport>`
+
+Reads live `transform`/`size` from `useViewportContext()`, positions itself in a corner (or custom anchor), and wires `onNavigate` to the viewport handle's `centerOn`. The 12-line "drop-in overlay" recipe baked into the library.
+
+```tsx
+<Viewport ref={viewportRef} responsive>
+  <ViewportLayer name="grid" draw={drawGrid} />
+  <ViewportWorld>{nodes}</ViewportWorld>
+
+  <ViewportMinimap
+    items={items}
+    worldBounds={computeBoundsFromItems(items, 40)}
+    placement="bottom-right"
+    width={240}
+  />
+</Viewport>
+```
+
+`placement` accepts the four corner presets or a custom object — `{ top, right, bottom, left, width, height }`. `responsive` makes the minimap track its wrapper width via `ResizeObserver` so the consumer can drive size from CSS.
+
+### `Minimap` — for use outside `<Viewport>` (sidebars, custom surfaces)
+
+The plain primitive — fully controlled. Useful when the minimap lives in a sidebar, when you're driving a non-Viewport surface, or when you want manual control over the wiring.
 
 ```tsx
 const viewportRef = useRef<ViewportHandle>(null);
-const [transform, setTransform] = useState<ViewportTransform>({
-  x: 0,
-  y: 0,
-  zoom: 1,
-});
+const [transform, setTransform] = useState<ViewportTransform>({ x: 0, y: 0, zoom: 1 });
 const [size, setSize] = useState<ViewportSize>({ width: 0, height: 0 });
-
-const items: MinimapItem[] = nodes.map(n => ({
-  id: n.id,
-  type: 'rect',
-  x: n.x,
-  y: n.y,
-  width: n.width,
-  height: n.height,
-}));
-
-const worldBounds = computeBoundsFromItems(items, 40);
 
 <Viewport
   ref={viewportRef}
@@ -43,12 +57,12 @@ const worldBounds = computeBoundsFromItems(items, 40);
   onTransformChange={setTransform}
   responsive
 >
-  ...layers / world children...
+  ...
 </Viewport>
 
 <Minimap
   items={items}
-  worldBounds={worldBounds}
+  worldBounds={computeBoundsFromItems(items, 40)}
   transform={transform}
   viewportSize={size}
   onNavigate={info => viewportRef.current?.centerOn(info.worldPoint)}
@@ -57,7 +71,7 @@ const worldBounds = computeBoundsFromItems(items, 40);
 
 ## Item shapes
 
-`MinimapItem` is a discriminated union of three primitives. Mix them freely.
+`MinimapItem` is a discriminated union of four primitives. Mix them freely.
 
 ```tsx
 type MinimapItem =
@@ -87,20 +101,104 @@ type MinimapItem =
       y2: number;
       color?: string;
       lineWidth?: number;
+    }
+  | {
+      id: string;
+      type: 'custom';
+      bounds: WorldRect;
+      draw: (ctx, info: MinimapDrawInfo) => void;
     };
 ```
 
 - **`rect`** — node bodies in a NodeGraph, clips on tracks in a Timeline.
 - **`circle`** — compact node markers, keyframes.
 - **`line`** — edges between nodes, range markers. `lineWidth` is in minimap CSS px and does not scale with world content.
+- **`custom`** — caller-drawn shapes. `bounds` (world coords) is used for hover hit-testing; `draw` receives the canvas context and `MinimapDrawInfo` with `worldToMinimap`/`minimapToWorld`/`scale`/`offset` helpers.
+
+```tsx
+const items: MinimapItem[] = [
+  { id: 'A', type: 'rect', x: 0, y: 0, width: 100, height: 50 },
+  {
+    id: 'star',
+    type: 'custom',
+    bounds: { x: 200, y: 200, width: 40, height: 40 },
+    draw: (ctx, info) => {
+      const center = info.worldToMinimap({ x: 220, y: 220 });
+      ctx.fillStyle = 'gold';
+      drawStar(ctx, center.x, center.y, 5, 8, 4);
+    },
+  },
+];
+```
+
+## Slots — title, footer, corners
+
+Pass `<Minimap.Title>`, `<Minimap.Footer>`, and `<Minimap.Corner>` as children to add chrome around (or inside) the minimap body. Any other child becomes a free-form overlay positioned absolutely above the canvas.
+
+```tsx
+<Minimap items={items} worldBounds={bounds} transform={t} viewportSize={s}>
+  <Minimap.Title>Asset Pipeline</Minimap.Title>
+  <Minimap.Corner side="top-right">
+    <ZoomReadout />
+  </Minimap.Corner>
+  <Minimap.Footer>Drag · Arrows · Click to jump</Minimap.Footer>
+</Minimap>
+```
+
+| Subcomponent       | Props                                                                          |
+| ------------------ | ------------------------------------------------------------------------------ |
+| `<Minimap.Title>`  | `placement?: 'top-outside' \| 'top-inside'` (default `'top-outside'`)          |
+| `<Minimap.Footer>` | `placement?: 'bottom-outside' \| 'bottom-inside'` (default `'bottom-outside'`) |
+| `<Minimap.Corner>` | `side: 'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'`           |
+
+## Live state — `useMinimapContext`
+
+Children rendered inside a `<Minimap>` (or `<ViewportMinimap>`) can read live hover state, transform, and bounds via `useMinimapContext()`. Use it to build coordinate readouts, "show selected" badges, or zoom-level chips without re-implementing hit-testing.
+
+```tsx
+function CoordReadout() {
+  const { hoverWorldPoint, hoveredItemId } = useMinimapContext();
+  if (!hoverWorldPoint) return <span>—</span>;
+  return (
+    <span>
+      {Math.round(hoverWorldPoint.x)}, {Math.round(hoverWorldPoint.y)}
+      {hoveredItemId && ` · ${hoveredItemId}`}
+    </span>
+  );
+}
+
+<Minimap ...>
+  <Minimap.Corner side="bottom-right">
+    <CoordReadout />
+  </Minimap.Corner>
+</Minimap>;
+```
+
+`MinimapContextValue` includes `worldBounds`, `minimapSize`, `transform`, `viewportSize`, `hoverWorldPoint`, `hoverMinimapPoint`, `hoveredItemId`, and `isDragging`.
+
+## `renderOverlay` — global canvas annotations
+
+Pass a `renderOverlay` callback to draw on the canvas after items and before the viewport-rect shroud. Useful for playheads, selection regions, grid overlays, debug markers.
+
+```tsx
+<Minimap
+  {...rest}
+  renderOverlay={(ctx, info) => {
+    // Vertical playhead line through the current playback position.
+    const x = info.worldToMinimap({ x: playheadTime, y: 0 }).x;
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x + 0.5, 0);
+    ctx.lineTo(x + 0.5, info.minimapSize.height);
+    ctx.stroke();
+  }}
+/>
+```
 
 ## Sizing
 
-`Minimap` exposes a single `width` prop; height is derived from the `worldBounds` aspect ratio and clamped to `[minHeight, maxHeight]`. The result:
-
-- A square-ish `worldBounds` (e.g. a node graph) produces a roughly square minimap.
-- A wide-thin `worldBounds` (e.g. a timeline track) produces a wide-thin strip.
-- An extreme aspect ratio lets the clamps take over — content is letterboxed in the resulting box.
+`Minimap` exposes a single `width` prop; height is derived from the `worldBounds` aspect ratio and clamped to `[minHeight, maxHeight]`. `ViewportMinimap` additionally supports a `responsive` prop that tracks the wrapper width via `ResizeObserver` — combine with a custom `placement` object to drive width from CSS.
 
 ```tsx
 {
@@ -116,6 +214,15 @@ type MinimapItem =
   minHeight={24}
   maxHeight={64}
   worldBounds={{ x: 0, y: 0, width: 12000, height: 200 }}
+  {...rest}
+/>;
+
+{
+  /* Responsive via wrapper width */
+}
+<ViewportMinimap
+  responsive
+  placement={{ bottom: 12, left: 12, width: '30%' }}
   {...rest}
 />;
 ```
@@ -135,11 +242,7 @@ Each gesture is independently toggleable:
 
 ```tsx
 <Minimap
-  interactions={{
-    click: true,
-    dragViewportRect: true,
-    dragFromEmpty: false,
-  }}
+  interactions={{ click: true, dragViewportRect: true, dragFromEmpty: false }}
   {...rest}
 />;
 
@@ -148,42 +251,6 @@ Each gesture is independently toggleable:
 }
 <Minimap interactions={false} {...rest} />;
 ```
-
-## Recipe — drop-in overlay inside `<Viewport>`
-
-When the minimap lives inside a `<ViewportOverlay>`, you can read live transform and size from `useViewportContext()` instead of threading them through your own state:
-
-```tsx
-import { useViewportContext } from 'entangle-ui';
-
-function MinimapOverlay({ items, worldBounds, viewportRef }) {
-  const { transform, size } = useViewportContext();
-  return (
-    <Minimap
-      items={items}
-      worldBounds={worldBounds}
-      transform={transform}
-      viewportSize={size}
-      onNavigate={info => viewportRef.current?.centerOn(info.worldPoint)}
-    />
-  );
-}
-
-<Viewport ref={viewportRef} responsive>
-  ...
-  <ViewportOverlay>
-    <div style={{ position: 'absolute', right: 12, bottom: 12 }}>
-      <MinimapOverlay
-        items={items}
-        worldBounds={worldBounds}
-        viewportRef={viewportRef}
-      />
-    </div>
-  </ViewportOverlay>
-</Viewport>;
-```
-
-`Minimap` itself stays decoupled from `ViewportContext` so it can power standalone editor surfaces too — the overlay wrapper is a 12-line recipe, not a coupling cost on the primitive.
 
 ## Theming
 
@@ -210,9 +277,11 @@ Individual items can carry their own `color` (overrides `defaultItemColor`).
 
 ## Props
 
+### `Minimap`
+
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `items` *(required)* | `ReadonlyArray` | — | Items rendered as the content miniature. Discriminated union of rect / circle / line shapes. |
+| `items` *(required)* | `ReadonlyArray` | — | Items rendered as the content miniature. Discriminated union of rect / circle / line / custom shapes. |
 | `worldBounds` *(required)* | `WorldRect` | — | World-space rectangle the minimap maps to. Use computeBoundsFromItems(items, padding?) for an ergonomic default. |
 | `transform` *(required)* | `ViewportTransform` | — | Current main-viewport transform ({ x, y, zoom }) — drives the viewport rect overlay. |
 | `viewportSize` *(required)* | `ViewportSize` | — | Current main-viewport size in CSS pixels — drives the viewport rect overlay. |
@@ -222,9 +291,20 @@ Individual items can carry their own `color` (overrides `defaultItemColor`).
 | `maxHeight` | `number` | `200` | Upper bound for the derived height. |
 | `interactions` | `MinimapInteractionConfig \| false` | `{ click: true, dragViewportRect: true, dragFromEmpty: true }` | Gesture configuration. Pass false to disable all interactions, or an object to fine-tune individual gestures. |
 | `keyboardPanStep` | `number` | `0.1` | Keyboard pan step, as a fraction of the current viewport world extent per arrow-key press. Shift × 5. |
+| `renderOverlay` | `(ctx, info: MinimapDrawInfo) => void` | — | Custom canvas drawing pass executed after items and before the viewport-rect shroud + outline. |
 | `backgroundColor` | `string` | — | Override background color. Defaults to the theme --etui-color-bg-secondary. |
 | `defaultItemColor` | `string` | — | Default color for items without an explicit color. Defaults to the theme accent. |
 | `viewportRectStroke` | `string` | — | Viewport-rect outline color. Defaults to the theme accent. |
 | `outsideOverlay` | `string` | `'rgba(0, 0, 0, 0.4)'` | Dimmed shroud color covering the area outside the viewport rect. |
 | `disabled` | `boolean` | `false` | Disable interactions and dim the minimap. |
 | `ariaLabel` | `string` | `'Minimap'` | Accessible label for the minimap region. |
+| `children` | `ReactNode` | — | Slot subcomponents (Minimap.Title / Footer / Corner) and/or free-form overlay nodes. |
+
+### `ViewportMinimap`
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `placement` | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right' \| { top?, right?, bottom?, left?, width?, height? }` | `'bottom-right'` | Anchored position inside the parent . Use a preset or pass an object for custom anchoring. |
+| `margin` | `number` | `12` | Distance (CSS px) from the viewport edge when using a preset placement. |
+| `responsive` | `boolean` | `false` | When true, the minimap width tracks the wrapper width via ResizeObserver. Wrapper size must be set externally (custom placement / parent CSS). |
+| `...rest` | `MinimapProps (except transform / viewportSize)` | — | All other Minimap props pass through. transform and viewportSize are read from useViewportContext(). |

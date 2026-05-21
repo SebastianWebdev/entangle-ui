@@ -138,3 +138,28 @@ export function getViewportCenterWorld(
     y: (-transform.y + viewportSize.height / 2) / zoom,
   };
 }
+
+/**
+ * Build the shared coordinate helpers used by built-in drawing,
+ * `renderOverlay`, and custom items. `transform`/`viewportSize` are not
+ * needed by the helpers themselves but are passed downstream alongside
+ * this bundle to form the public `MinimapDrawInfo`.
+ */
+export function buildDrawInfo(
+  worldBounds: WorldRect,
+  minimapSize: ViewportSize
+): {
+  scale: number;
+  offset: Point2D;
+  worldToMinimap: (point: Point2D) => Point2D;
+  minimapToWorld: (point: Point2D) => Point2D;
+} {
+  const scale = computeMinimapScale(worldBounds, minimapSize);
+  const offset = computeMinimapOffset(worldBounds, minimapSize, scale);
+  return {
+    scale,
+    offset,
+    worldToMinimap: (p: Point2D) => worldToMinimap(p, worldBounds, minimapSize),
+    minimapToWorld: (p: Point2D) => minimapToWorld(p, worldBounds, minimapSize),
+  };
+}

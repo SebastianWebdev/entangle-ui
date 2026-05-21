@@ -10,6 +10,7 @@ import type {
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type {
   MinimapInteractionConfig,
+  MinimapItem,
   MinimapNavigateInfo,
 } from './Minimap.types';
 import {
@@ -17,8 +18,11 @@ import {
   getViewportRectOnMinimap,
   minimapToWorld,
 } from './minimapCoords';
+import { hitTestItems } from './minimapHitTest';
 
 const CLICK_THRESHOLD_PX = 3;
+/** Hover line-picking tolerance, in minimap CSS px. Translated to world units per gesture. */
+const LINE_HIT_TOLERANCE_MINIMAP_PX = 4;
 
 interface UseMinimapGesturesOptions {
   containerRef: React.RefObject<HTMLDivElement | null>;
@@ -26,6 +30,7 @@ interface UseMinimapGesturesOptions {
   transform: ViewportTransform;
   viewportSize: ViewportSize;
   minimapSize: ViewportSize;
+  items: ReadonlyArray<MinimapItem>;
   interactions: Required<MinimapInteractionConfig>;
   keyboardPanStep: number;
   disabled: boolean;
@@ -48,9 +53,13 @@ interface UseMinimapGesturesReturn {
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerCancel: (e: React.PointerEvent<HTMLDivElement>) => void;
+    onPointerLeave: (e: React.PointerEvent<HTMLDivElement>) => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
   };
   isDragging: boolean;
+  hoverMinimapPoint: Point2D | null;
+  hoverWorldPoint: Point2D | null;
+  hoveredItemId: string | null;
 }
 
 function getLocalPointerPosition(
@@ -80,6 +89,7 @@ export function useMinimapGestures(
     transform,
     viewportSize,
     minimapSize,
+    items,
     interactions,
     keyboardPanStep,
     disabled,
@@ -88,6 +98,34 @@ export function useMinimapGestures(
 
   const stateRef = useRef<PointerState | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [hoverMinimapPoint, setHoverMinimapPoint] = useState<Point2D | null>(
+    null
+  );
+  const [hoverWorldPoint, setHoverWorldPoint] = useState<Point2D | null>(null);
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+
+  const updateHover = useCallback(
+    (screen: Point2D | null) => {
+      if (!screen) {
+        setHoverMinimapPoint(null);
+        setHoverWorldPoint(null);
+        setHoveredItemId(null);
+        return;
+      }
+      const worldPoint = minimapToWorld(screen, worldBounds, minimapSize);
+      setHoverMinimapPoint(screen);
+      setHoverWorldPoint(worldPoint);
+      // Translate pixel tolerance into world units via the current scale.
+      const scaleX =
+        worldBounds.width > 0 ? minimapSize.width / worldBounds.width : 1;
+      const scaleY =
+        worldBounds.height > 0 ? minimapSize.height / worldBounds.height : 1;
+      const scale = Math.min(scaleX, scaleY) || 1;
+      const tolerance = LINE_HIT_TOLERANCE_MINIMAP_PX / scale;
+      setHoveredItemId(hitTestItems(worldPoint, items, tolerance));
+    },
+    [items, minimapSize, worldBounds]
+  );
 
   const emit = useCallback(
     (info: MinimapNavigateInfo): void => {
@@ -166,12 +204,15 @@ export function useMinimapGestures(
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>): void => {
-      const state = stateRef.current;
-      if (state?.pointerId !== e.pointerId) return;
       const container = containerRef.current;
       if (!container) return;
-
       const screen = getLocalPointerPosition(e, container);
+      // Always update hover state — independent of gesture capture.
+      updateHover(screen);
+
+      const state = stateRef.current;
+      if (state?.pointerId !== e.pointerId) return;
+
       const dx = screen.x - state.startScreen.x;
       const dy = screen.y - state.startScreen.y;
       const moved = Math.hypot(dx, dy) >= CLICK_THRESHOLD_PX;
@@ -210,8 +251,13 @@ export function useMinimapGestures(
         });
       }
     },
-    [containerRef, worldBounds, minimapSize, interactions, emit]
+    [containerRef, worldBounds, minimapSize, interactions, emit, updateHover]
   );
+
+  const handlePointerLeave = useCallback((): void => {
+    if (stateRef.current) return; // keep hover during drag (pointer capture)
+    updateHover(null);
+  }, [updateHover]);
 
   const endGesture = useCallback(
     (e: React.PointerEvent<HTMLDivElement>, cancelled: boolean): void => {
@@ -315,8 +361,12 @@ export function useMinimapGestures(
       onPointerMove: handlePointerMove,
       onPointerUp: handlePointerUp,
       onPointerCancel: handlePointerCancel,
+      onPointerLeave: handlePointerLeave,
       onKeyDown: handleKeyDown,
     },
     isDragging,
+    hoverMinimapPoint,
+    hoverWorldPoint,
+    hoveredItemId,
   };
 }

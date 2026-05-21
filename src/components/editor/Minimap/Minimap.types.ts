@@ -1,3 +1,4 @@
+import type React from 'react';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent } from '@/types/common';
 import type {
@@ -7,10 +8,36 @@ import type {
 } from '@/components/primitives/viewport';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 
+// ─── Drawing info ───
+
+/**
+ * Helpers and current state passed to `renderOverlay` and to custom item
+ * `draw` callbacks. Exposes the same world ↔ minimap math the built-in
+ * shapes use, so consumer drawing stays aligned with everything else.
+ */
+export interface MinimapDrawInfo {
+  /** Minimap size in CSS pixels (canvas already DPR-scaled). */
+  minimapSize: ViewportSize;
+  /** World rectangle this minimap maps from. */
+  worldBounds: WorldRect;
+  /** Current main-viewport transform (mirrored). */
+  transform: ViewportTransform;
+  /** Current main-viewport size in CSS pixels (mirrored). */
+  viewportSize: ViewportSize;
+  /** Uniform world → minimap scale (px per world unit). */
+  scale: number;
+  /** Letterbox offset applied when minimap aspect ≠ worldBounds aspect. */
+  offset: Point2D;
+  /** Map a world point to a minimap CSS-pixel point. */
+  worldToMinimap: (point: Point2D) => Point2D;
+  /** Inverse of `worldToMinimap`. */
+  minimapToWorld: (point: Point2D) => Point2D;
+}
+
 // ─── Items ───
 
 interface MinimapItemBase {
-  /** Stable identity. Not used for hit-testing today; reserved for future selection support. */
+  /** Stable identity. Used for hover hit-testing and future selection support. */
   id: string;
   /** Override draw color for this item. Falls back to `defaultItemColor`. */
   color?: string;
@@ -48,8 +75,23 @@ export interface MinimapLineItem extends MinimapItemBase {
   lineWidth?: number;
 }
 
+/**
+ * Caller-defined item. `draw` is invoked with the minimap canvas context
+ * and a `MinimapDrawInfo` object containing world ↔ minimap helpers.
+ * `bounds` (world coords) is used for hover hit-testing.
+ */
+export interface MinimapCustomItem extends MinimapItemBase {
+  type: 'custom';
+  bounds: WorldRect;
+  draw: (ctx: CanvasRenderingContext2D, info: MinimapDrawInfo) => void;
+}
+
 /** Discriminated union of all minimap item shapes. */
-export type MinimapItem = MinimapRectItem | MinimapCircleItem | MinimapLineItem;
+export type MinimapItem =
+  | MinimapRectItem
+  | MinimapCircleItem
+  | MinimapLineItem
+  | MinimapCustomItem;
 
 // ─── Interactions ───
 
@@ -76,6 +118,16 @@ export interface MinimapInteractionConfig {
   /** Drag starting outside the rect → immediately jumps + pans. @default true */
   dragFromEmpty?: boolean;
 }
+
+// ─── Subcomponent placement ───
+
+export type MinimapTitlePlacement = 'top-outside' | 'top-inside';
+export type MinimapFooterPlacement = 'bottom-outside' | 'bottom-inside';
+export type MinimapCornerSide =
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right';
 
 // ─── Props ───
 
@@ -139,11 +191,79 @@ export interface MinimapBaseProps extends Omit<
    */
   outsideOverlay?: string;
 
+  /**
+   * Custom canvas drawing pass executed after items and before the
+   * viewport-rect shroud + outline. Use for backdrops, playheads, grid
+   * overlays, selection regions — anything that should sit between items
+   * and the viewport-rect chrome.
+   */
+  renderOverlay?: (
+    ctx: CanvasRenderingContext2D,
+    info: MinimapDrawInfo
+  ) => void;
+
   /** Disable interactions and dim the minimap. @default false */
   disabled?: boolean;
 
   /** @default 'Minimap' */
   ariaLabel?: string;
+
+  /**
+   * Slot children. Pass `<Minimap.Title>`, `<Minimap.Footer>`,
+   * `<Minimap.Corner>` subcomponents for chrome, or arbitrary nodes for
+   * absolute overlays inside the canvas body. Children that aren't
+   * recognised slot markers render as a free-form overlay layer.
+   */
+  children?: React.ReactNode;
 }
 
 export type MinimapProps = Prettify<MinimapBaseProps>;
+
+// ─── Subcomponent props ───
+
+export interface MinimapTitleProps {
+  children?: React.ReactNode;
+  /** @default 'top-outside' */
+  placement?: MinimapTitlePlacement;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export interface MinimapFooterProps {
+  children?: React.ReactNode;
+  /** @default 'bottom-outside' */
+  placement?: MinimapFooterPlacement;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export interface MinimapCornerProps {
+  children?: React.ReactNode;
+  /** Which corner of the canvas body to anchor in. @default 'top-right' */
+  side?: MinimapCornerSide;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+// ─── MinimapContext ───
+
+/**
+ * Live state available to children of a `<Minimap>` via `useMinimapContext()`.
+ * Includes hover information so consumers can build coordinate readouts,
+ * tooltips, or "show selected item" widgets without re-implementing
+ * hit-testing.
+ */
+export interface MinimapContextValue {
+  worldBounds: WorldRect;
+  minimapSize: ViewportSize;
+  transform: ViewportTransform;
+  viewportSize: ViewportSize;
+  /** Current pointer position in world coordinates, or null when not hovering. */
+  hoverWorldPoint: Point2D | null;
+  /** Current pointer position in minimap CSS coords, or null when not hovering. */
+  hoverMinimapPoint: Point2D | null;
+  /** Id of the item currently under the pointer (hit-test), or null. */
+  hoveredItemId: string | null;
+  /** True during an active drag (rect or pan). */
+  isDragging: boolean;
+}

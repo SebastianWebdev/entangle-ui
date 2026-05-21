@@ -100,8 +100,13 @@ function renderMinimap(props: Partial<MinimapProps> = {}) {
   );
 }
 
-function getRoot() {
+function getShell() {
   return screen.getByTestId('minimap');
+}
+
+/** Body = the interactive region with pointer + keyboard handlers. */
+function getRoot() {
+  return screen.getByRole('region', { name: 'Minimap' });
 }
 
 /**
@@ -178,11 +183,11 @@ describe('Minimap', () => {
       expect(root.style.height).toBe('200px');
     });
 
-    it('applies custom className and style', () => {
+    it('applies custom className and style to the outer shell', () => {
       renderMinimap({ className: 'my-mini', style: { opacity: 0.9 } });
-      const root = getRoot();
-      expect(root.className).toContain('my-mini');
-      expect(root.style.opacity).toBe('0.9');
+      const shell = getShell();
+      expect(shell.className).toContain('my-mini');
+      expect(shell.style.opacity).toBe('0.9');
     });
 
     it('is tab-focusable by default', () => {

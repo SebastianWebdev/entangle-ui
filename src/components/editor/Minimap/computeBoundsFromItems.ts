@@ -22,10 +22,10 @@ export function computeBoundsFromItems(
   let maxY = -Infinity;
 
   for (const item of items) {
-    let l: number;
-    let t: number;
-    let r: number;
-    let b: number;
+    let l = 0;
+    let t = 0;
+    let r = 0;
+    let b = 0;
     switch (item.type) {
       case 'rect':
         l = item.x;
@@ -44,6 +44,12 @@ export function computeBoundsFromItems(
         t = Math.min(item.y1, item.y2);
         r = Math.max(item.x1, item.x2);
         b = Math.max(item.y1, item.y2);
+        break;
+      case 'custom':
+        l = item.bounds.x;
+        t = item.bounds.y;
+        r = item.bounds.x + item.bounds.width;
+        b = item.bounds.y + item.bounds.height;
         break;
     }
     if (l < minX) minX = l;

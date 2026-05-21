@@ -5,14 +5,15 @@ import {
   ViewportLayer,
   ViewportWorld,
   ViewportOverlay,
-  useViewportContext,
   type ViewportHandle,
   type ViewportLayerDrawInfo,
 } from '@/components/primitives';
 import { Button } from '@/components/primitives/Button';
 import {
   Minimap,
+  ViewportMinimap,
   computeBoundsFromItems,
+  useMinimapContext,
   type MinimapItem,
 } from '@/components/editor/Minimap';
 
@@ -73,42 +74,28 @@ function drawGrid(
   ctx.globalAlpha = 1;
 }
 
-/**
- * Small wrapper that lifts live transform + size from a Viewport context
- * and feeds them into a `Minimap`. Demonstrates the recipe for consumers
- * who want a "drop-in" minimap inside `<ViewportOverlay>`.
- */
-function MinimapForViewport({
-  items,
-  worldBounds,
-  viewportRef,
-}: {
-  items: ReadonlyArray<MinimapItem>;
-  worldBounds: { x: number; y: number; width: number; height: number };
-  viewportRef: React.RefObject<ViewportHandle | null>;
-}): React.ReactElement {
-  const { transform, size } = useViewportContext();
+function CoordReadout(): React.ReactElement {
+  const { hoverWorldPoint, hoveredItemId } = useMinimapContext();
+  if (!hoverWorldPoint) {
+    return <span style={{ opacity: 0.6 }}>—</span>;
+  }
+  const x = Math.round(hoverWorldPoint.x);
+  const y = Math.round(hoverWorldPoint.y);
   return (
-    <Minimap
-      items={items}
-      worldBounds={worldBounds}
-      transform={transform}
-      viewportSize={size}
-      width={220}
-      onNavigate={info => {
-        viewportRef.current?.centerOn(info.worldPoint);
-      }}
-    />
+    <span>
+      {x}, {y}
+      {hoveredItemId ? ` · ${hoveredItemId}` : ''}
+    </span>
   );
 }
 
 export default function MinimapDemo(): React.ReactElement {
   const viewportRef = useRef<ViewportHandle | null>(null);
-  const [showLine, setShowLine] = useState(true);
+  const [showEdges, setShowEdges] = useState(true);
 
   const items = useMemo<MinimapItem[]>(() => {
-    const nodeById = new Map(NODES.map(n => [n.id, n] as const));
-    const rectItems: MinimapItem[] = NODES.map(n => ({
+    const byId = new Map(NODES.map(n => [n.id, n] as const));
+    const rects: MinimapItem[] = NODES.map(n => ({
       id: n.id,
       type: 'rect',
       x: n.x,
@@ -117,10 +104,10 @@ export default function MinimapDemo(): React.ReactElement {
       height: NODE_H,
       color: `hsl(${n.hue} 70% 55%)`,
     }));
-    if (!showLine) return rectItems;
-    const lineItems: MinimapItem[] = EDGES.map(([from, to], i) => {
-      const a = nodeById.get(from);
-      const b = nodeById.get(to);
+    if (!showEdges) return rects;
+    const lines: MinimapItem[] = EDGES.map(([from, to], i) => {
+      const a = byId.get(from);
+      const b = byId.get(to);
       if (!a || !b) {
         return {
           id: `edge-${i}`,
@@ -141,8 +128,8 @@ export default function MinimapDemo(): React.ReactElement {
         color: 'rgba(255, 255, 255, 0.35)',
       };
     });
-    return [...lineItems, ...rectItems];
-  }, [showLine]);
+    return [...lines, ...rects];
+  }, [showEdges]);
 
   const worldBounds = useMemo(() => computeBoundsFromItems(items, 60), [items]);
 
@@ -181,12 +168,27 @@ export default function MinimapDemo(): React.ReactElement {
             </div>
           ))}
         </ViewportWorld>
+
+        <ViewportMinimap
+          items={items}
+          worldBounds={worldBounds}
+          placement="bottom-right"
+          width={240}
+        >
+          <Minimap.Title>Pipeline overview</Minimap.Title>
+          <Minimap.Corner side="bottom-right">
+            <CoordReadout />
+          </Minimap.Corner>
+          <Minimap.Footer>Drag · Arrows · Click to jump</Minimap.Footer>
+        </ViewportMinimap>
+
         <ViewportOverlay>
           <div
             style={{
               position: 'absolute',
               top: 12,
-              left: 12,
+              left: '50%',
+              transform: 'translateX(-50%)',
               display: 'flex',
               gap: 8,
               pointerEvents: 'auto',
@@ -198,24 +200,10 @@ export default function MinimapDemo(): React.ReactElement {
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => setShowLine(prev => !prev)}
+              onClick={() => setShowEdges(prev => !prev)}
             >
-              {showLine ? 'Hide edges' : 'Show edges'}
+              {showEdges ? 'Hide edges' : 'Show edges'}
             </Button>
-          </div>
-          <div
-            style={{
-              position: 'absolute',
-              right: 12,
-              bottom: 12,
-              pointerEvents: 'auto',
-            }}
-          >
-            <MinimapForViewport
-              items={items}
-              worldBounds={worldBounds}
-              viewportRef={viewportRef}
-            />
           </div>
         </ViewportOverlay>
       </Viewport>

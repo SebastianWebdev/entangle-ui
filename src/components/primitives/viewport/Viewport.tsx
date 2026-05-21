@@ -44,6 +44,8 @@ function getSlotKind(
   if (displayName === 'ViewportLayer') return 'layer';
   if (displayName === 'ViewportWorld') return 'world';
   if (displayName === 'ViewportOverlay') return 'overlay';
+  // Compound components rendered in the overlay slot (e.g. <ViewportMinimap />).
+  if (displayName === 'ViewportMinimap') return 'overlay';
   return null;
 }
 

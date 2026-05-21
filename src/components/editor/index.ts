@@ -45,7 +45,15 @@ export type {
 
 export { TransformControl } from './TransformControl';
 
-export { Minimap, computeBoundsFromItems } from './Minimap';
+export {
+  Minimap,
+  MinimapTitle,
+  MinimapFooter,
+  MinimapCorner,
+  ViewportMinimap,
+  computeBoundsFromItems,
+  useMinimapContext,
+} from './Minimap';
 
 export type {
   MinimapProps,
@@ -53,9 +61,20 @@ export type {
   MinimapRectItem,
   MinimapCircleItem,
   MinimapLineItem,
+  MinimapCustomItem,
   MinimapNavigateInfo,
   MinimapNavigatePhase,
   MinimapInteractionConfig,
+  MinimapDrawInfo,
+  MinimapContextValue,
+  MinimapTitleProps,
+  MinimapFooterProps,
+  MinimapCornerProps,
+  MinimapTitlePlacement,
+  MinimapFooterPlacement,
+  MinimapCornerSide,
+  ViewportMinimapProps,
+  ViewportMinimapPlacement,
 } from './Minimap';
 
 export type {

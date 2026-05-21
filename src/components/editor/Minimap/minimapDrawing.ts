@@ -3,11 +3,10 @@ import type {
   ViewportSize,
   WorldRect,
 } from '@/components/primitives/viewport';
-import type { MinimapItem } from './Minimap.types';
+import type { MinimapDrawInfo, MinimapItem } from './Minimap.types';
 import {
-  computeMinimapScale,
+  buildDrawInfo,
   getViewportRectOnMinimap,
-  worldToMinimap,
   type MinimapScreenRect,
 } from './minimapCoords';
 
@@ -26,27 +25,46 @@ export interface MinimapDrawInput {
   viewportSize: ViewportSize;
   items: ReadonlyArray<MinimapItem>;
   colors: MinimapDrawColors;
+  renderOverlay?: (
+    ctx: CanvasRenderingContext2D,
+    info: MinimapDrawInfo
+  ) => void;
 }
 
 /**
- * Render a full minimap frame: background → items → dimmed shroud around
- * the viewport rect → viewport rect outline. The caller is responsible for
- * DPR scaling on `ctx` before invoking.
+ * Render a full minimap frame: background → items → caller `renderOverlay`
+ * → dimmed shroud around the viewport rect → viewport rect outline. The
+ * caller is responsible for DPR scaling on `ctx` before invoking.
  */
 export function drawMinimap(input: MinimapDrawInput): void {
-  const { ctx, size, worldBounds, transform, viewportSize, items, colors } =
-    input;
+  const {
+    ctx,
+    size,
+    worldBounds,
+    transform,
+    viewportSize,
+    items,
+    colors,
+    renderOverlay,
+  } = input;
 
   ctx.clearRect(0, 0, size.width, size.height);
   ctx.fillStyle = colors.background;
   ctx.fillRect(0, 0, size.width, size.height);
 
+  const helpers = buildDrawInfo(worldBounds, size);
+  const info: MinimapDrawInfo = {
+    minimapSize: size,
+    worldBounds,
+    transform,
+    viewportSize,
+    ...helpers,
+  };
+
   ctx.save();
   ctx.beginPath();
   ctx.rect(0, 0, size.width, size.height);
   ctx.clip();
-
-  const scale = computeMinimapScale(worldBounds, size);
 
   for (const item of items) {
     const color = item.color ?? colors.defaultItem;
@@ -55,34 +73,26 @@ export function drawMinimap(input: MinimapDrawInput): void {
 
     switch (item.type) {
       case 'rect': {
-        const topLeft = worldToMinimap(
-          { x: item.x, y: item.y },
-          worldBounds,
-          size
-        );
+        const topLeft = info.worldToMinimap({ x: item.x, y: item.y });
         ctx.fillRect(
           topLeft.x,
           topLeft.y,
-          Math.max(1, item.width * scale),
-          Math.max(1, item.height * scale)
+          Math.max(1, item.width * info.scale),
+          Math.max(1, item.height * info.scale)
         );
         break;
       }
       case 'circle': {
-        const center = worldToMinimap(
-          { x: item.cx, y: item.cy },
-          worldBounds,
-          size
-        );
-        const r = Math.max(0.5, item.r * scale);
+        const center = info.worldToMinimap({ x: item.cx, y: item.cy });
+        const r = Math.max(0.5, item.r * info.scale);
         ctx.beginPath();
         ctx.arc(center.x, center.y, r, 0, Math.PI * 2);
         ctx.fill();
         break;
       }
       case 'line': {
-        const a = worldToMinimap({ x: item.x1, y: item.y1 }, worldBounds, size);
-        const b = worldToMinimap({ x: item.x2, y: item.y2 }, worldBounds, size);
+        const a = info.worldToMinimap({ x: item.x1, y: item.y1 });
+        const b = info.worldToMinimap({ x: item.x2, y: item.y2 });
         ctx.lineWidth = item.lineWidth ?? 1;
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
@@ -90,7 +100,19 @@ export function drawMinimap(input: MinimapDrawInput): void {
         ctx.stroke();
         break;
       }
+      case 'custom': {
+        ctx.save();
+        item.draw(ctx, info);
+        ctx.restore();
+        break;
+      }
     }
+  }
+
+  if (renderOverlay) {
+    ctx.save();
+    renderOverlay(ctx, info);
+    ctx.restore();
   }
 
   ctx.restore();
@@ -116,7 +138,6 @@ function drawOutsideOverlay(
   rect: MinimapScreenRect,
   color: string
 ): void {
-  // Clamp the viewport rect to minimap bounds so we shroud everything else
   const rl = Math.max(0, Math.min(size.width, rect.x));
   const rt = Math.max(0, Math.min(size.height, rect.y));
   const rr = Math.max(0, Math.min(size.width, rect.x + rect.width));
@@ -126,6 +147,7 @@ function drawOutsideOverlay(
   if (rt > 0) ctx.fillRect(0, 0, size.width, rt);
   if (rb < size.height) ctx.fillRect(0, rb, size.width, size.height - rb);
   if (rl > 0 && rt < rb) ctx.fillRect(0, rt, rl, rb - rt);
-  if (rr < size.width && rt < rb)
+  if (rr < size.width && rt < rb) {
     ctx.fillRect(rr, rt, size.width - rr, rb - rt);
+  }
 }
