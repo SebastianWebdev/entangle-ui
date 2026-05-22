@@ -53,8 +53,10 @@ import { NodeGraphMinimapInner } from './NodeGraphMinimap';
 import {
   NodeGraphBackground,
   NodeGraphMinimap,
+  NodeGraphSpawnPalette,
   NodeGraphToolbar,
 } from './NodeGraphSlots';
+import { NodeGraphSpawnPaletteInner } from './NodeGraphSpawnPalette';
 import {
   NodeGraphToolbarInner,
   NodeGraphFitContentButton,
@@ -111,6 +113,9 @@ type NodeGraphBackgroundProps = React.ComponentProps<
 >;
 type NodeGraphMinimapProps = React.ComponentProps<typeof NodeGraphMinimap>;
 type NodeGraphToolbarProps = React.ComponentProps<typeof NodeGraphToolbar>;
+type NodeGraphSpawnPaletteProps = React.ComponentProps<
+  typeof NodeGraphSpawnPalette
+>;
 
 interface SortedSlots {
   hasBackground: boolean;
@@ -119,6 +124,7 @@ interface SortedSlots {
   minimapProps: NodeGraphMinimapProps | null;
   /** Multiple toolbars can co-exist (e.g. top-left + top-right). */
   toolbars: ReadonlyArray<NodeGraphToolbarProps>;
+  spawnPaletteProps: NodeGraphSpawnPaletteProps | null;
 }
 
 function getSlotKind(el: React.ReactElement): NodeGraphSlotKind | null {
@@ -136,12 +142,13 @@ function readSlotProps<P>(el: React.ReactElement): P {
 function sortSlots(children: React.ReactNode): SortedSlots {
   let backgroundProps: NodeGraphBackgroundProps | null = null;
   let minimapProps: NodeGraphMinimapProps | null = null;
+  let spawnPaletteProps: NodeGraphSpawnPaletteProps | null = null;
   const toolbars: NodeGraphToolbarProps[] = [];
   React.Children.forEach(children, child => {
     if (!React.isValidElement(child)) {
       if (child != null && child !== false) {
         devWarn(
-          '[NodeGraph] children must be slot subcomponents (<NodeGraph.Background />, <NodeGraph.Minimap />, <NodeGraph.Toolbar />).'
+          '[NodeGraph] children must be slot subcomponents (<NodeGraph.Background />, <NodeGraph.Minimap />, <NodeGraph.Toolbar />, <NodeGraph.SpawnPalette />).'
         );
       }
       return;
@@ -153,6 +160,8 @@ function sortSlots(children: React.ReactNode): SortedSlots {
       minimapProps = readSlotProps<NodeGraphMinimapProps>(child);
     } else if (kind === 'toolbar') {
       toolbars.push(readSlotProps<NodeGraphToolbarProps>(child));
+    } else if (kind === 'spawn-palette') {
+      spawnPaletteProps = readSlotProps<NodeGraphSpawnPaletteProps>(child);
     } else {
       const dn = (child.type as { displayName?: string } | undefined)
         ?.displayName;
@@ -171,6 +180,7 @@ function sortSlots(children: React.ReactNode): SortedSlots {
     hasMinimap: minimapProps !== null,
     minimapProps,
     toolbars,
+    spawnPaletteProps,
   };
 }
 
@@ -1094,8 +1104,6 @@ const NodeGraphImpl = ({
   const handleContextMenu = useCallback(
     (event: React.MouseEvent<HTMLDivElement>): void => {
       if (disabledRef.current) return;
-      const cb = onContextMenuRef.current;
-      if (!cb) return;
       event.preventDefault();
       // Walk up the DOM from the event target to find data attributes
       // identifying a port or a node. Ports take priority because they're
@@ -1135,7 +1143,17 @@ const NodeGraphImpl = ({
         screenPoint,
         worldPoint,
       };
-      cb(info);
+      // Consumer callback fires first — they may render their own menu,
+      // log telemetry, etc.
+      onContextMenuRef.current?.(info);
+      // SpawnPalette subscribers (if mounted) get pinged for empty /
+      // group targets: those are the "drop a new node here" spots.
+      if (
+        resolvedTarget.kind === 'empty' ||
+        resolvedTarget.kind === 'group'
+      ) {
+        store.requestSpawn({ worldPoint, screenPoint });
+      }
     },
     [
       findHitTarget,
@@ -1143,6 +1161,7 @@ const NodeGraphImpl = ({
       getTransform,
       onContextMenuRef,
       disabledRef,
+      store,
     ]
   );
 
@@ -1500,6 +1519,12 @@ const NodeGraphImpl = ({
             </ViewportOverlay>
           ) : null}
         </Viewport>
+        {/* SpawnPalette renders in a portal (via CommandPalette) so it
+            sits at the React tree root, outside the Viewport. Subscribes
+            to the store's spawn-request channel for right-click triggers. */}
+        {slots.spawnPaletteProps ? (
+          <NodeGraphSpawnPaletteInner {...slots.spawnPaletteProps} />
+        ) : null}
       </div>
     </NodeGraphStoreContext.Provider>
   );
@@ -1637,6 +1662,7 @@ type NodeGraphCompound = typeof NodeGraphImpl & {
   ZoomInButton: typeof NodeGraphZoomInButton;
   ZoomOutButton: typeof NodeGraphZoomOutButton;
   ResetZoomButton: typeof NodeGraphResetZoomButton;
+  SpawnPalette: typeof NodeGraphSpawnPalette;
 };
 
 (NodeGraphImpl as unknown as { displayName: string }).displayName = 'NodeGraph';
@@ -1656,5 +1682,6 @@ NodeGraphWithSlots.FitSelectionButton = NodeGraphFitSelectionButton;
 NodeGraphWithSlots.ZoomInButton = NodeGraphZoomInButton;
 NodeGraphWithSlots.ZoomOutButton = NodeGraphZoomOutButton;
 NodeGraphWithSlots.ResetZoomButton = NodeGraphResetZoomButton;
+NodeGraphWithSlots.SpawnPalette = NodeGraphSpawnPalette;
 
 export const NodeGraph = NodeGraphWithSlots;

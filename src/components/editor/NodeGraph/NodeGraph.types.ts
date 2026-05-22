@@ -296,7 +296,63 @@ export type NodeGraphLayerName = 'groups' | 'edges' | 'preview';
  */
 export const NODE_GRAPH_SLOT: unique symbol = Symbol.for('etui.nodegraph.slot');
 
-export type NodeGraphSlotKind = 'minimap' | 'background' | 'toolbar';
+export type NodeGraphSlotKind =
+  | 'minimap'
+  | 'background'
+  | 'toolbar'
+  | 'spawn-palette';
+
+/**
+ * Template registered with `<NodeGraph.SpawnPalette>` — describes a
+ * spawn-able node + how to build it at a given world point. The
+ * library handles search / filtering / focus / selection of templates
+ * in the popover; this is the data slice consumer cares about.
+ */
+export interface NodeGraphTemplate {
+  /** Stable identifier (used for keys + the palette's recent list). */
+  id: string;
+  /** Human-readable title shown in the palette. */
+  title: string;
+  /** Optional secondary line. */
+  subtitle?: string;
+  /** Group label used to section the palette list. */
+  group?: string;
+  /** Extra strings the fuzzy matcher considers (synonyms, tags). */
+  keywords?: ReadonlyArray<string>;
+  /** Optional leading icon. */
+  icon?: React.ReactNode;
+  /**
+   * Build the node body from a world position. The library assigns
+   * the final `id` (so consumer doesn't have to roll their own
+   * uniqueness scheme) — return everything except `id`.
+   */
+  build: (worldPoint: Point2D) => Omit<NodeGraphNode, 'id'>;
+}
+
+export interface NodeGraphSpawnContext {
+  /** World point where the user invoked the palette. */
+  worldPoint: Point2D;
+  /** Screen-space point (CSS pixels relative to viewport top-left). */
+  screenPoint: Point2D;
+}
+
+export interface NodeGraphSpawnPaletteSlotProps {
+  /** All spawn-able templates. Filtering happens inside the library. */
+  templates: ReadonlyArray<NodeGraphTemplate>;
+  /**
+   * Called when the user picks a template. Library has already
+   * assigned an `id`; consumer typically appends to their nodes state.
+   */
+  onSpawn: (node: NodeGraphNode, ctx: NodeGraphSpawnContext) => void;
+  /** Placeholder for the search input. */
+  placeholder?: string;
+  /** localStorage key for the palette's recent list. */
+  recentKey?: string;
+  /** Popover width. @default 400 */
+  width?: number | string;
+  /** Popover max height. @default 360 */
+  maxHeight?: number;
+}
 
 export interface NodeGraphToolbarSlotProps {
   /**

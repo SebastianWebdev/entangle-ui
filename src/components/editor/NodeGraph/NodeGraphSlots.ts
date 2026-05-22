@@ -2,6 +2,7 @@ import type {
   NodeGraphBackgroundSlotProps,
   NodeGraphMinimapSlotProps,
   NodeGraphSlotMarker,
+  NodeGraphSpawnPaletteSlotProps,
   NodeGraphToolbarSlotProps,
 } from './NodeGraph.types';
 import { NODE_GRAPH_SLOT } from './NodeGraph.types';
@@ -51,4 +52,20 @@ export const NodeGraphToolbar = Object.assign(NodeGraphToolbarImpl, {
   displayName: 'NodeGraph.Toolbar',
   [NODE_GRAPH_SLOT]: 'toolbar' as const,
 }) as unknown as ((props: NodeGraphToolbarSlotProps) => null) &
+  NodeGraphSlotMarker & { displayName: string };
+
+/**
+ * Marker behind `<NodeGraph.SpawnPalette>` — picked up by the parent
+ * and mounted as a portal-rendered fuzzy-search palette. Auto-opens on
+ * right-click of empty / group targets via the store's spawn-request
+ * channel.
+ */
+const NodeGraphSpawnPaletteImpl: (
+  props: NodeGraphSpawnPaletteSlotProps
+) => null = () => null;
+
+export const NodeGraphSpawnPalette = Object.assign(NodeGraphSpawnPaletteImpl, {
+  displayName: 'NodeGraph.SpawnPalette',
+  [NODE_GRAPH_SLOT]: 'spawn-palette' as const,
+}) as unknown as ((props: NodeGraphSpawnPaletteSlotProps) => null) &
   NodeGraphSlotMarker & { displayName: string };

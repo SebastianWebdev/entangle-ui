@@ -174,6 +174,9 @@ export class NodeGraphStore {
   private hoverListeners = new Set<() => void>();
   private portPositionListeners = new Set<() => void>();
   private measuredSizeListeners = new Set<() => void>();
+  private spawnRequestListeners = new Set<
+    (info: { worldPoint: Point2D; screenPoint: Point2D }) => void
+  >();
 
   // ── Public read API ──
 
@@ -242,6 +245,27 @@ export class NodeGraphStore {
       this.measuredSizeListeners.delete(cb);
     };
   };
+
+  // ── Spawn-palette request channel ──
+  //
+  // Notification-only channel used by `<NodeGraph.SpawnPalette>` to
+  // listen for "user wants to spawn a node here" events without forcing
+  // the consumer to wire context-menu state through their own React
+  // tree. The main `NodeGraph` component pumps this channel from its
+  // `handleContextMenu` when the right-click target is `empty` or
+  // `group` (i.e. a place where it makes sense to drop a new node).
+  subscribeSpawnRequest = (
+    cb: (info: { worldPoint: Point2D; screenPoint: Point2D }) => void
+  ): (() => void) => {
+    this.spawnRequestListeners.add(cb);
+    return () => {
+      this.spawnRequestListeners.delete(cb);
+    };
+  };
+
+  requestSpawn(info: { worldPoint: Point2D; screenPoint: Point2D }): void {
+    this.spawnRequestListeners.forEach(cb => cb(info));
+  }
 
   // ── Mutators ──
 

@@ -888,232 +888,6 @@ function BlueprintNodeBody({
   );
 }
 
-// ─── Add-node context menu ─────────────────────────────────────────────────
-
-interface ContextMenuState {
-  screenX: number;
-  screenY: number;
-  worldX: number;
-  worldY: number;
-}
-
-function ContextMenu({
-  state,
-  onSpawn,
-  onAddGroup,
-  onClose,
-}: {
-  state: ContextMenuState;
-  onSpawn: (template: NodeTemplate) => void;
-  onAddGroup: () => void;
-  onClose: () => void;
-}): React.ReactElement {
-  const [query, setQuery] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const t = setTimeout(() => inputRef.current?.focus(), 16);
-    return () => clearTimeout(t);
-  }, []);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') {
-        e.stopPropagation();
-        onClose();
-      }
-    };
-    const onClick = (e: MouseEvent): void => {
-      if (!(e.target instanceof Element)) return;
-      if (e.target.closest('[data-ng-context-menu]')) return;
-      onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    window.addEventListener('mousedown', onClick);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      window.removeEventListener('mousedown', onClick);
-    };
-  }, [onClose]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return TEMPLATES;
-    return TEMPLATES.filter(t => {
-      const haystack =
-        `${t.title} ${t.subtitle ?? ''} ${t.category} ${t.keywords ?? ''}`.toLowerCase();
-      return haystack.includes(q);
-    });
-  }, [query]);
-
-  return (
-    <div
-      data-ng-context-menu
-      style={{
-        position: 'absolute',
-        left: state.screenX,
-        top: state.screenY,
-        zIndex: 50,
-        width: 280,
-        maxHeight: 400,
-        background: 'rgba(20, 22, 28, 0.97)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: 6,
-        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.6)',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        backdropFilter: 'blur(6px)',
-        fontFamily: '"Segoe UI", system-ui, sans-serif',
-      }}
-      onPointerDown={e => e.stopPropagation()}
-      onContextMenu={e => e.preventDefault()}
-    >
-      <div
-        style={{
-          padding: '8px 10px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 10,
-            letterSpacing: 0.6,
-            textTransform: 'uppercase',
-            color: 'rgba(200, 200, 215, 0.6)',
-            fontWeight: 600,
-          }}
-        >
-          All Actions for this Blueprint
-        </div>
-        <input
-          ref={inputRef}
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Search…"
-          style={{
-            background: 'rgba(0, 0, 0, 0.4)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: 3,
-            padding: '4px 8px',
-            color: 'white',
-            fontSize: 12,
-            outline: 'none',
-          }}
-        />
-      </div>
-      <div style={{ overflowY: 'auto', maxHeight: 320 }}>
-        <button
-          type="button"
-          onClick={() => {
-            onAddGroup();
-            onClose();
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            width: '100%',
-            background: 'transparent',
-            border: 'none',
-            color: 'rgba(255, 215, 130, 0.95)',
-            padding: '8px 10px',
-            cursor: 'pointer',
-            textAlign: 'left',
-            fontSize: 12,
-            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
-          }}
-        >
-          <span style={{ width: 14, textAlign: 'center' }}>▭</span>
-          Add Comment Group
-        </button>
-        {filtered.length === 0 ? (
-          <div
-            style={{
-              padding: '12px 10px',
-              fontSize: 12,
-              color: 'rgba(200, 200, 215, 0.6)',
-            }}
-          >
-            No matching actions.
-          </div>
-        ) : (
-          filtered.map(t => {
-            const theme = CATEGORY_THEME[t.category];
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => {
-                  onSpawn(t);
-                  onClose();
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  width: '100%',
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'rgba(235, 235, 245, 0.95)',
-                  padding: '6px 10px',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  fontSize: 12,
-                }}
-                onMouseEnter={e =>
-                  (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')
-                }
-                onMouseLeave={e =>
-                  (e.currentTarget.style.background = 'transparent')
-                }
-              >
-                <span
-                  style={{
-                    width: 14,
-                    textAlign: 'center',
-                    color: theme.accent,
-                    fontSize: 11,
-                    fontWeight: 700,
-                  }}
-                >
-                  {theme.icon}
-                </span>
-                <span style={{ minWidth: 0, flex: 1 }}>
-                  <div
-                    style={{
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {t.title}
-                  </div>
-                  {t.subtitle ? (
-                    <div
-                      style={{
-                        fontSize: 10,
-                        opacity: 0.6,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      {t.subtitle}
-                    </div>
-                  ) : null}
-                </span>
-              </button>
-            );
-          })
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ─── Demo ──────────────────────────────────────────────────────────────────
 
@@ -1127,7 +901,6 @@ export default function NodeGraphDemo(): React.ReactElement {
     edges: [],
     groups: [],
   });
-  const [menu, setMenu] = useState<ContextMenuState | null>(null);
   const ref = useRef<NodeGraphHandle>(null);
   const idSeedRef = useRef(1000);
 
@@ -1190,14 +963,43 @@ export default function NodeGraphDemo(): React.ReactElement {
   // clear selection) is handled by the library when `onDelete` is not
   // provided — see `applyCascadeDelete` exported from `entangle-ui`.
 
-  const spawnFromTemplate = useCallback(
-    (template: NodeTemplate, worldX: number, worldY: number) => {
-      const seed = idSeedRef.current++;
-      const node = instantiateTemplate(
-        template,
-        { x: Math.round(worldX / 8) * 8, y: Math.round(worldY / 8) * 8 },
-        seed
-      );
+  // Adapt our local `NodeTemplate` array into the library's
+  // `NodeGraphTemplate` shape. Each template's `build` callback returns
+  // a node body (without id — library generates one) at the requested
+  // world point.
+  const spawnTemplates = useMemo<NodeGraphTemplate[]>(
+    () =>
+      TEMPLATES.map(t => ({
+        id: t.id,
+        title: t.title,
+        ...(t.subtitle !== undefined ? { subtitle: t.subtitle } : {}),
+        group: t.category,
+        keywords: t.keywords ? t.keywords.split(/\s+/) : undefined,
+        icon: CATEGORY_THEME[t.category]?.icon,
+        build: (worldPoint: Point2D) => {
+          // Library handles id assignment; we still produce the node
+          // body via the existing `instantiateTemplate` helper so the
+          // pin metadata stays consistent with prefab nodes.
+          const seed = idSeedRef.current++;
+          const draft = instantiateTemplate(
+            t,
+            {
+              x: Math.round(worldPoint.x / 8) * 8,
+              y: Math.round(worldPoint.y / 8) * 8,
+            },
+            seed
+          );
+          // Drop the id — library replaces it with a unique one.
+          const { id: _id, ...rest } = draft;
+          void _id;
+          return rest;
+        },
+      })),
+    []
+  );
+
+  const handleSpawn = useCallback(
+    (node: NodeGraphNode) => {
       setNodes(prev => [...prev, node]);
       setSelection({ nodes: [node.id], edges: [], groups: [] });
     },
@@ -1214,16 +1016,6 @@ export default function NodeGraphDemo(): React.ReactElement {
     };
     setGroups(prev => [...prev, next]);
     setSelection({ nodes: [], edges: [], groups: [next.id] });
-  }, []);
-
-  const handleContextMenu = useCallback((info: NodeGraphContextMenuInfo) => {
-    if (info.target.kind !== 'empty' && info.target.kind !== 'group') return;
-    setMenu({
-      screenX: info.screenPoint.x,
-      screenY: info.screenPoint.y,
-      worldX: info.worldPoint.x,
-      worldY: info.worldPoint.y,
-    });
   }, []);
 
   return (
@@ -1269,7 +1061,6 @@ export default function NodeGraphDemo(): React.ReactElement {
             edgeStyle={edgeStyle}
             onGroupsChange={setGroups}
             onSelectionChange={setSelection}
-            onContextMenu={handleContextMenu}
             renderNode={renderNode}
             isValidConnection={isValidConnection}
             snapToGrid={8}
@@ -1309,15 +1100,13 @@ export default function NodeGraphDemo(): React.ReactElement {
                 + Group
               </Button>
             </NodeGraph.Toolbar>
-          </NodeGraph>
-          {menu ? (
-            <ContextMenu
-              state={menu}
-              onSpawn={t => spawnFromTemplate(t, menu.worldX, menu.worldY)}
-              onAddGroup={() => addGroupAt(menu.worldX, menu.worldY)}
-              onClose={() => setMenu(null)}
+            <NodeGraph.SpawnPalette
+              templates={spawnTemplates}
+              onSpawn={handleSpawn}
+              placeholder="Add node…"
+              recentKey="nodegraph-demo-recent"
             />
-          ) : null}
+          </NodeGraph>
         </div>
         <div
           style={{

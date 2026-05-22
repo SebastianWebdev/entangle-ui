@@ -11,7 +11,7 @@ export {
   type NodeGraphPinListProps,
   type NodeGraphPinRowProps,
 } from './NodeGraphNodeParts';
-export { NodeGraphToolbar } from './NodeGraphSlots';
+export { NodeGraphToolbar, NodeGraphSpawnPalette } from './NodeGraphSlots';
 export {
   NodeGraphToolbarSeparator,
   NodeGraphFitContentButton,
@@ -73,6 +73,9 @@ export type {
   NodeGraphMinimapSlotProps,
   NodeGraphBackgroundSlotProps,
   NodeGraphToolbarSlotProps,
+  NodeGraphSpawnPaletteSlotProps,
+  NodeGraphSpawnContext,
+  NodeGraphTemplate,
 } from './NodeGraph.types';
 
 export type {
