@@ -347,15 +347,16 @@ export function NodeGraphGroupView({
                 palette. PopoverContent unmounts on close, so each open
                 gets a fresh mount that picks up the current
                 `group.color` via `defaultValue`. `showAlpha` lets the
-                picker emit translucent `rgba(...)` directly — survives
+                picker emit translucent fills directly — we ask for
+                `format="rgba"` so the alpha channel is actually included
+                in the output string (`"rgb"` strips it). Survives
                 round-trip through the canvas group fill with no
-                consumer-side transform. `format="rgb"` because hex
-                can't carry the alpha channel. */}
+                consumer-side transform. */}
             <ColorPicker
               inline
               showAlpha
               defaultValue={pickerValue}
-              format="rgb"
+              format="rgba"
               palette="material"
               onChangeComplete={handleColorChange}
             />
