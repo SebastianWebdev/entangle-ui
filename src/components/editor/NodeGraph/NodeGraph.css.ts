@@ -366,6 +366,151 @@ export const minimapSlotStyle = style({
   pointerEvents: 'auto',
 });
 
+/**
+ * Themed default body for nodes — `<NodeGraph.NodeBody>`. Picks up an
+ * optional CSS-variable accent so the consumer can theme per category
+ * without re-styling the whole recipe. Selected / hovered variants
+ * sandwich a soft glow + accent border on top of the resting panel.
+ */
+export const nodeBodyRecipe = recipe({
+  base: {
+    width: 'max-content',
+    minWidth: 160,
+    background: vars.colors.background.elevated,
+    borderRadius: vars.borderRadius.md,
+    border: `1px solid ${vars.colors.border.default}`,
+    boxShadow: vars.shadows.md,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    color: vars.colors.text.primary,
+    fontFamily: vars.typography.fontFamily.sans,
+    fontSize: vars.typography.fontSize.sm,
+    transition: `border-color ${vars.transitions.fast}, box-shadow ${vars.transitions.fast}`,
+  },
+  variants: {
+    variant: {
+      // Standard panel — soft surface with elevation shadow.
+      panel: {},
+      // Flat — no shadow, single border, denser.
+      flat: { boxShadow: 'none' },
+      // Minimal — transparent body, just the chrome around content.
+      minimal: { background: 'transparent', boxShadow: 'none' },
+    },
+    selected: {
+      true: {
+        borderColor: `var(--etui-ng-accent, ${vars.colors.accent.primary})`,
+        boxShadow: `0 0 0 1px var(--etui-ng-accent, ${vars.colors.accent.primary}), ${vars.shadows.lg}`,
+      },
+      false: {},
+    },
+    hovered: {
+      true: { borderColor: vars.colors.border.focus },
+      false: {},
+    },
+  },
+  defaultVariants: {
+    variant: 'panel',
+    selected: false,
+    hovered: false,
+  },
+});
+
+/**
+ * Header strip — `<NodeGraph.NodeHeader>`. Defaults to a tinted bar
+ * using the accent variable; consumer can pass `background` to inject
+ * a gradient. Padding mirrors the body's internal grid so left / right
+ * pins line up with whatever's in the header.
+ */
+export const nodeHeaderStyle = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  padding: '6px 10px',
+  background: `linear-gradient(90deg, color-mix(in srgb, var(--etui-ng-accent, ${vars.colors.accent.primary}) 65%, ${vars.colors.background.elevated}) 0%, color-mix(in srgb, var(--etui-ng-accent, ${vars.colors.accent.primary}) 40%, ${vars.colors.background.elevated}) 100%)`,
+  borderBottom: `1px solid ${vars.colors.border.default}`,
+  flexShrink: 0,
+  minHeight: 28,
+});
+
+export const nodeHeaderIconStyle = style({
+  width: 18,
+  height: 18,
+  borderRadius: 3,
+  background: 'rgba(0, 0, 0, 0.3)',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: vars.typography.fontSize.xs,
+  fontWeight: vars.typography.fontWeight.semibold,
+  color: 'rgba(255, 255, 255, 0.95)',
+  flexShrink: 0,
+});
+
+export const nodeHeaderTextStyle = style({
+  minWidth: 0,
+  flex: 1,
+});
+
+export const nodeHeaderTitleStyle = style({
+  fontSize: vars.typography.fontSize.sm,
+  fontWeight: vars.typography.fontWeight.semibold,
+  lineHeight: 1.15,
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  color: 'rgba(255, 255, 255, 0.95)',
+  textShadow: '0 1px 0 rgba(0, 0, 0, 0.5)',
+});
+
+export const nodeHeaderSubtitleStyle = style({
+  fontSize: vars.typography.fontSize.xs,
+  opacity: 0.75,
+  lineHeight: 1.15,
+  marginTop: 1,
+  color: 'rgba(255, 255, 255, 0.85)',
+});
+
+/**
+ * Pin list — `<NodeGraph.PinList>`. Two-column grid hosting the left /
+ * right `<NodeGraph.PinRow>` children. `columnGap` is set inline by the
+ * component so the consumer can override per-instance.
+ */
+export const pinListStyle = style({
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
+});
+
+export const pinListColumnStyle = style({
+  display: 'flex',
+  flexDirection: 'column',
+  minWidth: 0,
+});
+
+/**
+ * Pin row — `<NodeGraph.PinRow>`. Side-aware justification so the port
+ * lands at the proper edge of the node when the consumer drops it next
+ * to a label.
+ */
+export const pinRowRecipe = recipe({
+  base: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    minWidth: 0,
+  },
+  variants: {
+    side: {
+      left: { justifyContent: 'flex-start' },
+      right: { justifyContent: 'flex-end' },
+      // Top/bottom rows are rare but supported — fall back to start.
+      top: { justifyContent: 'flex-start' },
+      bottom: { justifyContent: 'flex-start' },
+    },
+  },
+});
+
 // Ensure the underlying ViewportWorld passes through pointer events so nodes
 // receive them. The ViewportWorld wrapper has pointer-events: none by default
 // to let the background marquee pass through.

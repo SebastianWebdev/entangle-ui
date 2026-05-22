@@ -2,6 +2,16 @@ export { NodeGraph } from './NodeGraph';
 export { NodeGraphMinimap, NodeGraphBackground } from './NodeGraphMinimap';
 export { NodeGraphPort } from './NodeGraphPort';
 export {
+  NodeGraphNodeBody,
+  NodeGraphNodeHeader,
+  NodeGraphPinList,
+  NodeGraphPinRow,
+  type NodeGraphNodeBodyProps,
+  type NodeGraphNodeHeaderProps,
+  type NodeGraphPinListProps,
+  type NodeGraphPinRowProps,
+} from './NodeGraphNodeParts';
+export {
   useNodeGraphStore,
   useNodeGraphData,
   useNodeGraphSelection,

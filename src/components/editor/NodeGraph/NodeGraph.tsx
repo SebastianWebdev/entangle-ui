@@ -53,6 +53,12 @@ import { NodeGraphMinimapInner } from './NodeGraphMinimap';
 import { NodeGraphBackground, NodeGraphMinimap } from './NodeGraphSlots';
 import { NodeGraphPort } from './NodeGraphPort';
 import {
+  NodeGraphNodeBody,
+  NodeGraphNodeHeader,
+  NodeGraphPinList,
+  NodeGraphPinRow,
+} from './NodeGraphNodeParts';
+import {
   buildDrawTheme,
   drawBackground,
   drawConnectionPreview,
@@ -1589,6 +1595,10 @@ type NodeGraphCompound = typeof NodeGraphImpl & {
   Minimap: typeof NodeGraphMinimap;
   Background: typeof NodeGraphBackground;
   Port: typeof NodeGraphPort;
+  NodeBody: typeof NodeGraphNodeBody;
+  NodeHeader: typeof NodeGraphNodeHeader;
+  PinList: typeof NodeGraphPinList;
+  PinRow: typeof NodeGraphPinRow;
 };
 
 (NodeGraphImpl as unknown as { displayName: string }).displayName = 'NodeGraph';
@@ -1597,5 +1607,9 @@ const NodeGraphWithSlots = NodeGraphImpl as NodeGraphCompound;
 NodeGraphWithSlots.Minimap = NodeGraphMinimap;
 NodeGraphWithSlots.Background = NodeGraphBackground;
 NodeGraphWithSlots.Port = NodeGraphPort;
+NodeGraphWithSlots.NodeBody = NodeGraphNodeBody;
+NodeGraphWithSlots.NodeHeader = NodeGraphNodeHeader;
+NodeGraphWithSlots.PinList = NodeGraphPinList;
+NodeGraphWithSlots.PinRow = NodeGraphPinRow;
 
 export const NodeGraph = NodeGraphWithSlots;
