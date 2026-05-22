@@ -341,18 +341,20 @@ export function NodeGraphGroupView({
             />
           </PopoverTrigger>
           <PopoverContent padding="md">
-            {/* `inline` strips the picker's own popover wrapper — we
-                supply our own. `showAlpha` lets the picker output
-                `rgba(...)` directly, so translucent UE-style group
-                fills survive editing without a consumer-side
-                hex → rgba transform. `onChangeComplete` fires once
-                per gesture (slider release / palette click) so we
-                don't spam onGroupsChange while the user is dragging
-                a hue/saturation handle. */}
+            {/* Uncontrolled picker — `useColor` only mutates its internal
+                state when `value` is undefined, so passing `defaultValue`
+                lets the user actually drag the sliders / click the
+                palette. PopoverContent unmounts on close, so each open
+                gets a fresh mount that picks up the current
+                `group.color` via `defaultValue`. `showAlpha` lets the
+                picker emit translucent `rgba(...)` directly — survives
+                round-trip through the canvas group fill with no
+                consumer-side transform. `format="rgb"` because hex
+                can't carry the alpha channel. */}
             <ColorPicker
               inline
               showAlpha
-              value={pickerValue}
+              defaultValue={pickerValue}
               format="rgb"
               palette="material"
               onChangeComplete={handleColorChange}
