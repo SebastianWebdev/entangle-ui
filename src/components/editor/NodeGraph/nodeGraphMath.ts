@@ -208,6 +208,21 @@ export function rectsIntersect(a: WorldRect, b: WorldRect): boolean {
 }
 
 /**
+ * True when `inner` is fully contained inside `outer` (closed comparison —
+ * a rectangle that touches the outer's edge counts as contained). Used by
+ * the group-drag controller to decide which nodes ride along with their
+ * enclosing group.
+ */
+export function rectContains(outer: WorldRect, inner: WorldRect): boolean {
+  return (
+    inner.x >= outer.x &&
+    inner.y >= outer.y &&
+    inner.x + inner.width <= outer.x + outer.width &&
+    inner.y + inner.height <= outer.y + outer.height
+  );
+}
+
+/**
  * Compute the tight bounding box of a node list, factoring in measured /
  * default sizes. Returns a zero-width rect at the origin when the list
  * is empty.

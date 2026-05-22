@@ -1121,6 +1121,22 @@ export default function NodeGraphDemo(): React.ReactElement {
   const [nodes, setNodes] = useState<NodeGraphNode[]>(initial.nodes);
   const [edges, setEdges] = useState<NodeGraphEdge[]>(initial.edges);
   const [groups, setGroups] = useState<NodeGraphGroup[]>(initial.groups);
+
+  // The native `<input type="color">` emits opaque `#RRGGBB` strings — UE5
+  // comment boxes are translucent, so re-wrap each picked hex in an rgba()
+  // with a low alpha before persisting. Existing rgba values pass through.
+  const handleGroupsChange = useCallback((next: NodeGraphGroup[]) => {
+    const HEX_OPAQUE = /^#([0-9a-f]{6})$/i;
+    const translucent = next.map(g => {
+      const m = g.color?.match(HEX_OPAQUE);
+      if (!m) return g;
+      const r = parseInt(m[1]!.slice(0, 2), 16);
+      const gC = parseInt(m[1]!.slice(2, 4), 16);
+      const b = parseInt(m[1]!.slice(4, 6), 16);
+      return { ...g, color: `rgba(${r}, ${gC}, ${b}, 0.18)` };
+    });
+    setGroups(translucent);
+  }, []);
   const [selection, setSelection] = useState<NodeGraphSelection>({
     nodes: [],
     edges: [],
@@ -1339,7 +1355,7 @@ export default function NodeGraphDemo(): React.ReactElement {
             selection={selection}
             onNodesChange={setNodes}
             onEdgesChange={setEdges}
-            onGroupsChange={setGroups}
+            onGroupsChange={handleGroupsChange}
             onSelectionChange={setSelection}
             onDelete={handleDelete}
             onContextMenu={handleContextMenu}

@@ -66,6 +66,7 @@ import {
   getNodeBox,
   isPointInNode,
   isPointInRect,
+  rectContains,
   rectsIntersect,
   resolvePortRef,
   snapDelta,
@@ -564,6 +565,13 @@ const NodeGraphImpl = ({
     selectionAtStart: NodeGraphSelection;
     /** Snapshot of bounds keyed by group id (for drag). */
     groupStartBounds: Map<string, WorldRect>;
+    /**
+     * Nodes fully contained inside one of the dragged groups at gesture
+     * start — they ride along with the group(s).
+     */
+    containedNodeIds: ReadonlyArray<string>;
+    /** Start positions of the contained nodes, keyed by node id. */
+    nodeStartPositions: Map<string, Point2D>;
     /** Bounds of the resized group at start (for resize). */
     resizeStartBounds: WorldRect | null;
     additive: boolean;
@@ -572,6 +580,49 @@ const NodeGraphImpl = ({
   };
   const groupSessionRef = useRef<GroupDragSession | null>(null);
   const setGroupsRef = useLatest(setGroups);
+
+  /**
+   * True when applying `delta` to the dragged groups (`session.groupStartBounds`)
+   * would put any of them on top of a non-dragged group. Used by the
+   * pointermove handler for live visual feedback and by pointerup to
+   * refuse the commit.
+   */
+  const groupDragWouldOverlap = useCallback(
+    (groupStartBounds: Map<string, WorldRect>, delta: Point2D): boolean => {
+      const currentGroups = groupsRef.current;
+      for (const [draggedId, start] of groupStartBounds) {
+        const next: WorldRect = {
+          x: start.x + delta.x,
+          y: start.y + delta.y,
+          width: start.width,
+          height: start.height,
+        };
+        for (const other of currentGroups) {
+          if (groupStartBounds.has(other.id)) continue;
+          // Skip self defensively — already covered by the line above.
+          if (other.id === draggedId) continue;
+          if (rectsIntersect(next, other.bounds)) return true;
+        }
+      }
+      return false;
+    },
+    [groupsRef]
+  );
+
+  /**
+   * True when the resized bounds would intersect any non-resized group.
+   */
+  const groupResizeWouldOverlap = useCallback(
+    (groupId: string, nextBounds: WorldRect): boolean => {
+      const currentGroups = groupsRef.current;
+      for (const other of currentGroups) {
+        if (other.id === groupId) continue;
+        if (rectsIntersect(nextBounds, other.bounds)) return true;
+      }
+      return false;
+    },
+    [groupsRef]
+  );
 
   // Release any in-flight group listeners if the component unmounts mid-drag.
   useLayoutEffect(() => {
@@ -607,23 +658,39 @@ const NodeGraphImpl = ({
             session.didDrag = true;
           }
           const ids = Array.from(session.groupStartBounds.keys());
+          const blocked = groupDragWouldOverlap(
+            session.groupStartBounds,
+            snapped
+          );
           store.setInteraction({
             kind: 'drag-groups',
             groupIds: ids,
+            containedNodeIds: session.containedNodeIds,
             startWorld: session.startWorld,
             delta: snapped,
+            blocked,
           });
         } else if (
           session.kind === 'resize' &&
           session.resizeStartBounds &&
           session.handle
         ) {
+          const nextBounds = applyGroupResize(
+            session.resizeStartBounds,
+            session.handle,
+            snapped
+          );
+          const blocked = groupResizeWouldOverlap(
+            session.clickedGroupId,
+            nextBounds
+          );
           store.setInteraction({
             kind: 'resize-group',
             groupId: session.clickedGroupId,
             handle: session.handle,
             startBounds: session.resizeStartBounds,
             delta: snapped,
+            blocked,
           });
         }
       };
@@ -645,7 +712,14 @@ const NodeGraphImpl = ({
       document.addEventListener('pointercancel', handleCancel);
       return cleanup;
     },
-    [store, localScreenPoint, getTransform, snapToGridRef]
+    [
+      store,
+      localScreenPoint,
+      getTransform,
+      snapToGridRef,
+      groupDragWouldOverlap,
+      groupResizeWouldOverlap,
+    ]
   );
 
   const onGroupBodyPointerDown = useCallback(
@@ -684,6 +758,24 @@ const NodeGraphImpl = ({
         }
       }
 
+      // Snapshot nodes that are fully inside any of the dragged groups —
+      // they ride along with the gesture so the visual grouping stays
+      // consistent.
+      const containedSet = new Set<string>();
+      const nodeStartPositions = new Map<string, Point2D>();
+      const measuredFor = store.getMeasuredSize;
+      for (const n of nodesRef.current) {
+        const nb = getNodeBox(n, measuredFor(n.id), defaultNodeSize);
+        for (const startRect of startBounds.values()) {
+          if (rectContains(startRect, nb)) {
+            containedSet.add(n.id);
+            nodeStartPositions.set(n.id, { ...n.position });
+            break;
+          }
+        }
+      }
+      const containedNodeIds = Array.from(containedSet);
+
       const startScreen = localScreenPoint(event.clientX, event.clientY);
       const startWorld = worldFromScreen(startScreen, getTransform());
       const pointerId = event.pointerId;
@@ -698,6 +790,8 @@ const NodeGraphImpl = ({
         startWorld,
         selectionAtStart: currentSelection,
         groupStartBounds: startBounds,
+        containedNodeIds,
+        nodeStartPositions,
         resizeStartBounds: null,
         additive,
         didDrag: false,
@@ -708,6 +802,9 @@ const NodeGraphImpl = ({
       disabled,
       selectionRef,
       groupsRef,
+      nodesRef,
+      defaultNodeSize,
+      store,
       localScreenPoint,
       getTransform,
       beginGroupSession,
@@ -745,6 +842,8 @@ const NodeGraphImpl = ({
         startWorld,
         selectionAtStart: selectionRef.current,
         groupStartBounds: new Map(),
+        containedNodeIds: [],
+        nodeStartPositions: new Map(),
         resizeStartBounds: { ...group.bounds },
         additive: false,
         didDrag: true,
@@ -758,6 +857,7 @@ const NodeGraphImpl = ({
         handle,
         startBounds: { ...group.bounds },
         delta: { x: 0, y: 0 },
+        blocked: false,
       });
     },
     [
@@ -787,8 +887,11 @@ const NodeGraphImpl = ({
       const interaction = store.getInteraction();
 
       if (session.kind === 'drag' && session.didDrag) {
-        if (interaction.kind === 'drag-groups') {
+        if (interaction.kind === 'drag-groups' && !interaction.blocked) {
           const delta = interaction.delta;
+          // Apply the delta to both groups and any nodes that were
+          // contained at gesture start, in a single set of state writes
+          // so consumers get one atomic onGroupsChange + onNodesChange.
           const nextGroups = groupsRef.current.map(g => {
             const start = session.groupStartBounds.get(g.id);
             if (!start) return g;
@@ -802,11 +905,26 @@ const NodeGraphImpl = ({
             };
           });
           setGroupsRef.current(nextGroups);
+          if (session.nodeStartPositions.size > 0) {
+            const nextNodes = nodesRef.current.map(n => {
+              const start = session.nodeStartPositions.get(n.id);
+              if (!start) return n;
+              return {
+                ...n,
+                position: { x: start.x + delta.x, y: start.y + delta.y },
+              };
+            });
+            setNodesRef.current(nextNodes);
+          }
         }
+        // If `blocked`, drop the gesture without committing — the overlay
+        // already snaps back to the start position when we clear the
+        // interaction state below.
         store.setInteraction({ kind: 'idle' });
       } else if (session.kind === 'resize') {
         if (
           interaction.kind === 'resize-group' &&
+          !interaction.blocked &&
           session.resizeStartBounds &&
           session.handle
         ) {
@@ -841,7 +959,44 @@ const NodeGraphImpl = ({
 
       groupSessionRef.current = null;
     },
-    [store, groupsRef, setGroupsRef, setSelectionRef]
+    [store, groupsRef, nodesRef, setGroupsRef, setNodesRef, setSelectionRef]
+  );
+
+  // ── Group label / colour edits ──
+  //
+  // The library's group overlay owns the inline label editor and the
+  // colour swatch — these handlers translate UI commits into a controlled
+  // `onGroupsChange` emission so the consumer receives the full next
+  // groups array, same as every other group mutation.
+  const handleGroupLabelChange = useCallback(
+    (group: NodeGraphGroup, nextLabel: string): void => {
+      const trimmed = nextLabel.trim();
+      const nextGroups = groupsRef.current.map(g => {
+        if (g.id !== group.id) return g;
+        if ((g.label ?? '') === trimmed) return g;
+        if (trimmed === '') {
+          // Empty label collapses back to `undefined` so the default
+          // "Group" placeholder shows up cleanly on next render.
+          const { label: _omit, ...rest } = g;
+          void _omit;
+          return rest;
+        }
+        return { ...g, label: trimmed };
+      });
+      setGroupsRef.current(nextGroups);
+    },
+    [groupsRef, setGroupsRef]
+  );
+
+  const handleGroupColorChange = useCallback(
+    (group: NodeGraphGroup, nextColor: string): void => {
+      if (group.color === nextColor) return;
+      const nextGroups = groupsRef.current.map(g =>
+        g.id === group.id ? { ...g, color: nextColor } : g
+      );
+      setGroupsRef.current(nextGroups);
+    },
+    [groupsRef, setGroupsRef]
   );
 
   // ── Marquee selection from the Viewport ──
@@ -1216,6 +1371,8 @@ const NodeGraphImpl = ({
                 onBodyPointerUp={onGroupBodyPointerUp}
                 onHandlePointerDown={onGroupHandlePointerDown}
                 onBodyContextMenu={handleContextMenu}
+                onLabelChange={handleGroupLabelChange}
+                onColorChange={handleGroupColorChange}
               />
             ))}
             {nodes.map(node => (

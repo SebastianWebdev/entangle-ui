@@ -1,8 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { cx } from '@/utils/cx';
 import {
+  groupColorInputStyle,
+  groupColorSwatchStyle,
+  groupLabelBarStyle,
+  groupLabelInputStyle,
   groupLabelStyle,
   groupOverlayRecipe,
   groupResizeHandleStyle,
@@ -36,6 +40,13 @@ interface NodeGraphGroupViewProps {
     handle: NodeGraphGroupResizeHandle
   ) => void;
   onBodyContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
+  /**
+   * Commit a label or colour edit. The library calls this when the user
+   * finishes editing the label (Enter / blur) or picks a new colour from
+   * the swatch. Parent forwards to `setGroups` / `onGroupsChange`.
+   */
+  onLabelChange: (group: NodeGraphGroup, nextLabel: string) => void;
+  onColorChange: (group: NodeGraphGroup, nextColor: string) => void;
 }
 
 const RESIZE_CURSORS: Record<NodeGraphGroupResizeHandle, string> = {
@@ -74,6 +85,8 @@ const ALL_HANDLES: NodeGraphGroupResizeHandle[] = [
   'w',
 ];
 
+const DEFAULT_PICKER_COLOR = '#5d8dff';
+
 /**
  * Per-group slice of the interaction state — `null` for groups that
  * aren't currently being dragged or resized. Two distinct `null`
@@ -84,12 +97,14 @@ type GroupGestureState =
   | {
       kind: 'drag';
       delta: { x: number; y: number };
+      blocked: boolean;
     }
   | {
       kind: 'resize';
       handle: NodeGraphGroupResizeHandle;
       startBounds: WorldRect;
       delta: { x: number; y: number };
+      blocked: boolean;
     }
   | null;
 
@@ -100,6 +115,7 @@ function gestureStateEqual(
   if (a === b) return true;
   if (a === null || b === null) return false;
   if (a.kind !== b.kind) return false;
+  if (a.blocked !== b.blocked) return false;
   if (a.kind === 'drag' && b.kind === 'drag') {
     return a.delta.x === b.delta.x && a.delta.y === b.delta.y;
   }
@@ -125,7 +141,11 @@ function selectGroupGesture(
     interaction.kind === 'drag-groups' &&
     interaction.groupIds.includes(groupId)
   ) {
-    return { kind: 'drag', delta: interaction.delta };
+    return {
+      kind: 'drag',
+      delta: interaction.delta,
+      blocked: interaction.blocked,
+    };
   }
   if (interaction.kind === 'resize-group' && interaction.groupId === groupId) {
     return {
@@ -133,6 +153,7 @@ function selectGroupGesture(
       handle: interaction.handle,
       startBounds: interaction.startBounds,
       delta: interaction.delta,
+      blocked: interaction.blocked,
     };
   }
   return null;
@@ -157,7 +178,8 @@ function computeLiveBounds(
 /**
  * Render a single interactive group overlay positioned in world space.
  * The canvas layer draws the visual fill underneath — this HTML element
- * handles selection, drag-to-move, and corner/edge resize.
+ * handles selection, drag-to-move, corner/edge resize, label editing,
+ * and the colour swatch.
  *
  * Uses per-id selectors so a group only re-renders when *its* selection
  * or gesture state changes — drag deltas of other groups never reach the
@@ -169,6 +191,8 @@ export function NodeGraphGroupView({
   onBodyPointerUp,
   onHandlePointerDown,
   onBodyContextMenu,
+  onLabelChange,
+  onColorChange,
 }: NodeGraphGroupViewProps): React.ReactElement {
   const store = useNodeGraphStore();
   const groupId = group.id;
@@ -187,11 +211,91 @@ export function NodeGraphGroupView({
   );
 
   const dragging = gesture?.kind === 'drag';
+  const blocked = gesture?.blocked ?? false;
   const bounds = computeLiveBounds(group, gesture);
+
+  // ── Inline label edit ──
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(group.label ?? '');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const colorInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!editing) {
+      setDraft(group.label ?? '');
+    }
+  }, [editing, group.label]);
+
+  useEffect(() => {
+    if (editing) {
+      // Defer focus until the input has been mounted.
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [editing]);
+
+  const commitLabel = useCallback((): void => {
+    const trimmed = draft.trim();
+    setEditing(false);
+    if (trimmed === (group.label ?? '')) return;
+    onLabelChange(group, trimmed);
+  }, [draft, group, onLabelChange]);
+
+  const cancelLabel = useCallback((): void => {
+    setEditing(false);
+    setDraft(group.label ?? '');
+  }, [group.label]);
+
+  const handleLabelDoubleClick = useCallback(
+    (event: React.MouseEvent<HTMLSpanElement>): void => {
+      event.stopPropagation();
+      setEditing(true);
+    },
+    []
+  );
+
+  const handleInputKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>): void => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        commitLabel();
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        cancelLabel();
+      }
+      // Stop arrow keys from triggering the graph's nudge handler.
+      event.stopPropagation();
+    },
+    [commitLabel, cancelLabel]
+  );
+
+  // ── Colour swatch ──
+  const handleSwatchClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>): void => {
+      event.stopPropagation();
+      colorInputRef.current?.click();
+    },
+    []
+  );
+
+  const handleColorInput = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>): void => {
+      onColorChange(group, event.target.value);
+    },
+    [group, onColorChange]
+  );
+
+  // Picker needs an opaque hex — `group.color` may be an `rgba(...)` value
+  // (the demo uses translucent fills). Fall back to a neutral default so
+  // the native picker opens with a sensible starting hue.
+  const pickerValue =
+    group.color && /^#[0-9a-f]{6}$/i.test(group.color)
+      ? group.color
+      : DEFAULT_PICKER_COLOR;
 
   return (
     <div
-      className={cx(groupOverlayRecipe({ selected, dragging }))}
+      className={cx(groupOverlayRecipe({ selected, dragging, blocked }))}
       style={{
         left: bounds.x,
         top: bounds.y,
@@ -199,13 +303,56 @@ export function NodeGraphGroupView({
         height: bounds.height,
       }}
       data-group-id={group.id}
+      data-blocked={blocked || undefined}
       onPointerDown={e => onBodyPointerDown(e, group)}
       onPointerUp={e => onBodyPointerUp(e, group)}
       onContextMenu={onBodyContextMenu}
     >
-      {group.label ? (
-        <span className={groupLabelStyle}>{group.label}</span>
-      ) : null}
+      <div
+        className={groupLabelBarStyle}
+        // Don't let pointerdown on the label bar (label text, color swatch,
+        // input) fall through to the body drag handler — the label bar is
+        // an interactive control row, not a draggable handle.
+        onPointerDown={e => e.stopPropagation()}
+      >
+        {editing ? (
+          <input
+            ref={inputRef}
+            className={groupLabelInputStyle}
+            value={draft}
+            placeholder="Group name"
+            spellCheck={false}
+            onChange={e => setDraft(e.target.value)}
+            onBlur={commitLabel}
+            onKeyDown={handleInputKeyDown}
+          />
+        ) : (
+          <span
+            className={groupLabelStyle}
+            onDoubleClick={handleLabelDoubleClick}
+            title="Double-click to rename"
+          >
+            {group.label?.trim() ? group.label : 'Group'}
+          </span>
+        )}
+        <button
+          type="button"
+          aria-label="Change group colour"
+          title="Change group colour"
+          className={groupColorSwatchStyle}
+          style={{ background: group.color ?? DEFAULT_PICKER_COLOR }}
+          onClick={handleSwatchClick}
+        />
+        <input
+          ref={colorInputRef}
+          type="color"
+          className={groupColorInputStyle}
+          value={pickerValue}
+          onChange={handleColorInput}
+          tabIndex={-1}
+          aria-hidden="true"
+        />
+      </div>
       {selected
         ? ALL_HANDLES.map(handle => (
             <div

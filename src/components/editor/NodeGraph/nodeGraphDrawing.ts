@@ -84,10 +84,21 @@ export function drawEdges(
   getPortPosition: PortPositionLookup,
   theme: NodeGraphDrawTheme
 ): void {
-  const dragSet =
-    interaction.kind === 'drag-nodes'
-      ? { ids: new Set(interaction.nodeIds), delta: interaction.delta }
-      : null;
+  // Either a node-drag (`drag-nodes`) or a group-drag carrying contained
+  // nodes (`drag-groups.containedNodeIds`) shifts edge endpoints live —
+  // resolve to a single (ids, delta) shape so the loop below stays simple.
+  let dragSet: { ids: Set<string>; delta: Point2D } | null = null;
+  if (interaction.kind === 'drag-nodes') {
+    dragSet = {
+      ids: new Set(interaction.nodeIds),
+      delta: interaction.delta,
+    };
+  } else if (interaction.kind === 'drag-groups') {
+    dragSet = {
+      ids: new Set(interaction.containedNodeIds),
+      delta: interaction.delta,
+    };
+  }
   for (const edge of data.edges) {
     const endpoints = resolveEdgeEndpoints(edge, data.nodes, getPortPosition);
     if (!endpoints) continue;
@@ -186,25 +197,12 @@ export function drawGroups(
     ctx.strokeStyle = group.color ?? theme.groupStroke;
     ctx.lineWidth = GROUP_STROKE_WIDTH;
     ctx.strokeRect(tl.x + 0.5, tl.y + 0.5, width - 1, height - 1);
-
-    if (group.label) {
-      ctx.fillStyle = theme.groupLabel;
-      ctx.font = `${theme.fontSizeXs}px ${getFontFamily(ctx)}`;
-      ctx.textBaseline = 'bottom';
-      ctx.fillText(group.label, tl.x + 6, tl.y - 4);
-    }
+    // The label is rendered by the HTML overlay (`NodeGraphGroupView`) so
+    // it stays editable on click and scales with the world transform like
+    // the rest of the group body. Canvas no longer paints it — avoids the
+    // duplicate-title artefact where a screen-space canvas label and a
+    // world-space HTML label drifted apart at non-1 zoom.
   }
-}
-
-function getFontFamily(ctx: CanvasRenderingContext2D): string {
-  // Read current font, but if blank fall back to a sensible UI stack so the
-  // group label stays legible regardless of canvas state.
-  const current = ctx.font;
-  if (!current || current === '10px sans-serif') {
-    return 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
-  }
-  const parts = current.split(' ');
-  return parts.slice(1).join(' ') || 'system-ui, sans-serif';
 }
 
 /**

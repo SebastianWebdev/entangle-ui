@@ -248,8 +248,17 @@ export const groupOverlayRecipe = recipe({
       true: { cursor: 'grabbing' },
       false: {},
     },
+    blocked: {
+      // Drag / resize collision with another group — show a rejection
+      // outline so the user sees why the gesture won't commit.
+      true: {
+        border: `2px dashed ${vars.colors.accent.error}`,
+        boxShadow: `0 0 0 1px ${vars.colors.accent.error}66`,
+      },
+      false: {},
+    },
   },
-  defaultVariants: { selected: false, dragging: false },
+  defaultVariants: { selected: false, dragging: false, blocked: false },
 });
 
 /** Tiny square handle drawn at each corner / edge midpoint when selected. */
@@ -265,22 +274,106 @@ export const groupResizeHandleStyle = style({
   zIndex: 1,
 });
 
-/** Label centred above a group (top-edge tab). */
-export const groupLabelStyle = style({
+/**
+ * Floating "tab" attached to the top edge of a group — carries the
+ * editable label, the colour swatch, and (when picking) the hidden
+ * native colour input. Pointer events flow normally so the consumer can
+ * interact with the controls; the parent overlay stops body drag from
+ * starting on pointerdown inside the bar.
+ */
+export const groupLabelBarStyle = style({
   position: 'absolute',
-  top: -22,
-  left: 8,
+  top: -26,
+  left: 0,
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  height: 22,
+  paddingLeft: 8,
+  paddingRight: 4,
   background: vars.colors.background.elevated,
   border: `1px solid ${vars.colors.border.default}`,
   borderRadius: vars.borderRadius.sm,
-  padding: `2px 8px`,
   fontSize: vars.typography.fontSize.xs,
   color: vars.colors.text.primary,
   fontFamily: vars.typography.fontFamily.sans,
   fontWeight: vars.typography.fontWeight.medium,
   lineHeight: vars.typography.lineHeight.tight,
+  pointerEvents: 'auto',
+});
+
+/** Label text inside the bar — double-click to edit. */
+export const groupLabelStyle = style({
   whiteSpace: 'nowrap',
+  cursor: 'text',
+  userSelect: 'none',
+  maxWidth: 240,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
+/**
+ * Inline editor — replaces the label span while editing. Visually flush
+ * with the surrounding bar so the swap doesn't shift other controls.
+ */
+export const groupLabelInputStyle = style({
+  appearance: 'none',
+  background: 'transparent',
+  border: 'none',
+  outline: 'none',
+  color: vars.colors.text.primary,
+  fontSize: vars.typography.fontSize.xs,
+  fontFamily: vars.typography.fontFamily.sans,
+  fontWeight: vars.typography.fontWeight.medium,
+  padding: 0,
+  margin: 0,
+  width: 160,
+  selectors: {
+    '&::-webkit-search-cancel-button': { display: 'none' },
+  },
+});
+
+/** Visible colour swatch — clicking it opens the hidden native picker. */
+export const groupColorSwatchStyle = style({
+  display: 'inline-block',
+  width: 14,
+  height: 14,
+  borderRadius: 3,
+  border: `1px solid ${vars.colors.border.default}`,
+  background: 'currentColor',
+  padding: 0,
+  cursor: 'pointer',
+  flexShrink: 0,
+  transition: `transform ${vars.transitions.fast}, border-color ${vars.transitions.fast}`,
+  selectors: {
+    '&:hover': {
+      transform: 'scale(1.1)',
+      borderColor: vars.colors.accent.primary,
+    },
+    '&:focus-visible': {
+      outline: `2px solid ${vars.colors.accent.primary}`,
+      outlineOffset: 1,
+    },
+  },
+});
+
+/**
+ * Native `<input type="color">` sized to zero so it never takes layout —
+ * the visible swatch above forwards clicks to this element via `.click()`.
+ * Keeps the picker UI consistent with the user's OS without us shipping
+ * a popover.
+ */
+export const groupColorInputStyle = style({
+  position: 'absolute',
+  width: 1,
+  height: 1,
+  padding: 0,
+  border: 0,
+  opacity: 0,
   pointerEvents: 'none',
+  // Anchor near the swatch so the OS picker pops up next to it.
+  right: 4,
+  top: 4,
 });
 
 /**

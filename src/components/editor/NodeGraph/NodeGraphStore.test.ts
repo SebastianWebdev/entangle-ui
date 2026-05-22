@@ -440,16 +440,20 @@ describe('NodeGraphStore — drag-groups interaction equality', () => {
     store.setInteraction({
       kind: 'drag-groups',
       groupIds: ['g1', 'g2'],
+      containedNodeIds: [],
       startWorld: { x: 0, y: 0 },
       delta: { x: 5, y: 5 },
+      blocked: false,
     });
     const cb = vi.fn();
     store.subscribeInteraction(cb);
     store.setInteraction({
       kind: 'drag-groups',
       groupIds: ['g1', 'g2'],
+      containedNodeIds: [],
       startWorld: { x: 0, y: 0 },
       delta: { x: 5, y: 5 },
+      blocked: false,
     });
     expect(cb).not.toHaveBeenCalled();
   });
@@ -459,16 +463,20 @@ describe('NodeGraphStore — drag-groups interaction equality', () => {
     store.setInteraction({
       kind: 'drag-groups',
       groupIds: ['g1'],
+      containedNodeIds: [],
       startWorld: { x: 0, y: 0 },
       delta: { x: 0, y: 0 },
+      blocked: false,
     });
     const cb = vi.fn();
     store.subscribeInteraction(cb);
     store.setInteraction({
       kind: 'drag-groups',
       groupIds: ['g1'],
+      containedNodeIds: [],
       startWorld: { x: 0, y: 0 },
       delta: { x: 5, y: 0 },
+      blocked: false,
     });
     expect(cb).toHaveBeenCalledTimes(1);
   });
@@ -478,16 +486,20 @@ describe('NodeGraphStore — drag-groups interaction equality', () => {
     store.setInteraction({
       kind: 'drag-groups',
       groupIds: ['g1'],
+      containedNodeIds: [],
       startWorld: { x: 0, y: 0 },
       delta: { x: 0, y: 0 },
+      blocked: false,
     });
     const cb = vi.fn();
     store.subscribeInteraction(cb);
     store.setInteraction({
       kind: 'drag-groups',
       groupIds: ['g1', 'g2'],
+      containedNodeIds: [],
       startWorld: { x: 0, y: 0 },
       delta: { x: 0, y: 0 },
+      blocked: false,
     });
     expect(cb).toHaveBeenCalledTimes(1);
   });
@@ -502,6 +514,7 @@ describe('NodeGraphStore — resize-group interaction equality', () => {
       handle: 'se',
       startBounds: { x: 0, y: 0, width: 100, height: 100 },
       delta: { x: 10, y: 10 },
+      blocked: false,
     });
     const cb = vi.fn();
     store.subscribeInteraction(cb);
@@ -511,6 +524,7 @@ describe('NodeGraphStore — resize-group interaction equality', () => {
       handle: 'se',
       startBounds: { x: 0, y: 0, width: 100, height: 100 },
       delta: { x: 10, y: 10 },
+      blocked: false,
     });
     expect(cb).not.toHaveBeenCalled();
   });
@@ -523,6 +537,7 @@ describe('NodeGraphStore — resize-group interaction equality', () => {
       handle: 'se',
       startBounds: { x: 0, y: 0, width: 100, height: 100 },
       delta: { x: 0, y: 0 },
+      blocked: false,
     });
     const cb = vi.fn();
     store.subscribeInteraction(cb);
@@ -532,6 +547,7 @@ describe('NodeGraphStore — resize-group interaction equality', () => {
       handle: 'sw',
       startBounds: { x: 0, y: 0, width: 100, height: 100 },
       delta: { x: 0, y: 0 },
+      blocked: false,
     });
     expect(cb).toHaveBeenCalledTimes(1);
   });
@@ -544,6 +560,7 @@ describe('NodeGraphStore — resize-group interaction equality', () => {
       handle: 'e',
       startBounds: { x: 0, y: 0, width: 100, height: 100 },
       delta: { x: 0, y: 0 },
+      blocked: false,
     });
     const cb = vi.fn();
     store.subscribeInteraction(cb);
@@ -553,6 +570,7 @@ describe('NodeGraphStore — resize-group interaction equality', () => {
       handle: 'e',
       startBounds: { x: 0, y: 0, width: 100, height: 100 },
       delta: { x: 5, y: 0 },
+      blocked: false,
     });
     expect(cb).toHaveBeenCalledTimes(1);
   });

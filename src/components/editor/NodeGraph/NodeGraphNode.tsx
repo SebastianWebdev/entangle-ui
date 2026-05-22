@@ -125,6 +125,13 @@ export function NodeGraphNodeView(
       ) {
         return interaction.delta;
       }
+      // Nodes fully contained inside a dragged group move with the group.
+      if (
+        interaction.kind === 'drag-groups' &&
+        interaction.containedNodeIds.includes(node.id)
+      ) {
+        return interaction.delta;
+      }
       return null;
     },
     pointEqualNullable

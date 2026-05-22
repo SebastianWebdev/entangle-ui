@@ -68,10 +68,23 @@ export type NodeGraphInteractionState =
       kind: 'drag-groups';
       /** Ids of groups being dragged together. */
       groupIds: ReadonlyArray<string>;
+      /**
+       * Ids of nodes that were fully contained inside one of the dragged
+       * groups at gesture start. They ride along with the group(s) and
+       * receive the same drag delta — see `rectContains` in `nodeGraphMath`.
+       */
+      containedNodeIds: ReadonlyArray<string>;
       /** Pointer-down world position. */
       startWorld: Point2D;
       /** Cumulative drag delta (snapped if grid active). */
       delta: Point2D;
+      /**
+       * True when the projected positions of the dragged groups would
+       * overlap any other (non-dragged) group. The HTML overlay paints a
+       * rejection state and the pointerup handler refuses to commit when
+       * this is set.
+       */
+      blocked: boolean;
     }
   | {
       kind: 'resize-group';
@@ -81,6 +94,8 @@ export type NodeGraphInteractionState =
       startBounds: { x: number; y: number; width: number; height: number };
       /** Cumulative pointer delta in world units (snapped). */
       delta: Point2D;
+      /** Set when the resized bounds would overlap another group. */
+      blocked: boolean;
     }
   | {
       kind: 'connect';
@@ -415,8 +430,10 @@ function interactionEqual(
       >;
       return (
         arrEqual(a.groupIds, bx.groupIds) &&
+        arrEqual(a.containedNodeIds, bx.containedNodeIds) &&
         pointEqual(a.startWorld, bx.startWorld) &&
-        pointEqual(a.delta, bx.delta)
+        pointEqual(a.delta, bx.delta) &&
+        a.blocked === bx.blocked
       );
     }
     case 'resize-group': {
@@ -431,7 +448,8 @@ function interactionEqual(
         a.startBounds.y === bx.startBounds.y &&
         a.startBounds.width === bx.startBounds.width &&
         a.startBounds.height === bx.startBounds.height &&
-        pointEqual(a.delta, bx.delta)
+        pointEqual(a.delta, bx.delta) &&
+        a.blocked === bx.blocked
       );
     }
     case 'connect': {
