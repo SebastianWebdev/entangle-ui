@@ -50,7 +50,20 @@ import { NodeGraphStoreContext, useNodeGraphStore } from './NodeGraphContext';
 import { NodeGraphNodeView } from './NodeGraphNode';
 import { NodeGraphGroupView } from './NodeGraphGroup';
 import { NodeGraphMinimapInner } from './NodeGraphMinimap';
-import { NodeGraphBackground, NodeGraphMinimap } from './NodeGraphSlots';
+import {
+  NodeGraphBackground,
+  NodeGraphMinimap,
+  NodeGraphToolbar,
+} from './NodeGraphSlots';
+import {
+  NodeGraphToolbarInner,
+  NodeGraphFitContentButton,
+  NodeGraphFitSelectionButton,
+  NodeGraphZoomInButton,
+  NodeGraphZoomOutButton,
+  NodeGraphResetZoomButton,
+  NodeGraphToolbarSeparator,
+} from './NodeGraphToolbar';
 import { NodeGraphPort } from './NodeGraphPort';
 import {
   NodeGraphNodeBody,
@@ -97,12 +110,15 @@ type NodeGraphBackgroundProps = React.ComponentProps<
   typeof NodeGraphBackground
 >;
 type NodeGraphMinimapProps = React.ComponentProps<typeof NodeGraphMinimap>;
+type NodeGraphToolbarProps = React.ComponentProps<typeof NodeGraphToolbar>;
 
 interface SortedSlots {
   hasBackground: boolean;
   backgroundProps: NodeGraphBackgroundProps | null;
   hasMinimap: boolean;
   minimapProps: NodeGraphMinimapProps | null;
+  /** Multiple toolbars can co-exist (e.g. top-left + top-right). */
+  toolbars: ReadonlyArray<NodeGraphToolbarProps>;
 }
 
 function getSlotKind(el: React.ReactElement): NodeGraphSlotKind | null {
@@ -120,11 +136,12 @@ function readSlotProps<P>(el: React.ReactElement): P {
 function sortSlots(children: React.ReactNode): SortedSlots {
   let backgroundProps: NodeGraphBackgroundProps | null = null;
   let minimapProps: NodeGraphMinimapProps | null = null;
+  const toolbars: NodeGraphToolbarProps[] = [];
   React.Children.forEach(children, child => {
     if (!React.isValidElement(child)) {
       if (child != null && child !== false) {
         devWarn(
-          '[NodeGraph] children must be <NodeGraph.Minimap /> or <NodeGraph.Background />.'
+          '[NodeGraph] children must be slot subcomponents (<NodeGraph.Background />, <NodeGraph.Minimap />, <NodeGraph.Toolbar />).'
         );
       }
       return;
@@ -134,6 +151,8 @@ function sortSlots(children: React.ReactNode): SortedSlots {
       backgroundProps = readSlotProps<NodeGraphBackgroundProps>(child);
     } else if (kind === 'minimap') {
       minimapProps = readSlotProps<NodeGraphMinimapProps>(child);
+    } else if (kind === 'toolbar') {
+      toolbars.push(readSlotProps<NodeGraphToolbarProps>(child));
     } else {
       const dn = (child.type as { displayName?: string } | undefined)
         ?.displayName;
@@ -151,6 +170,7 @@ function sortSlots(children: React.ReactNode): SortedSlots {
     backgroundProps,
     hasMinimap: minimapProps !== null,
     minimapProps,
+    toolbars,
   };
 }
 
@@ -1463,9 +1483,20 @@ const NodeGraphImpl = ({
             <EdgeLabelsLayer renderEdgeLabelRef={renderEdgeLabelRef} />
           </ViewportWorld>
           <ViewportLayer name="preview" draw={drawPreviewLayer} />
-          {slots.hasMinimap ? (
+          {slots.hasMinimap || slots.toolbars.length > 0 ? (
             <ViewportOverlay>
-              <NodeGraphMinimapInner {...(slots.minimapProps ?? {})} />
+              {slots.hasMinimap ? (
+                <NodeGraphMinimapInner {...(slots.minimapProps ?? {})} />
+              ) : null}
+              {slots.toolbars.map((toolbarProps, i) => (
+                <NodeGraphToolbarInner
+                  // Placement is part of the identity — multiple toolbars
+                  // in the same NodeGraph use different placements as
+                  // their natural key.
+                  key={toolbarProps.placement ?? `toolbar-${i}`}
+                  {...toolbarProps}
+                />
+              ))}
             </ViewportOverlay>
           ) : null}
         </Viewport>
@@ -1599,6 +1630,13 @@ type NodeGraphCompound = typeof NodeGraphImpl & {
   NodeHeader: typeof NodeGraphNodeHeader;
   PinList: typeof NodeGraphPinList;
   PinRow: typeof NodeGraphPinRow;
+  Toolbar: typeof NodeGraphToolbar;
+  ToolbarSeparator: typeof NodeGraphToolbarSeparator;
+  FitContentButton: typeof NodeGraphFitContentButton;
+  FitSelectionButton: typeof NodeGraphFitSelectionButton;
+  ZoomInButton: typeof NodeGraphZoomInButton;
+  ZoomOutButton: typeof NodeGraphZoomOutButton;
+  ResetZoomButton: typeof NodeGraphResetZoomButton;
 };
 
 (NodeGraphImpl as unknown as { displayName: string }).displayName = 'NodeGraph';
@@ -1611,5 +1649,12 @@ NodeGraphWithSlots.NodeBody = NodeGraphNodeBody;
 NodeGraphWithSlots.NodeHeader = NodeGraphNodeHeader;
 NodeGraphWithSlots.PinList = NodeGraphPinList;
 NodeGraphWithSlots.PinRow = NodeGraphPinRow;
+NodeGraphWithSlots.Toolbar = NodeGraphToolbar;
+NodeGraphWithSlots.ToolbarSeparator = NodeGraphToolbarSeparator;
+NodeGraphWithSlots.FitContentButton = NodeGraphFitContentButton;
+NodeGraphWithSlots.FitSelectionButton = NodeGraphFitSelectionButton;
+NodeGraphWithSlots.ZoomInButton = NodeGraphZoomInButton;
+NodeGraphWithSlots.ZoomOutButton = NodeGraphZoomOutButton;
+NodeGraphWithSlots.ResetZoomButton = NodeGraphResetZoomButton;
 
 export const NodeGraph = NodeGraphWithSlots;

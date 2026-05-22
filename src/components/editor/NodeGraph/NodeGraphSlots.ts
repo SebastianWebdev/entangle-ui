@@ -2,6 +2,7 @@ import type {
   NodeGraphBackgroundSlotProps,
   NodeGraphMinimapSlotProps,
   NodeGraphSlotMarker,
+  NodeGraphToolbarSlotProps,
 } from './NodeGraph.types';
 import { NODE_GRAPH_SLOT } from './NodeGraph.types';
 
@@ -35,4 +36,19 @@ export const NodeGraphBackground = Object.assign(NodeGraphBackgroundImpl, {
   displayName: 'NodeGraph.Background',
   [NODE_GRAPH_SLOT]: 'background' as const,
 }) as unknown as ((props: NodeGraphBackgroundSlotProps) => null) &
+  NodeGraphSlotMarker & { displayName: string };
+
+/**
+ * Marker behind `<NodeGraph.Toolbar>` — picked up from `<NodeGraph>` children
+ * and mounted into the viewport overlay layer at the requested
+ * placement. Children render via `<NodeGraphToolbarInner>` which keeps
+ * the toolbar positioned over the graph.
+ */
+const NodeGraphToolbarImpl: (props: NodeGraphToolbarSlotProps) => null = () =>
+  null;
+
+export const NodeGraphToolbar = Object.assign(NodeGraphToolbarImpl, {
+  displayName: 'NodeGraph.Toolbar',
+  [NODE_GRAPH_SLOT]: 'toolbar' as const,
+}) as unknown as ((props: NodeGraphToolbarSlotProps) => null) &
   NodeGraphSlotMarker & { displayName: string };

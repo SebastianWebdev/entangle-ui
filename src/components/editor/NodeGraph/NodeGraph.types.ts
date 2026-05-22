@@ -296,7 +296,24 @@ export type NodeGraphLayerName = 'groups' | 'edges' | 'preview';
  */
 export const NODE_GRAPH_SLOT: unique symbol = Symbol.for('etui.nodegraph.slot');
 
-export type NodeGraphSlotKind = 'minimap' | 'background';
+export type NodeGraphSlotKind = 'minimap' | 'background' | 'toolbar';
+
+export interface NodeGraphToolbarSlotProps {
+  /**
+   * Anchored corner inside the graph. Defaults to top-left.
+   */
+  placement?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  /** Distance from the edge, CSS px. @default 12 */
+  margin?: number;
+  /** Gap between toolbar buttons / children, CSS px. @default 4 */
+  gap?: number;
+  /** Optional className applied to the toolbar wrapper. */
+  className?: string;
+  /** Inline style override. */
+  style?: React.CSSProperties;
+  /** Toolbar contents — typically `<NodeGraph.FitContentButton>` etc. */
+  children?: React.ReactNode;
+}
 
 export interface NodeGraphSlotMarker {
   [NODE_GRAPH_SLOT]: NodeGraphSlotKind;

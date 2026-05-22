@@ -1244,39 +1244,6 @@ export default function NodeGraphDemo(): React.ReactElement {
             flexWrap: 'wrap',
           }}
         >
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => ref.current?.fitToContent(48)}
-          >
-            Fit content
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => ref.current?.fitToSelection(96)}
-            disabled={
-              selection.nodes.length === 0 && selection.groups.length === 0
-            }
-          >
-            Fit selection
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              const t = ref.current?.getTransform();
-              const size = ref.current?.getSize();
-              if (!t || !size) return;
-              const world = ref.current!.screenToWorld({
-                x: size.width / 2,
-                y: size.height / 2,
-              });
-              addGroupAt(world.x, world.y);
-            }}
-          >
-            + Add group
-          </Button>
           <span
             style={{
               fontSize: 11,
@@ -1317,6 +1284,31 @@ export default function NodeGraphDemo(): React.ReactElement {
               width={220}
               title="Graph Overview"
             />
+            <NodeGraph.Toolbar placement="top-left">
+              <NodeGraph.FitContentButton padding={48} />
+              <NodeGraph.FitSelectionButton padding={96} />
+              <NodeGraph.ToolbarSeparator />
+              <NodeGraph.ZoomOutButton />
+              <NodeGraph.ResetZoomButton />
+              <NodeGraph.ZoomInButton />
+              <NodeGraph.ToolbarSeparator />
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  const t = ref.current?.getTransform();
+                  const size = ref.current?.getSize();
+                  if (!t || !size) return;
+                  const world = ref.current!.screenToWorld({
+                    x: size.width / 2,
+                    y: size.height / 2,
+                  });
+                  addGroupAt(world.x, world.y);
+                }}
+              >
+                + Group
+              </Button>
+            </NodeGraph.Toolbar>
           </NodeGraph>
           {menu ? (
             <ContextMenu

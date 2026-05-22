@@ -367,6 +367,43 @@ export const minimapSlotStyle = style({
 });
 
 /**
+ * Floating toolbar — `<NodeGraph.Toolbar>`. Anchored to a viewport
+ * corner, ignores pan / zoom (`pointer-events: auto` so clicks don't
+ * fall through to the graph below). Margin and gap are controlled
+ * inline by the component.
+ */
+export const nodeGraphToolbarRecipe = recipe({
+  base: {
+    position: 'absolute',
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: `2px ${vars.spacing.xs}`,
+    background: vars.colors.background.elevated,
+    border: `1px solid ${vars.colors.border.default}`,
+    borderRadius: vars.borderRadius.md,
+    boxShadow: vars.shadows.md,
+    pointerEvents: 'auto',
+    zIndex: 5,
+  },
+  variants: {
+    placement: {
+      'top-left': { top: 0, left: 0 },
+      'top-right': { top: 0, right: 0 },
+      'bottom-left': { bottom: 0, left: 0 },
+      'bottom-right': { bottom: 0, right: 0 },
+    },
+  },
+  defaultVariants: { placement: 'top-left' },
+});
+
+/** Vertical / horizontal separator dropped between toolbar groups. */
+export const nodeGraphToolbarSeparatorStyle = style({
+  background: vars.colors.border.default,
+  flexShrink: 0,
+  marginInline: 2,
+});
+
+/**
  * Themed default body for nodes — `<NodeGraph.NodeBody>`. Picks up an
  * optional CSS-variable accent so the consumer can theme per category
  * without re-styling the whole recipe. Selected / hovered variants

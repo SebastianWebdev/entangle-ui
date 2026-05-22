@@ -11,6 +11,15 @@ export {
   type NodeGraphPinListProps,
   type NodeGraphPinRowProps,
 } from './NodeGraphNodeParts';
+export { NodeGraphToolbar } from './NodeGraphSlots';
+export {
+  NodeGraphToolbarSeparator,
+  NodeGraphFitContentButton,
+  NodeGraphFitSelectionButton,
+  NodeGraphZoomInButton,
+  NodeGraphZoomOutButton,
+  NodeGraphResetZoomButton,
+} from './NodeGraphToolbar';
 export {
   useNodeGraphStore,
   useNodeGraphData,
@@ -63,6 +72,7 @@ export type {
   NodeGraphSlotMarker,
   NodeGraphMinimapSlotProps,
   NodeGraphBackgroundSlotProps,
+  NodeGraphToolbarSlotProps,
 } from './NodeGraph.types';
 
 export type {
