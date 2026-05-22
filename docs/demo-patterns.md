@@ -249,7 +249,7 @@ Before opening a PR:
       `<button>` / `<input>` with inline styles.
 - [ ] Demo runs in the docs-site dev server without console errors.
 - [ ] `npm run type-check` passes for `docs-site` too (run `cd
-    docs-site && npx tsc --noEmit`).
+docs-site && npx tsc --noEmit`).
 - [ ] If the demo dropped a library compound to look right, you also
       filed a library PR for the missing affordance — don't ship a
       workaround.
