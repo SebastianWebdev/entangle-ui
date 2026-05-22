@@ -303,10 +303,41 @@ export interface BackgroundDrawOptions {
 }
 
 /**
+ * Minimum on-screen distance (in CSS pixels) between adjacent dots / grid
+ * lines. When the base `gap × zoom` falls below this, the renderer drops
+ * down to a coarser LOD level (effective gap × 2, × 4, …) so the screen
+ * never carries more than `viewportArea / (TARGET_SCREEN_GAP²)` elements.
+ *
+ * Acts like a mip-map level for the background pattern — keeps perf
+ * constant under zoom-out instead of scaling quadratically with the world
+ * area exposed.
+ */
+const TARGET_SCREEN_GAP = 18;
+
+/**
+ * Lower hard cutoff: when even the coarsest pattern would be denser than
+ * this on screen, skip the pattern entirely. Without this, an
+ * extreme-zoom-out (e.g. fitting a 100k-node graph in 800px) would still
+ * fire pattern-fill operations that the GPU can't sample meaningfully.
+ */
+const MIN_VISIBLE_SCREEN_GAP = 3;
+
+/**
  * Draw a uniform background pattern across the entire visible viewport.
- * Used by `NodeGraph.Background`. The pattern density adapts to the zoom
- * level: when dots/lines would become too dense to be legible, the pattern
- * is skipped for the current frame.
+ * Used by `NodeGraph.Background`.
+ *
+ * Performance strategy:
+ *
+ *  1. **LOD** — when zoomed out the world gap is multiplied by the
+ *     smallest power-of-two that keeps the on-screen spacing ≥
+ *     `TARGET_SCREEN_GAP`. The number of dots/lines drawn per frame is
+ *     therefore bounded by `viewportArea / TARGET_SCREEN_GAP²` regardless
+ *     of how far the user zooms out.
+ *  2. **Pattern fill** — a single off-screen tile is built (one dot or
+ *     one crosshair of lines) and used as `ctx.createPattern(…, 'repeat')`.
+ *     A single `fillRect` covers the whole viewport, replacing what was
+ *     previously O(n) `arc()`/`stroke()` calls. The pattern's origin is
+ *     translated so the tile aligns with the world grid.
  */
 export function drawBackground(
   ctx: CanvasRenderingContext2D,
@@ -320,50 +351,141 @@ export function drawBackground(
 
   if (options.variant === 'none' || options.gap <= 0) return;
 
-  const screenGap = options.gap * info.transform.zoom;
-  if (screenGap < 4) return; // too dense to be useful
+  // Resolve the on-screen spacing the user-supplied world gap would yield
+  // at the current zoom, then step up the world gap in powers of two
+  // until each cell is at least TARGET_SCREEN_GAP pixels apart on screen.
+  const baseScreenGap = options.gap * info.transform.zoom;
+  if (baseScreenGap <= 0) return;
+  let lodMultiplier = 1;
+  while (baseScreenGap * lodMultiplier < TARGET_SCREEN_GAP) {
+    lodMultiplier *= 2;
+    // Safety: cap LOD at a sensible upper bound so a pathological zoom
+    // (e.g. 1e-12) doesn't spin here forever.
+    if (lodMultiplier > 1 << 20) break;
+  }
+  const screenGap = baseScreenGap * lodMultiplier;
+  if (screenGap < MIN_VISIBLE_SCREEN_GAP) return;
+  const worldGap = options.gap * lodMultiplier;
 
   const color = options.color ?? theme.borderDefault;
-  ctx.strokeStyle = color;
-  ctx.fillStyle = color;
-  ctx.lineWidth = 1;
 
-  // Top-left world point that's just outside the viewport.
-  const worldTL = info.screenToWorld({ x: 0, y: 0 });
-  const worldBR = info.screenToWorld({
-    x: info.size.width,
-    y: info.size.height,
-  });
-  const startX = Math.floor(worldTL.x / options.gap) * options.gap;
-  const startY = Math.floor(worldTL.y / options.gap) * options.gap;
+  // World-space origin in screen pixels — the pattern's tile (0,0) must
+  // land here so the dots/lines line up with the world grid. Modulo by
+  // the tile size to keep the translation in `[0, tileSize)`.
+  const origin = info.worldToScreen({ x: 0, y: 0 });
+  const alignedTileSize = screenGap;
+  const offsetX = ((origin.x % alignedTileSize) + alignedTileSize) % alignedTileSize;
+  const offsetY = ((origin.y % alignedTileSize) + alignedTileSize) % alignedTileSize;
+
+  // Snap the world origin offset to keep dots crisply pixel-aligned at
+  // pan time. Sub-pixel pattern positions blur the rendered tile.
+  const tx = Math.round(offsetX);
+  const ty = Math.round(offsetY);
 
   if (options.variant === 'dots') {
-    const dotRadius = Math.max(0.5, Math.min(1.5, screenGap / 30));
-    for (let x = startX; x <= worldBR.x; x += options.gap) {
-      for (let y = startY; y <= worldBR.y; y += options.gap) {
-        const screen = info.worldToScreen({ x, y });
-        ctx.beginPath();
-        ctx.arc(screen.x, screen.y, dotRadius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
+    const dotRadius = Math.max(0.75, Math.min(1.75, screenGap / 24));
+    const tile = buildDotTile(alignedTileSize, dotRadius, color);
+    if (!tile) return;
+    fillWithPattern(ctx, tile, info.size.width, info.size.height, tx, ty);
   } else {
-    // Grid lines: full screen span for each grid intersection.
+    const tile = buildGridTile(alignedTileSize, color);
+    if (!tile) return;
     ctx.globalAlpha = 0.6;
-    for (let x = startX; x <= worldBR.x; x += options.gap) {
-      const screen = info.worldToScreen({ x, y: 0 });
-      ctx.beginPath();
-      ctx.moveTo(screen.x + 0.5, 0);
-      ctx.lineTo(screen.x + 0.5, info.size.height);
-      ctx.stroke();
-    }
-    for (let y = startY; y <= worldBR.y; y += options.gap) {
-      const screen = info.worldToScreen({ x: 0, y });
-      ctx.beginPath();
-      ctx.moveTo(0, screen.y + 0.5);
-      ctx.lineTo(info.size.width, screen.y + 0.5);
-      ctx.stroke();
-    }
+    fillWithPattern(ctx, tile, info.size.width, info.size.height, tx, ty);
     ctx.globalAlpha = 1;
+
+    // Adapt world gap label exposure via `_` (kept for future LOD label
+    // overlays).
+    void worldGap;
   }
+}
+
+/**
+ * Build a single-cell repeating tile with one dot centred inside it.
+ * Returns `null` when the environment has no `OffscreenCanvas`/`<canvas>`
+ * (e.g. some SSR test runners) so the caller can bail without throwing.
+ */
+function buildDotTile(
+  tileSize: number,
+  dotRadius: number,
+  color: string
+): HTMLCanvasElement | OffscreenCanvas | null {
+  const c = createTileCanvas(tileSize);
+  if (!c) return null;
+  const tctx = c.getContext('2d');
+  if (!tctx) return null;
+  tctx.clearRect(0, 0, tileSize, tileSize);
+  tctx.fillStyle = color;
+  tctx.beginPath();
+  tctx.arc(tileSize / 2, tileSize / 2, dotRadius, 0, Math.PI * 2);
+  tctx.fill();
+  return c;
+}
+
+/**
+ * Build a single-cell repeating tile carrying one vertical + one
+ * horizontal line at the right/bottom edge — when tiled this forms a
+ * full grid without overlap. Lines are at `tileSize - 0.5` so they fall
+ * on whole pixels after the integer-snapped `setTransform` below.
+ */
+function buildGridTile(
+  tileSize: number,
+  color: string
+): HTMLCanvasElement | OffscreenCanvas | null {
+  const c = createTileCanvas(tileSize);
+  if (!c) return null;
+  const tctx = c.getContext('2d');
+  if (!tctx) return null;
+  tctx.clearRect(0, 0, tileSize, tileSize);
+  tctx.strokeStyle = color;
+  tctx.lineWidth = 1;
+  // Right edge → vertical line; bottom edge → horizontal line.
+  tctx.beginPath();
+  tctx.moveTo(tileSize - 0.5, 0);
+  tctx.lineTo(tileSize - 0.5, tileSize);
+  tctx.moveTo(0, tileSize - 0.5);
+  tctx.lineTo(tileSize, tileSize - 0.5);
+  tctx.stroke();
+  return c;
+}
+
+function createTileCanvas(
+  size: number
+): HTMLCanvasElement | OffscreenCanvas | null {
+  const rounded = Math.max(1, Math.round(size));
+  if (typeof OffscreenCanvas !== 'undefined') {
+    return new OffscreenCanvas(rounded, rounded);
+  }
+  if (typeof document === 'undefined') return null;
+  const c = document.createElement('canvas');
+  c.width = rounded;
+  c.height = rounded;
+  return c;
+}
+
+/**
+ * Fill the entire viewport with a repeating pattern, translating the
+ * pattern origin to `(tx, ty)` so the tile aligns with the world grid.
+ * Single canvas call — independent of the number of dots/lines drawn.
+ */
+function fillWithPattern(
+  ctx: CanvasRenderingContext2D,
+  tile: HTMLCanvasElement | OffscreenCanvas,
+  width: number,
+  height: number,
+  tx: number,
+  ty: number
+): void {
+  const pattern = ctx.createPattern(
+    tile as unknown as CanvasImageSource,
+    'repeat'
+  );
+  if (!pattern) return;
+  ctx.save();
+  // Move the pattern origin so the first tile starts at (tx, ty) instead
+  // of (0, 0). The canvas tracks pattern origin via the current transform.
+  ctx.translate(tx, ty);
+  ctx.fillStyle = pattern;
+  ctx.fillRect(-tx, -ty, width, height);
+  ctx.restore();
 }
