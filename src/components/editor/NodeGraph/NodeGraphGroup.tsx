@@ -2,8 +2,11 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { cx } from '@/utils/cx';
+import { ColorPicker } from '@/components/controls/ColorPicker/ColorPicker';
+import { Popover } from '@/components/primitives/Popover/Popover';
+import { PopoverContent } from '@/components/primitives/Popover/PopoverContent';
+import { PopoverTrigger } from '@/components/primitives/Popover/PopoverTrigger';
 import {
-  groupColorInputStyle,
   groupColorSwatchStyle,
   groupLabelBarStyle,
   groupLabelInputStyle,
@@ -218,7 +221,6 @@ export function NodeGraphGroupView({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(group.label ?? '');
   const inputRef = useRef<HTMLInputElement>(null);
-  const colorInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!editing) {
@@ -269,29 +271,22 @@ export function NodeGraphGroupView({
     [commitLabel, cancelLabel]
   );
 
-  // ── Colour swatch ──
-  const handleSwatchClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement>): void => {
-      event.stopPropagation();
-      colorInputRef.current?.click();
-    },
-    []
-  );
-
-  const handleColorInput = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>): void => {
-      onColorChange(group, event.target.value);
+  // ── Colour picker ──
+  //
+  // The swatch is a `<button>` that triggers the entangle-ui `<ColorPicker>`
+  // popover. The picker has `showAlpha` enabled so it returns proper
+  // `rgba(...)` strings when the user lowers opacity — the canvas
+  // `drawGroups` fill plumbs that straight through with no transform.
+  const handleColorChange = useCallback(
+    (next: string): void => {
+      onColorChange(group, next);
     },
     [group, onColorChange]
   );
 
-  // Picker needs an opaque hex — `group.color` may be an `rgba(...)` value
-  // (the demo uses translucent fills). Fall back to a neutral default so
-  // the native picker opens with a sensible starting hue.
-  const pickerValue =
-    group.color && /^#[0-9a-f]{6}$/i.test(group.color)
-      ? group.color
-      : DEFAULT_PICKER_COLOR;
+  // Picker value falls back to a sensible default when the group hasn't
+  // been coloured yet (the library doesn't impose a default).
+  const pickerValue = group.color ?? DEFAULT_PICKER_COLOR;
 
   return (
     <div
@@ -335,23 +330,35 @@ export function NodeGraphGroupView({
             {group.label?.trim() ? group.label : 'Group'}
           </span>
         )}
-        <button
-          type="button"
-          aria-label="Change group colour"
-          title="Change group colour"
-          className={groupColorSwatchStyle}
-          style={{ background: group.color ?? DEFAULT_PICKER_COLOR }}
-          onClick={handleSwatchClick}
-        />
-        <input
-          ref={colorInputRef}
-          type="color"
-          className={groupColorInputStyle}
-          value={pickerValue}
-          onChange={handleColorInput}
-          tabIndex={-1}
-          aria-hidden="true"
-        />
+        <Popover placement="bottom-end">
+          <PopoverTrigger>
+            <button
+              type="button"
+              aria-label="Change group colour"
+              title="Change group colour"
+              className={groupColorSwatchStyle}
+              style={{ background: group.color ?? DEFAULT_PICKER_COLOR }}
+            />
+          </PopoverTrigger>
+          <PopoverContent padding="md">
+            {/* `inline` strips the picker's own popover wrapper — we
+                supply our own. `showAlpha` lets the picker output
+                `rgba(...)` directly, so translucent UE-style group
+                fills survive editing without a consumer-side
+                hex → rgba transform. `onChangeComplete` fires once
+                per gesture (slider release / palette click) so we
+                don't spam onGroupsChange while the user is dragging
+                a hue/saturation handle. */}
+            <ColorPicker
+              inline
+              showAlpha
+              value={pickerValue}
+              format="rgb"
+              palette="material"
+              onChangeComplete={handleColorChange}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
       {selected
         ? ALL_HANDLES.map(handle => (

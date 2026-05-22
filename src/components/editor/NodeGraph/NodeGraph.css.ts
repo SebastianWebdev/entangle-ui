@@ -357,24 +357,6 @@ export const groupColorSwatchStyle = style({
   },
 });
 
-/**
- * Native `<input type="color">` sized to zero so it never takes layout —
- * the visible swatch above forwards clicks to this element via `.click()`.
- * Keeps the picker UI consistent with the user's OS without us shipping
- * a popover.
- */
-export const groupColorInputStyle = style({
-  position: 'absolute',
-  width: 1,
-  height: 1,
-  padding: 0,
-  border: 0,
-  opacity: 0,
-  pointerEvents: 'none',
-  // Anchor near the swatch so the OS picker pops up next to it.
-  right: 4,
-  top: 4,
-});
 
 /**
  * Slot wrapper used by `<NodeGraph.Minimap>` — pinned absolutely inside the
