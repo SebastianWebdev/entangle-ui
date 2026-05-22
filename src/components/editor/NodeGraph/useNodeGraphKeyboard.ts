@@ -13,6 +13,8 @@ interface UseNodeGraphKeyboardOptions {
   onDelete?: (selection: NodeGraphSelection) => void;
   onActivate?: (node: NodeGraphNode) => void;
   snapToGrid: number | false;
+  /** When true, all keyboard handling is skipped. */
+  disabled?: boolean;
 }
 
 interface UseNodeGraphKeyboardReturn {
@@ -44,6 +46,7 @@ export function useNodeGraphKeyboard(
     onDelete,
     onActivate,
     snapToGrid,
+    disabled,
   } = options;
 
   const emitNodesChangeRef = useLatest(emitNodesChange);
@@ -51,6 +54,7 @@ export function useNodeGraphKeyboard(
   const onDeleteRef = useLatest(onDelete);
   const onActivateRef = useLatest(onActivate);
   const snapToGridRef = useLatest(snapToGrid);
+  const disabledRef = useLatest(disabled);
 
   const nudgeSelected = useCallback(
     (dx: number, dy: number): boolean => {
@@ -72,6 +76,7 @@ export function useNodeGraphKeyboard(
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>): void => {
+      if (disabledRef.current) return;
       // Don't steal input focus — if the event originated in an editable
       // element inside a node body, leave it alone.
       const target = event.target as HTMLElement | null;
@@ -170,6 +175,7 @@ export function useNodeGraphKeyboard(
       onActivateRef,
       emitSelectionChangeRef,
       snapToGridRef,
+      disabledRef,
     ]
   );
 

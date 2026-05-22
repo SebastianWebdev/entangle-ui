@@ -374,6 +374,11 @@ export interface NodeGraphMinimapSlotProps {
   title?: React.ReactNode;
   /** Optional className applied to the minimap wrapper. */
   className?: string;
+  /**
+   * CSS colour used to highlight selected nodes inside the minimap. When
+   * omitted, selected nodes use the same colour as unselected ones.
+   */
+  selectedColor?: string;
 }
 
 export interface NodeGraphBackgroundSlotProps {

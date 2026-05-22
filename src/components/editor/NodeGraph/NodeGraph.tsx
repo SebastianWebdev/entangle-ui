@@ -7,8 +7,10 @@ import React, {
   useMemo,
   useRef,
   useSyncExternalStore,
+  useTransition,
 } from 'react';
 import { useControlledState, useLatest } from '@/hooks';
+import { devWarn } from '@/utils/devWarn';
 import {
   Viewport,
   ViewportLayer,
@@ -40,14 +42,11 @@ import type {
   NodeGraphTarget,
 } from './NodeGraph.types';
 import { NODE_GRAPH_SLOT } from './NodeGraph.types';
-import { NodeGraphStore, marqueeWorldRect } from './NodeGraphStore';
+import { NodeGraphStore } from './NodeGraphStore';
 import { NodeGraphStoreContext, useNodeGraphStore } from './NodeGraphContext';
 import { NodeGraphNodeView } from './NodeGraphNode';
-import {
-  NodeGraphMinimapInner,
-  NodeGraphMinimap,
-  NodeGraphBackground,
-} from './NodeGraphMinimap';
+import { NodeGraphMinimapInner } from './NodeGraphMinimap';
+import { NodeGraphBackground, NodeGraphMinimap } from './NodeGraphSlots';
 import {
   buildDrawTheme,
   drawBackground,
@@ -66,7 +65,7 @@ import {
 } from './nodeGraphMath';
 import { useNodeGraphConnection } from './useNodeGraphConnection';
 import { useNodeGraphKeyboard } from './useNodeGraphKeyboard';
-import { nodeGraphRootStyle, marqueeStyle } from './NodeGraph.css';
+import { nodeGraphRootStyle } from './NodeGraph.css';
 
 const EMPTY_NODES: NodeGraphNode[] = [];
 const EMPTY_EDGES: NodeGraphEdge[] = [];
@@ -81,7 +80,10 @@ const DRAG_START_THRESHOLD_PX = 3;
 
 // ─── Slot helpers ───
 
-type AnySlotElement = React.ReactElement<Record<string, unknown>>;
+type NodeGraphBackgroundProps = React.ComponentProps<
+  typeof NodeGraphBackground
+>;
+type NodeGraphMinimapProps = React.ComponentProps<typeof NodeGraphMinimap>;
 
 interface SortedSlots {
   hasBackground: boolean;
@@ -90,14 +92,16 @@ interface SortedSlots {
   minimapProps: NodeGraphMinimapProps | null;
 }
 
-type NodeGraphBackgroundProps = React.ComponentProps<
-  typeof NodeGraphBackground
->;
-type NodeGraphMinimapProps = React.ComponentProps<typeof NodeGraphMinimap>;
-
 function getSlotKind(el: React.ReactElement): NodeGraphSlotKind | null {
+  if (typeof el.type !== 'function' && typeof el.type !== 'object') {
+    return null;
+  }
   const marker = (el.type as Partial<NodeGraphSlotMarker>)[NODE_GRAPH_SLOT];
   return marker ?? null;
+}
+
+function readSlotProps<P>(el: React.ReactElement): P {
+  return el.props as P;
 }
 
 function sortSlots(children: React.ReactNode): SortedSlots {
@@ -105,27 +109,23 @@ function sortSlots(children: React.ReactNode): SortedSlots {
   let minimapProps: NodeGraphMinimapProps | null = null;
   React.Children.forEach(children, child => {
     if (!React.isValidElement(child)) {
-      if (
-        process.env['NODE_ENV'] !== 'production' &&
-        child != null &&
-        child !== false
-      ) {
-        console.warn(
+      if (child != null && child !== false) {
+        devWarn(
           '[NodeGraph] children must be <NodeGraph.Minimap /> or <NodeGraph.Background />.'
         );
       }
       return;
     }
-    const el = child as AnySlotElement;
-    const kind = getSlotKind(el);
+    const kind = getSlotKind(child);
     if (kind === 'background') {
-      backgroundProps = el.props as unknown as NodeGraphBackgroundProps;
+      backgroundProps = readSlotProps<NodeGraphBackgroundProps>(child);
     } else if (kind === 'minimap') {
-      minimapProps = el.props as unknown as NodeGraphMinimapProps;
-    } else if (process.env['NODE_ENV'] !== 'production') {
-      const dn = (el.type as { displayName?: string } | undefined)?.displayName;
+      minimapProps = readSlotProps<NodeGraphMinimapProps>(child);
+    } else {
+      const dn = (child.type as { displayName?: string } | undefined)
+        ?.displayName;
       if (dn?.startsWith('NodeGraph.')) {
-        console.warn(
+        devWarn(
           `[NodeGraph] child "${dn}" looks like a slot subcomponent but lacks the ` +
             'NODE_GRAPH_SLOT marker. If you wrapped it in React.memo or HOCs, copy the ' +
             'marker symbol over to the wrapper.'
@@ -198,7 +198,7 @@ const NodeGraphImpl = ({
   selectionRect = true,
   responsive = false,
   height = 480,
-  defaultNodeSize = DEFAULT_NODE_SIZE,
+  defaultNodeSize: defaultNodeSizeProp = DEFAULT_NODE_SIZE,
   disabled = false,
   ariaLabel = 'Node graph',
   className,
@@ -212,6 +212,17 @@ const NodeGraphImpl = ({
   const rootRef = useRef<HTMLDivElement>(null);
   const viewportHandleRef = useRef<ViewportHandle>(null);
   const store = useMemo(() => new NodeGraphStore(), []);
+
+  // Stabilize defaultNodeSize identity across renders when the consumer
+  // passes an inline literal — downstream effects/memos depend on its
+  // reference and would otherwise re-fire every render.
+  const defaultNodeSize = useMemo(
+    () => ({
+      width: defaultNodeSizeProp.width,
+      height: defaultNodeSizeProp.height,
+    }),
+    [defaultNodeSizeProp.width, defaultNodeSizeProp.height]
+  );
 
   // ── Controlled / uncontrolled data ──
   const [nodes, setNodes] = useControlledState<NodeGraphNode[]>({
@@ -286,33 +297,39 @@ const NodeGraphImpl = ({
   );
 
   // ── Targets / hit testing ──
+  const nodesRef = useLatest(nodes);
+  const groupsRef = useLatest(groups);
+  const selectionRef = useLatest(selection);
+  const snapToGridRef = useLatest(snapToGrid);
+  const setSelectionRef = useLatest(setSelection);
+  const setNodesRef = useLatest(setNodes);
+  const disabledRef = useLatest(disabled);
+
   const findHitTarget = useCallback(
     (clientX: number, clientY: number): NodeGraphTarget => {
       const worldPoint = screenToWorldLocal(clientX, clientY);
+      const currentNodes = nodesRef.current;
+      const currentGroups = groupsRef.current;
       // Iterate top-to-bottom so the last-rendered node "wins" — matches what
       // the user sees on top.
-      for (let i = nodes.length - 1; i >= 0; i--) {
-        const node = nodes[i];
+      for (let i = currentNodes.length - 1; i >= 0; i--) {
+        const node = currentNodes[i];
         if (node && isPointInNode(worldPoint, node, defaultNodeSize)) {
           return { kind: 'node', id: node.id };
         }
       }
-      for (let i = groups.length - 1; i >= 0; i--) {
-        const group = groups[i];
+      for (let i = currentGroups.length - 1; i >= 0; i--) {
+        const group = currentGroups[i];
         if (group && isPointInRect(worldPoint, group.bounds)) {
           return { kind: 'group', id: group.id };
         }
       }
       return { kind: 'empty', worldPoint };
     },
-    [nodes, groups, defaultNodeSize, screenToWorldLocal]
+    [defaultNodeSize, screenToWorldLocal, nodesRef, groupsRef]
   );
 
   // ── Connection drag (ports) ──
-  const emitEdges = useCallback(
-    (next: NodeGraphEdge[]) => setEdges(next),
-    [setEdges]
-  );
   const { onPortPointerDown } = useNodeGraphConnection({
     viewportRef: rootRef,
     store,
@@ -320,7 +337,7 @@ const NodeGraphImpl = ({
     isValidConnection,
     onConnectStart,
     onConnectEnd,
-    emitEdgesChange: emitEdges,
+    emitEdgesChange: setEdges,
   });
 
   // ── Node body pointerdown — drag (single/multi) + select on release ──
@@ -335,13 +352,17 @@ const NodeGraphImpl = ({
     nodeStartPositions: Map<string, Point2D>;
     additive: boolean;
     didDrag: boolean;
+    cleanup: () => void;
   };
   const dragRef = useRef<DragSession | null>(null);
-  const nodesRef = useLatest(nodes);
-  const selectionRef = useLatest(selection);
-  const snapToGridRef = useLatest(snapToGrid);
-  const setSelectionRef = useLatest(setSelection);
-  const setNodesRef = useLatest(setNodes);
+
+  // Release any in-flight document listeners if the component unmounts mid-drag.
+  useLayoutEffect(() => {
+    return () => {
+      dragRef.current?.cleanup();
+      dragRef.current = null;
+    };
+  }, []);
 
   const onNodeBodyPointerDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>, node: NodeGraphNode): void => {
@@ -383,9 +404,60 @@ const NodeGraphImpl = ({
 
       const startScreen = localScreenPoint(event.clientX, event.clientY);
       const startWorld = worldFromScreen(startScreen, getTransform());
+      const pointerId = event.pointerId;
+
+      const handleMove = (e: PointerEvent): void => {
+        const session = dragRef.current;
+        if (session?.pointerId !== pointerId) return;
+        const current = localScreenPoint(e.clientX, e.clientY);
+        const dx = current.x - session.startScreen.x;
+        const dy = current.y - session.startScreen.y;
+        if (!session.didDrag) {
+          if (Math.hypot(dx, dy) < DRAG_START_THRESHOLD_PX) return;
+          const clicked = nodesRef.current.find(
+            n => n.id === session.clickedNodeId
+          );
+          if (clicked?.draggable === false) {
+            // Not draggable — promote to a no-op drag flag so pointerup falls
+            // through to click selection logic.
+            session.didDrag = false;
+            return;
+          }
+          session.didDrag = true;
+        }
+        const transform = getTransform();
+        const worldDelta = {
+          x: dx / transform.zoom,
+          y: dy / transform.zoom,
+        };
+        const snapped = snapDelta(worldDelta, snapToGridRef.current);
+        const ids = Array.from(session.nodeStartPositions.keys());
+        store.setInteraction({
+          kind: 'drag-nodes',
+          nodeIds: ids,
+          startWorld: session.startWorld,
+          delta: snapped,
+        });
+      };
+
+      const handleCancel = (): void => {
+        const session = dragRef.current;
+        if (!session) return;
+        session.cleanup();
+        dragRef.current = null;
+        store.setInteraction({ kind: 'idle' });
+      };
+
+      const cleanup = (): void => {
+        document.removeEventListener('pointermove', handleMove);
+        document.removeEventListener('pointercancel', handleCancel);
+      };
+
+      document.addEventListener('pointermove', handleMove);
+      document.addEventListener('pointercancel', handleCancel);
 
       dragRef.current = {
-        pointerId: event.pointerId,
+        pointerId,
         clickedNodeId: node.id,
         startScreen,
         startWorld,
@@ -393,9 +465,18 @@ const NodeGraphImpl = ({
         nodeStartPositions: positions,
         additive,
         didDrag: false,
+        cleanup,
       };
     },
-    [disabled, selectionRef, nodesRef, localScreenPoint, getTransform]
+    [
+      disabled,
+      selectionRef,
+      nodesRef,
+      localScreenPoint,
+      getTransform,
+      snapToGridRef,
+      store,
+    ]
   );
 
   const onNodeBodyPointerUp = useCallback(
@@ -407,6 +488,8 @@ const NodeGraphImpl = ({
       if (target.hasPointerCapture(event.pointerId)) {
         target.releasePointerCapture(event.pointerId);
       }
+
+      session.cleanup();
 
       if (session.didDrag) {
         // Commit positions from store's interaction delta.
@@ -449,59 +532,11 @@ const NodeGraphImpl = ({
     [store, nodesRef, setNodesRef, setSelectionRef]
   );
 
-  // Document-level pointermove during a node drag.
-  useLayoutEffect(() => {
-    const handleMove = (e: PointerEvent): void => {
-      const session = dragRef.current;
-      if (session?.pointerId !== e.pointerId) return;
-      const current = localScreenPoint(e.clientX, e.clientY);
-      const dx = current.x - session.startScreen.x;
-      const dy = current.y - session.startScreen.y;
-      if (!session.didDrag) {
-        if (Math.hypot(dx, dy) < DRAG_START_THRESHOLD_PX) return;
-        const clicked = nodesRef.current.find(
-          n => n.id === session.clickedNodeId
-        );
-        if (clicked?.draggable === false) {
-          // Not draggable — promote to a no-op drag flag so pointerup falls
-          // through to click selection logic.
-          session.didDrag = false;
-          return;
-        }
-        session.didDrag = true;
-      }
-      const transform = getTransform();
-      const worldDelta = {
-        x: dx / transform.zoom,
-        y: dy / transform.zoom,
-      };
-      const snapped = snapDelta(worldDelta, snapToGridRef.current);
-      const ids = Array.from(session.nodeStartPositions.keys());
-      store.setInteraction({
-        kind: 'drag-nodes',
-        nodeIds: ids,
-        startWorld: session.startWorld,
-        delta: snapped,
-      });
-    };
-    document.addEventListener('pointermove', handleMove);
-    return () => document.removeEventListener('pointermove', handleMove);
-  }, [store, localScreenPoint, getTransform, snapToGridRef, nodesRef]);
-
-  // Cancel drag on pointercancel.
-  useLayoutEffect(() => {
-    const handleCancel = (): void => {
-      if (!dragRef.current) return;
-      dragRef.current = null;
-      store.setInteraction({ kind: 'idle' });
-    };
-    document.addEventListener('pointercancel', handleCancel);
-    return () => document.removeEventListener('pointercancel', handleCancel);
-  }, [store]);
-
   // ── Marquee selection from the Viewport ──
+  const [, startMarqueeTransition] = useTransition();
   const handleViewportSelection = useCallback(
     (info: ViewportSelectionEvent): void => {
+      if (disabledRef.current) return;
       if (info.inProgress) {
         // Live preview: drive the marquee overlay via the store so canvas
         // hit-test for hover/edge can also respond if needed.
@@ -536,19 +571,32 @@ const NodeGraphImpl = ({
       const nextNodes = info.additive
         ? Array.from(new Set([...current.nodes, ...hits]))
         : hits;
-      setSelectionRef.current({
-        nodes: nextNodes,
-        edges: info.additive ? current.edges : [],
-        groups: info.additive ? current.groups : [],
+      // Selection commits can cascade into expensive renderNode bodies for
+      // a large hit set — let React schedule it as non-urgent so the
+      // gesture release doesn't hitch.
+      startMarqueeTransition(() => {
+        setSelectionRef.current({
+          nodes: nextNodes,
+          edges: info.additive ? current.edges : [],
+          groups: info.additive ? current.groups : [],
+        });
       });
     },
-    [store, nodesRef, selectionRef, setSelectionRef, defaultNodeSize]
+    [
+      store,
+      nodesRef,
+      selectionRef,
+      setSelectionRef,
+      defaultNodeSize,
+      disabledRef,
+    ]
   );
 
   // ── Context menu ──
   const onContextMenuRef = useLatest(onContextMenu);
   const handleContextMenu = useCallback(
     (event: React.MouseEvent<HTMLDivElement>): void => {
+      if (disabledRef.current) return;
       const cb = onContextMenuRef.current;
       if (!cb) return;
       event.preventDefault();
@@ -592,7 +640,13 @@ const NodeGraphImpl = ({
       };
       cb(info);
     },
-    [findHitTarget, localScreenPoint, getTransform, onContextMenuRef]
+    [
+      findHitTarget,
+      localScreenPoint,
+      getTransform,
+      onContextMenuRef,
+      disabledRef,
+    ]
   );
 
   // Pass-through context menu handler from a single node body — we re-use
@@ -610,6 +664,7 @@ const NodeGraphImpl = ({
     onDelete,
     onActivate,
     snapToGrid,
+    disabled,
   });
 
   // ── Canvas draw callbacks (stable identities via useLatest) ──
@@ -691,14 +746,14 @@ const NodeGraphImpl = ({
   );
 
   // Force invalidation of canvas layers when the relevant store slices change.
-  // Each subscription returns whether the layer's deps changed; the actual
-  // redraw is scheduled by ViewportLayer via invalidate(name).
+  // `invalidate` reads `viewportHandleRef.current` at call time so a viewport
+  // remount (which would re-bind the imperative handle) doesn't leave us
+  // pointing at a stale handle reference.
   useLayoutEffect(() => {
-    const handle = viewportHandleRef.current;
-    if (!handle) return undefined;
-    const invalidate = (layer: NodeGraphLayerName): void =>
-      handle.invalidate(layer);
-    return [
+    const invalidate = (layer: NodeGraphLayerName): void => {
+      viewportHandleRef.current?.invalidate(layer);
+    };
+    const unsubs: Array<() => void> = [
       store.subscribeData(() => {
         invalidate('groups');
         invalidate('edges');
@@ -715,13 +770,10 @@ const NodeGraphImpl = ({
         invalidate('edges');
         invalidate('preview');
       }),
-    ].reduce<() => void>(
-      (prev, unsub) => () => {
-        prev();
-        unsub();
-      },
-      () => undefined
-    );
+    ];
+    return () => {
+      for (const unsub of unsubs) unsub();
+    };
   }, [store]);
 
   // ── Imperative handle ──
@@ -814,7 +866,6 @@ const NodeGraphImpl = ({
                 key={node.id}
                 node={node}
                 defaultSize={defaultNodeSize}
-                zoom={transformRef.current.zoom}
                 renderNode={renderNode}
                 onBodyPointerDown={onNodeBodyPointerDown}
                 onBodyPointerUp={onNodeBodyPointerUp}
@@ -828,7 +879,6 @@ const NodeGraphImpl = ({
             />
           </ViewportWorld>
           <ViewportLayer name="preview" draw={drawPreviewLayer} />
-          <MarqueeOverlay />
           {slots.hasMinimap ? (
             <ViewportOverlay>
               <NodeGraphMinimapInner {...(slots.minimapProps ?? {})} />
@@ -921,15 +971,6 @@ function EdgeLabel({
   );
 }
 
-// ─── Marquee overlay — drawn in screen space ───
-
-function MarqueeOverlay(): React.ReactElement | null {
-  // The Viewport already paints its own marquee — but we keep a hook here in
-  // case we ever want a NodeGraph-specific styling override. For now, the
-  // Viewport marquee suffices and this component renders nothing.
-  return null;
-}
-
 // ─── Compound exports ───
 
 type NodeGraphCompound = typeof NodeGraphImpl & {
@@ -944,7 +985,3 @@ NodeGraphWithSlots.Minimap = NodeGraphMinimap;
 NodeGraphWithSlots.Background = NodeGraphBackground;
 
 export const NodeGraph = NodeGraphWithSlots;
-
-// Silence unused import warning — exported re-types referenced elsewhere.
-void marqueeStyle;
-void marqueeWorldRect;

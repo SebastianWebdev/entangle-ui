@@ -62,8 +62,10 @@ function readPortRefFromElement(el: Element | null): NodeGraphPortRef | null {
  * port through document-level `pointermove` / `pointerup` to the eventual
  * edge emission.
  *
- * Reads "live" props through `useLatest` so the document listeners are
- * attached exactly once and never re-bind on consumer prop identity churn.
+ * Document listeners are attached only while a drag is in flight — outside
+ * of a gesture there is zero pointermove cost. Move events are coalesced
+ * to one hit-test per animation frame so `document.elementFromPoint`
+ * doesn't force a layout flush on every pointer poll.
  */
 export function useNodeGraphConnection(
   options: UseNodeGraphConnectionOptions
@@ -82,22 +84,17 @@ export function useNodeGraphConnection(
   const onConnectStartRef = useLatest(onConnectStart);
   const onConnectEndRef = useLatest(onConnectEnd);
   const emitEdgesChangeRef = useLatest(emitEdgesChange);
-  const getTransformRef = useLatest(getTransform);
 
-  const draggingRef = useRef(false);
+  const teardownRef = useRef<(() => void) | null>(null);
 
-  /**
-   * Hit-test the current pointer position against any rendered port. Uses
-   * `document.elementFromPoint` so the resolver picks up the closest port
-   * by stacking order, which matches what the user actually sees.
-   */
-  const findPortAtPoint = useCallback(
-    (clientX: number, clientY: number): NodeGraphPortRef | null => {
-      const el = document.elementFromPoint(clientX, clientY);
-      return readPortRefFromElement(el);
-    },
-    []
-  );
+  // If the component unmounts mid-drag, release the document listeners so
+  // we don't leak handlers attached to the page.
+  useEffect(() => {
+    return () => {
+      teardownRef.current?.();
+      teardownRef.current = null;
+    };
+  }, []);
 
   const screenPointToWorld = useCallback(
     (clientX: number, clientY: number): Point2D => {
@@ -106,161 +103,11 @@ export function useNodeGraphConnection(
       const rect = viewport.getBoundingClientRect();
       return screenToWorld(
         { x: clientX - rect.left, y: clientY - rect.top },
-        getTransformRef.current()
+        getTransform()
       );
     },
-    [viewportRef, getTransformRef]
+    [viewportRef, getTransform]
   );
-
-  // Document listeners are attached once and read everything through refs.
-  useEffect(() => {
-    const handleMove = (e: PointerEvent): void => {
-      if (!draggingRef.current) return;
-      const state = store.getInteraction();
-      if (state.kind !== 'connect') return;
-
-      const currentWorld = screenPointToWorld(e.clientX, e.clientY);
-      const candidate = findPortAtPoint(e.clientX, e.clientY);
-
-      let nextCandidate: NodeGraphPortRef | null = null;
-      let invalid = false;
-      if (candidate) {
-        if (
-          candidate.node === state.source.node &&
-          candidate.port === state.source.port
-        ) {
-          // Hovering back over the source — treat as no candidate.
-          nextCandidate = null;
-        } else {
-          nextCandidate = candidate;
-          const sameNode = candidate.node === state.source.node;
-          const data = store.getData();
-          const srcResolved = resolvePortRef(
-            state.source,
-            data.nodes,
-            data.defaultNodeSize
-          );
-          const tgtResolved = resolvePortRef(
-            candidate,
-            data.nodes,
-            data.defaultNodeSize
-          );
-          const sideCombo =
-            srcResolved && tgtResolved
-              ? `${srcResolved.port.side}->${tgtResolved.port.side}`
-              : 'unknown';
-          const validator = isValidRef.current;
-          if (validator) {
-            invalid = !validator(state.source, candidate, {
-              sameNode,
-              sideCombo,
-            });
-          } else if (sameNode) {
-            // Default policy: reject same-node connections when consumer has
-            // no validator opinion (most graphs don't want self-loops).
-            invalid = true;
-          }
-        }
-      }
-
-      store.setInteraction({
-        kind: 'connect',
-        source: state.source,
-        currentWorld,
-        candidate: nextCandidate,
-        invalid,
-      });
-    };
-
-    const handleUp = (e: PointerEvent): void => {
-      if (!draggingRef.current) return;
-      draggingRef.current = false;
-      const state = store.getInteraction();
-      store.setInteraction({ kind: 'idle' });
-      if (state.kind !== 'connect') return;
-
-      // Re-read candidate at release point — pointer can drift between
-      // the last move event and pointerup, especially on slow devices.
-      const finalCandidate = findPortAtPoint(e.clientX, e.clientY);
-      const candidate =
-        finalCandidate &&
-        !(
-          finalCandidate.node === state.source.node &&
-          finalCandidate.port === state.source.port
-        )
-          ? finalCandidate
-          : null;
-
-      let cancelled = !candidate;
-      if (candidate) {
-        const sameNode = candidate.node === state.source.node;
-        const data = store.getData();
-        const srcResolved = resolvePortRef(
-          state.source,
-          data.nodes,
-          data.defaultNodeSize
-        );
-        const tgtResolved = resolvePortRef(
-          candidate,
-          data.nodes,
-          data.defaultNodeSize
-        );
-        const sideCombo =
-          srcResolved && tgtResolved
-            ? `${srcResolved.port.side}->${tgtResolved.port.side}`
-            : 'unknown';
-        const validator = isValidRef.current;
-        const accepted = validator
-          ? validator(state.source, candidate, { sameNode, sideCombo })
-          : !sameNode;
-        if (!accepted) {
-          cancelled = true;
-        } else {
-          const newEdge: NodeGraphEdge = {
-            id: `edge-${state.source.node}.${state.source.port}-${candidate.node}.${candidate.port}-${Date.now()}`,
-            source: state.source,
-            target: candidate,
-          };
-          emitEdgesChangeRef.current([...store.getData().edges, newEdge]);
-        }
-      }
-
-      onConnectEndRef.current?.({
-        source: state.source,
-        target: cancelled ? null : (candidate ?? null),
-        cancelled,
-      });
-    };
-
-    const handleCancel = (): void => {
-      if (!draggingRef.current) return;
-      draggingRef.current = false;
-      const state = store.getInteraction();
-      store.setInteraction({ kind: 'idle' });
-      if (state.kind !== 'connect') return;
-      onConnectEndRef.current?.({
-        source: state.source,
-        target: null,
-        cancelled: true,
-      });
-    };
-
-    document.addEventListener('pointermove', handleMove);
-    document.addEventListener('pointerup', handleUp);
-    document.addEventListener('pointercancel', handleCancel);
-    return () => {
-      document.removeEventListener('pointermove', handleMove);
-      document.removeEventListener('pointerup', handleUp);
-      document.removeEventListener('pointercancel', handleCancel);
-    };
-  }, [
-    store,
-    findPortAtPoint,
-    screenPointToWorld,
-    isValidRef,
-    onConnectEndRef,
-    emitEdgesChangeRef,
-  ]);
 
   const onPortPointerDown = useCallback(
     (
@@ -281,22 +128,192 @@ export function useNodeGraphConnection(
       );
       if (!resolved) return;
 
+      // If a previous gesture didn't tear down for some reason, clean it now.
+      teardownRef.current?.();
+
+      const source: NodeGraphPortRef = { node: nodeId, port: portId };
       const worldPoint = screenPointToWorld(event.clientX, event.clientY);
-      draggingRef.current = true;
       store.setInteraction({
         kind: 'connect',
-        source: { node: nodeId, port: portId },
+        source,
         currentWorld: worldPoint,
         candidate: null,
         invalid: false,
       });
-
       onConnectStartRef.current?.({
-        source: { node: nodeId, port: portId },
+        source,
         worldPoint: resolved.position,
       });
+
+      // RAF-coalesced move handler. `elementFromPoint` forces a layout flush,
+      // so we run at most one hit-test per frame instead of one per pointer
+      // poll (high-poll mice can emit 1000+ events/s).
+      let pendingPoint: { x: number; y: number } | null = null;
+      let rafId = 0;
+
+      const runMove = (): void => {
+        rafId = 0;
+        const point = pendingPoint;
+        pendingPoint = null;
+        if (!point) return;
+        const state = store.getInteraction();
+        if (state.kind !== 'connect') return;
+
+        const currentWorld = screenPointToWorld(point.x, point.y);
+        const candidate = document.elementFromPoint(point.x, point.y);
+        const candidateRef = readPortRefFromElement(candidate);
+
+        let nextCandidate: NodeGraphPortRef | null = null;
+        let invalid = false;
+        if (candidateRef) {
+          if (
+            candidateRef.node === state.source.node &&
+            candidateRef.port === state.source.port
+          ) {
+            // Hovering back over the source — treat as no candidate.
+            nextCandidate = null;
+          } else {
+            nextCandidate = candidateRef;
+            const sameNode = candidateRef.node === state.source.node;
+            const dataNow = store.getData();
+            const srcResolved = resolvePortRef(
+              state.source,
+              dataNow.nodes,
+              dataNow.defaultNodeSize
+            );
+            const tgtResolved = resolvePortRef(
+              candidateRef,
+              dataNow.nodes,
+              dataNow.defaultNodeSize
+            );
+            const sideCombo =
+              srcResolved && tgtResolved
+                ? `${srcResolved.port.side}->${tgtResolved.port.side}`
+                : 'unknown';
+            const validator = isValidRef.current;
+            if (validator) {
+              invalid = !validator(state.source, candidateRef, {
+                sameNode,
+                sideCombo,
+              });
+            } else if (sameNode) {
+              invalid = true;
+            }
+          }
+        }
+
+        store.setInteraction({
+          kind: 'connect',
+          source: state.source,
+          currentWorld,
+          candidate: nextCandidate,
+          invalid,
+        });
+      };
+
+      const handleMove = (e: PointerEvent): void => {
+        pendingPoint = { x: e.clientX, y: e.clientY };
+        if (rafId === 0) {
+          rafId = requestAnimationFrame(runMove);
+        }
+      };
+
+      const teardown = (): void => {
+        if (rafId !== 0) {
+          cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
+        document.removeEventListener('pointermove', handleMove);
+        document.removeEventListener('pointerup', handleUp);
+        document.removeEventListener('pointercancel', handleCancel);
+        teardownRef.current = null;
+      };
+
+      function handleUp(e: PointerEvent): void {
+        teardown();
+        const state = store.getInteraction();
+        store.setInteraction({ kind: 'idle' });
+        if (state.kind !== 'connect') return;
+
+        // Re-read candidate at release point — pointer can drift between
+        // the last move event and pointerup, especially on slow devices.
+        const dropEl = document.elementFromPoint(e.clientX, e.clientY);
+        const finalCandidate = readPortRefFromElement(dropEl);
+        const candidate =
+          finalCandidate &&
+          !(
+            finalCandidate.node === state.source.node &&
+            finalCandidate.port === state.source.port
+          )
+            ? finalCandidate
+            : null;
+
+        let cancelled = !candidate;
+        if (candidate) {
+          const sameNode = candidate.node === state.source.node;
+          const dataNow = store.getData();
+          const srcResolved = resolvePortRef(
+            state.source,
+            dataNow.nodes,
+            dataNow.defaultNodeSize
+          );
+          const tgtResolved = resolvePortRef(
+            candidate,
+            dataNow.nodes,
+            dataNow.defaultNodeSize
+          );
+          const sideCombo =
+            srcResolved && tgtResolved
+              ? `${srcResolved.port.side}->${tgtResolved.port.side}`
+              : 'unknown';
+          const validator = isValidRef.current;
+          const accepted = validator
+            ? validator(state.source, candidate, { sameNode, sideCombo })
+            : !sameNode;
+          if (!accepted) {
+            cancelled = true;
+          } else {
+            const newEdge: NodeGraphEdge = {
+              id: `edge-${state.source.node}.${state.source.port}-${candidate.node}.${candidate.port}-${Date.now()}`,
+              source: state.source,
+              target: candidate,
+            };
+            emitEdgesChangeRef.current([...store.getData().edges, newEdge]);
+          }
+        }
+
+        onConnectEndRef.current?.({
+          source: state.source,
+          target: cancelled ? null : (candidate ?? null),
+          cancelled,
+        });
+      }
+
+      function handleCancel(): void {
+        teardown();
+        const state = store.getInteraction();
+        store.setInteraction({ kind: 'idle' });
+        if (state.kind !== 'connect') return;
+        onConnectEndRef.current?.({
+          source: state.source,
+          target: null,
+          cancelled: true,
+        });
+      }
+
+      teardownRef.current = teardown;
+      document.addEventListener('pointermove', handleMove);
+      document.addEventListener('pointerup', handleUp);
+      document.addEventListener('pointercancel', handleCancel);
     },
-    [store, screenPointToWorld, onConnectStartRef]
+    [
+      store,
+      screenPointToWorld,
+      onConnectStartRef,
+      onConnectEndRef,
+      emitEdgesChangeRef,
+      isValidRef,
+    ]
   );
 
   return { onPortPointerDown };

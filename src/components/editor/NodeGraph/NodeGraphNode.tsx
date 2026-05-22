@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useMemo, useSyncExternalStore } from 'react';
+import React, { useDeferredValue, useMemo } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { cx } from '@/utils/cx';
+import { useViewportStore } from '@/components/primitives/viewport/ViewportContext';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import {
   defaultNodeBodyRecipe,
   nodeHeightVar,
@@ -18,11 +20,11 @@ import type {
 import { NodeGraphPortView } from './NodeGraphPort';
 import { useNodeGraphStore } from './NodeGraphContext';
 import { resolvePortOffsets } from './nodeGraphMath';
+import { useStoreSlice } from './useStoreSlice';
 
 interface NodeGraphNodeViewProps {
   node: NodeGraphNode;
   defaultSize: { width: number; height: number };
-  zoom: number;
   renderNode?: (
     node: NodeGraphNode,
     ctx: NodeGraphRenderCtx
@@ -73,14 +75,20 @@ function DefaultNodeBody({
   );
 }
 
+function pointEqualNullable(a: Point2D | null, b: Point2D | null): boolean {
+  if (a === b) return true;
+  if (a === null || b === null) return false;
+  return a.x === b.x && a.y === b.y;
+}
+
 /**
  * Internal — render a single node as an HTML element positioned in world
  * space. Ports are absolutely positioned around the wrapper using
  * percentage offsets relative to the wrapper size.
  *
- * Subscribes to selection, interaction (drag delta) and hover slices —
- * each subscription only triggers a re-render of this node when *its*
- * state changes.
+ * Subscribes to per-id slices via `useStoreSlice` so each node re-renders
+ * only when its own selection / drag delta / hover state changes — not on
+ * every pointermove tick of an unrelated drag.
  */
 export function NodeGraphNodeView(
   props: NodeGraphNodeViewProps
@@ -88,7 +96,6 @@ export function NodeGraphNodeView(
   const {
     node,
     defaultSize,
-    zoom,
     renderNode,
     onBodyPointerDown,
     onBodyPointerUp,
@@ -96,25 +103,47 @@ export function NodeGraphNodeView(
     onBodyContextMenu,
   } = props;
   const store = useNodeGraphStore();
+  const viewportStore = useViewportStore();
 
-  const selection = useSyncExternalStore(
+  const selected = useStoreSlice(
     store.subscribeSelection,
-    store.getSelection
+    store.getSelection,
+    sel => sel.nodes.includes(node.id)
   );
-  const interaction = useSyncExternalStore(
-    store.subscribeInteraction,
-    store.getInteraction
-  );
-  const hover = useSyncExternalStore(store.subscribeHover, store.getHover);
 
-  const selected = selection.nodes.includes(node.id);
-  const dragging =
-    interaction.kind === 'drag-nodes' && interaction.nodeIds.includes(node.id);
-  const hovered = hover.hoveredNodeId === node.id;
-  const dragDelta =
-    interaction.kind === 'drag-nodes' && interaction.nodeIds.includes(node.id)
-      ? interaction.delta
-      : null;
+  const dragDelta = useStoreSlice<
+    ReturnType<typeof store.getInteraction>,
+    Point2D | null
+  >(
+    store.subscribeInteraction,
+    store.getInteraction,
+    interaction => {
+      if (
+        interaction.kind === 'drag-nodes' &&
+        interaction.nodeIds.includes(node.id)
+      ) {
+        return interaction.delta;
+      }
+      return null;
+    },
+    pointEqualNullable
+  );
+  const dragging = dragDelta !== null;
+
+  const hovered = useStoreSlice(
+    store.subscribeHover,
+    store.getHover,
+    hover => hover.hoveredNodeId === node.id
+  );
+
+  const liveZoom = useStoreSlice(
+    viewportStore.subscribeTransform,
+    viewportStore.getTransform,
+    transform => transform.zoom
+  );
+  // Defer the zoom value passed into consumer renderNode so heavy node
+  // bodies don't block the pointer gesture loop during a zoom-while-drag.
+  const zoom = useDeferredValue(liveZoom);
 
   const width = node.width ?? defaultSize.width;
   const height = node.height ?? defaultSize.height;

@@ -4,40 +4,11 @@ import React, { useMemo } from 'react';
 import { ViewportMinimap } from '@/components/editor/Minimap/ViewportMinimap';
 import { Minimap } from '@/components/editor/Minimap';
 import { useNodeGraphData, useNodeGraphSelection } from './NodeGraphContext';
-import type {
-  NodeGraphMinimapSlotProps,
-  NodeGraphSlotMarker,
-  NodeGraphBackgroundSlotProps,
-} from './NodeGraph.types';
-import { NODE_GRAPH_SLOT } from './NodeGraph.types';
+import type { NodeGraphMinimapSlotProps } from './NodeGraph.types';
 import { computeNodesBounds, getNodeBox } from './nodeGraphMath';
 import type { MinimapItem, MinimapRectItem } from '@/components/editor/Minimap';
 import { minimapSlotStyle } from './NodeGraph.css';
 import { cx } from '@/utils/cx';
-
-/**
- * Implementation behind `<NodeGraph.Minimap>`. Reads the live node list
- * from the NodeGraph store and feeds it into `<ViewportMinimap>` as rect
- * items — selection state is reflected by highlighting items with an
- * accent colour.
- *
- * The component itself returns `null` when picked out of children by the
- * parent (see `categorizeChildren` in `NodeGraph.tsx`); the real render
- * is delegated to `<NodeGraphMinimapInner>` inside the Viewport tree.
- */
-const NodeGraphMinimapImpl: (props: NodeGraphMinimapSlotProps) => null = () =>
-  null;
-
-export const NodeGraphMinimap = Object.assign(NodeGraphMinimapImpl, {
-  displayName: 'NodeGraph.Minimap',
-  [NODE_GRAPH_SLOT]: 'minimap' as const,
-}) as unknown as ((props: NodeGraphMinimapSlotProps) => null) &
-  NodeGraphSlotMarker & { displayName: string };
-
-interface NodeGraphMinimapInnerProps extends NodeGraphMinimapSlotProps {
-  /** Accent colour used to highlight selected nodes inside the minimap. */
-  selectedColor?: string;
-}
 
 /**
  * Live renderer for `<NodeGraph.Minimap>`. Mounted inside the `<Viewport>`
@@ -51,7 +22,7 @@ export function NodeGraphMinimapInner({
   title,
   className,
   selectedColor,
-}: NodeGraphMinimapInnerProps): React.ReactElement {
+}: NodeGraphMinimapSlotProps): React.ReactElement {
   const data = useNodeGraphData();
   const selection = useNodeGraphSelection();
 
@@ -105,17 +76,4 @@ export function NodeGraphMinimapInner({
   );
 }
 
-/**
- * Implementation behind `<NodeGraph.Background>`. Like the minimap, the
- * marker component itself renders nothing — the parent picks it up and
- * mounts the canvas layer in the correct position in the layer stack.
- */
-const NodeGraphBackgroundImpl: (
-  props: NodeGraphBackgroundSlotProps
-) => null = () => null;
-
-export const NodeGraphBackground = Object.assign(NodeGraphBackgroundImpl, {
-  displayName: 'NodeGraph.Background',
-  [NODE_GRAPH_SLOT]: 'background' as const,
-}) as unknown as ((props: NodeGraphBackgroundSlotProps) => null) &
-  NodeGraphSlotMarker & { displayName: string };
+export { NodeGraphMinimap, NodeGraphBackground } from './NodeGraphSlots';

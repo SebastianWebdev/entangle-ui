@@ -193,19 +193,6 @@ export const edgeLabelStyle = style({
 });
 
 /**
- * Marquee selection rectangle styled in world space. Drawn on top of the
- * canvas layers via a `ViewportOverlay` div positioned in screen coords.
- */
-export const marqueeStyle = style({
-  position: 'absolute',
-  border: `1px solid ${vars.colors.accent.primary}`,
-  background: vars.colors.accent.primary,
-  opacity: 0.16,
-  borderRadius: vars.borderRadius.sm,
-  pointerEvents: 'none',
-});
-
-/**
  * Slot wrapper used by `<NodeGraph.Minimap>` — pinned absolutely inside the
  * underlying `<Viewport>` overlay layer.
  */
