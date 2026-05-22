@@ -374,8 +374,10 @@ export function drawBackground(
   // the tile size to keep the translation in `[0, tileSize)`.
   const origin = info.worldToScreen({ x: 0, y: 0 });
   const alignedTileSize = screenGap;
-  const offsetX = ((origin.x % alignedTileSize) + alignedTileSize) % alignedTileSize;
-  const offsetY = ((origin.y % alignedTileSize) + alignedTileSize) % alignedTileSize;
+  const offsetX =
+    ((origin.x % alignedTileSize) + alignedTileSize) % alignedTileSize;
+  const offsetY =
+    ((origin.y % alignedTileSize) + alignedTileSize) % alignedTileSize;
 
   // Snap the world origin offset to keep dots crisply pixel-aligned at
   // pan time. Sub-pixel pattern positions blur the rendered tile.
