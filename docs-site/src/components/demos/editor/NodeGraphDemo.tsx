@@ -1221,19 +1221,9 @@ export default function NodeGraphDemo(): React.ReactElement {
     setEdges(prev => enrichEdgeColors(prev));
   }, [enrichEdgeColors]);
 
-  const handleDelete = useCallback((sel: NodeGraphSelection) => {
-    setNodes(prev => prev.filter(n => !sel.nodes.includes(n.id)));
-    setEdges(prev =>
-      prev.filter(
-        e =>
-          !sel.edges.includes(e.id) &&
-          !sel.nodes.includes(e.source.node) &&
-          !sel.nodes.includes(e.target.node)
-      )
-    );
-    setGroups(prev => prev.filter(g => !sel.groups.includes(g.id)));
-    setSelection({ nodes: [], edges: [], groups: [] });
-  }, []);
+  // Cascade delete (filter nodes/edges/groups + drop orphan edges +
+  // clear selection) is handled by the library when `onDelete` is not
+  // provided — see `applyCascadeDelete` exported from `entangle-ui`.
 
   const spawnFromTemplate = useCallback(
     (template: NodeTemplate, worldX: number, worldY: number) => {
@@ -1346,7 +1336,6 @@ export default function NodeGraphDemo(): React.ReactElement {
             onEdgesChange={handleEdgesChange}
             onGroupsChange={setGroups}
             onSelectionChange={setSelection}
-            onDelete={handleDelete}
             onContextMenu={handleContextMenu}
             renderNode={renderNode}
             isValidConnection={isValidConnection}

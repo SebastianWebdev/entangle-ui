@@ -13,6 +13,7 @@ export {
   DEFAULT_NODE_WIDTH,
   DEFAULT_NODE_HEIGHT,
   MIN_GROUP_SIZE,
+  applyCascadeDelete,
   applyGroupResize,
   computeNodesBounds,
   getNodeBox,

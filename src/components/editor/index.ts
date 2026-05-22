@@ -73,6 +73,7 @@ export {
   DEFAULT_NODE_WIDTH as NODE_GRAPH_DEFAULT_NODE_WIDTH,
   DEFAULT_NODE_HEIGHT as NODE_GRAPH_DEFAULT_NODE_HEIGHT,
   MIN_GROUP_SIZE as NODE_GRAPH_MIN_GROUP_SIZE,
+  applyCascadeDelete,
   applyGroupResize,
   computeNodesBounds as computeNodeGraphBounds,
   getNodeBox,

@@ -1126,12 +1126,77 @@ const NodeGraphImpl = ({
     [handleContextMenu]
   );
 
+  // ── Delete ──
+  //
+  // Without a consumer-supplied `onDelete`, the library cascades the
+  // selection through nodes / edges / groups automatically: nodes get
+  // removed, edges are filtered out when either endpoint is gone (or
+  // when the edge itself is selected), groups in the selection drop.
+  // Saves every consumer the same 8-line filter and avoids the classic
+  // "I forgot to clean up orphan edges" bug.
+  //
+  // If the consumer provides `onDelete`, they take over completely —
+  // they can still call the exported `applyCascadeDelete` helper to do
+  // the same filtering plus their own snapshot / undo / confirmation
+  // logic on top.
+  const handleDeleteInternal = useCallback(
+    (sel: NodeGraphSelection): void => {
+      if (onDelete) {
+        onDelete(sel);
+        return;
+      }
+      const currentNodes = nodesRef.current;
+      const currentEdges = store.getData().edges;
+      const currentGroups = groupsRef.current;
+      const removedNodeIds = new Set(sel.nodes);
+      const removedEdgeIds = new Set(sel.edges);
+      const removedGroupIds = new Set(sel.groups);
+      if (
+        removedNodeIds.size === 0 &&
+        removedEdgeIds.size === 0 &&
+        removedGroupIds.size === 0
+      ) {
+        return;
+      }
+      if (removedNodeIds.size > 0) {
+        setNodesRef.current(
+          currentNodes.filter(n => !removedNodeIds.has(n.id))
+        );
+      }
+      const nextEdges = currentEdges.filter(
+        e =>
+          !removedEdgeIds.has(e.id) &&
+          !removedNodeIds.has(e.source.node) &&
+          !removedNodeIds.has(e.target.node)
+      );
+      if (nextEdges.length !== currentEdges.length) {
+        setEdges(nextEdges);
+      }
+      if (removedGroupIds.size > 0) {
+        setGroupsRef.current(
+          currentGroups.filter(g => !removedGroupIds.has(g.id))
+        );
+      }
+      setSelectionRef.current({ nodes: [], edges: [], groups: [] });
+    },
+    [
+      onDelete,
+      store,
+      nodesRef,
+      groupsRef,
+      setNodesRef,
+      setGroupsRef,
+      setSelectionRef,
+      setEdges,
+    ]
+  );
+
   // ── Keyboard ──
   const { onKeyDown } = useNodeGraphKeyboard({
     store,
     emitNodesChange: setNodes,
     emitSelectionChange: setSelection,
-    onDelete,
+    onDelete: handleDeleteInternal,
     onActivate,
     snapToGrid,
     disabled,

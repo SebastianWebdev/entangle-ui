@@ -356,6 +356,62 @@ export function resolveEdgeEndpoints(
   };
 }
 
+/**
+ * Apply a selection-driven cascade delete to a graph snapshot. Removes
+ * the selected nodes / edges / groups and additionally drops any edge
+ * whose source or target node was removed — eliminates the classic
+ * "orphan edge dangling off a deleted node" bug. Pure function; returns
+ * the same array references when nothing was removed.
+ *
+ * Used internally by `<NodeGraph>` when no `onDelete` is supplied, and
+ * exported so consumers who DO supply `onDelete` (e.g. to snapshot for
+ * undo, log telemetry, show confirmations) can reuse the same logic
+ * without rewriting the filter.
+ */
+export function applyCascadeDelete<TNode extends { id: string }>(
+  input: {
+    nodes: ReadonlyArray<TNode>;
+    edges: ReadonlyArray<NodeGraphEdge>;
+    groups: ReadonlyArray<{ id: string }>;
+  },
+  selection: {
+    nodes: ReadonlyArray<string>;
+    edges: ReadonlyArray<string>;
+    groups: ReadonlyArray<string>;
+  }
+): {
+  nodes: TNode[] | ReadonlyArray<TNode>;
+  edges: NodeGraphEdge[] | ReadonlyArray<NodeGraphEdge>;
+  groups: typeof input.groups;
+} {
+  const removedNodeIds = new Set(selection.nodes);
+  const removedEdgeIds = new Set(selection.edges);
+  const removedGroupIds = new Set(selection.groups);
+
+  const nodes =
+    removedNodeIds.size > 0
+      ? input.nodes.filter(n => !removedNodeIds.has(n.id))
+      : input.nodes;
+  const edges = input.edges.filter(
+    e =>
+      !removedEdgeIds.has(e.id) &&
+      !removedNodeIds.has(e.source.node) &&
+      !removedNodeIds.has(e.target.node)
+  );
+  const groups =
+    removedGroupIds.size > 0
+      ? input.groups.filter(g => !removedGroupIds.has(g.id))
+      : input.groups;
+
+  return {
+    nodes,
+    // Keep the input array reference when nothing changed — lets the
+    // consumer skip an unnecessary `setEdges` if they want to.
+    edges: edges.length === input.edges.length ? input.edges : edges,
+    groups,
+  };
+}
+
 // ─── Internals ───
 
 function pointToSegmentDistance(p: Point2D, a: Point2D, b: Point2D): number {

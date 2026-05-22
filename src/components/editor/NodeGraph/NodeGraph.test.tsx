@@ -422,6 +422,36 @@ describe('NodeGraph — Keyboard', () => {
     });
   });
 
+  it('cascades delete by default (no onDelete): drops nodes, orphan edges, selection', () => {
+    const onNodesChange = vi.fn();
+    const onEdgesChange = vi.fn();
+    const onSelectionChange = vi.fn();
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        defaultEdges={baseEdges}
+        renderNode={renderTestNode}
+        defaultSelection={{ nodes: ['n1'], edges: [], groups: [] }}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onSelectionChange={onSelectionChange}
+      />
+    );
+    const root = screen.getByTestId('nodegraph');
+    fireEvent.keyDown(root, { key: 'Delete' });
+    // n1 removed, e1 (n1→n2) is now orphan → dropped, selection cleared.
+    expect(onNodesChange).toHaveBeenCalledWith([
+      expect.objectContaining({ id: 'n2' }),
+    ]);
+    expect(onEdgesChange).toHaveBeenCalledWith([]);
+    expect(onSelectionChange).toHaveBeenCalledWith({
+      nodes: [],
+      edges: [],
+      groups: [],
+    });
+  });
+
   it('nudges selected nodes with arrow keys', () => {
     let captured: NodeGraphNode[] | null = null;
     const onNodesChange = (next: NodeGraphNode[]): void => {
