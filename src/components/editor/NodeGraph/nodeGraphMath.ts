@@ -293,6 +293,45 @@ export function snapDelta(delta: Point2D, grid: number | false): Point2D {
   };
 }
 
+/** Minimum size (in world units) a group can be resized down to. */
+export const MIN_GROUP_SIZE = 32;
+
+/**
+ * Compute the new group bounds during a resize gesture, given the
+ * original bounds, the cumulative drag delta, and which handle is being
+ * dragged. Enforces a minimum size on each axis so the group doesn't
+ * collapse to zero.
+ */
+export function applyGroupResize(
+  start: WorldRect,
+  handle: 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w',
+  delta: Point2D,
+  minSize = MIN_GROUP_SIZE
+): WorldRect {
+  let { x, y, width, height } = start;
+
+  const movesLeft = handle === 'nw' || handle === 'w' || handle === 'sw';
+  const movesRight = handle === 'ne' || handle === 'e' || handle === 'se';
+  const movesTop = handle === 'nw' || handle === 'n' || handle === 'ne';
+  const movesBottom = handle === 'sw' || handle === 's' || handle === 'se';
+
+  if (movesLeft) {
+    const dx = Math.min(delta.x, start.width - minSize);
+    x = start.x + dx;
+    width = start.width - dx;
+  } else if (movesRight) {
+    width = Math.max(minSize, start.width + delta.x);
+  }
+  if (movesTop) {
+    const dy = Math.min(delta.y, start.height - minSize);
+    y = start.y + dy;
+    height = start.height - dy;
+  } else if (movesBottom) {
+    height = Math.max(minSize, start.height + delta.y);
+  }
+  return { x, y, width, height };
+}
+
 /**
  * Look up a port's world position via its `NodeGraphPortRef`. Returns
  * `null` when the node or port doesn't exist.

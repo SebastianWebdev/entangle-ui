@@ -170,11 +170,32 @@ export const portStyle = recipe({
       },
       false: {},
     },
+    customRender: {
+      // When the consumer supplies `renderPort`, strip the default circle
+      // chrome but keep positioning / pointer-event behaviour intact.
+      true: {
+        background: 'transparent',
+        border: 'none',
+        borderRadius: 0,
+        width: 'auto',
+        height: 'auto',
+        transition: 'none',
+        selectors: {
+          '&:hover': {
+            transform: 'var(--etui-nodegraph-port-base-transform, none)',
+            background: 'transparent',
+            borderColor: 'transparent',
+          },
+        },
+      },
+      false: {},
+    },
   },
   defaultVariants: {
     connecting: false,
     candidate: false,
     invalid: false,
+    customRender: false,
   },
 });
 
@@ -190,6 +211,67 @@ export const edgeLabelStyle = style({
   color: vars.colors.text.secondary,
   pointerEvents: 'auto',
   whiteSpace: 'nowrap',
+});
+
+/**
+ * HTML overlay for an interactive group. Positioned absolutely in world
+ * space; the visual fill / outline is drawn by the canvas layer beneath —
+ * this overlay only carries pointer events and the resize handles.
+ */
+export const groupOverlayRecipe = recipe({
+  base: {
+    position: 'absolute',
+    pointerEvents: 'auto',
+    cursor: 'move',
+    boxSizing: 'border-box',
+    borderRadius: vars.borderRadius.sm,
+    border: '2px solid transparent',
+  },
+  variants: {
+    selected: {
+      true: {
+        border: `2px solid ${vars.colors.accent.primary}`,
+        boxShadow: `0 0 0 1px ${vars.colors.accent.primary}66`,
+      },
+      false: {},
+    },
+    dragging: {
+      true: { cursor: 'grabbing' },
+      false: {},
+    },
+  },
+  defaultVariants: { selected: false, dragging: false },
+});
+
+/** Tiny square handle drawn at each corner / edge midpoint when selected. */
+export const groupResizeHandleStyle = style({
+  position: 'absolute',
+  width: 10,
+  height: 10,
+  background: vars.colors.accent.primary,
+  border: `1px solid ${vars.colors.background.primary}`,
+  borderRadius: 2,
+  boxSizing: 'border-box',
+  pointerEvents: 'auto',
+  zIndex: 1,
+});
+
+/** Label centred above a group (top-edge tab). */
+export const groupLabelStyle = style({
+  position: 'absolute',
+  top: -22,
+  left: 8,
+  background: vars.colors.background.elevated,
+  border: `1px solid ${vars.colors.border.default}`,
+  borderRadius: vars.borderRadius.sm,
+  padding: `2px 8px`,
+  fontSize: vars.typography.fontSize.xs,
+  color: vars.colors.text.primary,
+  fontFamily: vars.typography.fontFamily.sans,
+  fontWeight: vars.typography.fontWeight.medium,
+  lineHeight: vars.typography.lineHeight.tight,
+  whiteSpace: 'nowrap',
+  pointerEvents: 'none',
 });
 
 /**

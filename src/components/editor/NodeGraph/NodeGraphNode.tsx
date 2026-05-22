@@ -16,6 +16,7 @@ import type {
   NodeGraphPort,
   NodeGraphPortSide,
   NodeGraphRenderCtx,
+  NodeGraphRenderPort,
 } from './NodeGraph.types';
 import { NodeGraphPortView } from './NodeGraphPort';
 import { useNodeGraphStore } from './NodeGraphContext';
@@ -29,6 +30,8 @@ interface NodeGraphNodeViewProps {
     node: NodeGraphNode,
     ctx: NodeGraphRenderCtx
   ) => React.ReactNode;
+  /** Custom port visual renderer. */
+  renderPort?: NodeGraphRenderPort;
   /** Pointer-down on the node body (drag / select). */
   onBodyPointerDown: (
     event: React.PointerEvent<HTMLDivElement>,
@@ -97,6 +100,7 @@ export function NodeGraphNodeView(
     node,
     defaultSize,
     renderNode,
+    renderPort,
     onBodyPointerDown,
     onBodyPointerUp,
     onPortPointerDown,
@@ -226,9 +230,10 @@ export function NodeGraphNodeView(
         portsBySide[side].map(({ port, offset }) => (
           <NodeGraphPortView
             key={port.id}
-            nodeId={node.id}
+            node={node}
             port={port}
             offset={offset}
+            renderPort={renderPort}
             onStartConnection={e => onPortPointerDown(e, node.id, port.id)}
           />
         ))

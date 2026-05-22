@@ -42,9 +42,13 @@ import type {
   NodeGraphTarget,
 } from './NodeGraph.types';
 import { NODE_GRAPH_SLOT } from './NodeGraph.types';
-import { NodeGraphStore } from './NodeGraphStore';
+import {
+  NodeGraphStore,
+  type NodeGraphGroupResizeHandle,
+} from './NodeGraphStore';
 import { NodeGraphStoreContext, useNodeGraphStore } from './NodeGraphContext';
 import { NodeGraphNodeView } from './NodeGraphNode';
+import { NodeGraphGroupView } from './NodeGraphGroup';
 import { NodeGraphMinimapInner } from './NodeGraphMinimap';
 import { NodeGraphBackground, NodeGraphMinimap } from './NodeGraphSlots';
 import {
@@ -55,6 +59,7 @@ import {
   drawGroups,
 } from './nodeGraphDrawing';
 import {
+  applyGroupResize,
   computeNodesBounds,
   getNodeBox,
   isPointInNode,
@@ -183,6 +188,7 @@ const NodeGraphImpl = ({
   defaultSelection,
   onSelectionChange,
   renderNode,
+  renderPort,
   renderEdgeLabel,
   isValidConnection,
   snapToGrid = false,
@@ -237,7 +243,7 @@ const NodeGraphImpl = ({
     onChange: onEdgesChange,
     fallback: EMPTY_EDGES,
   });
-  const [groups] = useControlledState<NodeGraphGroup[]>({
+  const [groups, setGroups] = useControlledState<NodeGraphGroup[]>({
     value: groupsProp,
     defaultValue: defaultGroups,
     onChange: onGroupsChange,
@@ -532,6 +538,290 @@ const NodeGraphImpl = ({
     [store, nodesRef, setNodesRef, setSelectionRef]
   );
 
+  // ── Group interaction (drag + resize + click-select) ──
+  type GroupDragSession = {
+    kind: 'drag' | 'resize';
+    pointerId: number;
+    clickedGroupId: string;
+    /** Handle being dragged (only for kind === 'resize'). */
+    handle: NodeGraphGroupResizeHandle | null;
+    startScreen: Point2D;
+    startWorld: Point2D;
+    selectionAtStart: NodeGraphSelection;
+    /** Snapshot of bounds keyed by group id (for drag). */
+    groupStartBounds: Map<string, WorldRect>;
+    /** Bounds of the resized group at start (for resize). */
+    resizeStartBounds: WorldRect | null;
+    additive: boolean;
+    didDrag: boolean;
+    cleanup: () => void;
+  };
+  const groupSessionRef = useRef<GroupDragSession | null>(null);
+  const setGroupsRef = useLatest(setGroups);
+
+  // Release any in-flight group listeners if the component unmounts mid-drag.
+  useLayoutEffect(() => {
+    return () => {
+      groupSessionRef.current?.cleanup();
+      groupSessionRef.current = null;
+    };
+  }, []);
+
+  /**
+   * Wire up the shared move + cancel document listeners used by both the
+   * drag-groups and resize-group gestures. Returns a `cleanup` function the
+   * pointerup / pointercancel handler is expected to call.
+   */
+  const beginGroupSession = useCallback(
+    (pointerId: number): (() => void) => {
+      const handleMove = (e: PointerEvent): void => {
+        const session = groupSessionRef.current;
+        if (session?.pointerId !== pointerId) return;
+        const current = localScreenPoint(e.clientX, e.clientY);
+        const dx = current.x - session.startScreen.x;
+        const dy = current.y - session.startScreen.y;
+        const transform = getTransform();
+        const worldDelta = {
+          x: dx / transform.zoom,
+          y: dy / transform.zoom,
+        };
+        const snapped = snapDelta(worldDelta, snapToGridRef.current);
+
+        if (session.kind === 'drag') {
+          if (!session.didDrag) {
+            if (Math.hypot(dx, dy) < DRAG_START_THRESHOLD_PX) return;
+            session.didDrag = true;
+          }
+          const ids = Array.from(session.groupStartBounds.keys());
+          store.setInteraction({
+            kind: 'drag-groups',
+            groupIds: ids,
+            startWorld: session.startWorld,
+            delta: snapped,
+          });
+        } else if (
+          session.kind === 'resize' &&
+          session.resizeStartBounds &&
+          session.handle
+        ) {
+          store.setInteraction({
+            kind: 'resize-group',
+            groupId: session.clickedGroupId,
+            handle: session.handle,
+            startBounds: session.resizeStartBounds,
+            delta: snapped,
+          });
+        }
+      };
+
+      const handleCancel = (): void => {
+        const session = groupSessionRef.current;
+        if (!session) return;
+        session.cleanup();
+        groupSessionRef.current = null;
+        store.setInteraction({ kind: 'idle' });
+      };
+
+      const cleanup = (): void => {
+        document.removeEventListener('pointermove', handleMove);
+        document.removeEventListener('pointercancel', handleCancel);
+      };
+
+      document.addEventListener('pointermove', handleMove);
+      document.addEventListener('pointercancel', handleCancel);
+      return cleanup;
+    },
+    [store, localScreenPoint, getTransform, snapToGridRef]
+  );
+
+  const onGroupBodyPointerDown = useCallback(
+    (
+      event: React.PointerEvent<HTMLDivElement>,
+      group: NodeGraphGroup
+    ): void => {
+      if (event.button !== 0) return;
+      event.stopPropagation();
+      if (disabled) return;
+      const target = event.currentTarget;
+      target.setPointerCapture(event.pointerId);
+
+      const additive = event.shiftKey || event.metaKey || event.ctrlKey;
+      const currentSelection = selectionRef.current;
+      const alreadySelected = currentSelection.groups.includes(group.id);
+
+      let dragIds: string[];
+      if (alreadySelected) {
+        dragIds = currentSelection.groups;
+      } else if (!additive) {
+        dragIds = [group.id];
+      } else {
+        dragIds = [...currentSelection.groups, group.id];
+      }
+
+      const startBounds = new Map<string, WorldRect>();
+      for (const g of groupsRef.current) {
+        if (dragIds.includes(g.id)) {
+          startBounds.set(g.id, { ...g.bounds });
+        }
+      }
+
+      const startScreen = localScreenPoint(event.clientX, event.clientY);
+      const startWorld = worldFromScreen(startScreen, getTransform());
+      const pointerId = event.pointerId;
+      const cleanup = beginGroupSession(pointerId);
+
+      groupSessionRef.current = {
+        kind: 'drag',
+        pointerId,
+        clickedGroupId: group.id,
+        handle: null,
+        startScreen,
+        startWorld,
+        selectionAtStart: currentSelection,
+        groupStartBounds: startBounds,
+        resizeStartBounds: null,
+        additive,
+        didDrag: false,
+        cleanup,
+      };
+    },
+    [
+      disabled,
+      selectionRef,
+      groupsRef,
+      localScreenPoint,
+      getTransform,
+      beginGroupSession,
+    ]
+  );
+
+  const onGroupHandlePointerDown = useCallback(
+    (
+      event: React.PointerEvent<HTMLDivElement>,
+      group: NodeGraphGroup,
+      handle: NodeGraphGroupResizeHandle
+    ): void => {
+      if (event.button !== 0) return;
+      event.stopPropagation();
+      event.preventDefault();
+      if (disabled) return;
+
+      const target = event.currentTarget;
+      target.setPointerCapture(event.pointerId);
+
+      const startScreen = localScreenPoint(event.clientX, event.clientY);
+      const startWorld = worldFromScreen(startScreen, getTransform());
+      const pointerId = event.pointerId;
+      const cleanup = beginGroupSession(pointerId);
+
+      groupSessionRef.current = {
+        kind: 'resize',
+        pointerId,
+        clickedGroupId: group.id,
+        handle,
+        startScreen,
+        startWorld,
+        selectionAtStart: selectionRef.current,
+        groupStartBounds: new Map(),
+        resizeStartBounds: { ...group.bounds },
+        additive: false,
+        didDrag: true,
+        cleanup,
+      };
+      // Immediately register the resize interaction so the canvas + overlay
+      // start tracking from delta=0 at the click point.
+      store.setInteraction({
+        kind: 'resize-group',
+        groupId: group.id,
+        handle,
+        startBounds: { ...group.bounds },
+        delta: { x: 0, y: 0 },
+      });
+    },
+    [
+      disabled,
+      selectionRef,
+      localScreenPoint,
+      getTransform,
+      store,
+      beginGroupSession,
+    ]
+  );
+
+  const onGroupBodyPointerUp = useCallback(
+    (
+      event: React.PointerEvent<HTMLDivElement>,
+      group: NodeGraphGroup
+    ): void => {
+      const session = groupSessionRef.current;
+      if (session?.pointerId !== event.pointerId) return;
+      event.stopPropagation();
+      const target = event.currentTarget;
+      if (target.hasPointerCapture(event.pointerId)) {
+        target.releasePointerCapture(event.pointerId);
+      }
+
+      session.cleanup();
+      const interaction = store.getInteraction();
+
+      if (session.kind === 'drag' && session.didDrag) {
+        if (interaction.kind === 'drag-groups') {
+          const delta = interaction.delta;
+          const nextGroups = groupsRef.current.map(g => {
+            const start = session.groupStartBounds.get(g.id);
+            if (!start) return g;
+            return {
+              ...g,
+              bounds: {
+                ...start,
+                x: start.x + delta.x,
+                y: start.y + delta.y,
+              },
+            };
+          });
+          setGroupsRef.current(nextGroups);
+        }
+        store.setInteraction({ kind: 'idle' });
+      } else if (session.kind === 'resize') {
+        if (
+          interaction.kind === 'resize-group' &&
+          session.resizeStartBounds &&
+          session.handle
+        ) {
+          const next = applyGroupResize(
+            session.resizeStartBounds,
+            session.handle,
+            interaction.delta
+          );
+          const nextGroups = groupsRef.current.map(g =>
+            g.id === session.clickedGroupId ? { ...g, bounds: next } : g
+          );
+          setGroupsRef.current(nextGroups);
+        }
+        store.setInteraction({ kind: 'idle' });
+      } else {
+        // Plain click on group body → selection
+        const current = session.selectionAtStart;
+        let nextGroups: string[];
+        if (session.additive) {
+          nextGroups = current.groups.includes(group.id)
+            ? current.groups.filter(id => id !== group.id)
+            : [...current.groups, group.id];
+        } else {
+          nextGroups = [group.id];
+        }
+        setSelectionRef.current({
+          nodes: session.additive ? current.nodes : [],
+          edges: session.additive ? current.edges : [],
+          groups: nextGroups,
+        });
+      }
+
+      groupSessionRef.current = null;
+    },
+    [store, groupsRef, setGroupsRef, setSelectionRef]
+  );
+
   // ── Marquee selection from the Viewport ──
   const [, startMarqueeTransition] = useTransition();
   const handleViewportSelection = useCallback(
@@ -697,8 +987,9 @@ const NodeGraphImpl = ({
     ): void => {
       const data = store.getData();
       const sel = store.getSelection();
+      const interaction = store.getInteraction();
       const theme = buildDrawTheme(info.theme);
-      drawGroups(ctx, info, data, sel, theme);
+      drawGroups(ctx, info, data, sel, interaction, theme);
     },
     [store]
   );
@@ -763,11 +1054,13 @@ const NodeGraphImpl = ({
         invalidate('edges');
       }),
       store.subscribeHover(() => invalidate('edges')),
-      // Interaction drives the in-flight drag delta — both the edges layer
-      // (so connectors follow the dragged nodes live, not snap on release)
-      // and the preview layer need to redraw on every tick.
+      // Interaction drives the in-flight drag delta — every canvas layer
+      // that visualises something positional needs to redraw on each tick:
+      // edges (connectors follow dragged nodes live, not snap on release),
+      // groups (drag-groups / resize-group), and the connection preview.
       store.subscribeInteraction(() => {
         invalidate('edges');
+        invalidate('groups');
         invalidate('preview');
       }),
     ];
@@ -861,12 +1154,23 @@ const NodeGraphImpl = ({
           <ViewportLayer name="groups" draw={drawGroupsLayer} />
           <ViewportLayer name="edges" draw={drawEdgesLayer} />
           <ViewportWorld>
+            {groups.map(group => (
+              <NodeGraphGroupView
+                key={group.id}
+                group={group}
+                onBodyPointerDown={onGroupBodyPointerDown}
+                onBodyPointerUp={onGroupBodyPointerUp}
+                onHandlePointerDown={onGroupHandlePointerDown}
+                onBodyContextMenu={handleContextMenu}
+              />
+            ))}
             {nodes.map(node => (
               <NodeGraphNodeView
                 key={node.id}
                 node={node}
                 defaultSize={defaultNodeSize}
                 renderNode={renderNode}
+                renderPort={renderPort}
                 onBodyPointerDown={onNodeBodyPointerDown}
                 onBodyPointerUp={onNodeBodyPointerUp}
                 onPortPointerDown={onPortPointerDown}

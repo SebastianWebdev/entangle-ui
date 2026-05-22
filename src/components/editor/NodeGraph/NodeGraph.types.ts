@@ -175,6 +175,29 @@ export interface NodeGraphRenderCtx {
   zoom: number;
 }
 
+/** Context passed to `renderPort`. */
+export interface NodeGraphPortRenderCtx {
+  /** True when this port is the source of the in-flight connection. */
+  isSource: boolean;
+  /** True when this port is the current candidate target. */
+  isCandidate: boolean;
+  /** True when the current candidate is invalid (rejected by validator). */
+  isInvalid: boolean;
+  /** True when the pointer is hovering over the port. */
+  isHovered: boolean;
+}
+
+/**
+ * Consumer-supplied renderer for the port visual. The library still owns
+ * the pointer handlers and `data-*` attributes on the wrapper — the
+ * returned content is placed inside the wrapper.
+ */
+export type NodeGraphRenderPort = (
+  port: NodeGraphPort,
+  node: NodeGraphNode,
+  ctx: NodeGraphPortRenderCtx
+) => React.ReactNode;
+
 // ─── Imperative handle ───
 
 export interface NodeGraphHandle {
@@ -257,6 +280,14 @@ export interface NodeGraphBaseProps extends Omit<
     node: NodeGraphNode,
     ctx: NodeGraphRenderCtx
   ) => React.ReactNode;
+  /**
+   * Render the visual for each port. The wrapper still owns pointer events
+   * and accessibility — the returned content fills the wrapper. Use this
+   * to render data-type-coloured pin handles, exec-pin triangles, etc.
+   *
+   * Default: a small generic circle styled with theme tokens.
+   */
+  renderPort?: NodeGraphRenderPort;
   /**
    * Render a label above the midpoint of an edge. Receives the edge data.
    * When omitted, `edge.label` is used as-is (if defined).

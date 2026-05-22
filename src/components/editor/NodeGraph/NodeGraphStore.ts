@@ -21,6 +21,17 @@ export interface NodeGraphDataState {
  * scratch data. Designed so the edge/preview drawing layer can read everything
  * it needs in one slice subscription.
  */
+/** Eight points along a rectangle that can be grabbed to resize a group. */
+export type NodeGraphGroupResizeHandle =
+  | 'nw'
+  | 'n'
+  | 'ne'
+  | 'e'
+  | 'se'
+  | 's'
+  | 'sw'
+  | 'w';
+
 export type NodeGraphInteractionState =
   | { kind: 'idle' }
   | {
@@ -30,6 +41,24 @@ export type NodeGraphInteractionState =
       /** Pointer-down world position (start of the drag). */
       startWorld: Point2D;
       /** Cumulative drag delta in world units (snapped if grid active). */
+      delta: Point2D;
+    }
+  | {
+      kind: 'drag-groups';
+      /** Ids of groups being dragged together. */
+      groupIds: ReadonlyArray<string>;
+      /** Pointer-down world position. */
+      startWorld: Point2D;
+      /** Cumulative drag delta (snapped if grid active). */
+      delta: Point2D;
+    }
+  | {
+      kind: 'resize-group';
+      groupId: string;
+      handle: NodeGraphGroupResizeHandle;
+      /** Original bounds at the start of the resize. */
+      startBounds: { x: number; y: number; width: number; height: number };
+      /** Cumulative pointer delta in world units (snapped). */
       delta: Point2D;
     }
   | {
@@ -239,6 +268,32 @@ function interactionEqual(
       return (
         arrEqual(a.nodeIds, bx.nodeIds) &&
         pointEqual(a.startWorld, bx.startWorld) &&
+        pointEqual(a.delta, bx.delta)
+      );
+    }
+    case 'drag-groups': {
+      const bx = b as Extract<
+        NodeGraphInteractionState,
+        { kind: 'drag-groups' }
+      >;
+      return (
+        arrEqual(a.groupIds, bx.groupIds) &&
+        pointEqual(a.startWorld, bx.startWorld) &&
+        pointEqual(a.delta, bx.delta)
+      );
+    }
+    case 'resize-group': {
+      const bx = b as Extract<
+        NodeGraphInteractionState,
+        { kind: 'resize-group' }
+      >;
+      return (
+        a.groupId === bx.groupId &&
+        a.handle === bx.handle &&
+        a.startBounds.x === bx.startBounds.x &&
+        a.startBounds.y === bx.startBounds.y &&
+        a.startBounds.width === bx.startBounds.width &&
+        a.startBounds.height === bx.startBounds.height &&
         pointEqual(a.delta, bx.delta)
       );
     }

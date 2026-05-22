@@ -11,6 +11,8 @@ export { NODE_GRAPH_SLOT } from './NodeGraph.types';
 export {
   DEFAULT_NODE_WIDTH,
   DEFAULT_NODE_HEIGHT,
+  MIN_GROUP_SIZE,
+  applyGroupResize,
   computeNodesBounds,
   getNodeBox,
   getPortPosition,
@@ -42,6 +44,8 @@ export type {
   NodeGraphConnectEndInfo,
   NodeGraphConnectionValidationInfo,
   NodeGraphRenderCtx,
+  NodeGraphPortRenderCtx,
+  NodeGraphRenderPort,
   NodeGraphHandle,
   NodeGraphLayerName,
   NodeGraphSlotKind,
@@ -54,4 +58,5 @@ export type {
   NodeGraphDataState,
   NodeGraphInteractionState,
   NodeGraphHoverState,
+  NodeGraphGroupResizeHandle,
 } from './NodeGraphStore';

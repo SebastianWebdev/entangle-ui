@@ -139,14 +139,39 @@ export function drawGroups(
   info: ViewportLayerDrawInfo,
   data: NodeGraphDataState,
   selection: NodeGraphSelection,
+  interaction: NodeGraphInteractionState,
   theme: NodeGraphDrawTheme
 ): void {
+  // Live drag / resize support — mirror what the HTML overlay shows so the
+  // canvas backdrop stays glued to the user's cursor during gestures.
+  const dragSet =
+    interaction.kind === 'drag-groups'
+      ? { ids: new Set(interaction.groupIds), delta: interaction.delta }
+      : null;
+  const resizing = interaction.kind === 'resize-group' ? interaction : null;
+
   for (const group of data.groups) {
-    const tl = info.worldToScreen({ x: group.bounds.x, y: group.bounds.y });
-    const br = info.worldToScreen({
-      x: group.bounds.x + group.bounds.width,
-      y: group.bounds.y + group.bounds.height,
-    });
+    let bx = group.bounds.x;
+    let by = group.bounds.y;
+    let bw = group.bounds.width;
+    let bh = group.bounds.height;
+    if (dragSet?.ids.has(group.id)) {
+      bx += dragSet.delta.x;
+      by += dragSet.delta.y;
+    } else if (resizing?.groupId === group.id) {
+      const next = applyResizeForDraw(
+        resizing.startBounds,
+        resizing.handle,
+        resizing.delta
+      );
+      bx = next.x;
+      by = next.y;
+      bw = next.width;
+      bh = next.height;
+    }
+
+    const tl = info.worldToScreen({ x: bx, y: by });
+    const br = info.worldToScreen({ x: bx + bw, y: by + bh });
     const width = br.x - tl.x;
     const height = br.y - tl.y;
     if (width <= 0 || height <= 0) continue;
@@ -168,6 +193,40 @@ export function drawGroups(
       ctx.fillText(group.label, tl.x + 6, tl.y - 4);
     }
   }
+}
+
+/**
+ * Mirror of `applyGroupResize` from `nodeGraphMath.ts` — inlined here to
+ * avoid a circular import (the drawing module is the leaf of the
+ * dependency graph and shouldn't pull in math.ts's full surface). Keep
+ * the two in sync.
+ */
+function applyResizeForDraw(
+  start: { x: number; y: number; width: number; height: number },
+  handle: 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w',
+  delta: { x: number; y: number }
+): { x: number; y: number; width: number; height: number } {
+  const MIN_SIZE = 32;
+  let { x, y, width, height } = start;
+  const movesLeft = handle === 'nw' || handle === 'w' || handle === 'sw';
+  const movesRight = handle === 'ne' || handle === 'e' || handle === 'se';
+  const movesTop = handle === 'nw' || handle === 'n' || handle === 'ne';
+  const movesBottom = handle === 'sw' || handle === 's' || handle === 'se';
+  if (movesLeft) {
+    const dx = Math.min(delta.x, start.width - MIN_SIZE);
+    x = start.x + dx;
+    width = start.width - dx;
+  } else if (movesRight) {
+    width = Math.max(MIN_SIZE, start.width + delta.x);
+  }
+  if (movesTop) {
+    const dy = Math.min(delta.y, start.height - MIN_SIZE);
+    y = start.y + dy;
+    height = start.height - dy;
+  } else if (movesBottom) {
+    height = Math.max(MIN_SIZE, start.height + delta.y);
+  }
+  return { x, y, width, height };
 }
 
 function getFontFamily(ctx: CanvasRenderingContext2D): string {
