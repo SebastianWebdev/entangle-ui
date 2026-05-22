@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DemoWrapper from '../DemoWrapper';
 import {
   NodeGraph,
@@ -13,10 +13,10 @@ import {
   type NodeGraphRenderCtx,
   type NodeGraphSelection,
   type NodeGraphTarget,
-  type NodeGraphTemplate,
   type Point2D,
 } from '@/components/editor/NodeGraph';
 import { Button } from '@/components/primitives/Button';
+import { Input } from '@/components/primitives/Input';
 import { useClickOutside } from '@/hooks';
 
 // ─── Type palette (UE5 Blueprint) ──────────────────────────────────────────
@@ -783,126 +783,338 @@ function BlueprintNodeBody({
 
 // ─── Context menu ──────────────────────────────────────────────────────────
 //
-// Right-clicking a node, edge, or port opens a small floating menu at the
-// cursor with target-aware actions. Empty space and group bodies fall
-// through to `<NodeGraph.SpawnPalette>`, which subscribes to spawn-request
-// pings the library fires automatically on those targets.
+// Right-clicking a node / edge opens an "actions" menu (Duplicate / Delete).
+// Right-clicking empty space or a group body opens a "spawn" menu — a
+// floating search-and-pick list at the cursor, the way UE5's Blueprint
+// editor works. Both menus are a single floating popup positioned at the
+// screen-space hit point reported by `onContextMenu`.
 
-interface ContextMenuState {
-  /** Position relative to the NodeGraph wrapper. */
+interface MenuShellProps {
   point: Point2D;
-  target: NodeGraphTarget;
-}
-
-interface ContextMenuActions {
-  onDeleteNode: (id: string) => void;
-  onDuplicateNode: (id: string) => void;
-  onDeleteEdge: (id: string) => void;
-  onDeleteGroup: (id: string) => void;
   onClose: () => void;
+  children: React.ReactNode;
+  width?: number;
 }
 
-function NodeContextMenu({
-  state,
-  actions,
-}: {
-  state: ContextMenuState;
-  actions: ContextMenuActions;
-}): React.ReactElement | null {
+/**
+ * Shared floating-popup chrome. Owns positioning, click-outside, and the
+ * panel styling. `useClickOutside` listens on `pointerdown` so it fires
+ * before the Viewport's own pointerdown handler (which starts marquee /
+ * pan gestures). The panel uses `var(--etui-color-bg-elevated)` — the
+ * correct token name from `themeContractData` — so it doesn't render
+ * invisible when the theme overrides the default fallback.
+ */
+function MenuShell({
+  point,
+  onClose,
+  children,
+  width = 200,
+}: MenuShellProps): React.ReactElement {
   const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, actions.onClose);
-
-  const { target } = state;
-  const items = (() => {
-    if (target.kind === 'node') {
-      return [
-        {
-          label: 'Duplicate node',
-          onClick: () => actions.onDuplicateNode(target.id),
-        },
-        {
-          label: 'Delete node',
-          onClick: () => actions.onDeleteNode(target.id),
-          danger: true,
-        },
-      ];
-    }
-    if (target.kind === 'edge') {
-      return [
-        {
-          label: 'Delete edge',
-          onClick: () => actions.onDeleteEdge(target.id),
-          danger: true,
-        },
-      ];
-    }
-    if (target.kind === 'group') {
-      return [
-        {
-          label: 'Delete group',
-          onClick: () => actions.onDeleteGroup(target.id),
-          danger: true,
-        },
-      ];
-    }
-    return [];
-  })();
-
-  if (items.length === 0) return null;
-
+  useClickOutside(ref, onClose, { event: 'pointerdown' });
   return (
     <div
       ref={ref}
       role="menu"
       style={{
         position: 'absolute',
-        left: state.point.x,
-        top: state.point.y,
-        minWidth: 160,
-        background: 'var(--etui-color-background-elevated)',
-        border: '1px solid var(--etui-color-border-default)',
+        left: point.x,
+        top: point.y,
+        width,
+        background: 'var(--etui-color-bg-elevated, #20222a)',
+        border: '1px solid var(--etui-color-border-default, #2a2d36)',
         borderRadius: 6,
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.55)',
         padding: 4,
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
         zIndex: 10,
+        color: 'var(--etui-color-text-primary, #f0f0f5)',
+      }}
+      onContextMenu={e => {
+        // Right-clicking inside our menu shouldn't close it via the
+        // viewport's onContextMenu — stop the bubble so the parent
+        // handler doesn't reset menu state.
+        e.stopPropagation();
+        e.preventDefault();
       }}
     >
-      {items.map(item => (
-        <button
-          key={item.label}
-          role="menuitem"
-          onClick={() => {
-            item.onClick();
-            actions.onClose();
-          }}
+      {children}
+    </div>
+  );
+}
+
+interface MenuButtonProps {
+  label: string;
+  icon?: React.ReactNode;
+  danger?: boolean;
+  onClick: () => void;
+}
+
+function MenuButton({
+  label,
+  icon,
+  danger,
+  onClick,
+}: MenuButtonProps): React.ReactElement {
+  return (
+    <button
+      role="menuitem"
+      onClick={onClick}
+      style={{
+        appearance: 'none',
+        background: 'transparent',
+        border: 'none',
+        textAlign: 'left',
+        padding: '6px 10px',
+        borderRadius: 4,
+        fontSize: 12,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        color: danger
+          ? 'var(--etui-color-accent-error, #ff5e54)'
+          : 'var(--etui-color-text-primary, #f0f0f5)',
+        cursor: 'pointer',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.background =
+          'var(--etui-color-surface-hover, rgba(255,255,255,0.06))';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.background = 'transparent';
+      }}
+    >
+      {icon != null ? (
+        <span
           style={{
-            appearance: 'none',
-            background: 'transparent',
-            border: 'none',
-            textAlign: 'left',
-            padding: '6px 10px',
-            borderRadius: 4,
-            fontSize: 12,
-            color: item.danger
-              ? 'var(--etui-color-accent-error, #ff5e54)'
-              : 'var(--etui-color-text-primary)',
-            cursor: 'pointer',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background =
-              'var(--etui-color-background-tertiary, rgba(255,255,255,0.06))';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = 'transparent';
+            width: 16,
+            display: 'inline-flex',
+            justifyContent: 'center',
           }}
         >
-          {item.label}
-        </button>
+          {icon}
+        </span>
+      ) : null}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+interface ActionsMenuProps {
+  point: Point2D;
+  target: Extract<NodeGraphTarget, { kind: 'node' | 'edge' }>;
+  onDeleteNode: (id: string) => void;
+  onDuplicateNode: (id: string) => void;
+  onDeleteEdge: (id: string) => void;
+  onClose: () => void;
+}
+
+function ActionsMenu({
+  point,
+  target,
+  onDeleteNode,
+  onDuplicateNode,
+  onDeleteEdge,
+  onClose,
+}: ActionsMenuProps): React.ReactElement {
+  const items =
+    target.kind === 'node'
+      ? [
+          {
+            label: 'Duplicate node',
+            icon: '⎘',
+            onClick: () => onDuplicateNode(target.id),
+          },
+          {
+            label: 'Delete node',
+            icon: '✕',
+            danger: true,
+            onClick: () => onDeleteNode(target.id),
+          },
+        ]
+      : [
+          {
+            label: 'Delete edge',
+            icon: '✕',
+            danger: true,
+            onClick: () => onDeleteEdge(target.id),
+          },
+        ];
+  return (
+    <MenuShell point={point} onClose={onClose} width={180}>
+      {items.map(item => (
+        <MenuButton
+          key={item.label}
+          label={item.label}
+          icon={item.icon}
+          danger={item.danger}
+          onClick={() => {
+            item.onClick();
+            onClose();
+          }}
+        />
       ))}
-    </div>
+    </MenuShell>
+  );
+}
+
+interface SpawnMenuProps {
+  point: Point2D;
+  worldPoint: Point2D;
+  templates: ReadonlyArray<NodeTemplate>;
+  onSpawn: (template: NodeTemplate, worldPoint: Point2D) => void;
+  onDeleteGroup?: (id: string) => void;
+  groupId?: string;
+  onClose: () => void;
+}
+
+/**
+ * UE5-style spawn menu: search input + scrollable grouped list. Filters
+ * templates by title / keyword / category. Click an item to spawn it at
+ * the original right-click world point.
+ */
+function SpawnMenu({
+  point,
+  worldPoint,
+  templates,
+  onSpawn,
+  onDeleteGroup,
+  groupId,
+  onClose,
+}: SpawnMenuProps): React.ReactElement {
+  const [query, setQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Autofocus the search field on mount so the user can type immediately.
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (q === '') return templates;
+    return templates.filter(t => {
+      if (t.title.toLowerCase().includes(q)) return true;
+      if (t.subtitle?.toLowerCase().includes(q)) return true;
+      if (t.category.toLowerCase().includes(q)) return true;
+      if (t.keywords?.toLowerCase().includes(q)) return true;
+      return false;
+    });
+  }, [templates, query]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<Category, NodeTemplate[]>();
+    for (const t of filtered) {
+      const arr = map.get(t.category) ?? [];
+      arr.push(t);
+      map.set(t.category, arr);
+    }
+    return Array.from(map.entries());
+  }, [filtered]);
+
+  return (
+    <MenuShell point={point} onClose={onClose} width={260}>
+      <div style={{ padding: 4 }}>
+        <Input
+          ref={inputRef}
+          size="sm"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Add node…"
+          aria-label="Search nodes"
+          onKeyDown={e => {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              onClose();
+              return;
+            }
+            if (e.key === 'Enter' && filtered.length > 0) {
+              e.preventDefault();
+              const first = filtered[0];
+              if (first) {
+                onSpawn(first, worldPoint);
+                onClose();
+              }
+            }
+          }}
+        />
+      </div>
+      <div
+        style={{
+          maxHeight: 280,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {grouped.length === 0 ? (
+          <div
+            style={{
+              padding: '12px 10px',
+              fontSize: 11,
+              color: 'var(--etui-color-text-muted, #8a8d97)',
+              textAlign: 'center',
+            }}
+          >
+            No matching nodes
+          </div>
+        ) : (
+          grouped.map(([category, items]) => (
+            <div key={category}>
+              <div
+                style={{
+                  padding: '4px 10px 2px',
+                  fontSize: 9.5,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.6,
+                  color: CATEGORY_THEME[category].accent,
+                  opacity: 0.85,
+                  fontWeight: 600,
+                }}
+              >
+                {category}
+              </div>
+              {items.map(t => (
+                <MenuButton
+                  key={t.id}
+                  label={t.title}
+                  icon={
+                    <span style={{ color: CATEGORY_THEME[t.category].accent }}>
+                      {CATEGORY_THEME[t.category].icon}
+                    </span>
+                  }
+                  onClick={() => {
+                    onSpawn(t, worldPoint);
+                    onClose();
+                  }}
+                />
+              ))}
+            </div>
+          ))
+        )}
+      </div>
+      {groupId !== undefined && onDeleteGroup !== undefined ? (
+        <div
+          style={{
+            borderTop: '1px solid var(--etui-color-border-default, #2a2d36)',
+            marginTop: 4,
+            paddingTop: 4,
+          }}
+        >
+          <MenuButton
+            label="Delete group"
+            icon="✕"
+            danger
+            onClick={() => {
+              onDeleteGroup(groupId);
+              onClose();
+            }}
+          />
+        </div>
+      ) : null}
+    </MenuShell>
   );
 }
 
@@ -918,7 +1130,23 @@ export default function NodeGraphDemo(): React.ReactElement {
     edges: [],
     groups: [],
   });
-  const [menu, setMenu] = useState<ContextMenuState | null>(null);
+  // Two flavours of context menu — actions for node/edge hits, spawn for
+  // empty / group hits. Held in one state slot keyed by `kind` so opening
+  // a new one closes whichever was open before.
+  type MenuState =
+    | {
+        kind: 'actions';
+        point: Point2D;
+        target: Extract<NodeGraphTarget, { kind: 'node' | 'edge' }>;
+      }
+    | {
+        kind: 'spawn';
+        point: Point2D;
+        worldPoint: Point2D;
+        groupId?: string;
+      };
+  const [menu, setMenu] = useState<MenuState | null>(null);
+  const closeMenu = useCallback(() => setMenu(null), []);
   const ref = useRef<NodeGraphHandle>(null);
   const idSeedRef = useRef(1000);
 
@@ -969,37 +1197,22 @@ export default function NodeGraphDemo(): React.ReactElement {
     []
   );
 
-  const spawnTemplates = useMemo<NodeGraphTemplate[]>(
-    () =>
-      TEMPLATES.map(t => ({
-        id: t.id,
-        title: t.title,
-        ...(t.subtitle !== undefined ? { subtitle: t.subtitle } : {}),
-        group: t.category,
-        keywords: t.keywords ? t.keywords.split(/\s+/) : undefined,
-        icon: CATEGORY_THEME[t.category]?.icon,
-        build: (worldPoint: Point2D) => {
-          const seed = idSeedRef.current++;
-          const draft = instantiateTemplate(
-            t,
-            {
-              x: Math.round(worldPoint.x / 8) * 8,
-              y: Math.round(worldPoint.y / 8) * 8,
-            },
-            seed
-          );
-          const { id: _id, ...rest } = draft;
-          void _id;
-          return rest;
+  const handleSpawn = useCallback(
+    (template: NodeTemplate, worldPoint: Point2D) => {
+      const seed = idSeedRef.current++;
+      const node = instantiateTemplate(
+        template,
+        {
+          x: Math.round(worldPoint.x / 8) * 8,
+          y: Math.round(worldPoint.y / 8) * 8,
         },
-      })),
+        seed
+      );
+      setNodes(prev => [...prev, node]);
+      setSelection({ nodes: [node.id], edges: [], groups: [] });
+    },
     []
   );
-
-  const handleSpawn = useCallback((node: NodeGraphNode) => {
-    setNodes(prev => [...prev, node]);
-    setSelection({ nodes: [node.id], edges: [], groups: [] });
-  }, []);
 
   const addGroupAt = useCallback((worldX: number, worldY: number) => {
     const seed = idSeedRef.current++;
@@ -1014,52 +1227,64 @@ export default function NodeGraphDemo(): React.ReactElement {
   }, []);
 
   // ── Context menu wiring ──
+  //
+  // Right-click routing:
+  //   • node / edge  → actions menu (Duplicate / Delete)
+  //   • empty / group → spawn menu at the world point (UE5-style)
+  //   • port         → fall through to node (rare; library bubbles up)
   const handleContextMenu = useCallback((info: NodeGraphContextMenuInfo) => {
-    // Empty space + group hits open the SpawnPalette automatically — let the
-    // library handle those. We only surface our floating menu for node /
-    // edge / port hits (port falls through to "delete edge" via the node).
-    if (
-      info.target.kind === 'node' ||
-      info.target.kind === 'edge' ||
-      info.target.kind === 'group'
-    ) {
-      setMenu({ point: info.screenPoint, target: info.target });
-    } else {
-      setMenu(null);
+    const { target, screenPoint, worldPoint } = info;
+    if (target.kind === 'node' || target.kind === 'edge') {
+      setMenu({ kind: 'actions', point: screenPoint, target });
+      return;
     }
+    if (target.kind === 'empty') {
+      setMenu({ kind: 'spawn', point: screenPoint, worldPoint });
+      return;
+    }
+    if (target.kind === 'group') {
+      setMenu({
+        kind: 'spawn',
+        point: screenPoint,
+        worldPoint,
+        groupId: target.id,
+      });
+      return;
+    }
+    setMenu(null);
   }, []);
 
-  const menuActions = useMemo<ContextMenuActions>(
-    () => ({
-      onDeleteNode: id => {
-        setNodes(prev => prev.filter(n => n.id !== id));
-        setEdges(prev =>
-          prev.filter(e => e.source.node !== id && e.target.node !== id)
-        );
-        setSelection({ nodes: [], edges: [], groups: [] });
-      },
-      onDuplicateNode: id => {
-        const src = nodes.find(n => n.id === id);
-        if (!src) return;
-        const seed = idSeedRef.current++;
-        const copy: NodeGraphNode = {
-          ...src,
-          id: `${src.id}-copy-${seed}`,
-          position: { x: src.position.x + 32, y: src.position.y + 32 },
-        };
-        setNodes(prev => [...prev, copy]);
-        setSelection({ nodes: [copy.id], edges: [], groups: [] });
-      },
-      onDeleteEdge: id => {
-        setEdges(prev => prev.filter(e => e.id !== id));
-      },
-      onDeleteGroup: id => {
-        setGroups(prev => prev.filter(g => g.id !== id));
-      },
-      onClose: () => setMenu(null),
-    }),
+  const handleDeleteNode = useCallback((id: string) => {
+    setNodes(prev => prev.filter(n => n.id !== id));
+    setEdges(prev =>
+      prev.filter(e => e.source.node !== id && e.target.node !== id)
+    );
+    setSelection({ nodes: [], edges: [], groups: [] });
+  }, []);
+
+  const handleDuplicateNode = useCallback(
+    (id: string) => {
+      const src = nodes.find(n => n.id === id);
+      if (!src) return;
+      const seed = idSeedRef.current++;
+      const copy: NodeGraphNode = {
+        ...src,
+        id: `${src.id}-copy-${seed}`,
+        position: { x: src.position.x + 32, y: src.position.y + 32 },
+      };
+      setNodes(prev => [...prev, copy]);
+      setSelection({ nodes: [copy.id], edges: [], groups: [] });
+    },
     [nodes]
   );
+
+  const handleDeleteEdge = useCallback((id: string) => {
+    setEdges(prev => prev.filter(e => e.id !== id));
+  }, []);
+
+  const handleDeleteGroup = useCallback((id: string) => {
+    setGroups(prev => prev.filter(g => g.id !== id));
+  }, []);
 
   return (
     <DemoWrapper>
@@ -1144,14 +1369,29 @@ export default function NodeGraphDemo(): React.ReactElement {
                 + Group
               </Button>
             </NodeGraph.Toolbar>
-            <NodeGraph.SpawnPalette
-              templates={spawnTemplates}
-              onSpawn={handleSpawn}
-              placeholder="Add node…"
-              recentKey="nodegraph-demo-recent"
-            />
           </NodeGraph>
-          {menu ? <NodeContextMenu state={menu} actions={menuActions} /> : null}
+          {menu?.kind === 'actions' ? (
+            <ActionsMenu
+              point={menu.point}
+              target={menu.target}
+              onDeleteNode={handleDeleteNode}
+              onDuplicateNode={handleDuplicateNode}
+              onDeleteEdge={handleDeleteEdge}
+              onClose={closeMenu}
+            />
+          ) : null}
+          {menu?.kind === 'spawn' ? (
+            <SpawnMenu
+              point={menu.point}
+              worldPoint={menu.worldPoint}
+              templates={TEMPLATES}
+              onSpawn={handleSpawn}
+              {...(menu.groupId !== undefined
+                ? { groupId: menu.groupId, onDeleteGroup: handleDeleteGroup }
+                : {})}
+              onClose={closeMenu}
+            />
+          ) : null}
         </div>
         <div
           style={{
