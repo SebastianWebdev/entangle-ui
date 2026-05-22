@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import DemoWrapper from '../DemoWrapper';
 import {
   NodeGraph,
   type NodeGraphConnectionValidationInfo,
-  type NodeGraphContextMenuInfo,
   type NodeGraphEdge,
   type NodeGraphEdgeStyleCtx,
   type NodeGraphGroup,
@@ -12,12 +11,14 @@ import {
   type NodeGraphPortRef,
   type NodeGraphRenderCtx,
   type NodeGraphSelection,
-  type NodeGraphTarget,
   type Point2D,
 } from '@/components/editor/NodeGraph';
 import { Button } from '@/components/primitives/Button';
-import { Input } from '@/components/primitives/Input';
-import { useClickOutside } from '@/hooks';
+import {
+  ContextMenu,
+  type ContextMenuTargetDetails,
+} from '@/components/navigation/ContextMenu';
+import type { MenuConfig, MenuGroup } from '@/components/navigation/Menu';
 
 // ─── Type palette (UE5 Blueprint) ──────────────────────────────────────────
 
@@ -783,339 +784,51 @@ function BlueprintNodeBody({
 
 // ─── Context menu ──────────────────────────────────────────────────────────
 //
-// Right-clicking a node / edge opens an "actions" menu (Duplicate / Delete).
-// Right-clicking empty space or a group body opens a "spawn" menu — a
-// floating search-and-pick list at the cursor, the way UE5's Blueprint
-// editor works. Both menus are a single floating popup positioned at the
-// screen-space hit point reported by `onContextMenu`.
+// Right-clicking the NodeGraph routes through `<ContextMenu>` from the
+// navigation package. The library handles positioning, focus, keyboard
+// nav (Esc to close, arrows, Enter), and dismissal — the demo just hands
+// over a `config` resolver that builds a `MenuConfig` based on the DOM
+// target of the right click.
+//
+// Resolver routing:
+//   • node    → Duplicate / Delete actions
+//   • group   → Add Node (categorised submenus) + Delete group
+//   • empty   → Add Node submenus
+// Edges aren't hit-testable from the DOM walk (they live on a canvas),
+// so they're handled via Del on selection from the marquee instead.
 
-interface MenuShellProps {
-  point: Point2D;
-  onClose: () => void;
-  children: React.ReactNode;
-  width?: number;
-}
-
-/**
- * Shared floating-popup chrome. Owns positioning, click-outside, and the
- * panel styling. `useClickOutside` listens on `pointerdown` so it fires
- * before the Viewport's own pointerdown handler (which starts marquee /
- * pan gestures). The panel uses `var(--etui-color-bg-elevated)` — the
- * correct token name from `themeContractData` — so it doesn't render
- * invisible when the theme overrides the default fallback.
- */
-function MenuShell({
-  point,
-  onClose,
-  children,
-  width = 200,
-}: MenuShellProps): React.ReactElement {
-  const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, onClose, { event: 'pointerdown' });
-  return (
-    <div
-      ref={ref}
-      role="menu"
-      style={{
-        position: 'absolute',
-        left: point.x,
-        top: point.y,
-        width,
-        background: 'var(--etui-color-bg-elevated, #20222a)',
-        border: '1px solid var(--etui-color-border-default, #2a2d36)',
-        borderRadius: 6,
-        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.55)',
-        padding: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        zIndex: 10,
-        color: 'var(--etui-color-text-primary, #f0f0f5)',
-      }}
-      onContextMenu={e => {
-        // Right-clicking inside our menu shouldn't close it via the
-        // viewport's onContextMenu — stop the bubble so the parent
-        // handler doesn't reset menu state.
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-interface MenuButtonProps {
-  label: string;
-  icon?: React.ReactNode;
-  danger?: boolean;
-  onClick: () => void;
-}
-
-function MenuButton({
-  label,
-  icon,
-  danger,
-  onClick,
-}: MenuButtonProps): React.ReactElement {
-  return (
-    <button
-      role="menuitem"
-      onClick={onClick}
-      style={{
-        appearance: 'none',
-        background: 'transparent',
-        border: 'none',
-        textAlign: 'left',
-        padding: '6px 10px',
-        borderRadius: 4,
-        fontSize: 12,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        color: danger
-          ? 'var(--etui-color-accent-error, #ff5e54)'
-          : 'var(--etui-color-text-primary, #f0f0f5)',
-        cursor: 'pointer',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.background =
-          'var(--etui-color-surface-hover, rgba(255,255,255,0.06))';
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.background = 'transparent';
-      }}
-    >
-      {icon != null ? (
-        <span
-          style={{
-            width: 16,
-            display: 'inline-flex',
-            justifyContent: 'center',
-          }}
-        >
-          {icon}
-        </span>
-      ) : null}
-      <span>{label}</span>
-    </button>
-  );
-}
-
-interface ActionsMenuProps {
-  point: Point2D;
-  target: Extract<NodeGraphTarget, { kind: 'node' | 'edge' }>;
-  onDeleteNode: (id: string) => void;
-  onDuplicateNode: (id: string) => void;
-  onDeleteEdge: (id: string) => void;
-  onClose: () => void;
-}
-
-function ActionsMenu({
-  point,
-  target,
-  onDeleteNode,
-  onDuplicateNode,
-  onDeleteEdge,
-  onClose,
-}: ActionsMenuProps): React.ReactElement {
-  const items =
-    target.kind === 'node'
-      ? [
-          {
-            label: 'Duplicate node',
-            icon: '⎘',
-            onClick: () => onDuplicateNode(target.id),
-          },
-          {
-            label: 'Delete node',
-            icon: '✕',
-            danger: true,
-            onClick: () => onDeleteNode(target.id),
-          },
-        ]
-      : [
-          {
-            label: 'Delete edge',
-            icon: '✕',
-            danger: true,
-            onClick: () => onDeleteEdge(target.id),
-          },
-        ];
-  return (
-    <MenuShell point={point} onClose={onClose} width={180}>
-      {items.map(item => (
-        <MenuButton
-          key={item.label}
-          label={item.label}
-          icon={item.icon}
-          danger={item.danger}
-          onClick={() => {
-            item.onClick();
-            onClose();
-          }}
-        />
-      ))}
-    </MenuShell>
-  );
-}
-
-interface SpawnMenuProps {
-  point: Point2D;
-  worldPoint: Point2D;
-  templates: ReadonlyArray<NodeTemplate>;
-  onSpawn: (template: NodeTemplate, worldPoint: Point2D) => void;
-  onDeleteGroup?: (id: string) => void;
-  groupId?: string;
-  onClose: () => void;
-}
+/** What target a right-click landed on, derived by walking up from event.target. */
+type RightClickTarget =
+  | { kind: 'node'; id: string }
+  | { kind: 'group'; id: string }
+  | { kind: 'empty' };
 
 /**
- * UE5-style spawn menu: search input + scrollable grouped list. Filters
- * templates by title / keyword / category. Click an item to spawn it at
- * the original right-click world point.
+ * Walk up the DOM from the clicked element to find the nearest node or
+ * group data-id. Falls through to 'empty' so empty viewport space opens
+ * the spawn menu.
  */
-function SpawnMenu({
-  point,
-  worldPoint,
-  templates,
-  onSpawn,
-  onDeleteGroup,
-  groupId,
-  onClose,
-}: SpawnMenuProps): React.ReactElement {
-  const [query, setQuery] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Autofocus the search field on mount so the user can type immediately.
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (q === '') return templates;
-    return templates.filter(t => {
-      if (t.title.toLowerCase().includes(q)) return true;
-      if (t.subtitle?.toLowerCase().includes(q)) return true;
-      if (t.category.toLowerCase().includes(q)) return true;
-      if (t.keywords?.toLowerCase().includes(q)) return true;
-      return false;
-    });
-  }, [templates, query]);
-
-  const grouped = useMemo(() => {
-    const map = new Map<Category, NodeTemplate[]>();
-    for (const t of filtered) {
-      const arr = map.get(t.category) ?? [];
-      arr.push(t);
-      map.set(t.category, arr);
+function identifyTarget(start: Element | null): RightClickTarget {
+  let cursor: Element | null = start;
+  while (cursor) {
+    const groupHandle = cursor.getAttribute('data-group-handle');
+    if (groupHandle) {
+      // Resize handles aren't actionable from a context menu — skip past.
+      cursor = cursor.parentElement;
+      continue;
     }
-    return Array.from(map.entries());
-  }, [filtered]);
-
-  return (
-    <MenuShell point={point} onClose={onClose} width={260}>
-      <div style={{ padding: 4 }}>
-        <Input
-          ref={inputRef}
-          size="sm"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Add node…"
-          aria-label="Search nodes"
-          onKeyDown={e => {
-            if (e.key === 'Escape') {
-              e.preventDefault();
-              onClose();
-              return;
-            }
-            if (e.key === 'Enter' && filtered.length > 0) {
-              e.preventDefault();
-              const first = filtered[0];
-              if (first) {
-                onSpawn(first, worldPoint);
-                onClose();
-              }
-            }
-          }}
-        />
-      </div>
-      <div
-        style={{
-          maxHeight: 280,
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {grouped.length === 0 ? (
-          <div
-            style={{
-              padding: '12px 10px',
-              fontSize: 11,
-              color: 'var(--etui-color-text-muted, #8a8d97)',
-              textAlign: 'center',
-            }}
-          >
-            No matching nodes
-          </div>
-        ) : (
-          grouped.map(([category, items]) => (
-            <div key={category}>
-              <div
-                style={{
-                  padding: '4px 10px 2px',
-                  fontSize: 9.5,
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.6,
-                  color: CATEGORY_THEME[category].accent,
-                  opacity: 0.85,
-                  fontWeight: 600,
-                }}
-              >
-                {category}
-              </div>
-              {items.map(t => (
-                <MenuButton
-                  key={t.id}
-                  label={t.title}
-                  icon={
-                    <span style={{ color: CATEGORY_THEME[t.category].accent }}>
-                      {CATEGORY_THEME[t.category].icon}
-                    </span>
-                  }
-                  onClick={() => {
-                    onSpawn(t, worldPoint);
-                    onClose();
-                  }}
-                />
-              ))}
-            </div>
-          ))
-        )}
-      </div>
-      {groupId !== undefined && onDeleteGroup !== undefined ? (
-        <div
-          style={{
-            borderTop: '1px solid var(--etui-color-border-default, #2a2d36)',
-            marginTop: 4,
-            paddingTop: 4,
-          }}
-        >
-          <MenuButton
-            label="Delete group"
-            icon="✕"
-            danger
-            onClick={() => {
-              onDeleteGroup(groupId);
-              onClose();
-            }}
-          />
-        </div>
-      ) : null}
-    </MenuShell>
-  );
+    const nodeId = cursor.getAttribute('data-node-id');
+    const portId = cursor.getAttribute('data-port-id');
+    if (nodeId && !portId) {
+      return { kind: 'node', id: nodeId };
+    }
+    const groupId = cursor.getAttribute('data-group-id');
+    if (groupId) {
+      return { kind: 'group', id: groupId };
+    }
+    cursor = cursor.parentElement;
+  }
+  return { kind: 'empty' };
 }
 
 // ─── Demo ──────────────────────────────────────────────────────────────────
@@ -1130,23 +843,6 @@ export default function NodeGraphDemo(): React.ReactElement {
     edges: [],
     groups: [],
   });
-  // Two flavours of context menu — actions for node/edge hits, spawn for
-  // empty / group hits. Held in one state slot keyed by `kind` so opening
-  // a new one closes whichever was open before.
-  type MenuState =
-    | {
-        kind: 'actions';
-        point: Point2D;
-        target: Extract<NodeGraphTarget, { kind: 'node' | 'edge' }>;
-      }
-    | {
-        kind: 'spawn';
-        point: Point2D;
-        worldPoint: Point2D;
-        groupId?: string;
-      };
-  const [menu, setMenu] = useState<MenuState | null>(null);
-  const closeMenu = useCallback(() => setMenu(null), []);
   const ref = useRef<NodeGraphHandle>(null);
   const idSeedRef = useRef(1000);
 
@@ -1226,34 +922,7 @@ export default function NodeGraphDemo(): React.ReactElement {
     setSelection({ nodes: [], edges: [], groups: [next.id] });
   }, []);
 
-  // ── Context menu wiring ──
-  //
-  // Right-click routing:
-  //   • node / edge  → actions menu (Duplicate / Delete)
-  //   • empty / group → spawn menu at the world point (UE5-style)
-  //   • port         → fall through to node (rare; library bubbles up)
-  const handleContextMenu = useCallback((info: NodeGraphContextMenuInfo) => {
-    const { target, screenPoint, worldPoint } = info;
-    if (target.kind === 'node' || target.kind === 'edge') {
-      setMenu({ kind: 'actions', point: screenPoint, target });
-      return;
-    }
-    if (target.kind === 'empty') {
-      setMenu({ kind: 'spawn', point: screenPoint, worldPoint });
-      return;
-    }
-    if (target.kind === 'group') {
-      setMenu({
-        kind: 'spawn',
-        point: screenPoint,
-        worldPoint,
-        groupId: target.id,
-      });
-      return;
-    }
-    setMenu(null);
-  }, []);
-
+  // ── Context menu actions ──
   const handleDeleteNode = useCallback((id: string) => {
     setNodes(prev => prev.filter(n => n.id !== id));
     setEdges(prev =>
@@ -1278,13 +947,130 @@ export default function NodeGraphDemo(): React.ReactElement {
     [nodes]
   );
 
-  const handleDeleteEdge = useCallback((id: string) => {
-    setEdges(prev => prev.filter(e => e.id !== id));
-  }, []);
-
   const handleDeleteGroup = useCallback((id: string) => {
     setGroups(prev => prev.filter(g => g.id !== id));
   }, []);
+
+  /**
+   * Build the spawn submenu — one entry per category, each opening into a
+   * submenu of templates in that category. Same shape regardless of
+   * whether we're in empty or group context; `onClick` closes over the
+   * world point captured when the menu opened.
+   */
+  const buildSpawnGroup = useCallback(
+    (worldPoint: Point2D): MenuGroup => {
+      const categories = Array.from(
+        new Set(TEMPLATES.map(t => t.category))
+      ) as Category[];
+      return {
+        id: 'spawn',
+        label: 'Add Node',
+        itemSelectionType: 'none',
+        closeOnItemClick: true,
+        items: categories.map(category => {
+          const templates = TEMPLATES.filter(t => t.category === category);
+          const theme = CATEGORY_THEME[category];
+          return {
+            id: category,
+            label: category.charAt(0).toUpperCase() + category.slice(1),
+            icon: <span style={{ color: theme.accent }}>{theme.icon}</span>,
+            submenuTrigger: 'hover' as const,
+            onClick: () => {
+              // No-op: opening the submenu is the click action. Required
+              // by MenuItem shape — leaves are the ones that spawn.
+            },
+            subMenu: {
+              groups: [
+                {
+                  id: `${category}-templates`,
+                  itemSelectionType: 'none' as const,
+                  closeOnItemClick: true,
+                  items: templates.map(t => ({
+                    id: t.id,
+                    label: t.title,
+                    onClick: () => handleSpawn(t, worldPoint),
+                  })),
+                },
+              ],
+            },
+          };
+        }),
+      };
+    },
+    [handleSpawn]
+  );
+
+  /**
+   * Resolver passed to `<ContextMenu config={...}>`. Called by the
+   * library on every right-click with the captured DOM event. Walks
+   * the DOM to identify the target and returns a config sized for it.
+   */
+  const buildMenuConfig = useCallback(
+    (context: ContextMenuTargetDetails): MenuConfig => {
+      const event = context.event;
+      if (!event) return { groups: [] };
+      const handle = ref.current;
+      if (!handle) return { groups: [] };
+      const root = (context.target ?? null)?.closest(
+        '[data-testid="nodegraph"]'
+      ) as HTMLElement | null;
+      if (!root) return { groups: [] };
+      const rect = root.getBoundingClientRect();
+      const worldPoint = handle.screenToWorld({
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      });
+      const target = identifyTarget(context.target);
+
+      if (target.kind === 'node') {
+        return {
+          groups: [
+            {
+              id: 'node-actions',
+              itemSelectionType: 'none',
+              closeOnItemClick: true,
+              items: [
+                {
+                  id: 'duplicate',
+                  label: 'Duplicate node',
+                  onClick: () => handleDuplicateNode(target.id),
+                },
+                {
+                  id: 'delete',
+                  label: 'Delete node',
+                  onClick: () => handleDeleteNode(target.id),
+                },
+              ],
+            },
+          ],
+        };
+      }
+
+      if (target.kind === 'group') {
+        return {
+          groups: [
+            buildSpawnGroup(worldPoint),
+            {
+              id: 'group-actions',
+              itemSelectionType: 'none',
+              closeOnItemClick: true,
+              items: [
+                {
+                  id: 'delete-group',
+                  label: 'Delete group',
+                  onClick: () => handleDeleteGroup(target.id),
+                },
+              ],
+            },
+          ],
+        };
+      }
+
+      // Empty space — just the spawn submenu.
+      return { groups: [buildSpawnGroup(worldPoint)] };
+    },
+    [handleDuplicateNode, handleDeleteNode, handleDeleteGroup, buildSpawnGroup]
+  );
 
   return (
     <DemoWrapper>
@@ -1318,80 +1104,66 @@ export default function NodeGraphDemo(): React.ReactElement {
           </span>
         </div>
         <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
-          <NodeGraph
-            ref={ref}
-            nodes={nodes}
-            edges={edges}
-            groups={groups}
-            selection={selection}
-            onNodesChange={setNodes}
-            onEdgesChange={setEdges}
-            edgeStyle={edgeStyle}
-            onGroupsChange={setGroups}
-            onSelectionChange={setSelection}
-            onContextMenu={handleContextMenu}
-            renderNode={renderNode}
-            isValidConnection={isValidConnection}
-            snapToGrid={8}
-            minZoom={0.2}
-            maxZoom={2.5}
-            responsive
-            ariaLabel="Blueprint-style node graph"
-          >
-            <NodeGraph.Background variant="dots" gap={20} />
-            <NodeGraph.Minimap
-              placement="bottom-right"
-              width={220}
-              title="Graph Overview"
-            />
-            <NodeGraph.Toolbar placement="top-left">
-              <NodeGraph.FitContentButton padding={48} />
-              <NodeGraph.FitSelectionButton padding={96} />
-              <NodeGraph.ToolbarSeparator />
-              <NodeGraph.ZoomOutButton />
-              <NodeGraph.ResetZoomButton />
-              <NodeGraph.ZoomInButton />
-              <NodeGraph.ToolbarSeparator />
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  const t = ref.current?.getTransform();
-                  const size = ref.current?.getSize();
-                  if (!t || !size) return;
-                  const world = ref.current!.screenToWorld({
-                    x: size.width / 2,
-                    y: size.height / 2,
-                  });
-                  addGroupAt(world.x, world.y);
-                }}
-              >
-                + Group
-              </Button>
-            </NodeGraph.Toolbar>
-          </NodeGraph>
-          {menu?.kind === 'actions' ? (
-            <ActionsMenu
-              point={menu.point}
-              target={menu.target}
-              onDeleteNode={handleDeleteNode}
-              onDuplicateNode={handleDuplicateNode}
-              onDeleteEdge={handleDeleteEdge}
-              onClose={closeMenu}
-            />
-          ) : null}
-          {menu?.kind === 'spawn' ? (
-            <SpawnMenu
-              point={menu.point}
-              worldPoint={menu.worldPoint}
-              templates={TEMPLATES}
-              onSpawn={handleSpawn}
-              {...(menu.groupId !== undefined
-                ? { groupId: menu.groupId, onDeleteGroup: handleDeleteGroup }
-                : {})}
-              onClose={closeMenu}
-            />
-          ) : null}
+          {/*
+            <ContextMenu> wraps the graph as the right-click trigger area.
+            The resolver builds a target-aware MenuConfig (Duplicate /
+            Delete for nodes; Add Node submenu for empty / group; both
+            for group). Library handles positioning, keyboard nav, focus
+            trapping, dismissal.
+          */}
+          <ContextMenu config={buildMenuConfig}>
+            <NodeGraph
+              ref={ref}
+              nodes={nodes}
+              edges={edges}
+              groups={groups}
+              selection={selection}
+              onNodesChange={setNodes}
+              onEdgesChange={setEdges}
+              edgeStyle={edgeStyle}
+              onGroupsChange={setGroups}
+              onSelectionChange={setSelection}
+              renderNode={renderNode}
+              isValidConnection={isValidConnection}
+              snapToGrid={8}
+              minZoom={0.2}
+              maxZoom={2.5}
+              responsive
+              ariaLabel="Blueprint-style node graph"
+            >
+              <NodeGraph.Background variant="dots" gap={20} />
+              <NodeGraph.Minimap
+                placement="bottom-right"
+                width={220}
+                title="Graph Overview"
+              />
+              <NodeGraph.Toolbar placement="top-left">
+                <NodeGraph.FitContentButton padding={48} />
+                <NodeGraph.FitSelectionButton padding={96} />
+                <NodeGraph.ToolbarSeparator />
+                <NodeGraph.ZoomOutButton />
+                <NodeGraph.ResetZoomButton />
+                <NodeGraph.ZoomInButton />
+                <NodeGraph.ToolbarSeparator />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    const t = ref.current?.getTransform();
+                    const size = ref.current?.getSize();
+                    if (!t || !size) return;
+                    const world = ref.current!.screenToWorld({
+                      x: size.width / 2,
+                      y: size.height / 2,
+                    });
+                    addGroupAt(world.x, world.y);
+                  }}
+                >
+                  + Group
+                </Button>
+              </NodeGraph.Toolbar>
+            </NodeGraph>
+          </ContextMenu>
         </div>
         <div
           style={{
