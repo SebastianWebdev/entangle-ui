@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useSyncExternalStore } from 'react';
+import React from 'react';
 import { cx } from '@/utils/cx';
 import { portStyle } from './NodeGraph.css';
 import type { NodeGraphPort, NodeGraphPortSide } from './NodeGraph.types';
 import { useNodeGraphStore } from './NodeGraphContext';
+import { useStoreSlice } from './useStoreSlice';
 
 interface NodeGraphPortViewProps {
   nodeId: string;
@@ -25,11 +26,32 @@ function sideTopStyle(
   return { left: `${offset * 100}%` };
 }
 
+interface PortVisualState {
+  isSource: boolean;
+  isCandidate: boolean;
+  isInvalid: boolean;
+}
+
+const EMPTY_PORT_STATE: PortVisualState = {
+  isSource: false,
+  isCandidate: false,
+  isInvalid: false,
+};
+
+function portStateEqual(a: PortVisualState, b: PortVisualState): boolean {
+  return (
+    a.isSource === b.isSource &&
+    a.isCandidate === b.isCandidate &&
+    a.isInvalid === b.isInvalid
+  );
+}
+
 /**
  * Render a port handle on a node edge.
  *
- * Selects two pieces of store state (interaction kind + candidate ref) so
- * the port re-renders only when its own visual state changes.
+ * Subscribes to the interaction slice with a per-port selector so the port
+ * re-renders only when *its* visual state changes — not on every move event
+ * of an in-flight connection drag elsewhere in the graph.
  */
 export function NodeGraphPortView({
   nodeId,
@@ -38,31 +60,37 @@ export function NodeGraphPortView({
   onStartConnection,
 }: NodeGraphPortViewProps): React.ReactElement {
   const store = useNodeGraphStore();
-  const interaction = useSyncExternalStore(
-    store.subscribeInteraction,
-    store.getInteraction
-  );
 
-  const isSource =
-    interaction.kind === 'connect' &&
-    interaction.source.node === nodeId &&
-    interaction.source.port === port.id;
-  const isCandidate =
-    interaction.kind === 'connect' &&
-    interaction.candidate !== null &&
-    interaction.candidate.node === nodeId &&
-    interaction.candidate.port === port.id;
-  const isInvalid =
-    interaction.kind === 'connect' && isCandidate && interaction.invalid;
+  const visual = useStoreSlice(
+    store.subscribeInteraction,
+    store.getInteraction,
+    interaction => {
+      if (interaction.kind !== 'connect') return EMPTY_PORT_STATE;
+      const isSource =
+        interaction.source.node === nodeId &&
+        interaction.source.port === port.id;
+      const isCandidate =
+        interaction.candidate !== null &&
+        interaction.candidate.node === nodeId &&
+        interaction.candidate.port === port.id;
+      if (!isSource && !isCandidate) return EMPTY_PORT_STATE;
+      return {
+        isSource,
+        isCandidate,
+        isInvalid: isCandidate && interaction.invalid,
+      };
+    },
+    portStateEqual
+  );
 
   return (
     <div
       className={cx(
         portStyle({
           side: port.side,
-          connecting: isSource,
-          candidate: isCandidate,
-          invalid: isInvalid,
+          connecting: visual.isSource,
+          candidate: visual.isCandidate,
+          invalid: visual.isInvalid,
         })
       )}
       style={sideTopStyle(port.side, offset)}

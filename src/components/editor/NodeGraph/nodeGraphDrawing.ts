@@ -7,7 +7,6 @@ import type { BezierControlPoints } from './nodeGraphMath';
 import {
   getBezierControlPoints,
   resolveEdgeEndpoints,
-  sideVector,
 } from './nodeGraphMath';
 import type {
   NodeGraphDataState,
@@ -233,7 +232,6 @@ export function drawConnectionPreview(
     ? theme.previewStrokeInvalid
     : theme.previewStroke;
   ctx.fill();
-  void sideVector; // keep export referenced for type safety
 }
 
 function oppositeSide(side: NodeGraphPortSide): NodeGraphPortSide {
