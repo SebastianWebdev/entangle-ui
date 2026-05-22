@@ -191,6 +191,7 @@ const NodeGraphImpl = ({
   onSelectionChange,
   renderNode,
   renderEdgeLabel,
+  edgeStyle,
   isValidConnection,
   snapToGrid = false,
   onConnectStart,
@@ -1239,6 +1240,7 @@ const NodeGraphImpl = ({
     [store]
   );
 
+  const edgeStyleRef = useLatest(edgeStyle);
   const drawEdgesLayer = useCallback(
     (
       ctx: CanvasRenderingContext2D,
@@ -1257,10 +1259,11 @@ const NodeGraphImpl = ({
         hover.hoveredEdgeId,
         interaction,
         store.getPortPosition,
+        edgeStyleRef.current,
         theme
       );
     },
-    [store]
+    [store, edgeStyleRef]
   );
 
   const drawPreviewLayer = useCallback(

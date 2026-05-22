@@ -14,6 +14,7 @@ import type {
   NodeGraphInteractionState,
 } from './NodeGraphStore';
 import type {
+  NodeGraphEdgeStyleFn,
   NodeGraphPortRef,
   NodeGraphPortSide,
   NodeGraphSelection,
@@ -82,6 +83,7 @@ export function drawEdges(
   hoveredEdgeId: string | null,
   interaction: NodeGraphInteractionState,
   getPortPosition: PortPositionLookup,
+  edgeStyle: NodeGraphEdgeStyleFn | undefined,
   theme: NodeGraphDrawTheme
 ): void {
   // Either a node-drag (`drag-nodes`) or a group-drag carrying contained
@@ -129,20 +131,55 @@ export function drawEdges(
     const isSelected = selection.edges.includes(edge.id);
     const isHovered = hoveredEdgeId === edge.id;
 
-    ctx.strokeStyle = isSelected
+    // Resolve consumer override for this edge. Source/target ports
+    // come from the store — `dataType` and `side` are already there,
+    // no parallel index needed on the consumer side.
+    const srcPos = getPortPosition(edge.source.node, edge.source.port);
+    const tgtPos = getPortPosition(edge.target.node, edge.target.port);
+    const customStyle = edgeStyle?.(edge, {
+      selected: isSelected,
+      hovered: isHovered,
+      sourcePort: srcPos
+        ? srcPos.dataType !== undefined
+          ? { side: srcPos.side, dataType: srcPos.dataType }
+          : { side: srcPos.side }
+        : null,
+      targetPort: tgtPos
+        ? tgtPos.dataType !== undefined
+          ? { side: tgtPos.side, dataType: tgtPos.dataType }
+          : { side: tgtPos.side }
+        : null,
+    });
+
+    // State-driven defaults; consumer overrides via `customStyle` take
+    // precedence when they're not undefined. Selected / hovered still
+    // win over a plain `edge.color` so the interaction state stays
+    // visible — but consumer can override even that with `edgeStyle`.
+    const defaultColor = isSelected
       ? theme.edgeStrokeSelected
       : isHovered
         ? theme.edgeStrokeHovered
         : (edge.color ?? theme.edgeStroke);
-    ctx.lineWidth = isSelected
+    const defaultWidth = isSelected
       ? EDGE_STROKE_WIDTH_SELECTED
       : isHovered
         ? EDGE_STROKE_WIDTH_HOVERED
         : EDGE_STROKE_WIDTH;
+
+    ctx.strokeStyle = customStyle?.color ?? defaultColor;
+    ctx.lineWidth = customStyle?.width ?? defaultWidth;
     ctx.lineCap = 'round';
+    if (customStyle?.dash != null && customStyle.dash.length > 0) {
+      ctx.setLineDash(customStyle.dash as number[]);
+    } else {
+      ctx.setLineDash([]);
+    }
 
     strokeBezier(ctx, cpScreen);
   }
+  // Reset shared state mutated above so subsequent layers (groups,
+  // preview) don't inherit a stale dash pattern.
+  ctx.setLineDash([]);
 }
 
 /** Draw group backdrops (under nodes, under edges). */

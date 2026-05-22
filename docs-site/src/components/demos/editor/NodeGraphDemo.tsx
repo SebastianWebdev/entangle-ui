@@ -3,6 +3,7 @@ import DemoWrapper from '../DemoWrapper';
 import {
   NodeGraph,
   type NodeGraphConnectionValidationInfo,
+  type NodeGraphEdgeStyleCtx,
   type NodeGraphContextMenuInfo,
   type NodeGraphEdge,
   type NodeGraphGroup,
@@ -1174,52 +1175,16 @@ export default function NodeGraphDemo(): React.ReactElement {
     [connectedPortSet]
   );
 
-  // Map of pin metadata per "nodeId.portId" — built from node.data so we
-  // can colour each edge by its source pin's data type (UE5 style: exec
-  // wires white, float wires green, bool wires red, …). Built once per
-  // nodes change.
-  const pinIndex = useMemo(() => {
-    const m = new Map<string, BlueprintPin>();
-    for (const n of nodes) {
-      const d = n.data as BlueprintNodeData | undefined;
-      if (!d) continue;
-      for (const p of d.pins) m.set(`${n.id}.${p.id}`, p);
-    }
-    return m;
-  }, [nodes]);
-
-  // Enrich an incoming edges array with type-driven colours. Skips
-  // already-coloured edges so consumer-side overrides win. Stable
-  // reference per `pinIndex` so the `onEdgesChange` wrapper below isn't
-  // recreated unnecessarily.
-  const enrichEdgeColors = useCallback(
-    (incoming: NodeGraphEdge[]): NodeGraphEdge[] => {
-      let changed = false;
-      const next = incoming.map(edge => {
-        if (edge.color) return edge;
-        const sp = pinIndex.get(`${edge.source.node}.${edge.source.port}`);
-        if (!sp) return edge;
-        const colour = TYPE_COLOR[sp.dataType] ?? TYPE_COLOR.any;
-        changed = true;
-        return { ...edge, color: colour };
-      });
-      return changed ? next : incoming;
+  // Edge styling derived from the source pin's data type — the library
+  // resolves source/target port metadata from the store and hands it to
+  // us, so we don't need a parallel pin index just to look up colours.
+  const edgeStyle = useCallback(
+    (_edge: NodeGraphEdge, ctx: NodeGraphEdgeStyleCtx) => {
+      const t = ctx.sourcePort?.dataType ?? 'any';
+      return { color: TYPE_COLOR[t] ?? TYPE_COLOR.any };
     },
-    [pinIndex]
+    []
   );
-
-  const handleEdgesChange = useCallback(
-    (next: NodeGraphEdge[]) => {
-      setEdges(enrichEdgeColors(next));
-    },
-    [enrichEdgeColors]
-  );
-
-  // Initial edges from `makeInitial` arrive uncoloured — back-fill on
-  // first paint so the demo opens with type-coloured wires.
-  useEffect(() => {
-    setEdges(prev => enrichEdgeColors(prev));
-  }, [enrichEdgeColors]);
 
   // Cascade delete (filter nodes/edges/groups + drop orphan edges +
   // clear selection) is handled by the library when `onDelete` is not
@@ -1333,7 +1298,8 @@ export default function NodeGraphDemo(): React.ReactElement {
             groups={groups}
             selection={selection}
             onNodesChange={setNodes}
-            onEdgesChange={handleEdgesChange}
+            onEdgesChange={setEdges}
+            edgeStyle={edgeStyle}
             onGroupsChange={setGroups}
             onSelectionChange={setSelection}
             onContextMenu={handleContextMenu}

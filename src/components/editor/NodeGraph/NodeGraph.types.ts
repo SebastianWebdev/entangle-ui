@@ -163,6 +163,49 @@ export interface NodeGraphRenderCtx {
   zoom: number;
 }
 
+/** Resolved port metadata passed to the `edgeStyle` callback. */
+export interface NodeGraphEdgeStyleCtx {
+  /** True when the edge is in the current selection. */
+  selected: boolean;
+  /** True when the pointer is currently hovering over the edge. */
+  hovered: boolean;
+  /**
+   * The `side` and `dataType` declared on the source `<NodeGraph.Port>`,
+   * resolved from the store. `null` when the port hasn't been measured
+   * yet (e.g. first paint before `useLayoutEffect` has run).
+   */
+  sourcePort: { side: NodeGraphPortSide; dataType?: string } | null;
+  /** Same for the target endpoint. */
+  targetPort: { side: NodeGraphPortSide; dataType?: string } | null;
+}
+
+/**
+ * Style overrides for a single edge, returned by `edgeStyle`. Any field
+ * left undefined falls back to the default (theme + `edge.color`).
+ */
+export interface NodeGraphEdgeStyle {
+  /** Stroke colour. Overrides `edge.color`. */
+  color?: string;
+  /** Stroke width in screen pixels. */
+  width?: number;
+  /**
+   * Marching-ant dash pattern, in screen pixels.
+   * Example: `[8, 6]` draws 8 px dash + 6 px gap repeating.
+   * Pass `null` (or omit) for a solid stroke.
+   */
+  dash?: ReadonlyArray<number> | null;
+}
+
+/**
+ * Per-edge style hook. Called on every frame for every edge — keep it
+ * cheap (map lookup, ternary). The library memoizes nothing here; if
+ * the result is expensive, hoist into a `useMemo` keyed by inputs.
+ */
+export type NodeGraphEdgeStyleFn = (
+  edge: NodeGraphEdge,
+  ctx: NodeGraphEdgeStyleCtx
+) => NodeGraphEdgeStyle | undefined;
+
 // ─── Port slot ───
 
 /**
@@ -302,6 +345,26 @@ export interface NodeGraphBaseProps extends Omit<
    * When omitted, `edge.label` is used as-is (if defined).
    */
   renderEdgeLabel?: (edge: NodeGraphEdge) => React.ReactNode;
+  /**
+   * Per-edge style hook called on every draw frame. The returned shape
+   * is shallow-merged into the default edge style; any field left
+   * undefined falls back to `edge.color` / theme defaults.
+   *
+   * The second argument carries resolved port metadata from the store
+   * so consumers don't need to maintain a parallel index just to colour
+   * wires by their source pin's `dataType`.
+   *
+   * @example
+   * ```tsx
+   * <NodeGraph
+   *   edgeStyle={(edge, ctx) => ({
+   *     color: TYPE_COLOR[ctx.sourcePort?.dataType ?? 'any'],
+   *     width: ctx.selected ? 3 : 1.5,
+   *   })}
+   * />
+   * ```
+   */
+  edgeStyle?: NodeGraphEdgeStyleFn;
 
   // ── Interaction ──
   /**
