@@ -69,6 +69,15 @@ export interface NodeGraphEdge {
    * default centred placement.
    */
   label?: React.ReactNode;
+  /**
+   * Override the stroke colour of this edge in its default state.
+   * Selected / hovered edges still pick up the theme accents (so the
+   * interaction state stays visible), this colour is used only when
+   * neither state is active. Useful for type-coloured wires — assign
+   * the colour at edge-creation time based on the source pin's data
+   * type, the way UE5 paints exec / float / bool wires differently.
+   */
+  color?: string;
 }
 
 /**

@@ -133,7 +133,7 @@ export function drawEdges(
       ? theme.edgeStrokeSelected
       : isHovered
         ? theme.edgeStrokeHovered
-        : theme.edgeStroke;
+        : (edge.color ?? theme.edgeStroke);
     ctx.lineWidth = isSelected
       ? EDGE_STROKE_WIDTH_SELECTED
       : isHovered
