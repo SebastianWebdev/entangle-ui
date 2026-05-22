@@ -357,7 +357,6 @@ export const groupColorSwatchStyle = style({
   },
 });
 
-
 /**
  * Slot wrapper used by `<NodeGraph.Minimap>` — pinned absolutely inside the
  * underlying `<Viewport>` overlay layer.
