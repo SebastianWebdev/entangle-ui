@@ -1,19 +1,23 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import DemoWrapper from '../DemoWrapper';
 import {
   NodeGraph,
   type NodeGraphConnectionValidationInfo,
-  type NodeGraphEdgeStyleCtx,
   type NodeGraphContextMenuInfo,
   type NodeGraphEdge,
+  type NodeGraphEdgeStyleCtx,
   type NodeGraphGroup,
   type NodeGraphHandle,
   type NodeGraphNode,
   type NodeGraphPortRef,
   type NodeGraphRenderCtx,
   type NodeGraphSelection,
+  type NodeGraphTarget,
+  type NodeGraphTemplate,
+  type Point2D,
 } from '@/components/editor/NodeGraph';
 import { Button } from '@/components/primitives/Button';
+import { useClickOutside } from '@/hooks';
 
 // ─── Type palette (UE5 Blueprint) ──────────────────────────────────────────
 
@@ -437,11 +441,6 @@ const TEMPLATES: NodeTemplate[] = [
 ];
 
 // ─── Node instantiation ────────────────────────────────────────────────────
-//
-// With the slot-based port API the consumer just builds a `NodeGraphNode`
-// with its data payload — width/height auto-measure from the rendered DOM,
-// and port positions are tracked from `<NodeGraph.Port>` slots inside the
-// node body. No more pin/port duality.
 
 function instantiateTemplate(
   template: NodeTemplate,
@@ -601,7 +600,7 @@ function makeInitial(): {
   return { nodes, edges, groups };
 }
 
-// ─── UE-style pin visual (used as children of <NodeGraph.Port>) ────────────
+// ─── UE-style pin visual (rendered as children of <NodeGraph.Port>) ────────
 
 interface PinVisualProps {
   dataType: DataType;
@@ -610,14 +609,13 @@ interface PinVisualProps {
 }
 
 /**
- * The visual rendered inside each `<NodeGraph.Port>` slot. Coloured ring
- * for data pins, exec-arrow triangle for exec pins. The library wraps this
- * in a 12 × 12-ish handle and tracks pointer events / position — so the
- * visual is the same DOM element the user clicks and the edge anchors to.
+ * Coloured ring for data pins, exec-arrow triangle for exec pins. The
+ * library wraps this in a measured slot wrapper — pointer events and
+ * edge anchoring are handled by `<NodeGraph.Port>`; this is purely the
+ * visual.
  */
 function PinVisual({
   dataType,
-  side,
   connected,
 }: PinVisualProps): React.ReactElement {
   const color = TYPE_COLOR[dataType] ?? TYPE_COLOR.any;
@@ -625,7 +623,6 @@ function PinVisual({
   const size = isExec ? 14 : 12;
 
   if (isExec) {
-    const points = side === 'left' ? '2,2 12,7 2,12' : '2,2 12,7 2,12';
     return (
       <svg
         width={size}
@@ -635,7 +632,7 @@ function PinVisual({
         aria-hidden="true"
       >
         <polygon
-          points={points}
+          points="2,2 12,7 2,12"
           fill={connected ? color : 'transparent'}
           stroke={color}
           strokeWidth={1.5}
@@ -661,22 +658,15 @@ function PinVisual({
   );
 }
 
-// ─── Node body ─────────────────────────────────────────────────────────────
+// ─── Pin row ──────────────────────────────────────────────────────────────
+//
+// `<NodeGraph.PinRow>` owns the row layout (side-aware justification, gap,
+// height). The consumer only declares the contents — the `<NodeGraph.Port>`
+// slot (with `PinVisual` as the swappable chrome) and the label. Order is
+// "port → label" on the left, "label → port" on the right so the port
+// always sits flush against the node edge.
 
-const HEADER_HEIGHT = 28;
-const PIN_ROW_HEIGHT = 22;
-const BODY_VERT_PADDING = 8;
-
-/**
- * Pin row — label + port slot. The `<NodeGraph.Port>` slot is the actual
- * connection endpoint. Library measures its position, registers it as the
- * anchor for any edge that references this pin, and wires pointer events.
- *
- * Left pins put the port at the start of the row (against the node's left
- * edge); right pins put it at the end. The slot sits inline-flex inside
- * the row — its center is the precise point where edges connect.
- */
-function PinRow({
+function BlueprintPin({
   pin,
   connected,
 }: {
@@ -714,19 +704,7 @@ function PinRow({
     </span>
   );
   return (
-    <div
-      style={{
-        height: PIN_ROW_HEIGHT,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        justifyContent: pin.side === 'left' ? 'flex-start' : 'flex-end',
-        // Pins sit inside the node body with their own breathing room
-        // (UE5-style "well"). The library doesn't impose any positioning
-        // — `<NodeGraph.Port>` is just an inline element measured wherever
-        // the consumer drops it, and edges anchor at its center.
-      }}
-    >
+    <NodeGraph.PinRow side={pin.side}>
       {pin.side === 'left' ? (
         <>
           {port}
@@ -738,9 +716,17 @@ function PinRow({
           {port}
         </>
       )}
-    </div>
+    </NodeGraph.PinRow>
   );
 }
+
+// ─── Node body ─────────────────────────────────────────────────────────────
+//
+// Built from library parts:
+//   • <NodeGraph.NodeBody>   — themed panel + auto selected/hovered visuals
+//   • <NodeGraph.NodeHeader> — gradient strip with icon/title/subtitle
+//   • <NodeGraph.PinList>    — two-column grid that routes PinRows by side
+// The optional `body` literal sits as a "loose" child after the rows.
 
 function BlueprintNodeBody({
   node,
@@ -751,139 +737,171 @@ function BlueprintNodeBody({
   ctx: NodeGraphRenderCtx;
   connectedSet: Set<string>;
 }): React.ReactElement {
+  void ctx; // selected/hovered visuals come from <NodeGraph.NodeBody> directly
   const blueprint = node.data as BlueprintNodeData;
   const theme = CATEGORY_THEME[blueprint.category];
-  const left = blueprint.pins.filter(p => p.side === 'left');
-  const right = blueprint.pins.filter(p => p.side === 'right');
-  const rows = Math.max(left.length, right.length);
+
+  return (
+    <NodeGraph.NodeBody accent={theme.accent} style={{ width: 220 }}>
+      <NodeGraph.NodeHeader
+        background={theme.gradient}
+        icon={
+          <span style={{ color: theme.accent, fontWeight: 700 }}>
+            {theme.icon}
+          </span>
+        }
+        title={blueprint.title}
+        subtitle={blueprint.subtitle}
+      />
+      <NodeGraph.PinList columnGap={16}>
+        {blueprint.pins.map(pin => (
+          <BlueprintPin
+            key={pin.id}
+            pin={pin}
+            connected={connectedSet.has(`${node.id}.${pin.id}`)}
+          />
+        ))}
+        {blueprint.body ? (
+          <div
+            style={{
+              fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+              fontSize: 11,
+              color: 'rgba(220, 220, 235, 0.85)',
+              background: 'rgba(0, 0, 0, 0.25)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+              padding: '4px 12px',
+              marginTop: 4,
+            }}
+          >
+            {blueprint.body}
+          </div>
+        ) : null}
+      </NodeGraph.PinList>
+    </NodeGraph.NodeBody>
+  );
+}
+
+// ─── Context menu ──────────────────────────────────────────────────────────
+//
+// Right-clicking a node, edge, or port opens a small floating menu at the
+// cursor with target-aware actions. Empty space and group bodies fall
+// through to `<NodeGraph.SpawnPalette>`, which subscribes to spawn-request
+// pings the library fires automatically on those targets.
+
+interface ContextMenuState {
+  /** Position relative to the NodeGraph wrapper. */
+  point: Point2D;
+  target: NodeGraphTarget;
+}
+
+interface ContextMenuActions {
+  onDeleteNode: (id: string) => void;
+  onDuplicateNode: (id: string) => void;
+  onDeleteEdge: (id: string) => void;
+  onDeleteGroup: (id: string) => void;
+  onClose: () => void;
+}
+
+function NodeContextMenu({
+  state,
+  actions,
+}: {
+  state: ContextMenuState;
+  actions: ContextMenuActions;
+}): React.ReactElement | null {
+  const ref = useRef<HTMLDivElement>(null);
+  useClickOutside(ref, actions.onClose);
+
+  const { target } = state;
+  const items = (() => {
+    if (target.kind === 'node') {
+      return [
+        {
+          label: 'Duplicate node',
+          onClick: () => actions.onDuplicateNode(target.id),
+        },
+        {
+          label: 'Delete node',
+          onClick: () => actions.onDeleteNode(target.id),
+          danger: true,
+        },
+      ];
+    }
+    if (target.kind === 'edge') {
+      return [
+        {
+          label: 'Delete edge',
+          onClick: () => actions.onDeleteEdge(target.id),
+          danger: true,
+        },
+      ];
+    }
+    if (target.kind === 'group') {
+      return [
+        {
+          label: 'Delete group',
+          onClick: () => actions.onDeleteGroup(target.id),
+          danger: true,
+        },
+      ];
+    }
+    return [];
+  })();
+
+  if (items.length === 0) return null;
 
   return (
     <div
+      ref={ref}
+      role="menu"
       style={{
-        width: 220,
-        background:
-          'linear-gradient(180deg, rgba(28, 30, 38, 0.85) 0%, rgba(18, 20, 26, 0.92) 100%)',
-        backdropFilter: 'blur(4px)',
-        WebkitBackdropFilter: 'blur(4px)',
-        borderRadius: 8,
-        border: ctx.selected
-          ? `2px solid ${theme.accent}`
-          : '1px solid rgba(255, 255, 255, 0.08)',
-        boxShadow: ctx.selected
-          ? `0 0 0 1px ${theme.accent}, 0 12px 32px rgba(0, 0, 0, 0.5)`
-          : '0 6px 16px rgba(0, 0, 0, 0.35)',
+        position: 'absolute',
+        left: state.point.x,
+        top: state.point.y,
+        minWidth: 160,
+        background: 'var(--etui-color-background-elevated)',
+        border: '1px solid var(--etui-color-border-default)',
+        borderRadius: 6,
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+        padding: 4,
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden',
-        color: 'rgba(240, 240, 245, 0.95)',
-        fontFamily: '"Segoe UI", system-ui, -apple-system, sans-serif',
-        fontSize: 12,
-        transition: 'border-color 120ms, box-shadow 120ms',
+        gap: 2,
+        zIndex: 10,
       }}
     >
-      {/* Header */}
-      <div
-        style={{
-          height: HEADER_HEIGHT,
-          background: theme.gradient,
-          padding: '0 10px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          borderBottom: '1px solid rgba(0, 0, 0, 0.4)',
-          flexShrink: 0,
-        }}
-      >
-        <span
+      {items.map(item => (
+        <button
+          key={item.label}
+          role="menuitem"
+          onClick={() => {
+            item.onClick();
+            actions.onClose();
+          }}
           style={{
-            width: 18,
-            height: 18,
-            borderRadius: 3,
-            background: 'rgba(0, 0, 0, 0.4)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            appearance: 'none',
+            background: 'transparent',
+            border: 'none',
+            textAlign: 'left',
+            padding: '6px 10px',
+            borderRadius: 4,
             fontSize: 12,
-            fontWeight: 700,
-            color: theme.accent,
-            flexShrink: 0,
+            color: item.danger
+              ? 'var(--etui-color-accent-error, #ff5e54)'
+              : 'var(--etui-color-text-primary)',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background =
+              'var(--etui-color-background-tertiary, rgba(255,255,255,0.06))';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'transparent';
           }}
         >
-          {theme.icon}
-        </span>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              lineHeight: 1.1,
-              textShadow: '0 1px 0 rgba(0,0,0,0.6)',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {blueprint.title}
-          </div>
-          {blueprint.subtitle ? (
-            <div
-              style={{
-                fontSize: 9.5,
-                opacity: 0.7,
-                lineHeight: 1.1,
-                marginTop: 1,
-              }}
-            >
-              {blueprint.subtitle}
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      {/* Pin rows — left + right column, one row per pin */}
-      <div
-        style={{
-          padding: `${BODY_VERT_PADDING}px 8px`,
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          columnGap: 16,
-          minHeight: rows * PIN_ROW_HEIGHT,
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {left.map(pin => (
-            <PinRow
-              key={pin.id}
-              pin={pin}
-              connected={connectedSet.has(`${node.id}.${pin.id}`)}
-            />
-          ))}
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {right.map(pin => (
-            <PinRow
-              key={pin.id}
-              pin={pin}
-              connected={connectedSet.has(`${node.id}.${pin.id}`)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {blueprint.body ? (
-        <div
-          style={{
-            padding: '4px 12px 8px',
-            fontFamily: '"JetBrains Mono", ui-monospace, monospace',
-            fontSize: 11,
-            color: 'rgba(220, 220, 235, 0.85)',
-            background: 'rgba(0, 0, 0, 0.25)',
-            borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-          }}
-        >
-          {blueprint.body}
-        </div>
-      ) : null}
+          {item.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -900,11 +918,10 @@ export default function NodeGraphDemo(): React.ReactElement {
     edges: [],
     groups: [],
   });
+  const [menu, setMenu] = useState<ContextMenuState | null>(null);
   const ref = useRef<NodeGraphHandle>(null);
   const idSeedRef = useRef(1000);
 
-  // Index of which `node.port` keys currently have an edge — drives the
-  // "filled vs hollow" pin visual. Cheap to recompute on edges change.
   const connectedPortSet = useMemo(() => {
     const s = new Set<string>();
     for (const edge of edges) {
@@ -914,9 +931,6 @@ export default function NodeGraphDemo(): React.ReactElement {
     return s;
   }, [edges]);
 
-  // `isValidConnection` now reads source/target dataType directly from the
-  // validation info (registered by `<NodeGraph.Port>` slots) — no
-  // consumer-side port index needed.
   const isValidConnection = useCallback(
     (
       _source: NodeGraphPortRef,
@@ -947,9 +961,6 @@ export default function NodeGraphDemo(): React.ReactElement {
     [connectedPortSet]
   );
 
-  // Edge styling derived from the source pin's data type — the library
-  // resolves source/target port metadata from the store and hands it to
-  // us, so we don't need a parallel pin index just to look up colours.
   const edgeStyle = useCallback(
     (_edge: NodeGraphEdge, ctx: NodeGraphEdgeStyleCtx) => {
       const t = ctx.sourcePort?.dataType ?? 'any';
@@ -958,14 +969,6 @@ export default function NodeGraphDemo(): React.ReactElement {
     []
   );
 
-  // Cascade delete (filter nodes/edges/groups + drop orphan edges +
-  // clear selection) is handled by the library when `onDelete` is not
-  // provided — see `applyCascadeDelete` exported from `entangle-ui`.
-
-  // Adapt our local `NodeTemplate` array into the library's
-  // `NodeGraphTemplate` shape. Each template's `build` callback returns
-  // a node body (without id — library generates one) at the requested
-  // world point.
   const spawnTemplates = useMemo<NodeGraphTemplate[]>(
     () =>
       TEMPLATES.map(t => ({
@@ -976,9 +979,6 @@ export default function NodeGraphDemo(): React.ReactElement {
         keywords: t.keywords ? t.keywords.split(/\s+/) : undefined,
         icon: CATEGORY_THEME[t.category]?.icon,
         build: (worldPoint: Point2D) => {
-          // Library handles id assignment; we still produce the node
-          // body via the existing `instantiateTemplate` helper so the
-          // pin metadata stays consistent with prefab nodes.
           const seed = idSeedRef.current++;
           const draft = instantiateTemplate(
             t,
@@ -988,7 +988,6 @@ export default function NodeGraphDemo(): React.ReactElement {
             },
             seed
           );
-          // Drop the id — library replaces it with a unique one.
           const { id: _id, ...rest } = draft;
           void _id;
           return rest;
@@ -1013,6 +1012,54 @@ export default function NodeGraphDemo(): React.ReactElement {
     setGroups(prev => [...prev, next]);
     setSelection({ nodes: [], edges: [], groups: [next.id] });
   }, []);
+
+  // ── Context menu wiring ──
+  const handleContextMenu = useCallback((info: NodeGraphContextMenuInfo) => {
+    // Empty space + group hits open the SpawnPalette automatically — let the
+    // library handle those. We only surface our floating menu for node /
+    // edge / port hits (port falls through to "delete edge" via the node).
+    if (
+      info.target.kind === 'node' ||
+      info.target.kind === 'edge' ||
+      info.target.kind === 'group'
+    ) {
+      setMenu({ point: info.screenPoint, target: info.target });
+    } else {
+      setMenu(null);
+    }
+  }, []);
+
+  const menuActions = useMemo<ContextMenuActions>(
+    () => ({
+      onDeleteNode: id => {
+        setNodes(prev => prev.filter(n => n.id !== id));
+        setEdges(prev =>
+          prev.filter(e => e.source.node !== id && e.target.node !== id)
+        );
+        setSelection({ nodes: [], edges: [], groups: [] });
+      },
+      onDuplicateNode: id => {
+        const src = nodes.find(n => n.id === id);
+        if (!src) return;
+        const seed = idSeedRef.current++;
+        const copy: NodeGraphNode = {
+          ...src,
+          id: `${src.id}-copy-${seed}`,
+          position: { x: src.position.x + 32, y: src.position.y + 32 },
+        };
+        setNodes(prev => [...prev, copy]);
+        setSelection({ nodes: [copy.id], edges: [], groups: [] });
+      },
+      onDeleteEdge: id => {
+        setEdges(prev => prev.filter(e => e.id !== id));
+      },
+      onDeleteGroup: id => {
+        setGroups(prev => prev.filter(g => g.id !== id));
+      },
+      onClose: () => setMenu(null),
+    }),
+    [nodes]
+  );
 
   return (
     <DemoWrapper>
@@ -1057,6 +1104,7 @@ export default function NodeGraphDemo(): React.ReactElement {
             edgeStyle={edgeStyle}
             onGroupsChange={setGroups}
             onSelectionChange={setSelection}
+            onContextMenu={handleContextMenu}
             renderNode={renderNode}
             isValidConnection={isValidConnection}
             snapToGrid={8}
@@ -1103,6 +1151,7 @@ export default function NodeGraphDemo(): React.ReactElement {
               recentKey="nodegraph-demo-recent"
             />
           </NodeGraph>
+          {menu ? <NodeContextMenu state={menu} actions={menuActions} /> : null}
         </div>
         <div
           style={{
@@ -1115,8 +1164,8 @@ export default function NodeGraphDemo(): React.ReactElement {
           }}
         >
           <span>
-            <kbd>Right-click</kbd> empty space — open search menu, add nodes or
-            groups
+            <kbd>Right-click</kbd> empty / group → search & spawn · node / edge
+            → contextual actions
           </span>
           <span>
             <kbd>Drag</kbd> node — move (connectors follow live)

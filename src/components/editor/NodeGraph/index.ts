@@ -78,6 +78,8 @@ export type {
   NodeGraphTemplate,
 } from './NodeGraph.types';
 
+export type { Point2D } from '@/components/primitives/canvas/canvas.types';
+
 export type {
   NodeGraphDataState,
   NodeGraphInteractionState,
