@@ -888,7 +888,6 @@ function BlueprintNodeBody({
   );
 }
 
-
 // ─── Demo ──────────────────────────────────────────────────────────────────
 
 export default function NodeGraphDemo(): React.ReactElement {
@@ -998,13 +997,10 @@ export default function NodeGraphDemo(): React.ReactElement {
     []
   );
 
-  const handleSpawn = useCallback(
-    (node: NodeGraphNode) => {
-      setNodes(prev => [...prev, node]);
-      setSelection({ nodes: [node.id], edges: [], groups: [] });
-    },
-    []
-  );
+  const handleSpawn = useCallback((node: NodeGraphNode) => {
+    setNodes(prev => [...prev, node]);
+    setSelection({ nodes: [node.id], edges: [], groups: [] });
+  }, []);
 
   const addGroupAt = useCallback((worldX: number, worldY: number) => {
     const seed = idSeedRef.current++;

@@ -1148,10 +1148,7 @@ const NodeGraphImpl = ({
       onContextMenuRef.current?.(info);
       // SpawnPalette subscribers (if mounted) get pinged for empty /
       // group targets: those are the "drop a new node here" spots.
-      if (
-        resolvedTarget.kind === 'empty' ||
-        resolvedTarget.kind === 'group'
-      ) {
+      if (resolvedTarget.kind === 'empty' || resolvedTarget.kind === 'group') {
         store.requestSpawn({ worldPoint, screenPoint });
       }
     },
