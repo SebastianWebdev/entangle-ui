@@ -34,10 +34,17 @@ import NodeGraphDemo from '../../../../components/demos/editor/NodeGraphDemo';
     setSelection({ nodes: [], edges: [], groups: [] });
   }}
   renderNode={(node, ctx) => (
-    <BlueprintNodeBody node={node} ctx={ctx}>
-      {/* Each row mounts a <NodeGraph.Port> next to its label —
-          the library handles position + connection drag. */}
-      <PinRow pin={pin} />
+    <BlueprintNodeBody data={node.data} selected={ctx.selected}>
+      {node.data.pins.map(pin => (
+        <PinRow key={pin.id} side={pin.side}>
+          {/* Slot is the single source of truth — the same DOM element the
+              user clicks is where the edge anchors. */}
+          <NodeGraph.Port id={pin.id} side={pin.side} dataType={pin.type}>
+            <PinVisual type={pin.type} side={pin.side} />
+          </NodeGraph.Port>
+          <span>{pin.label}</span>
+        </PinRow>
+      ))}
     </BlueprintNodeBody>
   )}
   isValidConnection={(source, target, info) => {

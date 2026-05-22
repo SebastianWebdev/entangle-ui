@@ -1,7 +1,14 @@
 'use client';
 
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+} from 'react';
 import { useResizeObserver } from '@/hooks';
+import { useViewportStore } from '@/components/primitives/viewport/ViewportContext';
 import { cx } from '@/utils/cx';
 import { portSlotRecipe } from './NodeGraph.css';
 import type { NodeGraphPortSlotProps } from './NodeGraph.types';
@@ -61,6 +68,7 @@ export function NodeGraphPort({
 }: NodeGraphPortSlotProps): React.ReactElement {
   const { nodeId, onPortPointerDown } = useNodeGraphNodeContext();
   const store = useNodeGraphStore();
+  const viewportStore = useViewportStore();
   const elementRef = useRef<HTMLSpanElement>(null);
 
   // ── Per-port visual state (slice subscription — no re-render storm) ──
@@ -107,23 +115,50 @@ export function NodeGraphPort({
   // ── DOM measurement → store ──
   //
   // Run synchronously before paint so first frame's edges anchor at the
-  // correct point (no flash from origin). ResizeObserver picks up later
-  // layout shifts (consumer body expansion, font load, etc.).
+  // correct point. `useResizeObserver` picks up later size changes on the
+  // port itself, and the per-node layout-version subscription below picks
+  // up layout shifts inside the node body that move the port without
+  // resizing it (e.g. a sibling row expands).
+  //
+  // `closest('[data-node-id]:not([data-port-id])')` skips the slot itself
+  // — the slot wrapper carries `data-node-id` too (so connection-drop
+  // hit-tests can walk up from any descendant), so a plain `[data-node-id]`
+  // would match the port and report position (~6, ~6) for every port.
   const measure = useCallback((): void => {
     const el = elementRef.current;
     if (!el) return;
-    const wrapper = el.closest('[data-node-id]');
+    const wrapper = el.closest('[data-node-id]:not([data-port-id])');
     if (!wrapper) return;
     const portRect = el.getBoundingClientRect();
     const nodeRect = wrapper.getBoundingClientRect();
-    const x = portRect.left + portRect.width / 2 - nodeRect.left;
-    const y = portRect.top + portRect.height / 2 - nodeRect.top;
+    // Convert from screen pixels to node-local world units. `ViewportWorld`
+    // applies `transform: scale(zoom)` to all node wrappers, so the rects
+    // we just read are scaled by `zoom`. Dividing brings us back to the
+    // un-scaled layout pixels, which are 1:1 with world units inside a node.
+    const zoom = viewportStore.getTransform().zoom || 1;
+    const x = (portRect.left + portRect.width / 2 - nodeRect.left) / zoom;
+    const y = (portRect.top + portRect.height / 2 - nodeRect.top) / zoom;
     store.setPortPosition(nodeId, id, { x, y, side, dataType });
-  }, [store, nodeId, id, side, dataType]);
+  }, [store, viewportStore, nodeId, id, side, dataType]);
+
+  // Re-measure triggers (the per-port `ResizeObserver` only fires when
+  // the port's own size changes, which misses layout shifts inside the
+  // node body that move the port without resizing it — e.g. a sibling
+  // row expanding). Subscribing to the per-node measured size makes this
+  // component re-render on every wrapper resize, and the layout effect
+  // below re-runs the measurement.
+  const getMeasuredForNode = useMemo(
+    () => () => store.getMeasuredSize(nodeId),
+    [store, nodeId]
+  );
+  const measuredSize = useSyncExternalStore(
+    store.subscribeMeasuredSizes,
+    getMeasuredForNode
+  );
 
   useLayoutEffect(() => {
     measure();
-  }, [measure]);
+  }, [measure, measuredSize]);
 
   useResizeObserver(elementRef, () => measure());
 
