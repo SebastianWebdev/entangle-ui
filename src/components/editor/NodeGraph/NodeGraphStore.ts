@@ -5,6 +5,7 @@ import type {
   NodeGraphNode,
   NodeGraphGroup,
   NodeGraphPortRef,
+  NodeGraphPortSide,
   NodeGraphSelection,
 } from './NodeGraph.types';
 
@@ -14,6 +15,26 @@ export interface NodeGraphDataState {
   edges: ReadonlyArray<NodeGraphEdge>;
   groups: ReadonlyArray<NodeGraphGroup>;
   defaultNodeSize: { width: number; height: number };
+}
+
+/**
+ * A port's measured position registered by a `<NodeGraph.Port>` slot.
+ * Coordinates are in **node-local pixels** (relative to the node wrapper's
+ * top-left). Because the wrapper is positioned in world space but rendered
+ * in CSS pixels at zoom = 1 (zoom is applied by the parent `<ViewportWorld>`
+ * transform), these pixels are equivalent to node-local world units.
+ */
+export interface NodeGraphPortPosition {
+  x: number;
+  y: number;
+  side: NodeGraphPortSide;
+  dataType?: string;
+}
+
+/** Measured DOM size of a node wrapper, in node-local world units. */
+export interface NodeGraphMeasuredSize {
+  width: number;
+  height: number;
 }
 
 /**
@@ -124,11 +145,20 @@ export class NodeGraphStore {
   private selection: NodeGraphSelection = EMPTY_SELECTION;
   private interaction: NodeGraphInteractionState = IDLE;
   private hover: NodeGraphHoverState = EMPTY_HOVER;
+  // Map<nodeId, Map<portId, NodeGraphPortPosition>>.
+  // Mutated in place by `<NodeGraph.Port>` slots on mount/resize. Listeners
+  // are notified whenever any port's position, side, or dataType changes.
+  private portPositions = new Map<string, Map<string, NodeGraphPortPosition>>();
+  // Map<nodeId, NodeGraphMeasuredSize>. Populated by NodeGraphNodeView's
+  // ResizeObserver — used by getNodeBox when node.width/height are absent.
+  private measuredSizes = new Map<string, NodeGraphMeasuredSize>();
 
   private dataListeners = new Set<() => void>();
   private selectionListeners = new Set<() => void>();
   private interactionListeners = new Set<() => void>();
   private hoverListeners = new Set<() => void>();
+  private portPositionListeners = new Set<() => void>();
+  private measuredSizeListeners = new Set<() => void>();
 
   // ── Public read API ──
 
@@ -136,6 +166,23 @@ export class NodeGraphStore {
   getSelection = (): NodeGraphSelection => this.selection;
   getInteraction = (): NodeGraphInteractionState => this.interaction;
   getHover = (): NodeGraphHoverState => this.hover;
+
+  /**
+   * Read the registered position of a single port. Returns `null` when the
+   * port hasn't yet been measured (e.g. on first paint before
+   * `useLayoutEffect` has run, or after the slot unmounted).
+   */
+  getPortPosition = (
+    nodeId: string,
+    portId: string
+  ): NodeGraphPortPosition | null => {
+    return this.portPositions.get(nodeId)?.get(portId) ?? null;
+  };
+
+  /** Read the measured DOM size of a node wrapper. */
+  getMeasuredSize = (nodeId: string): NodeGraphMeasuredSize | null => {
+    return this.measuredSizes.get(nodeId) ?? null;
+  };
 
   // ── Subscriptions ──
 
@@ -167,6 +214,20 @@ export class NodeGraphStore {
     };
   };
 
+  subscribePortPositions = (cb: () => void): (() => void) => {
+    this.portPositionListeners.add(cb);
+    return () => {
+      this.portPositionListeners.delete(cb);
+    };
+  };
+
+  subscribeMeasuredSizes = (cb: () => void): (() => void) => {
+    this.measuredSizeListeners.add(cb);
+    return () => {
+      this.measuredSizeListeners.delete(cb);
+    };
+  };
+
   // ── Mutators ──
 
   setData(next: NodeGraphDataState): void {
@@ -179,8 +240,27 @@ export class NodeGraphStore {
     ) {
       return;
     }
+    const prevNodeIds = new Set(this.data.nodes.map(n => n.id));
+    const nextNodeIds = new Set(next.nodes.map(n => n.id));
+    // Garbage-collect port positions + measured sizes for nodes that have
+    // been removed from the data. Slot unmount effects normally clear their
+    // own entries, but if the node disappears in a single render tick (drop
+    // from controlled state) the unmount and the data swap can race.
+    let didMutatePortPositions = false;
+    let didMutateMeasuredSizes = false;
+    for (const id of prevNodeIds) {
+      if (nextNodeIds.has(id)) continue;
+      if (this.portPositions.delete(id)) didMutatePortPositions = true;
+      if (this.measuredSizes.delete(id)) didMutateMeasuredSizes = true;
+    }
     this.data = next;
     this.dataListeners.forEach(cb => cb());
+    if (didMutatePortPositions) {
+      this.portPositionListeners.forEach(cb => cb());
+    }
+    if (didMutateMeasuredSizes) {
+      this.measuredSizeListeners.forEach(cb => cb());
+    }
   }
 
   setSelection(next: NodeGraphSelection): void {
@@ -199,6 +279,63 @@ export class NodeGraphStore {
     if (hoverEqual(next, this.hover)) return;
     this.hover = next;
     this.hoverListeners.forEach(cb => cb());
+  }
+
+  /**
+   * Register a port's measured position. Called by `<NodeGraph.Port>` from
+   * a `useLayoutEffect` + `ResizeObserver`. No-ops when the incoming
+   * position is identical to the cached one — protects edge layer from
+   * redraw storms when nodes resize without porting any pin movement.
+   */
+  setPortPosition(
+    nodeId: string,
+    portId: string,
+    next: NodeGraphPortPosition
+  ): void {
+    let perNode = this.portPositions.get(nodeId);
+    if (!perNode) {
+      perNode = new Map();
+      this.portPositions.set(nodeId, perNode);
+    }
+    const prev = perNode.get(portId);
+    if (
+      prev?.x === next.x &&
+      prev.y === next.y &&
+      prev.side === next.side &&
+      prev.dataType === next.dataType
+    ) {
+      return;
+    }
+    perNode.set(portId, next);
+    this.portPositionListeners.forEach(cb => cb());
+  }
+
+  /** Remove a port registration. Called by `<NodeGraph.Port>` cleanup. */
+  removePortPosition(nodeId: string, portId: string): void {
+    const perNode = this.portPositions.get(nodeId);
+    if (!perNode) return;
+    if (!perNode.delete(portId)) return;
+    if (perNode.size === 0) this.portPositions.delete(nodeId);
+    this.portPositionListeners.forEach(cb => cb());
+  }
+
+  /**
+   * Register / refresh the measured DOM size of a node wrapper. No-ops on
+   * identical width+height.
+   */
+  setMeasuredSize(nodeId: string, next: NodeGraphMeasuredSize): void {
+    const prev = this.measuredSizes.get(nodeId);
+    if (prev?.width === next.width && prev.height === next.height) {
+      return;
+    }
+    this.measuredSizes.set(nodeId, next);
+    this.measuredSizeListeners.forEach(cb => cb());
+  }
+
+  /** Clear the measured size of a node (called on unmount). */
+  clearMeasuredSize(nodeId: string): void {
+    if (!this.measuredSizes.delete(nodeId)) return;
+    this.measuredSizeListeners.forEach(cb => cb());
   }
 
   // ── Convenience selection helpers ──

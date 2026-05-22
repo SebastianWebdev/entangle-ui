@@ -3,15 +3,17 @@ import type { WorldRect } from '@/components/primitives/viewport';
 import type {
   NodeGraphEdge,
   NodeGraphNode,
-  NodeGraphPort,
   NodeGraphPortRef,
   NodeGraphPortSide,
 } from './NodeGraph.types';
+import type {
+  NodeGraphMeasuredSize,
+  NodeGraphPortPosition,
+} from './NodeGraphStore';
 
 /**
- * Default node dimensions used when a node omits `width` / `height`. These
- * are deliberately exported so the rendering layer (CSS) and the math
- * layer agree on the implicit size.
+ * Fallback size used when a node has no measured DOM size yet (first paint
+ * before `ResizeObserver` has fired) and no explicit `node.width`/`height`.
  */
 export const DEFAULT_NODE_WIDTH = 180;
 export const DEFAULT_NODE_HEIGHT = 80;
@@ -24,11 +26,31 @@ interface NodeBox {
 }
 
 /**
- * Resolve a node's effective bounding box, applying default size when
- * `width` / `height` are unset.
+ * Read the function used to look up the registered port position. Pure
+ * resolver — the math module takes this as an argument so it stays free
+ * of a store dependency.
+ */
+export type PortPositionLookup = (
+  nodeId: string,
+  portId: string
+) => NodeGraphPortPosition | null;
+
+/** Read the measured size of a node wrapper (or null if not measured yet). */
+export type MeasuredSizeLookup = (
+  nodeId: string
+) => NodeGraphMeasuredSize | null;
+
+/**
+ * Resolve a node's effective bounding box.
+ *
+ * Priority: explicit `node.width`/`node.height` > measured DOM size >
+ * `defaults`. This keeps consumer-controlled fixed-size nodes deterministic
+ * while letting auto-sized nodes pick up their real dimensions for
+ * hit-testing, marquee selection, and `fitToContent`.
  */
 export function getNodeBox(
   node: NodeGraphNode,
+  measuredSize?: NodeGraphMeasuredSize | null,
   defaults: { width: number; height: number } = {
     width: DEFAULT_NODE_WIDTH,
     height: DEFAULT_NODE_HEIGHT,
@@ -37,81 +59,9 @@ export function getNodeBox(
   return {
     x: node.position.x,
     y: node.position.y,
-    width: node.width ?? defaults.width,
-    height: node.height ?? defaults.height,
+    width: node.width ?? measuredSize?.width ?? defaults.width,
+    height: node.height ?? measuredSize?.height ?? defaults.height,
   };
-}
-
-/**
- * Compute the offset (in `[0, 1]`) for each port on the same side, mixing
- * explicit `offset` values with even distribution across the remainder.
- *
- * Behaviour:
- * - Ports with explicit `offset` keep their value (clamped to `[0, 1]`).
- * - Ports without an explicit offset are spaced evenly across the side,
- *   ignoring the explicitly-positioned siblings in the distribution.
- *
- * Returns offsets in the same order as the input.
- */
-export function resolvePortOffsets(
-  portsOnSide: ReadonlyArray<NodeGraphPort>
-): number[] {
-  const explicit = portsOnSide.map(p =>
-    p.offset === undefined ? null : clamp01(p.offset)
-  );
-  const implicitIndices: number[] = [];
-  explicit.forEach((value, i) => {
-    if (value === null) implicitIndices.push(i);
-  });
-
-  if (implicitIndices.length === 0) {
-    return explicit.map(v => v ?? 0.5);
-  }
-
-  // Single port without explicit offset → centre it on the side.
-  // Multiple → distribute evenly with margins on both ends.
-  const step = 1 / (implicitIndices.length + 1);
-  const out = explicit.slice();
-  implicitIndices.forEach((idx, i) => {
-    out[idx] = step * (i + 1);
-  });
-  return out as number[];
-}
-
-/**
- * World-space position of a port. Ports without an explicit offset are
- * spaced evenly across their side (relative to siblings on the same side).
- */
-export function getPortPosition(
-  node: NodeGraphNode,
-  port: NodeGraphPort,
-  defaults: { width: number; height: number } = {
-    width: DEFAULT_NODE_WIDTH,
-    height: DEFAULT_NODE_HEIGHT,
-  }
-): Point2D {
-  const box = getNodeBox(node, defaults);
-  const siblings = (node.ports ?? []).filter(p => p.side === port.side);
-  const offsets = resolvePortOffsets(siblings);
-  const portIndex = siblings.findIndex(p => p.id === port.id);
-  const offset =
-    portIndex >= 0 ? (offsets[portIndex] ?? 0.5) : (port.offset ?? 0.5);
-
-  switch (port.side) {
-    case 'left':
-      return { x: box.x, y: box.y + box.height * offset };
-    case 'right':
-      return { x: box.x + box.width, y: box.y + box.height * offset };
-    case 'top':
-      return { x: box.x + box.width * offset, y: box.y };
-    case 'bottom':
-      return { x: box.x + box.width * offset, y: box.y + box.height };
-    default: {
-      // Exhaustive — TypeScript guarantees this is unreachable.
-      const _unreached: never = port.side;
-      return _unreached;
-    }
-  }
 }
 
 /**
@@ -162,8 +112,6 @@ export function getBezierControlPoints(
   const dy = target.y - source.y;
   const dist = Math.hypot(dx, dy);
 
-  // Handle length: floor of 32 world units, scaling 0.5× the relevant
-  // axis distance so the curve stays smooth for long edges.
   const srcHorizontal = srcSide === 'left' || srcSide === 'right';
   const tgtHorizontal = tgtSide === 'left' || tgtSide === 'right';
   const srcAxis = srcHorizontal ? Math.abs(dx) : Math.abs(dy);
@@ -227,9 +175,10 @@ export function isPointNearBezier(
 export function isPointInNode(
   point: Point2D,
   node: NodeGraphNode,
+  measuredSize?: NodeGraphMeasuredSize | null,
   defaults?: { width: number; height: number }
 ): boolean {
-  const box = getNodeBox(node, defaults);
+  const box = getNodeBox(node, measuredSize, defaults);
   return (
     point.x >= box.x &&
     point.x <= box.x + box.width &&
@@ -259,11 +208,13 @@ export function rectsIntersect(a: WorldRect, b: WorldRect): boolean {
 }
 
 /**
- * Compute the tight bounding box of a node list, factoring in default
- * sizes. Returns a zero-width rect at the origin when the list is empty.
+ * Compute the tight bounding box of a node list, factoring in measured /
+ * default sizes. Returns a zero-width rect at the origin when the list
+ * is empty.
  */
 export function computeNodesBounds(
   nodes: ReadonlyArray<NodeGraphNode>,
+  measuredSizes?: MeasuredSizeLookup,
   defaults?: { width: number; height: number }
 ): WorldRect {
   if (nodes.length === 0) return { x: 0, y: 0, width: 0, height: 0 };
@@ -272,7 +223,7 @@ export function computeNodesBounds(
   let maxX = -Infinity;
   let maxY = -Infinity;
   for (const node of nodes) {
-    const box = getNodeBox(node, defaults);
+    const box = getNodeBox(node, measuredSizes?.(node.id), defaults);
     if (box.x < minX) minX = box.x;
     if (box.y < minY) minY = box.y;
     if (box.x + box.width > maxX) maxX = box.x + box.width;
@@ -333,54 +284,64 @@ export function applyGroupResize(
 }
 
 /**
- * Look up a port's world position via its `NodeGraphPortRef`. Returns
- * `null` when the node or port doesn't exist.
+ * Resolve a port reference to its **world-space** position + side using
+ * the slot-registered port position lookup. Returns `null` when the node
+ * is missing or the port hasn't been measured yet (the slot's
+ * `useLayoutEffect` hasn't run).
  */
 export function resolvePortRef(
   ref: NodeGraphPortRef,
   nodes: ReadonlyArray<NodeGraphNode>,
-  defaults?: { width: number; height: number }
-): { node: NodeGraphNode; port: NodeGraphPort; position: Point2D } | null {
+  getPortPosition: PortPositionLookup
+): {
+  node: NodeGraphNode;
+  position: Point2D;
+  side: NodeGraphPortSide;
+  dataType?: string;
+} | null {
   const node = nodes.find(n => n.id === ref.node);
   if (!node) return null;
-  const port = node.ports?.find(p => p.id === ref.port);
-  if (!port) return null;
-  return { node, port, position: getPortPosition(node, port, defaults) };
+  const portPos = getPortPosition(ref.node, ref.port);
+  if (!portPos) return null;
+  return {
+    node,
+    position: {
+      x: node.position.x + portPos.x,
+      y: node.position.y + portPos.y,
+    },
+    side: portPos.side,
+    ...(portPos.dataType !== undefined ? { dataType: portPos.dataType } : {}),
+  };
 }
 
 /**
- * Resolve a port reference plus side, useful for edge-drawing code that
- * needs both the position and the originating side without recomputing.
+ * Resolve both endpoints of an edge to world-space positions + sides.
+ * Returns `null` when either endpoint can't be resolved (missing node or
+ * not-yet-measured port).
  */
 export function resolveEdgeEndpoints(
   edge: NodeGraphEdge,
   nodes: ReadonlyArray<NodeGraphNode>,
-  defaults?: { width: number; height: number }
+  getPortPosition: PortPositionLookup
 ): {
   source: Point2D;
   srcSide: NodeGraphPortSide;
   target: Point2D;
   tgtSide: NodeGraphPortSide;
 } | null {
-  const src = resolvePortRef(edge.source, nodes, defaults);
+  const src = resolvePortRef(edge.source, nodes, getPortPosition);
   if (!src) return null;
-  const tgt = resolvePortRef(edge.target, nodes, defaults);
+  const tgt = resolvePortRef(edge.target, nodes, getPortPosition);
   if (!tgt) return null;
   return {
     source: src.position,
-    srcSide: src.port.side,
+    srcSide: src.side,
     target: tgt.position,
-    tgtSide: tgt.port.side,
+    tgtSide: tgt.side,
   };
 }
 
 // ─── Internals ───
-
-function clamp01(v: number): number {
-  if (v < 0) return 0;
-  if (v > 1) return 1;
-  return v;
-}
 
 function pointToSegmentDistance(p: Point2D, a: Point2D, b: Point2D): number {
   const abx = b.x - a.x;

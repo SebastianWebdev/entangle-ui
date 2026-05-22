@@ -8,9 +8,7 @@ import {
   type NodeGraphGroup,
   type NodeGraphHandle,
   type NodeGraphNode,
-  type NodeGraphPort,
   type NodeGraphPortRef,
-  type NodeGraphPortRenderCtx,
   type NodeGraphRenderCtx,
   type NodeGraphSelection,
 } from '@/components/editor/NodeGraph';
@@ -114,8 +112,6 @@ interface NodeTemplate {
   title: string;
   subtitle?: string;
   category: Category;
-  width?: number;
-  height?: number;
   pins: BlueprintPin[];
   body?: string;
   keywords?: string;
@@ -297,25 +293,21 @@ const TEMPLATES: NodeTemplate[] = [
     category: 'variable',
     pins: [data('out', '"…"', 'right', 'string')],
     body: '"Hello"',
-    keywords: 'string text literal value constant',
+    keywords: 'string literal value constant',
   },
   {
-    id: 'var-make-vector',
-    title: 'Make Vector',
-    subtitle: 'Pure',
-    category: 'pure',
-    pins: [
-      data('x', 'X', 'left', 'float'),
-      data('y', 'Y', 'left', 'float'),
-      data('z', 'Z', 'left', 'float'),
-      data('out', 'Vector', 'right', 'vector'),
-    ],
-    keywords: 'make vector construct xyz pure',
+    id: 'var-vector',
+    title: 'Vector',
+    subtitle: 'Literal · vector',
+    category: 'variable',
+    pins: [data('out', '(x, y, z)', 'right', 'vector')],
+    body: '(0, 0, 0)',
+    keywords: 'vector literal value constant',
   },
   {
     id: 'var-break-vector',
     title: 'Break Vector',
-    subtitle: 'Pure',
+    subtitle: 'Vector → x/y/z',
     category: 'pure',
     pins: [
       data('vec', 'Vector', 'left', 'vector'),
@@ -323,77 +315,65 @@ const TEMPLATES: NodeTemplate[] = [
       data('y', 'Y', 'right', 'float'),
       data('z', 'Z', 'right', 'float'),
     ],
-    keywords: 'break vector decompose xyz pure',
+    keywords: 'break vector split components',
+  },
+  {
+    id: 'var-make-vector',
+    title: 'Make Vector',
+    subtitle: 'x/y/z → Vector',
+    category: 'pure',
+    pins: [
+      data('x', 'X', 'left', 'float'),
+      data('y', 'Y', 'left', 'float'),
+      data('z', 'Z', 'left', 'float'),
+      data('out', 'Return Value', 'right', 'vector'),
+    ],
+    keywords: 'make vector construct components pure',
   },
 
-  // Math
+  // Pure math
   {
-    id: 'math-add-float',
+    id: 'math-add',
     title: 'Add (float)',
-    subtitle: 'Math · Pure',
+    subtitle: 'Pure',
     category: 'pure',
     pins: [
       data('a', 'A', 'left', 'float'),
       data('b', 'B', 'left', 'float'),
-      data('out', '', 'right', 'float'),
+      data('out', 'Result', 'right', 'float'),
     ],
-    keywords: 'add plus + float math pure',
+    keywords: 'add plus sum pure math float',
   },
   {
-    id: 'math-subtract-float',
-    title: 'Subtract (float)',
-    subtitle: 'Math · Pure',
-    category: 'pure',
-    pins: [
-      data('a', 'A', 'left', 'float'),
-      data('b', 'B', 'left', 'float'),
-      data('out', '', 'right', 'float'),
-    ],
-    keywords: 'subtract minus - float math pure',
-  },
-  {
-    id: 'math-multiply-float',
+    id: 'math-mul',
     title: 'Multiply (float)',
-    subtitle: 'Math · Pure',
+    subtitle: 'Pure',
     category: 'pure',
     pins: [
       data('a', 'A', 'left', 'float'),
       data('b', 'B', 'left', 'float'),
-      data('out', '', 'right', 'float'),
+      data('out', 'Result', 'right', 'float'),
     ],
-    keywords: 'multiply times * float math pure',
+    keywords: 'multiply times product pure math',
   },
   {
     id: 'math-less',
-    title: 'Less (float)',
-    subtitle: 'Math · Pure',
+    title: 'A < B',
+    subtitle: 'Pure',
     category: 'pure',
     pins: [
       data('a', 'A', 'left', 'float'),
       data('b', 'B', 'left', 'float'),
-      data('out', '', 'right', 'bool'),
+      data('out', 'Result', 'right', 'bool'),
     ],
-    keywords: 'less compare < float math pure',
-  },
-  {
-    id: 'math-clamp',
-    title: 'Clamp (float)',
-    subtitle: 'Math · Pure',
-    category: 'pure',
-    pins: [
-      data('value', 'Value', 'left', 'float'),
-      data('min', 'Min', 'left', 'float'),
-      data('max', 'Max', 'left', 'float'),
-      data('out', '', 'right', 'float'),
-    ],
-    keywords: 'clamp min max float math pure',
+    keywords: 'less than comparison pure math',
   },
 
-  // Component / actor
+  // Actor / utility
   {
     id: 'get-actor-location',
     title: 'Get Actor Location',
-    subtitle: 'Actor · Pure',
+    subtitle: 'Actor (pure)',
     category: 'pure',
     pins: [
       data('target', 'Target', 'left', 'actor'),
@@ -455,59 +435,18 @@ const TEMPLATES: NodeTemplate[] = [
   },
 ];
 
-// ─── Geometry: pin offsets driven by template ──────────────────────────────
-
-const HEADER_HEIGHT = 28;
-const PIN_ROW_HEIGHT = 22;
-const BODY_VERT_PADDING = 8;
-
-/**
- * Default node size grown to fit the pin rows. Width is fixed-ish; the
- * height depends on the maximum of left vs. right pin counts.
- */
-function templateSize(t: NodeTemplate): { width: number; height: number } {
-  const leftCount = t.pins.filter(p => p.side === 'left').length;
-  const rightCount = t.pins.filter(p => p.side === 'right').length;
-  const rows = Math.max(leftCount, rightCount, 1);
-  const extra = t.body ? PIN_ROW_HEIGHT : 0;
-  const height =
-    HEADER_HEIGHT + BODY_VERT_PADDING * 2 + rows * PIN_ROW_HEIGHT + extra;
-  return { width: t.width ?? 200, height: t.height ?? height };
-}
-
-function computePortOffset(
-  index: number,
-  total: number,
-  size: { width: number; height: number }
-): number {
-  // Center each pin in its row. Rows start below the header, after a top
-  // padding, and are PIN_ROW_HEIGHT tall.
-  const centerY =
-    HEADER_HEIGHT + BODY_VERT_PADDING + (index + 0.5) * PIN_ROW_HEIGHT;
-  return centerY / size.height;
-}
+// ─── Node instantiation ────────────────────────────────────────────────────
+//
+// With the slot-based port API the consumer just builds a `NodeGraphNode`
+// with its data payload — width/height auto-measure from the rendered DOM,
+// and port positions are tracked from `<NodeGraph.Port>` slots inside the
+// node body. No more pin/port duality.
 
 function instantiateTemplate(
   template: NodeTemplate,
   position: { x: number; y: number },
   idSeed: number
 ): NodeGraphNode {
-  const size = templateSize(template);
-  const leftPins = template.pins.filter(p => p.side === 'left');
-  const rightPins = template.pins.filter(p => p.side === 'right');
-
-  const ports: NodeGraphPort[] = template.pins.map(pin => {
-    const sidePins = pin.side === 'left' ? leftPins : rightPins;
-    const idx = sidePins.indexOf(pin);
-    return {
-      id: pin.id,
-      side: pin.side,
-      offset: computePortOffset(idx, sidePins.length, size),
-      dataType: pin.dataType,
-      label: pin.label,
-    };
-  });
-
   const data: BlueprintNodeData = {
     templateId: template.id,
     title: template.title,
@@ -516,15 +455,7 @@ function instantiateTemplate(
     pins: template.pins,
     body: template.body,
   };
-
-  return {
-    id: `${template.id}-${idSeed}`,
-    position,
-    width: size.width,
-    height: size.height,
-    ports,
-    data,
-  };
+  return { id: `${template.id}-${idSeed}`, position, data };
 }
 
 // ─── Initial graph ─────────────────────────────────────────────────────────
@@ -669,53 +600,43 @@ function makeInitial(): {
   return { nodes, edges, groups };
 }
 
-// ─── Pin / port renderer (UE5 style) ───────────────────────────────────────
+// ─── UE-style pin visual (used as children of <NodeGraph.Port>) ────────────
 
-function PortVisual({
-  port,
-  ctx,
-  connected,
-}: {
-  port: NodeGraphPort;
-  ctx: NodeGraphPortRenderCtx;
+interface PinVisualProps {
+  dataType: DataType;
+  side: 'left' | 'right';
   connected: boolean;
-}): React.ReactElement {
-  const type = (port.dataType ?? 'any') as DataType;
-  const color = TYPE_COLOR[type] ?? TYPE_COLOR.any;
-  const isExec = type === 'exec';
-  const active = ctx.isSource || ctx.isCandidate || ctx.isHovered;
-  const fillColor = ctx.isInvalid
-    ? 'rgba(220, 38, 38, 0.95)'
-    : connected || active
-      ? color
-      : 'transparent';
-  const strokeColor = ctx.isInvalid ? 'rgba(220, 38, 38, 0.95)' : color;
-  const scale = active ? 1.15 : 1;
-  const size = isExec ? 16 : 14;
+}
+
+/**
+ * The visual rendered inside each `<NodeGraph.Port>` slot. Coloured ring
+ * for data pins, exec-arrow triangle for exec pins. The library wraps this
+ * in a 12 × 12-ish handle and tracks pointer events / position — so the
+ * visual is the same DOM element the user clicks and the edge anchors to.
+ */
+function PinVisual({
+  dataType,
+  side,
+  connected,
+}: PinVisualProps): React.ReactElement {
+  const color = TYPE_COLOR[dataType] ?? TYPE_COLOR.any;
+  const isExec = dataType === 'exec';
+  const size = isExec ? 14 : 12;
 
   if (isExec) {
-    // Exec triangle pointing in the flow direction.
-    const points =
-      port.side === 'left' || port.side === 'right'
-        ? '2,2 14,8 2,14'
-        : '2,2 8,14 14,2';
+    const points = side === 'left' ? '2,2 12,7 2,12' : '2,2 12,7 2,12';
     return (
       <svg
         width={size}
         height={size}
-        viewBox="0 0 16 16"
-        style={{
-          display: 'block',
-          transform: `scale(${scale})`,
-          transition: 'transform 80ms',
-          filter: active ? `drop-shadow(0 0 4px ${color})` : undefined,
-        }}
+        viewBox="0 0 14 14"
+        style={{ display: 'block' }}
         aria-hidden="true"
       >
         <polygon
           points={points}
-          fill={fillColor}
-          stroke={strokeColor}
+          fill={connected ? color : 'transparent'}
+          stroke={color}
           strokeWidth={1.5}
           strokeLinejoin="round"
         />
@@ -730,19 +651,95 @@ function PortVisual({
         width: size,
         height: size,
         borderRadius: '50%',
-        background: fillColor,
-        border: `2px solid ${strokeColor}`,
+        background: connected ? color : 'transparent',
+        border: `2px solid ${color}`,
         boxSizing: 'border-box',
-        transform: `scale(${scale})`,
-        transition: 'transform 80ms',
-        boxShadow: active ? `0 0 6px ${color}` : undefined,
       }}
       aria-hidden="true"
     />
   );
 }
 
-// ─── Node body (UE5 layout, slightly transparent) ──────────────────────────
+// ─── Node body ─────────────────────────────────────────────────────────────
+
+const HEADER_HEIGHT = 28;
+const PIN_ROW_HEIGHT = 22;
+const BODY_VERT_PADDING = 8;
+
+/**
+ * Pin row — label + port slot. The `<NodeGraph.Port>` slot is the actual
+ * connection endpoint. Library measures its position, registers it as the
+ * anchor for any edge that references this pin, and wires pointer events.
+ *
+ * Left pins put the port at the start of the row (against the node's left
+ * edge); right pins put it at the end. The slot sits inline-flex inside
+ * the row — its center is the precise point where edges connect.
+ */
+function PinRow({
+  pin,
+  connected,
+}: {
+  pin: BlueprintPin;
+  connected: boolean;
+}): React.ReactElement {
+  const port = (
+    <NodeGraph.Port
+      id={pin.id}
+      side={pin.side}
+      dataType={pin.dataType}
+      label={pin.label || `${pin.side} ${pin.id}`}
+    >
+      <PinVisual
+        dataType={pin.dataType}
+        side={pin.side}
+        connected={connected}
+      />
+    </NodeGraph.Port>
+  );
+  const label = (
+    <span
+      style={{
+        fontSize: 11,
+        color: connected
+          ? 'rgba(235, 235, 245, 0.95)'
+          : 'rgba(200, 200, 215, 0.78)',
+        minWidth: 0,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {pin.label || (pin.dataType === 'exec' ? '►' : ' ')}
+    </span>
+  );
+  return (
+    <div
+      style={{
+        height: PIN_ROW_HEIGHT,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        justifyContent: pin.side === 'left' ? 'flex-start' : 'flex-end',
+        // Pull the port handle just outside the body padding so the visual
+        // sits on the node's edge, matching the UE5 look.
+        marginLeft: pin.side === 'left' ? -16 : 0,
+        marginRight: pin.side === 'right' ? -16 : 0,
+      }}
+    >
+      {pin.side === 'left' ? (
+        <>
+          {port}
+          {label}
+        </>
+      ) : (
+        <>
+          {label}
+          {port}
+        </>
+      )}
+    </div>
+  );
+}
 
 function BlueprintNodeBody({
   node,
@@ -753,16 +750,16 @@ function BlueprintNodeBody({
   ctx: NodeGraphRenderCtx;
   connectedSet: Set<string>;
 }): React.ReactElement {
-  const data = node.data as BlueprintNodeData;
-  const theme = CATEGORY_THEME[data.category];
-  const left = data.pins.filter(p => p.side === 'left');
-  const right = data.pins.filter(p => p.side === 'right');
+  const blueprint = node.data as BlueprintNodeData;
+  const theme = CATEGORY_THEME[blueprint.category];
+  const left = blueprint.pins.filter(p => p.side === 'left');
+  const right = blueprint.pins.filter(p => p.side === 'right');
+  const rows = Math.max(left.length, right.length);
 
   return (
     <div
       style={{
-        width: '100%',
-        height: '100%',
+        width: 220,
         background:
           'linear-gradient(180deg, rgba(28, 30, 38, 0.85) 0%, rgba(18, 20, 26, 0.92) 100%)',
         backdropFilter: 'blur(4px)',
@@ -825,9 +822,9 @@ function BlueprintNodeBody({
               textOverflow: 'ellipsis',
             }}
           >
-            {data.title}
+            {blueprint.title}
           </div>
-          {data.subtitle ? (
+          {blueprint.subtitle ? (
             <div
               style={{
                 fontSize: 9.5,
@@ -836,94 +833,43 @@ function BlueprintNodeBody({
                 marginTop: 1,
               }}
             >
-              {data.subtitle}
+              {blueprint.subtitle}
             </div>
           ) : null}
         </div>
       </div>
 
-      {/* Pin label rows — two columns, one row per pin */}
+      {/* Pin rows — left + right column, one row per pin */}
       <div
         style={{
-          flex: 1,
           padding: `${BODY_VERT_PADDING}px 14px`,
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           columnGap: 16,
+          minHeight: rows * PIN_ROW_HEIGHT,
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {left.map(pin => {
-            const isConnected = connectedSet.has(`${node.id}.${pin.id}`);
-            return (
-              <div
-                key={pin.id}
-                style={{
-                  height: PIN_ROW_HEIGHT,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  fontSize: 11,
-                  color: isConnected
-                    ? 'rgba(235, 235, 245, 0.95)'
-                    : 'rgba(200, 200, 215, 0.78)',
-                }}
-              >
-                <span
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: '50%',
-                    background: TYPE_COLOR[pin.dataType] ?? TYPE_COLOR.any,
-                    flexShrink: 0,
-                  }}
-                />
-                {pin.label || (pin.dataType === 'exec' ? '►' : ' ')}
-              </div>
-            );
-          })}
+          {left.map(pin => (
+            <PinRow
+              key={pin.id}
+              pin={pin}
+              connected={connectedSet.has(`${node.id}.${pin.id}`)}
+            />
+          ))}
         </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-end',
-          }}
-        >
-          {right.map(pin => {
-            const isConnected = connectedSet.has(`${node.id}.${pin.id}`);
-            return (
-              <div
-                key={pin.id}
-                style={{
-                  height: PIN_ROW_HEIGHT,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  fontSize: 11,
-                  color: isConnected
-                    ? 'rgba(235, 235, 245, 0.95)'
-                    : 'rgba(200, 200, 215, 0.78)',
-                  textAlign: 'right',
-                }}
-              >
-                {pin.label || (pin.dataType === 'exec' ? '►' : ' ')}
-                <span
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: '50%',
-                    background: TYPE_COLOR[pin.dataType] ?? TYPE_COLOR.any,
-                    flexShrink: 0,
-                  }}
-                />
-              </div>
-            );
-          })}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {right.map(pin => (
+            <PinRow
+              key={pin.id}
+              pin={pin}
+              connected={connectedSet.has(`${node.id}.${pin.id}`)}
+            />
+          ))}
         </div>
       </div>
 
-      {data.body ? (
+      {blueprint.body ? (
         <div
           style={{
             padding: '4px 12px 8px',
@@ -934,27 +880,11 @@ function BlueprintNodeBody({
             borderTop: '1px solid rgba(255, 255, 255, 0.05)',
           }}
         >
-          {data.body}
+          {blueprint.body}
         </div>
       ) : null}
     </div>
   );
-}
-
-// ─── Connection validation ─────────────────────────────────────────────────
-
-function buildPortIndex(
-  nodes: ReadonlyArray<NodeGraphNode>
-): Map<string, BlueprintPin> {
-  const m = new Map<string, BlueprintPin>();
-  for (const node of nodes) {
-    const d = node.data as BlueprintNodeData | undefined;
-    if (!d) continue;
-    for (const pin of d.pins) {
-      m.set(`${node.id}.${pin.id}`, pin);
-    }
-  }
-  return m;
 }
 
 // ─── Add-node context menu ─────────────────────────────────────────────────
@@ -993,8 +923,9 @@ function ContextMenu({
       }
     };
     const onClick = (e: MouseEvent): void => {
-      const t = e.target as Element | null;
-      if (!t?.closest('[data-ng-context-menu]')) onClose();
+      if (!(e.target instanceof Element)) return;
+      if (e.target.closest('[data-ng-context-menu]')) return;
+      onClose();
     };
     window.addEventListener('keydown', onKey);
     window.addEventListener('mousedown', onClick);
@@ -1199,7 +1130,8 @@ export default function NodeGraphDemo(): React.ReactElement {
   const ref = useRef<NodeGraphHandle>(null);
   const idSeedRef = useRef(1000);
 
-  const portIndex = useMemo(() => buildPortIndex(nodes), [nodes]);
+  // Index of which `node.port` keys currently have an edge — drives the
+  // "filled vs hollow" pin visual. Cheap to recompute on edges change.
   const connectedPortSet = useMemo(() => {
     const s = new Set<string>();
     for (const edge of edges) {
@@ -1209,23 +1141,26 @@ export default function NodeGraphDemo(): React.ReactElement {
     return s;
   }, [edges]);
 
+  // `isValidConnection` now reads source/target dataType directly from the
+  // validation info (registered by `<NodeGraph.Port>` slots) — no
+  // consumer-side port index needed.
   const isValidConnection = useCallback(
     (
-      source: NodeGraphPortRef,
-      target: NodeGraphPortRef,
+      _source: NodeGraphPortRef,
+      _target: NodeGraphPortRef,
       info: NodeGraphConnectionValidationInfo
     ): boolean => {
       if (info.sameNode) return false;
       if (info.sideCombo !== 'right->left' && info.sideCombo !== 'left->right')
         return false;
-      const sp = portIndex.get(`${source.node}.${source.port}`);
-      const tp = portIndex.get(`${target.node}.${target.port}`);
-      if (!sp || !tp) return true;
-      if (sp.dataType === tp.dataType) return true;
-      if (sp.dataType === 'any' || tp.dataType === 'any') return true;
+      const src = info.sourceDataType;
+      const tgt = info.targetDataType;
+      if (!src || !tgt) return true;
+      if (src === tgt) return true;
+      if (src === 'any' || tgt === 'any') return true;
       return false;
     },
-    [portIndex]
+    []
   );
 
   const renderNode = useCallback(
@@ -1239,20 +1174,22 @@ export default function NodeGraphDemo(): React.ReactElement {
     [connectedPortSet]
   );
 
-  const renderPort = useCallback(
-    (port: NodeGraphPort, node: NodeGraphNode, ctx: NodeGraphPortRenderCtx) => (
-      <PortVisual
-        port={port}
-        ctx={ctx}
-        connected={connectedPortSet.has(`${node.id}.${port.id}`)}
-      />
-    ),
-    [connectedPortSet]
-  );
+  // Map of pin metadata per "nodeId.portId" — built from node.data so the
+  // edge label knows what dataType pill to show. Built only once per
+  // nodes change.
+  const pinIndex = useMemo(() => {
+    const m = new Map<string, BlueprintPin>();
+    for (const n of nodes) {
+      const d = n.data as BlueprintNodeData | undefined;
+      if (!d) continue;
+      for (const p of d.pins) m.set(`${n.id}.${p.id}`, p);
+    }
+    return m;
+  }, [nodes]);
 
   const renderEdgeLabel = useCallback(
     (edge: NodeGraphEdge) => {
-      const sp = portIndex.get(`${edge.source.node}.${edge.source.port}`);
+      const sp = pinIndex.get(`${edge.source.node}.${edge.source.port}`);
       if (!sp || sp.dataType === 'exec') return null;
       const color = TYPE_COLOR[sp.dataType] ?? TYPE_COLOR.any;
       return (
@@ -1276,7 +1213,7 @@ export default function NodeGraphDemo(): React.ReactElement {
         </span>
       );
     },
-    [portIndex]
+    [pinIndex]
   );
 
   const handleDelete = useCallback((sel: NodeGraphSelection) => {
@@ -1320,8 +1257,6 @@ export default function NodeGraphDemo(): React.ReactElement {
   }, []);
 
   const handleContextMenu = useCallback((info: NodeGraphContextMenuInfo) => {
-    // Only show the spawn-search menu when the click is on empty background
-    // or on a group body (so users can replace / add new groups there too).
     if (info.target.kind !== 'empty' && info.target.kind !== 'group') return;
     setMenu({
       screenX: info.screenPoint.x,
@@ -1409,7 +1344,6 @@ export default function NodeGraphDemo(): React.ReactElement {
             onDelete={handleDelete}
             onContextMenu={handleContextMenu}
             renderNode={renderNode}
-            renderPort={renderPort}
             renderEdgeLabel={renderEdgeLabel}
             isValidConnection={isValidConnection}
             snapToGrid={8}

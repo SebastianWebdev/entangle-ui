@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useCallback, useDeferredValue, useMemo } from 'react';
+import React, { useCallback, useDeferredValue, useMemo, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { useResizeObserver } from '@/hooks';
 import { cx } from '@/utils/cx';
 import { useViewportStore } from '@/components/primitives/viewport/ViewportContext';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
@@ -11,16 +12,12 @@ import {
   nodeWidthVar,
   nodeWrapperRecipe,
 } from './NodeGraph.css';
-import type {
-  NodeGraphNode,
-  NodeGraphPort,
-  NodeGraphPortSide,
-  NodeGraphRenderCtx,
-  NodeGraphRenderPort,
-} from './NodeGraph.types';
-import { NodeGraphPortView } from './NodeGraphPort';
+import type { NodeGraphNode, NodeGraphRenderCtx } from './NodeGraph.types';
 import { useNodeGraphStore } from './NodeGraphContext';
-import { resolvePortOffsets } from './nodeGraphMath';
+import {
+  NodeGraphNodeContext,
+  type NodeGraphNodeContextValue,
+} from './NodeGraphNodeContext';
 import { useStoreSlice } from './useStoreSlice';
 
 interface NodeGraphNodeViewProps {
@@ -30,8 +27,6 @@ interface NodeGraphNodeViewProps {
     node: NodeGraphNode,
     ctx: NodeGraphRenderCtx
   ) => React.ReactNode;
-  /** Custom port visual renderer. */
-  renderPort?: NodeGraphRenderPort;
   /** Pointer-down on the node body (drag / select). */
   onBodyPointerDown: (
     event: React.PointerEvent<HTMLDivElement>,
@@ -44,7 +39,7 @@ interface NodeGraphNodeViewProps {
   ) => void;
   /** Pointer-down on a port (starts a connection drag). */
   onPortPointerDown: (
-    event: React.PointerEvent<HTMLDivElement>,
+    event: React.PointerEvent<HTMLElement>,
     nodeId: string,
     portId: string
   ) => void;
@@ -86,8 +81,10 @@ function pointEqualNullable(a: Point2D | null, b: Point2D | null): boolean {
 
 /**
  * Internal — render a single node as an HTML element positioned in world
- * space. Ports are absolutely positioned around the wrapper using
- * percentage offsets relative to the wrapper size.
+ * space. Connection endpoints live inside the consumer's `renderNode`
+ * tree as `<NodeGraph.Port>` slots; this view just provides the wrapper,
+ * the `NodeGraphNodeContext`, and the ResizeObserver that feeds the
+ * node's measured size back to the store.
  *
  * Subscribes to per-id slices via `useStoreSlice` so each node re-renders
  * only when its own selection / drag delta / hover state changes — not on
@@ -100,7 +97,6 @@ export function NodeGraphNodeView(
     node,
     defaultSize,
     renderNode,
-    renderPort,
     onBodyPointerDown,
     onBodyPointerUp,
     onPortPointerDown,
@@ -108,6 +104,7 @@ export function NodeGraphNodeView(
   } = props;
   const store = useNodeGraphStore();
   const viewportStore = useViewportStore();
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const selected = useStoreSlice(
     store.subscribeSelection,
@@ -140,18 +137,6 @@ export function NodeGraphNodeView(
     hover => hover.hoveredNodeId === node.id
   );
 
-  const handlePointerEnter = useCallback((): void => {
-    const current = store.getHover();
-    store.setHover({ ...current, hoveredNodeId: node.id });
-  }, [store, node.id]);
-
-  const handlePointerLeave = useCallback((): void => {
-    const current = store.getHover();
-    if (current.hoveredNodeId === node.id) {
-      store.setHover({ ...current, hoveredNodeId: null });
-    }
-  }, [store, node.id]);
-
   const liveZoom = useStoreSlice(
     viewportStore.subscribeTransform,
     viewportStore.getTransform,
@@ -161,29 +146,47 @@ export function NodeGraphNodeView(
   // bodies don't block the pointer gesture loop during a zoom-while-drag.
   const zoom = useDeferredValue(liveZoom);
 
-  const width = node.width ?? defaultSize.width;
-  const height = node.height ?? defaultSize.height;
+  // ── Auto-size: feed measured wrapper size back to the store ──
+  //
+  // When the consumer omits `node.width`/`height`, the library reads the
+  // measured DOM size for hit-testing, marquee, and fitToContent. Explicit
+  // overrides on the node still win — this just records the rendered size.
+  useResizeObserver(wrapperRef, entry => {
+    store.setMeasuredSize(node.id, {
+      width: entry.contentRect.width,
+      height: entry.contentRect.height,
+    });
+  });
 
+  const explicitWidth = node.width;
+  const explicitHeight = node.height;
+  const autoSize = explicitWidth === undefined && explicitHeight === undefined;
   const draggable = node.draggable !== false;
   const selectable = node.selectable !== false;
 
   const wrapperStyle = useMemo<React.CSSProperties>(() => {
     const x = node.position.x + (dragDelta?.x ?? 0);
     const y = node.position.y + (dragDelta?.y ?? 0);
+    // assignInlineVars only emits the keys it's given — when explicit
+    // dimensions are absent the auto-sized recipe variant kicks in.
+    const dimensionVars: Record<string, string> = {};
+    if (explicitWidth !== undefined) {
+      dimensionVars[nodeWidthVar] = `${explicitWidth}px`;
+    }
+    if (explicitHeight !== undefined) {
+      dimensionVars[nodeHeightVar] = `${explicitHeight}px`;
+    }
     return {
       transform: `translate(${x}px, ${y}px)`,
-      ...assignInlineVars({
-        [nodeWidthVar]: `${width}px`,
-        [nodeHeightVar]: `${height}px`,
-      }),
+      ...assignInlineVars(dimensionVars),
     };
   }, [
     node.position.x,
     node.position.y,
     dragDelta?.x,
     dragDelta?.y,
-    width,
-    height,
+    explicitWidth,
+    explicitHeight,
   ]);
 
   const renderCtx: NodeGraphRenderCtx = {
@@ -199,59 +202,57 @@ export function NodeGraphNodeView(
     <DefaultNodeBody node={node} selected={selected} />
   );
 
-  // Resolve port offsets per side so port positioning stays consistent
-  // between the rendering layer and the math layer.
-  const portsBySide = useMemo<
-    Record<NodeGraphPortSide, Array<{ port: NodeGraphPort; offset: number }>>
-  >(() => {
-    const result: Record<
-      NodeGraphPortSide,
-      Array<{ port: NodeGraphPort; offset: number }>
-    > = { left: [], right: [], top: [], bottom: [] };
-    if (!node.ports) return result;
-    const sides: NodeGraphPortSide[] = ['left', 'right', 'top', 'bottom'];
-    for (const side of sides) {
-      const sidePorts = node.ports.filter(p => p.side === side);
-      const offsets = resolvePortOffsets(sidePorts);
-      result[side] = sidePorts.map((port, i) => ({
-        port,
-        offset: offsets[i] ?? 0.5,
-      }));
-    }
-    return result;
-  }, [node.ports]);
+  // ── Hover wiring ──
+  const onPointerEnter = useCallback((): void => {
+    const current = store.getHover();
+    if (current.hoveredNodeId === node.id) return;
+    store.setHover({ ...current, hoveredNodeId: node.id });
+  }, [store, node.id]);
+
+  const onPointerLeave = useCallback((): void => {
+    const current = store.getHover();
+    if (current.hoveredNodeId !== node.id) return;
+    store.setHover({ ...current, hoveredNodeId: null });
+  }, [store, node.id]);
+
+  // ── Per-node context for `<NodeGraph.Port>` slots ──
+  const nodeContext = useMemo<NodeGraphNodeContextValue>(
+    () => ({
+      nodeId: node.id,
+      onPortPointerDown: (event, portId) =>
+        onPortPointerDown(event, node.id, portId),
+    }),
+    [node.id, onPortPointerDown]
+  );
+
+  // Kept on the type for downstream resolvers (`defaultNodeSize` fallback).
+  void defaultSize;
 
   return (
     <div
+      ref={wrapperRef}
       className={cx(
         nodeWrapperRecipe({
           draggable,
           selectable,
           dragging,
+          autoSize,
         })
       )}
       style={wrapperStyle}
       data-node-id={node.id}
       data-hovered={hovered ? 'true' : undefined}
+      data-selected={selected ? 'true' : undefined}
+      data-dragging={dragging ? 'true' : undefined}
       onPointerDown={e => onBodyPointerDown(e, node)}
       onPointerUp={e => onBodyPointerUp(e, node)}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
       onContextMenu={e => onBodyContextMenu(e, node)}
     >
-      {body}
-      {(['left', 'right', 'top', 'bottom'] as const).map(side =>
-        portsBySide[side].map(({ port, offset }) => (
-          <NodeGraphPortView
-            key={port.id}
-            node={node}
-            port={port}
-            offset={offset}
-            renderPort={renderPort}
-            onStartConnection={e => onPortPointerDown(e, node.id, port.id)}
-          />
-        ))
-      )}
+      <NodeGraphNodeContext.Provider value={nodeContext}>
+        {body}
+      </NodeGraphNodeContext.Provider>
     </div>
   );
 }

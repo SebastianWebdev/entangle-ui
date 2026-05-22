@@ -14,7 +14,6 @@ import type {
   NodeGraphConnectionValidationInfo,
 } from './NodeGraph.types';
 import type { NodeGraphStore } from './NodeGraphStore';
-import { resolvePortRef } from './nodeGraphMath';
 
 interface UseNodeGraphConnectionOptions {
   viewportRef: React.RefObject<HTMLDivElement | null>;
@@ -32,11 +31,12 @@ interface UseNodeGraphConnectionOptions {
 
 interface UseNodeGraphConnectionReturn {
   /**
-   * Handler attached to each port. Starts a connection drag and wires up
-   * document-level pointer listeners until the drag terminates.
+   * Handler attached to each `<NodeGraph.Port>` slot. Starts a connection
+   * drag and wires up document-level pointer listeners until the drag
+   * terminates.
    */
   onPortPointerDown: (
-    event: React.PointerEvent<HTMLDivElement>,
+    event: React.PointerEvent<HTMLElement>,
     nodeId: string,
     portId: string
   ) => void;
@@ -55,6 +55,27 @@ function readPortRefFromElement(el: Element | null): NodeGraphPortRef | null {
     cursor = cursor.parentElement;
   }
   return null;
+}
+
+/**
+ * Build the validation info object passed to `isValidConnection`. Looks up
+ * the per-port side + dataType in the store so the consumer doesn't have
+ * to maintain a parallel port index.
+ */
+function buildValidationInfo(
+  store: NodeGraphStore,
+  source: NodeGraphPortRef,
+  target: NodeGraphPortRef
+): NodeGraphConnectionValidationInfo {
+  const src = store.getPortPosition(source.node, source.port);
+  const tgt = store.getPortPosition(target.node, target.port);
+  const sideCombo = src && tgt ? `${src.side}->${tgt.side}` : 'unknown';
+  return {
+    sameNode: source.node === target.node,
+    sideCombo,
+    ...(src?.dataType !== undefined ? { sourceDataType: src.dataType } : {}),
+    ...(tgt?.dataType !== undefined ? { targetDataType: tgt.dataType } : {}),
+  };
 }
 
 /**
@@ -111,7 +132,7 @@ export function useNodeGraphConnection(
 
   const onPortPointerDown = useCallback(
     (
-      event: React.PointerEvent<HTMLDivElement>,
+      event: React.PointerEvent<HTMLElement>,
       nodeId: string,
       portId: string
     ): void => {
@@ -120,19 +141,24 @@ export function useNodeGraphConnection(
       event.stopPropagation();
       event.preventDefault();
 
-      const data = store.getData();
-      const resolved = resolvePortRef(
-        { node: nodeId, port: portId },
-        data.nodes,
-        data.defaultNodeSize
-      );
-      if (!resolved) return;
+      // Bail when the port hasn't measured yet — without a registered
+      // position the preview curve has no anchor.
+      const sourcePos = store.getPortPosition(nodeId, portId);
+      if (!sourcePos) return;
 
       // If a previous gesture didn't tear down for some reason, clean it now.
       teardownRef.current?.();
 
       const source: NodeGraphPortRef = { node: nodeId, port: portId };
+      const sourceNode = store.getData().nodes.find(n => n.id === nodeId);
+      const sourceWorldPoint = sourceNode
+        ? {
+            x: sourceNode.position.x + sourcePos.x,
+            y: sourceNode.position.y + sourcePos.y,
+          }
+        : screenPointToWorld(event.clientX, event.clientY);
       const worldPoint = screenPointToWorld(event.clientX, event.clientY);
+
       store.setInteraction({
         kind: 'connect',
         source,
@@ -142,7 +168,7 @@ export function useNodeGraphConnection(
       });
       onConnectStartRef.current?.({
         source,
-        worldPoint: resolved.position,
+        worldPoint: sourceWorldPoint,
       });
 
       // RAF-coalesced move handler. `elementFromPoint` forces a layout flush,
@@ -174,29 +200,13 @@ export function useNodeGraphConnection(
             nextCandidate = null;
           } else {
             nextCandidate = candidateRef;
-            const sameNode = candidateRef.node === state.source.node;
-            const dataNow = store.getData();
-            const srcResolved = resolvePortRef(
-              state.source,
-              dataNow.nodes,
-              dataNow.defaultNodeSize
-            );
-            const tgtResolved = resolvePortRef(
-              candidateRef,
-              dataNow.nodes,
-              dataNow.defaultNodeSize
-            );
-            const sideCombo =
-              srcResolved && tgtResolved
-                ? `${srcResolved.port.side}->${tgtResolved.port.side}`
-                : 'unknown';
+            const info = buildValidationInfo(store, state.source, candidateRef);
             const validator = isValidRef.current;
             if (validator) {
-              invalid = !validator(state.source, candidateRef, {
-                sameNode,
-                sideCombo,
-              });
-            } else if (sameNode) {
+              invalid = !validator(state.source, candidateRef, info);
+            } else if (info.sameNode) {
+              // Default policy: reject same-node connections when consumer
+              // has no validator opinion (most graphs don't want self-loops).
               invalid = true;
             }
           }
@@ -250,26 +260,11 @@ export function useNodeGraphConnection(
 
         let cancelled = !candidate;
         if (candidate) {
-          const sameNode = candidate.node === state.source.node;
-          const dataNow = store.getData();
-          const srcResolved = resolvePortRef(
-            state.source,
-            dataNow.nodes,
-            dataNow.defaultNodeSize
-          );
-          const tgtResolved = resolvePortRef(
-            candidate,
-            dataNow.nodes,
-            dataNow.defaultNodeSize
-          );
-          const sideCombo =
-            srcResolved && tgtResolved
-              ? `${srcResolved.port.side}->${tgtResolved.port.side}`
-              : 'unknown';
+          const info = buildValidationInfo(store, state.source, candidate);
           const validator = isValidRef.current;
           const accepted = validator
-            ? validator(state.source, candidate, { sameNode, sideCombo })
-            : !sameNode;
+            ? validator(state.source, candidate, info)
+            : !info.sameNode;
           if (!accepted) {
             cancelled = true;
           } else {

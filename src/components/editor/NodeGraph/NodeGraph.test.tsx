@@ -10,7 +10,6 @@ import type {
   NodeGraphHandle,
   NodeGraphNode,
   NodeGraphEdge,
-  NodeGraphPortRenderCtx,
   NodeGraphSelection,
 } from './NodeGraph.types';
 
@@ -99,26 +98,8 @@ beforeEach(() => {
 // ─── Helpers ───
 
 const baseNodes: NodeGraphNode[] = [
-  {
-    id: 'n1',
-    position: { x: 100, y: 100 },
-    width: 80,
-    height: 40,
-    ports: [
-      { id: 'in', side: 'left' },
-      { id: 'out', side: 'right' },
-    ],
-  },
-  {
-    id: 'n2',
-    position: { x: 300, y: 100 },
-    width: 80,
-    height: 40,
-    ports: [
-      { id: 'in', side: 'left' },
-      { id: 'out', side: 'right' },
-    ],
-  },
+  { id: 'n1', position: { x: 100, y: 100 }, width: 80, height: 40 },
+  { id: 'n2', position: { x: 300, y: 100 }, width: 80, height: 40 },
 ];
 
 const baseEdges: NodeGraphEdge[] = [
@@ -129,6 +110,20 @@ const baseEdges: NodeGraphEdge[] = [
   },
 ];
 
+/**
+ * Default renderNode used by tests — renders a minimal body with two ports
+ * (`in` on the left, `out` on the right). Mirrors the simple two-port
+ * topology the old tests assumed when nodes had a `ports` field.
+ */
+function renderTestNode(): React.ReactNode {
+  return (
+    <div data-testid="node-body">
+      <NodeGraph.Port id="in" side="left" />
+      <NodeGraph.Port id="out" side="right" />
+    </div>
+  );
+}
+
 // ─── Rendering ───
 
 describe('NodeGraph — Rendering', () => {
@@ -138,13 +133,25 @@ describe('NodeGraph — Rendering', () => {
   });
 
   it('renders nodes from defaultNodes', () => {
-    renderWithTheme(<NodeGraph testId="nodegraph" defaultNodes={baseNodes} />);
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderNode={renderTestNode}
+      />
+    );
     expect(document.querySelector('[data-node-id="n1"]')).toBeInTheDocument();
     expect(document.querySelector('[data-node-id="n2"]')).toBeInTheDocument();
   });
 
   it('renders ports on each node', () => {
-    renderWithTheme(<NodeGraph testId="nodegraph" defaultNodes={baseNodes} />);
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderNode={renderTestNode}
+      />
+    );
     expect(
       document.querySelectorAll('[data-node-id="n1"][data-port-id]')
     ).toHaveLength(2);
@@ -171,7 +178,11 @@ describe('NodeGraph — Rendering', () => {
 
   it('renders the minimap slot when provided', () => {
     renderWithTheme(
-      <NodeGraph testId="nodegraph" defaultNodes={baseNodes}>
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderNode={renderTestNode}
+      >
         <NodeGraph.Minimap />
       </NodeGraph>
     );
@@ -182,11 +193,70 @@ describe('NodeGraph — Rendering', () => {
   });
 });
 
+// ─── Port slot ───
+
+describe('NodeGraph — <NodeGraph.Port>', () => {
+  it('renders one DOM element per slot with the correct data attrs', () => {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderNode={() => (
+          <div data-testid="body">
+            <NodeGraph.Port id="exec" side="left" dataType="exec" />
+            <NodeGraph.Port id="value" side="right" dataType="float" />
+          </div>
+        )}
+      />
+    );
+    const ports = document.querySelectorAll('[data-port-id]');
+    // Two slots × two nodes = four port elements total.
+    expect(ports).toHaveLength(4);
+    const exec = document.querySelector(
+      '[data-node-id="n1"][data-port-id="exec"]'
+    );
+    expect(exec).toHaveAttribute('data-port-side', 'left');
+    expect(exec).toHaveAttribute('data-port-data-type', 'exec');
+  });
+
+  it('throws when rendered outside renderNode', () => {
+    // The slot reads NodeGraphNodeContext from React context — using it
+    // outside <NodeGraph> would mean the context is missing.
+    const original = console.error;
+    console.error = vi.fn();
+    expect(() =>
+      renderWithTheme(<NodeGraph.Port id="x" side="left" />)
+    ).toThrow(/<NodeGraph.Port>/);
+    console.error = original;
+  });
+
+  it('renders consumer-supplied children as the visual', () => {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderNode={() => (
+          <NodeGraph.Port id="exec" side="left" dataType="exec">
+            <span data-testid="pin-visual">●</span>
+          </NodeGraph.Port>
+        )}
+      />
+    );
+    expect(screen.getAllByTestId('pin-visual')).toHaveLength(2);
+  });
+});
+
 // ─── Controlled state ───
 
 describe('NodeGraph — Controlled state', () => {
   it('reflects the controlled `nodes` prop', () => {
-    renderWithTheme(<NodeGraph testId="nodegraph" nodes={baseNodes} />);
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        nodes={baseNodes}
+        renderNode={renderTestNode}
+      />
+    );
     expect(
       document.querySelectorAll('[data-node-id]:not([data-port-id])')
     ).toHaveLength(2);
@@ -198,6 +268,7 @@ describe('NodeGraph — Controlled state', () => {
       <NodeGraph
         testId="nodegraph"
         nodes={baseNodes}
+        renderNode={renderTestNode}
         onNodesChange={onNodesChange}
       />
     );
@@ -225,6 +296,7 @@ describe('NodeGraph — Selection', () => {
       <NodeGraph
         testId="nodegraph"
         defaultNodes={baseNodes}
+        renderNode={renderTestNode}
         onSelectionChange={onSelectionChange}
       />
     );
@@ -245,6 +317,7 @@ describe('NodeGraph — Selection', () => {
       <NodeGraph
         testId="nodegraph"
         defaultNodes={baseNodes}
+        renderNode={renderTestNode}
         defaultSelection={{ nodes: ['n1'], edges: [], groups: [] }}
         onSelectionChange={onSelectionChange}
       />
@@ -296,6 +369,7 @@ describe('NodeGraph — Keyboard', () => {
       <NodeGraph
         testId="nodegraph"
         defaultNodes={baseNodes}
+        renderNode={renderTestNode}
         onSelectionChange={onSelectionChange}
       />
     );
@@ -314,6 +388,7 @@ describe('NodeGraph — Keyboard', () => {
       <NodeGraph
         testId="nodegraph"
         defaultNodes={baseNodes}
+        renderNode={renderTestNode}
         defaultSelection={{ nodes: ['n1'], edges: [], groups: [] }}
         onSelectionChange={onSelectionChange}
       />
@@ -333,6 +408,7 @@ describe('NodeGraph — Keyboard', () => {
       <NodeGraph
         testId="nodegraph"
         defaultNodes={baseNodes}
+        renderNode={renderTestNode}
         defaultSelection={{ nodes: ['n1'], edges: [], groups: [] }}
         onDelete={onDelete}
       />
@@ -355,6 +431,7 @@ describe('NodeGraph — Keyboard', () => {
       <NodeGraph
         testId="nodegraph"
         defaultNodes={baseNodes}
+        renderNode={renderTestNode}
         defaultSelection={{ nodes: ['n1'], edges: [], groups: [] }}
         onNodesChange={onNodesChange}
         snapToGrid={10}
@@ -397,6 +474,7 @@ describe('NodeGraph — Context menu', () => {
       <NodeGraph
         testId="nodegraph"
         defaultNodes={baseNodes}
+        renderNode={renderTestNode}
         onContextMenu={onContextMenu}
       />
     );
@@ -419,6 +497,7 @@ describe('NodeGraph — Context menu', () => {
       <NodeGraph
         testId="nodegraph"
         defaultNodes={baseNodes}
+        renderNode={renderTestNode}
         onContextMenu={onContextMenu}
       />
     );
@@ -451,6 +530,7 @@ describe('NodeGraph — Imperative handle', () => {
           ref={ref}
           testId="nodegraph"
           defaultNodes={baseNodes}
+          renderNode={renderTestNode}
           defaultEdges={baseEdges}
         />
       );
@@ -505,6 +585,7 @@ describe('NodeGraph — Connections', () => {
       <NodeGraph
         testId="nodegraph"
         defaultNodes={baseNodes}
+        renderNode={renderTestNode}
         onEdgesChange={onEdgesChange}
         onConnectEnd={onConnectEnd}
       />
@@ -563,6 +644,7 @@ describe('NodeGraph — Connections', () => {
       <NodeGraph
         testId="nodegraph"
         defaultNodes={baseNodes}
+        renderNode={renderTestNode}
         onEdgesChange={onEdgesChange}
         onConnectEnd={onConnectEnd}
         isValidConnection={() => false}
@@ -613,7 +695,11 @@ describe('NodeGraph — Slots', () => {
       [Symbol.for('etui.nodegraph.slot')]: 'minimap',
     });
     renderWithTheme(
-      <NodeGraph testId="nodegraph" defaultNodes={baseNodes}>
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderNode={renderTestNode}
+      >
         <MemoMinimap />
       </NodeGraph>
     );
@@ -632,6 +718,7 @@ describe('NodeGraph — Disabled state', () => {
       <NodeGraph
         testId="nodegraph"
         defaultNodes={baseNodes}
+        renderNode={renderTestNode}
         disabled
         onSelectionChange={onSelectionChange}
       />
@@ -745,55 +832,3 @@ describe('NodeGraph — Groups', () => {
   });
 });
 
-// ─── renderPort ───
-
-describe('NodeGraph — renderPort', () => {
-  it('renders the consumer content inside the port wrapper', () => {
-    renderWithTheme(
-      <NodeGraph
-        testId="nodegraph"
-        defaultNodes={baseNodes}
-        renderPort={port => (
-          <span data-testid={`port-${port.id}`}>{port.id}</span>
-        )}
-      />
-    );
-    expect(screen.getAllByTestId('port-in').length).toBeGreaterThan(0);
-    expect(screen.getAllByTestId('port-out').length).toBeGreaterThan(0);
-  });
-
-  it('preserves data-port-* attributes on the wrapper', () => {
-    renderWithTheme(
-      <NodeGraph
-        testId="nodegraph"
-        defaultNodes={baseNodes}
-        renderPort={port => <span>{port.id}</span>}
-      />
-    );
-    const port = document.querySelector(
-      '[data-node-id="n1"][data-port-id="out"]'
-    );
-    expect(port).not.toBeNull();
-    expect(port?.getAttribute('data-port-side')).toBe('right');
-  });
-
-  it('passes a port-render context with the expected initial flags', () => {
-    let capturedCtx: NodeGraphPortRenderCtx | null = null;
-    renderWithTheme(
-      <NodeGraph
-        testId="nodegraph"
-        defaultNodes={baseNodes}
-        renderPort={(port, n, ctx) => {
-          if (port.id === 'in' && n.id === 'n1') capturedCtx = ctx;
-          return <span>{port.id}</span>;
-        }}
-      />
-    );
-    const ctx = capturedCtx as unknown as NodeGraphPortRenderCtx | null;
-    expect(ctx).not.toBeNull();
-    expect(ctx?.isSource).toBe(false);
-    expect(ctx?.isCandidate).toBe(false);
-    expect(ctx?.isInvalid).toBe(false);
-    expect(ctx?.isHovered).toBe(false);
-  });
-});

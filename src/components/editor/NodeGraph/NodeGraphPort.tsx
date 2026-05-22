@@ -1,180 +1,197 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import { useResizeObserver } from '@/hooks';
 import { cx } from '@/utils/cx';
-import { portStyle } from './NodeGraph.css';
-import type {
-  NodeGraphNode,
-  NodeGraphPort,
-  NodeGraphPortRenderCtx,
-  NodeGraphPortSide,
-  NodeGraphRenderPort,
-} from './NodeGraph.types';
+import { portSlotRecipe } from './NodeGraph.css';
+import type { NodeGraphPortSlotProps } from './NodeGraph.types';
 import { useNodeGraphStore } from './NodeGraphContext';
+import { useNodeGraphNodeContext } from './NodeGraphNodeContext';
 import { useStoreSlice } from './useStoreSlice';
-
-interface NodeGraphPortViewProps {
-  node: NodeGraphNode;
-  port: NodeGraphPort;
-  /** Resolved offset 0..1 along the port's side. */
-  offset: number;
-  /** Called when the user starts a connection drag from this port. */
-  onStartConnection: (event: React.PointerEvent<HTMLDivElement>) => void;
-  /** Optional consumer-supplied renderer for the port visual. */
-  renderPort?: NodeGraphRenderPort;
-}
-
-function sideTopStyle(
-  side: NodeGraphPortSide,
-  offset: number
-): React.CSSProperties {
-  if (side === 'left' || side === 'right') {
-    return { top: `${offset * 100}%` };
-  }
-  return { left: `${offset * 100}%` };
-}
 
 interface PortVisualState {
   isSource: boolean;
   isCandidate: boolean;
   isInvalid: boolean;
+  isHovered: boolean;
 }
 
-const EMPTY_PORT_STATE: PortVisualState = {
+const EMPTY_VISUAL: PortVisualState = {
   isSource: false,
   isCandidate: false,
   isInvalid: false,
+  isHovered: false,
 };
 
-function portStateEqual(a: PortVisualState, b: PortVisualState): boolean {
+function visualEqual(a: PortVisualState, b: PortVisualState): boolean {
   return (
     a.isSource === b.isSource &&
     a.isCandidate === b.isCandidate &&
-    a.isInvalid === b.isInvalid
+    a.isInvalid === b.isInvalid &&
+    a.isHovered === b.isHovered
   );
 }
 
 /**
- * Render a port handle on a node edge.
+ * `<NodeGraph.Port>` — compound slot that declares a connection endpoint
+ * for the current node. Render it anywhere inside `renderNode`; the
+ * library measures its DOM position, registers it as the anchor for any
+ * edge that references this port id, and wires pointer events so the
+ * user can drag from it to start a connection.
  *
- * Subscribes to interaction + hover slices with per-port selectors so the
- * port re-renders only when *its* visual state changes — not on every
- * move event of an in-flight connection drag elsewhere in the graph.
+ * The slot renders a single `<span>` with `display: inline-flex` — drop
+ * it inline next to a label and it will sit beside the text. The wrapper
+ * carries the default UE-style circle / exec-triangle visual; pass
+ * `children` to replace the chrome entirely (state for theming is
+ * exposed via `data-port-*` attributes).
  *
- * When `renderPort` is provided, the consumer-supplied JSX is rendered
- * inside the port wrapper. The wrapper still owns the pointer events and
- * `data-*` attributes used by the connection drag — so consumer rendering
- * can focus purely on the visual.
+ * @example
+ * ```tsx
+ * <NodeGraph.Port id="in" side="left" dataType="exec" />
+ * ```
  */
-export function NodeGraphPortView({
-  node,
-  port,
-  offset,
-  onStartConnection,
-  renderPort,
-}: NodeGraphPortViewProps): React.ReactElement {
+export function NodeGraphPort({
+  id,
+  side,
+  dataType,
+  children,
+  label,
+  className,
+  style,
+}: NodeGraphPortSlotProps): React.ReactElement {
+  const { nodeId, onPortPointerDown } = useNodeGraphNodeContext();
   const store = useNodeGraphStore();
-  const nodeId = node.id;
-  const portId = port.id;
+  const elementRef = useRef<HTMLSpanElement>(null);
 
+  // ── Per-port visual state (slice subscription — no re-render storm) ──
   const visual = useStoreSlice(
     store.subscribeInteraction,
     store.getInteraction,
     interaction => {
-      if (interaction.kind !== 'connect') return EMPTY_PORT_STATE;
+      if (interaction.kind !== 'connect') return EMPTY_VISUAL;
       const isSource =
-        interaction.source.node === nodeId &&
-        interaction.source.port === portId;
+        interaction.source.node === nodeId && interaction.source.port === id;
       const isCandidate =
         interaction.candidate !== null &&
         interaction.candidate.node === nodeId &&
-        interaction.candidate.port === portId;
-      if (!isSource && !isCandidate) return EMPTY_PORT_STATE;
+        interaction.candidate.port === id;
+      if (!isSource && !isCandidate) return EMPTY_VISUAL;
       return {
         isSource,
         isCandidate,
         isInvalid: isCandidate && interaction.invalid,
+        isHovered: false,
       };
     },
-    portStateEqual
+    visualEqual
   );
 
-  const isHovered = useStoreSlice(
+  const hoverState = useStoreSlice(
     store.subscribeHover,
     store.getHover,
-    hover =>
-      hover.hoveredPort !== null &&
-      hover.hoveredPort.node === nodeId &&
-      hover.hoveredPort.port === portId
+    hover => ({
+      ...EMPTY_VISUAL,
+      isHovered:
+        hover.hoveredPort !== null &&
+        hover.hoveredPort.node === nodeId &&
+        hover.hoveredPort.port === id,
+    }),
+    visualEqual
   );
 
-  const handlePointerEnter = useCallback((): void => {
-    const current = store.getHover();
-    store.setHover({ ...current, hoveredPort: { node: nodeId, port: portId } });
-  }, [store, nodeId, portId]);
+  const isHovered = hoverState.isHovered;
+  const isSource = visual.isSource;
+  const isCandidate = visual.isCandidate;
+  const isInvalid = visual.isInvalid;
 
-  const handlePointerLeave = useCallback((): void => {
-    const current = store.getHover();
-    if (
-      current.hoveredPort?.node === nodeId &&
-      current.hoveredPort?.port === portId
-    ) {
-      store.setHover({ ...current, hoveredPort: null });
-    }
-  }, [store, nodeId, portId]);
+  // ── DOM measurement → store ──
+  //
+  // Run synchronously before paint so first frame's edges anchor at the
+  // correct point (no flash from origin). ResizeObserver picks up later
+  // layout shifts (consumer body expansion, font load, etc.).
+  const measure = useCallback((): void => {
+    const el = elementRef.current;
+    if (!el) return;
+    const wrapper = el.closest('[data-node-id]');
+    if (!wrapper) return;
+    const portRect = el.getBoundingClientRect();
+    const nodeRect = wrapper.getBoundingClientRect();
+    const x = portRect.left + portRect.width / 2 - nodeRect.left;
+    const y = portRect.top + portRect.height / 2 - nodeRect.top;
+    store.setPortPosition(nodeId, id, { x, y, side, dataType });
+  }, [store, nodeId, id, side, dataType]);
 
-  const sharedDataAttrs = {
-    'data-node-id': node.id,
-    'data-port-id': port.id,
-    'data-port-side': port.side,
-    'data-port-data-type': port.dataType,
-    'data-port-source': visual.isSource || undefined,
-    'data-port-candidate': visual.isCandidate || undefined,
-    'data-port-invalid': visual.isInvalid || undefined,
-  };
+  useLayoutEffect(() => {
+    measure();
+  }, [measure]);
 
-  if (renderPort) {
-    const ctx: NodeGraphPortRenderCtx = {
-      isSource: visual.isSource,
-      isCandidate: visual.isCandidate,
-      isInvalid: visual.isInvalid,
-      isHovered,
+  useResizeObserver(elementRef, () => measure());
+
+  // Unregister on unmount / id change.
+  useLayoutEffect(() => {
+    return () => {
+      store.removePortPosition(nodeId, id);
     };
-    return (
-      <div
-        className={cx(portStyle({ side: port.side, customRender: true }))}
-        style={sideTopStyle(port.side, offset)}
-        role="button"
-        tabIndex={-1}
-        aria-label={port.label ?? `${port.side} port ${port.id}`}
-        {...sharedDataAttrs}
-        onPointerDown={onStartConnection}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
-      >
-        {renderPort(port, node, ctx)}
-      </div>
-    );
-  }
+  }, [store, nodeId, id]);
+
+  // ── Hover wiring ──
+  //
+  // Update the store's `hoveredPort` slice on enter/leave so node bodies,
+  // edges, and other ports can react. Library guards against duplicate
+  // notifications when the value doesn't actually change.
+  const onPointerEnter = useCallback((): void => {
+    const current = store.getHover();
+    if (current.hoveredPort?.node === nodeId && current.hoveredPort.port === id)
+      return;
+    store.setHover({ ...current, hoveredPort: { node: nodeId, port: id } });
+  }, [store, nodeId, id]);
+
+  const onPointerLeave = useCallback((): void => {
+    const current = store.getHover();
+    if (current.hoveredPort?.node !== nodeId || current.hoveredPort.port !== id)
+      return;
+    store.setHover({ ...current, hoveredPort: null });
+  }, [store, nodeId, id]);
+
+  const handlePointerDown = useCallback(
+    (event: React.PointerEvent<HTMLSpanElement>): void => {
+      onPortPointerDown(event, id);
+    },
+    [onPortPointerDown, id]
+  );
+
+  const hasCustomVisual = children !== undefined && children !== null;
 
   return (
-    <div
-      className={cx(
-        portStyle({
-          side: port.side,
-          connecting: visual.isSource,
-          candidate: visual.isCandidate,
-          invalid: visual.isInvalid,
-        })
-      )}
-      style={sideTopStyle(port.side, offset)}
+    <span
+      ref={elementRef}
       role="button"
       tabIndex={-1}
-      aria-label={port.label ?? `${port.side} port ${port.id}`}
-      {...sharedDataAttrs}
-      onPointerDown={onStartConnection}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
-    />
+      aria-label={label ?? `${side} port ${id}`}
+      data-node-id={nodeId}
+      data-port-id={id}
+      data-port-side={side}
+      data-port-data-type={dataType}
+      data-port-source={isSource || undefined}
+      data-port-candidate={isCandidate || undefined}
+      data-port-invalid={isInvalid || undefined}
+      data-port-hovered={isHovered || undefined}
+      className={cx(
+        portSlotRecipe({
+          side,
+          custom: hasCustomVisual,
+          source: isSource,
+          candidate: isCandidate,
+          invalid: isInvalid,
+        }),
+        className
+      )}
+      style={style}
+      onPointerDown={handlePointerDown}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+    >
+      {hasCustomVisual ? children : null}
+    </span>
   );
 }

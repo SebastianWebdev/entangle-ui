@@ -1,9 +1,13 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useSyncExternalStore } from 'react';
 import { ViewportMinimap } from '@/components/editor/Minimap/ViewportMinimap';
 import { Minimap } from '@/components/editor/Minimap';
-import { useNodeGraphData, useNodeGraphSelection } from './NodeGraphContext';
+import {
+  useNodeGraphData,
+  useNodeGraphSelection,
+  useNodeGraphStore,
+} from './NodeGraphContext';
 import type { NodeGraphMinimapSlotProps } from './NodeGraph.types';
 import { computeNodesBounds, getNodeBox } from './nodeGraphMath';
 import type { MinimapItem, MinimapRectItem } from '@/components/editor/Minimap';
@@ -25,10 +29,21 @@ export function NodeGraphMinimapInner({
 }: NodeGraphMinimapSlotProps): React.ReactElement {
   const data = useNodeGraphData();
   const selection = useNodeGraphSelection();
+  const store = useNodeGraphStore();
+  // Subscribe to measured-size updates so the minimap rect for each node
+  // grows/shrinks as its DOM body changes height (auto-sized nodes).
+  useSyncExternalStore(
+    store.subscribeMeasuredSizes,
+    store.getMeasuredSize as unknown as () => unknown
+  );
 
   const items = useMemo<MinimapItem[]>(() => {
     return data.nodes.map<MinimapRectItem>(node => {
-      const box = getNodeBox(node, data.defaultNodeSize);
+      const box = getNodeBox(
+        node,
+        store.getMeasuredSize(node.id),
+        data.defaultNodeSize
+      );
       const item: MinimapRectItem = {
         id: node.id,
         type: 'rect',
@@ -42,10 +57,14 @@ export function NodeGraphMinimapInner({
       }
       return item;
     });
-  }, [data.nodes, data.defaultNodeSize, selection.nodes, selectedColor]);
+  }, [data.nodes, data.defaultNodeSize, selection.nodes, selectedColor, store]);
 
   const worldBounds = useMemo(() => {
-    const bounds = computeNodesBounds(data.nodes, data.defaultNodeSize);
+    const bounds = computeNodesBounds(
+      data.nodes,
+      store.getMeasuredSize,
+      data.defaultNodeSize
+    );
     if (bounds.width === 0 && bounds.height === 0) {
       // Provide a sensible default world rect so the minimap renders even
       // when the graph is empty.
@@ -60,7 +79,7 @@ export function NodeGraphMinimapInner({
       width: bounds.width + padX * 2,
       height: bounds.height + padY * 2,
     };
-  }, [data.nodes, data.defaultNodeSize]);
+  }, [data.nodes, data.defaultNodeSize, store]);
 
   return (
     <ViewportMinimap

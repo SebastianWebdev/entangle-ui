@@ -282,6 +282,151 @@ describe('NodeGraphStore — selection vs initial reference', () => {
   });
 });
 
+describe('NodeGraphStore — portPositions slice', () => {
+  it('starts empty and resolves null for unknown ports', () => {
+    const store = new NodeGraphStore();
+    expect(store.getPortPosition('a', 'out')).toBeNull();
+  });
+
+  it('registers a port position and notifies subscribers', () => {
+    const store = new NodeGraphStore();
+    const cb = vi.fn();
+    store.subscribePortPositions(cb);
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'right' });
+    expect(store.getPortPosition('a', 'out')).toEqual({
+      x: 10,
+      y: 20,
+      side: 'right',
+    });
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  it('no-ops when an identical position is set again', () => {
+    const store = new NodeGraphStore();
+    const cb = vi.fn();
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'right' });
+    store.subscribePortPositions(cb);
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'right' });
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it('notifies on changes to side or dataType, not just x/y', () => {
+    const store = new NodeGraphStore();
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'right' });
+    const cb = vi.fn();
+    store.subscribePortPositions(cb);
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'left' });
+    expect(cb).toHaveBeenCalledTimes(1);
+    store.setPortPosition('a', 'out', {
+      x: 10,
+      y: 20,
+      side: 'left',
+      dataType: 'exec',
+    });
+    expect(cb).toHaveBeenCalledTimes(2);
+  });
+
+  it('removes a port and notifies subscribers', () => {
+    const store = new NodeGraphStore();
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'right' });
+    const cb = vi.fn();
+    store.subscribePortPositions(cb);
+    store.removePortPosition('a', 'out');
+    expect(store.getPortPosition('a', 'out')).toBeNull();
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not notify when removing a port that does not exist', () => {
+    const store = new NodeGraphStore();
+    const cb = vi.fn();
+    store.subscribePortPositions(cb);
+    store.removePortPosition('ghost', 'nope');
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it('garbage-collects port positions for removed nodes on setData', () => {
+    const store = new NodeGraphStore();
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'right' });
+    store.setPortPosition('b', 'in', { x: 0, y: 20, side: 'left' });
+    const cb = vi.fn();
+    store.subscribePortPositions(cb);
+    // Drop nodeB from data.
+    store.setData({
+      nodes: [nodeA],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    expect(store.getPortPosition('b', 'in')).toBeNull();
+    expect(store.getPortPosition('a', 'out')).not.toBeNull();
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('NodeGraphStore — measuredSizes slice', () => {
+  it('starts empty', () => {
+    const store = new NodeGraphStore();
+    expect(store.getMeasuredSize('a')).toBeNull();
+  });
+
+  it('registers a measured size and notifies subscribers', () => {
+    const store = new NodeGraphStore();
+    const cb = vi.fn();
+    store.subscribeMeasuredSizes(cb);
+    store.setMeasuredSize('a', { width: 220, height: 80 });
+    expect(store.getMeasuredSize('a')).toEqual({ width: 220, height: 80 });
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  it('no-ops when the same size is set again', () => {
+    const store = new NodeGraphStore();
+    store.setMeasuredSize('a', { width: 220, height: 80 });
+    const cb = vi.fn();
+    store.subscribeMeasuredSizes(cb);
+    store.setMeasuredSize('a', { width: 220, height: 80 });
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it('clears a measurement and notifies subscribers', () => {
+    const store = new NodeGraphStore();
+    store.setMeasuredSize('a', { width: 220, height: 80 });
+    const cb = vi.fn();
+    store.subscribeMeasuredSizes(cb);
+    store.clearMeasuredSize('a');
+    expect(store.getMeasuredSize('a')).toBeNull();
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  it('garbage-collects measured sizes for removed nodes on setData', () => {
+    const store = new NodeGraphStore();
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    store.setMeasuredSize('a', { width: 220, height: 80 });
+    store.setMeasuredSize('b', { width: 240, height: 90 });
+    const cb = vi.fn();
+    store.subscribeMeasuredSizes(cb);
+    store.setData({
+      nodes: [nodeA],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    expect(store.getMeasuredSize('b')).toBeNull();
+    expect(store.getMeasuredSize('a')).not.toBeNull();
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('NodeGraphStore — nodeB import', () => {
   it('keeps nodeB usable in tests', () => {
     // Ensures nodeB import stays referenced — tests above use it implicitly.

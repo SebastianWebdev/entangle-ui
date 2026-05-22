@@ -63,6 +63,7 @@ export {
   NodeGraph,
   NodeGraphMinimap,
   NodeGraphBackground,
+  NodeGraphPort,
   NODE_GRAPH_SLOT,
   useNodeGraphStore,
   useNodeGraphData,
@@ -75,7 +76,6 @@ export {
   applyGroupResize,
   computeNodesBounds as computeNodeGraphBounds,
   getNodeBox,
-  getPortPosition,
   getBezierControlPoints,
   evaluateBezier,
   isPointNearBezier,
@@ -88,9 +88,9 @@ export {
 export type {
   NodeGraphProps,
   NodeGraphNode,
-  NodeGraphPort,
   NodeGraphPortRef,
   NodeGraphPortSide,
+  NodeGraphPortSlotProps,
   NodeGraphEdge,
   NodeGraphGroup,
   NodeGraphSelection,
@@ -100,8 +100,6 @@ export type {
   NodeGraphConnectEndInfo,
   NodeGraphConnectionValidationInfo,
   NodeGraphRenderCtx,
-  NodeGraphPortRenderCtx,
-  NodeGraphRenderPort,
   NodeGraphHandle,
   NodeGraphLayerName,
   NodeGraphGroupResizeHandle,
@@ -112,6 +110,8 @@ export type {
   NodeGraphDataState,
   NodeGraphInteractionState,
   NodeGraphHoverState,
+  NodeGraphPortPosition,
+  NodeGraphMeasuredSize,
 } from './NodeGraph';
 
 export type {

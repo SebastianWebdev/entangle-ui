@@ -1,5 +1,6 @@
 export { NodeGraph } from './NodeGraph';
 export { NodeGraphMinimap, NodeGraphBackground } from './NodeGraphMinimap';
+export { NodeGraphPort } from './NodeGraphPort';
 export {
   useNodeGraphStore,
   useNodeGraphData,
@@ -15,14 +16,12 @@ export {
   applyGroupResize,
   computeNodesBounds,
   getNodeBox,
-  getPortPosition,
   getBezierControlPoints,
   evaluateBezier,
   isPointNearBezier,
   isPointInNode,
   isPointInRect,
   rectsIntersect,
-  resolvePortOffsets,
   resolvePortRef,
   resolveEdgeEndpoints,
   sideVector,
@@ -32,9 +31,9 @@ export {
 export type {
   NodeGraphProps,
   NodeGraphNode,
-  NodeGraphPort,
   NodeGraphPortRef,
   NodeGraphPortSide,
+  NodeGraphPortSlotProps,
   NodeGraphEdge,
   NodeGraphGroup,
   NodeGraphSelection,
@@ -44,8 +43,6 @@ export type {
   NodeGraphConnectEndInfo,
   NodeGraphConnectionValidationInfo,
   NodeGraphRenderCtx,
-  NodeGraphPortRenderCtx,
-  NodeGraphRenderPort,
   NodeGraphHandle,
   NodeGraphLayerName,
   NodeGraphSlotKind,
@@ -59,4 +56,6 @@ export type {
   NodeGraphInteractionState,
   NodeGraphHoverState,
   NodeGraphGroupResizeHandle,
+  NodeGraphPortPosition,
+  NodeGraphMeasuredSize,
 } from './NodeGraphStore';

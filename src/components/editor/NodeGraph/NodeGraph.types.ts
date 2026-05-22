@@ -25,45 +25,20 @@ export interface NodeGraphPortRef {
 
 // ─── Data model ───
 
-/**
- * A port on a node. The position along the side is either explicitly set
- * via `offset` (0 = start, 1 = end) or distributed evenly across all ports
- * on the same side when `offset` is omitted.
- */
-export interface NodeGraphPort {
-  /** Stable identity within the owning node. */
-  id: string;
-  /** Which side of the node the port sits on. */
-  side: NodeGraphPortSide;
-  /**
-   * Position along the side as a fraction in `[0, 1]`. When omitted,
-   * ports without an explicit offset are spaced evenly across the side.
-   */
-  offset?: number;
-  /**
-   * Opaque data-type token. Not interpreted by the library — passed to
-   * `isValidConnection` and to `renderNode` so the consumer can colour
-   * the port, validate connections, etc.
-   */
-  dataType?: string;
-  /** Optional human-readable label, surfaced via `aria-label`. */
-  label?: string;
-}
-
 export interface NodeGraphNode {
   /** Stable identity. */
   id: string;
   /** Position in world coordinates (top-left corner of the node body). */
   position: Point2D;
   /**
-   * Width of the node body in world units. Used for port-position math
-   * and minimap mirroring. When omitted, defaults to `defaultNodeSize.width`.
+   * Override the auto-measured width of the node body. Use this when you
+   * need fixed-size nodes. When omitted, the library measures the rendered
+   * node DOM and uses that size for hit-testing, marquee selection, and
+   * minimap geometry.
    */
   width?: number;
-  /** Height of the node body in world units. Defaults to `defaultNodeSize.height`. */
+  /** Override the auto-measured height of the node body. See {@link width}. */
   height?: number;
-  /** Ports attached to this node. */
-  ports?: NodeGraphPort[];
   /** Arbitrary consumer payload passed to `renderNode`. */
   data?: unknown;
   /**
@@ -157,8 +132,12 @@ export interface NodeGraphConnectEndInfo {
 export interface NodeGraphConnectionValidationInfo {
   /** True when source and target reference the same node. */
   sameNode: boolean;
-  /** Side combination shorthand, e.g. 'right→left'. */
+  /** Side combination shorthand, e.g. `'right->left'`. */
   sideCombo: string;
+  /** `dataType` declared on the source `<NodeGraph.Port>`, if any. */
+  sourceDataType?: string;
+  /** `dataType` declared on the target `<NodeGraph.Port>`, if any. */
+  targetDataType?: string;
 }
 
 // ─── Rendering ───
@@ -175,28 +154,55 @@ export interface NodeGraphRenderCtx {
   zoom: number;
 }
 
-/** Context passed to `renderPort`. */
-export interface NodeGraphPortRenderCtx {
-  /** True when this port is the source of the in-flight connection. */
-  isSource: boolean;
-  /** True when this port is the current candidate target. */
-  isCandidate: boolean;
-  /** True when the current candidate is invalid (rejected by validator). */
-  isInvalid: boolean;
-  /** True when the pointer is hovering over the port. */
-  isHovered: boolean;
-}
+// ─── Port slot ───
 
 /**
- * Consumer-supplied renderer for the port visual. The library still owns
- * the pointer handlers and `data-*` attributes on the wrapper — the
- * returned content is placed inside the wrapper.
+ * Props for `<NodeGraph.Port>` — the compound child rendered inside
+ * `renderNode` to declare a connection endpoint.
+ *
+ * The library tracks the slot's DOM position and registers it as the
+ * anchor for any edge that references this port. Pointer events on the
+ * slot start a connection drag automatically — no manual wiring from the
+ * consumer.
+ *
+ * @example
+ * ```tsx
+ * <NodeGraph
+ *   renderNode={(node, ctx) => (
+ *     <MyNodeBody>
+ *       <Row>
+ *         <NodeGraph.Port id="exec-in" side="left" dataType="exec" />
+ *         Execute
+ *       </Row>
+ *     </MyNodeBody>
+ *   )}
+ * />
+ * ```
  */
-export type NodeGraphRenderPort = (
-  port: NodeGraphPort,
-  node: NodeGraphNode,
-  ctx: NodeGraphPortRenderCtx
-) => React.ReactNode;
+export interface NodeGraphPortSlotProps {
+  /** Stable identity within the owning node — referenced by `NodeGraphEdge`. */
+  id: string;
+  /** Which side of the node the port anchors to. Determines Bézier tangent. */
+  side: NodeGraphPortSide;
+  /**
+   * Opaque type token forwarded to `isValidConnection` and exposed on
+   * `data-port-data-type` for CSS theming. Not interpreted by the library.
+   */
+  dataType?: string;
+  /**
+   * Replace the default port visual (12px circle / exec-arrow triangle).
+   * When provided, no built-in chrome is rendered — the children fill the
+   * slot wrapper. State for theming (source / candidate / hover / invalid)
+   * is exposed via `data-port-*` attributes on the wrapper.
+   */
+  children?: React.ReactNode;
+  /** Accessible label. Falls back to `${side} port ${id}`. */
+  label?: string;
+  /** Extra class applied to the slot wrapper. */
+  className?: string;
+  /** Inline style override on the slot wrapper. */
+  style?: React.CSSProperties;
+}
 
 // ─── Imperative handle ───
 
@@ -270,24 +276,18 @@ export interface NodeGraphBaseProps extends Omit<
   defaultSelection?: NodeGraphSelection;
   onSelectionChange?: (selection: NodeGraphSelection) => void;
 
-  // ── Rendering slots ──
+  // ── Rendering ──
   /**
    * Render the body of a node. The returned content sits inside a wrapper
    * `<div>` positioned in world space — do not set position/transform
-   * yourself. Ports are rendered separately around the wrapper.
+   * yourself. Declare connection endpoints by placing `<NodeGraph.Port>`
+   * children anywhere inside the returned tree; the library tracks their
+   * DOM positions automatically and routes edges through them.
    */
   renderNode?: (
     node: NodeGraphNode,
     ctx: NodeGraphRenderCtx
   ) => React.ReactNode;
-  /**
-   * Render the visual for each port. The wrapper still owns pointer events
-   * and accessibility — the returned content fills the wrapper. Use this
-   * to render data-type-coloured pin handles, exec-pin triangles, etc.
-   *
-   * Default: a small generic circle styled with theme tokens.
-   */
-  renderPort?: NodeGraphRenderPort;
   /**
    * Render a label above the midpoint of an edge. Receives the edge data.
    * When omitted, `edge.label` is used as-is (if defined).
@@ -353,7 +353,10 @@ export interface NodeGraphBaseProps extends Omit<
   /** Fixed height when not responsive. @default 480 */
   height?: number;
   /**
-   * Default size used for nodes that don't declare `width` / `height`.
+   * Fallback size used when neither `node.width`/`height` nor the measured
+   * DOM size is yet available — for the brief window between mount and
+   * first ResizeObserver tick, and for the imperative `fitToContent` /
+   * minimap reads at first paint.
    * @default { width: 180, height: 80 }
    */
   defaultNodeSize?: { width: number; height: number };

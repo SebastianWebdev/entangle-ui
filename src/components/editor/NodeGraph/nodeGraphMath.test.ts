@@ -8,22 +8,18 @@ import {
   evaluateBezier,
   getBezierControlPoints,
   getNodeBox,
-  getPortPosition,
   isPointInNode,
   isPointInRect,
   isPointNearBezier,
   rectsIntersect,
   resolveEdgeEndpoints,
-  resolvePortOffsets,
   resolvePortRef,
   sideVector,
   snapDelta,
+  type PortPositionLookup,
 } from './nodeGraphMath';
-import type {
-  NodeGraphEdge,
-  NodeGraphNode,
-  NodeGraphPort,
-} from './NodeGraph.types';
+import type { NodeGraphEdge, NodeGraphNode } from './NodeGraph.types';
+import type { NodeGraphPortPosition } from './NodeGraphStore';
 
 const makeNode = (overrides: Partial<NodeGraphNode> = {}): NodeGraphNode => ({
   id: 'n1',
@@ -33,11 +29,15 @@ const makeNode = (overrides: Partial<NodeGraphNode> = {}): NodeGraphNode => ({
   ...overrides,
 });
 
-const port = (
-  overrides: Partial<NodeGraphPort> & Pick<NodeGraphPort, 'id' | 'side'>
-): NodeGraphPort => ({
-  ...overrides,
-});
+/**
+ * Build a `PortPositionLookup` from a per-node port table. Lets each test
+ * pre-register the ports it cares about without touching a real store.
+ */
+function makeLookup(
+  table: Record<string, Record<string, NodeGraphPortPosition>>
+): PortPositionLookup {
+  return (nodeId, portId) => table[nodeId]?.[portId] ?? null;
+}
 
 describe('getNodeBox', () => {
   it('uses explicit width/height when present', () => {
@@ -49,9 +49,15 @@ describe('getNodeBox', () => {
     });
   });
 
-  it('falls back to default size when omitted', () => {
+  it('prefers the measured DOM size when node.width/height are absent', () => {
     const node: NodeGraphNode = { id: 'n', position: { x: 5, y: 7 } };
-    const box = getNodeBox(node);
+    const box = getNodeBox(node, { width: 220, height: 140 });
+    expect(box).toEqual({ x: 5, y: 7, width: 220, height: 140 });
+  });
+
+  it('falls back to default size when neither override nor measurement is available', () => {
+    const node: NodeGraphNode = { id: 'n', position: { x: 5, y: 7 } };
+    const box = getNodeBox(node, null);
     expect(box).toEqual({
       x: 5,
       y: 7,
@@ -60,104 +66,24 @@ describe('getNodeBox', () => {
     });
   });
 
-  it('accepts custom defaults', () => {
-    const node: NodeGraphNode = { id: 'n', position: { x: 0, y: 0 } };
-    expect(getNodeBox(node, { width: 50, height: 25 })).toEqual({
+  it('keeps the explicit override even when a measured size exists', () => {
+    const node = makeNode({ width: 50, height: 25 });
+    expect(getNodeBox(node, { width: 999, height: 999 })).toEqual({
       x: 0,
       y: 0,
       width: 50,
       height: 25,
     });
   });
-});
 
-describe('resolvePortOffsets', () => {
-  it('returns 0.5 for a single implicit port', () => {
-    expect(resolvePortOffsets([port({ id: 'a', side: 'left' })])).toEqual([
-      0.5,
-    ]);
-  });
-
-  it('distributes implicit ports evenly across the side', () => {
-    const offsets = resolvePortOffsets([
-      port({ id: 'a', side: 'right' }),
-      port({ id: 'b', side: 'right' }),
-      port({ id: 'c', side: 'right' }),
-    ]);
-    expect(offsets).toEqual([0.25, 0.5, 0.75]);
-  });
-
-  it('keeps explicit offsets verbatim and ignores them when distributing', () => {
-    const offsets = resolvePortOffsets([
-      port({ id: 'a', side: 'right', offset: 0.1 }),
-      port({ id: 'b', side: 'right' }),
-      port({ id: 'c', side: 'right' }),
-      port({ id: 'd', side: 'right', offset: 0.9 }),
-    ]);
-    expect(offsets[0]).toBe(0.1);
-    expect(offsets[3]).toBe(0.9);
-    // Two implicit ports between → distributed across [0,1] with margins.
-    expect(offsets[1]).toBeCloseTo(1 / 3);
-    expect(offsets[2]).toBeCloseTo(2 / 3);
-  });
-
-  it('clamps explicit offsets to [0, 1]', () => {
-    expect(
-      resolvePortOffsets([
-        port({ id: 'a', side: 'left', offset: -0.5 }),
-        port({ id: 'b', side: 'left', offset: 1.5 }),
-      ])
-    ).toEqual([0, 1]);
-  });
-});
-
-describe('getPortPosition', () => {
-  const node = makeNode({
-    position: { x: 100, y: 200 },
-    width: 100,
-    height: 60,
-  });
-
-  it('positions a left port on the left edge at the given offset', () => {
-    const p = port({ id: 'in', side: 'left' });
-    const withPorts = { ...node, ports: [p] };
-    expect(getPortPosition(withPorts, p)).toEqual({ x: 100, y: 230 });
-  });
-
-  it('positions a right port on the right edge', () => {
-    const p = port({ id: 'out', side: 'right' });
-    const withPorts = { ...node, ports: [p] };
-    expect(getPortPosition(withPorts, p)).toEqual({ x: 200, y: 230 });
-  });
-
-  it('positions a top port on the top edge', () => {
-    const p = port({ id: 'top', side: 'top' });
-    const withPorts = { ...node, ports: [p] };
-    expect(getPortPosition(withPorts, p)).toEqual({ x: 150, y: 200 });
-  });
-
-  it('positions a bottom port on the bottom edge', () => {
-    const p = port({ id: 'bot', side: 'bottom' });
-    const withPorts = { ...node, ports: [p] };
-    expect(getPortPosition(withPorts, p)).toEqual({ x: 150, y: 260 });
-  });
-
-  it('distributes multiple ports on the same side evenly', () => {
-    const p1 = port({ id: 'a', side: 'right' });
-    const p2 = port({ id: 'b', side: 'right' });
-    const p3 = port({ id: 'c', side: 'right' });
-    const withPorts = { ...node, ports: [p1, p2, p3] };
-    expect(getPortPosition(withPorts, p1).y).toBeCloseTo(200 + 60 * 0.25);
-    expect(getPortPosition(withPorts, p2).y).toBeCloseTo(200 + 60 * 0.5);
-    expect(getPortPosition(withPorts, p3).y).toBeCloseTo(200 + 60 * 0.75);
-  });
-
-  it('respects explicit offset over even distribution', () => {
-    const p1 = port({ id: 'a', side: 'right', offset: 0.1 });
-    const p2 = port({ id: 'b', side: 'right', offset: 0.9 });
-    const withPorts = { ...node, ports: [p1, p2] };
-    expect(getPortPosition(withPorts, p1).y).toBe(200 + 60 * 0.1);
-    expect(getPortPosition(withPorts, p2).y).toBe(200 + 60 * 0.9);
+  it('accepts a custom defaults object', () => {
+    const node: NodeGraphNode = { id: 'n', position: { x: 0, y: 0 } };
+    expect(getNodeBox(node, null, { width: 50, height: 25 })).toEqual({
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 25,
+    });
   });
 });
 
@@ -178,10 +104,8 @@ describe('getBezierControlPoints', () => {
       { x: 200, y: 0 },
       'left'
     );
-    // c1 is to the right of p0
     expect(cp.c1.x).toBeGreaterThan(cp.p0.x);
     expect(cp.c1.y).toBe(cp.p0.y);
-    // c2 is to the left of p3
     expect(cp.c2.x).toBeLessThan(cp.p3.x);
     expect(cp.c2.y).toBe(cp.p3.y);
   });
@@ -193,7 +117,6 @@ describe('getBezierControlPoints', () => {
       { x: 5, y: 0 },
       'left'
     );
-    // c1 should be at least 32 world units from p0
     expect(cp.c1.x - cp.p0.x).toBeGreaterThanOrEqual(32);
   });
 
@@ -284,6 +207,16 @@ describe('hit-testing helpers', () => {
     expect(isPointInNode({ x: 200, y: 200 }, node)).toBe(false);
   });
 
+  it('isPointInNode uses the measured size when node has no width/height', () => {
+    const auto: NodeGraphNode = { id: 'auto', position: { x: 0, y: 0 } };
+    expect(
+      isPointInNode({ x: 30, y: 30 }, auto, { width: 50, height: 50 })
+    ).toBe(true);
+    expect(
+      isPointInNode({ x: 80, y: 30 }, auto, { width: 50, height: 50 })
+    ).toBe(false);
+  });
+
   it('isPointInRect detects containment', () => {
     expect(
       isPointInRect({ x: 5, y: 5 }, { x: 0, y: 0, width: 10, height: 10 })
@@ -332,7 +265,20 @@ describe('computeNodesBounds', () => {
     expect(bounds).toEqual({ x: 0, y: 0, width: 280, height: 140 });
   });
 
-  it('respects default size for unsized nodes', () => {
+  it('uses measured sizes for auto-sized nodes', () => {
+    const nodes: NodeGraphNode[] = [
+      { id: 'a', position: { x: 0, y: 0 } },
+      { id: 'b', position: { x: 100, y: 100 } },
+    ];
+    const sizes: Record<string, { width: number; height: number }> = {
+      a: { width: 120, height: 40 },
+      b: { width: 60, height: 30 },
+    };
+    const bounds = computeNodesBounds(nodes, id => sizes[id] ?? null);
+    expect(bounds).toEqual({ x: 0, y: 0, width: 160, height: 130 });
+  });
+
+  it('falls back to default size when a node has no measurement', () => {
     const bounds = computeNodesBounds([{ id: 'a', position: { x: 0, y: 0 } }]);
     expect(bounds).toEqual({
       x: 0,
@@ -357,36 +303,80 @@ describe('snapDelta', () => {
   });
 });
 
+describe('applyGroupResize', () => {
+  const start = { x: 100, y: 100, width: 200, height: 100 };
+
+  it('grows from the east handle along +x', () => {
+    expect(applyGroupResize(start, 'e', { x: 30, y: 0 })).toEqual({
+      x: 100,
+      y: 100,
+      width: 230,
+      height: 100,
+    });
+  });
+
+  it('shrinks from the west handle by moving x and reducing width', () => {
+    expect(applyGroupResize(start, 'w', { x: 30, y: 0 })).toEqual({
+      x: 130,
+      y: 100,
+      width: 170,
+      height: 100,
+    });
+  });
+
+  it('enforces MIN_GROUP_SIZE in both directions', () => {
+    const tiny = applyGroupResize(start, 'e', { x: -1000, y: 0 });
+    expect(tiny.width).toBe(MIN_GROUP_SIZE);
+    const tinyW = applyGroupResize(start, 'w', { x: 1000, y: 0 });
+    expect(tinyW.width).toBe(MIN_GROUP_SIZE);
+    expect(tinyW.x).toBe(start.x + start.width - MIN_GROUP_SIZE);
+  });
+
+  it('handles compound corner handles', () => {
+    expect(applyGroupResize(start, 'se', { x: 20, y: 10 })).toEqual({
+      x: 100,
+      y: 100,
+      width: 220,
+      height: 110,
+    });
+    expect(applyGroupResize(start, 'nw', { x: 20, y: 10 })).toEqual({
+      x: 120,
+      y: 110,
+      width: 180,
+      height: 90,
+    });
+  });
+});
+
 describe('resolvePortRef / resolveEdgeEndpoints', () => {
   const nodes: NodeGraphNode[] = [
-    {
-      id: 'a',
-      position: { x: 0, y: 0 },
-      width: 100,
-      height: 50,
-      ports: [{ id: 'out', side: 'right' }],
-    },
-    {
-      id: 'b',
-      position: { x: 300, y: 0 },
-      width: 100,
-      height: 50,
-      ports: [{ id: 'in', side: 'left' }],
-    },
+    { id: 'a', position: { x: 0, y: 0 }, width: 100, height: 50 },
+    { id: 'b', position: { x: 300, y: 0 }, width: 100, height: 50 },
   ];
 
+  const lookup = makeLookup({
+    a: { out: { x: 100, y: 25, side: 'right', dataType: 'exec' } },
+    b: { in: { x: 0, y: 25, side: 'left', dataType: 'exec' } },
+  });
+
   it('resolves a port reference to its world position', () => {
-    const ref = resolvePortRef({ node: 'a', port: 'out' }, nodes);
+    const ref = resolvePortRef({ node: 'a', port: 'out' }, nodes, lookup);
     expect(ref).not.toBeNull();
     expect(ref?.position).toEqual({ x: 100, y: 25 });
+    expect(ref?.side).toBe('right');
+    expect(ref?.dataType).toBe('exec');
   });
 
   it('returns null for an unknown node', () => {
-    expect(resolvePortRef({ node: 'x', port: 'out' }, nodes)).toBeNull();
+    expect(
+      resolvePortRef({ node: 'x', port: 'out' }, nodes, lookup)
+    ).toBeNull();
   });
 
-  it('returns null for an unknown port on a known node', () => {
-    expect(resolvePortRef({ node: 'a', port: 'zzz' }, nodes)).toBeNull();
+  it('returns null for a port that has not been measured yet', () => {
+    expect(
+      resolvePortRef({ node: 'a', port: 'unmeasured' }, nodes, lookup)
+    ).toBeNull();
   });
 
   it('resolves both endpoints of an edge', () => {
@@ -395,7 +385,7 @@ describe('resolvePortRef / resolveEdgeEndpoints', () => {
       source: { node: 'a', port: 'out' },
       target: { node: 'b', port: 'in' },
     };
-    const endpoints = resolveEdgeEndpoints(edge, nodes);
+    const endpoints = resolveEdgeEndpoints(edge, nodes, lookup);
     expect(endpoints).toEqual({
       source: { x: 100, y: 25 },
       srcSide: 'right',
@@ -410,7 +400,15 @@ describe('resolvePortRef / resolveEdgeEndpoints', () => {
       source: { node: 'a', port: 'out' },
       target: { node: 'x', port: 'in' },
     };
-    expect(resolveEdgeEndpoints(edge, nodes)).toBeNull();
+    expect(resolveEdgeEndpoints(edge, nodes, lookup)).toBeNull();
+  });
+
+  it('omits dataType from the resolved ref when not set on the port position', () => {
+    const noTypeLookup = makeLookup({
+      a: { out: { x: 100, y: 25, side: 'right' } },
+    });
+    const ref = resolvePortRef({ node: 'a', port: 'out' }, nodes, noTypeLookup);
+    expect(ref?.dataType).toBeUndefined();
   });
 });
 

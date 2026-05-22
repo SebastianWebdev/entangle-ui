@@ -51,6 +51,8 @@ import { NodeGraphNodeView } from './NodeGraphNode';
 import { NodeGraphGroupView } from './NodeGraphGroup';
 import { NodeGraphMinimapInner } from './NodeGraphMinimap';
 import { NodeGraphBackground, NodeGraphMinimap } from './NodeGraphSlots';
+import { NodeGraphPort } from './NodeGraphPort';
+import { useStoreSlice } from './useStoreSlice';
 import {
   buildDrawTheme,
   drawBackground,
@@ -188,7 +190,6 @@ const NodeGraphImpl = ({
   defaultSelection,
   onSelectionChange,
   renderNode,
-  renderPort,
   renderEdgeLabel,
   isValidConnection,
   snapToGrid = false,
@@ -320,7 +321,15 @@ const NodeGraphImpl = ({
       // the user sees on top.
       for (let i = currentNodes.length - 1; i >= 0; i--) {
         const node = currentNodes[i];
-        if (node && isPointInNode(worldPoint, node, defaultNodeSize)) {
+        if (
+          node &&
+          isPointInNode(
+            worldPoint,
+            node,
+            store.getMeasuredSize(node.id),
+            defaultNodeSize
+          )
+        ) {
           return { kind: 'node', id: node.id };
         }
       }
@@ -332,7 +341,7 @@ const NodeGraphImpl = ({
       }
       return { kind: 'empty', worldPoint };
     },
-    [defaultNodeSize, screenToWorldLocal, nodesRef, groupsRef]
+    [defaultNodeSize, screenToWorldLocal, nodesRef, groupsRef, store]
   );
 
   // ── Connection drag (ports) ──
@@ -860,7 +869,11 @@ const NodeGraphImpl = ({
       const rect: WorldRect = info.rect;
       const hits: string[] = [];
       for (const node of nodesRef.current) {
-        const box = getNodeBox(node, defaultNodeSize);
+        const box = getNodeBox(
+          node,
+          store.getMeasuredSize(node.id),
+          defaultNodeSize
+        );
         if (
           rectsIntersect(
             { x: box.x, y: box.y, width: box.width, height: box.height },
@@ -1017,7 +1030,16 @@ const NodeGraphImpl = ({
       const hover = store.getHover();
       const interaction = store.getInteraction();
       const theme = buildDrawTheme(info.theme);
-      drawEdges(ctx, info, data, sel, hover.hoveredEdgeId, interaction, theme);
+      drawEdges(
+        ctx,
+        info,
+        data,
+        sel,
+        hover.hoveredEdgeId,
+        interaction,
+        store.getPortPosition,
+        theme
+      );
     },
     [store]
   );
@@ -1034,14 +1056,14 @@ const NodeGraphImpl = ({
         ctx,
         info,
         interaction,
-        ref => {
+        portRef => {
           const resolved = resolvePortRef(
-            ref,
+            portRef,
             store.getData().nodes,
-            store.getData().defaultNodeSize
+            store.getPortPosition
           );
           if (!resolved) return null;
-          return { position: resolved.position, side: resolved.port.side };
+          return { position: resolved.position, side: resolved.side };
         },
         theme
       );
@@ -1076,6 +1098,13 @@ const NodeGraphImpl = ({
         invalidate('groups');
         invalidate('preview');
       }),
+      // Port positions (re)registered by `<NodeGraph.Port>` slots — edges
+      // anchor at the registered point, so any change must redraw.
+      store.subscribePortPositions(() => invalidate('edges')),
+      // Measured node sizes feed the marquee / hit-test bounds — no canvas
+      // redraw needed, but subscribe so React-side reads in renderers see
+      // the updates if they depend on it.
+      store.subscribeMeasuredSizes(() => undefined),
     ];
     return () => {
       for (const unsub of unsubs) unsub();
@@ -1089,7 +1118,11 @@ const NodeGraphImpl = ({
       fitToContent: padding => {
         const vp = viewportHandleRef.current;
         if (!vp) return;
-        const bounds = computeNodesBounds(nodesRef.current, defaultNodeSize);
+        const bounds = computeNodesBounds(
+          nodesRef.current,
+          store.getMeasuredSize,
+          defaultNodeSize
+        );
         if (bounds.width === 0 && bounds.height === 0) return;
         vp.fitToContent(bounds, padding ?? 32);
       },
@@ -1099,7 +1132,11 @@ const NodeGraphImpl = ({
         const sel = selectionRef.current.nodes;
         if (sel.length === 0) return;
         const selectedNodes = nodesRef.current.filter(n => sel.includes(n.id));
-        const bounds = computeNodesBounds(selectedNodes, defaultNodeSize);
+        const bounds = computeNodesBounds(
+          selectedNodes,
+          store.getMeasuredSize,
+          defaultNodeSize
+        );
         if (bounds.width === 0 && bounds.height === 0) return;
         vp.fitToContent(bounds, padding ?? 64);
       },
@@ -1108,7 +1145,11 @@ const NodeGraphImpl = ({
         if (!vp) return;
         const node = nodesRef.current.find(n => n.id === idStr);
         if (!node) return;
-        const box = getNodeBox(node, defaultNodeSize);
+        const box = getNodeBox(
+          node,
+          store.getMeasuredSize(node.id),
+          defaultNodeSize
+        );
         vp.centerOn({
           x: box.x + box.width / 2,
           y: box.y + box.height / 2,
@@ -1127,7 +1168,7 @@ const NodeGraphImpl = ({
       screenToWorld: point => worldFromScreen(point, getTransform()),
       invalidate: layerName => viewportHandleRef.current?.invalidate(layerName),
     }),
-    [nodesRef, selectionRef, defaultNodeSize, getTransform]
+    [nodesRef, selectionRef, defaultNodeSize, getTransform, store]
   );
 
   // Edge labels rendered as world-space children at the midpoint of each
@@ -1183,17 +1224,13 @@ const NodeGraphImpl = ({
                 node={node}
                 defaultSize={defaultNodeSize}
                 renderNode={renderNode}
-                renderPort={renderPort}
                 onBodyPointerDown={onNodeBodyPointerDown}
                 onBodyPointerUp={onNodeBodyPointerUp}
                 onPortPointerDown={onPortPointerDown}
                 onBodyContextMenu={onBodyContextMenuPerNode}
               />
             ))}
-            <EdgeLabelsLayer
-              defaultSize={defaultNodeSize}
-              renderEdgeLabelRef={renderEdgeLabelRef}
-            />
+            <EdgeLabelsLayer renderEdgeLabelRef={renderEdgeLabelRef} />
           </ViewportWorld>
           <ViewportLayer name="preview" draw={drawPreviewLayer} />
           {slots.hasMinimap ? (
@@ -1214,10 +1251,8 @@ const NodeGraphImpl = ({
 // dragged nodes live without forcing a re-render of the whole NodeGraph.
 
 function EdgeLabelsLayer({
-  defaultSize,
   renderEdgeLabelRef,
 }: {
-  defaultSize: { width: number; height: number };
   renderEdgeLabelRef: {
     current: ((edge: NodeGraphEdge) => React.ReactNode) | undefined;
   };
@@ -1228,6 +1263,13 @@ function EdgeLabelsLayer({
     store.subscribeInteraction,
     store.getInteraction
   );
+  // Subscribe to port positions so labels follow late-mounted ports and
+  // any layout shift inside a node body that moves a port's anchor.
+  useStoreSlice(
+    store.subscribePortPositions,
+    () => store.getPortPosition,
+    fn => fn
+  );
 
   const dragSet =
     interaction.kind === 'drag-nodes'
@@ -1237,8 +1279,16 @@ function EdgeLabelsLayer({
   return (
     <>
       {data.edges.map(edge => {
-        const src = resolvePortRef(edge.source, data.nodes, defaultSize);
-        const tgt = resolvePortRef(edge.target, data.nodes, defaultSize);
+        const src = resolvePortRef(
+          edge.source,
+          data.nodes,
+          store.getPortPosition
+        );
+        const tgt = resolvePortRef(
+          edge.target,
+          data.nodes,
+          store.getPortPosition
+        );
         if (!src || !tgt) return null;
         const srcOffset = dragSet?.ids.has(edge.source.node)
           ? dragSet.delta
@@ -1293,6 +1343,7 @@ function EdgeLabel({
 type NodeGraphCompound = typeof NodeGraphImpl & {
   Minimap: typeof NodeGraphMinimap;
   Background: typeof NodeGraphBackground;
+  Port: typeof NodeGraphPort;
 };
 
 (NodeGraphImpl as unknown as { displayName: string }).displayName = 'NodeGraph';
@@ -1300,5 +1351,6 @@ type NodeGraphCompound = typeof NodeGraphImpl & {
 const NodeGraphWithSlots = NodeGraphImpl as NodeGraphCompound;
 NodeGraphWithSlots.Minimap = NodeGraphMinimap;
 NodeGraphWithSlots.Background = NodeGraphBackground;
+NodeGraphWithSlots.Port = NodeGraphPort;
 
 export const NodeGraph = NodeGraphWithSlots;

@@ -17,19 +17,32 @@ export const nodeGraphRootStyle = style({
 
 /**
  * Wrapper for a single node's HTML body. Positioned absolutely inside
- * `ViewportWorld`. Ports are absolutely positioned children of this wrapper.
+ * `ViewportWorld`. When `autoSize` is `true` the wrapper has no width/height
+ * — it sizes to its content and the library picks up the rendered size
+ * via `ResizeObserver`. When the consumer sets `node.width`/`height`, the
+ * inline CSS vars `nodeWidthVar` / `nodeHeightVar` take over.
  */
 export const nodeWrapperRecipe = recipe({
   base: {
     position: 'absolute',
-    width: nodeWidthVar,
-    height: nodeHeightVar,
     boxSizing: 'border-box',
     pointerEvents: 'auto',
     cursor: 'default',
     transition: `box-shadow ${vars.transitions.fast}`,
   },
   variants: {
+    autoSize: {
+      true: {
+        // Node sizes to its body content. Consumer JSX decides dimensions.
+        width: 'max-content',
+        height: 'auto',
+      },
+      false: {
+        // Library-controlled dimensions via inline CSS vars.
+        width: nodeWidthVar,
+        height: nodeHeightVar,
+      },
+    },
     draggable: {
       true: { cursor: 'grab' },
       false: {},
@@ -44,6 +57,7 @@ export const nodeWrapperRecipe = recipe({
     },
   },
   defaultVariants: {
+    autoSize: true,
     draggable: true,
     selectable: true,
     dragging: false,
@@ -91,10 +105,21 @@ export const defaultNodeBodyRecipe = recipe({
   },
 });
 
-/** Port handle — small circle on the node edge. */
-export const portStyle = recipe({
+/**
+ * `<NodeGraph.Port>` slot — inline anchor rendered inside `renderNode`.
+ *
+ * The slot is the **single source of truth** for both the visual handle
+ * and the geometry endpoint of the edge — hover scale uses
+ * `transform-origin: center` so the center (= edge endpoint) doesn't
+ * move when the user hovers. Sits inline‑flex by default; drop it next
+ * to a label and it lines up automatically.
+ */
+export const portSlotRecipe = recipe({
   base: {
-    position: 'absolute',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
     width: 12,
     height: 12,
     borderRadius: '50%',
@@ -103,63 +128,40 @@ export const portStyle = recipe({
     boxSizing: 'border-box',
     pointerEvents: 'auto',
     cursor: 'crosshair',
+    verticalAlign: 'middle',
+    transformOrigin: 'center',
     transition: `transform ${vars.transitions.fast}, background ${vars.transitions.fast}, border-color ${vars.transitions.fast}`,
     selectors: {
       '&:hover': {
-        transform:
-          'translate(var(--etui-nodegraph-port-tx, -50%), var(--etui-nodegraph-port-ty, -50%)) scale(1.25)',
+        transform: 'scale(1.25)',
         background: vars.colors.accent.primary,
         borderColor: vars.colors.accent.primary,
       },
     },
   },
   variants: {
+    // `side` is encoded as a data attribute / on the wrapper for consumer
+    // CSS targeting; the visual itself is symmetric so no per-side style
+    // override is needed at the default-chrome layer.
     side: {
-      left: {
-        vars: {
-          '--etui-nodegraph-port-tx': '-50%',
-          '--etui-nodegraph-port-ty': '-50%',
-        },
-        transform: 'translate(-50%, -50%)',
-        left: 0,
-      },
-      right: {
-        vars: {
-          '--etui-nodegraph-port-tx': '50%',
-          '--etui-nodegraph-port-ty': '-50%',
-        },
-        transform: 'translate(50%, -50%)',
-        right: 0,
-      },
-      top: {
-        vars: {
-          '--etui-nodegraph-port-tx': '-50%',
-          '--etui-nodegraph-port-ty': '-50%',
-        },
-        transform: 'translate(-50%, -50%)',
-        top: 0,
-      },
-      bottom: {
-        vars: {
-          '--etui-nodegraph-port-tx': '-50%',
-          '--etui-nodegraph-port-ty': '50%',
-        },
-        transform: 'translate(-50%, 50%)',
-        bottom: 0,
-      },
+      left: {},
+      right: {},
+      top: {},
+      bottom: {},
     },
-    connecting: {
+    source: {
       true: {
         background: vars.colors.accent.primary,
         borderColor: vars.colors.accent.primary,
+        transform: 'scale(1.15)',
       },
       false: {},
     },
     candidate: {
       true: {
-        transform:
-          'translate(var(--etui-nodegraph-port-tx, -50%), var(--etui-nodegraph-port-ty, -50%)) scale(1.4)',
+        transform: 'scale(1.4)',
         background: vars.colors.accent.primary,
+        borderColor: vars.colors.accent.primary,
       },
       false: {},
     },
@@ -170,19 +172,26 @@ export const portStyle = recipe({
       },
       false: {},
     },
-    customRender: {
-      // When the consumer supplies `renderPort`, strip the default circle
-      // chrome but keep positioning / pointer-event behaviour intact.
+    /**
+     * When the consumer renders custom content via `children`, strip the
+     * default circle chrome so the consumer fully owns the visual. The
+     * slot wrapper still carries pointer events + measurement + ARIA.
+     */
+    custom: {
       true: {
+        width: 'auto',
+        height: 'auto',
+        minWidth: 0,
+        minHeight: 0,
+        padding: 0,
         background: 'transparent',
         border: 'none',
         borderRadius: 0,
-        width: 'auto',
-        height: 'auto',
+        cursor: 'crosshair',
         transition: 'none',
         selectors: {
           '&:hover': {
-            transform: 'var(--etui-nodegraph-port-base-transform, none)',
+            transform: 'none',
             background: 'transparent',
             borderColor: 'transparent',
           },
@@ -192,10 +201,10 @@ export const portStyle = recipe({
     },
   },
   defaultVariants: {
-    connecting: false,
+    source: false,
     candidate: false,
     invalid: false,
-    customRender: false,
+    custom: false,
   },
 });
 
