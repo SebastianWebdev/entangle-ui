@@ -4,14 +4,58 @@ description: Data-driven node editor surface with ports, Bézier edges, multi-se
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
-import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import PreviewToggle from '../../../../components/PreviewToggle.astro';
 import NodeGraphDemo from '../../../../components/demos/editor/NodeGraphDemo';
 
 `NodeGraph` is the flagship editor surface — a controlled-or-uncontrolled, data-driven node editor with ports, Bézier edges, multi-selection, drag, marquee, snap-to-grid, connection validation, keyboard navigation, a context-menu event, optional groups, and a `<Minimap>` slot. It composes `Viewport` for pan/zoom + canvas layers, so all of `Viewport`'s gesture, accessibility, and performance work is inherited for free.
 
-<ComponentPreview title="Live Preview">
+<PreviewToggle
+  title="Blueprint-style live preview"
+  description="UE5 Blueprint-flavoured demo — drag pins to connect (type-checked), drag nodes (edges follow live), marquee-select on empty background, Cmd/Ctrl+A to select all, Delete to remove. Groups, minimap, edge type labels, and the imperative `fitToContent` / `focusNode` handle are all wired up."
+  height="640px"
+  code={`<NodeGraph
+  nodes={nodes}
+  edges={edges}
+  groups={groups}
+  selection={selection}
+  onNodesChange={setNodes}
+  onEdgesChange={setEdges}
+  onSelectionChange={setSelection}
+  onDelete={sel => {
+    setNodes(prev => prev.filter(n => !sel.nodes.includes(n.id)));
+    setEdges(prev =>
+      prev.filter(
+        e =>
+          !sel.edges.includes(e.id) &&
+          !sel.nodes.includes(e.source.node) &&
+          !sel.nodes.includes(e.target.node)
+      )
+    );
+    setSelection({ nodes: [], edges: [], groups: [] });
+  }}
+  renderNode={(node, ctx) => <BlueprintNodeBody node={node} ctx={ctx} />}
+  renderEdgeLabel={edge => {
+    const pin = getPin(edge.source);
+    if (!pin || pin.dataType === 'exec') return null;
+    return <TypePill type={pin.dataType} />;
+  }}
+  isValidConnection={(source, target, info) => {
+    if (info.sameNode) return false;
+    if (info.sideCombo !== 'right->left') return false;
+    const types = lookupTypes(source, target);
+    return !types || types.src === types.tgt || types.src === 'any';
+  }}
+  snapToGrid={8}
+  minZoom={0.2}
+  maxZoom={2.5}
+  responsive
+>
+  <NodeGraph.Background variant="dots" gap={20} />
+  <NodeGraph.Minimap placement="bottom-right" width={220} title="Graph Overview" />
+</NodeGraph>`}
+>
   <NodeGraphDemo client:only="react" />
-</ComponentPreview>
+</PreviewToggle>
 
 ## Import
 

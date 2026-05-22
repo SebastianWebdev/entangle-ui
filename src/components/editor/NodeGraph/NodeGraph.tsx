@@ -6,6 +6,7 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
+  useSyncExternalStore,
 } from 'react';
 import { useControlledState, useLatest } from '@/hooks';
 import {
@@ -40,7 +41,7 @@ import type {
 } from './NodeGraph.types';
 import { NODE_GRAPH_SLOT } from './NodeGraph.types';
 import { NodeGraphStore, marqueeWorldRect } from './NodeGraphStore';
-import { NodeGraphStoreContext } from './NodeGraphContext';
+import { NodeGraphStoreContext, useNodeGraphStore } from './NodeGraphContext';
 import { NodeGraphNodeView } from './NodeGraphNode';
 import {
   NodeGraphMinimapInner,
@@ -655,8 +656,9 @@ const NodeGraphImpl = ({
       const data = store.getData();
       const sel = store.getSelection();
       const hover = store.getHover();
+      const interaction = store.getInteraction();
       const theme = buildDrawTheme(info.theme);
-      drawEdges(ctx, info, data, sel, hover.hoveredEdgeId, theme);
+      drawEdges(ctx, info, data, sel, hover.hoveredEdgeId, interaction, theme);
     },
     [store]
   );
@@ -706,7 +708,13 @@ const NodeGraphImpl = ({
         invalidate('edges');
       }),
       store.subscribeHover(() => invalidate('edges')),
-      store.subscribeInteraction(() => invalidate('preview')),
+      // Interaction drives the in-flight drag delta — both the edges layer
+      // (so connectors follow the dragged nodes live, not snap on release)
+      // and the preview layer need to redraw on every tick.
+      store.subscribeInteraction(() => {
+        invalidate('edges');
+        invalidate('preview');
+      }),
     ].reduce<() => void>(
       (prev, unsub) => () => {
         prev();
@@ -764,35 +772,10 @@ const NodeGraphImpl = ({
     [nodesRef, selectionRef, defaultNodeSize, getTransform]
   );
 
-  // Edge labels rendered as world-space children (with translate-by-zoom
-  // applied inside ViewportWorld). Position at the midpoint of the bezier.
-  type EdgeLabelEntry = {
-    id: string;
-    x: number;
-    y: number;
-    content: NonNullable<React.ReactNode>;
-  };
-  const edgeLabels = useMemo<EdgeLabelEntry[]>(() => {
-    const out: EdgeLabelEntry[] = [];
-    for (const edge of edges) {
-      const src = resolvePortRef(edge.source, nodes, defaultNodeSize);
-      const tgt = resolvePortRef(edge.target, nodes, defaultNodeSize);
-      if (!src || !tgt) continue;
-      const midX = (src.position.x + tgt.position.x) / 2;
-      const midY = (src.position.y + tgt.position.y) / 2;
-      const labelContent = renderEdgeLabel
-        ? renderEdgeLabel(edge)
-        : (edge.label ?? null);
-      if (labelContent == null || labelContent === false) continue;
-      out.push({
-        id: edge.id,
-        x: midX,
-        y: midY,
-        content: labelContent,
-      });
-    }
-    return out;
-  }, [edges, nodes, defaultNodeSize, renderEdgeLabel]);
+  // Edge labels rendered as world-space children at the midpoint of each
+  // edge. Mounted as its own subscriber component so the labels follow
+  // dragged nodes live without re-rendering the whole NodeGraph.
+  const renderEdgeLabelRef = useLatest(renderEdgeLabel);
 
   return (
     <NodeGraphStoreContext.Provider value={store}>
@@ -839,14 +822,10 @@ const NodeGraphImpl = ({
                 onBodyContextMenu={onBodyContextMenuPerNode}
               />
             ))}
-            {edgeLabels.map(label => (
-              <EdgeLabel
-                key={label.id}
-                x={label.x}
-                y={label.y}
-                content={label.content}
-              />
-            ))}
+            <EdgeLabelsLayer
+              defaultSize={defaultNodeSize}
+              renderEdgeLabelRef={renderEdgeLabelRef}
+            />
           </ViewportWorld>
           <ViewportLayer name="preview" draw={drawPreviewLayer} />
           <MarqueeOverlay />
@@ -860,6 +839,61 @@ const NodeGraphImpl = ({
     </NodeGraphStoreContext.Provider>
   );
 };
+
+// ─── Edge labels layer ───
+//
+// Renders one HTML element per edge label at the world-space midpoint of
+// the edge. Subscribes to data + interaction slices so labels follow the
+// dragged nodes live without forcing a re-render of the whole NodeGraph.
+
+function EdgeLabelsLayer({
+  defaultSize,
+  renderEdgeLabelRef,
+}: {
+  defaultSize: { width: number; height: number };
+  renderEdgeLabelRef: {
+    current: ((edge: NodeGraphEdge) => React.ReactNode) | undefined;
+  };
+}): React.ReactElement | null {
+  const store = useNodeGraphStore();
+  const data = useSyncExternalStore(store.subscribeData, store.getData);
+  const interaction = useSyncExternalStore(
+    store.subscribeInteraction,
+    store.getInteraction
+  );
+
+  const dragSet =
+    interaction.kind === 'drag-nodes'
+      ? { ids: new Set(interaction.nodeIds), delta: interaction.delta }
+      : null;
+
+  return (
+    <>
+      {data.edges.map(edge => {
+        const src = resolvePortRef(edge.source, data.nodes, defaultSize);
+        const tgt = resolvePortRef(edge.target, data.nodes, defaultSize);
+        if (!src || !tgt) return null;
+        const srcOffset = dragSet?.ids.has(edge.source.node)
+          ? dragSet.delta
+          : null;
+        const tgtOffset = dragSet?.ids.has(edge.target.node)
+          ? dragSet.delta
+          : null;
+        const sx = src.position.x + (srcOffset?.x ?? 0);
+        const sy = src.position.y + (srcOffset?.y ?? 0);
+        const tx = tgt.position.x + (tgtOffset?.x ?? 0);
+        const ty = tgt.position.y + (tgtOffset?.y ?? 0);
+        const midX = (sx + tx) / 2;
+        const midY = (sy + ty) / 2;
+        const content = renderEdgeLabelRef.current
+          ? renderEdgeLabelRef.current(edge)
+          : (edge.label ?? null);
+        if (content == null || content === false) return null;
+        return <EdgeLabel key={edge.id} x={midX} y={midY} content={content} />;
+      })}
+    </>
+  );
+}
 
 // ─── Edge label (positioned in world space) ───
 

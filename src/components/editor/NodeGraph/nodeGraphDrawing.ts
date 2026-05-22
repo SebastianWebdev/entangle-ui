@@ -80,8 +80,13 @@ export function drawEdges(
   data: NodeGraphDataState,
   selection: NodeGraphSelection,
   hoveredEdgeId: string | null,
+  interaction: NodeGraphInteractionState,
   theme: NodeGraphDrawTheme
 ): void {
+  const dragSet =
+    interaction.kind === 'drag-nodes'
+      ? { ids: new Set(interaction.nodeIds), delta: interaction.delta }
+      : null;
   for (const edge of data.edges) {
     const endpoints = resolveEdgeEndpoints(
       edge,
@@ -90,10 +95,25 @@ export function drawEdges(
     );
     if (!endpoints) continue;
 
+    // Apply the in-flight drag delta so edges follow nodes 1:1 during a drag,
+    // instead of snapping to the new position on pointerup.
+    const source = dragSet?.ids.has(edge.source.node)
+      ? {
+          x: endpoints.source.x + dragSet.delta.x,
+          y: endpoints.source.y + dragSet.delta.y,
+        }
+      : endpoints.source;
+    const target = dragSet?.ids.has(edge.target.node)
+      ? {
+          x: endpoints.target.x + dragSet.delta.x,
+          y: endpoints.target.y + dragSet.delta.y,
+        }
+      : endpoints.target;
+
     const cpWorld = getBezierControlPoints(
-      endpoints.source,
+      source,
       endpoints.srcSide,
-      endpoints.target,
+      target,
       endpoints.tgtSide
     );
     const cpScreen = toScreenCp(cpWorld, p => info.worldToScreen(p));

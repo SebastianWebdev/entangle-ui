@@ -4,7 +4,38 @@
 
 `NodeGraph` is the flagship editor surface — a controlled-or-uncontrolled, data-driven node editor with ports, Bézier edges, multi-selection, drag, marquee, snap-to-grid, connection validation, keyboard navigation, a context-menu event, optional groups, and a `<Minimap>` slot. It composes `Viewport` for pan/zoom + canvas layers, so all of `Viewport`'s gesture, accessibility, and performance work is inherited for free.
 
-**Live Preview**
+ {
+    setNodes(prev => prev.filter(n => !sel.nodes.includes(n.id)));
+    setEdges(prev =>
+      prev.filter(
+        e =>
+          !sel.edges.includes(e.id) &&
+          !sel.nodes.includes(e.source.node) &&
+          !sel.nodes.includes(e.target.node)
+      )
+    );
+    setSelection({ nodes: [], edges: [], groups: [] });
+  }}
+  renderNode={(node, ctx) => }
+  renderEdgeLabel={edge => {
+    const pin = getPin(edge.source);
+    if (!pin || pin.dataType === 'exec') return null;
+    return ;
+  }}
+  isValidConnection={(source, target, info) => {
+    if (info.sameNode) return false;
+    if (info.sideCombo !== 'right->left') return false;
+    const types = lookupTypes(source, target);
+    return !types || types.src === types.tgt || types.src === 'any';
+  }}
+  snapToGrid={8}
+  minZoom={0.2}
+  maxZoom={2.5}
+  responsive
+>
+
+`}
+>
 
 ## Import
 
