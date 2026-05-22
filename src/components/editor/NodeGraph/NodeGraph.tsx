@@ -52,7 +52,6 @@ import { NodeGraphGroupView } from './NodeGraphGroup';
 import { NodeGraphMinimapInner } from './NodeGraphMinimap';
 import { NodeGraphBackground, NodeGraphMinimap } from './NodeGraphSlots';
 import { NodeGraphPort } from './NodeGraphPort';
-import { useStoreSlice } from './useStoreSlice';
 import {
   buildDrawTheme,
   drawBackground,
@@ -1403,9 +1402,13 @@ const NodeGraphImpl = ({
 
 // ─── Edge labels layer ───
 //
-// Renders one HTML element per edge label at the world-space midpoint of
-// the edge. Subscribes to data + interaction slices so labels follow the
-// dragged nodes live without forcing a re-render of the whole NodeGraph.
+// One subscriber per edge: each `EdgeLabel` independently subscribes to
+// the `interaction` slice and computes its own live midpoint. Granular
+// subscriptions guarantee React keeps each label in sync per frame
+// during a drag — when many `useSyncExternalStore` hooks pile up in a
+// single component (each with different stability characteristics), one
+// re-subscribing on every render can starve the others on certain
+// concurrent rendering paths.
 
 function EdgeLabelsLayer({
   renderEdgeLabelRef,
@@ -1415,79 +1418,96 @@ function EdgeLabelsLayer({
   };
 }): React.ReactElement | null {
   const store = useNodeGraphStore();
+  // Subscribe to data + port positions at this level so we know which
+  // edges exist. Each `EdgeLabel` below subscribes to interaction on its
+  // own for live drag tracking.
   const data = useSyncExternalStore(store.subscribeData, store.getData);
-  const interaction = useSyncExternalStore(
-    store.subscribeInteraction,
-    store.getInteraction
-  );
-  // Subscribe to port positions so labels follow late-mounted ports and
-  // any layout shift inside a node body that moves a port's anchor.
-  useStoreSlice(
-    store.subscribePortPositions,
-    () => store.getPortPosition,
-    fn => fn
-  );
-
-  const dragSet =
-    interaction.kind === 'drag-nodes'
-      ? { ids: new Set(interaction.nodeIds), delta: interaction.delta }
-      : null;
+  useSyncExternalStore(store.subscribePortPositions, getNullSnapshot);
 
   return (
     <>
-      {data.edges.map(edge => {
-        const src = resolvePortRef(
-          edge.source,
-          data.nodes,
-          store.getPortPosition
-        );
-        const tgt = resolvePortRef(
-          edge.target,
-          data.nodes,
-          store.getPortPosition
-        );
-        if (!src || !tgt) return null;
-        const srcOffset = dragSet?.ids.has(edge.source.node)
-          ? dragSet.delta
-          : null;
-        const tgtOffset = dragSet?.ids.has(edge.target.node)
-          ? dragSet.delta
-          : null;
-        const sx = src.position.x + (srcOffset?.x ?? 0);
-        const sy = src.position.y + (srcOffset?.y ?? 0);
-        const tx = tgt.position.x + (tgtOffset?.x ?? 0);
-        const ty = tgt.position.y + (tgtOffset?.y ?? 0);
-        const midX = (sx + tx) / 2;
-        const midY = (sy + ty) / 2;
-        const content = renderEdgeLabelRef.current
-          ? renderEdgeLabelRef.current(edge)
-          : (edge.label ?? null);
-        if (content == null || content === false) return null;
-        return <EdgeLabel key={edge.id} x={midX} y={midY} content={content} />;
-      })}
+      {data.edges.map(edge => (
+        <EdgeLabel
+          key={edge.id}
+          edge={edge}
+          renderEdgeLabelRef={renderEdgeLabelRef}
+        />
+      ))}
     </>
   );
 }
 
+// Stable noop snapshot so the port-positions subscription only acts as a
+// notify channel — we don't need any value out of it here.
+const getNullSnapshot = (): null => null;
+
 // ─── Edge label (positioned in world space) ───
 
 function EdgeLabel({
-  x,
-  y,
-  content,
+  edge,
+  renderEdgeLabelRef,
 }: {
-  x: number;
-  y: number;
-  content: React.ReactNode;
-}): React.ReactElement {
+  edge: NodeGraphEdge;
+  renderEdgeLabelRef: {
+    current: ((edge: NodeGraphEdge) => React.ReactNode) | undefined;
+  };
+}): React.ReactElement | null {
+  const store = useNodeGraphStore();
+  // Subscribe directly — every interaction notification (drag-nodes
+  // delta, drag-groups delta, marquee, connect) re-renders this label.
+  const interaction = useSyncExternalStore(
+    store.subscribeInteraction,
+    store.getInteraction
+  );
+  // Re-render when port positions update too (initial measure + body
+  // re-layout shift the anchor).
+  useSyncExternalStore(store.subscribePortPositions, getNullSnapshot);
+
+  const data = store.getData();
+  const src = resolvePortRef(edge.source, data.nodes, store.getPortPosition);
+  const tgt = resolvePortRef(edge.target, data.nodes, store.getPortPosition);
+  if (!src || !tgt) return null;
+
+  // Apply the current frame's live drag delta to any endpoint whose node
+  // is being dragged — directly (`drag-nodes`) or as a contained child
+  // riding along with a moving group (`drag-groups.containedNodeIds`).
+  const liveDelta = (nodeId: string): Point2D | null => {
+    if (interaction.kind === 'drag-nodes') {
+      return interaction.nodeIds.includes(nodeId) ? interaction.delta : null;
+    }
+    if (interaction.kind === 'drag-groups') {
+      return interaction.containedNodeIds.includes(nodeId)
+        ? interaction.delta
+        : null;
+    }
+    return null;
+  };
+  const srcDelta = liveDelta(edge.source.node);
+  const tgtDelta = liveDelta(edge.target.node);
+
+  const sx = src.position.x + (srcDelta?.x ?? 0);
+  const sy = src.position.y + (srcDelta?.y ?? 0);
+  const tx = tgt.position.x + (tgtDelta?.x ?? 0);
+  const ty = tgt.position.y + (tgtDelta?.y ?? 0);
+  const midX = (sx + tx) / 2;
+  const midY = (sy + ty) / 2;
+  const content = renderEdgeLabelRef.current
+    ? renderEdgeLabelRef.current(edge)
+    : (edge.label ?? null);
+  if (content == null || content === false) return null;
+
   return (
     <div
       style={{
         position: 'absolute',
-        left: x,
-        top: y,
-        transform: 'translate(-50%, -50%)',
+        left: 0,
+        top: 0,
+        // World-space position via `transform` so each frame's update is
+        // a GPU-friendly transform mutation (no CSS layout). The
+        // -50%/-50% piece centres the label on its midpoint.
+        transform: `translate3d(${midX}px, ${midY}px, 0) translate(-50%, -50%)`,
         pointerEvents: 'auto',
+        willChange: 'transform',
       }}
     >
       {content}
