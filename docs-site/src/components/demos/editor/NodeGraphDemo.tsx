@@ -844,6 +844,7 @@ export default function NodeGraphDemo(): React.ReactElement {
     groups: [],
   });
   const ref = useRef<NodeGraphHandle>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const idSeedRef = useRef(1000);
 
   const connectedPortSet = useMemo(() => {
@@ -1004,18 +1005,20 @@ export default function NodeGraphDemo(): React.ReactElement {
    * Resolver passed to `<ContextMenu config={...}>`. Called by the
    * library on every right-click with the captured DOM event. Walks
    * the DOM to identify the target and returns a config sized for it.
+   *
+   * `wrapperRef` is the div we put around `<NodeGraph>` purely to get
+   * a stable bounding rect for the screen→world conversion. Using a
+   * ref is more robust than walking the DOM with `closest()` because
+   * it survives the NodeGraph internals being re-shuffled.
    */
   const buildMenuConfig = useCallback(
     (context: ContextMenuTargetDetails): MenuConfig => {
       const event = context.event;
       if (!event) return { groups: [] };
       const handle = ref.current;
-      if (!handle) return { groups: [] };
-      const root = (context.target ?? null)?.closest(
-        '[data-testid="nodegraph"]'
-      ) as HTMLElement | null;
-      if (!root) return { groups: [] };
-      const rect = root.getBoundingClientRect();
+      const wrapper = wrapperRef.current;
+      if (!handle || !wrapper) return { groups: [] };
+      const rect = wrapper.getBoundingClientRect();
       const worldPoint = handle.screenToWorld({
         x: event.clientX - rect.left,
         y: event.clientY - rect.top,
@@ -1103,13 +1106,17 @@ export default function NodeGraphDemo(): React.ReactElement {
               : ''}
           </span>
         </div>
-        <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+        <div
+          ref={wrapperRef}
+          style={{ flex: 1, minHeight: 0, position: 'relative' }}
+        >
           {/*
             <ContextMenu> wraps the graph as the right-click trigger area.
             The resolver builds a target-aware MenuConfig (Duplicate /
             Delete for nodes; Add Node submenu for empty / group; both
-            for group). Library handles positioning, keyboard nav, focus
-            trapping, dismissal.
+            for group). `wrapperRef` is needed so the resolver can
+            convert event clientX/Y → world coordinates by subtracting
+            the wrapper's bounding rect.
           */}
           <ContextMenu config={buildMenuConfig}>
             <NodeGraph
