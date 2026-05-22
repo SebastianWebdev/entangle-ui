@@ -83,10 +83,7 @@ export function NodeGraphNodeBody({
 
   return (
     <div
-      className={cx(
-        nodeBodyRecipe({ selected, hovered, variant }),
-        className
-      )}
+      className={cx(nodeBodyRecipe({ selected, hovered, variant }), className)}
       style={{ ...accentStyle, ...style }}
     >
       {children}
@@ -127,7 +124,9 @@ export function NodeGraphNodeHeader({
     <div className={cx(nodeHeaderStyle, className)} style={styleOverride}>
       {children ?? (
         <>
-          {icon != null ? <span className={nodeHeaderIconStyle}>{icon}</span> : null}
+          {icon != null ? (
+            <span className={nodeHeaderIconStyle}>{icon}</span>
+          ) : null}
           <div className={nodeHeaderTextStyle}>
             {title != null ? (
               <div className={nodeHeaderTitleStyle}>{title}</div>
