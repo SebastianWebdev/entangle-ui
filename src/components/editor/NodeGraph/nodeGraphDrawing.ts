@@ -4,10 +4,7 @@ import type {
 } from '@/components/primitives/canvas/canvas.types';
 import type { ViewportLayerDrawInfo } from '@/components/primitives/viewport';
 import type { BezierControlPoints } from './nodeGraphMath';
-import {
-  getBezierControlPoints,
-  resolveEdgeEndpoints,
-} from './nodeGraphMath';
+import { getBezierControlPoints, resolveEdgeEndpoints } from './nodeGraphMath';
 import type {
   NodeGraphDataState,
   NodeGraphInteractionState,
