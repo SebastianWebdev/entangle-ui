@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { cx } from '@/utils/cx';
 import { portStyle } from './NodeGraph.css';
 import type {
@@ -38,22 +38,19 @@ interface PortVisualState {
   isSource: boolean;
   isCandidate: boolean;
   isInvalid: boolean;
-  isHovered: boolean;
 }
 
 const EMPTY_PORT_STATE: PortVisualState = {
   isSource: false,
   isCandidate: false,
   isInvalid: false,
-  isHovered: false,
 };
 
 function portStateEqual(a: PortVisualState, b: PortVisualState): boolean {
   return (
     a.isSource === b.isSource &&
     a.isCandidate === b.isCandidate &&
-    a.isInvalid === b.isInvalid &&
-    a.isHovered === b.isHovered
+    a.isInvalid === b.isInvalid
   );
 }
 
@@ -78,50 +75,62 @@ export function NodeGraphPortView({
 }: NodeGraphPortViewProps): React.ReactElement {
   const store = useNodeGraphStore();
   const nodeId = node.id;
+  const portId = port.id;
 
-  const interactionState = useStoreSlice(
+  const visual = useStoreSlice(
     store.subscribeInteraction,
     store.getInteraction,
     interaction => {
       if (interaction.kind !== 'connect') return EMPTY_PORT_STATE;
       const isSource =
         interaction.source.node === nodeId &&
-        interaction.source.port === port.id;
+        interaction.source.port === portId;
       const isCandidate =
         interaction.candidate !== null &&
         interaction.candidate.node === nodeId &&
-        interaction.candidate.port === port.id;
+        interaction.candidate.port === portId;
       if (!isSource && !isCandidate) return EMPTY_PORT_STATE;
       return {
         isSource,
         isCandidate,
         isInvalid: isCandidate && interaction.invalid,
-        isHovered: false,
       };
     },
     portStateEqual
   );
 
-  const hoverState = useStoreSlice(
+  const isHovered = useStoreSlice(
     store.subscribeHover,
     store.getHover,
-    hover => ({
-      isSource: false,
-      isCandidate: false,
-      isInvalid: false,
-      isHovered:
-        hover.hoveredPort !== null &&
-        hover.hoveredPort.node === nodeId &&
-        hover.hoveredPort.port === port.id,
-    }),
-    portStateEqual
+    hover =>
+      hover.hoveredPort !== null &&
+      hover.hoveredPort.node === nodeId &&
+      hover.hoveredPort.port === portId
   );
 
-  const visual: PortVisualState = {
-    isSource: interactionState.isSource,
-    isCandidate: interactionState.isCandidate,
-    isInvalid: interactionState.isInvalid,
-    isHovered: hoverState.isHovered,
+  const handlePointerEnter = useCallback((): void => {
+    const current = store.getHover();
+    store.setHover({ ...current, hoveredPort: { node: nodeId, port: portId } });
+  }, [store, nodeId, portId]);
+
+  const handlePointerLeave = useCallback((): void => {
+    const current = store.getHover();
+    if (
+      current.hoveredPort?.node === nodeId &&
+      current.hoveredPort?.port === portId
+    ) {
+      store.setHover({ ...current, hoveredPort: null });
+    }
+  }, [store, nodeId, portId]);
+
+  const sharedDataAttrs = {
+    'data-node-id': node.id,
+    'data-port-id': port.id,
+    'data-port-side': port.side,
+    'data-port-data-type': port.dataType,
+    'data-port-source': visual.isSource || undefined,
+    'data-port-candidate': visual.isCandidate || undefined,
+    'data-port-invalid': visual.isInvalid || undefined,
   };
 
   if (renderPort) {
@@ -129,7 +138,7 @@ export function NodeGraphPortView({
       isSource: visual.isSource,
       isCandidate: visual.isCandidate,
       isInvalid: visual.isInvalid,
-      isHovered: visual.isHovered,
+      isHovered,
     };
     return (
       <div
@@ -138,14 +147,10 @@ export function NodeGraphPortView({
         role="button"
         tabIndex={-1}
         aria-label={port.label ?? `${port.side} port ${port.id}`}
-        data-node-id={node.id}
-        data-port-id={port.id}
-        data-port-side={port.side}
-        data-port-data-type={port.dataType}
-        data-port-source={visual.isSource || undefined}
-        data-port-candidate={visual.isCandidate || undefined}
-        data-port-invalid={visual.isInvalid || undefined}
+        {...sharedDataAttrs}
         onPointerDown={onStartConnection}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
       >
         {renderPort(port, node, ctx)}
       </div>
@@ -166,11 +171,10 @@ export function NodeGraphPortView({
       role="button"
       tabIndex={-1}
       aria-label={port.label ?? `${port.side} port ${port.id}`}
-      data-node-id={node.id}
-      data-port-id={port.id}
-      data-port-side={port.side}
-      data-port-data-type={port.dataType}
+      {...sharedDataAttrs}
       onPointerDown={onStartConnection}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
     />
   );
 }

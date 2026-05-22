@@ -288,3 +288,127 @@ describe('NodeGraphStore — nodeB import', () => {
     expect(nodeB.id).toBe('b');
   });
 });
+
+describe('NodeGraphStore — drag-groups interaction equality', () => {
+  it('treats identical drag-groups payloads as a no-op', () => {
+    const store = new NodeGraphStore();
+    store.setInteraction({
+      kind: 'drag-groups',
+      groupIds: ['g1', 'g2'],
+      startWorld: { x: 0, y: 0 },
+      delta: { x: 5, y: 5 },
+    });
+    const cb = vi.fn();
+    store.subscribeInteraction(cb);
+    store.setInteraction({
+      kind: 'drag-groups',
+      groupIds: ['g1', 'g2'],
+      startWorld: { x: 0, y: 0 },
+      delta: { x: 5, y: 5 },
+    });
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it('fires when the drag-groups delta changes', () => {
+    const store = new NodeGraphStore();
+    store.setInteraction({
+      kind: 'drag-groups',
+      groupIds: ['g1'],
+      startWorld: { x: 0, y: 0 },
+      delta: { x: 0, y: 0 },
+    });
+    const cb = vi.fn();
+    store.subscribeInteraction(cb);
+    store.setInteraction({
+      kind: 'drag-groups',
+      groupIds: ['g1'],
+      startWorld: { x: 0, y: 0 },
+      delta: { x: 5, y: 0 },
+    });
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  it('fires when the dragged group set changes', () => {
+    const store = new NodeGraphStore();
+    store.setInteraction({
+      kind: 'drag-groups',
+      groupIds: ['g1'],
+      startWorld: { x: 0, y: 0 },
+      delta: { x: 0, y: 0 },
+    });
+    const cb = vi.fn();
+    store.subscribeInteraction(cb);
+    store.setInteraction({
+      kind: 'drag-groups',
+      groupIds: ['g1', 'g2'],
+      startWorld: { x: 0, y: 0 },
+      delta: { x: 0, y: 0 },
+    });
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('NodeGraphStore — resize-group interaction equality', () => {
+  it('treats identical resize-group payloads as a no-op', () => {
+    const store = new NodeGraphStore();
+    store.setInteraction({
+      kind: 'resize-group',
+      groupId: 'g1',
+      handle: 'se',
+      startBounds: { x: 0, y: 0, width: 100, height: 100 },
+      delta: { x: 10, y: 10 },
+    });
+    const cb = vi.fn();
+    store.subscribeInteraction(cb);
+    store.setInteraction({
+      kind: 'resize-group',
+      groupId: 'g1',
+      handle: 'se',
+      startBounds: { x: 0, y: 0, width: 100, height: 100 },
+      delta: { x: 10, y: 10 },
+    });
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it('fires when the resize handle changes', () => {
+    const store = new NodeGraphStore();
+    store.setInteraction({
+      kind: 'resize-group',
+      groupId: 'g1',
+      handle: 'se',
+      startBounds: { x: 0, y: 0, width: 100, height: 100 },
+      delta: { x: 0, y: 0 },
+    });
+    const cb = vi.fn();
+    store.subscribeInteraction(cb);
+    store.setInteraction({
+      kind: 'resize-group',
+      groupId: 'g1',
+      handle: 'sw',
+      startBounds: { x: 0, y: 0, width: 100, height: 100 },
+      delta: { x: 0, y: 0 },
+    });
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  it('fires when the resize delta changes', () => {
+    const store = new NodeGraphStore();
+    store.setInteraction({
+      kind: 'resize-group',
+      groupId: 'g1',
+      handle: 'e',
+      startBounds: { x: 0, y: 0, width: 100, height: 100 },
+      delta: { x: 0, y: 0 },
+    });
+    const cb = vi.fn();
+    store.subscribeInteraction(cb);
+    store.setInteraction({
+      kind: 'resize-group',
+      groupId: 'g1',
+      handle: 'e',
+      startBounds: { x: 0, y: 0, width: 100, height: 100 },
+      delta: { x: 5, y: 0 },
+    });
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+});

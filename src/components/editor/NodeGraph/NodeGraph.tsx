@@ -380,6 +380,11 @@ const NodeGraphImpl = ({
       if (disabled) return;
       if (node.selectable === false && node.draggable === false) return;
 
+      // Defensive: if a previous gesture didn't tear down (e.g. pointer
+      // capture lost across alt-tab between move events), clean it now so
+      // we don't leak stale document listeners.
+      dragRef.current?.cleanup();
+
       const target = event.currentTarget;
       target.setPointerCapture(event.pointerId);
 
@@ -642,6 +647,11 @@ const NodeGraphImpl = ({
       if (event.button !== 0) return;
       event.stopPropagation();
       if (disabled) return;
+
+      // Defensive cleanup of any orphaned previous gesture before we
+      // attach new document listeners.
+      groupSessionRef.current?.cleanup();
+
       const target = event.currentTarget;
       target.setPointerCapture(event.pointerId);
 
@@ -705,6 +715,9 @@ const NodeGraphImpl = ({
       event.stopPropagation();
       event.preventDefault();
       if (disabled) return;
+
+      // Defensive cleanup of any orphaned previous gesture.
+      groupSessionRef.current?.cleanup();
 
       const target = event.currentTarget;
       target.setPointerCapture(event.pointerId);

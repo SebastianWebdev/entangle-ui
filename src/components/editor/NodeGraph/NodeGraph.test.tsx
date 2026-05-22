@@ -6,9 +6,11 @@ import { NodeGraph } from './NodeGraph';
 import type {
   NodeGraphConnectEndInfo,
   NodeGraphContextMenuInfo,
+  NodeGraphGroup,
   NodeGraphHandle,
   NodeGraphNode,
   NodeGraphEdge,
+  NodeGraphPortRenderCtx,
   NodeGraphSelection,
 } from './NodeGraph.types';
 
@@ -638,5 +640,160 @@ describe('NodeGraph — Disabled state', () => {
     fireEvent.pointerDown(node, { pointerId: 1, button: 0 });
     fireEvent.pointerUp(node, { pointerId: 1, button: 0 });
     expect(onSelectionChange).not.toHaveBeenCalled();
+  });
+});
+
+// ─── Groups ───
+
+const baseGroup: NodeGraphGroup = {
+  id: 'g1',
+  bounds: { x: 50, y: 50, width: 200, height: 120 },
+  label: 'Group A',
+};
+
+describe('NodeGraph — Groups', () => {
+  it('renders one overlay per group', () => {
+    renderWithTheme(
+      <NodeGraph testId="nodegraph" defaultGroups={[baseGroup]} />
+    );
+    expect(document.querySelector('[data-group-id="g1"]')).toBeInTheDocument();
+  });
+
+  it('shows the group label when present', () => {
+    renderWithTheme(
+      <NodeGraph testId="nodegraph" defaultGroups={[baseGroup]} />
+    );
+    expect(screen.getByText('Group A')).toBeInTheDocument();
+  });
+
+  it('selects a group on a plain click', () => {
+    const onSelectionChange = vi.fn();
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultGroups={[baseGroup]}
+        onSelectionChange={onSelectionChange}
+      />
+    );
+    const group = document.querySelector('[data-group-id="g1"]') as HTMLElement;
+    fireEvent.pointerDown(group, { pointerId: 1, button: 0 });
+    fireEvent.pointerUp(group, { pointerId: 1, button: 0 });
+    expect(onSelectionChange).toHaveBeenCalledWith(
+      expect.objectContaining({ groups: ['g1'] })
+    );
+  });
+
+  it('toggles a group via additive click', () => {
+    let captured: NodeGraphSelection | null = null;
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultGroups={[baseGroup]}
+        defaultSelection={{ nodes: [], edges: [], groups: ['g1'] }}
+        onSelectionChange={s => {
+          captured = s;
+        }}
+      />
+    );
+    const group = document.querySelector('[data-group-id="g1"]') as HTMLElement;
+    fireEvent.pointerDown(group, {
+      pointerId: 1,
+      button: 0,
+      shiftKey: true,
+    });
+    fireEvent.pointerUp(group, {
+      pointerId: 1,
+      button: 0,
+      shiftKey: true,
+    });
+    const sel = captured as unknown as NodeGraphSelection | null;
+    expect(sel?.groups).toEqual([]);
+  });
+
+  it('renders 8 resize handles when the group is selected', () => {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultGroups={[baseGroup]}
+        defaultSelection={{ nodes: [], edges: [], groups: ['g1'] }}
+      />
+    );
+    expect(document.querySelectorAll('[data-group-handle]')).toHaveLength(8);
+  });
+
+  it('does not render resize handles when the group is not selected', () => {
+    renderWithTheme(
+      <NodeGraph testId="nodegraph" defaultGroups={[baseGroup]} />
+    );
+    expect(document.querySelectorAll('[data-group-handle]')).toHaveLength(0);
+  });
+
+  it('skips group selection when disabled', () => {
+    const onSelectionChange = vi.fn();
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultGroups={[baseGroup]}
+        disabled
+        onSelectionChange={onSelectionChange}
+      />
+    );
+    const group = document.querySelector('[data-group-id="g1"]') as HTMLElement;
+    fireEvent.pointerDown(group, { pointerId: 1, button: 0 });
+    fireEvent.pointerUp(group, { pointerId: 1, button: 0 });
+    expect(onSelectionChange).not.toHaveBeenCalled();
+  });
+});
+
+// ─── renderPort ───
+
+describe('NodeGraph — renderPort', () => {
+  it('renders the consumer content inside the port wrapper', () => {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderPort={port => (
+          <span data-testid={`port-${port.id}`}>{port.id}</span>
+        )}
+      />
+    );
+    expect(screen.getAllByTestId('port-in').length).toBeGreaterThan(0);
+    expect(screen.getAllByTestId('port-out').length).toBeGreaterThan(0);
+  });
+
+  it('preserves data-port-* attributes on the wrapper', () => {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderPort={port => <span>{port.id}</span>}
+      />
+    );
+    const port = document.querySelector(
+      '[data-node-id="n1"][data-port-id="out"]'
+    );
+    expect(port).not.toBeNull();
+    expect(port?.getAttribute('data-port-side')).toBe('right');
+  });
+
+  it('passes a port-render context with the expected initial flags', () => {
+    let capturedCtx: NodeGraphPortRenderCtx | null = null;
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderPort={(port, n, ctx) => {
+          if (port.id === 'in' && n.id === 'n1') capturedCtx = ctx;
+          return <span>{port.id}</span>;
+        }}
+      />
+    );
+    const ctx = capturedCtx as unknown as NodeGraphPortRenderCtx | null;
+    expect(ctx).not.toBeNull();
+    expect(ctx?.isSource).toBe(false);
+    expect(ctx?.isCandidate).toBe(false);
+    expect(ctx?.isInvalid).toBe(false);
+    expect(ctx?.isHovered).toBe(false);
   });
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useDeferredValue, useMemo } from 'react';
+import React, { useCallback, useDeferredValue, useMemo } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { cx } from '@/utils/cx';
 import { useViewportStore } from '@/components/primitives/viewport/ViewportContext';
@@ -140,6 +140,18 @@ export function NodeGraphNodeView(
     hover => hover.hoveredNodeId === node.id
   );
 
+  const handlePointerEnter = useCallback((): void => {
+    const current = store.getHover();
+    store.setHover({ ...current, hoveredNodeId: node.id });
+  }, [store, node.id]);
+
+  const handlePointerLeave = useCallback((): void => {
+    const current = store.getHover();
+    if (current.hoveredNodeId === node.id) {
+      store.setHover({ ...current, hoveredNodeId: null });
+    }
+  }, [store, node.id]);
+
   const liveZoom = useStoreSlice(
     viewportStore.subscribeTransform,
     viewportStore.getTransform,
@@ -223,6 +235,8 @@ export function NodeGraphNodeView(
       data-hovered={hovered ? 'true' : undefined}
       onPointerDown={e => onBodyPointerDown(e, node)}
       onPointerUp={e => onBodyPointerUp(e, node)}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
       onContextMenu={e => onBodyContextMenu(e, node)}
     >
       {body}

@@ -4,7 +4,11 @@ import type {
 } from '@/components/primitives/canvas/canvas.types';
 import type { ViewportLayerDrawInfo } from '@/components/primitives/viewport';
 import type { BezierControlPoints } from './nodeGraphMath';
-import { getBezierControlPoints, resolveEdgeEndpoints } from './nodeGraphMath';
+import {
+  applyGroupResize,
+  getBezierControlPoints,
+  resolveEdgeEndpoints,
+} from './nodeGraphMath';
 import type {
   NodeGraphDataState,
   NodeGraphInteractionState,
@@ -159,7 +163,7 @@ export function drawGroups(
       bx += dragSet.delta.x;
       by += dragSet.delta.y;
     } else if (resizing?.groupId === group.id) {
-      const next = applyResizeForDraw(
+      const next = applyGroupResize(
         resizing.startBounds,
         resizing.handle,
         resizing.delta
@@ -193,40 +197,6 @@ export function drawGroups(
       ctx.fillText(group.label, tl.x + 6, tl.y - 4);
     }
   }
-}
-
-/**
- * Mirror of `applyGroupResize` from `nodeGraphMath.ts` — inlined here to
- * avoid a circular import (the drawing module is the leaf of the
- * dependency graph and shouldn't pull in math.ts's full surface). Keep
- * the two in sync.
- */
-function applyResizeForDraw(
-  start: { x: number; y: number; width: number; height: number },
-  handle: 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w',
-  delta: { x: number; y: number }
-): { x: number; y: number; width: number; height: number } {
-  const MIN_SIZE = 32;
-  let { x, y, width, height } = start;
-  const movesLeft = handle === 'nw' || handle === 'w' || handle === 'sw';
-  const movesRight = handle === 'ne' || handle === 'e' || handle === 'se';
-  const movesTop = handle === 'nw' || handle === 'n' || handle === 'ne';
-  const movesBottom = handle === 'sw' || handle === 's' || handle === 'se';
-  if (movesLeft) {
-    const dx = Math.min(delta.x, start.width - MIN_SIZE);
-    x = start.x + dx;
-    width = start.width - dx;
-  } else if (movesRight) {
-    width = Math.max(MIN_SIZE, start.width + delta.x);
-  }
-  if (movesTop) {
-    const dy = Math.min(delta.y, start.height - MIN_SIZE);
-    y = start.y + dy;
-    height = start.height - dy;
-  } else if (movesBottom) {
-    height = Math.max(MIN_SIZE, start.height + delta.y);
-  }
-  return { x, y, width, height };
 }
 
 function getFontFamily(ctx: CanvasRenderingContext2D): string {

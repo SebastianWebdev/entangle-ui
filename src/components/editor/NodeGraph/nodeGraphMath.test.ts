@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   DEFAULT_NODE_HEIGHT,
   DEFAULT_NODE_WIDTH,
+  MIN_GROUP_SIZE,
+  applyGroupResize,
   computeNodesBounds,
   evaluateBezier,
   getBezierControlPoints,
@@ -409,5 +411,111 @@ describe('resolvePortRef / resolveEdgeEndpoints', () => {
       target: { node: 'x', port: 'in' },
     };
     expect(resolveEdgeEndpoints(edge, nodes)).toBeNull();
+  });
+});
+
+describe('applyGroupResize', () => {
+  const start = { x: 100, y: 100, width: 200, height: 120 };
+
+  it('moves only width when dragging the east handle', () => {
+    expect(applyGroupResize(start, 'e', { x: 30, y: 0 })).toEqual({
+      x: 100,
+      y: 100,
+      width: 230,
+      height: 120,
+    });
+  });
+
+  it('moves only height when dragging the south handle', () => {
+    expect(applyGroupResize(start, 's', { x: 0, y: 40 })).toEqual({
+      x: 100,
+      y: 100,
+      width: 200,
+      height: 160,
+    });
+  });
+
+  it('shifts origin and shrinks width when dragging the west handle', () => {
+    expect(applyGroupResize(start, 'w', { x: 30, y: 0 })).toEqual({
+      x: 130,
+      y: 100,
+      width: 170,
+      height: 120,
+    });
+  });
+
+  it('shifts origin and shrinks height when dragging the north handle', () => {
+    expect(applyGroupResize(start, 'n', { x: 0, y: 20 })).toEqual({
+      x: 100,
+      y: 120,
+      width: 200,
+      height: 100,
+    });
+  });
+
+  it('resizes both axes for the south-east handle', () => {
+    expect(applyGroupResize(start, 'se', { x: 10, y: 20 })).toEqual({
+      x: 100,
+      y: 100,
+      width: 210,
+      height: 140,
+    });
+  });
+
+  it('shifts origin on both axes for the north-west handle', () => {
+    expect(applyGroupResize(start, 'nw', { x: 20, y: 10 })).toEqual({
+      x: 120,
+      y: 110,
+      width: 180,
+      height: 110,
+    });
+  });
+
+  it('shifts x for the north-east handle but keeps origin x', () => {
+    expect(applyGroupResize(start, 'ne', { x: 30, y: 10 })).toEqual({
+      x: 100,
+      y: 110,
+      width: 230,
+      height: 110,
+    });
+  });
+
+  it('shifts y for the south-west handle but keeps origin y', () => {
+    expect(applyGroupResize(start, 'sw', { x: 20, y: 30 })).toEqual({
+      x: 120,
+      y: 100,
+      width: 180,
+      height: 150,
+    });
+  });
+
+  it('clamps width to MIN_GROUP_SIZE when collapsing from the east', () => {
+    const next = applyGroupResize(start, 'e', { x: -10000, y: 0 });
+    expect(next.width).toBe(MIN_GROUP_SIZE);
+    expect(next.x).toBe(100); // east handle doesn't move origin
+  });
+
+  it('clamps width to MIN_GROUP_SIZE when collapsing from the west', () => {
+    const next = applyGroupResize(start, 'w', { x: 10000, y: 0 });
+    expect(next.width).toBe(MIN_GROUP_SIZE);
+    // origin shifted by (start.width - MIN_GROUP_SIZE)
+    expect(next.x).toBe(start.x + (start.width - MIN_GROUP_SIZE));
+  });
+
+  it('clamps height to MIN_GROUP_SIZE when collapsing from the south', () => {
+    const next = applyGroupResize(start, 's', { x: 0, y: -10000 });
+    expect(next.height).toBe(MIN_GROUP_SIZE);
+    expect(next.y).toBe(100);
+  });
+
+  it('clamps height to MIN_GROUP_SIZE when collapsing from the north', () => {
+    const next = applyGroupResize(start, 'n', { x: 0, y: 10000 });
+    expect(next.height).toBe(MIN_GROUP_SIZE);
+    expect(next.y).toBe(start.y + (start.height - MIN_GROUP_SIZE));
+  });
+
+  it('honours an explicit minSize override', () => {
+    const next = applyGroupResize(start, 'e', { x: -10000, y: 0 }, 80);
+    expect(next.width).toBe(80);
   });
 });
