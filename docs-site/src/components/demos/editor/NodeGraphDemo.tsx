@@ -720,10 +720,10 @@ function PinRow({
         alignItems: 'center',
         gap: 8,
         justifyContent: pin.side === 'left' ? 'flex-start' : 'flex-end',
-        // Pull the port handle just outside the body padding so the visual
-        // sits on the node's edge, matching the UE5 look.
-        marginLeft: pin.side === 'left' ? -16 : 0,
-        marginRight: pin.side === 'right' ? -16 : 0,
+        // Pins sit inside the node body with their own breathing room
+        // (UE5-style "well"). The library doesn't impose any positioning
+        // — `<NodeGraph.Port>` is just an inline element measured wherever
+        // the consumer drops it, and edges anchor at its center.
       }}
     >
       {pin.side === 'left' ? (
@@ -842,7 +842,7 @@ function BlueprintNodeBody({
       {/* Pin rows — left + right column, one row per pin */}
       <div
         style={{
-          padding: `${BODY_VERT_PADDING}px 14px`,
+          padding: `${BODY_VERT_PADDING}px 8px`,
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           columnGap: 16,
