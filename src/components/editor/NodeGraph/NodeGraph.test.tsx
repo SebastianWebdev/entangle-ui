@@ -831,4 +831,3 @@ describe('NodeGraph — Groups', () => {
     expect(onSelectionChange).not.toHaveBeenCalled();
   });
 });
-
