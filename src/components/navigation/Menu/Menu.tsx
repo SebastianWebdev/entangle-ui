@@ -1,13 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Menu as BaseMenu } from '@base-ui/react/menu';
+import { Menu as BaseMenu, type MenuRootActions } from '@base-ui/react/menu';
 
 import { CheckIcon } from '@/components/Icons/CheckIcon';
 import { CircleIcon } from '@/components/Icons/CircleIcon';
 import { ChevronRightIcon } from '@/components/Icons/ChevronRightIcon';
 import { Button } from '@/components/primitives/Button';
-import { Text } from '@/components/primitives/Text';
+import { useLatest } from '@/hooks/useLatest';
 import { cx } from '@/utils/cx';
 
 import type {
@@ -62,6 +62,28 @@ const ItemLayout = ({
 );
 
 /**
+ * Merge `onClick` and its `onSelect` alias into one stable handler so a new
+ * function identity isn't handed to Base UI on every render. Returns
+ * `undefined` when neither is set, so no listener is attached.
+ */
+const useActivate = (
+  onClick?: React.MouseEventHandler<HTMLElement>,
+  onSelect?: React.MouseEventHandler<HTMLElement>
+): React.MouseEventHandler<HTMLElement> | undefined => {
+  const handlersRef = useLatest({ onClick, onSelect });
+  const handleActivate = React.useCallback<
+    React.MouseEventHandler<HTMLElement>
+  >(
+    event => {
+      handlersRef.current.onClick?.(event);
+      handlersRef.current.onSelect?.(event);
+    },
+    [handlersRef]
+  );
+  return onClick || onSelect ? handleActivate : undefined;
+};
+
+/**
  * Composable menu for editor interfaces, built on `@base-ui/react` Menu
  * primitives. Compose the trigger, content and items as children — no config
  * object.
@@ -94,19 +116,29 @@ const MenuRoot = ({
   modal,
   disabled,
   gap = DEFAULT_MENU_GAP,
-}: MenuRootProps): React.ReactElement => (
-  <MenuGapContext.Provider value={gap}>
-    <BaseMenu.Root
-      open={open}
-      defaultOpen={defaultOpen}
-      onOpenChange={onOpenChange ? open => onOpenChange(open) : undefined}
-      modal={modal}
-      disabled={disabled}
-    >
-      {children}
-    </BaseMenu.Root>
-  </MenuGapContext.Provider>
-);
+  ref,
+}: MenuRootProps): React.ReactElement => {
+  const actionsRef = React.useRef<MenuRootActions | null>(null);
+  React.useImperativeHandle(
+    ref,
+    () => ({ close: () => actionsRef.current?.close() }),
+    []
+  );
+  return (
+    <MenuGapContext.Provider value={gap}>
+      <BaseMenu.Root
+        open={open}
+        defaultOpen={defaultOpen}
+        onOpenChange={onOpenChange}
+        modal={modal}
+        disabled={disabled}
+        actionsRef={actionsRef}
+      >
+        {children}
+      </BaseMenu.Root>
+    </MenuGapContext.Provider>
+  );
+};
 MenuRoot.displayName = 'Menu';
 
 const MenuTrigger = ({
@@ -165,32 +197,38 @@ const MenuContent = ({
 };
 MenuContent.displayName = 'Menu.Content';
 
-const MenuItem = ({
-  children,
-  icon,
-  shortcut,
-  endContent,
-  disabled,
-  closeOnClick,
-  onClick,
-  className,
-  testId,
-  ref,
-  ...rest
-}: MenuItemProps): React.ReactElement => (
-  <BaseMenu.Item
-    ref={ref as React.Ref<HTMLElement>}
-    disabled={disabled}
-    closeOnClick={closeOnClick}
-    onClick={onClick}
-    className={cx(menuItemStyle, className)}
-    data-testid={testId}
-    {...rest}
-  >
-    <ItemLayout start={icon} shortcut={shortcut} endContent={endContent}>
-      {children}
-    </ItemLayout>
-  </BaseMenu.Item>
+const MenuItem = React.memo(
+  ({
+    children,
+    icon,
+    shortcut,
+    endContent,
+    disabled,
+    closeOnClick = true,
+    onClick,
+    onSelect,
+    className,
+    testId,
+    ref,
+    ...rest
+  }: MenuItemProps): React.ReactElement => {
+    const handleActivate = useActivate(onClick, onSelect);
+    return (
+      <BaseMenu.Item
+        ref={ref}
+        disabled={disabled}
+        closeOnClick={closeOnClick}
+        onClick={handleActivate}
+        className={cx(menuItemStyle, className)}
+        data-testid={testId}
+        {...rest}
+      >
+        <ItemLayout start={icon} shortcut={shortcut} endContent={endContent}>
+          {children}
+        </ItemLayout>
+      </BaseMenu.Item>
+    );
+  }
 );
 MenuItem.displayName = 'Menu.Item';
 
@@ -204,9 +242,7 @@ const MenuGroup = ({
   <BaseMenu.Group className={className} data-testid={testId} {...rest}>
     {label != null && (
       <BaseMenu.GroupLabel className={groupLabelStyle}>
-        <Text variant="caption" color="muted" weight="semibold">
-          {label}
-        </Text>
+        {label}
       </BaseMenu.GroupLabel>
     )}
     {children}
@@ -214,16 +250,14 @@ const MenuGroup = ({
 );
 MenuGroup.displayName = 'Menu.Group';
 
-const MenuSeparator = ({
-  className,
-  testId,
-  ...rest
-}: MenuSeparatorProps): React.ReactElement => (
-  <BaseMenu.Separator
-    className={cx(separatorStyle, className)}
-    data-testid={testId}
-    {...rest}
-  />
+const MenuSeparator = React.memo(
+  ({ className, testId, ...rest }: MenuSeparatorProps): React.ReactElement => (
+    <BaseMenu.Separator
+      className={cx(separatorStyle, className)}
+      data-testid={testId}
+      {...rest}
+    />
+  )
 );
 MenuSeparator.displayName = 'Menu.Separator';
 
@@ -239,9 +273,7 @@ const MenuRadioGroup = ({
   <BaseMenu.RadioGroup
     value={value}
     defaultValue={defaultValue}
-    onValueChange={
-      onValueChange ? value => onValueChange(value as string) : undefined
-    }
+    onValueChange={onValueChange}
     className={className}
     data-testid={testId}
     {...rest}
@@ -251,85 +283,97 @@ const MenuRadioGroup = ({
 );
 MenuRadioGroup.displayName = 'Menu.RadioGroup';
 
-const MenuRadioItem = ({
-  children,
-  value,
-  indicator = <CircleIcon size="sm" />,
-  shortcut,
-  endContent,
-  disabled,
-  closeOnClick,
-  onClick,
-  className,
-  testId,
-  ref,
-  ...rest
-}: MenuRadioItemProps): React.ReactElement => (
-  <BaseMenu.RadioItem
-    ref={ref as React.Ref<HTMLElement>}
-    value={value}
-    disabled={disabled}
-    closeOnClick={closeOnClick}
-    onClick={onClick}
-    className={cx(menuItemStyle, className)}
-    data-testid={testId}
-    {...rest}
-  >
-    <ItemLayout
-      start={
-        <BaseMenu.RadioItemIndicator>{indicator}</BaseMenu.RadioItemIndicator>
-      }
-      shortcut={shortcut}
-      endContent={endContent}
-    >
-      {children}
-    </ItemLayout>
-  </BaseMenu.RadioItem>
+const MenuRadioItem = React.memo(
+  ({
+    children,
+    value,
+    indicator = <CircleIcon size="sm" />,
+    shortcut,
+    endContent,
+    disabled,
+    closeOnClick = false,
+    onClick,
+    onSelect,
+    className,
+    testId,
+    ref,
+    ...rest
+  }: MenuRadioItemProps): React.ReactElement => {
+    const handleActivate = useActivate(onClick, onSelect);
+    return (
+      <BaseMenu.RadioItem
+        ref={ref}
+        value={value}
+        disabled={disabled}
+        closeOnClick={closeOnClick}
+        onClick={handleActivate}
+        className={cx(menuItemStyle, className)}
+        data-testid={testId}
+        {...rest}
+      >
+        <ItemLayout
+          start={
+            <BaseMenu.RadioItemIndicator>
+              {indicator}
+            </BaseMenu.RadioItemIndicator>
+          }
+          shortcut={shortcut}
+          endContent={endContent}
+        >
+          {children}
+        </ItemLayout>
+      </BaseMenu.RadioItem>
+    );
+  }
 );
 MenuRadioItem.displayName = 'Menu.RadioItem';
 
-const MenuCheckboxItem = ({
-  children,
-  checked,
-  defaultChecked,
-  onCheckedChange,
-  indicator = <CheckIcon size="sm" />,
-  shortcut,
-  endContent,
-  disabled,
-  closeOnClick,
-  onClick,
-  className,
-  testId,
-  ref,
-  ...rest
-}: MenuCheckboxItemProps): React.ReactElement => (
-  <BaseMenu.CheckboxItem
-    ref={ref as React.Ref<HTMLElement>}
-    checked={checked}
-    defaultChecked={defaultChecked}
-    onCheckedChange={
-      onCheckedChange ? checked => onCheckedChange(checked) : undefined
-    }
-    disabled={disabled}
-    closeOnClick={closeOnClick}
-    onClick={onClick}
-    className={cx(menuItemStyle, className)}
-    data-testid={testId}
-    {...rest}
-  >
-    <ItemLayout
-      start={
-        <BaseMenu.CheckboxItemIndicator>
-          {indicator}
-        </BaseMenu.CheckboxItemIndicator>
-      }
-      shortcut={shortcut}
-      endContent={endContent}
-    >
-      {children}
-    </ItemLayout>
-  </BaseMenu.CheckboxItem>
+const MenuCheckboxItem = React.memo(
+  ({
+    children,
+    checked,
+    defaultChecked,
+    onCheckedChange,
+    indicator = <CheckIcon size="sm" />,
+    shortcut,
+    endContent,
+    disabled,
+    closeOnClick = false,
+    onClick,
+    onSelect,
+    className,
+    testId,
+    ref,
+    ...rest
+  }: MenuCheckboxItemProps): React.ReactElement => {
+    const handleActivate = useActivate(onClick, onSelect);
+    return (
+      <BaseMenu.CheckboxItem
+        ref={ref}
+        checked={checked}
+        defaultChecked={defaultChecked}
+        onCheckedChange={onCheckedChange}
+        disabled={disabled}
+        closeOnClick={closeOnClick}
+        onClick={handleActivate}
+        className={cx(menuItemStyle, className)}
+        data-testid={testId}
+        {...rest}
+      >
+        <ItemLayout
+          start={
+            <BaseMenu.CheckboxItemIndicator>
+              {indicator}
+            </BaseMenu.CheckboxItemIndicator>
+          }
+          shortcut={shortcut}
+          endContent={endContent}
+        >
+          {children}
+        </ItemLayout>
+      </BaseMenu.CheckboxItem>
+    );
+  }
 );
 MenuCheckboxItem.displayName = 'Menu.CheckboxItem';
 
@@ -343,28 +387,30 @@ const MenuSub = ({
 );
 MenuSub.displayName = 'Menu.Sub';
 
-const MenuSubTrigger = ({
-  children,
-  icon,
-  disabled,
-  onClick,
-  className,
-  testId,
-  ref,
-  ...rest
-}: MenuSubTriggerProps): React.ReactElement => (
-  <BaseMenu.SubmenuTrigger
-    ref={ref as React.Ref<HTMLElement>}
-    disabled={disabled}
-    onClick={onClick}
-    className={cx(menuItemStyle, className)}
-    data-testid={testId}
-    {...rest}
-  >
-    <ItemLayout start={icon} endContent={<ChevronRightIcon size="sm" />}>
-      {children}
-    </ItemLayout>
-  </BaseMenu.SubmenuTrigger>
+const MenuSubTrigger = React.memo(
+  ({
+    children,
+    icon,
+    disabled,
+    onClick,
+    className,
+    testId,
+    ref,
+    ...rest
+  }: MenuSubTriggerProps): React.ReactElement => (
+    <BaseMenu.SubmenuTrigger
+      ref={ref}
+      disabled={disabled}
+      onClick={onClick}
+      className={cx(menuItemStyle, className)}
+      data-testid={testId}
+      {...rest}
+    >
+      <ItemLayout start={icon} endContent={<ChevronRightIcon size="sm" />}>
+        {children}
+      </ItemLayout>
+    </BaseMenu.SubmenuTrigger>
+  )
 );
 MenuSubTrigger.displayName = 'Menu.SubTrigger';
 

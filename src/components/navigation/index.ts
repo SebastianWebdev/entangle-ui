@@ -36,6 +36,7 @@ export type {
   MenuSubTriggerProps,
   MenuSide,
   MenuAlign,
+  MenuHandle,
 } from './Menu';
 export type {
   PaginationBaseProps,

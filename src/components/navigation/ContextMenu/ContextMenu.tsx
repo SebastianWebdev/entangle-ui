@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ContextMenu as BaseContextMenu } from '@base-ui/react/context-menu';
+import type { MenuRootActions } from '@base-ui/react/menu';
 
 import { cx } from '@/utils/cx';
 
@@ -41,22 +42,33 @@ const ContextMenuRoot = ({
   onOpenChange,
   disabled,
   gap = DEFAULT_MENU_GAP,
-}: ContextMenuProps): React.ReactElement => (
-  <MenuGapContext.Provider value={gap}>
-    <BaseContextMenu.Root
-      open={open}
-      defaultOpen={defaultOpen}
-      onOpenChange={onOpenChange ? open => onOpenChange(open) : undefined}
-      disabled={disabled}
-    >
-      {children}
-    </BaseContextMenu.Root>
-  </MenuGapContext.Provider>
-);
+  ref,
+}: ContextMenuProps): React.ReactElement => {
+  const actionsRef = React.useRef<MenuRootActions | null>(null);
+  React.useImperativeHandle(
+    ref,
+    () => ({ close: () => actionsRef.current?.close() }),
+    []
+  );
+  return (
+    <MenuGapContext.Provider value={gap}>
+      <BaseContextMenu.Root
+        open={open}
+        defaultOpen={defaultOpen}
+        onOpenChange={onOpenChange}
+        disabled={disabled}
+        actionsRef={actionsRef}
+      >
+        {children}
+      </BaseContextMenu.Root>
+    </MenuGapContext.Provider>
+  );
+};
 ContextMenuRoot.displayName = 'ContextMenu';
 
 const ContextMenuTrigger = ({
   children,
+  render,
   className,
   style,
   testId,
@@ -65,12 +77,15 @@ const ContextMenuTrigger = ({
 }: ContextMenuTriggerProps): React.ReactElement => (
   <BaseContextMenu.Trigger
     ref={ref}
+    render={render}
     className={className}
-    style={{ display: 'contents', ...style }}
+    // With `render`, the user's element is the trigger, so no wrapper is
+    // needed; otherwise wrap so the trigger is transparent to layout.
+    style={render ? style : { display: 'contents', ...style }}
     data-testid={testId}
     {...rest}
   >
-    {children}
+    {render ? undefined : children}
   </BaseContextMenu.Trigger>
 );
 ContextMenuTrigger.displayName = 'ContextMenu.Trigger';

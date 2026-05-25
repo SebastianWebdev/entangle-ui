@@ -269,6 +269,12 @@ The root. Owns open/close state.
       description:
         'Gap in px between every popup (the menu and its submenus) and its anchor. Set once for the whole menu.',
     },
+    {
+      name: 'ref',
+      type: 'Ref<MenuHandle>',
+      description:
+        'Imperative handle. Call ref.current.close() to close the menu from app code.',
+    },
   ]}
 />
 
@@ -368,7 +374,14 @@ The positioned popup surface. Place items or any custom node inside.
     {
       name: 'onClick',
       type: '(event: MouseEvent) => void',
-      description: 'Click handler.',
+      description:
+        'Activation handler. Fires on pointer click and keyboard (Enter/Space).',
+    },
+    {
+      name: 'onSelect',
+      type: '(event: MouseEvent) => void',
+      description:
+        'Alias of onClick with clearer intent. Fires on the same activation; both run if provided.',
     },
     {
       name: 'disabled',
