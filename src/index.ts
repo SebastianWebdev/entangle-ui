@@ -678,6 +678,9 @@ export type { KeyboardContextProviderProps } from '@/context/KeyboardContext';
 // Icons
 export * from '@/components/Icons';
 
+// Experimental icons (Recraft, work in progress — not part of the stable API)
+export * as ExperimentalIcons from '@/components/Icons/experimental';
+
 // Hooks
 export {
   useClickOutside,

@@ -312,6 +312,10 @@ export default defineConfig({
           label: 'Icons',
           slug: 'icons',
         },
+        {
+          label: 'Experimental Icons',
+          slug: 'experimental-icons',
+        },
         typeDocSidebarGroup,
       ],
     }),
