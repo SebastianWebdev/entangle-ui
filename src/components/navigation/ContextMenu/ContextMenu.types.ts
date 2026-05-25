@@ -1,94 +1,50 @@
 import type React from 'react';
+
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent } from '@/types/common';
-import type { MenuConfig, MenuSelection } from '../Menu';
 
-export interface ContextMenuTargetDetails<TPayload = unknown> {
-  /**
-   * Native browser contextmenu event from the latest trigger interaction.
-   * Null until the first right click.
-   */
-  event: MouseEvent | null;
-
-  /**
-   * Element that initiated the context menu interaction.
-   */
-  target: HTMLElement | null;
-
-  /**
-   * Optional payload associated with the trigger area.
-   */
-  payload?: TPayload;
-}
-
-export type ContextMenuConfig<TPayload = unknown> =
-  | MenuConfig
-  | ((context: ContextMenuTargetDetails<TPayload>) => MenuConfig);
-
-export interface ContextMenuBaseProps<TPayload = unknown> extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'children' | 'onChange'
-> {
-  /**
-   * Static menu config or resolver function called with trigger context.
-   */
-  config: ContextMenuConfig<TPayload>;
-
-  /**
-   * Currently selected items grouped by id.
-   */
-  selectedItems?: MenuSelection;
-
-  /**
-   * Called when selection state changes.
-   */
-  onChange?: (selection: MenuSelection) => void;
-
-  /**
-   * Content that acts as the right-click trigger area.
-   */
+/**
+ * Root of a context menu. Owns open/close state for one trigger area.
+ *
+ * Scope a menu to an area by giving that area its own `ContextMenu` — there is
+ * no per-target config resolver. For advanced panels, drop any custom node
+ * (tabs, search, etc.) inside `ContextMenu.Content`.
+ */
+export interface ContextMenuRootBaseProps {
+  /** `ContextMenu.Trigger` and `ContextMenu.Content`. */
   children?: React.ReactNode;
-
-  /**
-   * Optional data attached to this trigger area and passed to config resolver.
-   */
-  payload?: TPayload;
-
-  /**
-   * Custom icon for checkbox selected state.
-   */
-  checkboxIcon?: React.ReactNode;
-
-  /**
-   * Custom icon for radio selected state.
-   */
-  radioIcon?: React.ReactNode;
-
-  /**
-   * Disables opening the context menu.
-   * @default false
-   */
+  /** Controlled open state. */
+  open?: boolean;
+  /** Uncontrolled initial open state. */
+  defaultOpen?: boolean;
+  /** Called when the menu opens or closes. */
+  onOpenChange?: (open: boolean) => void;
+  /** Disables opening the context menu. */
   disabled?: boolean;
+  /**
+   * Gap in px between submenu popups and their anchor. Inherited by any
+   * `Menu.SubContent` rendered inside the content.
+   * @default 8
+   */
+  gap?: number;
 }
+export type ContextMenuProps = Prettify<ContextMenuRootBaseProps>;
 
-export type ContextMenuProps<TPayload = unknown> = Prettify<
-  ContextMenuBaseProps<TPayload>
->;
-
-export interface UseContextMenuTargetResult<TPayload = unknown> {
-  /**
-   * Latest target context captured from right click interaction.
-   */
-  context: ContextMenuTargetDetails<TPayload>;
-
-  /**
-   * Attach this to an element if you want to capture context manually.
-   */
-  onContextMenuCapture: (event: React.MouseEvent<HTMLElement>) => void;
-
-  /**
-   * Callback ref that captures native right-click interactions on a node.
-   * Useful when you want ref-based wiring.
-   */
-  targetRef: (node: HTMLElement | null) => void;
+/**
+ * Area that opens the menu on right click or long press.
+ */
+export interface ContextMenuTriggerBaseProps extends BaseComponent<HTMLDivElement> {
+  /** The right-click target area. */
+  children?: React.ReactNode;
 }
+export type ContextMenuTriggerProps = Prettify<ContextMenuTriggerBaseProps>;
+
+/**
+ * Styled popup surface positioned at the pointer. Place items or any custom
+ * node inside.
+ */
+export interface ContextMenuContentBaseProps extends BaseComponent<HTMLDivElement> {
+  /** Items, groups, or custom panel content. */
+  children?: React.ReactNode;
+}
+export type ContextMenuContentProps = Prettify<ContextMenuContentBaseProps>;
