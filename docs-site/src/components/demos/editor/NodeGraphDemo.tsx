@@ -3,6 +3,7 @@ import DemoWrapper from '../DemoWrapper';
 import {
   NodeGraph,
   type NodeGraphConnectionValidationInfo,
+  type NodeGraphContextMenuInfo,
   type NodeGraphEdge,
   type NodeGraphEdgeStyleCtx,
   type NodeGraphGroup,
@@ -14,11 +15,8 @@ import {
   type Point2D,
 } from '@/components/editor/NodeGraph';
 import { Button } from '@/components/primitives/Button';
-import {
-  ContextMenu,
-  type ContextMenuTargetDetails,
-} from '@/components/navigation/ContextMenu';
-import type { MenuConfig, MenuGroup } from '@/components/navigation/Menu';
+import { ContextMenu, Menu } from '@/components/navigation';
+import { CopyIcon, TrashIcon } from '@/components/Icons';
 
 // ─── Type palette (UE5 Blueprint) ──────────────────────────────────────────
 
@@ -784,52 +782,18 @@ function BlueprintNodeBody({
 
 // ─── Context menu ──────────────────────────────────────────────────────────
 //
-// Right-clicking the NodeGraph routes through `<ContextMenu>` from the
-// navigation package. The library handles positioning, focus, keyboard
-// nav (Esc to close, arrows, Enter), and dismissal — the demo just hands
-// over a `config` resolver that builds a `MenuConfig` based on the DOM
-// target of the right click.
+// Right-clicking the NodeGraph routes through the composition `<ContextMenu>`
+// (Trigger + Content) — no `config` resolver, no payload. The library handles
+// positioning at the pointer, focus, keyboard nav (Esc/arrows/Enter), and
+// dismissal. The menu content is built from the shared `Menu.*` primitives.
 //
-// Resolver routing:
-//   • node    → Duplicate / Delete actions
-//   • group   → Add Node (categorised submenus) + Delete group
-//   • empty   → Add Node submenus
-// Edges aren't hit-testable from the DOM walk (they live on a canvas),
-// so they're handled via Del on selection from the marquee instead.
-
-/** What target a right-click landed on, derived by walking up from event.target. */
-type RightClickTarget =
-  | { kind: 'node'; id: string }
-  | { kind: 'group'; id: string }
-  | { kind: 'empty' };
-
-/**
- * Walk up the DOM from the clicked element to find the nearest node or
- * group data-id. Falls through to 'empty' so empty viewport space opens
- * the spawn menu.
- */
-function identifyTarget(start: Element | null): RightClickTarget {
-  let cursor: Element | null = start;
-  while (cursor) {
-    const groupHandle = cursor.getAttribute('data-group-handle');
-    if (groupHandle) {
-      // Resize handles aren't actionable from a context menu — skip past.
-      cursor = cursor.parentElement;
-      continue;
-    }
-    const nodeId = cursor.getAttribute('data-node-id');
-    const portId = cursor.getAttribute('data-port-id');
-    if (nodeId && !portId) {
-      return { kind: 'node', id: nodeId };
-    }
-    const groupId = cursor.getAttribute('data-group-id');
-    if (groupId) {
-      return { kind: 'group', id: groupId };
-    }
-    cursor = cursor.parentElement;
-  }
-  return { kind: 'empty' };
-}
+// NodeGraph already hit-tests every right-click and hands back a typed
+// `target` (node / port / group / edge / empty) plus the world point via
+// `onContextMenu`. We stash that and branch the `Menu.*` content on it, so
+// there's no DOM walking and the spawn point comes straight from the library:
+//   • node / port → Duplicate / Delete actions
+//   • group       → Add Node (categorised submenus) + Delete group
+//   • empty / edge → Add Node submenus (spawn at the captured world point)
 
 // ─── Demo ──────────────────────────────────────────────────────────────────
 
@@ -844,8 +808,12 @@ export default function NodeGraphDemo(): React.ReactElement {
     groups: [],
   });
   const ref = useRef<NodeGraphHandle>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const idSeedRef = useRef(1000);
+  // Last right-click info from NodeGraph — drives the context menu content
+  // (target kind) and the spawn world point.
+  const [menuInfo, setMenuInfo] = useState<NodeGraphContextMenuInfo | null>(
+    null
+  );
 
   const connectedPortSet = useMemo(() => {
     const s = new Set<string>();
@@ -953,127 +921,103 @@ export default function NodeGraphDemo(): React.ReactElement {
   }, []);
 
   /**
-   * Build the spawn submenu — one entry per category, each opening into a
-   * submenu of templates in that category. Same shape regardless of
-   * whether we're in empty or group context; `onClick` closes over the
-   * world point captured when the menu opened.
+   * The spawn submenu — a labelled "Add Node" group with one nested submenu
+   * per category, each listing the templates in that category. `onClick`
+   * closes over the world point captured on right-click, so the node lands
+   * where the menu opened.
    */
-  const buildSpawnGroup = useCallback(
-    (worldPoint: Point2D): MenuGroup => {
+  const renderSpawnItems = useCallback(
+    (worldPoint: Point2D): React.ReactElement => {
       const categories = Array.from(
         new Set(TEMPLATES.map(t => t.category))
       ) as Category[];
-      return {
-        id: 'spawn',
-        label: 'Add Node',
-        itemSelectionType: 'none',
-        closeOnItemClick: true,
-        items: categories.map(category => {
-          const templates = TEMPLATES.filter(t => t.category === category);
-          const theme = CATEGORY_THEME[category];
-          return {
-            id: category,
-            label: category.charAt(0).toUpperCase() + category.slice(1),
-            icon: <span style={{ color: theme.accent }}>{theme.icon}</span>,
-            submenuTrigger: 'hover' as const,
-            onClick: () => {
-              // No-op: opening the submenu is the click action. Required
-              // by MenuItem shape — leaves are the ones that spawn.
-            },
-            subMenu: {
-              groups: [
-                {
-                  id: `${category}-templates`,
-                  itemSelectionType: 'none' as const,
-                  closeOnItemClick: true,
-                  items: templates.map(t => ({
-                    id: t.id,
-                    label: t.title,
-                    onClick: () => handleSpawn(t, worldPoint),
-                  })),
-                },
-              ],
-            },
-          };
-        }),
-      };
+      return (
+        <Menu.Group label="Add Node">
+          {categories.map(category => {
+            const templates = TEMPLATES.filter(t => t.category === category);
+            const theme = CATEGORY_THEME[category];
+            return (
+              <Menu.Sub key={category}>
+                <Menu.SubTrigger
+                  icon={
+                    <span style={{ color: theme.accent }}>{theme.icon}</span>
+                  }
+                >
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </Menu.SubTrigger>
+                <Menu.SubContent>
+                  {templates.map(t => (
+                    <Menu.Item
+                      key={t.id}
+                      onClick={() => handleSpawn(t, worldPoint)}
+                    >
+                      {t.title}
+                    </Menu.Item>
+                  ))}
+                </Menu.SubContent>
+              </Menu.Sub>
+            );
+          })}
+        </Menu.Group>
+      );
     },
     [handleSpawn]
   );
 
   /**
-   * Resolver passed to `<ContextMenu config={...}>`. Called by the
-   * library on every right-click with the captured DOM event. Walks
-   * the DOM to identify the target and returns a config sized for it.
-   *
-   * `wrapperRef` is the div we put around `<NodeGraph>` purely to get
-   * a stable bounding rect for the screen→world conversion. Using a
-   * ref is more robust than walking the DOM with `closest()` because
-   * it survives the NodeGraph internals being re-shuffled.
+   * Content for `<ContextMenu.Content>`, branched on the target NodeGraph
+   * reported via `onContextMenu`. Composes the shared `Menu.*` primitives —
+   * no config object. The world point comes straight from the library, so
+   * there's no DOM walking or manual screen→world math.
    */
-  const buildMenuConfig = useCallback(
-    (context: ContextMenuTargetDetails): MenuConfig => {
-      const event = context.event;
-      if (!event) return { groups: [] };
-      const handle = ref.current;
-      const wrapper = wrapperRef.current;
-      if (!handle || !wrapper) return { groups: [] };
-      const rect = wrapper.getBoundingClientRect();
-      const worldPoint = handle.screenToWorld({
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-      });
-      const target = identifyTarget(context.target);
+  const renderMenuContent = useCallback((): React.ReactNode => {
+    if (!menuInfo) return null;
+    const { target, worldPoint } = menuInfo;
 
-      if (target.kind === 'node') {
-        return {
-          groups: [
-            {
-              id: 'node-actions',
-              itemSelectionType: 'none',
-              closeOnItemClick: true,
-              items: [
-                {
-                  id: 'duplicate',
-                  label: 'Duplicate node',
-                  onClick: () => handleDuplicateNode(target.id),
-                },
-                {
-                  id: 'delete',
-                  label: 'Delete node',
-                  onClick: () => handleDeleteNode(target.id),
-                },
-              ],
-            },
-          ],
-        };
-      }
+    if (target.kind === 'node' || target.kind === 'port') {
+      const nodeId = target.kind === 'node' ? target.id : target.node;
+      return (
+        <>
+          <Menu.Item
+            icon={<CopyIcon size="sm" />}
+            onClick={() => handleDuplicateNode(nodeId)}
+          >
+            Duplicate node
+          </Menu.Item>
+          <Menu.Item
+            icon={<TrashIcon size="sm" />}
+            onClick={() => handleDeleteNode(nodeId)}
+          >
+            Delete node
+          </Menu.Item>
+        </>
+      );
+    }
 
-      if (target.kind === 'group') {
-        return {
-          groups: [
-            buildSpawnGroup(worldPoint),
-            {
-              id: 'group-actions',
-              itemSelectionType: 'none',
-              closeOnItemClick: true,
-              items: [
-                {
-                  id: 'delete-group',
-                  label: 'Delete group',
-                  onClick: () => handleDeleteGroup(target.id),
-                },
-              ],
-            },
-          ],
-        };
-      }
+    if (target.kind === 'group') {
+      return (
+        <>
+          {renderSpawnItems(worldPoint)}
+          <Menu.Separator />
+          <Menu.Item
+            icon={<TrashIcon size="sm" />}
+            onClick={() => handleDeleteGroup(target.id)}
+          >
+            Delete group
+          </Menu.Item>
+        </>
+      );
+    }
 
-      // Empty space — just the spawn submenu.
-      return { groups: [buildSpawnGroup(worldPoint)] };
-    },
-    [handleDuplicateNode, handleDeleteNode, handleDeleteGroup, buildSpawnGroup]
-  );
+    // Empty space (and edges, which aren't actionable here) → spawn menu.
+    return renderSpawnItems(worldPoint);
+  }, [
+    menuInfo,
+    renderSpawnItems,
+    handleDuplicateNode,
+    handleDeleteNode,
+    handleDeleteGroup,
+  ]);
 
   return (
     <DemoWrapper>
@@ -1106,70 +1050,69 @@ export default function NodeGraphDemo(): React.ReactElement {
               : ''}
           </span>
         </div>
-        <div
-          ref={wrapperRef}
-          style={{ flex: 1, minHeight: 0, position: 'relative' }}
-        >
+        <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
           {/*
             <ContextMenu> wraps the graph as the right-click trigger area.
-            The resolver builds a target-aware MenuConfig (Duplicate /
-            Delete for nodes; Add Node submenu for empty / group; both
-            for group). `wrapperRef` is needed so the resolver can
-            convert event clientX/Y → world coordinates by subtracting
-            the wrapper's bounding rect.
+            NodeGraph's `onContextMenu` reports the hit target + world point;
+            we stash it and `ContextMenu.Content` composes the matching
+            `Menu.*` items (node actions / spawn submenu / group actions).
           */}
-          <ContextMenu config={buildMenuConfig}>
-            <NodeGraph
-              ref={ref}
-              nodes={nodes}
-              edges={edges}
-              groups={groups}
-              selection={selection}
-              onNodesChange={setNodes}
-              onEdgesChange={setEdges}
-              edgeStyle={edgeStyle}
-              onGroupsChange={setGroups}
-              onSelectionChange={setSelection}
-              renderNode={renderNode}
-              isValidConnection={isValidConnection}
-              snapToGrid={8}
-              minZoom={0.2}
-              maxZoom={2.5}
-              responsive
-              ariaLabel="Blueprint-style node graph"
-            >
-              <NodeGraph.Background variant="dots" gap={20} />
-              <NodeGraph.Minimap
-                placement="bottom-right"
-                width={220}
-                title="Graph Overview"
-              />
-              <NodeGraph.Toolbar placement="top-left">
-                <NodeGraph.FitContentButton padding={48} />
-                <NodeGraph.FitSelectionButton padding={96} />
-                <NodeGraph.ToolbarSeparator />
-                <NodeGraph.ZoomOutButton />
-                <NodeGraph.ResetZoomButton />
-                <NodeGraph.ZoomInButton />
-                <NodeGraph.ToolbarSeparator />
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => {
-                    const t = ref.current?.getTransform();
-                    const size = ref.current?.getSize();
-                    if (!t || !size) return;
-                    const world = ref.current!.screenToWorld({
-                      x: size.width / 2,
-                      y: size.height / 2,
-                    });
-                    addGroupAt(world.x, world.y);
-                  }}
-                >
-                  + Group
-                </Button>
-              </NodeGraph.Toolbar>
-            </NodeGraph>
+          <ContextMenu>
+            <ContextMenu.Trigger>
+              <NodeGraph
+                ref={ref}
+                onContextMenu={setMenuInfo}
+                nodes={nodes}
+                edges={edges}
+                groups={groups}
+                selection={selection}
+                onNodesChange={setNodes}
+                onEdgesChange={setEdges}
+                edgeStyle={edgeStyle}
+                onGroupsChange={setGroups}
+                onSelectionChange={setSelection}
+                renderNode={renderNode}
+                isValidConnection={isValidConnection}
+                snapToGrid={8}
+                minZoom={0.2}
+                maxZoom={2.5}
+                responsive
+                ariaLabel="Blueprint-style node graph"
+              >
+                <NodeGraph.Background variant="dots" gap={20} />
+                <NodeGraph.Minimap
+                  placement="bottom-right"
+                  width={220}
+                  title="Graph Overview"
+                />
+                <NodeGraph.Toolbar placement="top-left">
+                  <NodeGraph.FitContentButton padding={48} />
+                  <NodeGraph.FitSelectionButton padding={96} />
+                  <NodeGraph.ToolbarSeparator />
+                  <NodeGraph.ZoomOutButton />
+                  <NodeGraph.ResetZoomButton />
+                  <NodeGraph.ZoomInButton />
+                  <NodeGraph.ToolbarSeparator />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      const t = ref.current?.getTransform();
+                      const size = ref.current?.getSize();
+                      if (!t || !size) return;
+                      const world = ref.current!.screenToWorld({
+                        x: size.width / 2,
+                        y: size.height / 2,
+                      });
+                      addGroupAt(world.x, world.y);
+                    }}
+                  >
+                    + Group
+                  </Button>
+                </NodeGraph.Toolbar>
+              </NodeGraph>
+            </ContextMenu.Trigger>
+            <ContextMenu.Content>{renderMenuContent()}</ContextMenu.Content>
           </ContextMenu>
         </div>
         <div
@@ -1183,8 +1126,8 @@ export default function NodeGraphDemo(): React.ReactElement {
           }}
         >
           <span>
-            <kbd>Right-click</kbd> empty / group → search & spawn · node / edge
-            → contextual actions
+            <kbd>Right-click</kbd> empty / group → Add Node · node / port →
+            duplicate / delete
           </span>
           <span>
             <kbd>Drag</kbd> node — move (connectors follow live)
