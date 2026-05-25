@@ -1,10 +1,7 @@
 export { ContextMenu } from './ContextMenu';
-export { useContextMenuTarget } from './useContextMenuTarget';
 
 export type {
-  ContextMenuConfig,
   ContextMenuProps,
-  ContextMenuBaseProps,
-  ContextMenuTargetDetails,
-  UseContextMenuTargetResult,
+  ContextMenuTriggerProps,
+  ContextMenuContentProps,
 } from './ContextMenu.types';

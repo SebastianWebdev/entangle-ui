@@ -1,155 +1,124 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
 import { vi } from 'vitest';
+
 import { renderWithTheme } from '@/tests/testUtils';
-import type { MenuConfig } from '../Menu';
+
 import { ContextMenu } from './ContextMenu';
-import type { ContextMenuTargetDetails } from './ContextMenu.types';
+import { Menu } from '../Menu/Menu';
+
+interface MockProps {
+  children?: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+  onClick?: React.MouseEventHandler;
+  disabled?: boolean;
+  'data-testid'?: string;
+}
 
 // Mock Base UI ContextMenu to avoid @floating-ui positioning loops in jsdom.
-// Positioner uses floating-ui which infinite-loops when getBoundingClientRect returns zeros.
+// Positioner uses floating-ui which infinite-loops when getBoundingClientRect
+// returns zeros. Popup stays mounted so content can be queried without opening.
 vi.mock('@base-ui/react/context-menu', async () => {
   const { createElement, Fragment, forwardRef } = await import('react');
-  const F = ({ children }: { children?: React.ReactNode }) =>
+
+  const Frag = ({ children }: MockProps) =>
     createElement(Fragment, null, children);
-  const D = ({ children }: { children?: React.ReactNode }) =>
-    createElement('div', null, children);
-  // styled() needs forwardRef-based components
-  const S = forwardRef<HTMLDivElement, { children?: React.ReactNode }>(
-    ({ children, ...props }, ref) =>
-      createElement('div', { ...props, ref }, children as string)
+  const Div = ({ children }: MockProps) => createElement('div', null, children);
+  const Pass = forwardRef<HTMLDivElement, MockProps>(
+    ({ children, className, style, 'data-testid': testId }, ref) =>
+      createElement(
+        'div',
+        { ref, className, style, 'data-testid': testId },
+        children
+      )
   );
+  Pass.displayName = 'Pass';
+
   return {
     ContextMenu: {
-      Root: F,
-      Trigger: ({
-        children,
-        onContextMenuCapture,
-      }: {
-        children: React.ReactNode;
-        onContextMenuCapture?: React.MouseEventHandler;
-      }) => createElement('div', { onContextMenuCapture }, children),
-      Portal: F,
-      Positioner: D,
-      Popup: S,
-      Group: F,
-      GroupLabel: D,
-      RadioGroup: F,
-      Item: S,
-      RadioItem: S,
-      RadioItemIndicator: F,
-      CheckboxItem: S,
-      ItemIndicator: F,
-      Separator: S,
+      Root: Frag,
+      Trigger: Pass,
+      Portal: Frag,
+      Positioner: Div,
+      Popup: Pass,
     },
   };
 });
 
-// ContextMenu reuses Menu styled components which wrap BaseMenu sub-components.
-// Since BaseContextMenu.Item === BaseMenu.Item (same underlying module), we mock both.
+// Items inside the content reuse the shared Menu primitives.
 vi.mock('@base-ui/react/menu', async () => {
   const { createElement, Fragment, forwardRef } = await import('react');
-  const F = ({ children }: { children?: React.ReactNode }) =>
+
+  const Frag = ({ children }: MockProps) =>
     createElement(Fragment, null, children);
-  const D = ({ children }: { children?: React.ReactNode }) =>
-    createElement('div', null, children);
-  const S = forwardRef<HTMLDivElement, { children?: React.ReactNode }>(
-    ({ children, ...props }, ref) =>
-      createElement('div', { ...props, ref }, children as string)
+  const Div = ({ children }: MockProps) => createElement('div', null, children);
+  const Pass = forwardRef<HTMLDivElement, MockProps>(
+    ({ children, className, onClick, disabled, 'data-testid': testId }, ref) =>
+      createElement(
+        'div',
+        {
+          ref,
+          className,
+          onClick,
+          'data-disabled': disabled ? '' : undefined,
+          'data-testid': testId,
+        },
+        children
+      )
   );
+  Pass.displayName = 'Pass';
+
   return {
     Menu: {
-      Root: F,
-      Trigger: D,
-      SubmenuTrigger: D,
-      Portal: F,
-      Positioner: D,
-      Popup: S,
-      Group: F,
-      GroupLabel: D,
-      RadioGroup: F,
-      Item: S,
-      RadioItem: S,
-      RadioItemIndicator: F,
-      CheckboxItem: S,
-      CheckboxItemIndicator: F,
-      Separator: S,
+      Root: Frag,
+      Trigger: ({ children }: MockProps) =>
+        createElement('button', { type: 'button' }, children),
+      Portal: Frag,
+      Positioner: Div,
+      Popup: Pass,
+      Group: Frag,
+      GroupLabel: Div,
+      Separator: Pass,
+      RadioGroup: Frag,
+      RadioItem: Pass,
+      RadioItemIndicator: Frag,
+      CheckboxItem: Pass,
+      CheckboxItemIndicator: Frag,
+      Item: Pass,
+      SubmenuRoot: Frag,
+      SubmenuTrigger: Pass,
     },
   };
 });
 
 describe('ContextMenu', () => {
-  it('renders trigger area children', () => {
+  it('renders the trigger area children', () => {
     renderWithTheme(
-      <ContextMenu
-        config={{
-          groups: [
-            {
-              id: 'actions',
-              itemSelectionType: 'none',
-              items: [{ id: 'copy', label: 'Copy', onClick: () => {} }],
-            },
-          ],
-        }}
-      >
-        <div data-testid="context-target">Right click target</div>
+      <ContextMenu>
+        <ContextMenu.Trigger>
+          <div data-testid="context-target">Right click target</div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <Menu.Item>Copy</Menu.Item>
+        </ContextMenu.Content>
       </ContextMenu>
     );
 
     expect(screen.getByTestId('context-target')).toBeInTheDocument();
   });
 
-  it('resolves config with payload and target from right-click event', () => {
-    const payload = { surface: 'assets', id: 'node-1' };
-    const resolver = vi
-      .fn<(context: ContextMenuTargetDetails<typeof payload>) => MenuConfig>()
-      .mockReturnValue({
-        groups: [
-          {
-            id: 'actions',
-            itemSelectionType: 'none',
-            items: [{ id: 'rename', label: 'Rename', onClick: () => {} }],
-          },
-        ],
-      });
-
+  it('renders composed items inside the content', () => {
     renderWithTheme(
-      <ContextMenu config={resolver} payload={payload}>
-        <div data-testid="context-target">
-          <span>Target</span>
-        </div>
-      </ContextMenu>
-    );
-
-    fireEvent.contextMenu(screen.getByText('Target'));
-
-    const lastCall = resolver.mock.calls[resolver.mock.calls.length - 1]?.[0];
-    expect(lastCall).toBeDefined();
-    if (!lastCall) return;
-
-    expect(lastCall.payload).toEqual(payload);
-    expect(lastCall.target).toBeInstanceOf(HTMLElement);
-    expect(lastCall.event).toBeInstanceOf(MouseEvent);
-  });
-
-  it('renders menu items from static config', () => {
-    renderWithTheme(
-      <ContextMenu
-        config={{
-          groups: [
-            {
-              id: 'actions',
-              itemSelectionType: 'none',
-              items: [
-                { id: 'cut', label: 'Cut', onClick: () => {} },
-                { id: 'copy', label: 'Copy', onClick: () => {} },
-                { id: 'paste', label: 'Paste', onClick: () => {} },
-              ],
-            },
-          ],
-        }}
-      >
-        <div>Content</div>
+      <ContextMenu>
+        <ContextMenu.Trigger>
+          <div>Content</div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <Menu.Item>Cut</Menu.Item>
+          <Menu.Item>Copy</Menu.Item>
+          <Menu.Item>Paste</Menu.Item>
+        </ContextMenu.Content>
       </ContextMenu>
     );
 
@@ -158,45 +127,50 @@ describe('ContextMenu', () => {
     expect(screen.getByText('Paste')).toBeInTheDocument();
   });
 
-  it('does not call resolver until context menu is triggered', () => {
-    const resolver = vi.fn().mockReturnValue({
-      groups: [
-        {
-          id: 'actions',
-          itemSelectionType: 'none',
-          items: [{ id: 'action', label: 'Action', onClick: () => {} }],
-        },
-      ],
-    });
-
+  it('fires the item onClick handler', () => {
+    const handleClick = vi.fn();
     renderWithTheme(
-      <ContextMenu config={resolver}>
-        <div data-testid="target">Content</div>
+      <ContextMenu>
+        <ContextMenu.Trigger>
+          <div>Content</div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <Menu.Item onClick={handleClick}>Delete</Menu.Item>
+        </ContextMenu.Content>
       </ContextMenu>
     );
 
-    const initialCallCount = resolver.mock.calls.length;
-
-    fireEvent.contextMenu(screen.getByTestId('target'));
-
-    expect(resolver.mock.calls.length).toBeGreaterThan(initialCallCount);
+    fireEvent.click(screen.getByText('Delete'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  it('passes disabled prop to prevent opening', () => {
+  it('renders a fully custom panel node inside the content', () => {
     renderWithTheme(
-      <ContextMenu
-        config={{
-          groups: [
-            {
-              id: 'actions',
-              itemSelectionType: 'none',
-              items: [{ id: 'action', label: 'Action', onClick: () => {} }],
-            },
-          ],
-        }}
-        disabled
-      >
-        <div data-testid="target">Content</div>
+      <ContextMenu>
+        <ContextMenu.Trigger>
+          <div>Content</div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <div data-testid="custom-panel">
+            <input placeholder="Search" />
+          </div>
+        </ContextMenu.Content>
+      </ContextMenu>
+    );
+
+    expect(screen.getByTestId('custom-panel')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search')).toBeInTheDocument();
+  });
+
+  it('accepts the disabled prop without breaking the trigger', () => {
+    renderWithTheme(
+      <ContextMenu disabled>
+        <ContextMenu.Trigger>
+          <div data-testid="target">Content</div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <Menu.Item>Action</Menu.Item>
+        </ContextMenu.Content>
       </ContextMenu>
     );
 

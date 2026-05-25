@@ -1,129 +1,106 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { ContextMenu as BaseContextMenu } from '@base-ui/react/context-menu';
-import { CheckIcon } from '@/components/Icons/CheckIcon';
-import { CircleIcon } from '@/components/Icons/CircleIcon';
-import { Text } from '@/components/primitives/Text';
-import { cx } from '@/utils/cx';
-import { Menu } from '../Menu/Menu';
-import { useMenu, createItemClickHandler } from '../Menu/useMenu';
-import { renderItemWithSubmenu } from '../Menu/Menu.helpers';
-import { menuContentStyle, separatorStyle } from '../Menu/Menu.css';
-import type { ContextMenuProps } from './ContextMenu.types';
-import { useContextMenuTarget } from './useContextMenuTarget';
 
-export function ContextMenu<TPayload = unknown>({
-  config,
-  selectedItems = {},
-  onChange,
+import { cx } from '@/utils/cx';
+
+import { menuContentStyle } from '../Menu/Menu.css';
+import { MenuGapContext, DEFAULT_MENU_GAP } from '../Menu/MenuGapContext';
+import type {
+  ContextMenuProps,
+  ContextMenuTriggerProps,
+  ContextMenuContentProps,
+} from './ContextMenu.types';
+
+/**
+ * Right-click context menu, built on `@base-ui/react` ContextMenu primitives.
+ *
+ * Compose the trigger area and content as children. Reuse the shared `Menu.*`
+ * primitives for items, or pass a fully custom panel into
+ * `ContextMenu.Content`. Define separate menus per area by giving each area its
+ * own `ContextMenu`.
+ *
+ * @example
+ * ```tsx
+ * <ContextMenu>
+ *   <ContextMenu.Trigger>
+ *     <div className="viewport">Right-click me</div>
+ *   </ContextMenu.Trigger>
+ *   <ContextMenu.Content>
+ *     <Menu.Item icon={<CutIcon />} shortcut="⌘X">Cut</Menu.Item>
+ *     <Menu.Item icon={<CopyIcon />} shortcut="⌘C">Copy</Menu.Item>
+ *   </ContextMenu.Content>
+ * </ContextMenu>
+ * ```
+ */
+const ContextMenuRoot = ({
   children,
-  payload,
-  checkboxIcon = <CheckIcon size="sm" />,
-  radioIcon = <CircleIcon size="sm" />,
-  disabled = false,
+  open,
+  defaultOpen,
+  onOpenChange,
+  disabled,
+  gap = DEFAULT_MENU_GAP,
+}: ContextMenuProps): React.ReactElement => (
+  <MenuGapContext.Provider value={gap}>
+    <BaseContextMenu.Root
+      open={open}
+      defaultOpen={defaultOpen}
+      onOpenChange={onOpenChange ? open => onOpenChange(open) : undefined}
+      disabled={disabled}
+    >
+      {children}
+    </BaseContextMenu.Root>
+  </MenuGapContext.Provider>
+);
+ContextMenuRoot.displayName = 'ContextMenu';
+
+const ContextMenuTrigger = ({
+  children,
   className,
   style,
   testId,
   ref,
   ...rest
-}: ContextMenuProps<TPayload>) {
-  const { handleItemClick, isItemSelected, toggleSubmenu } = useMenu(
-    selectedItems,
-    onChange
-  );
-  const { context, onContextMenuCapture } = useContextMenuTarget(payload);
+}: ContextMenuTriggerProps): React.ReactElement => (
+  <BaseContextMenu.Trigger
+    ref={ref}
+    className={className}
+    style={{ display: 'contents', ...style }}
+    data-testid={testId}
+    {...rest}
+  >
+    {children}
+  </BaseContextMenu.Trigger>
+);
+ContextMenuTrigger.displayName = 'ContextMenu.Trigger';
 
-  const resolvedConfig = useMemo(() => {
-    return typeof config === 'function' ? config(context) : config;
-  }, [config, context]);
-
-  const menuItems = useMemo(() => {
-    return resolvedConfig.groups.map((group, groupIndex) => {
-      const items = group.items.map(item => {
-        const isSelected = isItemSelected(group.id, item.id);
-        const clickHandler = createItemClickHandler(
-          item,
-          group,
-          handleItemClick,
-          toggleSubmenu
-        );
-
-        return renderItemWithSubmenu(
-          item,
-          group,
-          isSelected,
-          checkboxIcon,
-          radioIcon,
-          selectedItems,
-          clickHandler,
-          onChange,
-          Menu
-        );
-      });
-
-      const showSeparator =
-        groupIndex < resolvedConfig.groups.length - 1 &&
-        resolvedConfig.groups.length > 1;
-
-      return (
-        <React.Fragment key={group.id}>
-          <BaseContextMenu.Group>
-            {group.label && (
-              <BaseContextMenu.GroupLabel>
-                <Text variant="caption" color="muted" weight="semibold">
-                  {group.label}
-                </Text>
-              </BaseContextMenu.GroupLabel>
-            )}
-            {group.itemSelectionType === 'radio' ? (
-              <BaseContextMenu.RadioGroup
-                value={selectedItems[group.id]?.[0] ?? ''}
-              >
-                {items}
-              </BaseContextMenu.RadioGroup>
-            ) : (
-              items
-            )}
-          </BaseContextMenu.Group>
-          {showSeparator && (
-            <BaseContextMenu.Separator className={separatorStyle} />
-          )}
-        </React.Fragment>
-      );
-    });
-  }, [
-    resolvedConfig,
-    isItemSelected,
-    handleItemClick,
-    toggleSubmenu,
-    checkboxIcon,
-    radioIcon,
-    selectedItems,
-    onChange,
-  ]);
-
-  return (
-    <BaseContextMenu.Root disabled={disabled}>
-      <BaseContextMenu.Trigger
-        onContextMenuCapture={onContextMenuCapture}
-        style={{ display: 'contents' }}
+const ContextMenuContent = ({
+  children,
+  className,
+  testId,
+  ref,
+  ...rest
+}: ContextMenuContentProps): React.ReactElement => (
+  <BaseContextMenu.Portal>
+    <BaseContextMenu.Positioner>
+      <BaseContextMenu.Popup
+        ref={ref}
+        className={cx(menuContentStyle, className)}
+        data-testid={testId}
+        {...rest}
       >
         {children}
-      </BaseContextMenu.Trigger>
-      <BaseContextMenu.Portal>
-        <BaseContextMenu.Positioner>
-          <BaseContextMenu.Popup
-            ref={ref as React.Ref<HTMLDivElement>}
-            className={cx(menuContentStyle, className)}
-            style={style}
-            data-testid={testId}
-            {...rest}
-          >
-            {menuItems}
-          </BaseContextMenu.Popup>
-        </BaseContextMenu.Positioner>
-      </BaseContextMenu.Portal>
-    </BaseContextMenu.Root>
-  );
-}
+      </BaseContextMenu.Popup>
+    </BaseContextMenu.Positioner>
+  </BaseContextMenu.Portal>
+);
+ContextMenuContent.displayName = 'ContextMenu.Content';
+
+/**
+ * Compound ContextMenu API. Items reuse the shared `Menu.*` primitives.
+ */
+export const ContextMenu = /*#__PURE__*/ Object.assign(ContextMenuRoot, {
+  Trigger: ContextMenuTrigger,
+  Content: ContextMenuContent,
+});

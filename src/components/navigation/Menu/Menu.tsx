@@ -1,159 +1,389 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Menu as BaseMenu } from '@base-ui/react/menu';
 
 import { CheckIcon } from '@/components/Icons/CheckIcon';
 import { CircleIcon } from '@/components/Icons/CircleIcon';
+import { ChevronRightIcon } from '@/components/Icons/ChevronRightIcon';
 import { Button } from '@/components/primitives/Button';
 import { Text } from '@/components/primitives/Text';
 import { cx } from '@/utils/cx';
 
-import type { MenuProps } from './Menu.types';
-import { useMenu, createItemClickHandler } from './useMenu';
-import { renderItemWithSubmenu } from './Menu.helpers';
-import { menuContentStyle, separatorStyle } from './Menu.css';
+import type {
+  MenuRootProps,
+  MenuTriggerProps,
+  MenuContentProps,
+  MenuItemProps,
+  MenuGroupProps,
+  MenuSeparatorProps,
+  MenuRadioGroupProps,
+  MenuRadioItemProps,
+  MenuCheckboxItemProps,
+  MenuSubProps,
+  MenuSubTriggerProps,
+} from './Menu.types';
+import {
+  menuContentStyle,
+  menuItemStyle,
+  itemStartSlotStyle,
+  itemLabelStyle,
+  itemEndSlotStyle,
+  shortcutStyle,
+  groupLabelStyle,
+  separatorStyle,
+} from './Menu.css';
+import { MenuGapContext, DEFAULT_MENU_GAP } from './MenuGapContext';
 
 /**
- * A configuration-driven menu component for editor interfaces.
- *
- * Automatically handles radio/checkbox selection states, grouping,
- * and nested submenus based on provided configuration object.
+ * Internal three-slot row used by every interactive menu entry.
+ */
+const ItemLayout = ({
+  start,
+  children,
+  shortcut,
+  endContent,
+}: {
+  start?: React.ReactNode;
+  children?: React.ReactNode;
+  shortcut?: React.ReactNode;
+  endContent?: React.ReactNode;
+}): React.ReactElement => (
+  <>
+    {start != null && <span className={itemStartSlotStyle}>{start}</span>}
+    <span className={itemLabelStyle}>{children}</span>
+    {(shortcut != null || endContent != null) && (
+      <span className={itemEndSlotStyle}>
+        {shortcut != null && <span className={shortcutStyle}>{shortcut}</span>}
+        {endContent}
+      </span>
+    )}
+  </>
+);
+
+/**
+ * Composable menu for editor interfaces, built on `@base-ui/react` Menu
+ * primitives. Compose the trigger, content and items as children — no config
+ * object.
  *
  * @example
  * ```tsx
- * const config = {
- *   groups: [{
- *     id: 'actions',
- *     items: [
- *       {
- *         id: 'copy',
- *         label: 'Copy',
- *         onClick: handleCopy,
- *         subMenu: nestedConfig,
- *         submenuTrigger: 'hover' // Opens on hover (default)
- *       },
- *       {
- *         id: 'paste',
- *         label: 'Paste',
- *         onClick: handlePaste,
- *         subMenu: nestedConfig,
- *         submenuTrigger: 'click' // Opens on click only
- *       }
- *     ],
- *     itemSelectionType: 'none'
- *   }]
- * };
- *
- * <Menu config={config}>
- *   <Button>Options</Button>
+ * <Menu>
+ *   <Menu.Trigger>File</Menu.Trigger>
+ *   <Menu.Content>
+ *     <Menu.Item icon={<SaveIcon />} shortcut="⌘S" onClick={save}>
+ *       Save
+ *     </Menu.Item>
+ *     <Menu.Separator />
+ *     <Menu.Sub>
+ *       <Menu.SubTrigger>Export</Menu.SubTrigger>
+ *       <Menu.SubContent>
+ *         <Menu.Item>PNG</Menu.Item>
+ *         <Menu.Item>SVG</Menu.Item>
+ *       </Menu.SubContent>
+ *     </Menu.Sub>
+ *   </Menu.Content>
  * </Menu>
  * ```
  */
-export const Menu: React.FC<MenuProps> = ({
-  config,
-  selectedItems = {},
-  onChange,
+const MenuRoot = ({
   children,
-  checkboxIcon = <CheckIcon size="sm" />,
-  radioIcon = <CircleIcon size="sm" />,
-  disabled = false,
+  open,
+  defaultOpen,
+  onOpenChange,
+  modal,
+  disabled,
+  gap = DEFAULT_MENU_GAP,
+}: MenuRootProps): React.ReactElement => (
+  <MenuGapContext.Provider value={gap}>
+    <BaseMenu.Root
+      open={open}
+      defaultOpen={defaultOpen}
+      onOpenChange={onOpenChange ? open => onOpenChange(open) : undefined}
+      modal={modal}
+      disabled={disabled}
+    >
+      {children}
+    </BaseMenu.Root>
+  </MenuGapContext.Provider>
+);
+MenuRoot.displayName = 'Menu';
+
+const MenuTrigger = ({
+  children,
+  render,
+  disabled,
+  openOnHover,
   className,
-  isSubmenu = false,
   testId,
   ...rest
-}) => {
-  const { handleItemClick, isItemSelected, toggleSubmenu } = useMenu(
-    selectedItems,
-    onChange
-  );
+}: MenuTriggerProps): React.ReactElement => (
+  <BaseMenu.Trigger
+    render={render ?? <Button />}
+    disabled={disabled}
+    openOnHover={openOnHover}
+    className={className}
+    data-testid={testId}
+    {...rest}
+  >
+    {children}
+  </BaseMenu.Trigger>
+);
+MenuTrigger.displayName = 'Menu.Trigger';
 
-  const menuItems = useMemo(() => {
-    return config.groups.map((group, groupIndex) => {
-      const items = group.items.map(item => {
-        const isSelected = isItemSelected(group.id, item.id);
-        const clickHandler = createItemClickHandler(
-          item,
-          group,
-          handleItemClick,
-          toggleSubmenu
-        );
-
-        return renderItemWithSubmenu(
-          item,
-          group,
-          isSelected,
-          checkboxIcon,
-          radioIcon,
-          selectedItems,
-          clickHandler,
-          onChange,
-          Menu
-        );
-      });
-
-      const showSeparator =
-        groupIndex < config.groups.length - 1 && config.groups.length > 1;
-
-      // Wrap group items with BaseMenu.Group structure
-      return (
-        <React.Fragment key={group.id}>
-          <BaseMenu.Group>
-            {group.label && (
-              <BaseMenu.GroupLabel>
-                <Text variant="caption" color="muted" weight="semibold">
-                  {group.label}
-                </Text>
-              </BaseMenu.GroupLabel>
-            )}
-            {group.itemSelectionType === 'radio' ? (
-              <BaseMenu.RadioGroup value={selectedItems[group.id]?.[0] ?? ''}>
-                {items}
-              </BaseMenu.RadioGroup>
-            ) : (
-              items
-            )}
-          </BaseMenu.Group>
-          {showSeparator && <BaseMenu.Separator className={separatorStyle} />}
-        </React.Fragment>
-      );
-    });
-  }, [
-    config,
-    selectedItems,
-    isItemSelected,
-    handleItemClick,
-    toggleSubmenu,
-    checkboxIcon,
-    radioIcon,
-    onChange,
-  ]);
-
-  // For submenu, only render the content without root/trigger wrapper
-  if (isSubmenu) {
-    return <>{menuItems}</>;
-  }
-
+const MenuContent = ({
+  children,
+  className,
+  side,
+  align = 'start',
+  sideOffset,
+  alignOffset,
+  testId,
+  ref,
+  ...rest
+}: MenuContentProps): React.ReactElement => {
+  const gap = React.useContext(MenuGapContext);
   return (
-    <BaseMenu.Root>
-      <BaseMenu.Trigger
-        render={props => <Button {...props} />}
-        disabled={disabled}
+    <BaseMenu.Portal>
+      <BaseMenu.Positioner
+        side={side}
+        align={align}
+        sideOffset={sideOffset ?? gap}
+        alignOffset={alignOffset}
       >
-        {children}
-      </BaseMenu.Trigger>
-
-      <BaseMenu.Portal>
-        <BaseMenu.Positioner>
-          <BaseMenu.Popup
-            className={cx(menuContentStyle, className)}
-            data-testid={testId}
-            {...rest}
-          >
-            {menuItems}
-          </BaseMenu.Popup>
-        </BaseMenu.Positioner>
-      </BaseMenu.Portal>
-    </BaseMenu.Root>
+        <BaseMenu.Popup
+          ref={ref}
+          className={cx(menuContentStyle, className)}
+          data-testid={testId}
+          {...rest}
+        >
+          {children}
+        </BaseMenu.Popup>
+      </BaseMenu.Positioner>
+    </BaseMenu.Portal>
   );
 };
+MenuContent.displayName = 'Menu.Content';
+
+const MenuItem = ({
+  children,
+  icon,
+  shortcut,
+  endContent,
+  disabled,
+  closeOnClick,
+  onClick,
+  className,
+  testId,
+  ref,
+  ...rest
+}: MenuItemProps): React.ReactElement => (
+  <BaseMenu.Item
+    ref={ref as React.Ref<HTMLElement>}
+    disabled={disabled}
+    closeOnClick={closeOnClick}
+    onClick={onClick}
+    className={cx(menuItemStyle, className)}
+    data-testid={testId}
+    {...rest}
+  >
+    <ItemLayout start={icon} shortcut={shortcut} endContent={endContent}>
+      {children}
+    </ItemLayout>
+  </BaseMenu.Item>
+);
+MenuItem.displayName = 'Menu.Item';
+
+const MenuGroup = ({
+  children,
+  label,
+  className,
+  testId,
+  ...rest
+}: MenuGroupProps): React.ReactElement => (
+  <BaseMenu.Group className={className} data-testid={testId} {...rest}>
+    {label != null && (
+      <BaseMenu.GroupLabel className={groupLabelStyle}>
+        <Text variant="caption" color="muted" weight="semibold">
+          {label}
+        </Text>
+      </BaseMenu.GroupLabel>
+    )}
+    {children}
+  </BaseMenu.Group>
+);
+MenuGroup.displayName = 'Menu.Group';
+
+const MenuSeparator = ({
+  className,
+  testId,
+  ...rest
+}: MenuSeparatorProps): React.ReactElement => (
+  <BaseMenu.Separator
+    className={cx(separatorStyle, className)}
+    data-testid={testId}
+    {...rest}
+  />
+);
+MenuSeparator.displayName = 'Menu.Separator';
+
+const MenuRadioGroup = ({
+  children,
+  value,
+  defaultValue,
+  onValueChange,
+  className,
+  testId,
+  ...rest
+}: MenuRadioGroupProps): React.ReactElement => (
+  <BaseMenu.RadioGroup
+    value={value}
+    defaultValue={defaultValue}
+    onValueChange={
+      onValueChange ? value => onValueChange(value as string) : undefined
+    }
+    className={className}
+    data-testid={testId}
+    {...rest}
+  >
+    {children}
+  </BaseMenu.RadioGroup>
+);
+MenuRadioGroup.displayName = 'Menu.RadioGroup';
+
+const MenuRadioItem = ({
+  children,
+  value,
+  indicator = <CircleIcon size="sm" />,
+  shortcut,
+  endContent,
+  disabled,
+  closeOnClick,
+  onClick,
+  className,
+  testId,
+  ref,
+  ...rest
+}: MenuRadioItemProps): React.ReactElement => (
+  <BaseMenu.RadioItem
+    ref={ref as React.Ref<HTMLElement>}
+    value={value}
+    disabled={disabled}
+    closeOnClick={closeOnClick}
+    onClick={onClick}
+    className={cx(menuItemStyle, className)}
+    data-testid={testId}
+    {...rest}
+  >
+    <ItemLayout
+      start={
+        <BaseMenu.RadioItemIndicator>{indicator}</BaseMenu.RadioItemIndicator>
+      }
+      shortcut={shortcut}
+      endContent={endContent}
+    >
+      {children}
+    </ItemLayout>
+  </BaseMenu.RadioItem>
+);
+MenuRadioItem.displayName = 'Menu.RadioItem';
+
+const MenuCheckboxItem = ({
+  children,
+  checked,
+  defaultChecked,
+  onCheckedChange,
+  indicator = <CheckIcon size="sm" />,
+  shortcut,
+  endContent,
+  disabled,
+  closeOnClick,
+  onClick,
+  className,
+  testId,
+  ref,
+  ...rest
+}: MenuCheckboxItemProps): React.ReactElement => (
+  <BaseMenu.CheckboxItem
+    ref={ref as React.Ref<HTMLElement>}
+    checked={checked}
+    defaultChecked={defaultChecked}
+    onCheckedChange={
+      onCheckedChange ? checked => onCheckedChange(checked) : undefined
+    }
+    disabled={disabled}
+    closeOnClick={closeOnClick}
+    onClick={onClick}
+    className={cx(menuItemStyle, className)}
+    data-testid={testId}
+    {...rest}
+  >
+    <ItemLayout
+      start={
+        <BaseMenu.CheckboxItemIndicator>
+          {indicator}
+        </BaseMenu.CheckboxItemIndicator>
+      }
+      shortcut={shortcut}
+      endContent={endContent}
+    >
+      {children}
+    </ItemLayout>
+  </BaseMenu.CheckboxItem>
+);
+MenuCheckboxItem.displayName = 'Menu.CheckboxItem';
+
+const MenuSub = ({
+  children,
+  defaultOpen,
+}: MenuSubProps): React.ReactElement => (
+  <BaseMenu.SubmenuRoot defaultOpen={defaultOpen}>
+    {children}
+  </BaseMenu.SubmenuRoot>
+);
+MenuSub.displayName = 'Menu.Sub';
+
+const MenuSubTrigger = ({
+  children,
+  icon,
+  disabled,
+  onClick,
+  className,
+  testId,
+  ref,
+  ...rest
+}: MenuSubTriggerProps): React.ReactElement => (
+  <BaseMenu.SubmenuTrigger
+    ref={ref as React.Ref<HTMLElement>}
+    disabled={disabled}
+    onClick={onClick}
+    className={cx(menuItemStyle, className)}
+    data-testid={testId}
+    {...rest}
+  >
+    <ItemLayout start={icon} endContent={<ChevronRightIcon size="sm" />}>
+      {children}
+    </ItemLayout>
+  </BaseMenu.SubmenuTrigger>
+);
+MenuSubTrigger.displayName = 'Menu.SubTrigger';
+
+/**
+ * Compound Menu API.
+ *
+ * `Content` and `SubContent` are the same popup surface. The gap from the
+ * anchor is set once on the `Menu` root (`gap` prop) and inherited by both.
+ */
+export const Menu = /*#__PURE__*/ Object.assign(MenuRoot, {
+  Trigger: MenuTrigger,
+  Content: MenuContent,
+  Item: MenuItem,
+  Group: MenuGroup,
+  Separator: MenuSeparator,
+  RadioGroup: MenuRadioGroup,
+  RadioItem: MenuRadioItem,
+  CheckboxItem: MenuCheckboxItem,
+  Sub: MenuSub,
+  SubTrigger: MenuSubTrigger,
+  SubContent: MenuContent,
+});
