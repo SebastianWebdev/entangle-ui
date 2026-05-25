@@ -1,5 +1,5 @@
 ---
-'entangle-ui': major
+'entangle-ui': minor
 ---
 
 Migrate `Menu` and `ContextMenu` from a configuration object to a composition API.
