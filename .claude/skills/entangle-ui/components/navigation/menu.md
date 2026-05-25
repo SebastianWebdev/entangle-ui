@@ -114,6 +114,7 @@ const [grid, setGrid] = useState(true);
 | `onOpenChange` | `(open: boolean) => void` | —       | Called when the menu opens/closes.   |
 | `modal`        | `boolean`                 | `true`  | Trap interaction while open.         |
 | `disabled`     | `boolean`                 | `false` | Disables opening the menu.           |
+| `gap`          | `number`                  | `8`     | Gap (px) between every popup (menu + submenus) and its anchor. Set once for the whole menu. |
 
 ### Menu.Trigger
 
@@ -130,8 +131,8 @@ const [grid, setGrid] = useState(true);
 | ------------- | ---------------------------------------- | ------- | --------------------------------- |
 | `children`    | `ReactNode`                              | —       | Items, groups, or custom content. |
 | `side`        | `'top' \| 'right' \| 'bottom' \| 'left'` | —       | Preferred side.                   |
-| `align`       | `'start' \| 'center' \| 'end'`           | —       | Alignment along the side.         |
-| `sideOffset`  | `number`                                 | `4`     | Gap between trigger and popup.    |
+| `align`       | `'start' \| 'center' \| 'end'`           | `'start'` | Alignment along the side. Start-aligned so the menu edge lines up with the trigger edge (avoids clipping near the viewport edge). |
+| `sideOffset`  | `number`                                 | Menu `gap` (8) | Gap between anchor and popup; overrides the menu-wide `gap` for one popup. |
 | `alignOffset` | `number`                                 | —       | Offset along the alignment axis.  |
 
 ### Menu.Item

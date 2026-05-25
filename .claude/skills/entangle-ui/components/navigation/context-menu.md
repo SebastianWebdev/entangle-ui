@@ -124,6 +124,7 @@ Reuse the Menu selection and submenu primitives inside `ContextMenu.Content`:
 | `defaultOpen`  | `boolean`                 | —       | Uncontrolled initial open state.   |
 | `onOpenChange` | `(open: boolean) => void` | —       | Called when the menu opens/closes. |
 | `disabled`     | `boolean`                 | `false` | Disables opening the menu.         |
+| `gap`          | `number`                  | `8`     | Gap (px) between submenu popups and their anchor; inherited by any `Menu.SubContent` in the content. |
 
 ### ContextMenu.Trigger
 
