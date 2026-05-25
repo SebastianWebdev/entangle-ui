@@ -1,13 +1,17 @@
 ---
 title: Menu
-description: Configuration-driven menu component with radio/checkbox selection, grouped items, nested submenus, and keyboard navigation.
+description: Composable menu with icon/label/shortcut items, radio and checkbox selection, grouped items, nested submenus, and keyboard navigation.
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
 import MenuDemo from '../../../../components/demos/navigation/MenuDemo';
 
-Configuration-driven menu component for editor interfaces. Automatically handles radio and checkbox selection states, item grouping with visual separators, and nested submenus. Built on top of `@base-ui/react` Menu primitives with full keyboard navigation support.
+Composable menu component for editor interfaces. Build menus by composing
+`Menu.Trigger`, `Menu.Content`, and item primitives — no configuration object.
+Each item lays out as **icon (left) · label (center) · shortcut/action
+(right)**. Built on top of `@base-ui/react` Menu primitives with full keyboard
+navigation support.
 
 <ComponentPreview title="Live Preview">
   <MenuDemo client:only="react" />
@@ -22,316 +26,311 @@ import { Menu } from 'entangle-ui';
 ## Usage
 
 ```tsx
-const config = {
-  groups: [
-    {
-      id: 'actions',
-      items: [
-        { id: 'copy', label: 'Copy', onClick: handleCopy },
-        { id: 'paste', label: 'Paste', onClick: handlePaste },
-        { id: 'delete', label: 'Delete', onClick: handleDelete },
-      ],
-      itemSelectionType: 'none',
-    },
-  ],
-};
-
-<Menu config={config}>
-  <span>Options</span>
-</Menu>;
+<Menu>
+  <Menu.Trigger>Options</Menu.Trigger>
+  <Menu.Content>
+    <Menu.Item onClick={handleCopy}>Copy</Menu.Item>
+    <Menu.Item onClick={handlePaste}>Paste</Menu.Item>
+    <Menu.Item onClick={handleDelete}>Delete</Menu.Item>
+  </Menu.Content>
+</Menu>
 ```
 
-The `children` element becomes the menu trigger button.
-
-## Selection Types
-
-Each group can have a different selection behavior.
-
-### No Selection
-
-Items act as simple click handlers with no selection state.
+`Menu.Trigger` renders the library `Button` by default. Pass `render` to use a
+different element (for example an `IconButton`):
 
 ```tsx
-const config = {
-  groups: [
-    {
-      id: 'actions',
-      items: [
-        { id: 'save', label: 'Save', onClick: handleSave },
-        { id: 'export', label: 'Export', onClick: handleExport },
-      ],
-      itemSelectionType: 'none',
-    },
-  ],
-};
+<Menu.Trigger render={<IconButton label="More" icon={<MoreIcon />} />} />
 ```
 
-### Radio Selection
+## Item Anatomy
 
-Single selection within a group. Only one item can be active at a time.
+Every item exposes three slots. `icon` sits on the left, the children are the
+label, and `shortcut` / `endContent` sit on the right.
 
 ```tsx
-const [selected, setSelected] = useState({ viewMode: ['perspective'] });
-
-const config = {
-  groups: [
-    {
-      id: 'viewMode',
-      label: 'View Mode',
-      items: [
-        { id: 'perspective', label: 'Perspective', onClick: () => {} },
-        { id: 'orthographic', label: 'Orthographic', onClick: () => {} },
-        { id: 'front', label: 'Front', onClick: () => {} },
-      ],
-      itemSelectionType: 'radio',
-    },
-  ],
-};
-
-<Menu config={config} selectedItems={selected} onChange={setSelected}>
-  <span>View</span>
-</Menu>;
+<Menu.Item
+  icon={<SaveIcon />}
+  shortcut="⌘S"
+  endContent={<Badge>3</Badge>}
+  onClick={handleSave}
+>
+  Save
+</Menu.Item>
 ```
 
-### Checkbox Selection
+## Groups and Separators
 
-Multiple items can be selected within a group.
+Wrap related items in `Menu.Group` for an optional label, and split sections
+with `Menu.Separator`.
 
 ```tsx
-const [selected, setSelected] = useState({
-  overlays: ['grid', 'wireframe'],
-});
-
-const config = {
-  groups: [
-    {
-      id: 'overlays',
-      label: 'Overlays',
-      items: [
-        { id: 'grid', label: 'Grid', onClick: () => {} },
-        { id: 'wireframe', label: 'Wireframe', onClick: () => {} },
-        { id: 'normals', label: 'Normals', onClick: () => {} },
-      ],
-      itemSelectionType: 'checkbox',
-    },
-  ],
-};
-
-<Menu config={config} selectedItems={selected} onChange={setSelected}>
-  <span>Display</span>
-</Menu>;
+<Menu.Content>
+  <Menu.Group label="File">
+    <Menu.Item shortcut="⌘N">New File</Menu.Item>
+    <Menu.Item shortcut="⌘S">Save</Menu.Item>
+  </Menu.Group>
+  <Menu.Separator />
+  <Menu.Group label="Edit">
+    <Menu.Item shortcut="⌘Z">Undo</Menu.Item>
+    <Menu.Item shortcut="⇧⌘Z">Redo</Menu.Item>
+  </Menu.Group>
+</Menu.Content>
 ```
 
-## Multiple Groups
+## Radio Selection
 
-Groups are visually separated with dividers. Different groups can have different selection types.
+Single selection within a group. `Menu.RadioGroup` owns the selected value and
+each `Menu.RadioItem` shows an indicator when active.
 
 ```tsx
-const config = {
-  groups: [
-    {
-      id: 'actions',
-      items: [
-        { id: 'undo', label: 'Undo', onClick: handleUndo },
-        { id: 'redo', label: 'Redo', onClick: handleRedo },
-      ],
-      itemSelectionType: 'none',
-    },
-    {
-      id: 'view',
-      label: 'View Mode',
-      items: [
-        { id: 'solid', label: 'Solid', onClick: () => {} },
-        { id: 'wireframe', label: 'Wireframe', onClick: () => {} },
-      ],
-      itemSelectionType: 'radio',
-    },
-  ],
-};
+const [view, setView] = useState('perspective');
+
+<Menu.Content>
+  <Menu.RadioGroup value={view} onValueChange={setView}>
+    <Menu.RadioItem value="perspective">Perspective</Menu.RadioItem>
+    <Menu.RadioItem value="orthographic">Orthographic</Menu.RadioItem>
+    <Menu.RadioItem value="front">Front</Menu.RadioItem>
+  </Menu.RadioGroup>
+</Menu.Content>;
+```
+
+## Checkbox Selection
+
+Each `Menu.CheckboxItem` owns its own checked state.
+
+```tsx
+const [grid, setGrid] = useState(true);
+const [wireframe, setWireframe] = useState(false);
+
+<Menu.Content>
+  <Menu.Group label="Overlays">
+    <Menu.CheckboxItem checked={grid} onCheckedChange={setGrid}>
+      Grid
+    </Menu.CheckboxItem>
+    <Menu.CheckboxItem checked={wireframe} onCheckedChange={setWireframe}>
+      Wireframe
+    </Menu.CheckboxItem>
+  </Menu.Group>
+</Menu.Content>;
 ```
 
 ## Nested Submenus
 
-Items can have a `subMenu` property containing another `MenuConfig`. Submenus open on hover by default, or on click with `submenuTrigger: 'click'`.
+Compose `Menu.Sub`, `Menu.SubTrigger`, and `Menu.SubContent`. The submenu
+trigger renders a chevron automatically.
 
 ```tsx
-const config = {
-  groups: [
-    {
-      id: 'actions',
-      items: [
-        {
-          id: 'transform',
-          label: 'Transform',
-          onClick: () => {},
-          subMenu: {
-            groups: [
-              {
-                id: 'transforms',
-                items: [
-                  { id: 'move', label: 'Move', onClick: handleMove },
-                  { id: 'rotate', label: 'Rotate', onClick: handleRotate },
-                  { id: 'scale', label: 'Scale', onClick: handleScale },
-                ],
-                itemSelectionType: 'none',
-              },
-            ],
-          },
-          submenuTrigger: 'hover', // default
-        },
-      ],
-      itemSelectionType: 'none',
-    },
-  ],
-};
-```
-
-## Items with Icons
-
-```tsx
-const config = {
-  groups: [
-    {
-      id: 'actions',
-      items: [
-        { id: 'copy', label: 'Copy', icon: <CopyIcon />, onClick: handleCopy },
-        {
-          id: 'paste',
-          label: 'Paste',
-          icon: <PasteIcon />,
-          onClick: handlePaste,
-        },
-      ],
-      itemSelectionType: 'none',
-    },
-  ],
-};
+<Menu.Content>
+  <Menu.Sub>
+    <Menu.SubTrigger icon={<TransformIcon />}>Transform</Menu.SubTrigger>
+    <Menu.SubContent>
+      <Menu.Item onClick={handleMove}>Move</Menu.Item>
+      <Menu.Item onClick={handleRotate}>Rotate</Menu.Item>
+      <Menu.Item onClick={handleScale}>Scale</Menu.Item>
+    </Menu.SubContent>
+  </Menu.Sub>
+</Menu.Content>
 ```
 
 ## Disabled Items
 
-Individual items can be disabled.
-
 ```tsx
-const config = {
-  groups: [
-    {
-      id: 'actions',
-      items: [
-        { id: 'copy', label: 'Copy', onClick: handleCopy },
-        { id: 'paste', label: 'Paste', onClick: handlePaste, disabled: true },
-      ],
-      itemSelectionType: 'none',
-    },
-  ],
-};
+<Menu.Item disabled>Paste</Menu.Item>
 ```
 
-## Custom Selection Icons
+## Custom Selection Indicators
 
-Override the default check and radio icons.
+Override the default radio/checkbox indicator per item via `indicator`.
 
 ```tsx
-<Menu
-  config={config}
-  selectedItems={selected}
-  onChange={setSelected}
-  checkboxIcon={<MyCheckIcon />}
-  radioIcon={<MyRadioIcon />}
->
-  <span>Settings</span>
-</Menu>
+<Menu.RadioItem value="solid" indicator={<DotIcon />}>
+  Solid
+</Menu.RadioItem>
+<Menu.CheckboxItem checked indicator={<TickIcon />}>
+  Snapping
+</Menu.CheckboxItem>
 ```
 
-## Props
+## API
+
+### Menu
+
+The root. Owns open/close state.
 
 <PropsTable
   props={[
     {
-      name: 'config',
-      type: 'MenuConfig',
-      description: 'Menu configuration object defining groups and items.',
-    },
-    {
-      name: 'selectedItems',
-      type: 'Record<string, string[]>',
-      description: 'Currently selected items organized by group ID.',
-    },
-    {
-      name: 'onChange',
-      type: '(selection: MenuSelection) => void',
-      description: 'Callback when selection state changes.',
-    },
-    {
       name: 'children',
       type: 'ReactNode',
-      description: 'Menu trigger element rendered inside a Button.',
+      description: 'Trigger and content of the menu.',
     },
     {
-      name: 'checkboxIcon',
-      type: 'ReactNode',
-      default: '<CheckIcon />',
-      description: 'Custom icon for checkbox selected state.',
+      name: 'open',
+      type: 'boolean',
+      description: 'Controlled open state.',
     },
     {
-      name: 'radioIcon',
-      type: 'ReactNode',
-      default: '<CircleIcon />',
-      description: 'Custom icon for radio selected state.',
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: 'Uncontrolled initial open state.',
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called when the menu opens or closes.',
+    },
+    {
+      name: 'modal',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether the menu traps interaction while open.',
     },
     {
       name: 'disabled',
       type: 'boolean',
       default: 'false',
-      description: 'Whether the menu trigger is disabled.',
-    },
-    {
-      name: 'className',
-      type: 'string',
-      description: 'Additional CSS class names for the menu popup.',
-    },
-    {
-      name: 'testId',
-      type: 'string',
-      description: 'Test identifier for automated testing.',
+      description: 'Disables opening the menu.',
     },
   ]}
 />
 
-### MenuConfig
+### Menu.Trigger
 
-| Property      | Type          | Description                        |
-| ------------- | ------------- | ---------------------------------- |
-| `groups`      | `MenuGroup[]` | Array of menu groups.              |
-| `openOnHover` | `boolean`     | Whether to open the menu on hover. |
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Trigger content.',
+    },
+    {
+      name: 'render',
+      type: 'ReactElement',
+      default: '<Button />',
+      description: 'Replace the default Button with a custom element.',
+    },
+    {
+      name: 'openOnHover',
+      type: 'boolean',
+      default: 'false',
+      description: 'Also open the menu when the trigger is hovered.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disables the trigger.',
+    },
+  ]}
+/>
 
-### MenuGroup
+### Menu.Content
 
-| Property            | Type                              | Description                                 |
-| ------------------- | --------------------------------- | ------------------------------------------- |
-| `id`                | `string`                          | Unique group identifier.                    |
-| `label`             | `string`                          | Optional label displayed above the group.   |
-| `items`             | `MenuItem[]`                      | Array of menu items.                        |
-| `itemSelectionType` | `'radio' \| 'checkbox' \| 'none'` | Selection behavior for items in this group. |
-| `closeOnItemClick`  | `boolean`                         | Whether to close the menu on item click.    |
+The positioned popup surface. Place items or any custom node inside.
 
-### MenuItem
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Items, groups, or custom panel content.',
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      description: 'Preferred side relative to the trigger.',
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      description: 'Alignment along the chosen side.',
+    },
+    {
+      name: 'sideOffset',
+      type: 'number',
+      default: '4',
+      description: 'Gap in px between trigger and popup.',
+    },
+    {
+      name: 'alignOffset',
+      type: 'number',
+      description: 'Offset in px along the alignment axis.',
+    },
+  ]}
+/>
 
-| Property         | Type                                      | Description                     |
-| ---------------- | ----------------------------------------- | ------------------------------- |
-| `id`             | `string`                                  | Unique item identifier.         |
-| `label`          | `string`                                  | Display text.                   |
-| `onClick`        | `(id: string, event: MouseEvent) => void` | Click handler.                  |
-| `icon`           | `ReactNode`                               | Optional icon before the label. |
-| `disabled`       | `boolean`                                 | Whether the item is disabled.   |
-| `subMenu`        | `MenuConfig`                              | Nested submenu configuration.   |
-| `submenuTrigger` | `'hover' \| 'click'`                      | How the submenu opens.          |
+### Menu.Item
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Label content (center slot).',
+    },
+    {
+      name: 'icon',
+      type: 'ReactNode',
+      description: 'Icon rendered in the left slot.',
+    },
+    {
+      name: 'shortcut',
+      type: 'ReactNode',
+      description: 'Keyboard shortcut hint rendered on the right.',
+    },
+    {
+      name: 'endContent',
+      type: 'ReactNode',
+      description:
+        'Arbitrary node rendered on the right (badge, switch, etc.).',
+    },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: 'Click handler.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disables the item.',
+    },
+    {
+      name: 'closeOnClick',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether clicking the item closes the menu.',
+    },
+  ]}
+/>
+
+### Menu.RadioGroup / Menu.RadioItem
+
+`RadioGroup` accepts `value`, `defaultValue`, and `onValueChange(value)`.
+`RadioItem` requires a `value` and accepts the same `icon`-less slot props as
+`Menu.Item` plus `indicator`.
+
+### Menu.CheckboxItem
+
+Accepts `checked`, `defaultChecked`, `onCheckedChange(checked)`, `indicator`,
+`shortcut`, `endContent`, and `disabled`.
+
+### Menu.Group
+
+Accepts an optional `label` plus children.
+
+### Menu.Sub / Menu.SubTrigger / Menu.SubContent
+
+`Sub` groups the submenu. `SubTrigger` accepts `icon`, `disabled`, and children
+(a chevron is added automatically). `SubContent` is the submenu popup and takes
+the same props as `Menu.Content`.
 
 ## Accessibility
 
-- Built on `@base-ui/react` Menu primitives with WAI-ARIA menu pattern
+- Built on `@base-ui/react` Menu primitives with the WAI-ARIA menu pattern
 - Full keyboard navigation: Arrow Up/Down to move, Enter to activate, Escape to close
-- Radio groups use `BaseMenu.RadioGroup` with proper role semantics
-- Group labels are rendered via `BaseMenu.GroupLabel` for screen readers
-- Disabled items are properly excluded from keyboard navigation
+- Radio groups use proper radio role semantics
+- Group labels are exposed to screen readers
+- Disabled items are excluded from keyboard navigation
 - Focus is returned to the trigger when the menu closes

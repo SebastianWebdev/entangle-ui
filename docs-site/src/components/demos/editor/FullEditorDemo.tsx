@@ -51,7 +51,7 @@ import type {
 import type { Point2D } from '@/components/primitives/canvas';
 import { ScrollArea } from '@/components/layout/ScrollArea';
 import { ContextMenu } from '@/components/navigation/ContextMenu';
-import type { MenuConfig } from '@/components/navigation/Menu';
+import { Menu } from '@/components/navigation/Menu';
 import { Button } from '@/components/primitives/Button';
 import { Checkbox } from '@/components/primitives/Checkbox';
 import { Input } from '@/components/primitives/Input';
@@ -267,169 +267,50 @@ export default function FullEditorDemo() {
     [chat]
   );
 
-  const viewportContextMenu: MenuConfig = {
-    groups: [
-      {
-        id: 'selection',
-        itemSelectionType: 'none',
-        items: [
-          {
-            id: 'select-all',
-            label: 'Select All',
-            icon: <GridIcon size="sm" />,
-            onClick: () => {},
-          },
-          {
-            id: 'deselect',
-            label: 'Deselect All',
-            icon: <CutIcon size="sm" />,
-            onClick: () => {},
-          },
-          {
-            id: 'invert',
-            label: 'Invert Selection',
-            icon: <UndoIcon size="sm" />,
-            onClick: () => {},
-          },
-        ],
-      },
-      {
-        id: 'add-object',
-        label: 'Add',
-        itemSelectionType: 'none',
-        items: [
-          {
-            id: 'add-mesh',
-            label: 'Mesh',
-            icon: <GridIcon size="sm" />,
-            onClick: () => {},
-            subMenu: {
-              groups: [
-                {
-                  id: 'meshes',
-                  itemSelectionType: 'none',
-                  items: [
-                    { id: 'add-cube', label: 'Cube', onClick: () => {} },
-                    { id: 'add-sphere', label: 'Sphere', onClick: () => {} },
-                    {
-                      id: 'add-cylinder',
-                      label: 'Cylinder',
-                      onClick: () => {},
-                    },
-                    { id: 'add-plane', label: 'Plane', onClick: () => {} },
-                    { id: 'add-torus', label: 'Torus', onClick: () => {} },
-                  ],
-                },
-              ],
-            },
-          },
-          {
-            id: 'add-light',
-            label: 'Light',
-            icon: <PlayIcon size="sm" />,
-            onClick: () => {},
-            subMenu: {
-              groups: [
-                {
-                  id: 'lights',
-                  itemSelectionType: 'none',
-                  items: [
-                    {
-                      id: 'add-point',
-                      label: 'Point Light',
-                      onClick: () => {},
-                    },
-                    {
-                      id: 'add-spot',
-                      label: 'Spot Light',
-                      onClick: () => {},
-                    },
-                    {
-                      id: 'add-dir',
-                      label: 'Directional Light',
-                      onClick: () => {},
-                    },
-                    {
-                      id: 'add-area',
-                      label: 'Area Light',
-                      onClick: () => {},
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-          {
-            id: 'add-camera',
-            label: 'Camera',
-            icon: <EyeIcon size="sm" />,
-            onClick: () => {},
-          },
-          {
-            id: 'add-empty',
-            label: 'Empty',
-            icon: <AddIcon size="sm" />,
-            onClick: () => {},
-          },
-        ],
-      },
-      {
-        id: 'object',
-        itemSelectionType: 'none',
-        items: [
-          {
-            id: 'duplicate',
-            label: 'Duplicate',
-            icon: <CopyIcon size="sm" />,
-            onClick: () => {},
-          },
-          {
-            id: 'delete',
-            label: 'Delete',
-            icon: <TrashIcon size="sm" />,
-            onClick: () => {},
-          },
-          {
-            id: 'hide',
-            label: 'Hide Selected',
-            icon: <EyeIcon size="sm" />,
-            onClick: () => {},
-          },
-          {
-            id: 'lock',
-            label: 'Lock Selected',
-            icon: <LockIcon size="sm" />,
-            onClick: () => {},
-          },
-        ],
-      },
-      {
-        id: 'snapping',
-        label: 'Snap',
-        itemSelectionType: 'none',
-        items: [
-          {
-            id: 'snap-cursor',
-            label: 'Cursor to Selected',
-            icon: <FullscreenIcon size="sm" />,
-            onClick: () => {},
-          },
-          {
-            id: 'snap-origin',
-            label: 'Origin to Geometry',
-            icon: <GridIcon size="sm" />,
-            onClick: () => {},
-          },
-          {
-            id: 'snap-ground',
-            label: 'Snap to Ground',
-            icon: <DownloadIcon size="sm" />,
-            onClick: () => {},
-          },
-        ],
-      },
-    ],
-  };
+  const viewportMenuContent = (
+    <>
+      <Menu.Item icon={<GridIcon size="sm" />}>Select All</Menu.Item>
+      <Menu.Item icon={<CutIcon size="sm" />}>Deselect All</Menu.Item>
+      <Menu.Item icon={<UndoIcon size="sm" />}>Invert Selection</Menu.Item>
+      <Menu.Separator />
+      <Menu.Group label="Add">
+        <Menu.Sub>
+          <Menu.SubTrigger icon={<GridIcon size="sm" />}>Mesh</Menu.SubTrigger>
+          <Menu.SubContent>
+            <Menu.Item>Cube</Menu.Item>
+            <Menu.Item>Sphere</Menu.Item>
+            <Menu.Item>Cylinder</Menu.Item>
+            <Menu.Item>Plane</Menu.Item>
+            <Menu.Item>Torus</Menu.Item>
+          </Menu.SubContent>
+        </Menu.Sub>
+        <Menu.Sub>
+          <Menu.SubTrigger icon={<PlayIcon size="sm" />}>Light</Menu.SubTrigger>
+          <Menu.SubContent>
+            <Menu.Item>Point Light</Menu.Item>
+            <Menu.Item>Spot Light</Menu.Item>
+            <Menu.Item>Directional Light</Menu.Item>
+            <Menu.Item>Area Light</Menu.Item>
+          </Menu.SubContent>
+        </Menu.Sub>
+        <Menu.Item icon={<EyeIcon size="sm" />}>Camera</Menu.Item>
+        <Menu.Item icon={<AddIcon size="sm" />}>Empty</Menu.Item>
+      </Menu.Group>
+      <Menu.Separator />
+      <Menu.Item icon={<CopyIcon size="sm" />}>Duplicate</Menu.Item>
+      <Menu.Item icon={<TrashIcon size="sm" />}>Delete</Menu.Item>
+      <Menu.Item icon={<EyeIcon size="sm" />}>Hide Selected</Menu.Item>
+      <Menu.Item icon={<LockIcon size="sm" />}>Lock Selected</Menu.Item>
+      <Menu.Separator />
+      <Menu.Group label="Snap">
+        <Menu.Item icon={<FullscreenIcon size="sm" />}>
+          Cursor to Selected
+        </Menu.Item>
+        <Menu.Item icon={<GridIcon size="sm" />}>Origin to Geometry</Menu.Item>
+        <Menu.Item icon={<DownloadIcon size="sm" />}>Snap to Ground</Menu.Item>
+      </Menu.Group>
+    </>
+  );
 
   const sceneTree = [
     {
@@ -1083,94 +964,97 @@ export default function FullEditorDemo() {
               dividerSize={3}
             >
               {/* 3D Viewport */}
-              <ContextMenu config={viewportContextMenu}>
-                <div className={viewportCanvasStyle}>
-                  <div className={viewportGridStyle} />
-                  <div className={viewportAxisXStyle} />
-                  <div className={viewportAxisZStyle} />
+              <ContextMenu>
+                <ContextMenu.Trigger>
+                  <div className={viewportCanvasStyle}>
+                    <div className={viewportGridStyle} />
+                    <div className={viewportAxisXStyle} />
+                    <div className={viewportAxisZStyle} />
 
-                  {/* Wireframe cube object */}
-                  <div className={cubeWireframeStyle}>
-                    <CubeFace transform="translateZ(60px)" highlight />
-                    <CubeFace transform="translateZ(-60px)" />
-                    <CubeFace transform="rotateY(90deg) translateZ(60px)" />
-                    <CubeFace transform="rotateY(-90deg) translateZ(60px)" />
-                    <CubeFace transform="rotateX(90deg) translateZ(60px)" />
-                    <CubeFace transform="rotateX(-90deg) translateZ(60px)" />
-                  </div>
-                  <div className={selectionDotsStyle}>
-                    <SelectionCorner x={-3} y={-3} z={65} />
-                    <SelectionCorner x={123} y={-3} z={65} />
-                    <SelectionCorner x={-3} y={123} z={65} />
-                    <SelectionCorner x={123} y={123} z={65} />
-                  </div>
-
-                  {/* Orientation gizmo */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 12,
-                      right: 12,
-                      zIndex: 10,
-                    }}
-                  >
-                    <ViewportGizmoComponent
-                      orientation={gizmoOrientation}
-                      onOrbit={handleGizmoOrbit}
-                      onSnapToView={handleGizmoSnap}
-                      size="sm"
-                      diameter={80}
-                      background="transparent"
-                    />
-                  </div>
-
-                  {/* Viewport mode selector */}
-                  <div className={viewportTopBarStyle}>
-                    <button
-                      className={viewportModeBtnRecipe({
-                        active: renderMode === 'wireframe',
-                      })}
-                      onClick={() => setRenderMode('wireframe')}
-                    >
-                      Wireframe
-                    </button>
-                    <button
-                      className={viewportModeBtnRecipe({
-                        active: renderMode === 'solid',
-                      })}
-                      onClick={() => setRenderMode('solid')}
-                    >
-                      Solid
-                    </button>
-                    <button
-                      className={viewportModeBtnRecipe({
-                        active: renderMode === 'material',
-                      })}
-                      onClick={() => setRenderMode('material')}
-                    >
-                      Material
-                    </button>
-                    <button
-                      className={viewportModeBtnRecipe({
-                        active: renderMode === 'rendered',
-                      })}
-                      onClick={() => setRenderMode('rendered')}
-                    >
-                      Rendered
-                    </button>
-                  </div>
-
-                  {/* Viewport info badges */}
-                  <div className={viewportOverlayStyle}>
-                    <div className={viewportBadgeStyle}>
-                      Verts: 8 &middot; Faces: 6 &middot; Tris: 12
+                    {/* Wireframe cube object */}
+                    <div className={cubeWireframeStyle}>
+                      <CubeFace transform="translateZ(60px)" highlight />
+                      <CubeFace transform="translateZ(-60px)" />
+                      <CubeFace transform="rotateY(90deg) translateZ(60px)" />
+                      <CubeFace transform="rotateY(-90deg) translateZ(60px)" />
+                      <CubeFace transform="rotateX(90deg) translateZ(60px)" />
+                      <CubeFace transform="rotateX(-90deg) translateZ(60px)" />
                     </div>
-                    <div className={viewportBadgeStyle}>
-                      Objects: 5 / 1 selected
+                    <div className={selectionDotsStyle}>
+                      <SelectionCorner x={-3} y={-3} z={65} />
+                      <SelectionCorner x={123} y={-3} z={65} />
+                      <SelectionCorner x={-3} y={123} z={65} />
+                      <SelectionCorner x={123} y={123} z={65} />
                     </div>
-                    <div className={viewportBadgeStyle}>60.0 fps</div>
+
+                    {/* Orientation gizmo */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 12,
+                        right: 12,
+                        zIndex: 10,
+                      }}
+                    >
+                      <ViewportGizmoComponent
+                        orientation={gizmoOrientation}
+                        onOrbit={handleGizmoOrbit}
+                        onSnapToView={handleGizmoSnap}
+                        size="sm"
+                        diameter={80}
+                        background="transparent"
+                      />
+                    </div>
+
+                    {/* Viewport mode selector */}
+                    <div className={viewportTopBarStyle}>
+                      <button
+                        className={viewportModeBtnRecipe({
+                          active: renderMode === 'wireframe',
+                        })}
+                        onClick={() => setRenderMode('wireframe')}
+                      >
+                        Wireframe
+                      </button>
+                      <button
+                        className={viewportModeBtnRecipe({
+                          active: renderMode === 'solid',
+                        })}
+                        onClick={() => setRenderMode('solid')}
+                      >
+                        Solid
+                      </button>
+                      <button
+                        className={viewportModeBtnRecipe({
+                          active: renderMode === 'material',
+                        })}
+                        onClick={() => setRenderMode('material')}
+                      >
+                        Material
+                      </button>
+                      <button
+                        className={viewportModeBtnRecipe({
+                          active: renderMode === 'rendered',
+                        })}
+                        onClick={() => setRenderMode('rendered')}
+                      >
+                        Rendered
+                      </button>
+                    </div>
+
+                    {/* Viewport info badges */}
+                    <div className={viewportOverlayStyle}>
+                      <div className={viewportBadgeStyle}>
+                        Verts: 8 &middot; Faces: 6 &middot; Tris: 12
+                      </div>
+                      <div className={viewportBadgeStyle}>
+                        Objects: 5 / 1 selected
+                      </div>
+                      <div className={viewportBadgeStyle}>60.0 fps</div>
+                    </div>
                   </div>
-                </div>
+                </ContextMenu.Trigger>
+                <ContextMenu.Content>{viewportMenuContent}</ContextMenu.Content>
               </ContextMenu>
 
               {/* Bottom panel: Console / Output / Timeline */}

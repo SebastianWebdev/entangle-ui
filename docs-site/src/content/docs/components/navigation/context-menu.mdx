@@ -1,13 +1,16 @@
 ---
 title: ContextMenu
-description: Right-click context menu with dynamic configuration, payload-aware items, selection states, and nested submenus.
+description: Composable right-click context menu. Scope menus per area, reuse the shared Menu item primitives, or drop in a fully custom panel.
 ---
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
 import ContextMenuDemo from '../../../../components/demos/navigation/ContextMenuDemo';
 
-Right-click context menu component that wraps any element and provides a native-feeling context menu on right-click. Supports static and dynamic configuration, payload-aware item resolution, radio/checkbox selection, nested submenus, and full keyboard navigation. Built on `@base-ui/react` ContextMenu primitives and shares the same configuration format as Menu.
+Right-click context menu that wraps any element and opens a native-feeling menu
+on right-click or long-press. Compose the trigger area and content as children,
+reuse the shared `Menu.*` item primitives, or drop in a fully custom panel
+(tabs, search, anything). Built on `@base-ui/react` ContextMenu primitives.
 
 <ComponentPreview title="Live Preview">
   <ContextMenuDemo client:only="react" />
@@ -16,202 +19,189 @@ Right-click context menu component that wraps any element and provides a native-
 ## Import
 
 ```tsx
-import { ContextMenu } from 'entangle-ui';
+import { ContextMenu, Menu } from 'entangle-ui';
 ```
 
 ## Usage
 
 ```tsx
-const config = {
-  groups: [
-    {
-      id: 'actions',
-      items: [
-        { id: 'copy', label: 'Copy', onClick: handleCopy },
-        { id: 'paste', label: 'Paste', onClick: handlePaste },
-        { id: 'delete', label: 'Delete', onClick: handleDelete },
-      ],
-      itemSelectionType: 'none',
-    },
-  ],
-};
-
-<ContextMenu config={config}>
-  <div className="editor-viewport">Right-click anywhere in this area</div>
-</ContextMenu>;
-```
-
-## Dynamic Configuration
-
-Pass a function instead of a static config object. The function receives context about the right-click event, including the target element and optional payload.
-
-```tsx
-<ContextMenu
-  config={context => ({
-    groups: [
-      {
-        id: 'actions',
-        items: [
-          {
-            id: 'inspect',
-            label: `Inspect ${context.payload?.name ?? 'item'}`,
-            onClick: () => inspectItem(context.payload),
-          },
-          {
-            id: 'delete',
-            label: 'Delete',
-            onClick: () => deleteItem(context.payload?.id),
-            disabled: context.payload?.locked,
-          },
-        ],
-        itemSelectionType: 'none',
-      },
-    ],
-  })}
-  payload={{ id: '123', name: 'Cube', locked: false }}
->
-  <div>Right-click me</div>
+<ContextMenu>
+  <ContextMenu.Trigger>
+    <div className="editor-viewport">Right-click anywhere in this area</div>
+  </ContextMenu.Trigger>
+  <ContextMenu.Content>
+    <Menu.Item shortcut="⌘X" onClick={handleCut}>
+      Cut
+    </Menu.Item>
+    <Menu.Item shortcut="⌘C" onClick={handleCopy}>
+      Copy
+    </Menu.Item>
+    <Menu.Item shortcut="⌘V" onClick={handlePaste}>
+      Paste
+    </Menu.Item>
+  </ContextMenu.Content>
 </ContextMenu>
 ```
 
-The `context` object contains:
+Items reuse the same `Menu.Item`, `Menu.Group`, `Menu.Separator`,
+`Menu.RadioGroup`, `Menu.CheckboxItem`, and submenu primitives documented on the
+[Menu](/components/navigation/menu) page.
 
-| Property  | Type                  | Description                              |
-| --------- | --------------------- | ---------------------------------------- |
-| `event`   | `MouseEvent \| null`  | The native contextmenu event.            |
-| `target`  | `HTMLElement \| null` | The element that was right-clicked.      |
-| `payload` | `TPayload`            | The payload prop value from the trigger. |
+## Per-Area Menus
 
-## Payload
+There is no config resolver. To give different areas different menus, give each
+area its own `ContextMenu` with its own content — the menu is defined right
+where the area lives, not branched inside a function.
 
-The `payload` prop lets you attach data to the trigger area. This data is passed to the config resolver function, allowing different context menus for different items in a list.
+```tsx
+<>
+  <ContextMenu>
+    <ContextMenu.Trigger>
+      <Canvas />
+    </ContextMenu.Trigger>
+    <ContextMenu.Content>
+      <Menu.Item onClick={addNode}>Add Node</Menu.Item>
+      <Menu.Item onClick={paste}>Paste</Menu.Item>
+    </ContextMenu.Content>
+  </ContextMenu>
+
+  <ContextMenu>
+    <ContextMenu.Trigger>
+      <NodeCard node={node} />
+    </ContextMenu.Trigger>
+    <ContextMenu.Content>
+      <Menu.Item onClick={() => rename(node)}>Rename</Menu.Item>
+      <Menu.Item disabled={node.locked} onClick={() => remove(node)}>
+        Delete
+      </Menu.Item>
+    </ContextMenu.Content>
+  </ContextMenu>
+</>
+```
+
+When rendering a list, map each item to its own `ContextMenu`:
 
 ```tsx
 {
   items.map(item => (
-    <ContextMenu
-      key={item.id}
-      config={ctx => buildMenuForItem(ctx.payload)}
-      payload={item}
-    >
-      <div>{item.name}</div>
+    <ContextMenu key={item.id}>
+      <ContextMenu.Trigger>
+        <div>{item.name}</div>
+      </ContextMenu.Trigger>
+      <ContextMenu.Content>
+        <Menu.Item onClick={() => inspect(item)}>Inspect {item.name}</Menu.Item>
+        <Menu.Item disabled={item.locked} onClick={() => remove(item)}>
+          Delete
+        </Menu.Item>
+      </ContextMenu.Content>
     </ContextMenu>
   ));
 }
 ```
 
-## Selection States
+## Custom Panels
 
-ContextMenu supports the same selection types as Menu: radio, checkbox, and none.
+`ContextMenu.Content` accepts any node. The component manages opening, closing,
+and positioning while you render whatever the panel needs — tabs, a search
+field, a color grid, etc.
 
 ```tsx
-const [selected, setSelected] = useState({ mode: ['edit'] });
+<ContextMenu>
+  <ContextMenu.Trigger>
+    <NodeCanvas />
+  </ContextMenu.Trigger>
+  <ContextMenu.Content>
+    <Tabs defaultValue="add">
+      <TabList>
+        <Tab value="add">Add</Tab>
+        <Tab value="recent">Recent</Tab>
+      </TabList>
+      <TabPanel value="add">
+        <Input placeholder="Search nodes…" />
+        {/* custom node grid */}
+      </TabPanel>
+      <TabPanel value="recent">{/* recent nodes */}</TabPanel>
+    </Tabs>
+  </ContextMenu.Content>
+</ContextMenu>
+```
 
-const config = {
-  groups: [
-    {
-      id: 'mode',
-      label: 'Mode',
-      items: [
-        { id: 'edit', label: 'Edit Mode', onClick: () => {} },
-        { id: 'object', label: 'Object Mode', onClick: () => {} },
-        { id: 'sculpt', label: 'Sculpt Mode', onClick: () => {} },
-      ],
-      itemSelectionType: 'radio',
-    },
-  ],
-};
+## Selection States
 
-<ContextMenu config={config} selectedItems={selected} onChange={setSelected}>
-  <div>Right-click for mode selection</div>
+ContextMenu reuses the Menu selection primitives.
+
+```tsx
+const [mode, setMode] = useState('edit');
+
+<ContextMenu>
+  <ContextMenu.Trigger>
+    <div>Right-click for mode selection</div>
+  </ContextMenu.Trigger>
+  <ContextMenu.Content>
+    <Menu.RadioGroup value={mode} onValueChange={setMode}>
+      <Menu.RadioItem value="edit">Edit Mode</Menu.RadioItem>
+      <Menu.RadioItem value="object">Object Mode</Menu.RadioItem>
+      <Menu.RadioItem value="sculpt">Sculpt Mode</Menu.RadioItem>
+    </Menu.RadioGroup>
+  </ContextMenu.Content>
 </ContextMenu>;
 ```
 
 ## Nested Submenus
 
-Items with a `subMenu` property create nested context menus, just like the Menu component.
-
 ```tsx
-const config = {
-  groups: [
-    {
-      id: 'actions',
-      items: [
-        {
-          id: 'add',
-          label: 'Add Object',
-          onClick: () => {},
-          subMenu: {
-            groups: [
-              {
-                id: 'objects',
-                items: [
-                  { id: 'cube', label: 'Cube', onClick: addCube },
-                  { id: 'sphere', label: 'Sphere', onClick: addSphere },
-                  { id: 'plane', label: 'Plane', onClick: addPlane },
-                ],
-                itemSelectionType: 'none',
-              },
-            ],
-          },
-        },
-      ],
-      itemSelectionType: 'none',
-    },
-  ],
-};
+<ContextMenu.Content>
+  <Menu.Sub>
+    <Menu.SubTrigger>Add Object</Menu.SubTrigger>
+    <Menu.SubContent>
+      <Menu.Item onClick={addCube}>Cube</Menu.Item>
+      <Menu.Item onClick={addSphere}>Sphere</Menu.Item>
+      <Menu.Item onClick={addPlane}>Plane</Menu.Item>
+    </Menu.SubContent>
+  </Menu.Sub>
+</ContextMenu.Content>
 ```
 
 ## Disabled
 
 ```tsx
-<ContextMenu config={config} disabled>
-  <div>Context menu is disabled here</div>
+<ContextMenu disabled>
+  <ContextMenu.Trigger>
+    <div>Context menu is disabled here</div>
+  </ContextMenu.Trigger>
+  <ContextMenu.Content>
+    <Menu.Item>Action</Menu.Item>
+  </ContextMenu.Content>
 </ContextMenu>
 ```
 
-## Props
+## API
+
+### ContextMenu
+
+The root. Owns open/close state for one trigger area.
 
 <PropsTable
   props={[
     {
-      name: 'config',
-      type: 'MenuConfig | (context: ContextMenuTargetDetails<TPayload>) => MenuConfig',
-      description:
-        'Static menu config or resolver function called with trigger context.',
-    },
-    {
-      name: 'selectedItems',
-      type: 'Record<string, string[]>',
-      description: 'Currently selected items grouped by group ID.',
-    },
-    {
-      name: 'onChange',
-      type: '(selection: MenuSelection) => void',
-      description: 'Callback when selection state changes.',
-    },
-    {
       name: 'children',
       type: 'ReactNode',
-      description: 'Content that acts as the right-click trigger area.',
+      description: 'ContextMenu.Trigger and ContextMenu.Content.',
     },
     {
-      name: 'payload',
-      type: 'TPayload',
-      description:
-        'Optional data attached to this trigger area, passed to the config resolver.',
+      name: 'open',
+      type: 'boolean',
+      description: 'Controlled open state.',
     },
     {
-      name: 'checkboxIcon',
-      type: 'ReactNode',
-      default: '<CheckIcon />',
-      description: 'Custom icon for checkbox selected state.',
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: 'Uncontrolled initial open state.',
     },
     {
-      name: 'radioIcon',
-      type: 'ReactNode',
-      default: '<CircleIcon />',
-      description: 'Custom icon for radio selected state.',
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called when the menu opens or closes.',
     },
     {
       name: 'disabled',
@@ -219,36 +209,68 @@ const config = {
       default: 'false',
       description: 'Disables opening the context menu.',
     },
+  ]}
+/>
+
+### ContextMenu.Trigger
+
+The right-click area. Renders with `display: contents` by default so it adds no
+extra box; override via `style`.
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The right-click target area.',
+    },
     {
       name: 'className',
       type: 'string',
-      description: 'Additional CSS class names for the menu popup.',
+      description: 'Additional CSS class names.',
     },
     {
       name: 'style',
       type: 'CSSProperties',
-      description: 'Inline styles for the menu popup.',
+      description: 'Inline styles (merged over the default display: contents).',
+    },
+  ]}
+/>
+
+### ContextMenu.Content
+
+The positioned popup surface, placed at the pointer. Place items or any custom
+node inside.
+
+<PropsTable
+  props={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Items, groups, or custom panel content.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Additional CSS class names for the popup.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline styles for the popup.',
     },
     {
       name: 'testId',
       type: 'string',
       description: 'Test identifier for automated testing.',
     },
-    {
-      name: 'ref',
-      type: 'Ref<HTMLDivElement>',
-      description: 'Ref to the menu popup element.',
-    },
   ]}
 />
-
-The ContextMenu shares the same `MenuConfig`, `MenuGroup`, and `MenuItem` types as the [Menu](/components/navigation/menu) component.
 
 ## Accessibility
 
 - Built on `@base-ui/react` ContextMenu primitives with proper ARIA roles
-- The trigger uses `display: contents` so it does not add extra DOM nodes
+- The trigger uses `display: contents` so it adds no extra DOM node
 - Full keyboard navigation inside the menu: Arrow Up/Down, Enter, Escape
 - Radio groups use proper radio semantics
-- Group labels are exposed to screen readers
 - Focus is managed automatically when the context menu opens and closes

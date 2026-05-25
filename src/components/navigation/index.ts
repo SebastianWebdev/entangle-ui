@@ -6,8 +6,6 @@ export {
 } from './Breadcrumbs';
 export { ContextMenu } from './ContextMenu';
 export { Menu } from './Menu';
-export { useMenu } from './Menu';
-export { useContextMenuTarget } from './ContextMenu';
 export { Pagination } from './Pagination';
 export { SegmentedControl, SegmentedControlItem } from './SegmentedControl';
 export { Tab, TabList, TabPanel, Tabs } from './Tabs';
@@ -20,21 +18,24 @@ export type {
   BreadcrumbsSize,
 } from './Breadcrumbs';
 export type {
-  ContextMenuBaseProps,
-  ContextMenuConfig,
   ContextMenuProps,
-  ContextMenuTargetDetails,
-  UseContextMenuTargetResult,
+  ContextMenuTriggerProps,
+  ContextMenuContentProps,
 } from './ContextMenu';
 export type {
-  MenuProps,
-  MenuBaseProps,
-  MenuConfig,
-  MenuGroup,
-  MenuItem,
-  MenuSelection,
-  ItemSelectionType,
-  SubmenuTrigger,
+  MenuRootProps,
+  MenuTriggerProps,
+  MenuContentProps,
+  MenuItemProps,
+  MenuGroupProps,
+  MenuSeparatorProps,
+  MenuRadioGroupProps,
+  MenuRadioItemProps,
+  MenuCheckboxItemProps,
+  MenuSubProps,
+  MenuSubTriggerProps,
+  MenuSide,
+  MenuAlign,
 } from './Menu';
 export type {
   PaginationBaseProps,

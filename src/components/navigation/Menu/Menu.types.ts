@@ -3,101 +3,204 @@ import type React from 'react';
 import type { Prettify } from '@/types/utilities';
 import type { BaseComponent } from '@/types/common';
 
-/**
- * How submenus should be triggered.
- * - `hover`: Submenu opens on hover
- * - `click`: Submenu opens on click only
- */
-export type SubmenuTrigger = 'hover' | 'click';
+/** Side of the trigger the popup is placed against. */
+export type MenuSide = 'top' | 'right' | 'bottom' | 'left';
+
+/** Alignment of the popup relative to the trigger. */
+export type MenuAlign = 'start' | 'center' | 'end';
 
 /**
- * Configuration for a single menu item.
+ * Root of the menu. Groups the trigger and content, owns open/close state.
  */
-export type MenuItem = {
-  /** Unique identifier for the menu item */
-  id: string;
-  /** Display text for the menu item */
-  label: string;
-  /** Click handler called with item id and event */
-  onClick: (id: string, event: MouseEvent) => void;
-  /** Optional icon rendered before the label */
-  icon?: React.ReactNode;
-  /** Whether the item is disabled */
+export interface MenuRootBaseProps {
+  /** Trigger and content of the menu. */
+  children?: React.ReactNode;
+  /** Controlled open state. */
+  open?: boolean;
+  /** Uncontrolled initial open state. */
+  defaultOpen?: boolean;
+  /** Called when the menu opens or closes. */
+  onOpenChange?: (open: boolean) => void;
+  /**
+   * Whether the menu traps interaction while open.
+   * @default true
+   */
+  modal?: boolean;
+  /** Disables opening the menu. */
   disabled?: boolean;
-  /** Nested submenu configuration */
-  subMenu?: MenuConfig;
-  /** How submenu should be triggered when subMenu is present */
-  submenuTrigger?: SubmenuTrigger;
-};
+}
+export type MenuRootProps = Prettify<MenuRootBaseProps>;
 
 /**
- * Type of item selection behavior within a group.
- * - `radio`: Single selection within group
- * - `checkbox`: Multiple selection within group
- * - `none`: No selection state, just click handlers
+ * Button that opens the menu. Defaults to the library `Button`; pass `render`
+ * to compose with another element (e.g. `IconButton`).
  */
-export type ItemSelectionType = 'radio' | 'checkbox' | 'none';
-
-/**
- * Configuration for a group of menu items.
- * Groups are visually separated and can have different selection behaviors.
- */
-export type MenuGroup = {
-  /** Unique identifier for the group */
-  id: string;
-  /** Optional label displayed above the group */
-  label?: string;
-  /** Array of menu items in this group */
-  items: MenuItem[];
-  /** Selection behavior for items in this group */
-  itemSelectionType: ItemSelectionType;
-  /** Whether to close menu when any item in group is clicked */
-  closeOnItemClick?: boolean;
-};
-
-/**
- * Configuration for a menu component.
- * Defines structure, behavior, and selection state.
- */
-export type MenuConfig = {
-  /** Whether to open menu on hover instead of click */
+export interface MenuTriggerBaseProps extends BaseComponent<HTMLButtonElement> {
+  /** Trigger content. */
+  children?: React.ReactNode;
+  /** Disables the trigger. */
+  disabled?: boolean;
+  /** Also open the menu when the trigger is hovered. */
   openOnHover?: boolean;
-  /** Array of menu groups */
-  groups: MenuGroup[];
-};
+  /** Replace the default Button with a custom element. */
+  render?: React.ReactElement;
+}
+export type MenuTriggerProps = Prettify<MenuTriggerBaseProps>;
 
 /**
- * Selected items state organized by group.
- * Maps group ID to array of selected item IDs.
+ * Styled popup surface. Place items or any custom node inside.
  */
-export type MenuSelection = Record<string, string[]>;
+export interface MenuContentBaseProps extends BaseComponent<HTMLDivElement> {
+  /** Items, groups, or custom panel content. */
+  children?: React.ReactNode;
+  /** Preferred side relative to the trigger. */
+  side?: MenuSide;
+  /** Alignment along the chosen side. */
+  align?: MenuAlign;
+  /** Gap in px between trigger and popup. @default 4 */
+  sideOffset?: number;
+  /** Offset in px along the alignment axis. */
+  alignOffset?: number;
+}
+export type MenuContentProps = Prettify<MenuContentBaseProps>;
 
 /**
- * Base props for the Menu component.
+ * Single actionable row. Icon on the left, label in the center, shortcut and
+ * action on the right.
  */
-export interface MenuBaseProps extends Omit<
+export interface MenuItemBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'onClick'
+> {
+  /** Label content. */
+  children?: React.ReactNode;
+  /** Icon rendered in the left slot. */
+  icon?: React.ReactNode;
+  /** Keyboard shortcut hint rendered on the right. */
+  shortcut?: React.ReactNode;
+  /** Arbitrary node rendered on the right (badge, switch, etc.). */
+  endContent?: React.ReactNode;
+  /** Disables the item. */
+  disabled?: boolean;
+  /** Whether clicking the item closes the menu. @default true */
+  closeOnClick?: boolean;
+  /** Click handler. */
+  onClick?: React.MouseEventHandler<HTMLElement>;
+}
+export type MenuItemProps = Prettify<MenuItemBaseProps>;
+
+/**
+ * Wraps a set of radio items, owns the selected value.
+ */
+export interface MenuRadioGroupBaseProps extends Omit<
   BaseComponent<HTMLDivElement>,
   'onChange'
 > {
-  /** Menu configuration object */
-  config: MenuConfig;
-  /** Currently selected items organized by group */
-  selectedItems?: MenuSelection;
-  /** Callback when selection changes */
-  onChange?: (selection: MenuSelection) => void;
-  /** Menu trigger element */
+  /** Radio items. */
   children?: React.ReactNode;
-  /** Custom icon for checkbox selected state */
-  checkboxIcon?: React.ReactNode;
-  /** Custom icon for radio selected state */
-  radioIcon?: React.ReactNode;
-  /** Whether the menu is disabled */
-  disabled?: boolean;
-  /** Whether this menu is a submenu */
-  isSubmenu?: boolean;
+  /** Controlled selected value. */
+  value?: string;
+  /** Uncontrolled initial value. */
+  defaultValue?: string;
+  /** Called when the selected value changes. */
+  onValueChange?: (value: string) => void;
 }
+export type MenuRadioGroupProps = Prettify<MenuRadioGroupBaseProps>;
 
 /**
- * Props for the Menu component using Prettify utility type.
+ * Radio row. Shows a selection indicator in the left slot when active.
  */
-export type MenuProps = Prettify<MenuBaseProps>;
+export interface MenuRadioItemBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'onClick'
+> {
+  /** Value this item represents within its `RadioGroup`. */
+  value: string;
+  /** Label content. */
+  children?: React.ReactNode;
+  /** Indicator shown when selected. @default CircleIcon */
+  indicator?: React.ReactNode;
+  /** Keyboard shortcut hint rendered on the right. */
+  shortcut?: React.ReactNode;
+  /** Arbitrary node rendered on the right. */
+  endContent?: React.ReactNode;
+  /** Disables the item. */
+  disabled?: boolean;
+  /** Whether clicking the item closes the menu. @default false */
+  closeOnClick?: boolean;
+  /** Click handler. */
+  onClick?: React.MouseEventHandler<HTMLElement>;
+}
+export type MenuRadioItemProps = Prettify<MenuRadioItemBaseProps>;
+
+/**
+ * Checkbox row. Shows a selection indicator in the left slot when ticked.
+ */
+export interface MenuCheckboxItemBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'onClick'
+> {
+  /** Label content. */
+  children?: React.ReactNode;
+  /** Controlled checked state. */
+  checked?: boolean;
+  /** Uncontrolled initial checked state. */
+  defaultChecked?: boolean;
+  /** Called when toggled. */
+  onCheckedChange?: (checked: boolean) => void;
+  /** Indicator shown when ticked. @default CheckIcon */
+  indicator?: React.ReactNode;
+  /** Keyboard shortcut hint rendered on the right. */
+  shortcut?: React.ReactNode;
+  /** Arbitrary node rendered on the right. */
+  endContent?: React.ReactNode;
+  /** Disables the item. */
+  disabled?: boolean;
+  /** Whether clicking the item closes the menu. @default false */
+  closeOnClick?: boolean;
+  /** Click handler. */
+  onClick?: React.MouseEventHandler<HTMLElement>;
+}
+export type MenuCheckboxItemProps = Prettify<MenuCheckboxItemBaseProps>;
+
+/**
+ * Visually separated group of items with an optional label.
+ */
+export interface MenuGroupBaseProps extends BaseComponent<HTMLDivElement> {
+  /** Group items. */
+  children?: React.ReactNode;
+  /** Label rendered above the group. */
+  label?: React.ReactNode;
+}
+export type MenuGroupProps = Prettify<MenuGroupBaseProps>;
+
+export type MenuSeparatorProps = Prettify<BaseComponent<HTMLDivElement>>;
+
+/**
+ * Groups a submenu trigger with its content.
+ */
+export interface MenuSubBaseProps {
+  /** `SubTrigger` and `SubContent`. */
+  children?: React.ReactNode;
+  /** Uncontrolled initial open state of the submenu. */
+  defaultOpen?: boolean;
+}
+export type MenuSubProps = Prettify<MenuSubBaseProps>;
+
+/**
+ * Row that opens a submenu. Renders a chevron in the right slot.
+ */
+export interface MenuSubTriggerBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'onClick'
+> {
+  /** Label content. */
+  children?: React.ReactNode;
+  /** Icon rendered in the left slot. */
+  icon?: React.ReactNode;
+  /** Disables the submenu trigger. */
+  disabled?: boolean;
+  /** Click handler. */
+  onClick?: React.MouseEventHandler<HTMLElement>;
+}
+export type MenuSubTriggerProps = Prettify<MenuSubTriggerBaseProps>;
