@@ -62,6 +62,19 @@ different element (for example an `IconButton`):
   <MenuCustomTrigger client:only="react" />
 </ComponentPreview>
 
+## Positioning
+
+The menu opens below the trigger and is **start-aligned** by default, so its
+edge lines up with the trigger edge (rather than centering, which clips
+triggers near the viewport edge). Override placement on `Menu.Content` with
+`side`, `align`, `sideOffset`, and `alignOffset`.
+
+```tsx
+<Menu.Content side="bottom" align="end" sideOffset={8}>
+  …
+</Menu.Content>
+```
+
 ## Item Anatomy
 
 Every item exposes three slots. `icon` sits on the left, the children are the
@@ -294,7 +307,9 @@ The positioned popup surface. Place items or any custom node inside.
     {
       name: 'align',
       type: "'start' | 'center' | 'end'",
-      description: 'Alignment along the chosen side.',
+      default: "'start'",
+      description:
+        'Alignment along the chosen side. Defaults to start, so the menu edge lines up with the trigger edge instead of centering.',
     },
     {
       name: 'sideOffset',

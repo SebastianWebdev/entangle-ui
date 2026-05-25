@@ -35,6 +35,14 @@ import {
 } from './Menu.css';
 
 /**
+ * Positioning gaps must be plain numbers (floating-ui computes the transform
+ * in JS, so a CSS `var()` can't be used here). These mirror the spacing scale
+ * (`vars.spacing.*`: xs 2 · sm 4 · md 8 · lg 12), which is theme-invariant.
+ */
+const MENU_TRIGGER_GAP = 4; // vars.spacing.sm — menu ↔ trigger
+const SUBMENU_GAP = 4; // vars.spacing.sm — submenu ↔ parent menu
+
+/**
  * Internal three-slot row used by every interactive menu entry.
  */
 const ItemLayout = ({
@@ -131,8 +139,8 @@ const MenuContent = ({
   children,
   className,
   side,
-  align,
-  sideOffset = 4,
+  align = 'start',
+  sideOffset = MENU_TRIGGER_GAP,
   alignOffset,
   testId,
   ref,
@@ -157,6 +165,18 @@ const MenuContent = ({
   </BaseMenu.Portal>
 );
 MenuContent.displayName = 'Menu.Content';
+
+/**
+ * Submenu popup. Same surface as `Content`, but defaults to a small gap from
+ * the parent menu so nested panels don't visually touch.
+ */
+const MenuSubContent = ({
+  sideOffset = SUBMENU_GAP,
+  ...rest
+}: MenuContentProps): React.ReactElement => (
+  <MenuContent sideOffset={sideOffset} {...rest} />
+);
+MenuSubContent.displayName = 'Menu.SubContent';
 
 const MenuItem = ({
   children,
@@ -364,7 +384,8 @@ MenuSubTrigger.displayName = 'Menu.SubTrigger';
 /**
  * Compound Menu API.
  *
- * `SubContent` reuses `Content`; both render the same positioned popup.
+ * `Content` and `SubContent` share the same popup surface; `SubContent` just
+ * defaults to a gap from the parent menu.
  */
 export const Menu = /*#__PURE__*/ Object.assign(MenuRoot, {
   Trigger: MenuTrigger,
@@ -377,5 +398,5 @@ export const Menu = /*#__PURE__*/ Object.assign(MenuRoot, {
   CheckboxItem: MenuCheckboxItem,
   Sub: MenuSub,
   SubTrigger: MenuSubTrigger,
-  SubContent: MenuContent,
+  SubContent: MenuSubContent,
 });
