@@ -66,7 +66,7 @@ Advanced interactive controls for editor workflows.
 
 | Component     | Description                                      |
 | ------------- | ------------------------------------------------ |
-| `Menu`        | Config-driven dropdown menu                      |
+| `Menu`        | Composable dropdown menu (`Menu.Trigger`, `Menu.Content`, `Menu.Item`, …) |
 | `ContextMenu` | Right-click context menu                         |
 | `Tabs`        | Tab navigation with `TabList`, `Tab`, `TabPanel` |
 
