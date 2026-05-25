@@ -1,5 +1,5 @@
 ---
-'entangle-ui': patch
+'entangle-ui': minor
 ---
 
 Polish `Menu` and `ContextMenu` after code review.
