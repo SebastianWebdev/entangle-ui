@@ -39,6 +39,9 @@ export const menuItemStyle = style({
   alignItems: 'center',
   gap: vars.spacing.sm,
   width: '100%',
+  // Keep the padding inside the 100% width so the highlight never spills past
+  // the popup's right edge (the library ships no global border-box reset).
+  boxSizing: 'border-box',
   minHeight: '24px',
   padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
   borderRadius: vars.borderRadius.sm,

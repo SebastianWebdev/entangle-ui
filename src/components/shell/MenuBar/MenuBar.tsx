@@ -119,6 +119,7 @@ const MenuBarSub: React.FC<MenuBarSubProps> = ({
   ref,
   ...rest
 }) => {
+  const { menuOffset } = useMenuBar();
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -163,7 +164,11 @@ const MenuBarSub: React.FC<MenuBarSubProps> = ({
         <ChevronRight />
       </button>
       {open && (
-        <div className={subDropdown} role="menu">
+        <div
+          className={subDropdown}
+          role="menu"
+          style={{ left: `calc(100% + ${menuOffset}px)` }}
+        >
           {children}
         </div>
       )}
