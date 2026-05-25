@@ -3,7 +3,11 @@ import type {
   Point2D,
 } from '@/components/primitives/canvas/canvas.types';
 import type { ViewportLayerDrawInfo } from '@/components/primitives/viewport';
-import type { BezierControlPoints, PortPositionLookup } from './nodeGraphMath';
+import type {
+  BezierControlPoints,
+  NodeLookup,
+  PortPositionLookup,
+} from './nodeGraphMath';
 import {
   applyGroupResize,
   getBezierControlPoints,
@@ -82,6 +86,7 @@ export function drawEdges(
   selection: NodeGraphSelection,
   hoveredEdgeId: string | null,
   interaction: NodeGraphInteractionState,
+  getNodeById: NodeLookup,
   getPortPosition: PortPositionLookup,
   edgeStyle: NodeGraphEdgeStyleFn | undefined,
   theme: NodeGraphDrawTheme
@@ -102,7 +107,7 @@ export function drawEdges(
     };
   }
   for (const edge of data.edges) {
-    const endpoints = resolveEdgeEndpoints(edge, data.nodes, getPortPosition);
+    const endpoints = resolveEdgeEndpoints(edge, getNodeById, getPortPosition);
     if (!endpoints) continue;
 
     // Apply the in-flight drag delta so edges follow nodes 1:1 during a drag,

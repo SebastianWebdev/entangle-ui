@@ -353,6 +353,9 @@ describe('resolvePortRef / resolveEdgeEndpoints', () => {
     { id: 'a', position: { x: 0, y: 0 }, width: 100, height: 50 },
     { id: 'b', position: { x: 300, y: 0 }, width: 100, height: 50 },
   ];
+  const nodeIndex = new Map(nodes.map(n => [n.id, n]));
+  const getNodeById = (id: string): NodeGraphNode | undefined =>
+    nodeIndex.get(id);
 
   const lookup = makeLookup({
     a: { out: { x: 100, y: 25, side: 'right', dataType: 'exec' } },
@@ -360,7 +363,7 @@ describe('resolvePortRef / resolveEdgeEndpoints', () => {
   });
 
   it('resolves a port reference to its world position', () => {
-    const ref = resolvePortRef({ node: 'a', port: 'out' }, nodes, lookup);
+    const ref = resolvePortRef({ node: 'a', port: 'out' }, getNodeById, lookup);
     expect(ref).not.toBeNull();
     expect(ref?.position).toEqual({ x: 100, y: 25 });
     expect(ref?.side).toBe('right');
@@ -369,13 +372,13 @@ describe('resolvePortRef / resolveEdgeEndpoints', () => {
 
   it('returns null for an unknown node', () => {
     expect(
-      resolvePortRef({ node: 'x', port: 'out' }, nodes, lookup)
+      resolvePortRef({ node: 'x', port: 'out' }, getNodeById, lookup)
     ).toBeNull();
   });
 
   it('returns null for a port that has not been measured yet', () => {
     expect(
-      resolvePortRef({ node: 'a', port: 'unmeasured' }, nodes, lookup)
+      resolvePortRef({ node: 'a', port: 'unmeasured' }, getNodeById, lookup)
     ).toBeNull();
   });
 
@@ -385,7 +388,7 @@ describe('resolvePortRef / resolveEdgeEndpoints', () => {
       source: { node: 'a', port: 'out' },
       target: { node: 'b', port: 'in' },
     };
-    const endpoints = resolveEdgeEndpoints(edge, nodes, lookup);
+    const endpoints = resolveEdgeEndpoints(edge, getNodeById, lookup);
     expect(endpoints).toEqual({
       source: { x: 100, y: 25 },
       srcSide: 'right',
@@ -400,14 +403,18 @@ describe('resolvePortRef / resolveEdgeEndpoints', () => {
       source: { node: 'a', port: 'out' },
       target: { node: 'x', port: 'in' },
     };
-    expect(resolveEdgeEndpoints(edge, nodes, lookup)).toBeNull();
+    expect(resolveEdgeEndpoints(edge, getNodeById, lookup)).toBeNull();
   });
 
   it('omits dataType from the resolved ref when not set on the port position', () => {
     const noTypeLookup = makeLookup({
       a: { out: { x: 100, y: 25, side: 'right' } },
     });
-    const ref = resolvePortRef({ node: 'a', port: 'out' }, nodes, noTypeLookup);
+    const ref = resolvePortRef(
+      { node: 'a', port: 'out' },
+      getNodeById,
+      noTypeLookup
+    );
     expect(ref?.dataType).toBeUndefined();
   });
 });

@@ -160,6 +160,12 @@ export class NodeGraphStore {
   private selection: NodeGraphSelection = EMPTY_SELECTION;
   private interaction: NodeGraphInteractionState = IDLE;
   private hover: NodeGraphHoverState = EMPTY_HOVER;
+  // `Map<id, NodeGraphNode>` mirror of `data.nodes` — rebuilt in `setData`.
+  // Enables O(1) `getNodeById` lookups for hot paths (edge drawing,
+  // pointer-driven drag handlers) that previously did O(n) `nodes.find`
+  // per call.
+  private nodeIndex = new Map<string, NodeGraphNode>();
+
   // Map<nodeId, Map<portId, NodeGraphPortPosition>>.
   // Mutated in place by `<NodeGraph.Port>` slots on mount/resize. Listeners
   // are notified whenever any port's position, side, or dataType changes.
@@ -174,6 +180,13 @@ export class NodeGraphStore {
   private hoverListeners = new Set<() => void>();
   private portPositionListeners = new Set<() => void>();
   private measuredSizeListeners = new Set<() => void>();
+
+  // Monotonic counters used as `useSyncExternalStore` snapshots for the
+  // notify-only port-positions / measured-sizes channels. A stable null
+  // snapshot would let React skip the update via `Object.is(prev, next)`,
+  // even when the subscription fired.
+  private portPositionsVersion = 0;
+  private measuredSizesVersion = 0;
   private spawnRequestListeners = new Set<
     (info: { worldPoint: Point2D; screenPoint: Point2D }) => void
   >();
@@ -184,6 +197,14 @@ export class NodeGraphStore {
   getSelection = (): NodeGraphSelection => this.selection;
   getInteraction = (): NodeGraphInteractionState => this.interaction;
   getHover = (): NodeGraphHoverState => this.hover;
+
+  /**
+   * O(1) node lookup by id, backed by an internal Map rebuilt on each
+   * `setData`. Use this from hot paths instead of `data.nodes.find(...)`.
+   */
+  getNodeById = (id: string): NodeGraphNode | undefined => {
+    return this.nodeIndex.get(id);
+  };
 
   /**
    * Read the registered position of a single port. Returns `null` when the
@@ -201,6 +222,21 @@ export class NodeGraphStore {
   getMeasuredSize = (nodeId: string): NodeGraphMeasuredSize | null => {
     return this.measuredSizes.get(nodeId) ?? null;
   };
+
+  /**
+   * Monotonic snapshot of the port-positions channel — pass to
+   * `useSyncExternalStore` alongside `subscribePortPositions` so React
+   * actually re-renders consumers on every real change. Incremented
+   * whenever a port position is added, updated, removed, or GC'd by
+   * `setData`. Skipped on no-op writes.
+   */
+  getPortPositionsVersion = (): number => this.portPositionsVersion;
+
+  /**
+   * Monotonic snapshot of the measured-sizes channel — same role as
+   * `getPortPositionsVersion`, for `subscribeMeasuredSizes`.
+   */
+  getMeasuredSizesVersion = (): number => this.measuredSizesVersion;
 
   // ── Subscriptions ──
 
@@ -280,7 +316,15 @@ export class NodeGraphStore {
       return;
     }
     const prevNodeIds = new Set(this.data.nodes.map(n => n.id));
-    const nextNodeIds = new Set(next.nodes.map(n => n.id));
+    // Rebuild the id → node lookup in the same pass that collects the
+    // next-frame id set, so GC and the index stay in sync without a
+    // second iteration.
+    this.nodeIndex.clear();
+    const nextNodeIds = new Set<string>();
+    for (const n of next.nodes) {
+      nextNodeIds.add(n.id);
+      this.nodeIndex.set(n.id, n);
+    }
     // Garbage-collect port positions + measured sizes for nodes that have
     // been removed from the data. Slot unmount effects normally clear their
     // own entries, but if the node disappears in a single render tick (drop
@@ -295,9 +339,11 @@ export class NodeGraphStore {
     this.data = next;
     this.dataListeners.forEach(cb => cb());
     if (didMutatePortPositions) {
+      this.portPositionsVersion++;
       this.portPositionListeners.forEach(cb => cb());
     }
     if (didMutateMeasuredSizes) {
+      this.measuredSizesVersion++;
       this.measuredSizeListeners.forEach(cb => cb());
     }
   }
@@ -346,6 +392,7 @@ export class NodeGraphStore {
       return;
     }
     perNode.set(portId, next);
+    this.portPositionsVersion++;
     this.portPositionListeners.forEach(cb => cb());
   }
 
@@ -355,6 +402,7 @@ export class NodeGraphStore {
     if (!perNode) return;
     if (!perNode.delete(portId)) return;
     if (perNode.size === 0) this.portPositions.delete(nodeId);
+    this.portPositionsVersion++;
     this.portPositionListeners.forEach(cb => cb());
   }
 
@@ -368,12 +416,14 @@ export class NodeGraphStore {
       return;
     }
     this.measuredSizes.set(nodeId, next);
+    this.measuredSizesVersion++;
     this.measuredSizeListeners.forEach(cb => cb());
   }
 
   /** Clear the measured size of a node (called on unmount). */
   clearMeasuredSize(nodeId: string): void {
     if (!this.measuredSizes.delete(nodeId)) return;
+    this.measuredSizesVersion++;
     this.measuredSizeListeners.forEach(cb => cb());
   }
 

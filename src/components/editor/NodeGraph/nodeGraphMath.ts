@@ -41,6 +41,13 @@ export type MeasuredSizeLookup = (
 ) => NodeGraphMeasuredSize | null;
 
 /**
+ * O(1) node-by-id lookup. Hot resolvers ({@link resolvePortRef},
+ * {@link resolveEdgeEndpoints}) take this instead of an array to keep edge
+ * drawing at `O(edges)` rather than `O(edges × nodes)`.
+ */
+export type NodeLookup = (id: string) => NodeGraphNode | undefined;
+
+/**
  * Resolve a node's effective bounding box.
  *
  * Priority: explicit `node.width`/`node.height` > measured DOM size >
@@ -306,7 +313,7 @@ export function applyGroupResize(
  */
 export function resolvePortRef(
   ref: NodeGraphPortRef,
-  nodes: ReadonlyArray<NodeGraphNode>,
+  getNodeById: NodeLookup,
   getPortPosition: PortPositionLookup
 ): {
   node: NodeGraphNode;
@@ -314,7 +321,7 @@ export function resolvePortRef(
   side: NodeGraphPortSide;
   dataType?: string;
 } | null {
-  const node = nodes.find(n => n.id === ref.node);
+  const node = getNodeById(ref.node);
   if (!node) return null;
   const portPos = getPortPosition(ref.node, ref.port);
   if (!portPos) return null;
@@ -336,7 +343,7 @@ export function resolvePortRef(
  */
 export function resolveEdgeEndpoints(
   edge: NodeGraphEdge,
-  nodes: ReadonlyArray<NodeGraphNode>,
+  getNodeById: NodeLookup,
   getPortPosition: PortPositionLookup
 ): {
   source: Point2D;
@@ -344,9 +351,9 @@ export function resolveEdgeEndpoints(
   target: Point2D;
   tgtSide: NodeGraphPortSide;
 } | null {
-  const src = resolvePortRef(edge.source, nodes, getPortPosition);
+  const src = resolvePortRef(edge.source, getNodeById, getPortPosition);
   if (!src) return null;
-  const tgt = resolvePortRef(edge.target, nodes, getPortPosition);
+  const tgt = resolvePortRef(edge.target, getNodeById, getPortPosition);
   if (!tgt) return null;
   return {
     source: src.position,

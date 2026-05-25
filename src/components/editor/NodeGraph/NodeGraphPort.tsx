@@ -56,8 +56,13 @@ function visualEqual(a: PortVisualState, b: PortVisualState): boolean {
  * ```tsx
  * <NodeGraph.Port id="in" side="left" dataType="exec" />
  * ```
+ *
+ * Wrapped in `React.memo` — ports re-mount on every consumer `renderNode`
+ * call by default, so memoization only helps consumers who memoize their
+ * own node body. When they do, ports skip re-renders on unrelated store
+ * updates entirely.
  */
-export function NodeGraphPort({
+function NodeGraphPortImpl({
   id,
   side,
   dataType,
@@ -230,3 +235,6 @@ export function NodeGraphPort({
     </span>
   );
 }
+
+export const NodeGraphPort = React.memo(NodeGraphPortImpl);
+NodeGraphPort.displayName = 'NodeGraphPort';

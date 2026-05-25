@@ -14,6 +14,7 @@ import type {
   NodeGraphConnectionValidationInfo,
 } from './NodeGraph.types';
 import type { NodeGraphStore } from './NodeGraphStore';
+import { generateEdgeId } from './nodeGraphIds';
 
 interface UseNodeGraphConnectionOptions {
   viewportRef: React.RefObject<HTMLDivElement | null>;
@@ -150,7 +151,7 @@ export function useNodeGraphConnection(
       teardownRef.current?.();
 
       const source: NodeGraphPortRef = { node: nodeId, port: portId };
-      const sourceNode = store.getData().nodes.find(n => n.id === nodeId);
+      const sourceNode = store.getNodeById(nodeId);
       const sourceWorldPoint = sourceNode
         ? {
             x: sourceNode.position.x + sourcePos.x,
@@ -269,7 +270,7 @@ export function useNodeGraphConnection(
             cancelled = true;
           } else {
             const newEdge: NodeGraphEdge = {
-              id: `edge-${state.source.node}.${state.source.port}-${candidate.node}.${candidate.port}-${Date.now()}`,
+              id: generateEdgeId(state.source, candidate),
               source: state.source,
               target: candidate,
             };

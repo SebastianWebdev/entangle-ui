@@ -89,8 +89,14 @@ function pointEqualNullable(a: Point2D | null, b: Point2D | null): boolean {
  * Subscribes to per-id slices via `useStoreSlice` so each node re-renders
  * only when its own selection / drag delta / hover state changes — not on
  * every pointermove tick of an unrelated drag.
+ *
+ * Wrapped in `React.memo` so a parent re-render (e.g. caused by an
+ * unrelated controlled-state update) doesn't cascade through every
+ * mounted node. Stable identity for the parent-provided handlers
+ * (`onBodyPointerDown`, etc.) is ensured by `useCallback` in
+ * `NodeGraphImpl`; `node` identity is preserved by consumer immutability.
  */
-export function NodeGraphNodeView(
+function NodeGraphNodeViewImpl(
   props: NodeGraphNodeViewProps
 ): React.ReactElement {
   const {
@@ -263,3 +269,6 @@ export function NodeGraphNodeView(
     </div>
   );
 }
+
+export const NodeGraphNodeView = React.memo(NodeGraphNodeViewImpl);
+NodeGraphNodeView.displayName = 'NodeGraphNodeView';

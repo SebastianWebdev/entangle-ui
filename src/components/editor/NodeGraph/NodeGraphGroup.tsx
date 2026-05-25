@@ -187,8 +187,13 @@ function computeLiveBounds(
  * Uses per-id selectors so a group only re-renders when *its* selection
  * or gesture state changes — drag deltas of other groups never reach the
  * subscriber.
+ *
+ * Wrapped in `React.memo` for the same reason as
+ * {@link NodeGraphNodeView}: a parent render caused by an unrelated
+ * controlled-state update would otherwise iterate every group. Handlers
+ * passed from `NodeGraphImpl` are all `useCallback`-stable.
  */
-export function NodeGraphGroupView({
+function NodeGraphGroupViewImpl({
   group,
   onBodyPointerDown,
   onBodyPointerUp,
@@ -381,3 +386,6 @@ export function NodeGraphGroupView({
     </div>
   );
 }
+
+export const NodeGraphGroupView = React.memo(NodeGraphGroupViewImpl);
+NodeGraphGroupView.displayName = 'NodeGraphGroupView';

@@ -5,22 +5,12 @@ import { CommandPalette } from '@/components/feedback/CommandPalette/CommandPale
 import type { CommandItem } from '@/components/feedback/CommandPalette/CommandPalette.types';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import { useNodeGraphStore } from './NodeGraphContext';
+import { generateNodeId } from './nodeGraphIds';
 import type {
   NodeGraphNode,
   NodeGraphSpawnContext,
   NodeGraphSpawnPaletteSlotProps,
 } from './NodeGraph.types';
-
-/**
- * Generate a unique-enough node id from a template. Avoids `crypto.randomUUID`
- * because it isn't available on every browser / context the library runs in.
- * Format: `${templateId}-{timestamp36}-{rand36}`.
- */
-function generateNodeId(templateId: string): string {
-  const t = Date.now().toString(36);
-  const r = Math.random().toString(36).slice(2, 8);
-  return `${templateId}-${t}-${r}`;
-}
 
 /**
  * Live renderer for `<NodeGraph.SpawnPalette>`. Mounted by the parent

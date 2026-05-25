@@ -31,10 +31,12 @@ export function NodeGraphMinimapInner({
   const selection = useNodeGraphSelection();
   const store = useNodeGraphStore();
   // Subscribe to measured-size updates so the minimap rect for each node
-  // grows/shrinks as its DOM body changes height (auto-sized nodes).
-  useSyncExternalStore(
+  // grows/shrinks as its DOM body changes height (auto-sized nodes). The
+  // version snapshot doubles as a `useMemo` dep below, so the item /
+  // bounds caches invalidate on every real size change.
+  const measuredSizesVersion = useSyncExternalStore(
     store.subscribeMeasuredSizes,
-    store.getMeasuredSize as unknown as () => unknown
+    store.getMeasuredSizesVersion
   );
 
   const items = useMemo<MinimapItem[]>(() => {
@@ -57,7 +59,14 @@ export function NodeGraphMinimapInner({
       }
       return item;
     });
-  }, [data.nodes, data.defaultNodeSize, selection.nodes, selectedColor, store]);
+  }, [
+    data.nodes,
+    data.defaultNodeSize,
+    selection.nodes,
+    selectedColor,
+    store,
+    measuredSizesVersion,
+  ]);
 
   const worldBounds = useMemo(() => {
     const bounds = computeNodesBounds(
@@ -79,7 +88,7 @@ export function NodeGraphMinimapInner({
       width: bounds.width + padX * 2,
       height: bounds.height + padY * 2,
     };
-  }, [data.nodes, data.defaultNodeSize, store]);
+  }, [data.nodes, data.defaultNodeSize, store, measuredSizesVersion]);
 
   return (
     <ViewportMinimap

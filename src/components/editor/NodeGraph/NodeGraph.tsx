@@ -471,9 +471,7 @@ const NodeGraphImpl = ({
         const dy = current.y - session.startScreen.y;
         if (!session.didDrag) {
           if (Math.hypot(dx, dy) < DRAG_START_THRESHOLD_PX) return;
-          const clicked = nodesRef.current.find(
-            n => n.id === session.clickedNodeId
-          );
+          const clicked = store.getNodeById(session.clickedNodeId);
           if (clicked?.draggable === false) {
             // Not draggable — promote to a no-op drag flag so pointerup falls
             // through to click selection logic.
@@ -1300,6 +1298,7 @@ const NodeGraphImpl = ({
         sel,
         hover.hoveredEdgeId,
         interaction,
+        store.getNodeById,
         store.getPortPosition,
         edgeStyleRef.current,
         theme
@@ -1323,7 +1322,7 @@ const NodeGraphImpl = ({
         portRef => {
           const resolved = resolvePortRef(
             portRef,
-            store.getData().nodes,
+            store.getNodeById,
             store.getPortPosition
           );
           if (!resolved) return null;
@@ -1407,7 +1406,7 @@ const NodeGraphImpl = ({
       focusNode: idStr => {
         const vp = viewportHandleRef.current;
         if (!vp) return;
-        const node = nodesRef.current.find(n => n.id === idStr);
+        const node = store.getNodeById(idStr);
         if (!node) return;
         const box = getNodeBox(
           node,
@@ -1549,7 +1548,10 @@ function EdgeLabelsLayer({
   // edges exist. Each `EdgeLabel` below subscribes to interaction on its
   // own for live drag tracking.
   const data = useSyncExternalStore(store.subscribeData, store.getData);
-  useSyncExternalStore(store.subscribePortPositions, getNullSnapshot);
+  useSyncExternalStore(
+    store.subscribePortPositions,
+    store.getPortPositionsVersion
+  );
 
   return (
     <>
@@ -1563,10 +1565,6 @@ function EdgeLabelsLayer({
     </>
   );
 }
-
-// Stable noop snapshot so the port-positions subscription only acts as a
-// notify channel — we don't need any value out of it here.
-const getNullSnapshot = (): null => null;
 
 // ─── Edge label (positioned in world space) ───
 
@@ -1588,11 +1586,21 @@ function EdgeLabel({
   );
   // Re-render when port positions update too (initial measure + body
   // re-layout shift the anchor).
-  useSyncExternalStore(store.subscribePortPositions, getNullSnapshot);
+  useSyncExternalStore(
+    store.subscribePortPositions,
+    store.getPortPositionsVersion
+  );
 
-  const data = store.getData();
-  const src = resolvePortRef(edge.source, data.nodes, store.getPortPosition);
-  const tgt = resolvePortRef(edge.target, data.nodes, store.getPortPosition);
+  const src = resolvePortRef(
+    edge.source,
+    store.getNodeById,
+    store.getPortPosition
+  );
+  const tgt = resolvePortRef(
+    edge.target,
+    store.getNodeById,
+    store.getPortPosition
+  );
   if (!src || !tgt) return null;
 
   // Apply the current frame's live drag delta to any endpoint whose node

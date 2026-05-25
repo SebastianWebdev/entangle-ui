@@ -125,7 +125,7 @@ export function useNodeGraphKeyboard(
           const selection = store.getSelection();
           if (selection.nodes.length !== 1) return;
           const id = selection.nodes[0];
-          const node = store.getData().nodes.find(n => n.id === id);
+          const node = id != null ? store.getNodeById(id) : undefined;
           if (node) {
             onActivateRef.current?.(node);
             event.preventDefault();

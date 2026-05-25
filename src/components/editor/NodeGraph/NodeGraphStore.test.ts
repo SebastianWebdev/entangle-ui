@@ -282,6 +282,61 @@ describe('NodeGraphStore — selection vs initial reference', () => {
   });
 });
 
+describe('NodeGraphStore — node index', () => {
+  it('returns undefined for unknown ids before any data is set', () => {
+    const store = new NodeGraphStore();
+    expect(store.getNodeById('a')).toBeUndefined();
+  });
+
+  it('returns the node for a known id after setData', () => {
+    const store = new NodeGraphStore();
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    expect(store.getNodeById('a')).toBe(nodeA);
+    expect(store.getNodeById('b')).toBe(nodeB);
+  });
+
+  it('reflects removals after setData drops a node', () => {
+    const store = new NodeGraphStore();
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    store.setData({
+      nodes: [nodeA],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    expect(store.getNodeById('a')).toBe(nodeA);
+    expect(store.getNodeById('b')).toBeUndefined();
+  });
+
+  it('reflects in-place id swaps after setData replaces nodes', () => {
+    const store = new NodeGraphStore();
+    store.setData({
+      nodes: [nodeA],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    const renamedA: NodeGraphNode = { id: 'a', position: { x: 99, y: 99 } };
+    store.setData({
+      nodes: [renamedA],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    expect(store.getNodeById('a')).toBe(renamedA);
+  });
+});
+
 describe('NodeGraphStore — portPositions slice', () => {
   it('starts empty and resolves null for unknown ports', () => {
     const store = new NodeGraphStore();
@@ -367,6 +422,53 @@ describe('NodeGraphStore — portPositions slice', () => {
     expect(store.getPortPosition('a', 'out')).not.toBeNull();
     expect(cb).toHaveBeenCalledTimes(1);
   });
+
+  // Version counter — used as a `useSyncExternalStore` snapshot so that
+  // pure notify-only subscribers actually re-render. A stable null snapshot
+  // would let React skip the update via Object.is(prev, next).
+  it('exposes a port-positions version that increments on real changes', () => {
+    const store = new NodeGraphStore();
+    const v0 = store.getPortPositionsVersion();
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'right' });
+    const v1 = store.getPortPositionsVersion();
+    expect(v1).toBeGreaterThan(v0);
+  });
+
+  it('does not bump the port-positions version on no-op set', () => {
+    const store = new NodeGraphStore();
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'right' });
+    const v = store.getPortPositionsVersion();
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'right' });
+    expect(store.getPortPositionsVersion()).toBe(v);
+  });
+
+  it('bumps the port-positions version on removePortPosition', () => {
+    const store = new NodeGraphStore();
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'right' });
+    const v = store.getPortPositionsVersion();
+    store.removePortPosition('a', 'out');
+    expect(store.getPortPositionsVersion()).toBeGreaterThan(v);
+  });
+
+  it('bumps the port-positions version when setData GCs ports', () => {
+    const store = new NodeGraphStore();
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    store.setPortPosition('a', 'out', { x: 10, y: 20, side: 'right' });
+    store.setPortPosition('b', 'in', { x: 0, y: 20, side: 'left' });
+    const v = store.getPortPositionsVersion();
+    store.setData({
+      nodes: [nodeA],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    expect(store.getPortPositionsVersion()).toBeGreaterThan(v);
+  });
 });
 
 describe('NodeGraphStore — measuredSizes slice', () => {
@@ -424,6 +526,49 @@ describe('NodeGraphStore — measuredSizes slice', () => {
     expect(store.getMeasuredSize('b')).toBeNull();
     expect(store.getMeasuredSize('a')).not.toBeNull();
     expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  it('exposes a measured-sizes version that increments on real changes', () => {
+    const store = new NodeGraphStore();
+    const v0 = store.getMeasuredSizesVersion();
+    store.setMeasuredSize('a', { width: 220, height: 80 });
+    expect(store.getMeasuredSizesVersion()).toBeGreaterThan(v0);
+  });
+
+  it('does not bump the measured-sizes version on no-op set', () => {
+    const store = new NodeGraphStore();
+    store.setMeasuredSize('a', { width: 220, height: 80 });
+    const v = store.getMeasuredSizesVersion();
+    store.setMeasuredSize('a', { width: 220, height: 80 });
+    expect(store.getMeasuredSizesVersion()).toBe(v);
+  });
+
+  it('bumps the measured-sizes version on clearMeasuredSize', () => {
+    const store = new NodeGraphStore();
+    store.setMeasuredSize('a', { width: 220, height: 80 });
+    const v = store.getMeasuredSizesVersion();
+    store.clearMeasuredSize('a');
+    expect(store.getMeasuredSizesVersion()).toBeGreaterThan(v);
+  });
+
+  it('bumps the measured-sizes version when setData GCs sizes', () => {
+    const store = new NodeGraphStore();
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    store.setMeasuredSize('a', { width: 220, height: 80 });
+    store.setMeasuredSize('b', { width: 240, height: 90 });
+    const v = store.getMeasuredSizesVersion();
+    store.setData({
+      nodes: [nodeA],
+      edges: [],
+      groups: [],
+      defaultNodeSize: { width: 180, height: 80 },
+    });
+    expect(store.getMeasuredSizesVersion()).toBeGreaterThan(v);
   });
 });
 
