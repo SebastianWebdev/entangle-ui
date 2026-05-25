@@ -358,11 +358,14 @@ export const groupColorSwatchStyle = style({
 });
 
 /**
- * Slot wrapper used by `<NodeGraph.Minimap>` — pinned absolutely inside the
- * underlying `<Viewport>` overlay layer.
+ * Class applied to the `<Minimap>` rendered by `<NodeGraph.Minimap>`.
+ * `ViewportMinimap` already pins the minimap to a corner via its own
+ * absolutely-positioned wrapper, so this must NOT set `position` — an extra
+ * `position: absolute` here would pull the minimap out of that wrapper's flow,
+ * collapsing the wrapper to a zero-size box and pushing the minimap off-screen.
+ * It only re-enables pointer events (the overlay layer disables them).
  */
 export const minimapSlotStyle = style({
-  position: 'absolute',
   pointerEvents: 'auto',
 });
 
