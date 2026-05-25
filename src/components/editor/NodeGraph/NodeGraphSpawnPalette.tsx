@@ -51,16 +51,6 @@ export function NodeGraphSpawnPaletteInner({
     });
   }, [store]);
 
-  // Snap the spawn world point to the graph's grid when one is set,
-  // mirroring how dragged nodes snap — keeps new nodes aligned with the
-  // existing layout without consumer math.
-  const snappedSpawnPoint = useMemo<Point2D | null>(() => {
-    if (!spawnAt) return null;
-    const grid = store.getData().nodes.length > 0 ? null : null;
-    void grid;
-    return spawnAt.worldPoint;
-  }, [spawnAt, store]);
-
   const items = useMemo<CommandItem[]>(() => {
     return templates.map(t => ({
       id: t.id,
@@ -81,7 +71,7 @@ export function NodeGraphSpawnPaletteInner({
     (item: CommandItem): void => {
       const template = templates.find(t => t.id === item.id);
       if (!template || !spawnAt) return;
-      const worldPoint = snappedSpawnPoint ?? spawnAt.worldPoint;
+      const worldPoint = spawnAt.worldPoint;
       const draft = template.build(worldPoint);
       const node: NodeGraphNode = {
         ...draft,
@@ -94,7 +84,7 @@ export function NodeGraphSpawnPaletteInner({
       onSpawn(node, ctx);
       handleClose();
     },
-    [templates, spawnAt, snappedSpawnPoint, onSpawn, handleClose]
+    [templates, spawnAt, onSpawn, handleClose]
   );
 
   return (

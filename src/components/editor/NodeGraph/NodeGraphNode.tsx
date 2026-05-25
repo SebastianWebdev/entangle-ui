@@ -22,7 +22,6 @@ import { useStoreSlice } from './useStoreSlice';
 
 interface NodeGraphNodeViewProps {
   node: NodeGraphNode;
-  defaultSize: { width: number; height: number };
   renderNode?: (
     node: NodeGraphNode,
     ctx: NodeGraphRenderCtx
@@ -101,7 +100,6 @@ function NodeGraphNodeViewImpl(
 ): React.ReactElement {
   const {
     node,
-    defaultSize,
     renderNode,
     onBodyPointerDown,
     onBodyPointerUp,
@@ -237,9 +235,6 @@ function NodeGraphNodeViewImpl(
     }),
     [node.id, onPortPointerDown]
   );
-
-  // Kept on the type for downstream resolvers (`defaultNodeSize` fallback).
-  void defaultSize;
 
   return (
     <div

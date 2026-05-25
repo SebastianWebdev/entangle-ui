@@ -374,7 +374,9 @@ describe('NodeGraph — Keyboard', () => {
       />
     );
     const root = screen.getByTestId('nodegraph');
-    fireEvent.keyDown(root, { key: 'a', metaKey: true });
+    // `code: 'KeyA'` matches the physical A key independent of layout;
+    // jsdom doesn't infer it from `key`, so pass it explicitly.
+    fireEvent.keyDown(root, { key: 'a', code: 'KeyA', metaKey: true });
     expect(onSelectionChange).toHaveBeenCalledWith({
       nodes: ['n1', 'n2'],
       edges: [],
@@ -394,7 +396,7 @@ describe('NodeGraph — Keyboard', () => {
       />
     );
     const root = screen.getByTestId('nodegraph');
-    fireEvent.keyDown(root, { key: 'Escape' });
+    fireEvent.keyDown(root, { key: 'Escape', code: 'Escape' });
     expect(onSelectionChange).toHaveBeenCalledWith({
       nodes: [],
       edges: [],
@@ -414,7 +416,7 @@ describe('NodeGraph — Keyboard', () => {
       />
     );
     const root = screen.getByTestId('nodegraph');
-    fireEvent.keyDown(root, { key: 'Delete' });
+    fireEvent.keyDown(root, { key: 'Delete', code: 'Delete' });
     expect(onDelete).toHaveBeenCalledWith({
       nodes: ['n1'],
       edges: [],
@@ -439,7 +441,7 @@ describe('NodeGraph — Keyboard', () => {
       />
     );
     const root = screen.getByTestId('nodegraph');
-    fireEvent.keyDown(root, { key: 'Delete' });
+    fireEvent.keyDown(root, { key: 'Delete', code: 'Delete' });
     // n1 removed, e1 (n1→n2) is now orphan → dropped, selection cleared.
     expect(onNodesChange).toHaveBeenCalledWith([
       expect.objectContaining({ id: 'n2' }),
@@ -468,7 +470,7 @@ describe('NodeGraph — Keyboard', () => {
       />
     );
     const root = screen.getByTestId('nodegraph');
-    fireEvent.keyDown(root, { key: 'ArrowRight' });
+    fireEvent.keyDown(root, { key: 'ArrowRight', code: 'ArrowRight' });
     expect(captured).not.toBeNull();
     const updated = captured as unknown as NodeGraphNode[] | null;
     expect(updated?.find(n => n.id === 'n1')?.position.x).toBe(110);
@@ -487,7 +489,7 @@ describe('NodeGraph — Keyboard', () => {
     const inputs = screen.getAllByTestId('node-input');
     const input = inputs[0];
     if (!input) throw new Error('node-input expected');
-    fireEvent.keyDown(input, { key: 'a', metaKey: true });
+    fireEvent.keyDown(input, { key: 'a', code: 'KeyA', metaKey: true });
     expect(onSelectionChange).not.toHaveBeenCalled();
   });
 });

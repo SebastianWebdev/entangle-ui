@@ -223,15 +223,13 @@ function NodeGraphGroupViewImpl({
   const bounds = computeLiveBounds(group, gesture);
 
   // ── Inline label edit ──
+  // `draft` is initialised from `group.label` on mount and re-synced by
+  // `cancelLabel` / `commitLabel` / `handleLabelDoubleClick` on every
+  // transition out of / into edit mode. Mirroring `group.label` into
+  // state via a side effect would be the classic anti-pattern.
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(group.label ?? '');
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (!editing) {
-      setDraft(group.label ?? '');
-    }
-  }, [editing, group.label]);
 
   useEffect(() => {
     if (editing) {
@@ -256,9 +254,13 @@ function NodeGraphGroupViewImpl({
   const handleLabelDoubleClick = useCallback(
     (event: React.MouseEvent<HTMLSpanElement>): void => {
       event.stopPropagation();
+      // Re-sync from the prop on open — covers the case where `group.label`
+      // changed externally while we weren't editing, so the input opens
+      // with the current value rather than a stale draft.
+      setDraft(group.label ?? '');
       setEditing(true);
     },
-    []
+    [group.label]
   );
 
   const handleInputKeyDown = useCallback(

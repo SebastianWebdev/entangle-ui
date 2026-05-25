@@ -1160,13 +1160,6 @@ const NodeGraphImpl = ({
     ]
   );
 
-  // Pass-through context menu handler from a single node body — we re-use
-  // the global handler so menus on nodes/empty/ports use the same code path.
-  const onBodyContextMenuPerNode = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => handleContextMenu(event),
-    [handleContextMenu]
-  );
-
   // ── Delete ──
   //
   // Without a consumer-supplied `onDelete`, the library cascades the
@@ -1487,12 +1480,11 @@ const NodeGraphImpl = ({
               <NodeGraphNodeView
                 key={node.id}
                 node={node}
-                defaultSize={defaultNodeSize}
                 renderNode={renderNode}
                 onBodyPointerDown={onNodeBodyPointerDown}
                 onBodyPointerUp={onNodeBodyPointerUp}
                 onPortPointerDown={onPortPointerDown}
-                onBodyContextMenu={onBodyContextMenuPerNode}
+                onBodyContextMenu={handleContextMenu}
               />
             ))}
             <EdgeLabelsLayer renderEdgeLabelRef={renderEdgeLabelRef} />
@@ -1670,7 +1662,7 @@ type NodeGraphCompound = typeof NodeGraphImpl & {
   SpawnPalette: typeof NodeGraphSpawnPalette;
 };
 
-(NodeGraphImpl as unknown as { displayName: string }).displayName = 'NodeGraph';
+NodeGraphImpl.displayName = 'NodeGraph';
 
 const NodeGraphWithSlots = NodeGraphImpl as NodeGraphCompound;
 NodeGraphWithSlots.Minimap = NodeGraphMinimap;

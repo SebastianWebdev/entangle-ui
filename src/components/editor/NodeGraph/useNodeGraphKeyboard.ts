@@ -94,7 +94,13 @@ export function useNodeGraphKeyboard(
       const baseStep = grid === false || grid <= 0 ? NUDGE_STEP_DEFAULT : grid;
       const step = event.shiftKey ? baseStep * NUDGE_STEP_SHIFT : baseStep;
 
-      switch (event.key) {
+      // Dispatch on `event.code` so character keys are matched by physical
+      // location (e.g. `KeyA` for Ctrl+A), not by the printed character
+      // — which would otherwise differ on non-QWERTY / non-Latin layouts.
+      // For special keys (`ArrowUp`, `Delete`, `Backspace`, `Enter`,
+      // `Escape`) `event.code` equals `event.key`, so existing cases keep
+      // working unchanged.
+      switch (event.code) {
         case 'ArrowUp':
           if (nudgeSelected(0, -step)) event.preventDefault();
           return;
@@ -132,8 +138,10 @@ export function useNodeGraphKeyboard(
           }
           return;
         }
-        case 'a':
-        case 'A': {
+        // `event.code` is layout-independent — matches the physical "A"
+        // key regardless of the user's keyboard layout (Polish, Cyrillic,
+        // Dvorak, etc., would otherwise fire a different `event.key`).
+        case 'KeyA': {
           if (!(event.metaKey || event.ctrlKey)) return;
           const data = store.getData();
           emitSelectionChangeRef.current({
