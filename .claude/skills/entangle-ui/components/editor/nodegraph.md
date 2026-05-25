@@ -16,17 +16,24 @@
     );
     setSelection({ nodes: [], edges: [], groups: [] });
   }}
-  renderNode={(node, ctx) => }
-  renderEdgeLabel={edge => {
-    const pin = getPin(edge.source);
-    if (!pin || pin.dataType === 'exec') return null;
-    return ;
-  }}
+  renderNode={(node, ctx) => (
+
+      {node.data.pins.map(pin => (
+
+          {/* Slot is the single source of truth — the same DOM element the
+              user clicks is where the edge anchors. */}
+
+          <span>{pin.label}</span>
+
+      ))}
+
+  )}
   isValidConnection={(source, target, info) => {
     if (info.sameNode) return false;
     if (info.sideCombo !== 'right->left') return false;
-    const types = lookupTypes(source, target);
-    return !types || types.src === types.tgt || types.src === 'any';
+    const src = info.sourceDataType;
+    const tgt = info.targetDataType;
+    return !src || !tgt || src === tgt || src === 'any' || tgt === 'any';
   }}
   snapToGrid={8}
   minZoom={0.2}
@@ -56,20 +63,12 @@ import type {
 
 ## Quick start
 
-A minimal graph is just a `nodes` array and an `edges` array. Each node has a `position` (world units), an optional `width` / `height`, and a list of `ports`. Each edge references a source and target port by id.
+A graph is a `nodes` array plus an `edges` array. Each node has a `position` (world units) and a `data` payload of your choice. Declare connection endpoints by rendering `<NodeGraph.Port>` slots **inside** `renderNode` — the library measures their DOM position and anchors edges there automatically. No `ports` array, no offsets to compute.
 
 ```tsx
 const [nodes, setNodes] = useState<NodeGraphNode[]>([
-  {
-    id: 'a',
-    position: { x: 0, y: 0 },
-    ports: [{ id: 'out', side: 'right' }],
-  },
-  {
-    id: 'b',
-    position: { x: 240, y: 60 },
-    ports: [{ id: 'in', side: 'left' }],
-  },
+  { id: 'a', position: { x: 0, y: 0 } },
+  { id: 'b', position: { x: 240, y: 60 } },
 ]);
 
 const [edges, setEdges] = useState<NodeGraphEdge[]>([
@@ -86,6 +85,15 @@ const [edges, setEdges] = useState<NodeGraphEdge[]>([
   onNodesChange={setNodes}
   onEdgesChange={setEdges}
   responsive
+  renderNode={node => (
+    <div style={{ padding: 8, background: '#1f2937', color: 'white' }}>
+      {node.id === 'a' ? (
+        <NodeGraph.Port id="out" side="right" />
+      ) : (
+        <NodeGraph.Port id="in" side="left" />
+      )}
+    </div>
+  )}
 />;
 ```
 
@@ -97,20 +105,13 @@ Every change emits the **full** next array — no patches, no reducers. That kee
 interface NodeGraphNode {
   id: string;
   position: { x: number; y: number }; // world coordinates
-  width?: number; // defaults to defaultNodeSize.width (180)
-  height?: number; // defaults to defaultNodeSize.height (80)
-  ports?: NodeGraphPort[];
+  // Override the auto-measured size. When omitted, the library measures
+  // the rendered node body and uses that for hit-testing / minimap / fit.
+  width?: number;
+  height?: number;
   data?: unknown; // arbitrary consumer payload (passed to renderNode)
   draggable?: boolean; // default true
   selectable?: boolean; // default true
-}
-
-interface NodeGraphPort {
-  id: string;
-  side: 'left' | 'right' | 'top' | 'bottom';
-  offset?: number; // 0..1 along the side; even distribution when omitted
-  dataType?: string; // opaque token for `isValidConnection`
-  label?: string; // surfaced via aria-label
 }
 
 interface NodeGraphEdge {
@@ -137,7 +138,7 @@ interface NodeGraphSelection {
 
 ## Rendering nodes
 
-Pass `renderNode={(node, ctx) => ...}` to control the body. The wrapper handles positioning, ports, and selection state — your job is the content.
+Pass `renderNode={(node, ctx) => ...}` to control the body, and drop `<NodeGraph.Port>` slots anywhere inside the returned tree to declare connection endpoints. The slot is the **single source of truth** for both the visual handle and the geometry endpoint of the edge — the same DOM element the user clicks is the anchor the edge connects to.
 
 ```tsx
 <NodeGraph
@@ -145,19 +146,41 @@ Pass `renderNode={(node, ctx) => ...}` to control the body. The wrapper handles 
   onNodesChange={setNodes}
   renderNode={(node, ctx) => (
     <div
-      style={{
-        background: ctx.selected ? '#3b82f6' : '#1f2937',
-        color: 'white',
-        padding: 8,
-      }}
+      style={{ background: ctx.selected ? '#3b82f6' : '#1f2937', padding: 8 }}
     >
-      {(node.data as { label?: string })?.label ?? node.id}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <NodeGraph.Port id="exec-in" side="left" dataType="exec" />
+        <span>Execute</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <span>Result</span>
+        <NodeGraph.Port id="result" side="right" dataType="float" />
+      </div>
     </div>
   )}
 />
 ```
 
 The render context carries live status — `selected`, `dragging`, `hovered`, and the current `zoom` (useful for LOD swaps when zoomed out).
+
+### `<NodeGraph.Port>`
+
+Compound slot that registers a connection endpoint for the current node. The library:
+
+- Measures the slot's DOM position on mount and on every layout shift (`ResizeObserver`).
+- Routes the slot's pointer events through the shared connection-drag controller — drag from one port to another to create an edge.
+- Tracks per-port visual state (`isSource`, `isCandidate`, `isInvalid`, `isHovered`) and exposes it on `data-port-*` attributes so consumer CSS can style based on state.
+
+| Prop                | Type                                     | Description                                                                                        |
+| ------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `id`                | `string`                                 | Stable identity within the node — referenced by `NodeGraphEdge.source` / `.target`.                |
+| `side`              | `'left' \| 'right' \| 'top' \| 'bottom'` | Which side the port anchors to. Determines the Bézier tangent direction.                           |
+| `dataType`          | `string?`                                | Opaque type token forwarded to `isValidConnection` and exposed on `data-port-data-type`.           |
+| `children`          | `ReactNode?`                             | Replace the default circle / exec-triangle visual. The slot wrapper carries pointer events + ARIA. |
+| `label`             | `string?`                                | Accessible label. Falls back to `${side} port ${id}`.                                              |
+| `className`/`style` | —                                        | Forwarded to the slot wrapper.                                                                     |
+
+The slot renders inline (`display: inline-flex`), so dropping it next to a label sits the port handle right beside the text. Hover scaling uses `transform-origin: center` — the port's center (and therefore the edge endpoint) stays put.
 
 ## Connections
 
@@ -167,12 +190,18 @@ Connection drags start on a port pointer-down and end on pointer-up. While the d
 
 `isValidConnection` is called continuously during the drag and once at drop. Return `false` to mark the current candidate as invalid (preview goes dashed + red) and to refuse the drop.
 
+The `info` object carries everything needed to validate without maintaining a consumer-side port index — `sourceDataType` / `targetDataType` come straight from the `<NodeGraph.Port dataType="…">` slots.
+
 ```tsx
 <NodeGraph
   isValidConnection={(source, target, info) => {
     if (info.sameNode) return false; // no self-loops
-    // Only connect output ports (right side) to input ports (left side).
-    return info.sideCombo === 'right->left';
+    if (info.sideCombo !== 'right->left') return false; // outputs → inputs only
+    // Type-match exec→exec, float→float, etc.; 'any' accepts everything.
+    const src = info.sourceDataType;
+    const tgt = info.targetDataType;
+    if (!src || !tgt) return true;
+    return src === tgt || src === 'any' || tgt === 'any';
   }}
 />
 ```
@@ -338,10 +367,10 @@ function NodeBadge({ nodeId }: { nodeId: string }) {
 
 ## Performance notes
 
-- **Each node body subscribes to only the slices it needs.** The `NodeGraphNodeView` internal subscribes to `selection`, `interaction`, and `hover` — but `Object.is` no-op guards on the store prevent re-renders when _another_ node's drag changes but this one's state doesn't.
+- **Each node body subscribes to per-id slice selectors.** Only the node that's being dragged / selected / hovered re-renders. Same for `<NodeGraph.Port>` slots — only the source + candidate ports during a connection drag re-render, not every port on the canvas.
 - **Edge / group / preview layers each get their own `<ViewportLayer>` canvas.** Per-frame work is per-layer, not global.
-- **The store has shallow-equal guards on every mutator.** Setting the same selection twice doesn't fire listeners.
-- **Connection drag uses document-level pointer listeners** attached once for the component's lifetime — drag identity churn doesn't re-attach.
+- **Connection drag attaches document listeners only while a drag is in flight** — zero idle pointer-event cost. Move events are RAF-coalesced so `document.elementFromPoint` runs at most once per frame.
+- **Port positions are tracked from the rendered DOM**, not computed from offsets. `<NodeGraph.Port>` registers its center on every layout shift, so edges follow live as node bodies grow / shrink / re-layout.
 
 ## Props
 
@@ -375,7 +404,7 @@ function NodeBadge({ nodeId }: { nodeId: string }) {
 | `selectionRect` | `boolean` | `true` | Enable marquee selection on drag from empty background. |
 | `responsive` | `boolean` | `false` | Track parent size via ResizeObserver. When false, uses `height`. |
 | `height` | `number` | `480` | Fixed height in CSS pixels when not responsive. |
-| `defaultNodeSize` | `{ width: number; height: number }` | `{ width: 180, height: 80 }` | Size used for nodes that omit width/height. |
+| `defaultNodeSize` | `{ width: number; height: number }` | `{ width: 180, height: 80 }` | Fallback size used between mount and the first ResizeObserver tick, and when neither node.width/height nor a measured size is available. |
 | `disabled` | `boolean` | `false` | Disable all interaction and dim the surface. |
 | `ariaLabel` | `string` | `'Node graph'` | Accessible label applied to the underlying viewport. |
 | `children` | `React.ReactNode` | — | Slot subcomponents: `<NodeGraph.Minimap>` and/or `<NodeGraph.Background>`. |

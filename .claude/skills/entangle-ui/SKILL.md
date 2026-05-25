@@ -94,8 +94,8 @@ export function App() {
 ### Navigation
 
 - `Breadcrumbs` → [components/navigation/breadcrumbs.md](./components/navigation/breadcrumbs.md) — Hierarchical navigation trail for pages, editor paths, and nested resources.
-- `ContextMenu` → [components/navigation/context-menu.md](./components/navigation/context-menu.md) — Composable right-click context menu; per-area menus, shared Menu item primitives, custom panels (tabs/search), selection states, and nested submenus.
-- `Menu` → [components/navigation/menu.md](./components/navigation/menu.md) — Composable menu (Menu.Trigger/Content/Item…) with icon/label/shortcut items, radio/checkbox selection, grouped items, nested submenus, and keyboard navigation.
+- `ContextMenu` → [components/navigation/context-menu.md](./components/navigation/context-menu.md) — Composable right-click context menu. Scope menus per area, reuse the shared Menu item primitives, or drop in a fully custom panel.
+- `Menu` → [components/navigation/menu.md](./components/navigation/menu.md) — Composable menu with icon/label/shortcut items, radio and checkbox selection, grouped items, nested submenus, and keyboard navigation.
 - `Pagination` → [components/navigation/pagination.md](./components/navigation/pagination.md) — Page navigator with sibling/boundary ellipsis logic, controlled and uncontrolled modes, three sizes, and optional first/last jump buttons.
 - `SegmentedControl` → [components/navigation/segmented-control.md](./components/navigation/segmented-control.md) — Toolbar-density mutually exclusive selector for view modes, layout toggles, and other small option groups.
 - `Tabs` → [components/navigation/tabs.md](./components/navigation/tabs.md) — Compound tab component for switching between views with underline, pills, and enclosed variants.
