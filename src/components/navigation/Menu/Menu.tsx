@@ -33,14 +33,7 @@ import {
   groupLabelStyle,
   separatorStyle,
 } from './Menu.css';
-
-/**
- * Positioning gaps must be plain numbers (floating-ui computes the transform
- * in JS, so a CSS `var()` can't be used here). These mirror the spacing scale
- * (`vars.spacing.*`: xs 2 · sm 4 · md 8 · lg 12), which is theme-invariant.
- */
-const MENU_TRIGGER_GAP = 4; // vars.spacing.sm — menu ↔ trigger
-const SUBMENU_GAP = 4; // vars.spacing.sm — submenu ↔ parent menu
+import { MenuGapContext, DEFAULT_MENU_GAP } from './MenuGapContext';
 
 /**
  * Internal three-slot row used by every interactive menu entry.
@@ -100,16 +93,19 @@ const MenuRoot = ({
   onOpenChange,
   modal,
   disabled,
+  gap = DEFAULT_MENU_GAP,
 }: MenuRootProps): React.ReactElement => (
-  <BaseMenu.Root
-    open={open}
-    defaultOpen={defaultOpen}
-    onOpenChange={onOpenChange ? open => onOpenChange(open) : undefined}
-    modal={modal}
-    disabled={disabled}
-  >
-    {children}
-  </BaseMenu.Root>
+  <MenuGapContext.Provider value={gap}>
+    <BaseMenu.Root
+      open={open}
+      defaultOpen={defaultOpen}
+      onOpenChange={onOpenChange ? open => onOpenChange(open) : undefined}
+      modal={modal}
+      disabled={disabled}
+    >
+      {children}
+    </BaseMenu.Root>
+  </MenuGapContext.Provider>
 );
 MenuRoot.displayName = 'Menu';
 
@@ -140,43 +136,34 @@ const MenuContent = ({
   className,
   side,
   align = 'start',
-  sideOffset = MENU_TRIGGER_GAP,
+  sideOffset,
   alignOffset,
   testId,
   ref,
   ...rest
-}: MenuContentProps): React.ReactElement => (
-  <BaseMenu.Portal>
-    <BaseMenu.Positioner
-      side={side}
-      align={align}
-      sideOffset={sideOffset}
-      alignOffset={alignOffset}
-    >
-      <BaseMenu.Popup
-        ref={ref}
-        className={cx(menuContentStyle, className)}
-        data-testid={testId}
-        {...rest}
+}: MenuContentProps): React.ReactElement => {
+  const gap = React.useContext(MenuGapContext);
+  return (
+    <BaseMenu.Portal>
+      <BaseMenu.Positioner
+        side={side}
+        align={align}
+        sideOffset={sideOffset ?? gap}
+        alignOffset={alignOffset}
       >
-        {children}
-      </BaseMenu.Popup>
-    </BaseMenu.Positioner>
-  </BaseMenu.Portal>
-);
+        <BaseMenu.Popup
+          ref={ref}
+          className={cx(menuContentStyle, className)}
+          data-testid={testId}
+          {...rest}
+        >
+          {children}
+        </BaseMenu.Popup>
+      </BaseMenu.Positioner>
+    </BaseMenu.Portal>
+  );
+};
 MenuContent.displayName = 'Menu.Content';
-
-/**
- * Submenu popup. Same surface as `Content`, but defaults to a small gap from
- * the parent menu so nested panels don't visually touch.
- */
-const MenuSubContent = ({
-  sideOffset = SUBMENU_GAP,
-  ...rest
-}: MenuContentProps): React.ReactElement => (
-  <MenuContent sideOffset={sideOffset} {...rest} />
-);
-MenuSubContent.displayName = 'Menu.SubContent';
 
 const MenuItem = ({
   children,
@@ -384,8 +371,8 @@ MenuSubTrigger.displayName = 'Menu.SubTrigger';
 /**
  * Compound Menu API.
  *
- * `Content` and `SubContent` share the same popup surface; `SubContent` just
- * defaults to a gap from the parent menu.
+ * `Content` and `SubContent` are the same popup surface. The gap from the
+ * anchor is set once on the `Menu` root (`gap` prop) and inherited by both.
  */
 export const Menu = /*#__PURE__*/ Object.assign(MenuRoot, {
   Trigger: MenuTrigger,
@@ -398,5 +385,5 @@ export const Menu = /*#__PURE__*/ Object.assign(MenuRoot, {
   CheckboxItem: MenuCheckboxItem,
   Sub: MenuSub,
   SubTrigger: MenuSubTrigger,
-  SubContent: MenuSubContent,
+  SubContent: MenuContent,
 });

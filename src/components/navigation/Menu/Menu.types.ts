@@ -28,6 +28,13 @@ export interface MenuRootBaseProps {
   modal?: boolean;
   /** Disables opening the menu. */
   disabled?: boolean;
+  /**
+   * Gap in px between every popup (the menu and its submenus) and its anchor.
+   * Set once here for the whole menu; overridable per popup via
+   * `Menu.Content`'s `sideOffset`.
+   * @default 8
+   */
+  gap?: number;
 }
 export type MenuRootProps = Prettify<MenuRootBaseProps>;
 

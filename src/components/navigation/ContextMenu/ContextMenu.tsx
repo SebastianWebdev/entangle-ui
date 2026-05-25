@@ -6,6 +6,7 @@ import { ContextMenu as BaseContextMenu } from '@base-ui/react/context-menu';
 import { cx } from '@/utils/cx';
 
 import { menuContentStyle } from '../Menu/Menu.css';
+import { MenuGapContext, DEFAULT_MENU_GAP } from '../Menu/MenuGapContext';
 import type {
   ContextMenuProps,
   ContextMenuTriggerProps,
@@ -39,15 +40,18 @@ const ContextMenuRoot = ({
   defaultOpen,
   onOpenChange,
   disabled,
+  gap = DEFAULT_MENU_GAP,
 }: ContextMenuProps): React.ReactElement => (
-  <BaseContextMenu.Root
-    open={open}
-    defaultOpen={defaultOpen}
-    onOpenChange={onOpenChange ? open => onOpenChange(open) : undefined}
-    disabled={disabled}
-  >
-    {children}
-  </BaseContextMenu.Root>
+  <MenuGapContext.Provider value={gap}>
+    <BaseContextMenu.Root
+      open={open}
+      defaultOpen={defaultOpen}
+      onOpenChange={onOpenChange ? open => onOpenChange(open) : undefined}
+      disabled={disabled}
+    >
+      {children}
+    </BaseContextMenu.Root>
+  </MenuGapContext.Provider>
 );
 ContextMenuRoot.displayName = 'ContextMenu';
 

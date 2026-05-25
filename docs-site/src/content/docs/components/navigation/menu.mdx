@@ -69,10 +69,17 @@ edge lines up with the trigger edge (rather than centering, which clips
 triggers near the viewport edge). Override placement on `Menu.Content` with
 `side`, `align`, `sideOffset`, and `alignOffset`.
 
+The gap between every popup (the menu and its submenus) and its anchor is set
+once on the `Menu` root via `gap` (default `8`), so you don't repeat it per
+submenu:
+
 ```tsx
-<Menu.Content side="bottom" align="end" sideOffset={8}>
-  …
-</Menu.Content>
+<Menu gap={12}>
+  <Menu.Trigger>Options</Menu.Trigger>
+  <Menu.Content side="bottom" align="end">
+    …
+  </Menu.Content>
+</Menu>
 ```
 
 ## Item Anatomy
@@ -255,6 +262,13 @@ The root. Owns open/close state.
       default: 'false',
       description: 'Disables opening the menu.',
     },
+    {
+      name: 'gap',
+      type: 'number',
+      default: '8',
+      description:
+        'Gap in px between every popup (the menu and its submenus) and its anchor. Set once for the whole menu.',
+    },
   ]}
 />
 
@@ -314,8 +328,9 @@ The positioned popup surface. Place items or any custom node inside.
     {
       name: 'sideOffset',
       type: 'number',
-      default: '4',
-      description: 'Gap in px between trigger and popup.',
+      default: 'Menu gap (8)',
+      description:
+        'Gap in px between this popup and its anchor. Defaults to the Menu `gap`; set this to override a single popup.',
     },
     {
       name: 'alignOffset',

@@ -21,6 +21,12 @@ export interface ContextMenuRootBaseProps {
   onOpenChange?: (open: boolean) => void;
   /** Disables opening the context menu. */
   disabled?: boolean;
+  /**
+   * Gap in px between submenu popups and their anchor. Inherited by any
+   * `Menu.SubContent` rendered inside the content.
+   * @default 8
+   */
+  gap?: number;
 }
 export type ContextMenuProps = Prettify<ContextMenuRootBaseProps>;
 
