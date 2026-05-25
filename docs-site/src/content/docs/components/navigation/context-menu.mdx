@@ -5,7 +5,12 @@ description: Composable right-click context menu. Scope menus per area, reuse th
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import ContextMenuDemo from '../../../../components/demos/navigation/ContextMenuDemo';
+import ContextMenuDemo, {
+  ContextMenuPerArea,
+  ContextMenuAdvanced,
+  ContextMenuSelection,
+  ContextMenuSubmenu,
+} from '../../../../components/demos/navigation/ContextMenuDemo';
 
 Right-click context menu that wraps any element and opens a native-feeling menu
 on right-click or long-press. Compose the trigger area and content as children,
@@ -99,6 +104,10 @@ When rendering a list, map each item to its own `ContextMenu`:
 }
 ```
 
+<ComponentPreview title="Per-area menus">
+  <ContextMenuPerArea client:only="react" />
+</ComponentPreview>
+
 ## Custom Panels
 
 `ContextMenu.Content` accepts any node. The component manages opening, closing,
@@ -126,6 +135,10 @@ field, a color grid, etc.
 </ContextMenu>
 ```
 
+<ComponentPreview title="Advanced node picker (tabs + search + grid)">
+  <ContextMenuAdvanced client:only="react" />
+</ComponentPreview>
+
 ## Selection States
 
 ContextMenu reuses the Menu selection primitives.
@@ -147,6 +160,10 @@ const [mode, setMode] = useState('edit');
 </ContextMenu>;
 ```
 
+<ComponentPreview title="Selection states">
+  <ContextMenuSelection client:only="react" />
+</ComponentPreview>
+
 ## Nested Submenus
 
 ```tsx
@@ -161,6 +178,10 @@ const [mode, setMode] = useState('edit');
   </Menu.Sub>
 </ContextMenu.Content>
 ```
+
+<ComponentPreview title="Nested submenus">
+  <ContextMenuSubmenu client:only="react" />
+</ComponentPreview>
 
 ## Disabled
 

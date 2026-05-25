@@ -5,7 +5,16 @@ description: Composable menu with icon/label/shortcut items, radio and checkbox 
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import MenuDemo from '../../../../components/demos/navigation/MenuDemo';
+import MenuDemo, {
+  MenuWithIcons,
+  MenuGroups,
+  MenuRadioSelection,
+  MenuCheckboxSelection,
+  MenuEndContent,
+  MenuSubmenus,
+  MenuCustomTrigger,
+  MenuDisabled,
+} from '../../../../components/demos/navigation/MenuDemo';
 
 Composable menu component for editor interfaces. Build menus by composing
 `Menu.Trigger`, `Menu.Content`, and item primitives — no configuration object.
@@ -40,8 +49,18 @@ import { Menu } from 'entangle-ui';
 different element (for example an `IconButton`):
 
 ```tsx
-<Menu.Trigger render={<IconButton label="More" icon={<MoreIcon />} />} />
+<Menu.Trigger
+  render={
+    <IconButton aria-label="More actions">
+      <DotsVerticalIcon size="sm" />
+    </IconButton>
+  }
+/>
 ```
+
+<ComponentPreview title="Custom trigger">
+  <MenuCustomTrigger client:only="react" />
+</ComponentPreview>
 
 ## Item Anatomy
 
@@ -58,6 +77,17 @@ label, and `shortcut` / `endContent` sit on the right.
   Save
 </Menu.Item>
 ```
+
+<ComponentPreview title="Icons & shortcuts">
+  <MenuWithIcons client:only="react" />
+</ComponentPreview>
+
+`endContent` accepts any node — a badge, a `Switch`, etc. — rendered on the
+right of the row.
+
+<ComponentPreview title="Right-side actions (endContent)">
+  <MenuEndContent client:only="react" />
+</ComponentPreview>
 
 ## Groups and Separators
 
@@ -78,6 +108,10 @@ with `Menu.Separator`.
 </Menu.Content>
 ```
 
+<ComponentPreview title="Groups & separators">
+  <MenuGroups client:only="react" />
+</ComponentPreview>
+
 ## Radio Selection
 
 Single selection within a group. `Menu.RadioGroup` owns the selected value and
@@ -94,6 +128,10 @@ const [view, setView] = useState('perspective');
   </Menu.RadioGroup>
 </Menu.Content>;
 ```
+
+<ComponentPreview title="Radio selection">
+  <MenuRadioSelection client:only="react" />
+</ComponentPreview>
 
 ## Checkbox Selection
 
@@ -115,6 +153,10 @@ const [wireframe, setWireframe] = useState(false);
 </Menu.Content>;
 ```
 
+<ComponentPreview title="Checkbox selection">
+  <MenuCheckboxSelection client:only="react" />
+</ComponentPreview>
+
 ## Nested Submenus
 
 Compose `Menu.Sub`, `Menu.SubTrigger`, and `Menu.SubContent`. The submenu
@@ -133,11 +175,19 @@ trigger renders a chevron automatically.
 </Menu.Content>
 ```
 
+<ComponentPreview title="Nested submenus">
+  <MenuSubmenus client:only="react" />
+</ComponentPreview>
+
 ## Disabled Items
 
 ```tsx
 <Menu.Item disabled>Paste</Menu.Item>
 ```
+
+<ComponentPreview title="Disabled item">
+  <MenuDisabled client:only="react" />
+</ComponentPreview>
 
 ## Custom Selection Indicators
 
