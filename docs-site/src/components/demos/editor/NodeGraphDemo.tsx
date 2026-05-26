@@ -17,8 +17,10 @@ import {
   type Point2D,
 } from '@/components/editor/NodeGraph';
 import { Button } from '@/components/primitives/Button';
+import { Collapsible } from '@/components/primitives/Collapsible';
+import { Input } from '@/components/primitives/Input';
 import { ContextMenu, Menu } from '@/components/navigation';
-import { CopyIcon, TrashIcon } from '@/components/Icons';
+import { CopyIcon, SearchIcon, TrashIcon } from '@/components/Icons';
 
 // ─── Type palette (UE5 Blueprint) ──────────────────────────────────────────
 
@@ -680,6 +682,178 @@ function BlueprintNodeBody({
   );
 }
 
+// ─── Spawn menu ──────────────────────────────────────────────────────────
+//
+// A flat node-spawn palette — no nested submenus. A search field in the
+// header filters templates live, and the matches sit under one collapsible
+// section per category. Built entirely from library parts:
+//   • <Input>      — the search header (filters by title / subtitle / keywords)
+//   • <Collapsible> — one expandable section per category
+//   • <Menu.Item>  — the rows, so a click lands the node and dismisses the
+//                    host menu, and the arrow/Enter keys navigate the results
+// The same panel drops into both the right-click <ContextMenu.Content> and the
+// drag-to-create popup, so there is a single spawn surface.
+
+const SPAWN_CATEGORY_ORDER = Object.keys(CATEGORY_THEME) as Category[];
+
+// The dot beside a row echoes the node's primary wire colour — its first
+// output pin (or first pin), falling back to `any`.
+function representativeType(template: NodeTemplate): DataType {
+  const right = template.pins.find(p => p.side === 'right');
+  return (right ?? template.pins[0])?.dataType ?? 'any';
+}
+
+function SpawnMenu({
+  onPick,
+}: {
+  onPick: (template: NodeTemplate) => void;
+}): React.ReactElement {
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLowerCase();
+
+  const sections = useMemo(
+    () =>
+      SPAWN_CATEGORY_ORDER.map(category => ({
+        category,
+        templates: TEMPLATES.filter(t => {
+          if (t.category !== category) return false;
+          if (!q) return true;
+          return `${t.title} ${t.subtitle ?? ''} ${t.keywords ?? ''}`
+            .toLowerCase()
+            .includes(q);
+        }),
+      })).filter(section => section.templates.length > 0),
+    [q]
+  );
+
+  return (
+    <div
+      style={{ width: 264, display: 'flex', flexDirection: 'column', gap: 6 }}
+    >
+      <Input
+        size="sm"
+        autoFocus
+        value={query}
+        onChange={setQuery}
+        placeholder="Search nodes…"
+        startIcon={<SearchIcon size="sm" />}
+        // Typing filters the list; let the printable keys stay in the input
+        // instead of triggering the host menu's type-ahead. Arrow/Enter/Escape
+        // still bubble so the menu can drive navigation and dismissal.
+        onKeyDown={e => {
+          if (e.key.length === 1) e.stopPropagation();
+        }}
+      />
+      <div
+        style={{
+          maxHeight: 320,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
+        {sections.length === 0 ? (
+          <div
+            style={{
+              padding: '10px 8px',
+              fontSize: 12,
+              textAlign: 'center',
+              color: 'var(--etui-color-text-muted)',
+            }}
+          >
+            No nodes match “{query}”.
+          </div>
+        ) : (
+          sections.map(({ category, templates }) => (
+            <SpawnSection
+              key={category}
+              category={category}
+              templates={templates}
+              // An active query expands every matching section so hits show.
+              forceOpen={q.length > 0}
+              onPick={onPick}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SpawnSection({
+  category,
+  templates,
+  forceOpen,
+  onPick,
+}: {
+  category: Category;
+  templates: NodeTemplate[];
+  forceOpen: boolean;
+  onPick: (template: NodeTemplate) => void;
+}): React.ReactElement {
+  const theme = CATEGORY_THEME[category];
+  const [open, setOpen] = useState(true);
+
+  return (
+    <Collapsible
+      size="sm"
+      open={forceOpen || open}
+      // While searching the section is locked open, so swallow the toggle.
+      onChange={forceOpen ? undefined : setOpen}
+      trigger={
+        <span
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            width: '100%',
+          }}
+        >
+          <span style={{ width: 14, textAlign: 'center', color: theme.accent }}>
+            {theme.icon}
+          </span>
+          <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>
+            {category}
+          </span>
+          <span
+            style={{
+              marginLeft: 'auto',
+              fontSize: 11,
+              color: 'var(--etui-color-text-muted)',
+            }}
+          >
+            {templates.length}
+          </span>
+        </span>
+      }
+    >
+      {templates.map(t => {
+        const dt = representativeType(t);
+        return (
+          <Menu.Item
+            key={t.id}
+            onClick={() => onPick(t)}
+            icon={
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: pinShape(dt) === 'triangle' ? 1 : '50%',
+                  background: TYPE_COLOR[dt] ?? TYPE_COLOR.any,
+                  display: 'inline-block',
+                }}
+              />
+            }
+          >
+            {t.title}
+          </Menu.Item>
+        );
+      })}
+    </Collapsible>
+  );
+}
+
 // ─── Context menu ──────────────────────────────────────────────────────────
 //
 // Right-clicking the NodeGraph routes through the composition `<ContextMenu>`
@@ -689,11 +863,11 @@ function BlueprintNodeBody({
 //
 // NodeGraph already hit-tests every right-click and hands back a typed
 // `target` (node / port / group / edge / empty) plus the world point via
-// `onContextMenu`. We stash that and branch the `Menu.*` content on it, so
-// there's no DOM walking and the spawn point comes straight from the library:
+// `onContextMenu`. We stash that and branch the content on it, so there's no
+// DOM walking and the spawn point comes straight from the library:
 //   • node / port → Duplicate / Delete actions
-//   • group       → Add Node (categorised submenus) + Delete group
-//   • empty / edge → Add Node submenus (spawn at the captured world point)
+//   • group       → <SpawnMenu> + Delete group
+//   • empty / edge → <SpawnMenu> (spawn at the captured world point)
 
 // ─── Demo ──────────────────────────────────────────────────────────────────
 
@@ -818,50 +992,6 @@ export default function NodeGraphDemo(): React.ReactElement {
   );
 
   /**
-   * The spawn submenu — a labelled "Add Node" group with one nested submenu
-   * per category, each listing the templates in that category. `onClick`
-   * closes over the world point captured on right-click, so the node lands
-   * where the menu opened.
-   */
-  const renderSpawnItems = useCallback(
-    (
-      worldPoint: Point2D,
-      onPick: (template: NodeTemplate, worldPoint: Point2D) => void
-    ): React.ReactElement => {
-      const categories = Array.from(
-        new Set(TEMPLATES.map(t => t.category))
-      ) as Category[];
-      return (
-        <Menu.Group label="Add Node">
-          {categories.map(category => {
-            const templates = TEMPLATES.filter(t => t.category === category);
-            const theme = CATEGORY_THEME[category];
-            return (
-              <Menu.Sub key={category}>
-                <Menu.SubTrigger
-                  icon={
-                    <span style={{ color: theme.accent }}>{theme.icon}</span>
-                  }
-                >
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </Menu.SubTrigger>
-                <Menu.SubContent>
-                  {templates.map(t => (
-                    <Menu.Item key={t.id} onClick={() => onPick(t, worldPoint)}>
-                      {t.title}
-                    </Menu.Item>
-                  ))}
-                </Menu.SubContent>
-              </Menu.Sub>
-            );
-          })}
-        </Menu.Group>
-      );
-    },
-    []
-  );
-
-  /**
    * Content for `<ContextMenu.Content>`, branched on the target NodeGraph
    * reported via `onContextMenu`. Composes the shared `Menu.*` primitives —
    * no config object. The world point comes straight from the library, so
@@ -912,7 +1042,7 @@ export default function NodeGraphDemo(): React.ReactElement {
     if (target.kind === 'group') {
       return (
         <>
-          {renderSpawnItems(worldPoint, handleSpawn)}
+          <SpawnMenu onPick={t => handleSpawn(t, worldPoint)} />
           <Menu.Separator />
           <Menu.Item
             icon={<TrashIcon size="sm" />}
@@ -936,8 +1066,8 @@ export default function NodeGraphDemo(): React.ReactElement {
     }
 
     // Empty space → spawn menu.
-    return renderSpawnItems(worldPoint, handleSpawn);
-  }, [menuInfo, renderSpawnItems, handleSpawn, graph]);
+    return <SpawnMenu onPick={t => handleSpawn(t, worldPoint)} />;
+  }, [menuInfo, handleSpawn, graph]);
 
   return (
     <DemoWrapper>
@@ -975,8 +1105,8 @@ export default function NodeGraphDemo(): React.ReactElement {
           {/*
             <ContextMenu> wraps the graph as the right-click trigger area.
             NodeGraph's `onContextMenu` reports the hit target + world point;
-            we stash it and `ContextMenu.Content` composes the matching
-            `Menu.*` items (node actions / spawn submenu / group actions).
+            we stash it and `ContextMenu.Content` renders the matching content
+            (node actions / the <SpawnMenu> palette / group actions).
           */}
           <ContextMenu>
             <ContextMenu.Trigger>
@@ -1068,7 +1198,9 @@ export default function NodeGraphDemo(): React.ReactElement {
                 }
               />
               <Menu.Content>
-                {renderSpawnItems(dropSpawn.worldPoint, handleDropSpawn)}
+                <SpawnMenu
+                  onPick={t => handleDropSpawn(t, dropSpawn.worldPoint)}
+                />
               </Menu.Content>
             </Menu>
           ) : null}
