@@ -1,3 +1,4 @@
+import type { RefObject } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import DemoWrapper from '../DemoWrapper';
 import {
@@ -109,24 +110,26 @@ const isValidConnection = createTypeMatchValidator({
   directions: ['right->left'],
 });
 
-export default function NodeGraphCameraDemo(): React.ReactElement {
-  const graph = useNodeGraph({ nodes: NODES, edges: EDGES });
-  const ref = useRef<NodeGraphHandle>(null);
+/**
+ * Live transform readout. Owns its own state + rAF poll loop so the
+ * `setState` cadence (~8 Hz) doesn't trigger a rerender of the parent
+ * demo — which would cascade through `<NodeGraph>`, the toolbar buttons,
+ * and every inline `onClick` callback. Isolating it keeps the rest of
+ * the demo idle except on real user interaction.
+ */
+function TransformReadout({
+  handleRef,
+}: {
+  handleRef: RefObject<NodeGraphHandle | null>;
+}): React.ReactElement {
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 });
 
-  const renderNode = useCallback(
-    (n: NodeGraphNode) => <RecipeNodeBody node={n} />,
-    []
-  );
-
-  // Poll the live transform a few times a second for the readout. `getTransform`
-  // is cheap; throttling avoids a state update on every frame.
   useEffect(() => {
     let raf = 0;
     let last = 0;
     const loop = (now: number): void => {
       if (now - last > 120) {
-        const t = ref.current?.getTransform();
+        const t = handleRef.current?.getTransform();
         if (t)
           setView({ x: Math.round(t.x), y: Math.round(t.y), zoom: t.zoom });
         last = now;
@@ -135,7 +138,24 @@ export default function NodeGraphCameraDemo(): React.ReactElement {
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [handleRef]);
+
+  return (
+    <span>
+      transform&nbsp;·&nbsp;x&nbsp;{view.x}&nbsp;·&nbsp;y&nbsp;{view.y}
+      &nbsp;·&nbsp;zoom&nbsp;{Math.round(view.zoom * 100)}%
+    </span>
+  );
+}
+
+export default function NodeGraphCameraDemo(): React.ReactElement {
+  const graph = useNodeGraph({ nodes: NODES, edges: EDGES });
+  const ref = useRef<NodeGraphHandle>(null);
+
+  const renderNode = useCallback(
+    (n: NodeGraphNode) => <RecipeNodeBody node={n} />,
+    []
+  );
 
   // Fit everything once on mount so the demo opens framed.
   useEffect(() => {
@@ -226,10 +246,7 @@ export default function NodeGraphCameraDemo(): React.ReactElement {
           </Button>
         </div>
         <StatusFooter>
-          <span>
-            transform&nbsp;·&nbsp;x&nbsp;{view.x}&nbsp;·&nbsp;y&nbsp;{view.y}
-            &nbsp;·&nbsp;zoom&nbsp;{Math.round(view.zoom * 100)}%
-          </span>
+          <TransformReadout handleRef={ref} />
           <span style={{ marginLeft: 'auto' }}>
             Toolbar buttons call the same code path as the imperative handle.
           </span>
