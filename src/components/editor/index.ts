@@ -140,6 +140,7 @@ export type {
   NodeGraphSlotKind,
   NodeGraphSlotMarker,
   NodeGraphMinimapSlotProps,
+  NodeGraphMinimapNodeStyle,
   NodeGraphBackgroundSlotProps,
   NodeGraphToolbarSlotProps,
   NodeGraphSpawnPaletteSlotProps,

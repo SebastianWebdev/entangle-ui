@@ -10,7 +10,13 @@ import {
 } from './NodeGraphContext';
 import type { NodeGraphMinimapSlotProps } from './NodeGraph.types';
 import { computeNodesBounds, getNodeBox } from './nodeGraphMath';
-import type { MinimapItem, MinimapRectItem } from '@/components/editor/Minimap';
+import type {
+  MinimapCustomItem,
+  MinimapDrawInfo,
+  MinimapItem,
+  MinimapRectItem,
+} from '@/components/editor/Minimap';
+import type { WorldRect } from '@/components/primitives/viewport';
 import { minimapSlotStyle } from './NodeGraph.css';
 import { cx } from '@/utils/cx';
 
@@ -19,6 +25,33 @@ import { cx } from '@/utils/cx';
  * subtree by the main `NodeGraph` component when the user supplies a
  * minimap slot child.
  */
+/**
+ * Draw a two-tone "header strip + body" mini-node into the minimap canvas,
+ * converting the node's world rect to minimap pixels via the draw helpers.
+ */
+function drawMiniNode(
+  ctx: CanvasRenderingContext2D,
+  info: MinimapDrawInfo,
+  rect: WorldRect,
+  bodyColor: string | undefined,
+  headerColor: string
+): void {
+  const tl = info.worldToMinimap({ x: rect.x, y: rect.y });
+  const br = info.worldToMinimap({
+    x: rect.x + rect.width,
+    y: rect.y + rect.height,
+  });
+  const x = Math.min(tl.x, br.x);
+  const y = Math.min(tl.y, br.y);
+  const w = Math.abs(br.x - tl.x);
+  const h = Math.abs(br.y - tl.y);
+  ctx.fillStyle = bodyColor ?? 'rgba(180, 190, 210, 0.5)';
+  ctx.fillRect(x, y, w, h);
+  const headerH = Math.min(h, Math.max(2, h * 0.32));
+  ctx.fillStyle = headerColor;
+  ctx.fillRect(x, y, w, headerH);
+}
+
 export function NodeGraphMinimapInner({
   placement = 'bottom-right',
   margin = 12,
@@ -26,6 +59,7 @@ export function NodeGraphMinimapInner({
   title,
   className,
   selectedColor,
+  nodeStyle,
 }: NodeGraphMinimapSlotProps): React.ReactElement {
   const data = useNodeGraphData();
   const selection = useNodeGraphSelection();
@@ -40,12 +74,37 @@ export function NodeGraphMinimapInner({
   );
 
   const items = useMemo<MinimapItem[]>(() => {
-    return data.nodes.map<MinimapRectItem>(node => {
+    return data.nodes.map<MinimapItem>(node => {
       const box = getNodeBox(
         node,
         store.getMeasuredSize(node.id),
         data.defaultNodeSize
       );
+      const isSelected = selection.nodes.includes(node.id);
+      const style = nodeStyle?.(node);
+      // Selection tint wins over the per-node body colour so the highlight
+      // stays visible.
+      const bodyColor =
+        isSelected && selectedColor ? selectedColor : style?.color;
+      const headerColor = style?.headerColor;
+
+      if (headerColor) {
+        const rect: WorldRect = {
+          x: box.x,
+          y: box.y,
+          width: box.width,
+          height: box.height,
+        };
+        const item: MinimapCustomItem = {
+          id: node.id,
+          type: 'custom',
+          bounds: rect,
+          draw: (ctx, info) =>
+            drawMiniNode(ctx, info, rect, bodyColor, headerColor),
+        };
+        return item;
+      }
+
       const item: MinimapRectItem = {
         id: node.id,
         type: 'rect',
@@ -54,9 +113,7 @@ export function NodeGraphMinimapInner({
         width: box.width,
         height: box.height,
       };
-      if (selectedColor && selection.nodes.includes(node.id)) {
-        item.color = selectedColor;
-      }
+      if (bodyColor) item.color = bodyColor;
       return item;
     });
   }, [
@@ -64,6 +121,7 @@ export function NodeGraphMinimapInner({
     data.defaultNodeSize,
     selection.nodes,
     selectedColor,
+    nodeStyle,
     store,
     measuredSizesVersion,
   ]);

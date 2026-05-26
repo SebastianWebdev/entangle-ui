@@ -916,6 +916,16 @@ export default function NodeGraphDemo(): React.ReactElement {
                   placement="bottom-right"
                   width={220}
                   title="Graph Overview"
+                  nodeStyle={node => {
+                    const theme =
+                      CATEGORY_THEME[(node.data as BlueprintNodeData).category];
+                    // Dark body + a category-coloured header strip, echoing
+                    // the real node so the minimap reads at a glance.
+                    return {
+                      color: 'rgba(38, 42, 54, 0.92)',
+                      headerColor: theme.accent,
+                    };
+                  }}
                 />
                 <NodeGraph.Toolbar placement="top-left">
                   <NodeGraph.FitContentButton padding={48} />

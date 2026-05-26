@@ -553,6 +553,18 @@ export type NodeGraphProps = Prettify<NodeGraphBaseProps>;
 
 // ─── Subcomponent props ───
 
+/**
+ * Per-node colouring for the minimap. Return `{ color }` for a flat tinted
+ * rect, or add `headerColor` for a two-tone "header strip + body" mini-node
+ * that echoes the real node's look at a glance.
+ */
+export interface NodeGraphMinimapNodeStyle {
+  /** Body fill colour. Falls back to the minimap's default item colour. */
+  color?: string;
+  /** When set, a header strip is drawn on top in this colour (two-tone). */
+  headerColor?: string;
+}
+
 export interface NodeGraphMinimapSlotProps {
   /**
    * Anchored position inside the graph. Matches `ViewportMinimap`'s
@@ -585,6 +597,13 @@ export interface NodeGraphMinimapSlotProps {
    * omitted, selected nodes use the same colour as unselected ones.
    */
   selectedColor?: string;
+  /**
+   * Per-node colouring. Return `{ color }` to tint the rect, or
+   * `{ color, headerColor }` to draw a two-tone header/body mini-node that
+   * mirrors the real node. When omitted, every node uses the default colour
+   * (or `selectedColor` while selected).
+   */
+  nodeStyle?: (node: NodeGraphNode) => NodeGraphMinimapNodeStyle | undefined;
 }
 
 export interface NodeGraphBackgroundSlotProps {

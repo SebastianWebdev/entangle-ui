@@ -191,6 +191,25 @@ describe('NodeGraph — Rendering', () => {
       document.querySelector('[role="region"][aria-label="Minimap"]')
     ).toBeInTheDocument();
   });
+
+  it('renders a two-tone minimap node via nodeStyle without crashing', () => {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderNode={renderTestNode}
+      >
+        <NodeGraph.Minimap
+          nodeStyle={() => ({ color: '#222', headerColor: '#5d8dff' })}
+        />
+      </NodeGraph>
+    );
+    // Rendering exercises the custom mini-node draw against the mocked
+    // canvas context — a throw in drawMiniNode would fail this test.
+    expect(
+      document.querySelector('[role="region"][aria-label="Minimap"]')
+    ).toBeInTheDocument();
+  });
 });
 
 // ─── Port slot ───

@@ -352,12 +352,23 @@ Optional canvas background with a `'dots'` or `'grid'` pattern that adapts to th
 
 ### `<NodeGraph.Minimap />`
 
-A pre-wired minimap overlay anchored to a corner (or custom anchor). Reads the live node list from the store and renders each as a `rect` item; selected nodes can be tinted via the `selectedColor` prop on `NodeGraphMinimapInner` (advanced) — by default, the standard minimap accent is used.
+A pre-wired minimap overlay anchored to a corner (or custom anchor). Reads the live node list from the store and renders each node, tinting the selected ones via `selectedColor`.
 
 ```tsx
 <NodeGraph>
   <NodeGraph.Minimap placement="bottom-right" width={220} title="Overview" />
 </NodeGraph>
+```
+
+By default each node is a flat rect. Pass `nodeStyle` to colour them — return `{ color }` for a tinted rect, or `{ color, headerColor }` for a two-tone "header strip + body" mini-node that mirrors the real node at a glance:
+
+```tsx
+<NodeGraph.Minimap
+  nodeStyle={node => ({
+    color: 'rgba(38, 42, 54, 0.92)', // body
+    headerColor: CATEGORY_COLOR[node.data.category], // header strip
+  })}
+/>
 ```
 
 Both slots are identified by a unique Symbol marker (`NODE_GRAPH_SLOT`), not by `displayName` — they survive `React.memo`, minification, and HOC wrapping (as long as the marker is copied).
