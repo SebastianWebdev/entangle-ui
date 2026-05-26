@@ -57,8 +57,13 @@ export type NodeGraphInteractionState =
   | { kind: 'idle' }
   | {
       kind: 'drag-nodes';
-      /** Ids of nodes being dragged together. */
-      nodeIds: ReadonlyArray<string>;
+      /**
+       * Ids of nodes being dragged together. Set (not Array) so per-node
+       * subscribers can do O(1) membership checks in the hot per-frame
+       * selector path — a Cartesian `Array.includes` was a measurable cost
+       * at high node counts when the user dragged the whole selection.
+       */
+      nodeIds: ReadonlySet<string>;
       /** Pointer-down world position (start of the drag). */
       startWorld: Point2D;
       /** Cumulative drag delta in world units (snapped if grid active). */
@@ -66,14 +71,14 @@ export type NodeGraphInteractionState =
     }
   | {
       kind: 'drag-groups';
-      /** Ids of groups being dragged together. */
-      groupIds: ReadonlyArray<string>;
+      /** Ids of groups being dragged together. See {@link nodeIds} for why Set. */
+      groupIds: ReadonlySet<string>;
       /**
        * Ids of nodes that were fully contained inside one of the dragged
        * groups at gesture start. They ride along with the group(s) and
        * receive the same drag delta — see `rectContains` in `nodeGraphMath`.
        */
-      containedNodeIds: ReadonlyArray<string>;
+      containedNodeIds: ReadonlySet<string>;
       /** Pointer-down world position. */
       startWorld: Point2D;
       /** Cumulative drag delta (snapped if grid active). */
@@ -546,6 +551,15 @@ function arrEqual<T>(a: ReadonlyArray<T>, b: ReadonlyArray<T>): boolean {
   return true;
 }
 
+function setEqual<T>(a: ReadonlySet<T>, b: ReadonlySet<T>): boolean {
+  if (a === b) return true;
+  if (a.size !== b.size) return false;
+  for (const item of a) {
+    if (!b.has(item)) return false;
+  }
+  return true;
+}
+
 function selectionEqual(a: NodeGraphSelection, b: NodeGraphSelection): boolean {
   return (
     arrEqual(a.nodes, b.nodes) &&
@@ -582,7 +596,7 @@ function interactionEqual(
         { kind: 'drag-nodes' }
       >;
       return (
-        arrEqual(a.nodeIds, bx.nodeIds) &&
+        setEqual(a.nodeIds, bx.nodeIds) &&
         pointEqual(a.startWorld, bx.startWorld) &&
         pointEqual(a.delta, bx.delta)
       );
@@ -593,8 +607,8 @@ function interactionEqual(
         { kind: 'drag-groups' }
       >;
       return (
-        arrEqual(a.groupIds, bx.groupIds) &&
-        arrEqual(a.containedNodeIds, bx.containedNodeIds) &&
+        setEqual(a.groupIds, bx.groupIds) &&
+        setEqual(a.containedNodeIds, bx.containedNodeIds) &&
         pointEqual(a.startWorld, bx.startWorld) &&
         pointEqual(a.delta, bx.delta) &&
         a.blocked === bx.blocked

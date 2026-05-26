@@ -128,7 +128,7 @@ describe('NodeGraphStore — interaction slice', () => {
 
     store.setInteraction({
       kind: 'drag-nodes',
-      nodeIds: ['a'],
+      nodeIds: new Set(['a']),
       startWorld: { x: 0, y: 0 },
       delta: { x: 0, y: 0 },
     });
@@ -137,7 +137,7 @@ describe('NodeGraphStore — interaction slice', () => {
     // Same delta, same nodeIds → no notification.
     store.setInteraction({
       kind: 'drag-nodes',
-      nodeIds: ['a'],
+      nodeIds: new Set(['a']),
       startWorld: { x: 0, y: 0 },
       delta: { x: 0, y: 0 },
     });
@@ -146,7 +146,7 @@ describe('NodeGraphStore — interaction slice', () => {
     // Delta changes → notification.
     store.setInteraction({
       kind: 'drag-nodes',
-      nodeIds: ['a'],
+      nodeIds: new Set(['a']),
       startWorld: { x: 0, y: 0 },
       delta: { x: 5, y: 0 },
     });
@@ -157,7 +157,7 @@ describe('NodeGraphStore — interaction slice', () => {
     const store = new NodeGraphStore();
     store.setInteraction({
       kind: 'drag-nodes',
-      nodeIds: ['a'],
+      nodeIds: new Set(['a']),
       startWorld: { x: 0, y: 0 },
       delta: { x: 5, y: 5 },
     });
@@ -584,8 +584,8 @@ describe('NodeGraphStore — drag-groups interaction equality', () => {
     const store = new NodeGraphStore();
     store.setInteraction({
       kind: 'drag-groups',
-      groupIds: ['g1', 'g2'],
-      containedNodeIds: [],
+      groupIds: new Set(['g1', 'g2']),
+      containedNodeIds: new Set<string>(),
       startWorld: { x: 0, y: 0 },
       delta: { x: 5, y: 5 },
       blocked: false,
@@ -594,8 +594,8 @@ describe('NodeGraphStore — drag-groups interaction equality', () => {
     store.subscribeInteraction(cb);
     store.setInteraction({
       kind: 'drag-groups',
-      groupIds: ['g1', 'g2'],
-      containedNodeIds: [],
+      groupIds: new Set(['g1', 'g2']),
+      containedNodeIds: new Set<string>(),
       startWorld: { x: 0, y: 0 },
       delta: { x: 5, y: 5 },
       blocked: false,
@@ -607,8 +607,8 @@ describe('NodeGraphStore — drag-groups interaction equality', () => {
     const store = new NodeGraphStore();
     store.setInteraction({
       kind: 'drag-groups',
-      groupIds: ['g1'],
-      containedNodeIds: [],
+      groupIds: new Set(['g1']),
+      containedNodeIds: new Set<string>(),
       startWorld: { x: 0, y: 0 },
       delta: { x: 0, y: 0 },
       blocked: false,
@@ -617,8 +617,8 @@ describe('NodeGraphStore — drag-groups interaction equality', () => {
     store.subscribeInteraction(cb);
     store.setInteraction({
       kind: 'drag-groups',
-      groupIds: ['g1'],
-      containedNodeIds: [],
+      groupIds: new Set(['g1']),
+      containedNodeIds: new Set<string>(),
       startWorld: { x: 0, y: 0 },
       delta: { x: 5, y: 0 },
       blocked: false,
@@ -630,8 +630,8 @@ describe('NodeGraphStore — drag-groups interaction equality', () => {
     const store = new NodeGraphStore();
     store.setInteraction({
       kind: 'drag-groups',
-      groupIds: ['g1'],
-      containedNodeIds: [],
+      groupIds: new Set(['g1']),
+      containedNodeIds: new Set<string>(),
       startWorld: { x: 0, y: 0 },
       delta: { x: 0, y: 0 },
       blocked: false,
@@ -640,8 +640,8 @@ describe('NodeGraphStore — drag-groups interaction equality', () => {
     store.subscribeInteraction(cb);
     store.setInteraction({
       kind: 'drag-groups',
-      groupIds: ['g1', 'g2'],
-      containedNodeIds: [],
+      groupIds: new Set(['g1', 'g2']),
+      containedNodeIds: new Set<string>(),
       startWorld: { x: 0, y: 0 },
       delta: { x: 0, y: 0 },
       blocked: false,

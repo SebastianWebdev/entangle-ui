@@ -15,7 +15,7 @@ const DRAG_START_THRESHOLD_PX = 3;
 
 /** Pending drag state buffered between pointermove and the next rAF flush. */
 interface PendingDragMove {
-  ids: ReadonlyArray<string>;
+  ids: ReadonlySet<string>;
   startWorld: Point2D;
   delta: Point2D;
 }
@@ -193,7 +193,9 @@ export function useNodeGraphNodeDrag(
           y: dy / transform.zoom,
         };
         const snapped = snapDelta(worldDelta, snapToGridRef.current);
-        const ids = Array.from(session.nodeStartPositions.keys());
+        const ids: ReadonlySet<string> = new Set(
+          session.nodeStartPositions.keys()
+        );
         // Buffer the latest delta; the rAF callback below picks the most
         // recent value when the frame fires, so any intermediate moves
         // between frames are coalesced into one commit.

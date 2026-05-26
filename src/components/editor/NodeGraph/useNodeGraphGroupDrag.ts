@@ -82,9 +82,10 @@ interface GroupDragSession {
   groupStartBounds: Map<string, WorldRect>;
   /**
    * Nodes fully contained inside one of the dragged groups at gesture
-   * start — they ride along with the group(s).
+   * start — they ride along with the group(s). Set so the per-node
+   * subscriber selector can do O(1) membership checks during the drag.
    */
-  containedNodeIds: ReadonlyArray<string>;
+  containedNodeIds: ReadonlySet<string>;
   /** Start positions of the contained nodes, keyed by node id. */
   nodeStartPositions: Map<string, Point2D>;
   /** Bounds of the resized group at start (for resize). */
@@ -241,7 +242,9 @@ export function useNodeGraphGroupDrag(
           if (Math.hypot(dx, dy) < DRAG_START_THRESHOLD_PX) return;
           session.didDrag = true;
         }
-        const ids = Array.from(session.groupStartBounds.keys());
+        const ids: ReadonlySet<string> = new Set(
+          session.groupStartBounds.keys()
+        );
         const blocked = groupDragWouldOverlap(
           session.groupStartBounds,
           snapped
@@ -340,7 +343,7 @@ export function useNodeGraphGroupDrag(
           }
         }
       }
-      const containedNodeIds = Array.from(containedSet);
+      const containedNodeIds: ReadonlySet<string> = containedSet;
 
       const startScreen = localScreenPoint(event.clientX, event.clientY);
       const startWorld = worldFromScreen(startScreen, getTransform());
@@ -406,7 +409,7 @@ export function useNodeGraphGroupDrag(
         startWorld,
         selectionAtStart: store.getSelection(),
         groupStartBounds: new Map(),
-        containedNodeIds: [],
+        containedNodeIds: new Set<string>(),
         nodeStartPositions: new Map(),
         resizeStartBounds: { ...group.bounds },
         additive: false,

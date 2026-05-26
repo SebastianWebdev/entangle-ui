@@ -94,15 +94,17 @@ export function drawEdges(
   // Either a node-drag (`drag-nodes`) or a group-drag carrying contained
   // nodes (`drag-groups.containedNodeIds`) shifts edge endpoints live —
   // resolve to a single (ids, delta) shape so the loop below stays simple.
-  let dragSet: { ids: Set<string>; delta: Point2D } | null = null;
+  // The interaction state already exposes `nodeIds` / `containedNodeIds` as
+  // ReadonlySet, so no per-frame Set construction is needed here.
+  let dragSet: { ids: ReadonlySet<string>; delta: Point2D } | null = null;
   if (interaction.kind === 'drag-nodes') {
     dragSet = {
-      ids: new Set(interaction.nodeIds),
+      ids: interaction.nodeIds,
       delta: interaction.delta,
     };
   } else if (interaction.kind === 'drag-groups') {
     dragSet = {
-      ids: new Set(interaction.containedNodeIds),
+      ids: interaction.containedNodeIds,
       delta: interaction.delta,
     };
   }
@@ -210,7 +212,7 @@ export function drawGroups(
   // canvas backdrop stays glued to the user's cursor during gestures.
   const dragSet =
     interaction.kind === 'drag-groups'
-      ? { ids: new Set(interaction.groupIds), delta: interaction.delta }
+      ? { ids: interaction.groupIds, delta: interaction.delta }
       : null;
   const resizing = interaction.kind === 'resize-group' ? interaction : null;
   const selectedGroupIds = new Set(selection.groups);

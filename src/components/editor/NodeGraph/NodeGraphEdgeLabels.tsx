@@ -46,7 +46,7 @@ function selectEdgeDeltas(
   sourceNode: string,
   targetNode: string
 ): EdgeEndpointDeltas {
-  let ids: ReadonlyArray<string> | null = null;
+  let ids: ReadonlySet<string> | null = null;
   let delta: Point2D | null = null;
   if (interaction.kind === 'drag-nodes') {
     ids = interaction.nodeIds;
@@ -56,8 +56,8 @@ function selectEdgeDeltas(
     delta = interaction.delta;
   }
   if (!ids || !delta) return NO_EDGE_DELTAS;
-  const src = ids.includes(sourceNode) ? delta : null;
-  const tgt = ids.includes(targetNode) ? delta : null;
+  const src = ids.has(sourceNode) ? delta : null;
+  const tgt = ids.has(targetNode) ? delta : null;
   if (src === null && tgt === null) return NO_EDGE_DELTAS;
   return { src, tgt };
 }
