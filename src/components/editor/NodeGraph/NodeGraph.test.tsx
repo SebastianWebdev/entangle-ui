@@ -244,6 +244,92 @@ describe('NodeGraph — <NodeGraph.Port>', () => {
     );
     expect(screen.getAllByTestId('pin-visual')).toHaveLength(2);
   });
+
+  it('renders a built-in svg handle when no children are supplied', () => {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderNode={renderTestNode}
+      />
+    );
+    const port = document.querySelector(
+      '[data-node-id="n1"][data-port-id="out"]'
+    );
+    expect(port?.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('marks ports referenced by an edge as connected', () => {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        defaultEdges={baseEdges}
+        renderNode={renderTestNode}
+      />
+    );
+    // e1 wires n1.out → n2.in, so those two ports are connected …
+    expect(
+      document.querySelector('[data-node-id="n1"][data-port-id="out"]')
+    ).toHaveAttribute('data-port-connected', 'true');
+    expect(
+      document.querySelector('[data-node-id="n2"][data-port-id="in"]')
+    ).toHaveAttribute('data-port-connected', 'true');
+    // … while the unreferenced ports stay unconnected.
+    expect(
+      document.querySelector('[data-node-id="n1"][data-port-id="in"]')
+    ).not.toHaveAttribute('data-port-connected');
+  });
+});
+
+// ─── <NodeGraph.Pin> ───
+
+describe('NodeGraph — <NodeGraph.Pin>', () => {
+  function renderPinNode(): React.ReactNode {
+    return (
+      <NodeGraph.PinList>
+        <NodeGraph.Pin id="in" side="left" dataType="exec" label="Execute" />
+        <NodeGraph.Pin id="out" side="right" dataType="float" label="Result" />
+      </NodeGraph.PinList>
+    );
+  }
+
+  it('renders a port plus its label', () => {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderNode={renderPinNode}
+      />
+    );
+    const inPort = document.querySelector(
+      '[data-node-id="n1"][data-port-id="in"]'
+    );
+    expect(inPort).toHaveAttribute('data-port-side', 'left');
+    expect(inPort).toHaveAttribute('data-port-data-type', 'exec');
+    expect(screen.getAllByText('Execute').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Result').length).toBeGreaterThan(0);
+  });
+
+  it('orders the handle flush against the node edge', () => {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderNode={renderPinNode}
+      />
+    );
+    const leftRow = document.querySelector(
+      '[data-node-id="n1"] [data-pin-side="left"]'
+    );
+    // Left pin: port leads the row.
+    expect(leftRow?.firstElementChild).toHaveAttribute('data-port-id', 'in');
+    const rightRow = document.querySelector(
+      '[data-node-id="n1"] [data-pin-side="right"]'
+    );
+    // Right pin: label leads, port trails.
+    expect(rightRow?.lastElementChild).toHaveAttribute('data-port-id', 'out');
+  });
 });
 
 // ─── Controlled state ───

@@ -15,6 +15,7 @@ import type { NodeGraphPortSlotProps } from './NodeGraph.types';
 import { useNodeGraphStore } from './NodeGraphContext';
 import { useNodeGraphNodeContext } from './NodeGraphNodeContext';
 import { useStoreSlice } from './useStoreSlice';
+import { NodeGraphPortVisual } from './NodeGraphPortVisual';
 
 interface PortVisualState {
   isSource: boolean;
@@ -66,6 +67,9 @@ function NodeGraphPortImpl({
   id,
   side,
   dataType,
+  shape = 'circle',
+  color,
+  filled,
   children,
   label,
   className,
@@ -75,6 +79,15 @@ function NodeGraphPortImpl({
   const store = useNodeGraphStore();
   const viewportStore = useViewportStore();
   const elementRef = useRef<HTMLSpanElement>(null);
+
+  // ── Connected state (slice subscription — only flips re-render) ──
+  // The store recomputes the connected-ports index when edges change, so
+  // each port re-renders only when its own connected-ness actually flips.
+  const connected = useStoreSlice(
+    store.subscribeConnectedPorts,
+    store.getConnectedPorts,
+    () => store.isPortConnected(nodeId, id)
+  );
 
   // ── Per-port visual state (slice subscription — no re-render storm) ──
   const visual = useStoreSlice(
@@ -201,6 +214,16 @@ function NodeGraphPortImpl({
   );
 
   const hasCustomVisual = children !== undefined && children !== null;
+  const isFilled = filled ?? connected;
+
+  // Route the consumer's `color` into the slot via a CSS custom property so
+  // the built-in visual (which paints with `currentColor`) picks it up,
+  // while the source / candidate / invalid recipe variants can still
+  // override `color` to keep connection-drag feedback visible.
+  const portStyle: React.CSSProperties | undefined =
+    color !== undefined
+      ? { ['--etui-ng-port-color' as string]: color, ...style }
+      : style;
 
   return (
     <span
@@ -216,6 +239,7 @@ function NodeGraphPortImpl({
       data-port-candidate={isCandidate || undefined}
       data-port-invalid={isInvalid || undefined}
       data-port-hovered={isHovered || undefined}
+      data-port-connected={connected || undefined}
       className={cx(
         portSlotRecipe({
           side,
@@ -226,12 +250,16 @@ function NodeGraphPortImpl({
         }),
         className
       )}
-      style={style}
+      style={portStyle}
       onPointerDown={handlePointerDown}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
     >
-      {hasCustomVisual ? children : null}
+      {hasCustomVisual ? (
+        children
+      ) : (
+        <NodeGraphPortVisual shape={shape} filled={isFilled} />
+      )}
     </span>
   );
 }

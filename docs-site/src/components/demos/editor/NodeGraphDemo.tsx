@@ -2,16 +2,15 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import DemoWrapper from '../DemoWrapper';
 import {
   NodeGraph,
-  type NodeGraphConnectionValidationInfo,
+  createTypeMatchValidator,
+  useNodeGraph,
   type NodeGraphContextMenuInfo,
   type NodeGraphEdge,
   type NodeGraphEdgeStyleCtx,
   type NodeGraphGroup,
   type NodeGraphHandle,
   type NodeGraphNode,
-  type NodeGraphPortRef,
-  type NodeGraphRenderCtx,
-  type NodeGraphSelection,
+  type NodeGraphPortShape,
   type Point2D,
 } from '@/components/editor/NodeGraph';
 import { Button } from '@/components/primitives/Button';
@@ -441,12 +440,8 @@ const TEMPLATES: NodeTemplate[] = [
 
 // ─── Node instantiation ────────────────────────────────────────────────────
 
-function instantiateTemplate(
-  template: NodeTemplate,
-  position: { x: number; y: number },
-  idSeed: number
-): NodeGraphNode {
-  const data: BlueprintNodeData = {
+function makeNodeData(template: NodeTemplate): BlueprintNodeData {
+  return {
     templateId: template.id,
     title: template.title,
     subtitle: template.subtitle,
@@ -454,7 +449,18 @@ function instantiateTemplate(
     pins: template.pins,
     body: template.body,
   };
-  return { id: `${template.id}-${idSeed}`, position, data };
+}
+
+function instantiateTemplate(
+  template: NodeTemplate,
+  position: { x: number; y: number },
+  idSeed: number
+): NodeGraphNode {
+  return {
+    id: `${template.id}-${idSeed}`,
+    position,
+    data: makeNodeData(template),
+  };
 }
 
 // ─── Initial graph ─────────────────────────────────────────────────────────
@@ -599,144 +605,31 @@ function makeInitial(): {
   return { nodes, edges, groups };
 }
 
-// ─── UE-style pin visual (rendered as children of <NodeGraph.Port>) ────────
-
-interface PinVisualProps {
-  dataType: DataType;
-  side: 'left' | 'right';
-  connected: boolean;
-}
-
-/**
- * Coloured ring for data pins, exec-arrow triangle for exec pins. The
- * library wraps this in a measured slot wrapper — pointer events and
- * edge anchoring are handled by `<NodeGraph.Port>`; this is purely the
- * visual.
- */
-function PinVisual({
-  dataType,
-  connected,
-}: PinVisualProps): React.ReactElement {
-  const color = TYPE_COLOR[dataType] ?? TYPE_COLOR.any;
-  const isExec = dataType === 'exec';
-  const size = isExec ? 14 : 12;
-
-  if (isExec) {
-    return (
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 14 14"
-        style={{ display: 'block' }}
-        aria-hidden="true"
-      >
-        <polygon
-          points="2,2 12,7 2,12"
-          fill={connected ? color : 'transparent'}
-          stroke={color}
-          strokeWidth={1.5}
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
-  }
-
-  return (
-    <span
-      style={{
-        display: 'block',
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        background: connected ? color : 'transparent',
-        border: `2px solid ${color}`,
-        boxSizing: 'border-box',
-      }}
-      aria-hidden="true"
-    />
-  );
-}
-
-// ─── Pin row ──────────────────────────────────────────────────────────────
+// ─── Pin shape ───────────────────────────────────────────────────────────
 //
-// `<NodeGraph.PinRow>` owns the row layout (side-aware justification, gap,
-// height). The consumer only declares the contents — the `<NodeGraph.Port>`
-// slot (with `PinVisual` as the swappable chrome) and the label. Order is
-// "port → label" on the left, "label → port" on the right so the port
-// always sits flush against the node edge.
+// Exec/flow pins are the UE-style arrow; everything else is a ring. The
+// colour comes straight from the data-type palette. The handle fill (wired
+// vs unwired) is derived automatically by `<NodeGraph.Pin>` from the edges,
+// so there's no consumer-side "connected ports" bookkeeping anymore.
 
-function BlueprintPin({
-  pin,
-  connected,
-}: {
-  pin: BlueprintPin;
-  connected: boolean;
-}): React.ReactElement {
-  const port = (
-    <NodeGraph.Port
-      id={pin.id}
-      side={pin.side}
-      dataType={pin.dataType}
-      label={pin.label || `${pin.side} ${pin.id}`}
-    >
-      <PinVisual
-        dataType={pin.dataType}
-        side={pin.side}
-        connected={connected}
-      />
-    </NodeGraph.Port>
-  );
-  const label = (
-    <span
-      style={{
-        fontSize: 11,
-        color: connected
-          ? 'rgba(235, 235, 245, 0.95)'
-          : 'rgba(200, 200, 215, 0.78)',
-        minWidth: 0,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {pin.label || (pin.dataType === 'exec' ? '►' : ' ')}
-    </span>
-  );
-  return (
-    <NodeGraph.PinRow side={pin.side}>
-      {pin.side === 'left' ? (
-        <>
-          {port}
-          {label}
-        </>
-      ) : (
-        <>
-          {label}
-          {port}
-        </>
-      )}
-    </NodeGraph.PinRow>
-  );
+function pinShape(dataType: DataType): NodeGraphPortShape {
+  return dataType === 'exec' ? 'triangle' : 'circle';
 }
 
 // ─── Node body ─────────────────────────────────────────────────────────────
 //
-// Built from library parts:
+// Built entirely from library parts:
 //   • <NodeGraph.NodeBody>   — themed panel + auto selected/hovered visuals
 //   • <NodeGraph.NodeHeader> — gradient strip with icon/title/subtitle
-//   • <NodeGraph.PinList>    — two-column grid that routes PinRows by side
+//   • <NodeGraph.PinList>    — two-column grid that routes pins by side
+//   • <NodeGraph.Pin>        — one-liner handle + label (auto-connected fill)
 // The optional `body` literal sits as a "loose" child after the rows.
 
 function BlueprintNodeBody({
   node,
-  ctx,
-  connectedSet,
 }: {
   node: NodeGraphNode;
-  ctx: NodeGraphRenderCtx;
-  connectedSet: Set<string>;
 }): React.ReactElement {
-  void ctx; // selected/hovered visuals come from <NodeGraph.NodeBody> directly
   const blueprint = node.data as BlueprintNodeData;
   const theme = CATEGORY_THEME[blueprint.category];
 
@@ -754,10 +647,14 @@ function BlueprintNodeBody({
       />
       <NodeGraph.PinList columnGap={16}>
         {blueprint.pins.map(pin => (
-          <BlueprintPin
+          <NodeGraph.Pin
             key={pin.id}
-            pin={pin}
-            connected={connectedSet.has(`${node.id}.${pin.id}`)}
+            id={pin.id}
+            side={pin.side}
+            dataType={pin.dataType}
+            shape={pinShape(pin.dataType)}
+            color={TYPE_COLOR[pin.dataType] ?? TYPE_COLOR.any}
+            label={pin.label}
           />
         ))}
         {blueprint.body ? (
@@ -799,59 +696,28 @@ function BlueprintNodeBody({
 
 export default function NodeGraphDemo(): React.ReactElement {
   const initial = useMemo(makeInitial, []);
-  const [nodes, setNodes] = useState<NodeGraphNode[]>(initial.nodes);
-  const [edges, setEdges] = useState<NodeGraphEdge[]>(initial.edges);
-  const [groups, setGroups] = useState<NodeGraphGroup[]>(initial.groups);
-  const [selection, setSelection] = useState<NodeGraphSelection>({
-    nodes: [],
-    edges: [],
-    groups: [],
+  // One hook owns nodes / edges / groups / selection plus the graph
+  // mutations every editor re-implements (add / remove-with-edge-cascade /
+  // duplicate / group). `bind` spreads all four controlled props at once.
+  const graph = useNodeGraph({
+    nodes: initial.nodes,
+    edges: initial.edges,
+    groups: initial.groups,
   });
   const ref = useRef<NodeGraphHandle>(null);
-  const idSeedRef = useRef(1000);
   // Last right-click info from NodeGraph — drives the context menu content
   // (target kind) and the spawn world point.
   const [menuInfo, setMenuInfo] = useState<NodeGraphContextMenuInfo | null>(
     null
   );
 
-  const connectedPortSet = useMemo(() => {
-    const s = new Set<string>();
-    for (const edge of edges) {
-      s.add(`${edge.source.node}.${edge.source.port}`);
-      s.add(`${edge.target.node}.${edge.target.port}`);
-    }
-    return s;
-  }, [edges]);
-
-  const isValidConnection = useCallback(
-    (
-      _source: NodeGraphPortRef,
-      _target: NodeGraphPortRef,
-      info: NodeGraphConnectionValidationInfo
-    ): boolean => {
-      if (info.sameNode) return false;
-      if (info.sideCombo !== 'right->left' && info.sideCombo !== 'left->right')
-        return false;
-      const src = info.sourceDataType;
-      const tgt = info.targetDataType;
-      if (!src || !tgt) return true;
-      if (src === tgt) return true;
-      if (src === 'any' || tgt === 'any') return true;
-      return false;
-    },
-    []
-  );
+  // Output→input, type-matched, with `'any'` connecting to anything — the
+  // policy the helper ships by default. No hand-written validator needed.
+  const isValidConnection = useMemo(() => createTypeMatchValidator(), []);
 
   const renderNode = useCallback(
-    (node: NodeGraphNode, ctx: NodeGraphRenderCtx) => (
-      <BlueprintNodeBody
-        node={node}
-        ctx={ctx}
-        connectedSet={connectedPortSet}
-      />
-    ),
-    [connectedPortSet]
+    (node: NodeGraphNode) => <BlueprintNodeBody node={node} />,
+    []
   );
 
   const edgeStyle = useCallback(
@@ -864,61 +730,28 @@ export default function NodeGraphDemo(): React.ReactElement {
 
   const handleSpawn = useCallback(
     (template: NodeTemplate, worldPoint: Point2D) => {
-      const seed = idSeedRef.current++;
-      const node = instantiateTemplate(
-        template,
-        {
+      const id = graph.addNode({
+        position: {
           x: Math.round(worldPoint.x / 8) * 8,
           y: Math.round(worldPoint.y / 8) * 8,
         },
-        seed
+        data: makeNodeData(template),
+      });
+      graph.setSelection({ nodes: [id], edges: [], groups: [] });
+    },
+    [graph]
+  );
+
+  const addGroupAt = useCallback(
+    (worldX: number, worldY: number) => {
+      const id = graph.addGroup(
+        { x: worldX - 160, y: worldY - 100, width: 320, height: 200 },
+        { label: 'New Group', color: 'rgba(120, 180, 255, 0.16)' }
       );
-      setNodes(prev => [...prev, node]);
-      setSelection({ nodes: [node.id], edges: [], groups: [] });
+      graph.setSelection({ nodes: [], edges: [], groups: [id] });
     },
-    []
+    [graph]
   );
-
-  const addGroupAt = useCallback((worldX: number, worldY: number) => {
-    const seed = idSeedRef.current++;
-    const next: NodeGraphGroup = {
-      id: `group-${seed}`,
-      bounds: { x: worldX - 160, y: worldY - 100, width: 320, height: 200 },
-      label: 'New Group',
-      color: 'rgba(120, 180, 255, 0.16)',
-    };
-    setGroups(prev => [...prev, next]);
-    setSelection({ nodes: [], edges: [], groups: [next.id] });
-  }, []);
-
-  // ── Context menu actions ──
-  const handleDeleteNode = useCallback((id: string) => {
-    setNodes(prev => prev.filter(n => n.id !== id));
-    setEdges(prev =>
-      prev.filter(e => e.source.node !== id && e.target.node !== id)
-    );
-    setSelection({ nodes: [], edges: [], groups: [] });
-  }, []);
-
-  const handleDuplicateNode = useCallback(
-    (id: string) => {
-      const src = nodes.find(n => n.id === id);
-      if (!src) return;
-      const seed = idSeedRef.current++;
-      const copy: NodeGraphNode = {
-        ...src,
-        id: `${src.id}-copy-${seed}`,
-        position: { x: src.position.x + 32, y: src.position.y + 32 },
-      };
-      setNodes(prev => [...prev, copy]);
-      setSelection({ nodes: [copy.id], edges: [], groups: [] });
-    },
-    [nodes]
-  );
-
-  const handleDeleteGroup = useCallback((id: string) => {
-    setGroups(prev => prev.filter(g => g.id !== id));
-  }, []);
 
   /**
    * The spawn submenu — a labelled "Add Node" group with one nested submenu
@@ -980,13 +813,13 @@ export default function NodeGraphDemo(): React.ReactElement {
         <>
           <Menu.Item
             icon={<CopyIcon size="sm" />}
-            onClick={() => handleDuplicateNode(nodeId)}
+            onClick={() => graph.duplicateNodes([nodeId])}
           >
             Duplicate node
           </Menu.Item>
           <Menu.Item
             icon={<TrashIcon size="sm" />}
-            onClick={() => handleDeleteNode(nodeId)}
+            onClick={() => graph.removeNodes([nodeId])}
           >
             Delete node
           </Menu.Item>
@@ -1001,7 +834,7 @@ export default function NodeGraphDemo(): React.ReactElement {
           <Menu.Separator />
           <Menu.Item
             icon={<TrashIcon size="sm" />}
-            onClick={() => handleDeleteGroup(target.id)}
+            onClick={() => graph.removeGroups([target.id])}
           >
             Delete group
           </Menu.Item>
@@ -1011,13 +844,7 @@ export default function NodeGraphDemo(): React.ReactElement {
 
     // Empty space (and edges, which aren't actionable here) → spawn menu.
     return renderSpawnItems(worldPoint);
-  }, [
-    menuInfo,
-    renderSpawnItems,
-    handleDuplicateNode,
-    handleDeleteNode,
-    handleDeleteGroup,
-  ]);
+  }, [menuInfo, renderSpawnItems, graph]);
 
   return (
     <DemoWrapper>
@@ -1044,9 +871,10 @@ export default function NodeGraphDemo(): React.ReactElement {
               marginLeft: 'auto',
             }}
           >
-            {nodes.length} nodes · {edges.length} edges · {groups.length} groups
-            {selection.nodes.length + selection.groups.length > 0
-              ? ` · ${selection.nodes.length + selection.groups.length} selected`
+            {graph.nodes.length} nodes · {graph.edges.length} edges ·{' '}
+            {graph.groups.length} groups
+            {graph.selection.nodes.length + graph.selection.groups.length > 0
+              ? ` · ${graph.selection.nodes.length + graph.selection.groups.length} selected`
               : ''}
           </span>
         </div>
@@ -1061,16 +889,9 @@ export default function NodeGraphDemo(): React.ReactElement {
             <ContextMenu.Trigger>
               <NodeGraph
                 ref={ref}
+                {...graph.bind}
                 onContextMenu={setMenuInfo}
-                nodes={nodes}
-                edges={edges}
-                groups={groups}
-                selection={selection}
-                onNodesChange={setNodes}
-                onEdgesChange={setEdges}
                 edgeStyle={edgeStyle}
-                onGroupsChange={setGroups}
-                onSelectionChange={setSelection}
                 renderNode={renderNode}
                 isValidConnection={isValidConnection}
                 snapToGrid={8}

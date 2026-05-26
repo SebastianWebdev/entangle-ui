@@ -60,6 +60,8 @@ import {
   NodeGraphToolbarSeparator,
 } from './NodeGraphToolbar';
 import { NodeGraphPort } from './NodeGraphPort';
+import { NodeGraphPortVisual } from './NodeGraphPortVisual';
+import { NodeGraphPin } from './NodeGraphPin';
 import { EdgeLabelsLayer } from './NodeGraphEdgeLabels';
 import {
   NodeGraphNodeBody,
@@ -862,6 +864,8 @@ type NodeGraphCompound = typeof NodeGraphImpl & {
   Minimap: typeof NodeGraphMinimap;
   Background: typeof NodeGraphBackground;
   Port: typeof NodeGraphPort;
+  PortVisual: typeof NodeGraphPortVisual;
+  Pin: typeof NodeGraphPin;
   NodeBody: typeof NodeGraphNodeBody;
   NodeHeader: typeof NodeGraphNodeHeader;
   PinList: typeof NodeGraphPinList;
@@ -882,6 +886,8 @@ const NodeGraphWithSlots = NodeGraphImpl as NodeGraphCompound;
 NodeGraphWithSlots.Minimap = NodeGraphMinimap;
 NodeGraphWithSlots.Background = NodeGraphBackground;
 NodeGraphWithSlots.Port = NodeGraphPort;
+NodeGraphWithSlots.PortVisual = NodeGraphPortVisual;
+NodeGraphWithSlots.Pin = NodeGraphPin;
 NodeGraphWithSlots.NodeBody = NodeGraphNodeBody;
 NodeGraphWithSlots.NodeHeader = NodeGraphNodeHeader;
 NodeGraphWithSlots.PinList = NodeGraphPinList;

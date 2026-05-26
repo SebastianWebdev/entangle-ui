@@ -165,6 +165,12 @@ export class NodeGraphStore {
   // pointer-driven drag handlers) that previously did O(n) `nodes.find`
   // per call.
   private nodeIndex = new Map<string, NodeGraphNode>();
+  // Set of `"${node}\0${port}"` keys for every port referenced by an edge
+  // endpoint — recomputed in `setData` only when the edges reference
+  // changes. Lets `<NodeGraph.Port>` slots auto-derive their "connected"
+  // visual state without the consumer threading a parallel index down
+  // through `renderNode`.
+  private connectedPorts: ReadonlySet<string> = new Set<string>();
 
   // Map<nodeId, Map<portId, NodeGraphPortPosition>>.
   // Mutated in place by `<NodeGraph.Port>` slots on mount/resize. Listeners
@@ -175,6 +181,7 @@ export class NodeGraphStore {
   private measuredSizes = new Map<string, NodeGraphMeasuredSize>();
 
   private dataListeners = new Set<() => void>();
+  private connectedPortsListeners = new Set<() => void>();
   private selectionListeners = new Set<() => void>();
   private interactionListeners = new Set<() => void>();
   private hoverListeners = new Set<() => void>();
@@ -197,6 +204,18 @@ export class NodeGraphStore {
   getSelection = (): NodeGraphSelection => this.selection;
   getInteraction = (): NodeGraphInteractionState => this.interaction;
   getHover = (): NodeGraphHoverState => this.hover;
+
+  /**
+   * The set of `"${node}\0${port}"` keys that are referenced by at least
+   * one edge endpoint. Reference is stable until the membership actually
+   * changes, so it can back a `useSyncExternalStore` snapshot directly.
+   */
+  getConnectedPorts = (): ReadonlySet<string> => this.connectedPorts;
+
+  /** True when the given port is referenced by at least one edge endpoint. */
+  isPortConnected = (nodeId: string, portId: string): boolean => {
+    return this.connectedPorts.has(portKey(nodeId, portId));
+  };
 
   /**
    * O(1) node lookup by id, backed by an internal Map rebuilt on each
@@ -244,6 +263,18 @@ export class NodeGraphStore {
     this.dataListeners.add(cb);
     return () => {
       this.dataListeners.delete(cb);
+    };
+  };
+
+  /**
+   * Subscribe to the connected-ports channel — fires only when the set of
+   * edge-referenced ports actually changes membership (not on every node
+   * move). Backs the auto-`connected` state on `<NodeGraph.Port>`.
+   */
+  subscribeConnectedPorts = (cb: () => void): (() => void) => {
+    this.connectedPortsListeners.add(cb);
+    return () => {
+      this.connectedPortsListeners.delete(cb);
     };
   };
 
@@ -315,6 +346,7 @@ export class NodeGraphStore {
     ) {
       return;
     }
+    const edgesChanged = next.edges !== this.data.edges;
     const prevNodeIds = new Set(this.data.nodes.map(n => n.id));
     // Rebuild the id → node lookup in the same pass that collects the
     // next-frame id set, so GC and the index stay in sync without a
@@ -338,6 +370,17 @@ export class NodeGraphStore {
     }
     this.data = next;
     this.dataListeners.forEach(cb => cb());
+    // Recompute the connected-ports index when edges changed, and notify
+    // its dedicated channel only if the membership actually differs — an
+    // edges array that was replaced but carries the same endpoints (e.g.
+    // a label edit) leaves port "connected" state untouched.
+    if (edgesChanged) {
+      const nextConnected = computeConnectedPorts(next.edges);
+      if (!connectedSetsEqual(nextConnected, this.connectedPorts)) {
+        this.connectedPorts = nextConnected;
+        this.connectedPortsListeners.forEach(cb => cb());
+      }
+    }
     if (didMutatePortPositions) {
       this.portPositionsVersion++;
       this.portPositionListeners.forEach(cb => cb());
@@ -443,6 +486,40 @@ export class NodeGraphStore {
   isGroupSelected(id: string): boolean {
     return this.selection.groups.includes(id);
   }
+}
+
+// ─── Connected-ports index ───
+
+/**
+ * Key for the connected-ports set. Uses a NUL separator so node / port ids
+ * containing dots or dashes can't collide (`"a.b" + "c"` vs `"a" + "b.c"`).
+ */
+function portKey(node: string, port: string): string {
+  return `${node}\u0000${port}`;
+}
+
+/** Build the set of `"${node}\0${port}"` keys referenced by any edge. */
+function computeConnectedPorts(
+  edges: ReadonlyArray<NodeGraphEdge>
+): Set<string> {
+  const set = new Set<string>();
+  for (const edge of edges) {
+    set.add(portKey(edge.source.node, edge.source.port));
+    set.add(portKey(edge.target.node, edge.target.port));
+  }
+  return set;
+}
+
+function connectedSetsEqual(
+  a: ReadonlySet<string>,
+  b: ReadonlySet<string>
+): boolean {
+  if (a === b) return true;
+  if (a.size !== b.size) return false;
+  for (const key of a) {
+    if (!b.has(key)) return false;
+  }
+  return true;
 }
 
 // ─── Equality helpers (shallow, identity-aware) ───

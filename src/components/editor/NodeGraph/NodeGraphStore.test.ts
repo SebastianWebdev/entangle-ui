@@ -720,3 +720,97 @@ describe('NodeGraphStore — resize-group interaction equality', () => {
     expect(cb).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('NodeGraphStore — connected ports', () => {
+  const size = { width: 180, height: 80 };
+
+  it('starts with no connected ports', () => {
+    const store = new NodeGraphStore();
+    expect(store.getConnectedPorts().size).toBe(0);
+    expect(store.isPortConnected('a', 'out')).toBe(false);
+  });
+
+  it('marks both endpoints of every edge as connected', () => {
+    const store = new NodeGraphStore();
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [edge],
+      groups: [],
+      defaultNodeSize: size,
+    });
+    expect(store.isPortConnected('a', 'out')).toBe(true);
+    expect(store.isPortConnected('b', 'in')).toBe(true);
+    expect(store.isPortConnected('a', 'in')).toBe(false);
+  });
+
+  it('notifies the connected-ports channel when edges change membership', () => {
+    const store = new NodeGraphStore();
+    const cb = vi.fn();
+    store.subscribeConnectedPorts(cb);
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [edge],
+      groups: [],
+      defaultNodeSize: size,
+    });
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not notify the connected-ports channel on node-only changes', () => {
+    const store = new NodeGraphStore();
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [edge],
+      groups: [],
+      defaultNodeSize: size,
+    });
+    const cb = vi.fn();
+    store.subscribeConnectedPorts(cb);
+    // New nodes array reference, same edges reference → membership unchanged.
+    store.setData({
+      nodes: [{ ...nodeA, position: { x: 10, y: 10 } }, nodeB],
+      edges: [edge],
+      groups: [],
+      defaultNodeSize: size,
+    });
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it('keeps a stable set reference when membership is unchanged', () => {
+    const store = new NodeGraphStore();
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [edge],
+      groups: [],
+      defaultNodeSize: size,
+    });
+    const first = store.getConnectedPorts();
+    // A brand-new edges array carrying the same endpoints (e.g. a label
+    // edit) must not swap the connected-ports set reference.
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [{ ...edge, label: 'x' }],
+      groups: [],
+      defaultNodeSize: size,
+    });
+    expect(store.getConnectedPorts()).toBe(first);
+  });
+
+  it('drops connections when the edge is removed', () => {
+    const store = new NodeGraphStore();
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [edge],
+      groups: [],
+      defaultNodeSize: size,
+    });
+    store.setData({
+      nodes: [nodeA, nodeB],
+      edges: [],
+      groups: [],
+      defaultNodeSize: size,
+    });
+    expect(store.isPortConnected('a', 'out')).toBe(false);
+    expect(store.getConnectedPorts().size).toBe(0);
+  });
+});

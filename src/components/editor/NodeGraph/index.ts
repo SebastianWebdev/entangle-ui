@@ -2,6 +2,11 @@ export { NodeGraph } from './NodeGraph';
 export { NodeGraphMinimap, NodeGraphBackground } from './NodeGraphMinimap';
 export { NodeGraphPort } from './NodeGraphPort';
 export {
+  NodeGraphPortVisual,
+  type NodeGraphPortVisualProps,
+} from './NodeGraphPortVisual';
+export { NodeGraphPin, type NodeGraphPinProps } from './NodeGraphPin';
+export {
   NodeGraphNodeBody,
   NodeGraphNodeHeader,
   NodeGraphPinList,
@@ -27,6 +32,20 @@ export {
   useNodeGraphInteraction,
   useNodeGraphHover,
 } from './NodeGraphContext';
+export {
+  useNodeGraph,
+  type UseNodeGraphOptions,
+  type UseNodeGraphReturn,
+  type NodeGraphBind,
+  type NodeGraphNodeInput,
+  type AddGroupOptions,
+} from './useNodeGraph';
+export {
+  createTypeMatchValidator,
+  type TypeMatchValidatorOptions,
+} from './createTypeMatchValidator';
+export { duplicateNodes, type DuplicateNodesOptions } from './nodeGraphActions';
+export { generateNodeId, generateEdgeId } from './nodeGraphIds';
 export { NODE_GRAPH_SLOT } from './NodeGraph.types';
 export {
   DEFAULT_NODE_WIDTH,
@@ -53,6 +72,7 @@ export type {
   NodeGraphNode,
   NodeGraphPortRef,
   NodeGraphPortSide,
+  NodeGraphPortShape,
   NodeGraphPortSlotProps,
   NodeGraphEdge,
   NodeGraphGroup,

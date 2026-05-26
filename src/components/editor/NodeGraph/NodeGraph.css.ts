@@ -113,6 +113,12 @@ export const defaultNodeBodyRecipe = recipe({
  * `transform-origin: center` so the center (= edge endpoint) doesn't
  * move when the user hovers. Sits inline‑flex by default; drop it next
  * to a label and it lines up automatically.
+ *
+ * The built-in handle is an SVG (`<NodeGraphPortVisual>`) that paints with
+ * `currentColor`, so the wrapper only carries the `color`: the consumer's
+ * `color` prop arrives via the `--etui-ng-port-color` custom property and
+ * the connection-drag states (source / candidate / invalid) override
+ * `color` so interaction feedback stays visible without re-styling the SVG.
  */
 export const portSlotRecipe = recipe({
   base: {
@@ -120,24 +126,11 @@ export const portSlotRecipe = recipe({
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    width: 12,
-    height: 12,
-    borderRadius: '50%',
-    background: vars.colors.background.tertiary,
-    border: `2px solid ${vars.colors.border.focus}`,
     boxSizing: 'border-box',
     pointerEvents: 'auto',
     cursor: 'crosshair',
     verticalAlign: 'middle',
     transformOrigin: 'center',
-    transition: `transform ${vars.transitions.fast}, background ${vars.transitions.fast}, border-color ${vars.transitions.fast}`,
-    selectors: {
-      '&:hover': {
-        transform: 'scale(1.25)',
-        background: vars.colors.accent.primary,
-        borderColor: vars.colors.accent.primary,
-      },
-    },
   },
   variants: {
     // `side` is encoded as a data attribute / on the wrapper for consumer
@@ -149,51 +142,59 @@ export const portSlotRecipe = recipe({
       top: {},
       bottom: {},
     },
-    source: {
-      true: {
-        background: vars.colors.accent.primary,
-        borderColor: vars.colors.accent.primary,
-        transform: 'scale(1.15)',
-      },
-      false: {},
-    },
-    candidate: {
-      true: {
-        transform: 'scale(1.4)',
-        background: vars.colors.accent.primary,
-        borderColor: vars.colors.accent.primary,
-      },
-      false: {},
-    },
-    invalid: {
-      true: {
-        background: vars.colors.accent.error,
-        borderColor: vars.colors.accent.error,
-      },
-      false: {},
-    },
     /**
-     * When the consumer renders custom content via `children`, strip the
-     * default circle chrome so the consumer fully owns the visual. The
-     * slot wrapper still carries pointer events + measurement + ARIA.
+     * `false` → built-in SVG visual: a transparent 14px box whose `color`
+     * (inherited by the SVG via `currentColor`) defaults to the theme focus
+     * colour but can be overridden per-port through `--etui-ng-port-color`.
+     * `true` → consumer-owned `children`: drop all sizing / colour so the
+     * children fully own the visual; the wrapper keeps pointer events +
+     * measurement + ARIA.
      */
     custom: {
+      false: {
+        width: 14,
+        height: 14,
+        color: `var(--etui-ng-port-color, ${vars.colors.border.focus})`,
+        transition: `transform ${vars.transitions.fast}, color ${vars.transitions.fast}`,
+        selectors: {
+          '&:hover': {
+            transform: 'scale(1.25)',
+            color: vars.colors.accent.primary,
+          },
+        },
+      },
       true: {
         width: 'auto',
         height: 'auto',
         minWidth: 0,
         minHeight: 0,
         padding: 0,
-        background: 'transparent',
-        border: 'none',
-        borderRadius: 0,
-        cursor: 'crosshair',
         transition: 'none',
+      },
+    },
+    source: {
+      true: {
+        color: vars.colors.accent.primary,
+        transform: 'scale(1.15)',
+      },
+      false: {},
+    },
+    candidate: {
+      true: {
+        color: vars.colors.accent.primary,
+        transform: 'scale(1.4)',
+      },
+      false: {},
+    },
+    invalid: {
+      true: {
+        color: vars.colors.accent.error,
+        // Outrank the base `:hover` rule — the candidate port is physically
+        // hovered during a drag, so a plain class would lose to `:hover`
+        // and an invalid candidate would wrongly read as accent.
         selectors: {
           '&:hover': {
-            transform: 'none',
-            background: 'transparent',
-            borderColor: 'transparent',
+            color: vars.colors.accent.error,
           },
         },
       },
@@ -549,6 +550,19 @@ export const pinRowRecipe = recipe({
       bottom: { justifyContent: 'flex-start' },
     },
   },
+});
+
+/**
+ * Default label text for `<NodeGraph.Pin>` — muted, single-line, truncates
+ * with an ellipsis so long pin names don't blow out the node width.
+ */
+export const pinLabelStyle = style({
+  fontSize: vars.typography.fontSize.xs,
+  color: vars.colors.text.secondary,
+  minWidth: 0,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
 });
 
 // Ensure the underlying ViewportWorld passes through pointer events so nodes

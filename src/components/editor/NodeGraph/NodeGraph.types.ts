@@ -209,6 +209,14 @@ export type NodeGraphEdgeStyleFn = (
 // ─── Port slot ───
 
 /**
+ * Built-in port handle shapes. `circle` is the default data-pin look,
+ * `triangle` is the UE-style exec/flow arrow, `diamond` / `square` cover
+ * the other common node-editor conventions. Render any other visual by
+ * passing `children` to `<NodeGraph.Port>`.
+ */
+export type NodeGraphPortShape = 'circle' | 'triangle' | 'diamond' | 'square';
+
+/**
  * Props for `<NodeGraph.Port>` — the compound child rendered inside
  * `renderNode` to declare a connection endpoint.
  *
@@ -242,10 +250,29 @@ export interface NodeGraphPortSlotProps {
    */
   dataType?: string;
   /**
-   * Replace the default port visual (12px circle / exec-arrow triangle).
-   * When provided, no built-in chrome is rendered — the children fill the
-   * slot wrapper. State for theming (source / candidate / hover / invalid)
-   * is exposed via `data-port-*` attributes on the wrapper.
+   * Built-in handle shape used when no `children` are supplied.
+   * @default 'circle'
+   */
+  shape?: NodeGraphPortShape;
+  /**
+   * Handle colour for the built-in visual (any CSS colour). When omitted,
+   * the port inherits the theme focus colour; the connection-drag states
+   * (source / candidate / invalid) still override it so interaction stays
+   * visible. Ignored when `children` are supplied.
+   */
+  color?: string;
+  /**
+   * Force the built-in visual filled (`true`) or hollow (`false`). When
+   * omitted, the port fills automatically while it is connected to at
+   * least one edge and stays hollow otherwise — the standard "wired vs
+   * unwired pin" convention. Ignored when `children` are supplied.
+   */
+  filled?: boolean;
+  /**
+   * Replace the built-in port visual entirely. When provided, no built-in
+   * chrome is rendered — the children fill the slot wrapper. State for
+   * theming (source / candidate / hover / invalid / connected) is exposed
+   * via `data-port-*` attributes on the wrapper.
    */
   children?: React.ReactNode;
   /** Accessible label. Falls back to `${side} port ${id}`. */
