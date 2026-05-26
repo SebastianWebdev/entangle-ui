@@ -99,7 +99,11 @@ export type NodeGraphInteractionState =
     }
   | {
       kind: 'connect';
-      /** Originating port of the in-flight connection. */
+      /**
+       * Fixed endpoint the preview draws from. For a new connection this is
+       * the port the drag started on; for a reconnect it's the *other* end
+       * of the edge being edited (the one staying put).
+       */
       source: NodeGraphPortRef;
       /** Current pointer position in world coordinates. */
       currentWorld: Point2D;
@@ -107,6 +111,15 @@ export type NodeGraphInteractionState =
       candidate: NodeGraphPortRef | null;
       /** Whether the candidate is currently rejected by `isValidConnection`. */
       invalid: boolean;
+      /**
+       * Set while re-dragging an existing edge's endpoint. The edge is hidden
+       * from the edge layer for the duration so only the preview shows, and
+       * the drop either moves the endpoint, deletes the edge (detach), or —
+       * on a click with no drag — selects it.
+       */
+      reconnectEdgeId?: string;
+      /** Which end of `reconnectEdgeId` is being dragged. */
+      reconnectEnd?: 'source' | 'target';
     }
   | {
       kind: 'marquee';
@@ -609,7 +622,9 @@ function interactionEqual(
         portRefEqual(a.source, bx.source) &&
         pointEqual(a.currentWorld, bx.currentWorld) &&
         portRefEqual(a.candidate, bx.candidate) &&
-        a.invalid === bx.invalid
+        a.invalid === bx.invalid &&
+        a.reconnectEdgeId === bx.reconnectEdgeId &&
+        a.reconnectEnd === bx.reconnectEnd
       );
     }
     case 'marquee': {

@@ -106,7 +106,13 @@ export function drawEdges(
       delta: interaction.delta,
     };
   }
+  // While an endpoint is being re-dragged, hide the edge from this layer so
+  // only the connection preview is shown (the wire "detaches" and follows
+  // the cursor).
+  const reconnectingId =
+    interaction.kind === 'connect' ? interaction.reconnectEdgeId : undefined;
   for (const edge of data.edges) {
+    if (edge.id === reconnectingId) continue;
     const endpoints = resolveEdgeEndpoints(edge, getNodeById, getPortPosition);
     if (!endpoints) continue;
 

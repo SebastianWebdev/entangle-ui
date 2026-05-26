@@ -295,6 +295,10 @@ For undo grouping, telemetry, or just custom drop animations:
 />
 ```
 
+### Reconnecting & detaching edges
+
+Grab an existing edge **near one of its endpoints** and drag it: drop on another valid port to move that endpoint, or drop on empty space to detach (delete) the edge. The other end stays anchored and the dragged end runs through the same `isValidConnection` check as a fresh connection. Grabbing the edge **body** (away from the endpoints) selects it instead — so a plain click never deletes a wire. No extra props: the gesture is built in and emits the result through `onEdgesChange` (and `onConnectEnd`).
+
 ## Selection
 
 Selection is a tri-list of ids: `{ nodes, edges, groups }`. It's controlled-or-uncontrolled like every other piece of data.

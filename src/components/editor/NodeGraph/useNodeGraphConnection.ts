@@ -9,12 +9,25 @@ import type { ViewportTransform } from '@/components/primitives/viewport';
 import type {
   NodeGraphEdge,
   NodeGraphPortRef,
+  NodeGraphSelection,
   NodeGraphConnectStartInfo,
   NodeGraphConnectEndInfo,
   NodeGraphConnectionValidationInfo,
 } from './NodeGraph.types';
 import type { NodeGraphStore } from './NodeGraphStore';
 import { generateEdgeId } from './nodeGraphIds';
+
+/** Pointer travel (screen px) before a reconnect grab counts as a drag. */
+const RECONNECT_DRAG_THRESHOLD_PX = 4;
+
+/**
+ * What a connection drag is doing: creating a brand-new edge from a port, or
+ * re-dragging one endpoint of an existing edge (which on drop moves the
+ * endpoint, deletes the edge, or — with no drag — selects it).
+ */
+type ConnectMode =
+  | { kind: 'create' }
+  | { kind: 'reconnect'; edgeId: string; end: 'source' | 'target' };
 
 interface UseNodeGraphConnectionOptions {
   viewportRef: React.RefObject<HTMLDivElement | null>;
@@ -28,18 +41,30 @@ interface UseNodeGraphConnectionOptions {
   onConnectStart?: (info: NodeGraphConnectStartInfo) => void;
   onConnectEnd?: (info: NodeGraphConnectEndInfo) => void;
   emitEdgesChange: (next: NodeGraphEdge[]) => void;
+  /** Used to select an edge when a reconnect grab ends as a plain click. */
+  emitSelectionChange?: (next: NodeGraphSelection) => void;
 }
 
 interface UseNodeGraphConnectionReturn {
   /**
    * Handler attached to each `<NodeGraph.Port>` slot. Starts a connection
-   * drag and wires up document-level pointer listeners until the drag
-   * terminates.
+   * drag (create mode) and wires up document-level pointer listeners until
+   * the drag terminates.
    */
   onPortPointerDown: (
     event: React.PointerEvent<HTMLElement>,
     nodeId: string,
     portId: string
+  ) => void;
+  /**
+   * Start re-dragging one endpoint of an existing edge. Invoked by the
+   * parent when the pointer grabs near an edge endpoint on the background.
+   */
+  onEdgeReconnectStart: (
+    edgeId: string,
+    end: 'source' | 'target',
+    clientX: number,
+    clientY: number
   ) => void;
 }
 
@@ -80,9 +105,9 @@ function buildValidationInfo(
 }
 
 /**
- * Connection-drag controller. Owns the lifecycle from `pointerdown` on a
- * port through document-level `pointermove` / `pointerup` to the eventual
- * edge emission.
+ * Connection-drag controller. Owns the lifecycle from `pointerdown` (on a
+ * port for a new edge, or near an edge endpoint for a reconnect) through
+ * document-level `pointermove` / `pointerup` to the eventual edge emission.
  *
  * Document listeners are attached only while a drag is in flight — outside
  * of a gesture there is zero pointermove cost. Move events are coalesced
@@ -100,12 +125,14 @@ export function useNodeGraphConnection(
     onConnectStart,
     onConnectEnd,
     emitEdgesChange,
+    emitSelectionChange,
   } = options;
 
   const isValidRef = useLatest(isValidConnection);
   const onConnectStartRef = useLatest(onConnectStart);
   const onConnectEndRef = useLatest(onConnectEnd);
   const emitEdgesChangeRef = useLatest(emitEdgesChange);
+  const emitSelectionChangeRef = useLatest(emitSelectionChange);
 
   const teardownRef = useRef<(() => void) | null>(null);
 
@@ -131,52 +158,39 @@ export function useNodeGraphConnection(
     [viewportRef, getTransform]
   );
 
-  const onPortPointerDown = useCallback(
-    (
-      event: React.PointerEvent<HTMLElement>,
-      nodeId: string,
-      portId: string
-    ): void => {
-      // Only react to the primary mouse button (or touch / pen).
-      if (event.button !== 0) return;
-      event.stopPropagation();
-      event.preventDefault();
-
-      // Bail when the port hasn't measured yet — without a registered
-      // position the preview curve has no anchor.
-      const sourcePos = store.getPortPosition(nodeId, portId);
-      if (!sourcePos) return;
+  // Shared drag lifecycle for both modes. `source` is the fixed endpoint the
+  // preview draws from and the one passed to `isValidConnection` as the
+  // source argument.
+  const beginDrag = useCallback(
+    (params: {
+      source: NodeGraphPortRef;
+      startClientX: number;
+      startClientY: number;
+      mode: ConnectMode;
+    }): void => {
+      const { source, startClientX, startClientY, mode } = params;
 
       // If a previous gesture didn't tear down for some reason, clean it now.
       teardownRef.current?.();
 
-      const source: NodeGraphPortRef = { node: nodeId, port: portId };
-      const sourceNode = store.getNodeById(nodeId);
-      const sourceWorldPoint = sourceNode
-        ? {
-            x: sourceNode.position.x + sourcePos.x,
-            y: sourceNode.position.y + sourcePos.y,
-          }
-        : screenPointToWorld(event.clientX, event.clientY);
-      const worldPoint = screenPointToWorld(event.clientX, event.clientY);
-
+      const startWorld = screenPointToWorld(startClientX, startClientY);
       store.setInteraction({
         kind: 'connect',
         source,
-        currentWorld: worldPoint,
+        currentWorld: startWorld,
         candidate: null,
         invalid: false,
+        ...(mode.kind === 'reconnect'
+          ? { reconnectEdgeId: mode.edgeId, reconnectEnd: mode.end }
+          : {}),
       });
-      onConnectStartRef.current?.({
-        source,
-        worldPoint: sourceWorldPoint,
-      });
+      if (mode.kind === 'create') {
+        onConnectStartRef.current?.({ source, worldPoint: startWorld });
+      }
 
-      // RAF-coalesced move handler. `elementFromPoint` forces a layout flush,
-      // so we run at most one hit-test per frame instead of one per pointer
-      // poll (high-poll mice can emit 1000+ events/s).
       let pendingPoint: { x: number; y: number } | null = null;
       let rafId = 0;
+      let didMove = false;
 
       const runMove = (): void => {
         rafId = 0;
@@ -197,7 +211,7 @@ export function useNodeGraphConnection(
             candidateRef.node === state.source.node &&
             candidateRef.port === state.source.port
           ) {
-            // Hovering back over the source — treat as no candidate.
+            // Hovering back over the fixed endpoint — treat as no candidate.
             nextCandidate = null;
           } else {
             nextCandidate = candidateRef;
@@ -206,8 +220,6 @@ export function useNodeGraphConnection(
             if (validator) {
               invalid = !validator(state.source, candidateRef, info);
             } else if (info.sameNode) {
-              // Default policy: reject same-node connections when consumer
-              // has no validator opinion (most graphs don't want self-loops).
               invalid = true;
             }
           }
@@ -219,10 +231,18 @@ export function useNodeGraphConnection(
           currentWorld,
           candidate: nextCandidate,
           invalid,
+          ...(mode.kind === 'reconnect'
+            ? { reconnectEdgeId: mode.edgeId, reconnectEnd: mode.end }
+            : {}),
         });
       };
 
       const handleMove = (e: PointerEvent): void => {
+        if (!didMove) {
+          const dx = e.clientX - startClientX;
+          const dy = e.clientY - startClientY;
+          if (Math.hypot(dx, dy) >= RECONNECT_DRAG_THRESHOLD_PX) didMove = true;
+        }
         pendingPoint = { x: e.clientX, y: e.clientY };
         if (rafId === 0) {
           rafId = requestAnimationFrame(runMove);
@@ -240,46 +260,101 @@ export function useNodeGraphConnection(
         teardownRef.current = null;
       };
 
+      const resolveCandidate = (
+        clientX: number,
+        clientY: number
+      ): NodeGraphPortRef | null => {
+        const dropEl = document.elementFromPoint(clientX, clientY);
+        const finalCandidate = readPortRefFromElement(dropEl);
+        return finalCandidate &&
+          !(
+            finalCandidate.node === source.node &&
+            finalCandidate.port === source.port
+          )
+          ? finalCandidate
+          : null;
+      };
+
       function handleUp(e: PointerEvent): void {
         teardown();
         const state = store.getInteraction();
         store.setInteraction({ kind: 'idle' });
         if (state.kind !== 'connect') return;
+        const candidate = resolveCandidate(e.clientX, e.clientY);
 
-        // Re-read candidate at release point — pointer can drift between
-        // the last move event and pointerup, especially on slow devices.
-        const dropEl = document.elementFromPoint(e.clientX, e.clientY);
-        const finalCandidate = readPortRefFromElement(dropEl);
-        const candidate =
-          finalCandidate &&
-          !(
-            finalCandidate.node === state.source.node &&
-            finalCandidate.port === state.source.port
-          )
-            ? finalCandidate
-            : null;
+        if (mode.kind === 'reconnect') {
+          // A grab that never moved is a click — select the edge, keep it.
+          if (!didMove) {
+            emitSelectionChangeRef.current?.({
+              nodes: [],
+              edges: [mode.edgeId],
+              groups: [],
+            });
+            onConnectEndRef.current?.({
+              source,
+              target: null,
+              cancelled: true,
+            });
+            return;
+          }
+          const accepted = candidate
+            ? (isValidRef.current?.(
+                source,
+                candidate,
+                buildValidationInfo(store, source, candidate)
+              ) ?? source.node !== candidate.node)
+            : false;
+          if (candidate && accepted) {
+            const next = store
+              .getData()
+              .edges.map(edge =>
+                edge.id === mode.edgeId
+                  ? mode.end === 'source'
+                    ? { ...edge, source: candidate }
+                    : { ...edge, target: candidate }
+                  : edge
+              );
+            emitEdgesChangeRef.current(next);
+            onConnectEndRef.current?.({
+              source,
+              target: candidate,
+              cancelled: false,
+            });
+          } else {
+            // Dropped on empty space or an invalid port → detach (delete).
+            emitEdgesChangeRef.current(
+              store.getData().edges.filter(edge => edge.id !== mode.edgeId)
+            );
+            onConnectEndRef.current?.({
+              source,
+              target: null,
+              cancelled: true,
+            });
+          }
+          return;
+        }
 
+        // Create mode.
         let cancelled = !candidate;
         if (candidate) {
-          const info = buildValidationInfo(store, state.source, candidate);
+          const info = buildValidationInfo(store, source, candidate);
           const validator = isValidRef.current;
           const accepted = validator
-            ? validator(state.source, candidate, info)
+            ? validator(source, candidate, info)
             : !info.sameNode;
           if (!accepted) {
             cancelled = true;
           } else {
             const newEdge: NodeGraphEdge = {
-              id: generateEdgeId(state.source, candidate),
-              source: state.source,
+              id: generateEdgeId(source, candidate),
+              source,
               target: candidate,
             };
             emitEdgesChangeRef.current([...store.getData().edges, newEdge]);
           }
         }
-
         onConnectEndRef.current?.({
-          source: state.source,
+          source,
           target: cancelled ? null : (candidate ?? null),
           cancelled,
         });
@@ -290,11 +365,7 @@ export function useNodeGraphConnection(
         const state = store.getInteraction();
         store.setInteraction({ kind: 'idle' });
         if (state.kind !== 'connect') return;
-        onConnectEndRef.current?.({
-          source: state.source,
-          target: null,
-          cancelled: true,
-        });
+        onConnectEndRef.current?.({ source, target: null, cancelled: true });
       }
 
       teardownRef.current = teardown;
@@ -308,9 +379,54 @@ export function useNodeGraphConnection(
       onConnectStartRef,
       onConnectEndRef,
       emitEdgesChangeRef,
+      emitSelectionChangeRef,
       isValidRef,
     ]
   );
 
-  return { onPortPointerDown };
+  const onPortPointerDown = useCallback(
+    (
+      event: React.PointerEvent<HTMLElement>,
+      nodeId: string,
+      portId: string
+    ): void => {
+      if (event.button !== 0) return;
+      event.stopPropagation();
+      event.preventDefault();
+      // Bail when the port hasn't measured yet — without a registered
+      // position the preview curve has no anchor.
+      if (!store.getPortPosition(nodeId, portId)) return;
+      beginDrag({
+        source: { node: nodeId, port: portId },
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        mode: { kind: 'create' },
+      });
+    },
+    [store, beginDrag]
+  );
+
+  const onEdgeReconnectStart = useCallback(
+    (
+      edgeId: string,
+      end: 'source' | 'target',
+      clientX: number,
+      clientY: number
+    ): void => {
+      const edge = store.getData().edges.find(e => e.id === edgeId);
+      if (!edge) return;
+      // The fixed endpoint is the *other* end — that's what the preview
+      // anchors to and what the dragged end validates against.
+      const fixed = end === 'source' ? edge.target : edge.source;
+      beginDrag({
+        source: fixed,
+        startClientX: clientX,
+        startClientY: clientY,
+        mode: { kind: 'reconnect', edgeId, end },
+      });
+    },
+    [store, beginDrag]
+  );
+
+  return { onPortPointerDown, onEdgeReconnectStart };
 }

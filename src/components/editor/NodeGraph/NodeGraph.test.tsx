@@ -978,3 +978,138 @@ describe('NodeGraph — Groups', () => {
     expect(onSelectionChange).not.toHaveBeenCalled();
   });
 });
+
+// ─── Edge reconnect / detach ───
+
+describe('NodeGraph — Edge reconnect', () => {
+  // jsdom reports zero-size rects, so ports register at their node origin:
+  // n1.out → (100,100), n2.in → (300,100). Grabbing near (300,100) targets
+  // the edge's `target` endpoint; the fixed anchor is n1.out.
+  function grabTargetEndpoint(): void {
+    fireEvent.pointerDown(screen.getByTestId('nodegraph'), {
+      pointerId: 7,
+      button: 0,
+      clientX: 300,
+      clientY: 100,
+    });
+  }
+
+  it('detaches (deletes) the edge when dropped on empty space', () => {
+    let captured: NodeGraphEdge[] | null = null;
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        defaultEdges={baseEdges}
+        renderNode={renderTestNode}
+        onEdgesChange={next => {
+          captured = next;
+        }}
+      />
+    );
+    grabTargetEndpoint();
+    // Move past the drag threshold, then drop on empty (elementFromPoint null).
+    document.elementFromPoint = vi.fn(
+      () => null
+    ) as unknown as typeof document.elementFromPoint;
+    fireEvent(
+      document,
+      new MockPointerEvent('pointermove', {
+        pointerId: 7,
+        clientX: 400,
+        clientY: 300,
+      })
+    );
+    fireEvent(
+      document,
+      new MockPointerEvent('pointerup', {
+        pointerId: 7,
+        button: 0,
+        clientX: 400,
+        clientY: 300,
+      })
+    );
+    const next = captured as unknown as NodeGraphEdge[] | null;
+    expect(next).not.toBeNull();
+    expect(next).toEqual([]);
+  });
+
+  it('reconnects the endpoint when dropped on a valid port', () => {
+    let captured: NodeGraphEdge[] | null = null;
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        defaultEdges={baseEdges}
+        renderNode={renderTestNode}
+        onEdgesChange={next => {
+          captured = next;
+        }}
+      />
+    );
+    grabTargetEndpoint();
+    const newTarget = document.querySelector(
+      '[data-node-id="n2"][data-port-id="out"]'
+    ) as HTMLElement;
+    document.elementFromPoint = vi.fn(
+      () => newTarget
+    ) as unknown as typeof document.elementFromPoint;
+    fireEvent(
+      document,
+      new MockPointerEvent('pointermove', {
+        pointerId: 7,
+        clientX: 360,
+        clientY: 120,
+      })
+    );
+    fireEvent(
+      document,
+      new MockPointerEvent('pointerup', {
+        pointerId: 7,
+        button: 0,
+        clientX: 360,
+        clientY: 120,
+      })
+    );
+    const next = captured as unknown as NodeGraphEdge[] | null;
+    expect(next).not.toBeNull();
+    expect(next).toHaveLength(1);
+    // Fixed source stays; target moved to n2.out.
+    expect(next?.[0]?.source).toEqual({ node: 'n1', port: 'out' });
+    expect(next?.[0]?.target).toEqual({ node: 'n2', port: 'out' });
+  });
+
+  it('selects the edge (no detach) when the grab is a click with no drag', () => {
+    let edges: NodeGraphEdge[] | null = null;
+    let selection: NodeGraphSelection | null = null;
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        defaultEdges={baseEdges}
+        renderNode={renderTestNode}
+        onEdgesChange={next => {
+          edges = next;
+        }}
+        onSelectionChange={next => {
+          selection = next;
+        }}
+      />
+    );
+    grabTargetEndpoint();
+    // Pointer up without moving → treated as a click.
+    fireEvent(
+      document,
+      new MockPointerEvent('pointerup', {
+        pointerId: 7,
+        button: 0,
+        clientX: 300,
+        clientY: 100,
+      })
+    );
+    const sel = selection as unknown as NodeGraphSelection | null;
+    expect(sel?.edges).toEqual(['e1']);
+    // The edge must NOT have been deleted by a mere click.
+    expect(edges).toBeNull();
+  });
+});

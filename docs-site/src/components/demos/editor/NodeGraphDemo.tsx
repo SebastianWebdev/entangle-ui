@@ -971,6 +971,9 @@ export default function NodeGraphDemo(): React.ReactElement {
             <kbd>Click edge</kbd> select · <kbd>right-click edge</kbd> delete
           </span>
           <span>
+            <kbd>Drag edge end</kbd> reconnect · drop on empty → detach
+          </span>
+          <span>
             <kbd>Drag group body / handles</kbd> move + resize
           </span>
           <span>
