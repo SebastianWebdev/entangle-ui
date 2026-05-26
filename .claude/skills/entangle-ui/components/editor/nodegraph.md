@@ -316,30 +316,43 @@ type NodeGraphEdgeStyle = {
 />;
 ```
 
-`edgeStyle` is called per edge per frame and the library memoizes nothing — keep it a map lookup / ternary. Because it runs on every redraw, you can animate any time-based style by pairing it with a `requestAnimationFrame` loop that calls `ref.invalidate('edges')`.
+`edgeStyle` is called per edge per frame and the library memoizes nothing — keep it a map lookup / ternary. Because it runs on every redraw, you can animate any time-based style by pairing it with a `requestAnimationFrame` loop that calls `ref.invalidate('edges')`:
 
-(null);
+```tsx
+const ref = useRef<NodeGraphHandle>(null);
 
-const edgeStyle = (edge, ctx) => {
-const type = ctx.sourcePort?.dataType ?? 'any';
-const style = { color: TYPE_COLOR[type] };
-if (edge.data?.async) style.dash = [7, 6];
-if (edge.data?.active) { // time-based pulse
-style.color = '#ffd24a';
-style.width = 2 + (Math.sin(performance.now() / 180) + 1) \* 1.1;
-}
-if (ctx.selected) style.width = Math.max(style.width ?? 0, 3.2);
-return style;
+const edgeStyle = (edge: NodeGraphEdge, ctx: NodeGraphEdgeStyleCtx) => {
+  const type = ctx.sourcePort?.dataType ?? 'any';
+  const style: NodeGraphEdgeStyle = { color: TYPE_COLOR[type] };
+  if (edge.data?.async) style.dash = [7, 6]; // a static dashed wire
+  if (edge.data?.active) {
+    style.color = '#ffd24a';
+    style.width = 2 + (Math.sin(performance.now() / 180) + 1) * 1.1; // pulse
+  }
+  if (ctx.selected) style.width = Math.max(style.width ?? 0, 3.2);
+  return style;
 };
 
-// Redraw the edge layer each frame so the pulse animates — one canvas
-// layer, no React re-render.
+// Redraw the edge layer every frame so the time-based pulse advances —
+// one canvas layer, no React re-render.
 useEffect(() => {
-let raf = 0;
-const loop = () => { ref.current?.invalidate('edges'); raf = requestAnimationFrame(loop); };
-raf = requestAnimationFrame(loop);
-return () => cancelAnimationFrame(raf);
+  let raf = 0;
+  const loop = () => {
+    ref.current?.invalidate('edges');
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return () => cancelAnimationFrame(raf);
 }, []);
+```
+
+ ({
+    color: TYPE_COLOR[ctx.sourcePort?.dataType ?? 'any'],
+    width: ctx.selected ? 3.2 : ctx.hovered ? 2.2 : 1.5,
+    dash: edge.data?.async ? [7, 6] : null,
+  })}
+  renderEdgeLabel={edge => {edge.data.label}}
+>
 
 `}
 >
@@ -646,31 +659,70 @@ The pure functions behind the component and the hook are exported for custom cal
 - **Cheap edge hit-testing.** `findEdgeAtPoint` does a convex-hull broad-phase rejection before the sampled distance test, keeping hover/click near `O(edges)`.
 - **DOM-tracked ports.** Port positions come from the rendered DOM, not from offsets, so edges follow live as bodies grow / shrink / relayout.
 
-The benchmark below is interactive: pick a node count, toggle the camera orbit to put the renderer under sustained load, and watch the live FPS / frame-time meter. Drag, marquee, and wheel-zoom to feel the interaction cost yourself.
+The benchmark below stresses two different axes. **Grid** scales the _node_ count — a square grid with one edge per node, loading node rendering, hit-testing, marquee, and the minimap. **Layered net** keeps the node count low but floods the _edge_ layer: a fully-connected stack where every node in a layer wires to every node in the next, so `2·20·50·20·2` is only 94 nodes yet 2080 edges. Toggle the camera orbit to put the renderer under sustained load, watch the live FPS / frame-time meter, and drag / marquee / wheel-zoom to feel the interaction cost yourself.
 
- 0) edges.push({ id: 'e' + i, source: { node: 'n' + (i - 1), port: 'out' }, target: { node: 'n' + i, port: 'in' } });
-}
-return { nodes, edges };
+```tsx
+// Grid: a square grid, one edge per node — scales the NODE count.
+function buildGrid(count: number) {
+  const cols = Math.ceil(Math.sqrt(count));
+  const nodes = [];
+  const edges = [];
+  for (let i = 0; i < count; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    // Explicit width/height → hit-test / marquee / minimap skip measurement.
+    nodes.push({
+      id: `n${i}`,
+      position: { x: col * 210, y: row * 120 },
+      width: 132,
+      height: 58,
+      data,
+    });
+    if (col > 0)
+      edges.push({
+        source: { node: `n${i - 1}`, port: 'out' },
+        target: { node: `n${i}`, port: 'in' },
+      });
+  }
+  return { nodes, edges };
 }
 
-// rAF meter — optionally orbit the camera to load every layer each frame.
+// Layered net: every node in a layer wired to every node in the next — few
+// nodes, a flood of EDGES. [2, 20, 50, 20, 2] → 94 nodes, 2080 edges.
+function buildLayered(layers: number[]) {
+  // place each layer in a column, then for every adjacent pair (a, b):
+  //   for (i of a) for (j of b) edges.push({ source: a[i].out, target: b[j].in })
+}
+
+// rAF meter: sample the frame delta; optionally orbit the camera so every
+// canvas layer redraws each frame (the realistic per-frame cost).
 useEffect(() => {
-let raf = 0, last = performance.now(), acc = 0, frames = 0, worst = 0;
-const loop = now => {
-const dt = now - last; last = now; acc += dt; frames++; worst = Math.max(worst, dt);
-if (animateRef.current) ref.current?.centerOn(orbit(now));
-if (acc >= 300) { setStats({ fps: Math.round(frames \* 1000 / acc), ms: +(acc / frames).toFixed(1), worst: Math.round(worst) }); acc = frames = worst = 0; }
-raf = requestAnimationFrame(loop);
-};
-raf = requestAnimationFrame(loop);
-return () => cancelAnimationFrame(raf);
-}, []);
+  let raf = 0;
+  let last = performance.now();
+  let acc = 0;
+  let frames = 0;
+  const loop = (now: number) => {
+    acc += now - last;
+    last = now;
+    frames += 1;
+    if (animate) ref.current?.centerOn(orbitPoint(now));
+    if (acc >= 300) {
+      setStats({ fps: Math.round((frames * 1000) / acc), ms: acc / frames });
+      acc = 0;
+      frames = 0;
+    }
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  return () => cancelAnimationFrame(raf);
+}, [animate]);
+```
 
 `}
 >
 
 :::note
-Numbers depend entirely on your machine, browser, and the size given to the surface. Treat the meter as a relative dial for comparing counts and toggles on _your_ hardware, not an absolute score. Giving each benchmark node an explicit `width`/`height` lets hit-testing, marquee, and the minimap skip DOM measurement — a meaningful win at scale.
+Numbers depend entirely on your machine, browser, and the size given to the surface. Treat the meter as a relative dial for comparing layouts, counts, and toggles on _your_ hardware, not an absolute score. Giving each benchmark node an explicit `width`/`height` lets hit-testing, marquee, and the minimap skip DOM measurement — a meaningful win at scale.
 :::
 
 ## Accessibility

@@ -15,10 +15,14 @@ import {
 } from '@/components/navigation';
 import { StatusFooter } from './nodeGraphRecipeData';
 
-// A real, interactive performance harness. Pick a node count, optionally let
-// the camera orbit (sustained pan → every canvas layer redraws each frame),
-// and watch the live FPS / frame-time meter. Drag, marquee, and zoom to feel
-// the interaction cost yourself.
+// A real, interactive performance harness with two stress axes:
+//   • Grid   — scale the NODE count (a square grid, one edge per node). Loads
+//     node rendering, hit-testing, marquee, and the minimap.
+//   • Layers — few nodes but a flood of EDGES: a fully-connected "neural net"
+//     (each adjacent layer wired pair-wise). Loads the edge canvas layer and
+//     edge hit-testing specifically.
+// Toggle the camera orbit to put the renderer under sustained load and watch
+// the live FPS / frame-time meter; drag / marquee / wheel-zoom to feel it.
 //
 // What makes this scale (all inherited from the architecture):
 //   • per-id slice selectors — only the dragged / hovered node re-renders
@@ -26,7 +30,19 @@ import { StatusFooter } from './nodeGraphRecipeData';
 //   • the background pattern is LOD + pattern-fill, bounded per frame
 //   • broad-phase Bézier rejection keeps edge hit-testing near O(edges)
 
+type Topology = 'grid' | 'layers';
+
 const COUNTS = [120, 320, 640] as const;
+
+// Fully-connected layer stacks. Edge count is the sum of products of adjacent
+// layers, so a small node count hides a large edge count:
+//   2·20·50·20·2 → 94 nodes / 2080 edges
+//   3·32·96·32·3 → 166 nodes / 6336 edges
+const NETS = [
+  { key: 's', label: '2·20·50·20·2', layers: [2, 20, 50, 20, 2] },
+  { key: 'l', label: '3·32·96·32·3', layers: [3, 32, 96, 32, 3] },
+] as const;
+
 const ACCENTS = [
   '#5d8dff',
   '#5fd97e',
@@ -37,6 +53,8 @@ const ACCENTS = [
 ];
 const SPACING_X = 210;
 const SPACING_Y = 120;
+const LAYER_X = 320;
+const LAYER_NODE_Y = 74;
 
 interface BenchData {
   title: string;
@@ -50,7 +68,8 @@ interface BuiltGraph {
   radius: number;
 }
 
-function buildGraph(count: number): BuiltGraph {
+// A square grid: one edge per node (to its left neighbour). Scales nodes.
+function buildGrid(count: number): BuiltGraph {
   const cols = Math.ceil(Math.sqrt(count));
   const nodes: NodeGraphNode[] = [];
   const edges: NodeGraphEdge[] = [];
@@ -68,7 +87,6 @@ function buildGraph(count: number): BuiltGraph {
         accent: ACCENTS[i % ACCENTS.length] ?? '#5d8dff',
       },
     });
-    // Wire each node to its left neighbour in the same row.
     if (col > 0) {
       edges.push({
         id: `e${i}`,
@@ -84,6 +102,52 @@ function buildGraph(count: number): BuiltGraph {
     nodes,
     edges,
     center: { x: width / 2, y: height / 2 },
+    radius: Math.max(width, height) / 2,
+  };
+}
+
+// A layered, fully-connected network: each column is one layer, and every node
+// in a layer wires to every node in the next. Few nodes, a flood of edges.
+function buildLayered(layers: readonly number[]): BuiltGraph {
+  const nodes: NodeGraphNode[] = [];
+  const edges: NodeGraphEdge[] = [];
+  let maxHalf = 0;
+  layers.forEach((size, l) => {
+    const colHeight = (size - 1) * LAYER_NODE_Y;
+    maxHalf = Math.max(maxHalf, colHeight / 2);
+    const startY = -colHeight / 2;
+    for (let i = 0; i < size; i += 1) {
+      nodes.push({
+        id: `l${l}-${i}`,
+        position: { x: l * LAYER_X, y: startY + i * LAYER_NODE_Y },
+        width: 132,
+        height: 58,
+        data: {
+          title: `L${l}·${i}`,
+          accent: ACCENTS[l % ACCENTS.length] ?? '#5d8dff',
+        },
+      });
+    }
+  });
+  for (let l = 0; l < layers.length - 1; l += 1) {
+    const a = layers[l] ?? 0;
+    const b = layers[l + 1] ?? 0;
+    for (let i = 0; i < a; i += 1) {
+      for (let j = 0; j < b; j += 1) {
+        edges.push({
+          id: `e${l}-${i}-${j}`,
+          source: { node: `l${l}-${i}`, port: 'out' },
+          target: { node: `l${l + 1}-${j}`, port: 'in' },
+        });
+      }
+    }
+  }
+  const width = (layers.length - 1) * LAYER_X;
+  const height = maxHalf * 2;
+  return {
+    nodes,
+    edges,
+    center: { x: width / 2, y: 0 },
     radius: Math.max(width, height) / 2,
   };
 }
@@ -114,11 +178,13 @@ function BenchNode({ node }: { node: NodeGraphNode }): React.ReactElement {
 }
 
 export default function NodeGraphBenchmarkDemo(): React.ReactElement {
-  const initial = useMemo(() => buildGraph(COUNTS[0]), []);
+  const initial = useMemo(() => buildGrid(COUNTS[0]), []);
   const graph = useNodeGraph({ nodes: initial.nodes, edges: initial.edges });
   const ref = useRef<NodeGraphHandle>(null);
 
+  const [topology, setTopology] = useState<Topology>('grid');
   const [count, setCount] = useState<number>(COUNTS[0]);
+  const [netKey, setNetKey] = useState<string>(NETS[0].key);
   const [animate, setAnimate] = useState(false);
   const [stats, setStats] = useState({ fps: 60, ms: 16.7, worst: 17 });
 
@@ -132,14 +198,16 @@ export default function NodeGraphBenchmarkDemo(): React.ReactElement {
     []
   );
 
-  const regenerate = useCallback(
-    (next: number) => {
-      const built = buildGraph(next);
+  const rebuild = useCallback(
+    (topo: Topology, gridCount: number, net: string) => {
+      const built =
+        topo === 'grid'
+          ? buildGrid(gridCount)
+          : buildLayered((NETS.find(n => n.key === net) ?? NETS[0]).layers);
       extentRef.current = { center: built.center, radius: built.radius };
       graph.setNodes(built.nodes);
       graph.setEdges(built.edges);
       graph.clearSelection();
-      setCount(next);
       // Let the new nodes mount + measure before framing them.
       window.setTimeout(() => ref.current?.fitToContent(80), 80);
     },
@@ -204,7 +272,7 @@ export default function NodeGraphBenchmarkDemo(): React.ReactElement {
           display: 'flex',
           flexDirection: 'column',
           gap: 10,
-          height: 560,
+          height: 580,
         }}
       >
         <div
@@ -221,20 +289,59 @@ export default function NodeGraphBenchmarkDemo(): React.ReactElement {
               color: 'var(--etui-color-text-muted, #7a808a)',
             }}
           >
-            Node count
+            Layout
           </span>
           <SegmentedControl
             size="sm"
-            value={String(count)}
-            onChange={value => regenerate(Number(value))}
-            aria-label="Node count"
+            value={topology}
+            onChange={value => {
+              const topo = value as Topology;
+              setTopology(topo);
+              rebuild(topo, count, netKey);
+            }}
+            aria-label="Benchmark topology"
           >
-            {COUNTS.map(c => (
-              <SegmentedControlItem key={c} value={String(c)}>
-                {c}
-              </SegmentedControlItem>
-            ))}
+            <SegmentedControlItem value="grid">Grid</SegmentedControlItem>
+            <SegmentedControlItem value="layers">
+              Layered net
+            </SegmentedControlItem>
           </SegmentedControl>
+
+          {topology === 'grid' ? (
+            <SegmentedControl
+              size="sm"
+              value={String(count)}
+              onChange={value => {
+                const next = Number(value);
+                setCount(next);
+                rebuild('grid', next, netKey);
+              }}
+              aria-label="Node count"
+            >
+              {COUNTS.map(c => (
+                <SegmentedControlItem key={c} value={String(c)}>
+                  {c}
+                </SegmentedControlItem>
+              ))}
+            </SegmentedControl>
+          ) : (
+            <SegmentedControl
+              size="sm"
+              value={netKey}
+              onChange={value => {
+                setNetKey(value);
+                rebuild('layers', count, value);
+              }}
+              aria-label="Network shape"
+            >
+              {NETS.map(n => (
+                <SegmentedControlItem key={n.key} value={n.key}>
+                  {n.label}
+                </SegmentedControlItem>
+              ))}
+            </SegmentedControl>
+          )}
+
           <Switch
             size="sm"
             checked={animate}
@@ -258,7 +365,7 @@ export default function NodeGraphBenchmarkDemo(): React.ReactElement {
             ref={ref}
             {...graph.bind}
             renderNode={renderNode}
-            minZoom={0.05}
+            minZoom={0.03}
             maxZoom={2}
             responsive
             ariaLabel="Performance benchmark graph"
@@ -270,6 +377,7 @@ export default function NodeGraphBenchmarkDemo(): React.ReactElement {
         <StatusFooter>
           <span>
             {graph.nodes.length} nodes · {graph.edges.length} edges
+            {topology === 'layers' ? ' · fully connected per layer' : ''}
           </span>
           <span style={{ marginLeft: 'auto' }}>
             Toggle <strong>Orbit camera</strong> to load the renderer · drag /
