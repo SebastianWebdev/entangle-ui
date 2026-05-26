@@ -3,11 +3,63 @@
 import React, { useSyncExternalStore } from 'react';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { NodeGraphEdge } from './NodeGraph.types';
+import type { NodeGraphInteractionState } from './NodeGraphStore';
 import { useNodeGraphStore } from './NodeGraphContext';
 import { resolvePortRef } from './nodeGraphMath';
+import { useStoreSlice } from './useStoreSlice';
 
 interface RenderEdgeLabelRef {
   current: ((edge: NodeGraphEdge) => React.ReactNode) | undefined;
+}
+
+/** Live drag deltas for an edge's two endpoints during the current gesture. */
+interface EdgeEndpointDeltas {
+  src: Point2D | null;
+  tgt: Point2D | null;
+}
+
+// Shared sentinel for "this edge isn't affected by the current gesture" —
+// one reference so the equality check below short-circuits cleanly.
+const NO_EDGE_DELTAS: EdgeEndpointDeltas = { src: null, tgt: null };
+
+function pointEqualNullable(a: Point2D | null, b: Point2D | null): boolean {
+  if (a === b) return true;
+  if (a === null || b === null) return false;
+  return a.x === b.x && a.y === b.y;
+}
+
+function edgeDeltasEqual(
+  a: EdgeEndpointDeltas,
+  b: EdgeEndpointDeltas
+): boolean {
+  return pointEqualNullable(a.src, b.src) && pointEqualNullable(a.tgt, b.tgt);
+}
+
+/**
+ * Live drag delta for an edge's endpoints, or {@link NO_EDGE_DELTAS} when
+ * neither endpoint's node is part of the current drag. Mirrors the per-node
+ * selector in `NodeGraphNode` so a label only updates when an endpoint it
+ * actually owns is moving.
+ */
+function selectEdgeDeltas(
+  interaction: NodeGraphInteractionState,
+  sourceNode: string,
+  targetNode: string
+): EdgeEndpointDeltas {
+  let ids: ReadonlyArray<string> | null = null;
+  let delta: Point2D | null = null;
+  if (interaction.kind === 'drag-nodes') {
+    ids = interaction.nodeIds;
+    delta = interaction.delta;
+  } else if (interaction.kind === 'drag-groups') {
+    ids = interaction.containedNodeIds;
+    delta = interaction.delta;
+  }
+  if (!ids || !delta) return NO_EDGE_DELTAS;
+  const src = ids.includes(sourceNode) ? delta : null;
+  const tgt = ids.includes(targetNode) ? delta : null;
+  if (src === null && tgt === null) return NO_EDGE_DELTAS;
+  return { src, tgt };
 }
 
 /**
@@ -16,13 +68,11 @@ interface RenderEdgeLabelRef {
  * its own so a drag of an unrelated node doesn't re-render every label
  * in the graph — only the labels whose endpoints actually move.
  *
- * One subscriber per edge: each `EdgeLabel` independently subscribes to
- * the `interaction` slice and computes its own live midpoint. Granular
- * subscriptions guarantee React keeps each label in sync per frame
- * during a drag — when many `useSyncExternalStore` hooks pile up in a
- * single component (each with different stability characteristics), one
- * re-subscribing on every render can starve the others on certain
- * concurrent rendering paths.
+ * One subscriber per edge: each `EdgeLabel` subscribes to the `interaction`
+ * slice through `useStoreSlice` with an endpoint-delta selector + equality,
+ * so it re-renders only when an endpoint it actually owns moves. Labels on
+ * edges untouched by the current gesture short-circuit on the equality check
+ * and skip the per-frame re-render entirely.
  */
 export function EdgeLabelsLayer({
   renderEdgeLabelRef,
@@ -60,11 +110,21 @@ function EdgeLabel({
   renderEdgeLabelRef: RenderEdgeLabelRef;
 }): React.ReactElement | null {
   const store = useNodeGraphStore();
-  // Subscribe directly — every interaction notification (drag-nodes
-  // delta, drag-groups delta, marquee, connect) re-renders this label.
-  const interaction = useSyncExternalStore(
+  // Per-edge slice of the interaction state — yields this edge's endpoint
+  // deltas (or the shared empty sentinel). Paired with `edgeDeltasEqual`,
+  // a drag of nodes this edge doesn't touch leaves the selection equal, so
+  // the label bails out of the re-render instead of churning every frame —
+  // the same per-id pattern `NodeGraphNode` uses. (A raw interaction
+  // subscription re-rendered *every* label on *every* gesture tick.)
+  const { src: srcDelta, tgt: tgtDelta } = useStoreSlice<
+    NodeGraphInteractionState,
+    EdgeEndpointDeltas
+  >(
     store.subscribeInteraction,
-    store.getInteraction
+    store.getInteraction,
+    interaction =>
+      selectEdgeDeltas(interaction, edge.source.node, edge.target.node),
+    edgeDeltasEqual
   );
   // Re-render when port positions update too (initial measure + body
   // re-layout shift the anchor).
@@ -84,23 +144,6 @@ function EdgeLabel({
     store.getPortPosition
   );
   if (!src || !tgt) return null;
-
-  // Apply the current frame's live drag delta to any endpoint whose node
-  // is being dragged — directly (`drag-nodes`) or as a contained child
-  // riding along with a moving group (`drag-groups.containedNodeIds`).
-  const liveDelta = (nodeId: string): Point2D | null => {
-    if (interaction.kind === 'drag-nodes') {
-      return interaction.nodeIds.includes(nodeId) ? interaction.delta : null;
-    }
-    if (interaction.kind === 'drag-groups') {
-      return interaction.containedNodeIds.includes(nodeId)
-        ? interaction.delta
-        : null;
-    }
-    return null;
-  };
-  const srcDelta = liveDelta(edge.source.node);
-  const tgtDelta = liveDelta(edge.target.node);
 
   const sx = src.position.x + (srcDelta?.x ?? 0);
   const sy = src.position.y + (srcDelta?.y ?? 0);

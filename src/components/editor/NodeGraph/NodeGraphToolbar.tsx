@@ -166,7 +166,8 @@ export function NodeGraphFitSelectionButton({
     const data = ngStore.getData();
     const sel = ngStore.getSelection();
     if (sel.nodes.length === 0) return;
-    const selectedNodes = data.nodes.filter(n => sel.nodes.includes(n.id));
+    const selectedIds = new Set(sel.nodes);
+    const selectedNodes = data.nodes.filter(n => selectedIds.has(n.id));
     const bounds = computeNodesBounds(
       selectedNodes,
       ngStore.getMeasuredSize,

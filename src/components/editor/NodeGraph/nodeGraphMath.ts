@@ -266,6 +266,24 @@ export function snapDelta(delta: Point2D, grid: number | false): Point2D {
   };
 }
 
+/**
+ * Resolve the next selection for a click on `id`, honouring the additive
+ * modifier (shift / cmd / ctrl). Non-additive replaces the selection with
+ * just `id`; additive toggles `id` in/out of the current set. Shared by the
+ * node-drag, group-drag, and edge-click paths so the toggle semantics stay
+ * identical everywhere.
+ */
+export function toggleSelected(
+  ids: ReadonlyArray<string>,
+  id: string,
+  additive: boolean
+): string[] {
+  if (!additive) return [id];
+  return ids.includes(id)
+    ? ids.filter(existing => existing !== id)
+    : [...ids, id];
+}
+
 /** Minimum size (in world units) a group can be resized down to. */
 export const MIN_GROUP_SIZE = 32;
 
@@ -445,6 +463,20 @@ export function findEdgeAtPoint(
       ends.target,
       ends.tgtSide
     );
+    // Broad-phase rejection: a cubic Bézier is contained within the convex
+    // hull of its control points, so a point outside their bounding box
+    // (expanded by `threshold`) can never be within `threshold` of the curve.
+    // Skips the 24-sample distance test for the vast majority of edges on
+    // large graphs — turns hover/click hit-testing from O(edges × 24) into a
+    // couple of comparisons per non-candidate edge.
+    if (point.x < Math.min(cp.p0.x, cp.c1.x, cp.c2.x, cp.p3.x) - threshold)
+      continue;
+    if (point.x > Math.max(cp.p0.x, cp.c1.x, cp.c2.x, cp.p3.x) + threshold)
+      continue;
+    if (point.y < Math.min(cp.p0.y, cp.c1.y, cp.c2.y, cp.p3.y) - threshold)
+      continue;
+    if (point.y > Math.max(cp.p0.y, cp.c1.y, cp.c2.y, cp.p3.y) + threshold)
+      continue;
     if (isPointNearBezier(point, cp, threshold)) return edge.id;
   }
   return null;

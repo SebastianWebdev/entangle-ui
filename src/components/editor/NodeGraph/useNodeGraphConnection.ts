@@ -158,6 +158,20 @@ export function useNodeGraphConnection(
     [viewportRef, getTransform]
   );
 
+  // Whether a connection from `source` to `candidate` is allowed: defers to
+  // the consumer's `isValidConnection` when provided, otherwise the built-in
+  // rule of "any port but one on the same node". Shared by the live-hover
+  // preview and both drop paths (create + reconnect) so the accept/reject
+  // verdict can never drift between them.
+  const isAcceptable = useCallback(
+    (source: NodeGraphPortRef, candidate: NodeGraphPortRef): boolean => {
+      const info = buildValidationInfo(store, source, candidate);
+      const validator = isValidRef.current;
+      return validator ? validator(source, candidate, info) : !info.sameNode;
+    },
+    [store, isValidRef]
+  );
+
   // Shared drag lifecycle for both modes. `source` is the fixed endpoint the
   // preview draws from and the one passed to `isValidConnection` as the
   // source argument.
@@ -215,13 +229,7 @@ export function useNodeGraphConnection(
             nextCandidate = null;
           } else {
             nextCandidate = candidateRef;
-            const info = buildValidationInfo(store, state.source, candidateRef);
-            const validator = isValidRef.current;
-            if (validator) {
-              invalid = !validator(state.source, candidateRef, info);
-            } else if (info.sameNode) {
-              invalid = true;
-            }
+            invalid = !isAcceptable(state.source, candidateRef);
           }
         }
 
@@ -314,13 +322,7 @@ export function useNodeGraphConnection(
             });
             return;
           }
-          const accepted = candidate
-            ? (isValidRef.current?.(
-                source,
-                candidate,
-                buildValidationInfo(store, source, candidate)
-              ) ?? source.node !== candidate.node)
-            : false;
+          const accepted = candidate ? isAcceptable(source, candidate) : false;
           if (candidate && accepted) {
             const next = store
               .getData()
@@ -356,11 +358,7 @@ export function useNodeGraphConnection(
         // Create mode.
         let cancelled = !candidate;
         if (candidate) {
-          const info = buildValidationInfo(store, source, candidate);
-          const validator = isValidRef.current;
-          const accepted = validator
-            ? validator(source, candidate, info)
-            : !info.sameNode;
+          const accepted = isAcceptable(source, candidate);
           if (!accepted) {
             cancelled = true;
           } else {
@@ -405,7 +403,7 @@ export function useNodeGraphConnection(
       onConnectEndRef,
       emitEdgesChangeRef,
       emitSelectionChangeRef,
-      isValidRef,
+      isAcceptable,
     ]
   );
 

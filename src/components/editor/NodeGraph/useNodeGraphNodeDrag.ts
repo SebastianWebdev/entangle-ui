@@ -1,14 +1,15 @@
 'use client';
 
 import type React from 'react';
-import { useCallback, useLayoutEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useLatest } from '@/hooks';
 import { screenToWorld as worldFromScreen } from '@/components/primitives/viewport';
 import type { ViewportTransform } from '@/components/primitives/viewport';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { NodeGraphNode, NodeGraphSelection } from './NodeGraph.types';
 import type { NodeGraphStore } from './NodeGraphStore';
-import { snapDelta } from './nodeGraphMath';
+import { snapDelta, toggleSelected } from './nodeGraphMath';
+import { useDragGesture } from './useDragGesture';
 
 const DRAG_START_THRESHOLD_PX = 3;
 
@@ -44,7 +45,6 @@ interface DragSession {
   nodeStartPositions: Map<string, Point2D>;
   additive: boolean;
   didDrag: boolean;
-  cleanup: () => void;
 }
 
 /**
@@ -76,14 +76,7 @@ export function useNodeGraphNodeDrag(
   const emitSelectionChangeRef = useLatest(emitSelectionChange);
 
   const dragRef = useRef<DragSession | null>(null);
-
-  // Release any in-flight document listeners if the component unmounts mid-drag.
-  useLayoutEffect(() => {
-    return () => {
-      dragRef.current?.cleanup();
-      dragRef.current = null;
-    };
-  }, []);
+  const gesture = useDragGesture();
 
   const onNodeBodyPointerDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>, node: NodeGraphNode): void => {
@@ -94,14 +87,6 @@ export function useNodeGraphNodeDrag(
       event.stopPropagation();
       if (disabledRef.current) return;
       if (node.selectable === false && node.draggable === false) return;
-
-      // Defensive: if a previous gesture didn't tear down (e.g. pointer
-      // capture lost across alt-tab between move events), clean it now so
-      // we don't leak stale document listeners.
-      dragRef.current?.cleanup();
-
-      const target = event.currentTarget;
-      target.setPointerCapture(event.pointerId);
 
       const additive = event.shiftKey || event.metaKey || event.ctrlKey;
       const currentSelection = store.getSelection();
@@ -164,21 +149,13 @@ export function useNodeGraphNodeDrag(
         });
       };
 
-      const handleCancel = (): void => {
-        const session = dragRef.current;
-        if (!session) return;
-        session.cleanup();
-        dragRef.current = null;
-        store.setInteraction({ kind: 'idle' });
-      };
-
-      const cleanup = (): void => {
-        document.removeEventListener('pointermove', handleMove);
-        document.removeEventListener('pointercancel', handleCancel);
-      };
-
-      document.addEventListener('pointermove', handleMove);
-      document.addEventListener('pointercancel', handleCancel);
+      gesture.begin(event, {
+        onMove: handleMove,
+        onCancel: () => {
+          dragRef.current = null;
+          store.setInteraction({ kind: 'idle' });
+        },
+      });
 
       dragRef.current = {
         pointerId,
@@ -189,10 +166,9 @@ export function useNodeGraphNodeDrag(
         nodeStartPositions: positions,
         additive,
         didDrag: false,
-        cleanup,
       };
     },
-    [store, getTransform, localScreenPoint, snapToGridRef, disabledRef]
+    [store, getTransform, localScreenPoint, snapToGridRef, disabledRef, gesture]
   );
 
   const onNodeBodyPointerUp = useCallback(
@@ -200,12 +176,7 @@ export function useNodeGraphNodeDrag(
       const session = dragRef.current;
       if (session?.pointerId !== event.pointerId) return;
       event.stopPropagation();
-      const target = event.currentTarget;
-      if (target.hasPointerCapture(event.pointerId)) {
-        target.releasePointerCapture(event.pointerId);
-      }
-
-      session.cleanup();
+      gesture.finish(event);
 
       if (session.didDrag) {
         // Commit positions from store's interaction delta.
@@ -227,16 +198,8 @@ export function useNodeGraphNodeDrag(
         // Plain click — handle selection semantics.
         if (node.selectable !== false) {
           const current = session.selectionAtStart;
-          let nextNodes: string[];
-          if (session.additive) {
-            nextNodes = current.nodes.includes(node.id)
-              ? current.nodes.filter(id => id !== node.id)
-              : [...current.nodes, node.id];
-          } else {
-            nextNodes = [node.id];
-          }
           emitSelectionChangeRef.current({
-            nodes: nextNodes,
+            nodes: toggleSelected(current.nodes, node.id, session.additive),
             edges: session.additive ? current.edges : [],
             groups: session.additive ? current.groups : [],
           });
@@ -245,7 +208,7 @@ export function useNodeGraphNodeDrag(
 
       dragRef.current = null;
     },
-    [store, emitNodesChangeRef, emitSelectionChangeRef]
+    [store, emitNodesChangeRef, emitSelectionChangeRef, gesture]
   );
 
   return { onNodeBodyPointerDown, onNodeBodyPointerUp };

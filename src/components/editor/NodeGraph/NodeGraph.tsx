@@ -2,7 +2,6 @@
 
 import React, {
   useCallback,
-  useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useMemo,
@@ -85,13 +84,17 @@ import {
   isPointInNode,
   isPointInRect,
   rectsIntersect,
-  resolveEdgeEndpoints,
   resolvePortRef,
+  toggleSelected,
 } from './nodeGraphMath';
 import { useNodeGraphConnection } from './useNodeGraphConnection';
 import { useNodeGraphKeyboard } from './useNodeGraphKeyboard';
 import { useNodeGraphNodeDrag } from './useNodeGraphNodeDrag';
 import { useNodeGraphGroupDrag } from './useNodeGraphGroupDrag';
+import {
+  useNodeGraphEdgeInteraction,
+  EDGE_HIT_PX,
+} from './useNodeGraphEdgeInteraction';
 import { nodeGraphRootStyle } from './NodeGraph.css';
 
 const EMPTY_NODES: NodeGraphNode[] = [];
@@ -103,12 +106,6 @@ const EMPTY_SELECTION: NodeGraphSelection = {
   groups: [],
 };
 const DEFAULT_NODE_SIZE = { width: 180, height: 80 };
-// Pointer proximity (screen px) for hovering / clicking / right-clicking an
-// edge. Divided by the current zoom to get the world-space threshold.
-const EDGE_HIT_PX = 6;
-// Pointer proximity (screen px) to an edge endpoint that starts a
-// reconnect / detach grab instead of selecting the edge.
-const EDGE_ENDPOINT_GRAB_PX = 16;
 
 // ─── Main component ───
 
@@ -443,15 +440,9 @@ const NodeGraphImpl = ({
         );
         if (edgeId) {
           const current = selectionRef.current;
-          const already = current.edges.includes(edgeId);
-          const nextEdges = info.additive
-            ? already
-              ? current.edges.filter(e => e !== edgeId)
-              : [...current.edges, edgeId]
-            : [edgeId];
           setSelectionRef.current({
             nodes: info.additive ? current.nodes : [],
-            edges: nextEdges,
+            edges: toggleSelected(current.edges, edgeId, info.additive),
             groups: info.additive ? current.groups : [],
           });
           return;
@@ -563,125 +554,16 @@ const NodeGraphImpl = ({
     ]
   );
 
-  // ── Edge hover ──
-  //
-  // Edges are drawn on a canvas (no DOM node to receive pointer events), so
-  // hovering one is resolved by a RAF-coalesced Bézier hit-test on pointer
-  // move over the surface. Skipped while a gesture is active or while the
-  // pointer is over a node / port (which own their own hover state).
-  const edgeHoverRaf = useRef(0);
-  const edgeHoverPoint = useRef<Point2D | null>(null);
-
-  const clearEdgeHover = useCallback((): void => {
-    const hover = store.getHover();
-    if (hover.hoveredEdgeId !== null) {
-      store.setHover({ ...hover, hoveredEdgeId: null });
-    }
-  }, [store]);
-
-  const handleRootPointerMove = useCallback(
-    (event: React.PointerEvent<HTMLDivElement>): void => {
-      if (disabledRef.current) return;
-      if (store.getInteraction().kind !== 'idle') return;
-      const el = event.target as Element | null;
-      if (el?.closest('[data-node-id]')) {
-        clearEdgeHover();
-        return;
-      }
-      edgeHoverPoint.current = { x: event.clientX, y: event.clientY };
-      if (edgeHoverRaf.current !== 0) return;
-      edgeHoverRaf.current = requestAnimationFrame(() => {
-        edgeHoverRaf.current = 0;
-        const point = edgeHoverPoint.current;
-        edgeHoverPoint.current = null;
-        if (!point || store.getInteraction().kind !== 'idle') return;
-        const zoom = getTransform().zoom || 1;
-        const world = screenToWorldLocal(point.x, point.y);
-        const edgeId = findEdgeAtPoint(
-          world,
-          store.getData().edges,
-          store.getNodeById,
-          store.getPortPosition,
-          EDGE_HIT_PX / zoom
-        );
-        const hover = store.getHover();
-        if (hover.hoveredEdgeId !== edgeId) {
-          store.setHover({ ...hover, hoveredEdgeId: edgeId });
-        }
-      });
-    },
-    [store, disabledRef, getTransform, screenToWorldLocal, clearEdgeHover]
-  );
-
-  const handleRootPointerLeave = useCallback((): void => {
-    if (edgeHoverRaf.current !== 0) {
-      cancelAnimationFrame(edgeHoverRaf.current);
-      edgeHoverRaf.current = 0;
-    }
-    edgeHoverPoint.current = null;
-    clearEdgeHover();
-  }, [clearEdgeHover]);
-
-  // ── Edge endpoint grab → reconnect / detach ──
-  //
-  // Runs in the capture phase so it pre-empts the Viewport's marquee / pan
-  // when the pointer lands near an edge endpoint on the background. Grabbing
-  // an endpoint hands off to the connection controller in reconnect mode;
-  // grabbing the edge body (not an endpoint) falls through to click-select.
-  const handleRootPointerDownCapture = useCallback(
-    (event: React.PointerEvent<HTMLDivElement>): void => {
-      if (disabledRef.current) return;
-      if (event.button !== 0) return;
-      const el = event.target as Element | null;
-      if (el?.closest('[data-node-id]')) return;
-      const transform = getTransform();
-      const zoom = transform.zoom || 1;
-      const world = screenToWorldLocal(event.clientX, event.clientY);
-      const edges = store.getData().edges;
-      const edgeId = findEdgeAtPoint(
-        world,
-        edges,
-        store.getNodeById,
-        store.getPortPosition,
-        EDGE_HIT_PX / zoom
-      );
-      if (!edgeId) return;
-      const edge = edges.find(e => e.id === edgeId);
-      if (!edge) return;
-      const ends = resolveEdgeEndpoints(
-        edge,
-        store.getNodeById,
-        store.getPortPosition
-      );
-      if (!ends) return;
-      const srcScreen = screenFromWorld(ends.source, transform);
-      const tgtScreen = screenFromWorld(ends.target, transform);
-      const local = localScreenPoint(event.clientX, event.clientY);
-      const dSrc = Math.hypot(local.x - srcScreen.x, local.y - srcScreen.y);
-      const dTgt = Math.hypot(local.x - tgtScreen.x, local.y - tgtScreen.y);
-      if (Math.min(dSrc, dTgt) > EDGE_ENDPOINT_GRAB_PX) return;
-      event.stopPropagation();
-      event.preventDefault();
-      const end = dSrc <= dTgt ? 'source' : 'target';
-      onEdgeReconnectStart(edgeId, end, event.clientX, event.clientY);
-    },
-    [
-      disabledRef,
+  // ── Edge hover + endpoint grab (canvas edges → pointer hit-test) ──
+  const { onRootPointerMove, onRootPointerLeave, onRootPointerDownCapture } =
+    useNodeGraphEdgeInteraction({
+      store,
       getTransform,
       screenToWorldLocal,
       localScreenPoint,
-      store,
       onEdgeReconnectStart,
-    ]
-  );
-
-  useEffect(() => {
-    return () => {
-      if (edgeHoverRaf.current !== 0) {
-        cancelAnimationFrame(edgeHoverRaf.current);
-      }
-    };
-  }, []);
+      disabled,
+    });
 
   // ── Delete ──
   //
@@ -910,7 +792,10 @@ const NodeGraphImpl = ({
         if (!vp) return;
         const sel = selectionRef.current.nodes;
         if (sel.length === 0) return;
-        const selectedNodes = nodesRef.current.filter(n => sel.includes(n.id));
+        const selectedIds = new Set(sel);
+        const selectedNodes = nodesRef.current.filter(n =>
+          selectedIds.has(n.id)
+        );
         const bounds = computeNodesBounds(
           selectedNodes,
           store.getMeasuredSize,
@@ -963,9 +848,9 @@ const NodeGraphImpl = ({
         data-testid={testId}
         onKeyDown={onKeyDown}
         onContextMenu={handleContextMenu}
-        onPointerDownCapture={handleRootPointerDownCapture}
-        onPointerMove={handleRootPointerMove}
-        onPointerLeave={handleRootPointerLeave}
+        onPointerDownCapture={onRootPointerDownCapture}
+        onPointerMove={onRootPointerMove}
+        onPointerLeave={onRootPointerLeave}
         className={cx(nodeGraphRootStyle, className)}
         style={style}
       >

@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useCallback, useLayoutEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useLatest } from '@/hooks';
 import { screenToWorld as worldFromScreen } from '@/components/primitives/viewport';
 import type {
@@ -24,7 +24,9 @@ import {
   rectContains,
   rectsIntersect,
   snapDelta,
+  toggleSelected,
 } from './nodeGraphMath';
+import { useDragGesture } from './useDragGesture';
 
 const DRAG_START_THRESHOLD_PX = 3;
 
@@ -78,7 +80,6 @@ interface GroupDragSession {
   resizeStartBounds: WorldRect | null;
   additive: boolean;
   didDrag: boolean;
-  cleanup: () => void;
 }
 
 /**
@@ -158,93 +159,66 @@ export function useNodeGraphGroupDrag(
     [store]
   );
 
-  // Release any in-flight group listeners if the component unmounts mid-drag.
-  useLayoutEffect(() => {
-    return () => {
-      groupSessionRef.current?.cleanup();
-      groupSessionRef.current = null;
-    };
-  }, []);
+  const gesture = useDragGesture();
 
-  /**
-   * Wire up the shared move + cancel document listeners used by both the
-   * drag-groups and resize-group gestures. Returns a `cleanup` function the
-   * pointerup / pointercancel handler is expected to call.
-   */
-  const beginGroupSession = useCallback(
-    (pointerId: number): (() => void) => {
-      const handleMove = (e: PointerEvent): void => {
-        const session = groupSessionRef.current;
-        if (session?.pointerId !== pointerId) return;
-        const current = localScreenPoint(e.clientX, e.clientY);
-        const dx = current.x - session.startScreen.x;
-        const dy = current.y - session.startScreen.y;
-        const transform = getTransform();
-        const worldDelta = {
-          x: dx / transform.zoom,
-          y: dy / transform.zoom,
-        };
-        const snapped = snapDelta(worldDelta, snapToGridRef.current);
+  // Shared move handler for both the drag-groups and resize-group gestures.
+  // Reads the active session from the ref and pushes the live interaction
+  // delta into the store; the threshold-to-start gate lives here for drags.
+  const handleGroupMove = useCallback(
+    (e: PointerEvent): void => {
+      const session = groupSessionRef.current;
+      if (session?.pointerId !== e.pointerId) return;
+      const current = localScreenPoint(e.clientX, e.clientY);
+      const dx = current.x - session.startScreen.x;
+      const dy = current.y - session.startScreen.y;
+      const transform = getTransform();
+      const worldDelta = {
+        x: dx / transform.zoom,
+        y: dy / transform.zoom,
+      };
+      const snapped = snapDelta(worldDelta, snapToGridRef.current);
 
-        if (session.kind === 'drag') {
-          if (!session.didDrag) {
-            if (Math.hypot(dx, dy) < DRAG_START_THRESHOLD_PX) return;
-            session.didDrag = true;
-          }
-          const ids = Array.from(session.groupStartBounds.keys());
-          const blocked = groupDragWouldOverlap(
-            session.groupStartBounds,
-            snapped
-          );
-          store.setInteraction({
-            kind: 'drag-groups',
-            groupIds: ids,
-            containedNodeIds: session.containedNodeIds,
-            startWorld: session.startWorld,
-            delta: snapped,
-            blocked,
-          });
-        } else if (
-          session.kind === 'resize' &&
-          session.resizeStartBounds &&
-          session.handle
-        ) {
-          const nextBounds = applyGroupResize(
-            session.resizeStartBounds,
-            session.handle,
-            snapped
-          );
-          const blocked = groupResizeWouldOverlap(
-            session.clickedGroupId,
-            nextBounds
-          );
-          store.setInteraction({
-            kind: 'resize-group',
-            groupId: session.clickedGroupId,
-            handle: session.handle,
-            startBounds: session.resizeStartBounds,
-            delta: snapped,
-            blocked,
-          });
+      if (session.kind === 'drag') {
+        if (!session.didDrag) {
+          if (Math.hypot(dx, dy) < DRAG_START_THRESHOLD_PX) return;
+          session.didDrag = true;
         }
-      };
-
-      const handleCancel = (): void => {
-        const session = groupSessionRef.current;
-        if (!session) return;
-        session.cleanup();
-        groupSessionRef.current = null;
-        store.setInteraction({ kind: 'idle' });
-      };
-
-      const cleanup = (): void => {
-        document.removeEventListener('pointermove', handleMove);
-        document.removeEventListener('pointercancel', handleCancel);
-      };
-
-      document.addEventListener('pointermove', handleMove);
-      document.addEventListener('pointercancel', handleCancel);
-      return cleanup;
+        const ids = Array.from(session.groupStartBounds.keys());
+        const blocked = groupDragWouldOverlap(
+          session.groupStartBounds,
+          snapped
+        );
+        store.setInteraction({
+          kind: 'drag-groups',
+          groupIds: ids,
+          containedNodeIds: session.containedNodeIds,
+          startWorld: session.startWorld,
+          delta: snapped,
+          blocked,
+        });
+      } else if (
+        session.kind === 'resize' &&
+        session.resizeStartBounds &&
+        session.handle
+      ) {
+        const nextBounds = applyGroupResize(
+          session.resizeStartBounds,
+          session.handle,
+          snapped
+        );
+        const blocked = groupResizeWouldOverlap(
+          session.clickedGroupId,
+          nextBounds
+        );
+        store.setInteraction({
+          kind: 'resize-group',
+          groupId: session.clickedGroupId,
+          handle: session.handle,
+          startBounds: session.resizeStartBounds,
+          delta: snapped,
+          blocked,
+        });
+      }
     },
     [
       store,
@@ -256,6 +230,11 @@ export function useNodeGraphGroupDrag(
     ]
   );
 
+  const handleGroupCancel = useCallback((): void => {
+    groupSessionRef.current = null;
+    store.setInteraction({ kind: 'idle' });
+  }, [store]);
+
   const onGroupBodyPointerDown = useCallback(
     (
       event: React.PointerEvent<HTMLDivElement>,
@@ -264,13 +243,6 @@ export function useNodeGraphGroupDrag(
       if (event.button !== 0) return;
       event.stopPropagation();
       if (disabledRef.current) return;
-
-      // Defensive cleanup of any orphaned previous gesture before we
-      // attach new document listeners.
-      groupSessionRef.current?.cleanup();
-
-      const target = event.currentTarget;
-      target.setPointerCapture(event.pointerId);
 
       const additive = event.shiftKey || event.metaKey || event.ctrlKey;
       const currentSelection = store.getSelection();
@@ -313,7 +285,10 @@ export function useNodeGraphGroupDrag(
       const startScreen = localScreenPoint(event.clientX, event.clientY);
       const startWorld = worldFromScreen(startScreen, getTransform());
       const pointerId = event.pointerId;
-      const cleanup = beginGroupSession(pointerId);
+      gesture.begin(event, {
+        onMove: handleGroupMove,
+        onCancel: handleGroupCancel,
+      });
 
       groupSessionRef.current = {
         kind: 'drag',
@@ -329,7 +304,6 @@ export function useNodeGraphGroupDrag(
         resizeStartBounds: null,
         additive,
         didDrag: false,
-        cleanup,
       };
     },
     [
@@ -338,7 +312,9 @@ export function useNodeGraphGroupDrag(
       store,
       localScreenPoint,
       getTransform,
-      beginGroupSession,
+      gesture,
+      handleGroupMove,
+      handleGroupCancel,
     ]
   );
 
@@ -353,16 +329,13 @@ export function useNodeGraphGroupDrag(
       event.preventDefault();
       if (disabledRef.current) return;
 
-      // Defensive cleanup of any orphaned previous gesture.
-      groupSessionRef.current?.cleanup();
-
-      const target = event.currentTarget;
-      target.setPointerCapture(event.pointerId);
-
       const startScreen = localScreenPoint(event.clientX, event.clientY);
       const startWorld = worldFromScreen(startScreen, getTransform());
       const pointerId = event.pointerId;
-      const cleanup = beginGroupSession(pointerId);
+      gesture.begin(event, {
+        onMove: handleGroupMove,
+        onCancel: handleGroupCancel,
+      });
 
       groupSessionRef.current = {
         kind: 'resize',
@@ -378,7 +351,6 @@ export function useNodeGraphGroupDrag(
         resizeStartBounds: { ...group.bounds },
         additive: false,
         didDrag: true,
-        cleanup,
       };
       // Immediately register the resize interaction so the canvas + overlay
       // start tracking from delta=0 at the click point.
@@ -391,7 +363,15 @@ export function useNodeGraphGroupDrag(
         blocked: false,
       });
     },
-    [disabledRef, localScreenPoint, getTransform, store, beginGroupSession]
+    [
+      disabledRef,
+      localScreenPoint,
+      getTransform,
+      store,
+      gesture,
+      handleGroupMove,
+      handleGroupCancel,
+    ]
   );
 
   const onGroupBodyPointerUp = useCallback(
@@ -402,12 +382,7 @@ export function useNodeGraphGroupDrag(
       const session = groupSessionRef.current;
       if (session?.pointerId !== event.pointerId) return;
       event.stopPropagation();
-      const target = event.currentTarget;
-      if (target.hasPointerCapture(event.pointerId)) {
-        target.releasePointerCapture(event.pointerId);
-      }
-
-      session.cleanup();
+      gesture.finish(event);
       const interaction = store.getInteraction();
 
       if (session.kind === 'drag' && session.didDrag) {
@@ -468,24 +443,22 @@ export function useNodeGraphGroupDrag(
       } else {
         // Plain click on group body → selection
         const current = session.selectionAtStart;
-        let nextGroups: string[];
-        if (session.additive) {
-          nextGroups = current.groups.includes(group.id)
-            ? current.groups.filter(id => id !== group.id)
-            : [...current.groups, group.id];
-        } else {
-          nextGroups = [group.id];
-        }
         emitSelectionChangeRef.current({
           nodes: session.additive ? current.nodes : [],
           edges: session.additive ? current.edges : [],
-          groups: nextGroups,
+          groups: toggleSelected(current.groups, group.id, session.additive),
         });
       }
 
       groupSessionRef.current = null;
     },
-    [store, emitGroupsChangeRef, emitNodesChangeRef, emitSelectionChangeRef]
+    [
+      store,
+      emitGroupsChangeRef,
+      emitNodesChangeRef,
+      emitSelectionChangeRef,
+      gesture,
+    ]
   );
 
   return {

@@ -111,6 +111,10 @@ export function drawEdges(
   // the cursor).
   const reconnectingId =
     interaction.kind === 'connect' ? interaction.reconnectEdgeId : undefined;
+  // O(1) membership for the per-edge selected check below — this layer
+  // redraws every frame during a drag, so a linear `selection.edges.includes`
+  // per edge would be O(edges × selected) each frame.
+  const selectedEdgeIds = new Set(selection.edges);
   for (const edge of data.edges) {
     if (edge.id === reconnectingId) continue;
     const endpoints = resolveEdgeEndpoints(edge, getNodeById, getPortPosition);
@@ -139,7 +143,7 @@ export function drawEdges(
     );
     const cpScreen = toScreenCp(cpWorld, p => info.worldToScreen(p));
 
-    const isSelected = selection.edges.includes(edge.id);
+    const isSelected = selectedEdgeIds.has(edge.id);
     const isHovered = hoveredEdgeId === edge.id;
 
     // Resolve consumer override for this edge. Source/target ports
@@ -209,6 +213,7 @@ export function drawGroups(
       ? { ids: new Set(interaction.groupIds), delta: interaction.delta }
       : null;
   const resizing = interaction.kind === 'resize-group' ? interaction : null;
+  const selectedGroupIds = new Set(selection.groups);
 
   for (const group of data.groups) {
     let bx = group.bounds.x;
@@ -236,7 +241,7 @@ export function drawGroups(
     const height = br.y - tl.y;
     if (width <= 0 || height <= 0) continue;
 
-    const isSelected = selection.groups.includes(group.id);
+    const isSelected = selectedGroupIds.has(group.id);
 
     ctx.fillStyle =
       group.color ?? (isSelected ? theme.groupFillSelected : theme.groupFill);
@@ -411,7 +416,6 @@ export function drawBackground(
   }
   const screenGap = baseScreenGap * lodMultiplier;
   if (screenGap < MIN_VISIBLE_SCREEN_GAP) return;
-  const worldGap = options.gap * lodMultiplier;
 
   const color = options.color ?? theme.borderDefault;
 
@@ -430,22 +434,49 @@ export function drawBackground(
   const tx = Math.round(offsetX);
   const ty = Math.round(offsetY);
 
+  const tileSize = Math.max(1, Math.round(alignedTileSize));
   if (options.variant === 'dots') {
     const dotRadius = Math.max(0.75, Math.min(1.75, screenGap / 24));
-    const tile = buildDotTile(alignedTileSize, dotRadius, color);
+    const tile = getCachedTile(`dots:${tileSize}:${dotRadius}:${color}`, () =>
+      buildDotTile(alignedTileSize, dotRadius, color)
+    );
     if (!tile) return;
     fillWithPattern(ctx, tile, info.size.width, info.size.height, tx, ty);
   } else {
-    const tile = buildGridTile(alignedTileSize, color);
+    const tile = getCachedTile(`grid:${tileSize}:${color}`, () =>
+      buildGridTile(alignedTileSize, color)
+    );
     if (!tile) return;
     ctx.globalAlpha = 0.6;
     fillWithPattern(ctx, tile, info.size.width, info.size.height, tx, ty);
     ctx.globalAlpha = 1;
-
-    // Adapt world gap label exposure via `_` (kept for future LOD label
-    // overlays).
-    void worldGap;
   }
+}
+
+// Off-screen pattern tile cache. A pan keeps zoom (hence tile size, dot
+// radius, and colour) constant, so without this every panned frame would
+// allocate a fresh OffscreenCanvas and redraw the dot/grid. Keyed by every
+// input that affects the rendered pixels; bounded with FIFO eviction so a
+// continuous zoom (which varies the tile size per frame) can't grow it
+// without limit. Colour is in the key, so a theme switch produces a new tile
+// rather than a stale one.
+const TILE_CACHE_LIMIT = 16;
+const tileCache = new Map<string, HTMLCanvasElement | OffscreenCanvas>();
+
+function getCachedTile(
+  key: string,
+  build: () => HTMLCanvasElement | OffscreenCanvas | null
+): HTMLCanvasElement | OffscreenCanvas | null {
+  const cached = tileCache.get(key);
+  if (cached) return cached;
+  const tile = build();
+  if (!tile) return null;
+  tileCache.set(key, tile);
+  if (tileCache.size > TILE_CACHE_LIMIT) {
+    const oldest = tileCache.keys().next().value;
+    if (oldest !== undefined) tileCache.delete(oldest);
+  }
+  return tile;
 }
 
 /**

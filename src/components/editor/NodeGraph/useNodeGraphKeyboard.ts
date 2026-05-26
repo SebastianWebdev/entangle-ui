@@ -61,8 +61,9 @@ export function useNodeGraphKeyboard(
       const data = store.getData();
       const selection = store.getSelection();
       if (selection.nodes.length === 0) return false;
+      const selectedIds = new Set(selection.nodes);
       const next = data.nodes.map(node => {
-        if (!selection.nodes.includes(node.id)) return node;
+        if (!selectedIds.has(node.id)) return node;
         return {
           ...node,
           position: { x: node.position.x + dx, y: node.position.y + dy },
