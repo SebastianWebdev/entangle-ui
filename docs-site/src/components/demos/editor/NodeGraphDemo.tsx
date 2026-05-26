@@ -5,12 +5,14 @@ import {
   createTypeMatchValidator,
   edgesConnectedToPort,
   useNodeGraph,
+  type NodeGraphConnectEndInfo,
   type NodeGraphContextMenuInfo,
   type NodeGraphEdge,
   type NodeGraphEdgeStyleCtx,
   type NodeGraphGroup,
   type NodeGraphHandle,
   type NodeGraphNode,
+  type NodeGraphPortRef,
   type NodeGraphPortShape,
   type Point2D,
 } from '@/components/editor/NodeGraph';
@@ -711,6 +713,13 @@ export default function NodeGraphDemo(): React.ReactElement {
   const [menuInfo, setMenuInfo] = useState<NodeGraphContextMenuInfo | null>(
     null
   );
+  // Set when a connection wire is dropped on empty space — drives the
+  // "create a node here and wire it up" menu (anchored at the drop point).
+  const [dropSpawn, setDropSpawn] = useState<{
+    source: NodeGraphPortRef;
+    worldPoint: Point2D;
+    screenPoint: Point2D;
+  } | null>(null);
 
   // Output→input, type-matched, with `'any'` connecting to anything — the
   // policy the helper ships by default. No hand-written validator needed.
@@ -743,6 +752,60 @@ export default function NodeGraphDemo(): React.ReactElement {
     [graph]
   );
 
+  // Dragging a wire onto empty space opens a create-node menu at the drop
+  // point (see `onConnectEnd` below). `worldPoint` / `screenPoint` come
+  // straight from the event — no manual coordinate math.
+  const handleConnectEnd = useCallback((info: NodeGraphConnectEndInfo) => {
+    if (info.cancelled && info.target === null) {
+      setDropSpawn({
+        source: info.source,
+        worldPoint: info.worldPoint,
+        screenPoint: info.screenPoint,
+      });
+    }
+  }, []);
+
+  // Spawn the picked template at the drop point and immediately wire it to the
+  // socket the drag started from — connecting to the first pin on the new node
+  // that can accept the wire (opposite side, matching dataType / `any`).
+  const handleDropSpawn = useCallback(
+    (template: NodeTemplate, worldPoint: Point2D) => {
+      const drop = dropSpawn;
+      setDropSpawn(null);
+      const id = graph.addNode({
+        position: {
+          x: Math.round(worldPoint.x / 8) * 8,
+          y: Math.round(worldPoint.y / 8) * 8,
+        },
+        data: makeNodeData(template),
+      });
+      const srcNode = drop && graph.nodes.find(n => n.id === drop.source.node);
+      const srcPin = srcNode
+        ? (srcNode.data as BlueprintNodeData).pins.find(
+            p => p.id === drop?.source.port
+          )
+        : undefined;
+      if (drop && srcPin) {
+        const wantSide = srcPin.side === 'right' ? 'left' : 'right';
+        const match = template.pins.find(
+          p =>
+            p.side === wantSide &&
+            (p.dataType === srcPin.dataType ||
+              p.dataType === 'any' ||
+              srcPin.dataType === 'any')
+        );
+        if (match) {
+          const newRef: NodeGraphPortRef = { node: id, port: match.id };
+          // Keep source→target orientation (the output is the source).
+          if (srcPin.side === 'right') graph.connect(drop.source, newRef);
+          else graph.connect(newRef, drop.source);
+        }
+      }
+      graph.setSelection({ nodes: [id], edges: [], groups: [] });
+    },
+    [dropSpawn, graph]
+  );
+
   const addGroupAt = useCallback(
     (worldX: number, worldY: number) => {
       const id = graph.addGroup(
@@ -761,7 +824,10 @@ export default function NodeGraphDemo(): React.ReactElement {
    * where the menu opened.
    */
   const renderSpawnItems = useCallback(
-    (worldPoint: Point2D): React.ReactElement => {
+    (
+      worldPoint: Point2D,
+      onPick: (template: NodeTemplate, worldPoint: Point2D) => void
+    ): React.ReactElement => {
       const categories = Array.from(
         new Set(TEMPLATES.map(t => t.category))
       ) as Category[];
@@ -781,10 +847,7 @@ export default function NodeGraphDemo(): React.ReactElement {
                 </Menu.SubTrigger>
                 <Menu.SubContent>
                   {templates.map(t => (
-                    <Menu.Item
-                      key={t.id}
-                      onClick={() => handleSpawn(t, worldPoint)}
-                    >
+                    <Menu.Item key={t.id} onClick={() => onPick(t, worldPoint)}>
                       {t.title}
                     </Menu.Item>
                   ))}
@@ -795,7 +858,7 @@ export default function NodeGraphDemo(): React.ReactElement {
         </Menu.Group>
       );
     },
-    [handleSpawn]
+    []
   );
 
   /**
@@ -849,7 +912,7 @@ export default function NodeGraphDemo(): React.ReactElement {
     if (target.kind === 'group') {
       return (
         <>
-          {renderSpawnItems(worldPoint)}
+          {renderSpawnItems(worldPoint, handleSpawn)}
           <Menu.Separator />
           <Menu.Item
             icon={<TrashIcon size="sm" />}
@@ -873,8 +936,8 @@ export default function NodeGraphDemo(): React.ReactElement {
     }
 
     // Empty space → spawn menu.
-    return renderSpawnItems(worldPoint);
-  }, [menuInfo, renderSpawnItems, graph]);
+    return renderSpawnItems(worldPoint, handleSpawn);
+  }, [menuInfo, renderSpawnItems, handleSpawn, graph]);
 
   return (
     <DemoWrapper>
@@ -921,6 +984,7 @@ export default function NodeGraphDemo(): React.ReactElement {
                 ref={ref}
                 {...graph.bind}
                 onContextMenu={setMenuInfo}
+                onConnectEnd={handleConnectEnd}
                 edgeStyle={edgeStyle}
                 renderNode={renderNode}
                 isValidConnection={isValidConnection}
@@ -975,6 +1039,39 @@ export default function NodeGraphDemo(): React.ReactElement {
             </ContextMenu.Trigger>
             <ContextMenu.Content>{renderMenuContent()}</ContextMenu.Content>
           </ContextMenu>
+          {/*
+            Drop-to-create: when a wire is dropped on empty space, `onConnectEnd`
+            stashes the source + drop point, and this controlled menu opens
+            anchored at the drop point. Picking a template spawns the node there
+            and wires it straight back to the socket the drag came from.
+          */}
+          {dropSpawn ? (
+            <Menu
+              open
+              modal={false}
+              onOpenChange={open => {
+                if (!open) setDropSpawn(null);
+              }}
+            >
+              <Menu.Trigger
+                render={
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      left: dropSpawn.screenPoint.x,
+                      top: dropSpawn.screenPoint.y,
+                      width: 0,
+                      height: 0,
+                    }}
+                  />
+                }
+              />
+              <Menu.Content>
+                {renderSpawnItems(dropSpawn.worldPoint, handleDropSpawn)}
+              </Menu.Content>
+            </Menu>
+          ) : null}
         </div>
         <div
           style={{
@@ -1001,6 +1098,9 @@ export default function NodeGraphDemo(): React.ReactElement {
           </span>
           <span>
             <kbd>Drag edge end</kbd> reconnect · drop on empty → detach
+          </span>
+          <span>
+            <kbd>Drag from socket → empty</kbd> create node + auto-connect
           </span>
           <span>
             <kbd>Drag group body / handles</kbd> move + resize

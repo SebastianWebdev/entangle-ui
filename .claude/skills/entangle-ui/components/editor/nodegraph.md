@@ -283,6 +283,28 @@ For undo grouping, telemetry, or just custom drop animations:
 />
 ```
 
+`onConnectEnd` also reports the **drop point** — `worldPoint` and `screenPoint` (CSS px relative to the viewport). A drop on empty space (`cancelled` + `target === null`) is the hook for "drag a wire onto the canvas → open a create-node menu → wire the new node up":
+
+```tsx
+const [dropAt, setDropAt] = useState(null);
+
+<NodeGraph
+  onConnectEnd={info => {
+    if (info.cancelled && info.target === null) {
+      setDropAt({
+        source: info.source,
+        world: info.worldPoint,
+        screen: info.screenPoint,
+      });
+    }
+  }}
+/>;
+
+// Render a menu anchored at `dropAt.screen`; on pick:
+const id = addNode({ position: dropAt.world, data });
+connect(dropAt.source, { node: id, port: 'in' }); // wire it straight up
+```
+
 ### Reconnecting & detaching edges
 
 Grab an existing edge **near one of its endpoints** and drag it: drop on another valid port to move that endpoint, or drop on empty space to detach (delete) the edge. The other end stays anchored and the dragged end runs through the same `isValidConnection` check as a fresh connection. Grabbing the edge **body** (away from the endpoints) selects it instead — so a plain click never deletes a wire. No extra props: the gesture is built in and emits the result through `onEdgesChange` (and `onConnectEnd`).
@@ -395,6 +417,17 @@ const [menu, setMenu] = useState<{
 
 The `target` is a discriminated union: `node`, `edge`, `port`, `group`, or `empty` (with the world point). That makes it easy to render different menus for "right-click on a node" vs. "right-click on background".
 
+A `port` target carries `{ node, port }`, so a socket gets its own menu — e.g. _Select connected edges_ via `edgesConnectedToPort(edges, { node, port })`, or _Detach all_ via `graph.disconnectPort(node, port)`:
+
+```tsx
+if (target.kind === 'port') {
+  const ids = edgesConnectedToPort(edges, target);
+  return (
+    <MenuItem onClick={() => selectEdges(ids)}>Select connected edges</MenuItem>
+  );
+}
+```
+
 ## Imperative handle
 
 ```tsx
@@ -439,6 +472,7 @@ graph.addNode({ position, data }); // append → returns the (generated) id
 graph.connect(source, target); // add an edge, de-duped → returns the id
 graph.removeNodes(['n1']); // drop nodes + cascade their edges + prune selection
 graph.removeEdges(['e1']); // drop edges + prune them from the selection
+graph.disconnectPort('n1', 'out'); // detach every wire on one socket
 graph.removeSelection(); // programmatic Delete — cascade + clear selection
 graph.duplicateNodes(); // clone the selection, offset, and select the copies
 graph.addGroup(bounds, { label, color });

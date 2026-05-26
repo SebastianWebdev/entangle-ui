@@ -136,6 +136,18 @@ export interface NodeGraphConnectEndInfo {
   target: NodeGraphPortRef | null;
   /** True when the drop was rejected (target invalid or empty). */
   cancelled: boolean;
+  /**
+   * World-space position the drag was released at. With `cancelled` + a null
+   * `target` this is an empty-space drop — the hook for a "drag a wire onto
+   * the canvas → open a create-node menu here → connect the new node to
+   * `source`" flow. Place the spawned node at this point.
+   */
+  worldPoint: Point2D;
+  /**
+   * Screen-space (CSS-pixel, relative to the viewport top-left) release
+   * position — position your create-node menu / popover here.
+   */
+  screenPoint: Point2D;
 }
 
 export interface NodeGraphConnectionValidationInfo {

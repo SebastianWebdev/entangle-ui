@@ -849,6 +849,49 @@ describe('NodeGraph — Connections', () => {
     expect(endInfo).not.toBeNull();
     expect(endInfo?.cancelled).toBe(true);
   });
+
+  it('reports the drop point on onConnectEnd (drag a wire onto empty space)', () => {
+    let capturedEnd: NodeGraphConnectEndInfo | null = null;
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        renderNode={renderTestNode}
+        onConnectEnd={info => {
+          capturedEnd = info;
+        }}
+      />
+    );
+    const sourcePort = document.querySelector(
+      '[data-node-id="n1"][data-port-id="out"]'
+    ) as HTMLElement;
+    fireEvent.pointerDown(sourcePort, {
+      pointerId: 9,
+      button: 0,
+      clientX: 200,
+      clientY: 120,
+    });
+    // Drop on empty space — nothing under the pointer.
+    document.elementFromPoint = vi.fn(
+      () => null
+    ) as unknown as typeof document.elementFromPoint;
+    fireEvent(
+      document,
+      new MockPointerEvent('pointerup', {
+        pointerId: 9,
+        button: 0,
+        clientX: 420,
+        clientY: 260,
+      })
+    );
+    const endInfo = capturedEnd as unknown as NodeGraphConnectEndInfo | null;
+    expect(endInfo?.cancelled).toBe(true);
+    expect(endInfo?.target).toBeNull();
+    expect(endInfo?.source).toEqual({ node: 'n1', port: 'out' });
+    // jsdom rects are zero, so world ≈ screen ≈ client at zoom 1.
+    expect(endInfo?.worldPoint).toEqual({ x: 420, y: 260 });
+    expect(endInfo?.screenPoint).toEqual({ x: 420, y: 260 });
+  });
 });
 
 // ─── Slot detection ───

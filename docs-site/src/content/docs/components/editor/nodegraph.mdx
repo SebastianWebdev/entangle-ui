@@ -311,6 +311,28 @@ For undo grouping, telemetry, or just custom drop animations:
 />
 ```
 
+`onConnectEnd` also reports the **drop point** — `worldPoint` and `screenPoint` (CSS px relative to the viewport). A drop on empty space (`cancelled` + `target === null`) is the hook for "drag a wire onto the canvas → open a create-node menu → wire the new node up":
+
+```tsx
+const [dropAt, setDropAt] = useState(null);
+
+<NodeGraph
+  onConnectEnd={info => {
+    if (info.cancelled && info.target === null) {
+      setDropAt({
+        source: info.source,
+        world: info.worldPoint,
+        screen: info.screenPoint,
+      });
+    }
+  }}
+/>;
+
+// Render a menu anchored at `dropAt.screen`; on pick:
+const id = addNode({ position: dropAt.world, data });
+connect(dropAt.source, { node: id, port: 'in' }); // wire it straight up
+```
+
 ### Reconnecting & detaching edges
 
 Grab an existing edge **near one of its endpoints** and drag it: drop on another valid port to move that endpoint, or drop on empty space to detach (delete) the edge. The other end stays anchored and the dragged end runs through the same `isValidConnection` check as a fresh connection. Grabbing the edge **body** (away from the endpoints) selects it instead — so a plain click never deletes a wire. No extra props: the gesture is built in and emits the result through `onEdgesChange` (and `onConnectEnd`).

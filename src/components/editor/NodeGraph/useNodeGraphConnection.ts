@@ -275,12 +275,28 @@ export function useNodeGraphConnection(
           : null;
       };
 
+      const dropPoint = (
+        clientX: number,
+        clientY: number
+      ): { worldPoint: Point2D; screenPoint: Point2D } => {
+        const viewport = viewportRef.current;
+        const rect = viewport?.getBoundingClientRect();
+        const screenPoint = rect
+          ? { x: clientX - rect.left, y: clientY - rect.top }
+          : { x: clientX, y: clientY };
+        return {
+          worldPoint: screenPointToWorld(clientX, clientY),
+          screenPoint,
+        };
+      };
+
       function handleUp(e: PointerEvent): void {
         teardown();
         const state = store.getInteraction();
         store.setInteraction({ kind: 'idle' });
         if (state.kind !== 'connect') return;
         const candidate = resolveCandidate(e.clientX, e.clientY);
+        const drop = dropPoint(e.clientX, e.clientY);
 
         if (mode.kind === 'reconnect') {
           // A grab that never moved is a click — select the edge, keep it.
@@ -294,6 +310,7 @@ export function useNodeGraphConnection(
               source,
               target: null,
               cancelled: true,
+              ...drop,
             });
             return;
           }
@@ -319,6 +336,7 @@ export function useNodeGraphConnection(
               source,
               target: candidate,
               cancelled: false,
+              ...drop,
             });
           } else {
             // Dropped on empty space or an invalid port → detach (delete).
@@ -329,6 +347,7 @@ export function useNodeGraphConnection(
               source,
               target: null,
               cancelled: true,
+              ...drop,
             });
           }
           return;
@@ -357,15 +376,21 @@ export function useNodeGraphConnection(
           source,
           target: cancelled ? null : (candidate ?? null),
           cancelled,
+          ...drop,
         });
       }
 
-      function handleCancel(): void {
+      function handleCancel(e: PointerEvent): void {
         teardown();
         const state = store.getInteraction();
         store.setInteraction({ kind: 'idle' });
         if (state.kind !== 'connect') return;
-        onConnectEndRef.current?.({ source, target: null, cancelled: true });
+        onConnectEndRef.current?.({
+          source,
+          target: null,
+          cancelled: true,
+          ...dropPoint(e.clientX, e.clientY),
+        });
       }
 
       teardownRef.current = teardown;
