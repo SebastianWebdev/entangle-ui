@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useSyncExternalStore } from 'react';
+import React, { useCallback, useSyncExternalStore } from 'react';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { NodeGraphEdge } from './NodeGraph.types';
 import type { NodeGraphInteractionState } from './NodeGraphStore';
@@ -130,20 +130,35 @@ function EdgeLabel({
   renderEdgeLabelRef: RenderEdgeLabelRef;
 }): React.ReactElement | null {
   const store = useNodeGraphStore();
-  // Per-edge slice of the interaction state — yields this edge's endpoint
-  // deltas (or the shared empty sentinel). Paired with `edgeDeltasEqual`,
-  // a drag of nodes this edge doesn't touch leaves the selection equal, so
-  // the label bails out of the re-render instead of churning every frame —
-  // the same per-id pattern `NodeGraphNode` uses. (A raw interaction
-  // subscription re-rendered *every* label on *every* gesture tick.)
+  const sourceNode = edge.source.node;
+  const targetNode = edge.target.node;
+  // Subscribe to interaction changes affecting either endpoint via the
+  // per-node channel — a drag of an unrelated node never wakes this
+  // subscriber, even before the selector runs. When source and target
+  // sit on the same node, a single subscription is enough (deduplicates
+  // the notification).
+  const subscribeEndpoints = useCallback(
+    (cb: () => void): (() => void) => {
+      const unsubSource = store.subscribeNodeInteraction(sourceNode, cb);
+      if (sourceNode === targetNode) return unsubSource;
+      const unsubTarget = store.subscribeNodeInteraction(targetNode, cb);
+      return () => {
+        unsubSource();
+        unsubTarget();
+      };
+    },
+    [store, sourceNode, targetNode]
+  );
+  // Selector still reads the global snapshot to compute per-endpoint
+  // deltas — the subscription change above only narrows *when* this
+  // subscriber gets woken, not *what* it sees.
   const { src: srcDelta, tgt: tgtDelta } = useStoreSlice<
     NodeGraphInteractionState,
     EdgeEndpointDeltas
   >(
-    store.subscribeInteraction,
+    subscribeEndpoints,
     store.getInteraction,
-    interaction =>
-      selectEdgeDeltas(interaction, edge.source.node, edge.target.node),
+    interaction => selectEdgeDeltas(interaction, sourceNode, targetNode),
     edgeDeltasEqual
   );
   // Re-render when port positions update too (initial measure + body

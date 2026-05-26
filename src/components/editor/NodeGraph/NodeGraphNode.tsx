@@ -116,11 +116,21 @@ function NodeGraphNodeViewImpl(
     sel => sel.nodes.includes(node.id)
   );
 
+  // Subscribe to the per-node interaction channel rather than the global
+  // one. The store fans notifications out only to ids in the prev ∪ next
+  // drag set, so an unrelated drag of another node never wakes this
+  // subscriber. The selector itself is unchanged — `useStoreSlice` still
+  // reads from the global getInteraction snapshot to decide whether *this*
+  // id has a delta to apply.
+  const subscribeNodeInteraction = useCallback(
+    (cb: () => void) => store.subscribeNodeInteraction(node.id, cb),
+    [store, node.id]
+  );
   const dragDelta = useStoreSlice<
     ReturnType<typeof store.getInteraction>,
     Point2D | null
   >(
-    store.subscribeInteraction,
+    subscribeNodeInteraction,
     store.getInteraction,
     interaction => {
       if (

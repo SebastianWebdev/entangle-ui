@@ -202,6 +202,123 @@ describe('NodeGraphStore — interaction slice', () => {
   });
 });
 
+describe('NodeGraphStore — per-node interaction subscriptions', () => {
+  it('wakes only subscribers for ids in the current drag set', () => {
+    const store = new NodeGraphStore();
+    const cbA = vi.fn();
+    const cbB = vi.fn();
+    const cbC = vi.fn();
+    store.subscribeNodeInteraction('a', cbA);
+    store.subscribeNodeInteraction('b', cbB);
+    store.subscribeNodeInteraction('c', cbC);
+
+    store.setInteraction({
+      kind: 'drag-nodes',
+      nodeIds: new Set(['a', 'b']),
+      startWorld: { x: 0, y: 0 },
+      delta: { x: 5, y: 0 },
+    });
+
+    expect(cbA).toHaveBeenCalledTimes(1);
+    expect(cbB).toHaveBeenCalledTimes(1);
+    expect(cbC).not.toHaveBeenCalled();
+  });
+
+  it('wakes subscribers that leave the drag set too', () => {
+    // A node that was being dragged needs to clear its local delta when the
+    // gesture moves to a different set or ends — so the previously-dragged
+    // ids must fire alongside the newly-dragged ones.
+    const store = new NodeGraphStore();
+    store.setInteraction({
+      kind: 'drag-nodes',
+      nodeIds: new Set(['a']),
+      startWorld: { x: 0, y: 0 },
+      delta: { x: 5, y: 0 },
+    });
+    const cbA = vi.fn();
+    const cbB = vi.fn();
+    store.subscribeNodeInteraction('a', cbA);
+    store.subscribeNodeInteraction('b', cbB);
+
+    // Switch the drag set from {a} to {b}: a leaves, b enters — both fire.
+    store.setInteraction({
+      kind: 'drag-nodes',
+      nodeIds: new Set(['b']),
+      startWorld: { x: 0, y: 0 },
+      delta: { x: 5, y: 0 },
+    });
+
+    expect(cbA).toHaveBeenCalledTimes(1);
+    expect(cbB).toHaveBeenCalledTimes(1);
+
+    // Idle clears everything: only the previously-dragged id needs notification.
+    store.setInteraction({ kind: 'idle' });
+    expect(cbA).toHaveBeenCalledTimes(1);
+    expect(cbB).toHaveBeenCalledTimes(2);
+  });
+
+  it('honours contained nodes from a group drag', () => {
+    const store = new NodeGraphStore();
+    const cbA = vi.fn();
+    const cbB = vi.fn();
+    store.subscribeNodeInteraction('a', cbA);
+    store.subscribeNodeInteraction('b', cbB);
+
+    store.setInteraction({
+      kind: 'drag-groups',
+      groupIds: new Set(['g1']),
+      containedNodeIds: new Set(['a']),
+      startWorld: { x: 0, y: 0 },
+      delta: { x: 0, y: 5 },
+      blocked: false,
+    });
+
+    expect(cbA).toHaveBeenCalledTimes(1);
+    expect(cbB).not.toHaveBeenCalled();
+  });
+
+  it('does not fire per-node listeners on non-drag interactions', () => {
+    const store = new NodeGraphStore();
+    const cb = vi.fn();
+    store.subscribeNodeInteraction('a', cb);
+
+    store.setInteraction({
+      kind: 'connect',
+      source: { node: 'a', port: 'out' },
+      currentWorld: { x: 0, y: 0 },
+      candidate: null,
+      invalid: false,
+    });
+    store.setInteraction({
+      kind: 'marquee',
+      startWorld: { x: 0, y: 0 },
+      currentWorld: { x: 10, y: 10 },
+      additive: false,
+    });
+
+    expect(cb).not.toHaveBeenCalled();
+  });
+
+  it('cleans up the listener map when the last subscriber unsubscribes', () => {
+    const store = new NodeGraphStore();
+    const unsub1 = store.subscribeNodeInteraction('a', vi.fn());
+    const unsub2 = store.subscribeNodeInteraction('a', vi.fn());
+    unsub1();
+    unsub2();
+
+    // After both unsubscribe, a drag including 'a' should fire nothing —
+    // the inner Set was deleted and the Map entry GC'd.
+    expect(() =>
+      store.setInteraction({
+        kind: 'drag-nodes',
+        nodeIds: new Set(['a']),
+        startWorld: { x: 0, y: 0 },
+        delta: { x: 1, y: 0 },
+      })
+    ).not.toThrow();
+  });
+});
+
 describe('NodeGraphStore — hover slice', () => {
   it('detects port reference changes correctly', () => {
     const store = new NodeGraphStore();

@@ -202,6 +202,13 @@ export class NodeGraphStore {
   private connectedPortsListeners = new Set<() => void>();
   private selectionListeners = new Set<() => void>();
   private interactionListeners = new Set<() => void>();
+  // Per-node interaction subscriptions. Each `<NodeGraphNodeView>` registers
+  // for its own id and is woken only when the interaction state changes in
+  // a way that could affect that node's drag delta — i.e. the node was, or
+  // now is, part of the active drag set. This cuts the notify fan-out from
+  // O(all-nodes) to O(dragged-nodes) per pointermove flush, which is the
+  // dominant cost when dragging a single node out of a large graph.
+  private nodeInteractionListeners = new Map<string, Set<() => void>>();
   private hoverListeners = new Set<() => void>();
   private portPositionListeners = new Set<() => void>();
   private measuredSizeListeners = new Set<() => void>();
@@ -307,6 +314,34 @@ export class NodeGraphStore {
     this.interactionListeners.add(cb);
     return () => {
       this.interactionListeners.delete(cb);
+    };
+  };
+
+  /**
+   * Subscribe to interaction changes that affect a specific node id. The
+   * callback fires only when the node enters or leaves the active drag set
+   * (drag-nodes `nodeIds`, drag-groups `containedNodeIds`) — every other
+   * tick where the drag set is unchanged for this id is filtered out at the
+   * store layer instead of waking the subscriber for a no-op compare.
+   *
+   * Use this from per-node React subscribers; the global
+   * {@link subscribeInteraction} channel stays in place for canvas layers
+   * and other consumers that care about every interaction change.
+   */
+  subscribeNodeInteraction = (nodeId: string, cb: () => void): (() => void) => {
+    let set = this.nodeInteractionListeners.get(nodeId);
+    if (!set) {
+      set = new Set();
+      this.nodeInteractionListeners.set(nodeId, set);
+    }
+    set.add(cb);
+    return () => {
+      const current = this.nodeInteractionListeners.get(nodeId);
+      if (!current) return;
+      current.delete(cb);
+      if (current.size === 0) {
+        this.nodeInteractionListeners.delete(nodeId);
+      }
     };
   };
 
@@ -417,8 +452,29 @@ export class NodeGraphStore {
 
   setInteraction(next: NodeGraphInteractionState): void {
     if (interactionEqual(next, this.interaction)) return;
+    const prev = this.interaction;
     this.interaction = next;
+
+    // Global listeners: canvas layers, the main NodeGraph component (for
+    // layer invalidation), and any consumer hook that wants every change.
     this.interactionListeners.forEach(cb => cb());
+
+    // Per-node listeners: notify ids that are in the next or the prev drag
+    // set. A node that *leaves* the drag set needs to clear its local
+    // delta, so previously-affected ids must fire too even when they're no
+    // longer in `next`.
+    const prevIds = getDragAffectedNodeIds(prev);
+    const nextIds = getDragAffectedNodeIds(next);
+    if (prevIds.size === 0 && nextIds.size === 0) return;
+
+    for (const id of nextIds) {
+      this.nodeInteractionListeners.get(id)?.forEach(cb => cb());
+    }
+    for (const id of prevIds) {
+      // Dedupe — already notified above when the node is in both sets.
+      if (nextIds.has(id)) continue;
+      this.nodeInteractionListeners.get(id)?.forEach(cb => cb());
+    }
   }
 
   setHover(next: NodeGraphHoverState): void {
@@ -558,6 +614,22 @@ function setEqual<T>(a: ReadonlySet<T>, b: ReadonlySet<T>): boolean {
     if (!b.has(item)) return false;
   }
   return true;
+}
+
+const EMPTY_NODE_ID_SET: ReadonlySet<string> = new Set<string>();
+
+/**
+ * Node ids whose drag delta could be affected by the given interaction
+ * state — used by `setInteraction` to fan out per-node notifications.
+ * Idle / connect / marquee / resize-group don't move nodes, so they
+ * return the empty set (no per-node subscriber needs waking).
+ */
+function getDragAffectedNodeIds(
+  state: NodeGraphInteractionState
+): ReadonlySet<string> {
+  if (state.kind === 'drag-nodes') return state.nodeIds;
+  if (state.kind === 'drag-groups') return state.containedNodeIds;
+  return EMPTY_NODE_ID_SET;
 }
 
 function selectionEqual(a: NodeGraphSelection, b: NodeGraphSelection): boolean {
