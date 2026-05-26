@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useLatest } from '@/hooks';
 import { screenToWorld as worldFromScreen } from '@/components/primitives/viewport';
 import type {
@@ -16,6 +16,7 @@ import type {
 } from './NodeGraph.types';
 import type {
   NodeGraphGroupResizeHandle,
+  NodeGraphInteractionState,
   NodeGraphStore,
 } from './NodeGraphStore';
 import {
@@ -29,6 +30,16 @@ import {
 import { useDragGesture } from './useDragGesture';
 
 const DRAG_START_THRESHOLD_PX = 3;
+
+/**
+ * Pending interaction state buffered between pointermove and the next rAF
+ * flush. Carries either a `drag-groups` or `resize-group` payload — they
+ * share the same lifecycle, so the buffer keeps the latest of either.
+ */
+type PendingGroupInteraction = Extract<
+  NodeGraphInteractionState,
+  { kind: 'drag-groups' } | { kind: 'resize-group' }
+>;
 
 interface UseNodeGraphGroupDragOptions {
   store: NodeGraphStore;
@@ -161,6 +172,53 @@ export function useNodeGraphGroupDrag(
 
   const gesture = useDragGesture();
 
+  // ── rAF-throttled interaction commits ──
+  //
+  // See `useNodeGraphNodeDrag` for the rationale — same coalescing pattern
+  // applied to the group drag + resize move stream. Buffer the latest
+  // interaction payload in a ref; an rAF callback drains it once per frame.
+  const pendingInteractionRef = useRef<PendingGroupInteraction | null>(null);
+  const rafRef = useRef<number>(0);
+
+  const commitPending = useCallback((): void => {
+    const pending = pendingInteractionRef.current;
+    if (!pending) return;
+    pendingInteractionRef.current = null;
+    store.setInteraction(pending);
+  }, [store]);
+
+  const cancelRaf = useCallback((): void => {
+    if (rafRef.current !== 0) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
+  }, []);
+
+  /** Synchronous flush — cancels any pending rAF and commits immediately. */
+  const flushPending = useCallback((): void => {
+    cancelRaf();
+    commitPending();
+  }, [cancelRaf, commitPending]);
+
+  useEffect(() => {
+    return () => {
+      cancelRaf();
+      pendingInteractionRef.current = null;
+    };
+  }, [cancelRaf]);
+
+  const scheduleCommit = useCallback(
+    (next: PendingGroupInteraction): void => {
+      pendingInteractionRef.current = next;
+      if (rafRef.current !== 0) return;
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        commitPending();
+      });
+    },
+    [commitPending]
+  );
+
   // Shared move handler for both the drag-groups and resize-group gestures.
   // Reads the active session from the ref and pushes the live interaction
   // delta into the store; the threshold-to-start gate lives here for drags.
@@ -188,7 +246,7 @@ export function useNodeGraphGroupDrag(
           session.groupStartBounds,
           snapped
         );
-        store.setInteraction({
+        scheduleCommit({
           kind: 'drag-groups',
           groupIds: ids,
           containedNodeIds: session.containedNodeIds,
@@ -210,7 +268,7 @@ export function useNodeGraphGroupDrag(
           session.clickedGroupId,
           nextBounds
         );
-        store.setInteraction({
+        scheduleCommit({
           kind: 'resize-group',
           groupId: session.clickedGroupId,
           handle: session.handle,
@@ -221,19 +279,21 @@ export function useNodeGraphGroupDrag(
       }
     },
     [
-      store,
       localScreenPoint,
       getTransform,
       snapToGridRef,
       groupDragWouldOverlap,
       groupResizeWouldOverlap,
+      scheduleCommit,
     ]
   );
 
   const handleGroupCancel = useCallback((): void => {
+    cancelRaf();
+    pendingInteractionRef.current = null;
     groupSessionRef.current = null;
     store.setInteraction({ kind: 'idle' });
-  }, [store]);
+  }, [store, cancelRaf]);
 
   const onGroupBodyPointerDown = useCallback(
     (
@@ -383,6 +443,11 @@ export function useNodeGraphGroupDrag(
       if (session?.pointerId !== event.pointerId) return;
       event.stopPropagation();
       gesture.finish(event);
+
+      // Drain the rAF buffer so `store.getInteraction()` below reflects the
+      // last pointermove rather than the previous frame's commit.
+      flushPending();
+
       const interaction = store.getInteraction();
 
       if (session.kind === 'drag' && session.didDrag) {
@@ -458,6 +523,7 @@ export function useNodeGraphGroupDrag(
       emitNodesChangeRef,
       emitSelectionChangeRef,
       gesture,
+      flushPending,
     ]
   );
 
