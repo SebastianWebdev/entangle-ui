@@ -207,6 +207,22 @@ The one-liner for the ubiquitous "handle + label" row. It renders a `<NodeGraph.
 </NodeGraph.NodeBody>
 ```
 
+### `<NodeGraph.NodeSection>`
+
+A collapsible section inside a node body — somewhere to tuck "advanced" or overflow pins so the node stays compact. The collapse is **purely visual**: the children never unmount, so their state is preserved and there's no remount cost. `<NodeGraph.Port>` slots inside a collapsed section unregister their position while hidden, so the pins' edges hide along with them and snap back on expand — no dangling wires, no manual re-anchoring.
+
+```tsx
+<NodeGraph.NodeBody>
+  <NodeGraph.NodeHeader title="Make Transform" />
+  <NodeGraph.PinList>{mainPins}</NodeGraph.PinList>
+  <NodeGraph.NodeSection title="Advanced" defaultCollapsed>
+    <NodeGraph.PinList>{advancedPins}</NodeGraph.PinList>
+  </NodeGraph.NodeSection>
+</NodeGraph.NodeBody>
+```
+
+Controlled or uncontrolled like the rest of the library — pass `collapsed` + `onCollapsedChange`, or `defaultCollapsed`. Set `collapsible={false}` for a static labelled group (no toggle).
+
 ## Connections
 
 Connection drags start on a port pointer-down and end on pointer-up. While the drag is in flight, the source port is highlighted, a dashed (or solid) Bézier follows the cursor, and any port under the cursor is treated as a candidate. Drop on a port to create an edge; drop on empty space (or an invalid candidate) cancels.
@@ -267,20 +283,27 @@ For undo grouping, telemetry, or just custom drop animations:
 />
 ```
 
+### Reconnecting & detaching edges
+
+Grab an existing edge **near one of its endpoints** and drag it: drop on another valid port to move that endpoint, or drop on empty space to detach (delete) the edge. The other end stays anchored and the dragged end runs through the same `isValidConnection` check as a fresh connection. Grabbing the edge **body** (away from the endpoints) selects it instead — so a plain click never deletes a wire. No extra props: the gesture is built in and emits the result through `onEdgesChange` (and `onConnectEnd`).
+
 ## Selection
 
 Selection is a tri-list of ids: `{ nodes, edges, groups }`. It's controlled-or-uncontrolled like every other piece of data.
 
-| Gesture                | Effect                                          |
-| ---------------------- | ----------------------------------------------- |
-| Click a node           | Replace selection with that node                |
-| Shift/Cmd/Ctrl + click | Toggle that node in the existing selection      |
-| Drag on empty space    | Marquee; selects nodes intersecting the rect    |
-| Shift + marquee        | Additive marquee — union with current selection |
-| Escape                 | Clear selection (or cancel a connection drag)   |
-| Cmd/Ctrl + A           | Select all nodes                                |
+| Gesture                | Effect                                            |
+| ---------------------- | ------------------------------------------------- |
+| Click a node           | Replace selection with that node                  |
+| Click an edge          | Select that edge (edges hit-test on the canvas)   |
+| Shift/Cmd/Ctrl + click | Toggle that node / edge in the existing selection |
+| Drag on empty space    | Marquee; selects nodes intersecting the rect      |
+| Shift + marquee        | Additive marquee — union with current selection   |
+| Escape                 | Clear selection (or cancel a connection drag)     |
+| Cmd/Ctrl + A           | Select all nodes                                  |
 
 The `selectionRect` prop toggles the marquee gesture; it defaults to `true`. Set it to `false` to disable the rectangle entirely.
+
+Edges are drawn on a canvas (no DOM), so the library hit-tests them against the pointer: hovering an edge sets the hover slice (`useNodeGraphHover().hoveredEdgeId`) and paints the hover accent, clicking selects it, and right-clicking reports a `{ kind: 'edge' }` target via `onContextMenu`. A selected edge is removed by <kbd>Delete</kbd> like any other selection.
 
 ## Keyboard
 
@@ -317,12 +340,23 @@ Optional canvas background with a `'dots'` or `'grid'` pattern that adapts to th
 
 ### `<NodeGraph.Minimap />`
 
-A pre-wired minimap overlay anchored to a corner (or custom anchor). Reads the live node list from the store and renders each as a `rect` item; selected nodes can be tinted via the `selectedColor` prop on `NodeGraphMinimapInner` (advanced) — by default, the standard minimap accent is used.
+A pre-wired minimap overlay anchored to a corner (or custom anchor). Reads the live node list from the store and renders each node, tinting the selected ones via `selectedColor`.
 
 ```tsx
 <NodeGraph>
   <NodeGraph.Minimap placement="bottom-right" width={220} title="Overview" />
 </NodeGraph>
+```
+
+By default each node is a flat rect. Pass `nodeStyle` to colour them — return `{ color }` for a tinted rect, or `{ color, headerColor }` for a two-tone "header strip + body" mini-node that mirrors the real node at a glance:
+
+```tsx
+<NodeGraph.Minimap
+  nodeStyle={node => ({
+    color: 'rgba(38, 42, 54, 0.92)', // body
+    headerColor: CATEGORY_COLOR[node.data.category], // header strip
+  })}
+/>
 ```
 
 Both slots are identified by a unique Symbol marker (`NODE_GRAPH_SLOT`), not by `displayName` — they survive `React.memo`, minification, and HOC wrapping (as long as the marker is copied).
@@ -404,6 +438,7 @@ Call the actions from your toolbar / context menu:
 graph.addNode({ position, data }); // append → returns the (generated) id
 graph.connect(source, target); // add an edge, de-duped → returns the id
 graph.removeNodes(['n1']); // drop nodes + cascade their edges + prune selection
+graph.removeEdges(['e1']); // drop edges + prune them from the selection
 graph.removeSelection(); // programmatic Delete — cascade + clear selection
 graph.duplicateNodes(); // clone the selection, offset, and select the copies
 graph.addGroup(bounds, { label, color });
