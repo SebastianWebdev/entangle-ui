@@ -4,37 +4,16 @@
 
 `NodeGraph` is the flagship editor surface — a controlled-or-uncontrolled, data-driven node editor with ports, Bézier edges, multi-selection, drag, marquee, snap-to-grid, connection validation, keyboard navigation, a context-menu event, optional groups, and a `<Minimap>` slot. It composes `Viewport` for pan/zoom + canvas layers, so all of `Viewport`'s gesture, accessibility, and performance work is inherited for free.
 
- {
-    setNodes(prev => prev.filter(n => !sel.nodes.includes(n.id)));
-    setEdges(prev =>
-      prev.filter(
-        e =>
-          !sel.edges.includes(e.id) &&
-          !sel.nodes.includes(e.source.node) &&
-          !sel.nodes.includes(e.target.node)
-      )
-    );
-    setSelection({ nodes: [], edges: [], groups: [] });
-  }}
-  renderNode={(node, ctx) => (
+ — no custom
+  // SVG, no "which ports are wired" bookkeeping.
+  renderNode={node => (
 
-      {node.data.pins.map(pin => (
+        {node.data.pins.map(pin => (
 
-          {/* Slot is the single source of truth — the same DOM element the
-              user clicks is where the edge anchors. */}
-
-          <span>{pin.label}</span>
-
-      ))}
+        ))}
 
   )}
-  isValidConnection={(source, target, info) => {
-    if (info.sameNode) return false;
-    if (info.sideCombo !== 'right->left') return false;
-    const src = info.sourceDataType;
-    const tgt = info.targetDataType;
-    return !src || !tgt || src === tgt || src === 'any' || tgt === 'any';
-  }}
+  isValidConnection={createTypeMatchValidator()}
   snapToGrid={8}
   minZoom={0.2}
   maxZoom={2.5}
@@ -48,20 +27,15 @@
 
 ```tsx
 import {
-  NodeGraph, // + .Port / .PortVisual / .Pin / .PinList / .PinRow / .NodeBody / …
-  useNodeGraph,
+  NodeGraph,
   useNodeGraphData,
   useNodeGraphSelection,
-  createTypeMatchValidator,
-  generateNodeId,
-  duplicateNodes,
 } from 'entangle-ui';
 import type {
   NodeGraphNode,
   NodeGraphEdge,
   NodeGraphSelection,
   NodeGraphPortRef,
-  NodeGraphPortShape,
   NodeGraphHandle,
 } from 'entangle-ui';
 ```
@@ -174,52 +148,64 @@ Compound slot that registers a connection endpoint for the current node. The lib
 
 - Measures the slot's DOM position on mount and on every layout shift (`ResizeObserver`).
 - Routes the slot's pointer events through the shared connection-drag controller — drag from one port to another to create an edge.
-- Renders a **built-in typed handle** (`shape` + `color`) when no `children` are given, so you don't hand-roll a coloured SVG per pin.
-- **Auto-derives the `connected` state from the edges** — the handle fills while wired and stays hollow otherwise. No consumer-side "connected ports" index.
+- Renders a **built-in typed handle** from `shape` + `color` when no `children` are supplied — no per-pin SVG to hand-roll.
+- **Auto-fills while connected.** The handle fills when any edge references the port and stays hollow otherwise; the library derives this from the edges, so there's no consumer-side "which ports are wired" bookkeeping.
 - Tracks per-port visual state (`isSource`, `isCandidate`, `isInvalid`, `isHovered`, `connected`) and exposes it on `data-port-*` attributes so consumer CSS can style based on state.
 
-| Prop                | Type                                          | Description                                                                                        |
-| ------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `id`                | `string`                                       | Stable identity within the node — referenced by `NodeGraphEdge.source` / `.target`.                |
-| `side`              | `'left' \| 'right' \| 'top' \| 'bottom'`       | Which side the port anchors to. Determines the Bézier tangent direction.                           |
-| `dataType`          | `string?`                                      | Opaque type token forwarded to `isValidConnection` and exposed on `data-port-data-type`.           |
-| `shape`             | `'circle' \| 'triangle' \| 'diamond' \| 'square'` | Built-in handle shape (default `'circle'`). `'triangle'` is the UE exec/flow arrow. Ignored when `children` are set. |
-| `color`             | `string?`                                      | Handle colour for the built-in visual. Defaults to the theme focus colour; drag states still override it. |
-| `filled`            | `boolean?`                                     | Force filled / hollow. Omit to fill automatically while connected.                                 |
-| `children`          | `ReactNode?`                                   | Replace the built-in visual entirely. The slot wrapper still carries pointer events + ARIA.        |
-| `label`             | `string?`                                      | Accessible label. Falls back to `${side} port ${id}`.                                              |
-| `className`/`style` | —                                              | Forwarded to the slot wrapper.                                                                     |
+| Prop                | Type                                              | Description                                                                                                 |
+| ------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `id`                | `string`                                          | Stable identity within the node — referenced by `NodeGraphEdge.source` / `.target`.                         |
+| `side`              | `'left' \| 'right' \| 'top' \| 'bottom'`          | Which side the port anchors to. Determines the Bézier tangent direction.                                    |
+| `dataType`          | `string?`                                         | Opaque type token forwarded to `isValidConnection` and exposed on `data-port-data-type`.                    |
+| `shape`             | `'circle' \| 'triangle' \| 'diamond' \| 'square'` | Built-in handle shape. `'triangle'` is the UE exec/flow arrow. Default `'circle'`. Ignored with `children`. |
+| `color`             | `string?`                                         | Handle colour for the built-in visual. Defaults to the theme focus colour; drag states still override it.   |
+| `filled`            | `boolean?`                                        | Force the handle filled / hollow. Omit to fill automatically while connected.                               |
+| `children`          | `ReactNode?`                                      | Replace the built-in visual entirely. The slot wrapper still carries pointer events + ARIA.                 |
+| `label`             | `string?`                                         | Accessible label. Falls back to `${side} port ${id}`.                                                       |
+| `className`/`style` | —                                                 | Forwarded to the slot wrapper.                                                                              |
 
 The slot renders inline (`display: inline-flex`), so dropping it next to a label sits the port handle right beside the text. Hover scaling uses `transform-origin: center` — the port's center (and therefore the edge endpoint) stays put.
 
 ```tsx
-// Typed handles, zero custom SVG — exec = filled-while-wired arrow, float = ring.
+// Typed handles with zero custom SVG — and they fill themselves once wired.
 <NodeGraph.Port id="exec" side="left" shape="triangle" color="#f8f8f8" />
 <NodeGraph.Port id="value" side="right" dataType="float" color="#9ee65a" />
 ```
 
-`<NodeGraph.PortVisual>` is the same shape exported standalone (props: `shape`, `color`, `filled`, `size`) for use inside fully custom port bodies.
+The same shape is exported standalone as `<NodeGraph.PortVisual shape color filled size />` for use inside fully custom port bodies.
 
 ### `<NodeGraph.Pin>`
 
-The one-liner for the common "handle + label" row — renders a `<NodeGraph.PinRow>` containing a `<NodeGraph.Port>` and a label, ordered so the handle hugs the node edge (port→label on the left, label→port on the right). The handle fill is auto-derived from the edges. Reach for `<NodeGraph.PinRow>` + `<NodeGraph.Port>` directly only for layouts this doesn't cover (inline editors, multi-control rows).
+The one-liner for the ubiquitous "handle + label" row. It renders a `<NodeGraph.PinRow>` with a `<NodeGraph.Port>` and a label, ordered so the handle hugs the node edge (port → label on the left, label → port on the right). The handle auto-fills from the edges. Drop to `<NodeGraph.PinRow>` + `<NodeGraph.Port>` only for layouts this doesn't cover.
 
 ```tsx
-<NodeGraph.PinList>
-  <NodeGraph.Pin id="exec" side="left" shape="triangle" color="#f8f8f8" />
-  <NodeGraph.Pin id="a" side="left" dataType="float" color="#9ee65a" label="A" />
-  <NodeGraph.Pin id="out" side="right" dataType="float" color="#9ee65a" label="Result" />
-</NodeGraph.PinList>
+<NodeGraph.NodeBody>
+  <NodeGraph.NodeHeader title="Add (float)" />
+  <NodeGraph.PinList>
+    <NodeGraph.Pin
+      id="a"
+      side="left"
+      dataType="float"
+      color="#9ee65a"
+      label="A"
+    />
+    <NodeGraph.Pin
+      id="b"
+      side="left"
+      dataType="float"
+      color="#9ee65a"
+      label="B"
+    />
+    <NodeGraph.Pin
+      id="out"
+      side="right"
+      dataType="float"
+      color="#9ee65a"
+      label="Result"
+    />
+  </NodeGraph.PinList>
+</NodeGraph.NodeBody>
 ```
-
-| Prop | Type | Description |
-| --- | --- | --- |
-| `id` / `side` / `dataType` | — | Forwarded to the underlying `<NodeGraph.Port>`. |
-| `label` | `ReactNode?` | Row label (muted, truncates). Omit / empty → handle only. |
-| `shape` / `color` / `filled` | — | Forwarded to the port handle. |
-| `height` | `number?` | Row height (default 22). |
-| `portLabel` | `string?` | Accessible label for the handle. |
-| `className`/`style`, `labelClassName`/`labelStyle` | — | Style hooks for the row and the label. |
 
 ## Connections
 
@@ -247,15 +233,22 @@ The `info` object carries everything needed to validate without maintaining a co
 
 With no validator supplied, the library still refuses **same-node** connections by default. Pass an explicit validator (`() => true`) to opt back in.
 
-For the common "match `dataType`, in an allowed direction" rule, use the `createTypeMatchValidator` factory instead of hand-writing the closure above:
+#### `createTypeMatchValidator`
+
+For the common "match `dataType`, in an allowed direction" rule, reach for the factory instead of re-writing the closure:
 
 ```tsx
 import { createTypeMatchValidator } from 'entangle-ui';
 
-// Defaults: both horizontal directions, 'any' is a wildcard, untyped ports
-// accept anything, same-node refused. Override directions / anyType / match.
+// Defaults: both horizontal directions, 'any' connects to anything, untyped
+// ports accept anything, same-node refused.
 const isValidConnection = useMemo(() => createTypeMatchValidator(), []);
-const outputsToInputs = createTypeMatchValidator({ directions: ['right->left'] });
+
+// Output→input only, with a custom subtype rule:
+const strict = createTypeMatchValidator({
+  directions: ['right->left'],
+  match: (src, tgt) => src === tgt || (src === 'int' && tgt === 'float'),
+});
 ```
 
 ### `onConnectStart` / `onConnectEnd`
@@ -389,28 +382,36 @@ ref.current?.invalidate('edges'); // force redraw of one layer
 
 ## `useNodeGraph()` — state + actions
 
-Owns nodes / edges / groups / selection plus the mutations every editor re-implements, so the host component isn't four `useState` calls and a pile of array filters. Spread `bind` onto `<NodeGraph>` to wire all four controlled props at once; call the actions from toolbars / context menus. Uncontrolled by design — for external stores (Redux / Zustand) wire the four `onChange` props yourself.
+`NodeGraph` is controlled, which means the host normally owns four `useState`s and a pile of array filters for add / delete / duplicate. `useNodeGraph` packages all of that: it holds the state and exposes the mutations every editor re-implements, with a `bind` object that spreads the four controlled props in one shot.
 
 ```tsx
-import { useNodeGraph } from 'entangle-ui';
+import { NodeGraph, useNodeGraph } from 'entangle-ui';
 
-const graph = useNodeGraph({ nodes: initialNodes, edges: initialEdges });
+function Editor() {
+  const graph = useNodeGraph({ nodes: initialNodes, edges: initialEdges });
 
-<NodeGraph {...graph.bind} renderNode={renderNode}>
-  <NodeGraph.Background />
-</NodeGraph>;
+  return (
+    <NodeGraph {...graph.bind} renderNode={renderNode}>
+      <NodeGraph.Background />
+    </NodeGraph>
+  );
+}
+```
 
-graph.addNode({ position, data });       // → new id (generated if omitted)
-graph.connect(source, target);           // → edge id (de-duped)
-graph.removeNodes(['n1']);               // cascade-drops touching edges + prunes selection
-graph.removeSelection();                 // programmatic Delete (cascade + clear)
-graph.duplicateNodes();                  // clones selection, offsets, selects copies → new ids
-graph.addGroup(bounds, { label });       // → group id
+Call the actions from your toolbar / context menu:
+
+```tsx
+graph.addNode({ position, data }); // append → returns the (generated) id
+graph.connect(source, target); // add an edge, de-duped → returns the id
+graph.removeNodes(['n1']); // drop nodes + cascade their edges + prune selection
+graph.removeSelection(); // programmatic Delete — cascade + clear selection
+graph.duplicateNodes(); // clone the selection, offset, and select the copies
+graph.addGroup(bounds, { label, color });
 graph.removeGroups(['g1']);
 graph.clearSelection();
 ```
 
-`bind` = `{ nodes, edges, groups, selection, onNodesChange, onEdgesChange, onGroupsChange, onSelectionChange }`. The raw setters (`graph.setNodes`, …) are exposed too. Standalone pure helpers `duplicateNodes(nodes, ids, opts?)`, `applyCascadeDelete(...)`, `generateNodeId(prefix)` and `generateEdgeId(source, target)` are exported for custom call sites.
+The raw setters (`graph.setNodes`, `graph.setEdges`, …) are exposed too. The hook is **uncontrolled by design** — it owns the state. For an external store (Redux / Zustand / Jotai), skip the hook and wire the four `onChange` props yourself. The pure helpers behind the actions — `duplicateNodes(nodes, ids)`, `applyCascadeDelete(graph, selection)`, `generateNodeId(prefix)`, `generateEdgeId(source, target)` — are exported for custom call sites.
 
 ## Hooks for advanced consumers
 
