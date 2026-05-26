@@ -64,11 +64,11 @@ Advanced interactive controls for editor workflows.
 
 ### Navigation
 
-| Component     | Description                                      |
-| ------------- | ------------------------------------------------ |
-| `Menu`        | Config-driven dropdown menu                      |
-| `ContextMenu` | Right-click context menu                         |
-| `Tabs`        | Tab navigation with `TabList`, `Tab`, `TabPanel` |
+| Component     | Description                                                               |
+| ------------- | ------------------------------------------------------------------------- |
+| `Menu`        | Composable dropdown menu (`Menu.Trigger`, `Menu.Content`, `Menu.Item`, …) |
+| `ContextMenu` | Right-click context menu                                                  |
+| `Tabs`        | Tab navigation with `TabList`, `Tab`, `TabPanel`                          |
 
 ### Feedback
 

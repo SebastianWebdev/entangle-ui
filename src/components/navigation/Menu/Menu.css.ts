@@ -14,6 +14,20 @@ export const menuContentStyle = style({
   padding: vars.spacing.sm,
   zIndex: vars.zIndex.dropdown,
   outline: 'none',
+  opacity: 1,
+  transform: 'scale(1)',
+  // `--transform-origin` is set by Base UI's positioner and inherited here, so
+  // the scale animation grows from the edge nearest the anchor.
+  transformOrigin: 'var(--transform-origin)',
+  transition: `opacity ${vars.transitions.fast}, transform ${vars.transitions.fast}`,
+  selectors: {
+    // Base UI flags the enter (`data-starting-style`) and exit
+    // (`data-ending-style`) phases; the popup stays mounted across both.
+    '&[data-starting-style], &[data-ending-style]': {
+      opacity: 0,
+      transform: 'scale(0.96)',
+    },
+  },
 });
 
 /**
@@ -25,6 +39,9 @@ export const menuItemStyle = style({
   alignItems: 'center',
   gap: vars.spacing.sm,
   width: '100%',
+  // Keep the padding inside the 100% width so the highlight never spills past
+  // the popup's right edge (the library ships no global border-box reset).
+  boxSizing: 'border-box',
   minHeight: '24px',
   padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
   borderRadius: vars.borderRadius.sm,
@@ -84,9 +101,16 @@ export const shortcutStyle = style({
   whiteSpace: 'nowrap',
 });
 
+// Caption typography applied directly, mirroring `<Text variant="caption"
+// color="muted" weight="semibold">`, so the label needs no extra element.
 export const groupLabelStyle = style({
   display: 'block',
   padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
+  fontSize: vars.typography.fontSize.xs,
+  fontWeight: vars.typography.fontWeight.semibold,
+  lineHeight: vars.typography.lineHeight.tight,
+  fontFamily: vars.typography.fontFamily.sans,
+  color: vars.colors.text.muted,
 });
 
 export const separatorStyle = style({
