@@ -898,7 +898,10 @@ const NodeGraphImpl = ({
                 onBodyContextMenu={handleContextMenu}
               />
             ))}
-            <EdgeLabelsLayer renderEdgeLabelRef={renderEdgeLabelRef} />
+            <EdgeLabelsLayer
+              renderEdgeLabelRef={renderEdgeLabelRef}
+              hasRenderEdgeLabel={renderEdgeLabel !== undefined}
+            />
           </ViewportWorld>
           <ViewportLayer name="preview" draw={drawPreviewLayer} />
           {slots.hasMinimap || slots.toolbars.length > 0 ? (

@@ -76,8 +76,18 @@ function selectEdgeDeltas(
  */
 export function EdgeLabelsLayer({
   renderEdgeLabelRef,
+  hasRenderEdgeLabel,
 }: {
   renderEdgeLabelRef: RenderEdgeLabelRef;
+  /**
+   * Whether the consumer supplied a `renderEdgeLabel` callback. When `false`,
+   * edges without an explicit `edge.label` prop are skipped — no `EdgeLabel`
+   * subscriber is mounted for them. This avoids the cost of one interaction-
+   * slice subscriber per edge in graphs that don't use labels at all (the
+   * benchmark, simple recipes, etc.), which is otherwise pure waste — the
+   * subscriber fires on every drag tick and the body returns `null`.
+   */
+  hasRenderEdgeLabel: boolean;
 }): React.ReactElement | null {
   const store = useNodeGraphStore();
   // Subscribe to data + port positions at this level so we know which
@@ -91,13 +101,23 @@ export function EdgeLabelsLayer({
 
   return (
     <>
-      {data.edges.map(edge => (
-        <EdgeLabel
-          key={edge.id}
-          edge={edge}
-          renderEdgeLabelRef={renderEdgeLabelRef}
-        />
-      ))}
+      {data.edges.map(edge => {
+        // Skip mounting an `EdgeLabel` subscriber when there's nothing it
+        // could ever render. When `renderEdgeLabel` is provided the
+        // consumer controls visibility per edge from inside their callback
+        // (and may return `null`), so we still have to mount — but if no
+        // callback exists, the only thing the label could show is
+        // `edge.label`, and a `null` value there means there's nothing to
+        // draw and no reason to pay for a per-edge store subscription.
+        if (!hasRenderEdgeLabel && edge.label == null) return null;
+        return (
+          <EdgeLabel
+            key={edge.id}
+            edge={edge}
+            renderEdgeLabelRef={renderEdgeLabelRef}
+          />
+        );
+      })}
     </>
   );
 }
