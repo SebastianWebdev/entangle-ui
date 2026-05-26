@@ -194,6 +194,7 @@ export {
   useNodeGraph,
   createTypeMatchValidator,
   duplicateNodes,
+  edgesConnectedToPort,
   generateNodeId,
   generateEdgeId,
   ChatPanel,

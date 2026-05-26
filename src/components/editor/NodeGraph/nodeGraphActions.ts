@@ -1,6 +1,31 @@
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
-import type { NodeGraphNode } from './NodeGraph.types';
+import type {
+  NodeGraphEdge,
+  NodeGraphNode,
+  NodeGraphPortRef,
+} from './NodeGraph.types';
 import { generateNodeId } from './nodeGraphIds';
+
+/**
+ * Ids of every edge with an endpoint on the given port — i.e. all wires
+ * connected to one socket. Use it to "detach all" or select a socket's wires
+ * without maintaining a parallel index.
+ */
+export function edgesConnectedToPort(
+  edges: ReadonlyArray<NodeGraphEdge>,
+  ref: NodeGraphPortRef
+): string[] {
+  const ids: string[] = [];
+  for (const edge of edges) {
+    if (
+      (edge.source.node === ref.node && edge.source.port === ref.port) ||
+      (edge.target.node === ref.node && edge.target.port === ref.port)
+    ) {
+      ids.push(edge.id);
+    }
+  }
+  return ids;
+}
 
 export interface DuplicateNodesOptions {
   /**

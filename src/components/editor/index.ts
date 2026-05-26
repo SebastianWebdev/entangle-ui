@@ -88,6 +88,7 @@ export {
   useNodeGraph,
   createTypeMatchValidator,
   duplicateNodes,
+  edgesConnectedToPort,
   generateNodeId,
   generateEdgeId,
   DEFAULT_NODE_WIDTH as NODE_GRAPH_DEFAULT_NODE_WIDTH,

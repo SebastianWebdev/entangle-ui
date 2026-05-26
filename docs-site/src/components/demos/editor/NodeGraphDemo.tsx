@@ -3,6 +3,7 @@ import DemoWrapper from '../DemoWrapper';
 import {
   NodeGraph,
   createTypeMatchValidator,
+  edgesConnectedToPort,
   useNodeGraph,
   type NodeGraphContextMenuInfo,
   type NodeGraphEdge,
@@ -807,19 +808,37 @@ export default function NodeGraphDemo(): React.ReactElement {
     if (!menuInfo) return null;
     const { target, worldPoint } = menuInfo;
 
-    if (target.kind === 'node' || target.kind === 'port') {
-      const nodeId = target.kind === 'node' ? target.id : target.node;
+    if (target.kind === 'port') {
+      // Right-click a socket → select all wires hanging off it. From there
+      // Delete removes them — "detach all" without a dedicated action.
+      const portRef = { node: target.node, port: target.port };
+      return (
+        <Menu.Item
+          onClick={() =>
+            graph.setSelection({
+              nodes: [],
+              edges: edgesConnectedToPort(graph.edges, portRef),
+              groups: [],
+            })
+          }
+        >
+          Select connected edges
+        </Menu.Item>
+      );
+    }
+
+    if (target.kind === 'node') {
       return (
         <>
           <Menu.Item
             icon={<CopyIcon size="sm" />}
-            onClick={() => graph.duplicateNodes([nodeId])}
+            onClick={() => graph.duplicateNodes([target.id])}
           >
             Duplicate node
           </Menu.Item>
           <Menu.Item
             icon={<TrashIcon size="sm" />}
-            onClick={() => graph.removeNodes([nodeId])}
+            onClick={() => graph.removeNodes([target.id])}
           >
             Delete node
           </Menu.Item>

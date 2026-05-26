@@ -48,7 +48,11 @@ export {
   createTypeMatchValidator,
   type TypeMatchValidatorOptions,
 } from './createTypeMatchValidator';
-export { duplicateNodes, type DuplicateNodesOptions } from './nodeGraphActions';
+export {
+  duplicateNodes,
+  edgesConnectedToPort,
+  type DuplicateNodesOptions,
+} from './nodeGraphActions';
 export { generateNodeId, generateEdgeId } from './nodeGraphIds';
 export { NODE_GRAPH_SLOT } from './NodeGraph.types';
 export {

@@ -17,7 +17,10 @@ import type {
   NodeGraphSelection,
 } from './NodeGraph.types';
 import { applyCascadeDelete } from './nodeGraphMath';
-import { duplicateNodes as duplicateNodesImpl } from './nodeGraphActions';
+import {
+  duplicateNodes as duplicateNodesImpl,
+  edgesConnectedToPort,
+} from './nodeGraphActions';
 import type { DuplicateNodesOptions } from './nodeGraphActions';
 import { generateEdgeId, generateNodeId } from './nodeGraphIds';
 
@@ -80,6 +83,8 @@ export interface UseNodeGraphReturn {
   removeNodes: (ids: ReadonlyArray<string>) => void;
   /** Remove the given edges and prune them from the selection. */
   removeEdges: (ids: ReadonlyArray<string>) => void;
+  /** Remove every edge connected to a port — "detach all" for one socket. */
+  disconnectPort: (node: string, port: string) => void;
   /**
    * Cascade-delete the current selection (nodes + edges + groups) and clear
    * it — the programmatic equivalent of pressing Delete.
@@ -208,6 +213,13 @@ export function useNodeGraph(
       }
     },
     [selectionRef]
+  );
+
+  const disconnectPort = useCallback(
+    (node: string, port: string): void => {
+      removeEdges(edgesConnectedToPort(edgesRef.current, { node, port }));
+    },
+    [edgesRef, removeEdges]
   );
 
   const removeSelection = useCallback((): void => {
@@ -346,6 +358,7 @@ export function useNodeGraph(
     addNode,
     removeNodes,
     removeEdges,
+    disconnectPort,
     removeSelection,
     duplicateNodes,
     connect,

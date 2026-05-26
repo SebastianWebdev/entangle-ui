@@ -139,6 +139,34 @@ describe('useNodeGraph', () => {
     });
   });
 
+  describe('disconnectPort', () => {
+    it('removes every edge on the port and prunes the selection', () => {
+      const { result } = renderHook(() =>
+        useNodeGraph({
+          nodes: NODES,
+          edges: EDGES,
+          selection: { nodes: [], edges: ['e1'], groups: [] },
+        })
+      );
+      act(() => {
+        result.current.disconnectPort('a', 'out');
+      });
+      expect(result.current.edges).toEqual([]);
+      expect(result.current.selection.edges).toEqual([]);
+    });
+
+    it('is a no-op for an unconnected port', () => {
+      const { result } = renderHook(() =>
+        useNodeGraph({ nodes: NODES, edges: EDGES })
+      );
+      const before = result.current.edges;
+      act(() => {
+        result.current.disconnectPort('a', 'in');
+      });
+      expect(result.current.edges).toBe(before);
+    });
+  });
+
   describe('removeSelection', () => {
     it('cascade-deletes the selection and clears it', () => {
       const { result } = renderHook(() =>

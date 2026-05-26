@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { duplicateNodes } from './nodeGraphActions';
-import type { NodeGraphNode } from './NodeGraph.types';
+import { duplicateNodes, edgesConnectedToPort } from './nodeGraphActions';
+import type { NodeGraphEdge, NodeGraphNode } from './NodeGraph.types';
 
 const NODES: NodeGraphNode[] = [
   { id: 'a', position: { x: 0, y: 0 }, data: { kind: 'x' }, width: 120 },
@@ -58,5 +58,44 @@ describe('duplicateNodes', () => {
     const snapshot = JSON.stringify(NODES);
     duplicateNodes(NODES, ['a', 'b', 'c']);
     expect(JSON.stringify(NODES)).toBe(snapshot);
+  });
+});
+
+describe('edgesConnectedToPort', () => {
+  const EDGES: NodeGraphEdge[] = [
+    {
+      id: 'e1',
+      source: { node: 'a', port: 'out' },
+      target: { node: 'b', port: 'in' },
+    },
+    {
+      id: 'e2',
+      source: { node: 'a', port: 'out' },
+      target: { node: 'c', port: 'in' },
+    },
+    {
+      id: 'e3',
+      source: { node: 'b', port: 'out' },
+      target: { node: 'c', port: 'in' },
+    },
+  ];
+
+  it('finds edges where the port is the source', () => {
+    expect(edgesConnectedToPort(EDGES, { node: 'a', port: 'out' })).toEqual([
+      'e1',
+      'e2',
+    ]);
+  });
+
+  it('finds edges where the port is the target', () => {
+    expect(edgesConnectedToPort(EDGES, { node: 'c', port: 'in' })).toEqual([
+      'e2',
+      'e3',
+    ]);
+  });
+
+  it('returns an empty array for an unconnected port', () => {
+    expect(edgesConnectedToPort(EDGES, { node: 'a', port: 'in' })).toEqual([]);
+    expect(edgesConnectedToPort([], { node: 'a', port: 'out' })).toEqual([]);
   });
 });
