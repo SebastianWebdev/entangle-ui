@@ -565,6 +565,65 @@ export const pinLabelStyle = style({
   whiteSpace: 'nowrap',
 });
 
+// ─── Collapsible node section ───
+
+export const nodeSectionStyle = style({
+  display: 'flex',
+  flexDirection: 'column',
+  borderTop: `1px solid ${vars.colors.border.default}`,
+});
+
+export const nodeSectionHeaderStyle = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.xs,
+  width: '100%',
+  padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
+  margin: 0,
+  background: 'transparent',
+  border: 'none',
+  color: vars.colors.text.secondary,
+  font: 'inherit',
+  fontSize: vars.typography.fontSize.xs,
+  textAlign: 'left',
+  cursor: 'pointer',
+  selectors: {
+    '&:disabled': { cursor: 'default' },
+    '&:hover:not(:disabled)': { color: vars.colors.text.primary },
+  },
+});
+
+/** Small triangle that points down when expanded, right when collapsed. */
+export const nodeSectionChevronRecipe = recipe({
+  base: {
+    width: 0,
+    height: 0,
+    flexShrink: 0,
+    borderTop: '4px solid transparent',
+    borderBottom: '4px solid transparent',
+    borderLeft: '5px solid currentColor',
+    transition: `transform ${vars.transitions.fast}`,
+  },
+  variants: {
+    collapsed: {
+      true: { transform: 'rotate(0deg)' },
+      false: { transform: 'rotate(90deg)' },
+    },
+  },
+  defaultVariants: { collapsed: false },
+});
+
+export const nodeSectionTitleStyle = style({
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
+export const nodeSectionContentStyle = style({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
 // Ensure the underlying ViewportWorld passes through pointer events so nodes
 // receive them. The ViewportWorld wrapper has pointer-events: none by default
 // to let the background marquee pass through.

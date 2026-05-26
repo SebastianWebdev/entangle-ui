@@ -1132,3 +1132,67 @@ describe('NodeGraph — Edge reconnect', () => {
     expect(edges).toBeNull();
   });
 });
+
+// ─── Collapsible node section ───
+
+describe('NodeGraph — <NodeGraph.NodeSection>', () => {
+  const oneNode: NodeGraphNode[] = [{ id: 'n1', position: { x: 0, y: 0 } }];
+
+  function renderWithSection(defaultCollapsed: boolean): void {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={oneNode}
+        renderNode={() => (
+          <NodeGraph.NodeBody>
+            <NodeGraph.PinList>
+              <NodeGraph.Pin id="main" side="left" label="Main" />
+            </NodeGraph.PinList>
+            <NodeGraph.NodeSection
+              title="Advanced"
+              defaultCollapsed={defaultCollapsed}
+            >
+              <NodeGraph.PinList>
+                <NodeGraph.Pin id="adv" side="left" label="Advanced pin" />
+              </NodeGraph.PinList>
+            </NodeGraph.NodeSection>
+          </NodeGraph.NodeBody>
+        )}
+      />
+    );
+  }
+
+  it('toggles aria-expanded when the header is clicked', () => {
+    renderWithSection(true);
+    const toggle = screen.getByRole('button', { name: /advanced/i });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('keeps collapsed children mounted (visual collapse, no unmount)', () => {
+    renderWithSection(true);
+    // The collapsed section's port is still in the DOM — only hidden.
+    expect(
+      document.querySelector('[data-node-id="n1"][data-port-id="adv"]')
+    ).toBeInTheDocument();
+  });
+
+  it('renders a static, always-open group when collapsible is false', () => {
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={oneNode}
+        renderNode={() => (
+          <NodeGraph.NodeSection title="Section" collapsible={false}>
+            <span data-testid="static-content">x</span>
+          </NodeGraph.NodeSection>
+        )}
+      />
+    );
+    const header = screen.getByRole('button', { name: /section/i });
+    expect(header).toBeDisabled();
+    expect(header).not.toHaveAttribute('aria-expanded');
+    expect(screen.getByTestId('static-content')).toBeInTheDocument();
+  });
+});

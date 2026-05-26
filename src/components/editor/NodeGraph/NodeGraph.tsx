@@ -63,6 +63,7 @@ import {
 import { NodeGraphPort } from './NodeGraphPort';
 import { NodeGraphPortVisual } from './NodeGraphPortVisual';
 import { NodeGraphPin } from './NodeGraphPin';
+import { NodeGraphNodeSection } from './NodeGraphNodeSection';
 import { EdgeLabelsLayer } from './NodeGraphEdgeLabels';
 import {
   NodeGraphNodeBody,
@@ -1053,6 +1054,7 @@ type NodeGraphCompound = typeof NodeGraphImpl & {
   Pin: typeof NodeGraphPin;
   NodeBody: typeof NodeGraphNodeBody;
   NodeHeader: typeof NodeGraphNodeHeader;
+  NodeSection: typeof NodeGraphNodeSection;
   PinList: typeof NodeGraphPinList;
   PinRow: typeof NodeGraphPinRow;
   Toolbar: typeof NodeGraphToolbar;
@@ -1075,6 +1077,7 @@ NodeGraphWithSlots.PortVisual = NodeGraphPortVisual;
 NodeGraphWithSlots.Pin = NodeGraphPin;
 NodeGraphWithSlots.NodeBody = NodeGraphNodeBody;
 NodeGraphWithSlots.NodeHeader = NodeGraphNodeHeader;
+NodeGraphWithSlots.NodeSection = NodeGraphNodeSection;
 NodeGraphWithSlots.PinList = NodeGraphPinList;
 NodeGraphWithSlots.PinRow = NodeGraphPinRow;
 NodeGraphWithSlots.Toolbar = NodeGraphToolbar;

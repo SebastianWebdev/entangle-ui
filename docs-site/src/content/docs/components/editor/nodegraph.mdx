@@ -235,6 +235,22 @@ The one-liner for the ubiquitous "handle + label" row. It renders a `<NodeGraph.
 </NodeGraph.NodeBody>
 ```
 
+### `<NodeGraph.NodeSection>`
+
+A collapsible section inside a node body — somewhere to tuck "advanced" or overflow pins so the node stays compact. The collapse is **purely visual**: the children never unmount, so their state is preserved and there's no remount cost. `<NodeGraph.Port>` slots inside a collapsed section unregister their position while hidden, so the pins' edges hide along with them and snap back on expand — no dangling wires, no manual re-anchoring.
+
+```tsx
+<NodeGraph.NodeBody>
+  <NodeGraph.NodeHeader title="Make Transform" />
+  <NodeGraph.PinList>{mainPins}</NodeGraph.PinList>
+  <NodeGraph.NodeSection title="Advanced" defaultCollapsed>
+    <NodeGraph.PinList>{advancedPins}</NodeGraph.PinList>
+  </NodeGraph.NodeSection>
+</NodeGraph.NodeBody>
+```
+
+Controlled or uncontrolled like the rest of the library — pass `collapsed` + `onCollapsedChange`, or `defaultCollapsed`. Set `collapsible={false}` for a static labelled group (no toggle).
+
 ## Connections
 
 Connection drags start on a port pointer-down and end on pointer-up. While the drag is in flight, the source port is highlighted, a dashed (or solid) Bézier follows the cursor, and any port under the cursor is treated as a candidate. Drop on a port to create an edge; drop on empty space (or an invalid candidate) cancels.

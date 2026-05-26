@@ -7,6 +7,10 @@ export {
 } from './NodeGraphPortVisual';
 export { NodeGraphPin, type NodeGraphPinProps } from './NodeGraphPin';
 export {
+  NodeGraphNodeSection,
+  type NodeGraphNodeSectionProps,
+} from './NodeGraphNodeSection';
+export {
   NodeGraphNodeBody,
   NodeGraphNodeHeader,
   NodeGraphPinList,

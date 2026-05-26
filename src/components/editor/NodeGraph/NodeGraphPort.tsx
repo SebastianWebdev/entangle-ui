@@ -14,6 +14,7 @@ import { portSlotRecipe } from './NodeGraph.css';
 import type { NodeGraphPortSlotProps } from './NodeGraph.types';
 import { useNodeGraphStore } from './NodeGraphContext';
 import { useNodeGraphNodeContext } from './NodeGraphNodeContext';
+import { useNodeGraphNodeSection } from './NodeGraphNodeSectionContext';
 import { useStoreSlice } from './useStoreSlice';
 import { NodeGraphPortVisual } from './NodeGraphPortVisual';
 
@@ -76,6 +77,7 @@ function NodeGraphPortImpl({
   style,
 }: NodeGraphPortSlotProps): React.ReactElement {
   const { nodeId, onPortPointerDown } = useNodeGraphNodeContext();
+  const { collapsed } = useNodeGraphNodeSection();
   const store = useNodeGraphStore();
   const viewportStore = useViewportStore();
   const elementRef = useRef<HTMLSpanElement>(null);
@@ -143,6 +145,13 @@ function NodeGraphPortImpl({
   // hit-tests can walk up from any descendant), so a plain `[data-node-id]`
   // would match the port and report position (~6, ~6) for every port.
   const measure = useCallback((): void => {
+    // Inside a collapsed section the port is hidden; drop its registered
+    // position so its edges hide too (re-registers on expand). The component
+    // stays mounted, so no remount churn.
+    if (collapsed) {
+      store.removePortPosition(nodeId, id);
+      return;
+    }
     const el = elementRef.current;
     if (!el) return;
     const wrapper = el.closest('[data-node-id]:not([data-port-id])');
@@ -157,7 +166,7 @@ function NodeGraphPortImpl({
     const x = (portRect.left + portRect.width / 2 - nodeRect.left) / zoom;
     const y = (portRect.top + portRect.height / 2 - nodeRect.top) / zoom;
     store.setPortPosition(nodeId, id, { x, y, side, dataType });
-  }, [store, viewportStore, nodeId, id, side, dataType]);
+  }, [store, viewportStore, nodeId, id, side, dataType, collapsed]);
 
   // Re-measure triggers (the per-port `ResizeObserver` only fires when
   // the port's own size changes, which misses layout shifts inside the
