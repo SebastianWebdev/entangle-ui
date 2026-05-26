@@ -437,6 +437,7 @@ export type {
   MenuSubTriggerProps,
   MenuSide,
   MenuAlign,
+  MenuHandle,
   PaginationBaseProps,
   PaginationItem,
   PaginationItemAriaLabelGetter,

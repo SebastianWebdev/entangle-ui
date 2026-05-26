@@ -237,13 +237,20 @@ The root. Owns open/close state for one trigger area.
       description:
         'Gap in px between submenu popups and their anchor, inherited by any Menu.SubContent inside the content.',
     },
+    {
+      name: 'ref',
+      type: 'Ref<MenuHandle>',
+      description:
+        'Imperative handle. Call ref.current.close() to close the menu from app code.',
+    },
   ]}
 />
 
 ### ContextMenu.Trigger
 
-The right-click area. Renders with `display: contents` by default so it adds no
-extra box; override via `style`.
+The right-click area. By default the children are wrapped in a `display:
+contents` element so the trigger adds no extra box. Pass `render` to make the
+trigger render _as_ your own element instead — no wrapper, fully stylable.
 
 <PropsTable
   props={[
@@ -251,6 +258,12 @@ extra box; override via `style`.
       name: 'children',
       type: 'ReactNode',
       description: 'The right-click target area.',
+    },
+    {
+      name: 'render',
+      type: 'ReactElement',
+      description:
+        'Render the trigger as this element instead of wrapping the children in a display: contents element. The element carries its own children.',
     },
     {
       name: 'className',

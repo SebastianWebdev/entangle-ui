@@ -965,95 +965,97 @@ export default function FullEditorDemo() {
             >
               {/* 3D Viewport */}
               <ContextMenu>
-                <ContextMenu.Trigger>
-                  <div className={viewportCanvasStyle}>
-                    <div className={viewportGridStyle} />
-                    <div className={viewportAxisXStyle} />
-                    <div className={viewportAxisZStyle} />
+                <ContextMenu.Trigger
+                  render={
+                    <div className={viewportCanvasStyle}>
+                      <div className={viewportGridStyle} />
+                      <div className={viewportAxisXStyle} />
+                      <div className={viewportAxisZStyle} />
 
-                    {/* Wireframe cube object */}
-                    <div className={cubeWireframeStyle}>
-                      <CubeFace transform="translateZ(60px)" highlight />
-                      <CubeFace transform="translateZ(-60px)" />
-                      <CubeFace transform="rotateY(90deg) translateZ(60px)" />
-                      <CubeFace transform="rotateY(-90deg) translateZ(60px)" />
-                      <CubeFace transform="rotateX(90deg) translateZ(60px)" />
-                      <CubeFace transform="rotateX(-90deg) translateZ(60px)" />
-                    </div>
-                    <div className={selectionDotsStyle}>
-                      <SelectionCorner x={-3} y={-3} z={65} />
-                      <SelectionCorner x={123} y={-3} z={65} />
-                      <SelectionCorner x={-3} y={123} z={65} />
-                      <SelectionCorner x={123} y={123} z={65} />
-                    </div>
-
-                    {/* Orientation gizmo */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: 12,
-                        right: 12,
-                        zIndex: 10,
-                      }}
-                    >
-                      <ViewportGizmoComponent
-                        orientation={gizmoOrientation}
-                        onOrbit={handleGizmoOrbit}
-                        onSnapToView={handleGizmoSnap}
-                        size="sm"
-                        diameter={80}
-                        background="transparent"
-                      />
-                    </div>
-
-                    {/* Viewport mode selector */}
-                    <div className={viewportTopBarStyle}>
-                      <button
-                        className={viewportModeBtnRecipe({
-                          active: renderMode === 'wireframe',
-                        })}
-                        onClick={() => setRenderMode('wireframe')}
-                      >
-                        Wireframe
-                      </button>
-                      <button
-                        className={viewportModeBtnRecipe({
-                          active: renderMode === 'solid',
-                        })}
-                        onClick={() => setRenderMode('solid')}
-                      >
-                        Solid
-                      </button>
-                      <button
-                        className={viewportModeBtnRecipe({
-                          active: renderMode === 'material',
-                        })}
-                        onClick={() => setRenderMode('material')}
-                      >
-                        Material
-                      </button>
-                      <button
-                        className={viewportModeBtnRecipe({
-                          active: renderMode === 'rendered',
-                        })}
-                        onClick={() => setRenderMode('rendered')}
-                      >
-                        Rendered
-                      </button>
-                    </div>
-
-                    {/* Viewport info badges */}
-                    <div className={viewportOverlayStyle}>
-                      <div className={viewportBadgeStyle}>
-                        Verts: 8 &middot; Faces: 6 &middot; Tris: 12
+                      {/* Wireframe cube object */}
+                      <div className={cubeWireframeStyle}>
+                        <CubeFace transform="translateZ(60px)" highlight />
+                        <CubeFace transform="translateZ(-60px)" />
+                        <CubeFace transform="rotateY(90deg) translateZ(60px)" />
+                        <CubeFace transform="rotateY(-90deg) translateZ(60px)" />
+                        <CubeFace transform="rotateX(90deg) translateZ(60px)" />
+                        <CubeFace transform="rotateX(-90deg) translateZ(60px)" />
                       </div>
-                      <div className={viewportBadgeStyle}>
-                        Objects: 5 / 1 selected
+                      <div className={selectionDotsStyle}>
+                        <SelectionCorner x={-3} y={-3} z={65} />
+                        <SelectionCorner x={123} y={-3} z={65} />
+                        <SelectionCorner x={-3} y={123} z={65} />
+                        <SelectionCorner x={123} y={123} z={65} />
                       </div>
-                      <div className={viewportBadgeStyle}>60.0 fps</div>
+
+                      {/* Orientation gizmo */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 12,
+                          right: 12,
+                          zIndex: 10,
+                        }}
+                      >
+                        <ViewportGizmoComponent
+                          orientation={gizmoOrientation}
+                          onOrbit={handleGizmoOrbit}
+                          onSnapToView={handleGizmoSnap}
+                          size="sm"
+                          diameter={80}
+                          background="transparent"
+                        />
+                      </div>
+
+                      {/* Viewport mode selector */}
+                      <div className={viewportTopBarStyle}>
+                        <button
+                          className={viewportModeBtnRecipe({
+                            active: renderMode === 'wireframe',
+                          })}
+                          onClick={() => setRenderMode('wireframe')}
+                        >
+                          Wireframe
+                        </button>
+                        <button
+                          className={viewportModeBtnRecipe({
+                            active: renderMode === 'solid',
+                          })}
+                          onClick={() => setRenderMode('solid')}
+                        >
+                          Solid
+                        </button>
+                        <button
+                          className={viewportModeBtnRecipe({
+                            active: renderMode === 'material',
+                          })}
+                          onClick={() => setRenderMode('material')}
+                        >
+                          Material
+                        </button>
+                        <button
+                          className={viewportModeBtnRecipe({
+                            active: renderMode === 'rendered',
+                          })}
+                          onClick={() => setRenderMode('rendered')}
+                        >
+                          Rendered
+                        </button>
+                      </div>
+
+                      {/* Viewport info badges */}
+                      <div className={viewportOverlayStyle}>
+                        <div className={viewportBadgeStyle}>
+                          Verts: 8 &middot; Faces: 6 &middot; Tris: 12
+                        </div>
+                        <div className={viewportBadgeStyle}>
+                          Objects: 5 / 1 selected
+                        </div>
+                        <div className={viewportBadgeStyle}>60.0 fps</div>
+                      </div>
                     </div>
-                  </div>
-                </ContextMenu.Trigger>
+                  }
+                />
                 <ContextMenu.Content>{viewportMenuContent}</ContextMenu.Content>
               </ContextMenu>
 

@@ -10,6 +10,16 @@ export type MenuSide = 'top' | 'right' | 'bottom' | 'left';
 export type MenuAlign = 'start' | 'center' | 'end';
 
 /**
+ * Imperative handle exposed on the `Menu` / `ContextMenu` root `ref`. Lets app
+ * code close an open menu from outside React's render flow (e.g. after a long
+ * task finishes).
+ */
+export interface MenuHandle {
+  /** Close the menu programmatically. */
+  close: () => void;
+}
+
+/**
  * Root of the menu. Groups the trigger and content, owns open/close state.
  */
 export interface MenuRootBaseProps {
@@ -35,6 +45,8 @@ export interface MenuRootBaseProps {
    * @default 8
    */
   gap?: number;
+  /** Imperative handle for closing the menu from app code. */
+  ref?: React.Ref<MenuHandle>;
 }
 export type MenuRootProps = Prettify<MenuRootBaseProps>;
 
@@ -76,7 +88,7 @@ export type MenuContentProps = Prettify<MenuContentBaseProps>;
  * action on the right.
  */
 export interface MenuItemBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent<HTMLElement>,
   'onClick'
 > {
   /** Label content. */
@@ -91,8 +103,13 @@ export interface MenuItemBaseProps extends Omit<
   disabled?: boolean;
   /** Whether clicking the item closes the menu. @default true */
   closeOnClick?: boolean;
-  /** Click handler. */
+  /** Click handler. Fires on pointer click and keyboard activation. */
   onClick?: React.MouseEventHandler<HTMLElement>;
+  /**
+   * Activation handler — alias of `onClick` with clearer intent. Fires on the
+   * same pointer and keyboard (Enter/Space) activation. Both run if provided.
+   */
+  onSelect?: React.MouseEventHandler<HTMLElement>;
 }
 export type MenuItemProps = Prettify<MenuItemBaseProps>;
 
@@ -118,7 +135,7 @@ export type MenuRadioGroupProps = Prettify<MenuRadioGroupBaseProps>;
  * Radio row. Shows a selection indicator in the left slot when active.
  */
 export interface MenuRadioItemBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent<HTMLElement>,
   'onClick'
 > {
   /** Value this item represents within its `RadioGroup`. */
@@ -135,8 +152,13 @@ export interface MenuRadioItemBaseProps extends Omit<
   disabled?: boolean;
   /** Whether clicking the item closes the menu. @default false */
   closeOnClick?: boolean;
-  /** Click handler. */
+  /** Click handler. Fires on pointer click and keyboard activation. */
   onClick?: React.MouseEventHandler<HTMLElement>;
+  /**
+   * Activation handler — alias of `onClick` with clearer intent. Fires on the
+   * same pointer and keyboard (Enter/Space) activation. Both run if provided.
+   */
+  onSelect?: React.MouseEventHandler<HTMLElement>;
 }
 export type MenuRadioItemProps = Prettify<MenuRadioItemBaseProps>;
 
@@ -144,7 +166,7 @@ export type MenuRadioItemProps = Prettify<MenuRadioItemBaseProps>;
  * Checkbox row. Shows a selection indicator in the left slot when ticked.
  */
 export interface MenuCheckboxItemBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent<HTMLElement>,
   'onClick'
 > {
   /** Label content. */
@@ -165,8 +187,13 @@ export interface MenuCheckboxItemBaseProps extends Omit<
   disabled?: boolean;
   /** Whether clicking the item closes the menu. @default false */
   closeOnClick?: boolean;
-  /** Click handler. */
+  /** Click handler. Fires on pointer click and keyboard activation. */
   onClick?: React.MouseEventHandler<HTMLElement>;
+  /**
+   * Activation handler — alias of `onClick` with clearer intent. Fires on the
+   * same pointer and keyboard (Enter/Space) activation. Both run if provided.
+   */
+  onSelect?: React.MouseEventHandler<HTMLElement>;
 }
 export type MenuCheckboxItemProps = Prettify<MenuCheckboxItemBaseProps>;
 
@@ -198,7 +225,7 @@ export type MenuSubProps = Prettify<MenuSubBaseProps>;
  * Row that opens a submenu. Renders a chevron in the right slot.
  */
 export interface MenuSubTriggerBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent<HTMLElement>,
   'onClick'
 > {
   /** Label content. */

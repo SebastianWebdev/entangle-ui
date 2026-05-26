@@ -189,6 +189,58 @@ describe('Menu', () => {
       fireEvent.click(screen.getByText('Copy'));
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
+
+    it('calls the onSelect alias when an item is activated', () => {
+      const handleSelect = vi.fn();
+      renderWithTheme(
+        <Menu>
+          <Menu.Trigger>Edit</Menu.Trigger>
+          <Menu.Content>
+            <Menu.Item onSelect={handleSelect}>Copy</Menu.Item>
+          </Menu.Content>
+        </Menu>
+      );
+
+      fireEvent.click(screen.getByText('Copy'));
+      expect(handleSelect).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs both onClick and onSelect when both are provided', () => {
+      const handleClick = vi.fn();
+      const handleSelect = vi.fn();
+      renderWithTheme(
+        <Menu>
+          <Menu.Trigger>Edit</Menu.Trigger>
+          <Menu.Content>
+            <Menu.Item onClick={handleClick} onSelect={handleSelect}>
+              Copy
+            </Menu.Item>
+          </Menu.Content>
+        </Menu>
+      );
+
+      fireEvent.click(screen.getByText('Copy'));
+      expect(handleClick).toHaveBeenCalledTimes(1);
+      expect(handleSelect).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Refs', () => {
+    it('forwards a ref to the underlying item element', () => {
+      const ref = React.createRef<HTMLElement>();
+      renderWithTheme(
+        <Menu>
+          <Menu.Trigger>Edit</Menu.Trigger>
+          <Menu.Content>
+            <Menu.Item ref={ref} testId="copy-item">
+              Copy
+            </Menu.Item>
+          </Menu.Content>
+        </Menu>
+      );
+
+      expect(ref.current).toBe(screen.getByTestId('copy-item'));
+    });
   });
 
   describe('Accessibility', () => {
