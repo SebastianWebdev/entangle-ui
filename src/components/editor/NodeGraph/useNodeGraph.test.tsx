@@ -112,6 +112,33 @@ describe('useNodeGraph', () => {
     });
   });
 
+  describe('removeEdges', () => {
+    it('removes edges and prunes them from the selection', () => {
+      const { result } = renderHook(() =>
+        useNodeGraph({
+          nodes: NODES,
+          edges: EDGES,
+          selection: { nodes: [], edges: ['e1'], groups: [] },
+        })
+      );
+      act(() => {
+        result.current.removeEdges(['e1']);
+      });
+      expect(result.current.edges).toEqual([]);
+      expect(result.current.selection.edges).toEqual([]);
+    });
+
+    it('leaves nodes untouched', () => {
+      const { result } = renderHook(() =>
+        useNodeGraph({ nodes: NODES, edges: EDGES })
+      );
+      act(() => {
+        result.current.removeEdges(['e1']);
+      });
+      expect(result.current.nodes).toHaveLength(2);
+    });
+  });
+
   describe('removeSelection', () => {
     it('cascade-deletes the selection and clears it', () => {
       const { result } = renderHook(() =>

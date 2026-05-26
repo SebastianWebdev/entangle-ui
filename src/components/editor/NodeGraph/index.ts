@@ -57,6 +57,7 @@ export {
   getNodeBox,
   getBezierControlPoints,
   evaluateBezier,
+  findEdgeAtPoint,
   isPointNearBezier,
   isPointInNode,
   isPointInRect,

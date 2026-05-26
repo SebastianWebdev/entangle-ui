@@ -631,6 +631,35 @@ describe('NodeGraph — Context menu', () => {
       expect(arg.target.port).toBe('out');
     }
   });
+
+  it('emits onContextMenu with target=edge for a right-click on an edge', () => {
+    let captured: NodeGraphContextMenuInfo | null = null;
+    const onContextMenu = (info: NodeGraphContextMenuInfo): void => {
+      captured = info;
+    };
+    renderWithTheme(
+      <NodeGraph
+        testId="nodegraph"
+        defaultNodes={baseNodes}
+        defaultEdges={baseEdges}
+        renderNode={renderTestNode}
+        onContextMenu={onContextMenu}
+      />
+    );
+    // jsdom reports zero-size rects, so both ports register at their node
+    // origin: n1.out → (100,100), n2.in → (300,100). The edge runs flat at
+    // y=100, so a right-click at (200,100) — clear of both node boxes — lands
+    // on the edge.
+    fireEvent.contextMenu(screen.getByTestId('nodegraph'), {
+      clientX: 200,
+      clientY: 100,
+    });
+    const arg = captured as unknown as NodeGraphContextMenuInfo | null;
+    expect(arg?.target.kind).toBe('edge');
+    if (arg?.target.kind === 'edge') {
+      expect(arg.target.id).toBe('e1');
+    }
+  });
 });
 
 // ─── Imperative handle ───

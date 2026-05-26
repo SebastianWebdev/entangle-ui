@@ -299,16 +299,19 @@ For undo grouping, telemetry, or just custom drop animations:
 
 Selection is a tri-list of ids: `{ nodes, edges, groups }`. It's controlled-or-uncontrolled like every other piece of data.
 
-| Gesture                | Effect                                          |
-| ---------------------- | ----------------------------------------------- |
-| Click a node           | Replace selection with that node                |
-| Shift/Cmd/Ctrl + click | Toggle that node in the existing selection      |
-| Drag on empty space    | Marquee; selects nodes intersecting the rect    |
-| Shift + marquee        | Additive marquee — union with current selection |
-| Escape                 | Clear selection (or cancel a connection drag)   |
-| Cmd/Ctrl + A           | Select all nodes                                |
+| Gesture                | Effect                                            |
+| ---------------------- | ------------------------------------------------- |
+| Click a node           | Replace selection with that node                  |
+| Click an edge          | Select that edge (edges hit-test on the canvas)   |
+| Shift/Cmd/Ctrl + click | Toggle that node / edge in the existing selection |
+| Drag on empty space    | Marquee; selects nodes intersecting the rect      |
+| Shift + marquee        | Additive marquee — union with current selection   |
+| Escape                 | Clear selection (or cancel a connection drag)     |
+| Cmd/Ctrl + A           | Select all nodes                                  |
 
 The `selectionRect` prop toggles the marquee gesture; it defaults to `true`. Set it to `false` to disable the rectangle entirely.
+
+Edges are drawn on a canvas (no DOM), so the library hit-tests them against the pointer: hovering an edge sets the hover slice (`useNodeGraphHover().hoveredEdgeId`) and paints the hover accent, clicking selects it, and right-clicking reports a `{ kind: 'edge' }` target via `onContextMenu`. A selected edge is removed by <kbd>Delete</kbd> like any other selection.
 
 ## Keyboard
 
@@ -432,6 +435,7 @@ Call the actions from your toolbar / context menu:
 graph.addNode({ position, data }); // append → returns the (generated) id
 graph.connect(source, target); // add an edge, de-duped → returns the id
 graph.removeNodes(['n1']); // drop nodes + cascade their edges + prune selection
+graph.removeEdges(['e1']); // drop edges + prune them from the selection
 graph.removeSelection(); // programmatic Delete — cascade + clear selection
 graph.duplicateNodes(); // clone the selection, offset, and select the copies
 graph.addGroup(bounds, { label, color });

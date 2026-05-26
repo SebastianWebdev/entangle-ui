@@ -6,6 +6,7 @@ import {
   applyGroupResize,
   computeNodesBounds,
   evaluateBezier,
+  findEdgeAtPoint,
   getBezierControlPoints,
   getNodeBox,
   isPointInNode,
@@ -522,5 +523,83 @@ describe('applyGroupResize', () => {
   it('honours an explicit minSize override', () => {
     const next = applyGroupResize(start, 'e', { x: -10000, y: 0 }, 80);
     expect(next.width).toBe(80);
+  });
+});
+
+describe('findEdgeAtPoint', () => {
+  const nodes: NodeGraphNode[] = [
+    { id: 'a', position: { x: 0, y: 0 }, width: 100, height: 50 },
+    { id: 'b', position: { x: 300, y: 0 }, width: 100, height: 50 },
+  ];
+  const nodeIndex = new Map(nodes.map(n => [n.id, n]));
+  const getNodeById = (id: string): NodeGraphNode | undefined =>
+    nodeIndex.get(id);
+  // a.out → world (100, 25) right; b.in → world (300, 25) left. The Bézier
+  // between them sits flat at y = 25 from x = 100 to x = 300.
+  const lookup = makeLookup({
+    a: { out: { x: 100, y: 25, side: 'right' } },
+    b: { in: { x: 0, y: 25, side: 'left' } },
+  });
+  const edges: NodeGraphEdge[] = [
+    {
+      id: 'e1',
+      source: { node: 'a', port: 'out' },
+      target: { node: 'b', port: 'in' },
+    },
+  ];
+
+  it('returns the edge id for a point on the curve', () => {
+    expect(
+      findEdgeAtPoint({ x: 200, y: 25 }, edges, getNodeById, lookup, 6)
+    ).toBe('e1');
+  });
+
+  it('returns the edge id for a point within the threshold', () => {
+    expect(
+      findEdgeAtPoint({ x: 200, y: 29 }, edges, getNodeById, lookup, 6)
+    ).toBe('e1');
+  });
+
+  it('returns null for a point beyond the threshold', () => {
+    expect(
+      findEdgeAtPoint({ x: 200, y: 60 }, edges, getNodeById, lookup, 6)
+    ).toBeNull();
+  });
+
+  it('returns null when there are no edges', () => {
+    expect(
+      findEdgeAtPoint({ x: 200, y: 25 }, [], getNodeById, lookup, 6)
+    ).toBeNull();
+  });
+
+  it('skips edges whose ports are not measured yet', () => {
+    const orphan: NodeGraphEdge[] = [
+      {
+        id: 'e2',
+        source: { node: 'a', port: 'out' },
+        target: { node: 'b', port: 'missing' },
+      },
+    ];
+    expect(
+      findEdgeAtPoint({ x: 200, y: 25 }, orphan, getNodeById, lookup, 6)
+    ).toBeNull();
+  });
+
+  it('returns the topmost (last) edge when multiple overlap', () => {
+    const overlapping: NodeGraphEdge[] = [
+      {
+        id: 'under',
+        source: { node: 'a', port: 'out' },
+        target: { node: 'b', port: 'in' },
+      },
+      {
+        id: 'over',
+        source: { node: 'a', port: 'out' },
+        target: { node: 'b', port: 'in' },
+      },
+    ];
+    expect(
+      findEdgeAtPoint({ x: 200, y: 25 }, overlapping, getNodeById, lookup, 6)
+    ).toBe('over');
   });
 });

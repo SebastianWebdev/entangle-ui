@@ -98,6 +98,7 @@ export {
   getNodeBox,
   getBezierControlPoints,
   evaluateBezier,
+  findEdgeAtPoint,
   isPointNearBezier,
   resolvePortRef,
   resolveEdgeEndpoints,

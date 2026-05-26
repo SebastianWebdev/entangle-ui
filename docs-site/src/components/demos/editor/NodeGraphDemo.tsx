@@ -842,7 +842,18 @@ export default function NodeGraphDemo(): React.ReactElement {
       );
     }
 
-    // Empty space (and edges, which aren't actionable here) → spawn menu.
+    if (target.kind === 'edge') {
+      return (
+        <Menu.Item
+          icon={<TrashIcon size="sm" />}
+          onClick={() => graph.removeEdges([target.id])}
+        >
+          Delete edge
+        </Menu.Item>
+      );
+    }
+
+    // Empty space → spawn menu.
     return renderSpawnItems(worldPoint);
   }, [menuInfo, renderSpawnItems, graph]);
 
@@ -955,6 +966,9 @@ export default function NodeGraphDemo(): React.ReactElement {
           </span>
           <span>
             <kbd>Drag pin → pin</kbd> connect (type-matched)
+          </span>
+          <span>
+            <kbd>Click edge</kbd> select · <kbd>right-click edge</kbd> delete
           </span>
           <span>
             <kbd>Drag group body / handles</kbd> move + resize

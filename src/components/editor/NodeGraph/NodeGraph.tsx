@@ -2,6 +2,7 @@
 
 import React, {
   useCallback,
+  useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useMemo,
@@ -78,6 +79,7 @@ import {
 } from './nodeGraphDrawing';
 import {
   computeNodesBounds,
+  findEdgeAtPoint,
   getNodeBox,
   isPointInNode,
   isPointInRect,
@@ -99,6 +101,9 @@ const EMPTY_SELECTION: NodeGraphSelection = {
   groups: [],
 };
 const DEFAULT_NODE_SIZE = { width: 180, height: 80 };
+// Pointer proximity (screen px) for hovering / clicking / right-clicking an
+// edge. Divided by the current zoom to get the world-space threshold.
+const EDGE_HIT_PX = 6;
 
 // ─── Main component ───
 
@@ -285,6 +290,17 @@ const NodeGraphImpl = ({
           return { kind: 'node', id: node.id };
         }
       }
+      // Edges sit above groups / background but below nodes, so hit-test them
+      // after nodes and before groups. Drawn on a canvas → no DOM to walk.
+      const edgeThreshold = EDGE_HIT_PX / (getTransform().zoom || 1);
+      const edgeId = findEdgeAtPoint(
+        worldPoint,
+        store.getData().edges,
+        store.getNodeById,
+        store.getPortPosition,
+        edgeThreshold
+      );
+      if (edgeId) return { kind: 'edge', id: edgeId };
       for (let i = currentGroups.length - 1; i >= 0; i--) {
         const group = currentGroups[i];
         if (group && isPointInRect(worldPoint, group.bounds)) {
@@ -293,7 +309,14 @@ const NodeGraphImpl = ({
       }
       return { kind: 'empty', worldPoint };
     },
-    [defaultNodeSize, screenToWorldLocal, nodesRef, groupsRef, store]
+    [
+      defaultNodeSize,
+      screenToWorldLocal,
+      nodesRef,
+      groupsRef,
+      store,
+      getTransform,
+    ]
   );
 
   // ── Connection drag (ports) ──
@@ -396,6 +419,39 @@ const NodeGraphImpl = ({
       // Final marquee — compute selection from rect intersection.
       store.setInteraction({ kind: 'idle' });
       const rect: WorldRect = info.rect;
+
+      // A near-zero-area rect is a plain click, not a drag. Use it to select
+      // an edge — edges are drawn on a canvas and never receive the pointer
+      // event directly, so this is where edge clicks are resolved. Falls
+      // through to the normal node-marquee / clear path when no edge is hit.
+      const zoom = getTransform().zoom || 1;
+      const isClick =
+        rect.width * zoom <= EDGE_HIT_PX && rect.height * zoom <= EDGE_HIT_PX;
+      if (isClick) {
+        const edgeId = findEdgeAtPoint(
+          { x: rect.x, y: rect.y },
+          store.getData().edges,
+          store.getNodeById,
+          store.getPortPosition,
+          EDGE_HIT_PX / zoom
+        );
+        if (edgeId) {
+          const current = selectionRef.current;
+          const already = current.edges.includes(edgeId);
+          const nextEdges = info.additive
+            ? already
+              ? current.edges.filter(e => e !== edgeId)
+              : [...current.edges, edgeId]
+            : [edgeId];
+          setSelectionRef.current({
+            nodes: info.additive ? current.nodes : [],
+            edges: nextEdges,
+            groups: info.additive ? current.groups : [],
+          });
+          return;
+        }
+      }
+
       const hits: string[] = [];
       for (const node of nodesRef.current) {
         const box = getNodeBox(
@@ -434,6 +490,7 @@ const NodeGraphImpl = ({
       setSelectionRef,
       defaultNodeSize,
       disabledRef,
+      getTransform,
     ]
   );
 
@@ -499,6 +556,73 @@ const NodeGraphImpl = ({
       store,
     ]
   );
+
+  // ── Edge hover ──
+  //
+  // Edges are drawn on a canvas (no DOM node to receive pointer events), so
+  // hovering one is resolved by a RAF-coalesced Bézier hit-test on pointer
+  // move over the surface. Skipped while a gesture is active or while the
+  // pointer is over a node / port (which own their own hover state).
+  const edgeHoverRaf = useRef(0);
+  const edgeHoverPoint = useRef<Point2D | null>(null);
+
+  const clearEdgeHover = useCallback((): void => {
+    const hover = store.getHover();
+    if (hover.hoveredEdgeId !== null) {
+      store.setHover({ ...hover, hoveredEdgeId: null });
+    }
+  }, [store]);
+
+  const handleRootPointerMove = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>): void => {
+      if (disabledRef.current) return;
+      if (store.getInteraction().kind !== 'idle') return;
+      const el = event.target as Element | null;
+      if (el?.closest('[data-node-id]')) {
+        clearEdgeHover();
+        return;
+      }
+      edgeHoverPoint.current = { x: event.clientX, y: event.clientY };
+      if (edgeHoverRaf.current !== 0) return;
+      edgeHoverRaf.current = requestAnimationFrame(() => {
+        edgeHoverRaf.current = 0;
+        const point = edgeHoverPoint.current;
+        edgeHoverPoint.current = null;
+        if (!point || store.getInteraction().kind !== 'idle') return;
+        const zoom = getTransform().zoom || 1;
+        const world = screenToWorldLocal(point.x, point.y);
+        const edgeId = findEdgeAtPoint(
+          world,
+          store.getData().edges,
+          store.getNodeById,
+          store.getPortPosition,
+          EDGE_HIT_PX / zoom
+        );
+        const hover = store.getHover();
+        if (hover.hoveredEdgeId !== edgeId) {
+          store.setHover({ ...hover, hoveredEdgeId: edgeId });
+        }
+      });
+    },
+    [store, disabledRef, getTransform, screenToWorldLocal, clearEdgeHover]
+  );
+
+  const handleRootPointerLeave = useCallback((): void => {
+    if (edgeHoverRaf.current !== 0) {
+      cancelAnimationFrame(edgeHoverRaf.current);
+      edgeHoverRaf.current = 0;
+    }
+    edgeHoverPoint.current = null;
+    clearEdgeHover();
+  }, [clearEdgeHover]);
+
+  useEffect(() => {
+    return () => {
+      if (edgeHoverRaf.current !== 0) {
+        cancelAnimationFrame(edgeHoverRaf.current);
+      }
+    };
+  }, []);
 
   // ── Delete ──
   //
@@ -780,6 +904,8 @@ const NodeGraphImpl = ({
         data-testid={testId}
         onKeyDown={onKeyDown}
         onContextMenu={handleContextMenu}
+        onPointerMove={handleRootPointerMove}
+        onPointerLeave={handleRootPointerLeave}
         className={cx(nodeGraphRootStyle, className)}
         style={style}
       >

@@ -419,6 +419,37 @@ export function applyCascadeDelete<TNode extends { id: string }>(
   };
 }
 
+/**
+ * Find the topmost edge whose Bézier passes within `threshold` world units
+ * of `point`. Iterates in reverse so the last-drawn edge wins, matching what
+ * the user sees on top. Returns the edge id, or `null` when none is hit.
+ *
+ * Used for pointer hover + click selection + right-click targeting of edges,
+ * which are drawn on a canvas (no DOM to hit-test against).
+ */
+export function findEdgeAtPoint(
+  point: Point2D,
+  edges: ReadonlyArray<NodeGraphEdge>,
+  getNodeById: NodeLookup,
+  getPortPosition: PortPositionLookup,
+  threshold: number
+): string | null {
+  for (let i = edges.length - 1; i >= 0; i--) {
+    const edge = edges[i];
+    if (!edge) continue;
+    const ends = resolveEdgeEndpoints(edge, getNodeById, getPortPosition);
+    if (!ends) continue;
+    const cp = getBezierControlPoints(
+      ends.source,
+      ends.srcSide,
+      ends.target,
+      ends.tgtSide
+    );
+    if (isPointNearBezier(point, cp, threshold)) return edge.id;
+  }
+  return null;
+}
+
 // ─── Internals ───
 
 function pointToSegmentDistance(p: Point2D, a: Point2D, b: Point2D): number {

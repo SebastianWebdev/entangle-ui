@@ -78,6 +78,8 @@ export interface UseNodeGraphReturn {
    * them, and prunes them from the selection.
    */
   removeNodes: (ids: ReadonlyArray<string>) => void;
+  /** Remove the given edges and prune them from the selection. */
+  removeEdges: (ids: ReadonlyArray<string>) => void;
   /**
    * Cascade-delete the current selection (nodes + edges + groups) and clear
    * it — the programmatic equivalent of pressing Delete.
@@ -189,6 +191,23 @@ export function useNodeGraph(
       }
     },
     [nodesRef, edgesRef, groupsRef, selectionRef]
+  );
+
+  const removeEdges = useCallback(
+    (ids: ReadonlyArray<string>): void => {
+      if (ids.length === 0) return;
+      const removed = new Set(ids);
+      setEdges(prev => prev.filter(e => !removed.has(e.id)));
+      const sel = selectionRef.current;
+      if (sel.edges.some(edgeId => removed.has(edgeId))) {
+        setSelection({
+          nodes: sel.nodes,
+          edges: sel.edges.filter(edgeId => !removed.has(edgeId)),
+          groups: sel.groups,
+        });
+      }
+    },
+    [selectionRef]
   );
 
   const removeSelection = useCallback((): void => {
@@ -326,6 +345,7 @@ export function useNodeGraph(
     setSelection,
     addNode,
     removeNodes,
+    removeEdges,
     removeSelection,
     duplicateNodes,
     connect,
