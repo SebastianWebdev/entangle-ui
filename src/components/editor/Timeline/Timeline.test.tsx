@@ -228,4 +228,33 @@ describe('Timeline', () => {
       expect(getByText('status')).toBeInTheDocument();
     });
   });
+
+  describe('Accessibility', () => {
+    it('exposes a Timeline role description on the focusable body', () => {
+      const { getByRole } = renderWithTheme(
+        <Timeline
+          tracks={TRACKS}
+          endFrame={100}
+          height={200}
+          ariaLabel="Anim"
+        />
+      );
+      const group = getByRole('group', { name: 'Anim' });
+      expect(group).toHaveAttribute('aria-roledescription', 'Timeline');
+      expect(group).toHaveAttribute('tabindex', '0');
+    });
+
+    it('announces the playhead via a live region after a keyboard step', () => {
+      const { getByRole } = renderWithTheme(
+        <Timeline
+          tracks={TRACKS}
+          endFrame={100}
+          defaultFrame={0}
+          height={200}
+        />
+      );
+      fireEvent.keyDown(getByRole('group'), { key: 'ArrowRight' });
+      expect(getByRole('status').textContent).toContain('frame 1');
+    });
+  });
 });

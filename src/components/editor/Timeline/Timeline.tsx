@@ -515,6 +515,13 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
 
   const slots = useMemo(() => categorizeChildren(children), [children]);
 
+  // Announce the playhead on discrete moves (keyboard / click), but stay quiet
+  // during continuous scrub drags and playback so AT isn't flooded.
+  const liveMessage =
+    drag.kind === 'none' && !playingState
+      ? `Playhead at frame ${Math.round(frameState)}`
+      : '';
+
   const shellHeight =
     height !== undefined ? `${height}px` : responsive ? '100%' : '240px';
 
@@ -542,6 +549,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             data-dragging={drag.kind !== 'none' || undefined}
             role="group"
             aria-label={ariaLabel}
+            aria-roledescription="Timeline"
             tabIndex={0}
             onPointerDown={handlers.onPointerDown}
             onPointerMove={handlers.onPointerMove}
@@ -556,7 +564,9 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
               className={ariaLiveRegionStyle}
               aria-live="polite"
               role="status"
-            />
+            >
+              {liveMessage}
+            </div>
           </div>
         </div>
         {slots.footer}
