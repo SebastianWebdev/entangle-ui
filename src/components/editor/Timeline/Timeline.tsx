@@ -41,6 +41,7 @@ import { drawTimeline, type TimelineDrawColors } from './timelineDrawing';
 import { TimelineStore } from './TimelineStore';
 import { TimelineStoreContext } from './TimelineContext';
 import { useTimelineGestures } from './useTimelineGestures';
+import { useTimelinePlayback } from './useTimelinePlayback';
 
 const RULER_HEIGHT = 22;
 
@@ -138,6 +139,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     playing,
     defaultPlaying,
     onPlayingChange,
+    loop,
     trackHeight = 28,
     showRuler = true,
     showPlayhead = true,
@@ -255,6 +257,27 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     },
     [setFrame, applyFrame, onFrameCompleteRef]
   );
+
+  // ── Playback (optional built-in rAF loop) ──
+
+  const setFrameRaw = useCallback(
+    (f: number): void => setFrame(clamp(f, startFrame, endFrame)),
+    [setFrame, startFrame, endFrame]
+  );
+  const handlePlaybackEnd = useCallback(
+    (): void => setPlaying(false),
+    [setPlaying]
+  );
+  useTimelinePlayback({
+    playing: playingState,
+    frame: frameState,
+    fps,
+    startFrame,
+    endFrame,
+    loop,
+    onAdvance: setFrameRaw,
+    onEnd: handlePlaybackEnd,
+  });
 
   // ── Track-edit helpers ──
 
