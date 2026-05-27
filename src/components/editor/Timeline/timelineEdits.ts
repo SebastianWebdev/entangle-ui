@@ -190,3 +190,71 @@ export function setKeyframeTangent(
     return changed ? { ...track, keyframes } : track;
   });
 }
+
+/** Clipboard payload — selected keyframes captured relative to the earliest. */
+export interface TimelineClipboard {
+  entries: ReadonlyArray<{
+    trackId: string;
+    dx: number;
+    keyframe: CurveKeyframe;
+  }>;
+}
+
+/** Capture the selected keyframes into a clipboard payload (relative offsets). */
+export function copySelectedKeyframes(
+  tracks: ReadonlyArray<TimelineTrack>,
+  selection: TimelineSelection
+): TimelineClipboard {
+  const keys = selectionKeySet(selection);
+  const picked: { trackId: string; keyframe: CurveKeyframe }[] = [];
+  for (const track of tracks) {
+    for (const kf of track.keyframes) {
+      if (kf.id !== undefined && keys.has(selKey(track.id, kf.id))) {
+        picked.push({ trackId: track.id, keyframe: kf });
+      }
+    }
+  }
+  if (picked.length === 0) return { entries: [] };
+  const base = Math.min(...picked.map(p => p.keyframe.x));
+  return {
+    entries: picked.map(p => ({
+      trackId: p.trackId,
+      dx: p.keyframe.x - base,
+      keyframe: p.keyframe,
+    })),
+  };
+}
+
+/**
+ * Paste a clipboard payload at `atFrame`, preserving relative offsets and
+ * assigning fresh ids. Skips locked / missing tracks. Returns the new tracks
+ * plus refs to the pasted keyframes (for selecting them).
+ */
+export function pasteKeyframes(
+  tracks: ReadonlyArray<TimelineTrack>,
+  clipboard: TimelineClipboard,
+  atFrame: number
+): { tracks: TimelineTrack[]; refs: TimelineKeyframeRef[] } {
+  const validTracks = new Set(tracks.filter(t => !t.locked).map(t => t.id));
+  const additions = new Map<string, CurveKeyframe[]>();
+  const refs: TimelineKeyframeRef[] = [];
+  for (const entry of clipboard.entries) {
+    if (!validTracks.has(entry.trackId)) continue;
+    const keyframe: CurveKeyframe = {
+      ...entry.keyframe,
+      id: generateKeyframeId(),
+      x: atFrame + entry.dx,
+    };
+    refs.push({ trackId: entry.trackId, keyframeId: keyframe.id as string });
+    const list = additions.get(entry.trackId) ?? [];
+    list.push(keyframe);
+    additions.set(entry.trackId, list);
+  }
+  const next = tracks.map(track => {
+    const adds = additions.get(track.id);
+    if (!adds) return track;
+    const keyframes = [...track.keyframes, ...adds].sort((a, b) => a.x - b.x);
+    return { ...track, keyframes };
+  });
+  return { tracks: next, refs };
+}

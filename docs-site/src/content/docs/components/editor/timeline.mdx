@@ -9,7 +9,7 @@ import TimelineDemo from '../../../../components/demos/editor/TimelineDemo';
 A horizontal, multi-track **animation timeline / dope sheet** for editor UIs. Each track is an animated property whose keyframes (the shared `CurveKeyframe` model, reused from `CurveEditor`) lie along a frame-based time axis. A playhead scrubs across all tracks; the view zooms and pans over time. Keyframes render on a perf-isolated canvas while chrome stays in the DOM.
 
 :::caution[In active development]
-Timeline is on the `etui-timeline` branch. **Working now:** rendering, scrubbing, zoom/pan, selection (click / shift / box-select), drag-move, add/delete, keyboard, the imperative handle, the track-header column, `Timeline.Toolbar` / `Timeline.Footer` slots, the built-in playback loop, **graph (curve) mode** with draggable keyframes + bezier tangent handles (use the Dope sheet / Graph toggle in the demo toolbar below), and an accessibility baseline. **Still landing:** track reordering, keyframe copy/paste, and loop-region drag UI.
+Timeline is on the `etui-timeline` branch. **Working now:** rendering, scrubbing, zoom/pan, selection (click / shift / box-select), drag-move, add/delete, keyboard, the imperative handle, the track-header column, `Timeline.Toolbar` / `Timeline.Footer` slots, the built-in playback loop, **graph (curve) mode** with draggable keyframes + bezier tangent handles (use the Dope sheet / Graph toggle in the demo toolbar below), and an accessibility baseline. **Still landing:** track reordering and loop-region drag UI.
 :::
 
 <ComponentPreview title="Live Preview">
@@ -85,6 +85,7 @@ wrapper a height — or pass a fixed `height={number}`.
 | Wheel                                    | Zoom the time axis around the cursor                 |
 | Shift + wheel / middle-drag              | Pan the time axis                                    |
 | ← / → (Shift = ×10)                      | Step the playhead; Home / End jump to the range ends |
+| Ctrl/Cmd + C / V                         | Copy / paste the selected keyframes at the playhead  |
 
 Hold **Ctrl** while dragging to momentarily disable snap-to-frame.
 

@@ -190,6 +190,28 @@ describe('Timeline', () => {
       const opacity = arg.find(t => t.id === 'opacity');
       expect(opacity?.keyframes.map(k => k.id)).toEqual(['k2']);
     });
+
+    it('copy + paste adds keyframes at the playhead', () => {
+      const onTracksChange = vi.fn<(t: TimelineTrack[]) => void>();
+      const { getByRole } = renderWithTheme(
+        <Timeline
+          tracks={TRACKS}
+          endFrame={100}
+          frame={30}
+          selection={[{ trackId: 'opacity', keyframeId: 'k1' }]}
+          onTracksChange={onTracksChange}
+          height={200}
+        />
+      );
+      const group = getByRole('group');
+      fireEvent.keyDown(group, { key: 'c', ctrlKey: true });
+      fireEvent.keyDown(group, { key: 'v', ctrlKey: true });
+      const calls = onTracksChange.mock.calls;
+      const arg = calls[calls.length - 1]?.[0];
+      if (!arg) throw new Error('paste did not fire onTracksChange');
+      const opacity = arg.find(t => t.id === 'opacity');
+      expect(opacity?.keyframes.length).toBe(3);
+    });
   });
 
   describe('Headers and slots', () => {

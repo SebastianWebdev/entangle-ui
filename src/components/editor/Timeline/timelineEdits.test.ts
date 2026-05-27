@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
   addKeyframe,
+  copySelectedKeyframes,
   makeKeyframe,
   moveSelectedKeyframes,
   moveSelectedKeyframesGraph,
+  pasteKeyframes,
   removeSelectedKeyframes,
   setKeyframeTangent,
 } from './timelineEdits';
@@ -225,6 +227,40 @@ describe('timelineEdits', () => {
         { x: -2, y: 1 }
       );
       expect(next[0]).toBe(locked[0]);
+    });
+  });
+
+  describe('copy / paste keyframes', () => {
+    it('copies with relative offsets and pastes at a frame', () => {
+      const tracks: TimelineTrack[] = [
+        { id: 't1', keyframes: [kf('a', 10, 1), kf('b', 20, 2)] },
+      ];
+      const clip = copySelectedKeyframes(tracks, [
+        { trackId: 't1', keyframeId: 'a' },
+        { trackId: 't1', keyframeId: 'b' },
+      ]);
+      expect(clip.entries.map(e => e.dx)).toEqual([0, 10]);
+
+      const { tracks: next, refs } = pasteKeyframes(tracks, clip, 50);
+      expect(track(next, 't1').keyframes.map(k => k.x)).toEqual([
+        10, 20, 50, 60,
+      ]);
+      expect(refs).toHaveLength(2);
+      const ids = track(next, 't1').keyframes.map(k => k.id);
+      expect(ids).toContain(refs[0]?.keyframeId);
+    });
+
+    it('skips locked tracks on paste', () => {
+      const clip = copySelectedKeyframes(
+        [{ id: 't1', keyframes: [kf('a', 10, 1)] }],
+        [{ trackId: 't1', keyframeId: 'a' }]
+      );
+      const locked: TimelineTrack[] = [
+        { id: 't1', locked: true, keyframes: [kf('a', 10, 1)] },
+      ];
+      const { tracks: next, refs } = pasteKeyframes(locked, clip, 50);
+      expect(track(next, 't1').keyframes).toHaveLength(1);
+      expect(refs).toHaveLength(0);
     });
   });
 });

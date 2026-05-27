@@ -24,12 +24,15 @@ import {
 import { hitTestTimeline, keyframesInRect } from './timelineHitTest';
 import {
   addKeyframe,
+  copySelectedKeyframes,
   makeKeyframe,
   moveSelectedKeyframes,
   moveSelectedKeyframesGraph,
+  pasteKeyframes,
   removeSelectedKeyframes,
   setKeyframeTangent,
 } from './timelineEdits';
+import type { TimelineClipboard } from './timelineEdits';
 
 const CLICK_THRESHOLD_PX = 3;
 const KEYBOARD_LARGE_STEP = 10;
@@ -173,6 +176,7 @@ export function useTimelineGestures(
   const setViewRef = useLatest(opts.setView);
 
   const stateRef = useRef<PointerState | null>(null);
+  const clipboardRef = useRef<TimelineClipboard | null>(null);
 
   const hitAt = useCallback(
     (point: Point2D) =>
@@ -656,6 +660,32 @@ export function useTimelineGestures(
           setSelectionRef.current([]);
           return;
         }
+        case 'c':
+        case 'C': {
+          if (!(e.ctrlKey || e.metaKey)) return;
+          e.preventDefault();
+          clipboardRef.current = copySelectedKeyframes(
+            tracksRef.current,
+            selectionRef.current
+          );
+          return;
+        }
+        case 'v':
+        case 'V': {
+          if (!(e.ctrlKey || e.metaKey) || !editableRef.current) return;
+          const clip = clipboardRef.current;
+          if (!clip || clip.entries.length === 0) return;
+          e.preventDefault();
+          const pasted = pasteKeyframes(
+            tracksRef.current,
+            clip,
+            frameRef.current
+          );
+          setTracksRef.current(pasted.tracks);
+          commitTracksRef.current(pasted.tracks);
+          setSelectionRef.current(pasted.refs);
+          return;
+        }
         default:
           return;
       }
@@ -672,6 +702,7 @@ export function useTimelineGestures(
       setTracksRef,
       commitTracksRef,
       setSelectionRef,
+      clipboardRef,
     ]
   );
 
