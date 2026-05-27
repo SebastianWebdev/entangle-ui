@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useMemo, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { useLatest } from '@/hooks';
 import { cx } from '@/utils/cx';
 import {
   useAssetBrowserContext,
@@ -9,7 +10,10 @@ import {
   useAssetMarquee,
 } from './AssetBrowserContext';
 import { AssetBrowserGridItem } from './AssetBrowserGridItem';
-import { useAssetGridVirtualizer } from './useAssetGridVirtualizer';
+import {
+  useAssetGridVirtualizer,
+  type AssetGridWindow,
+} from './useAssetGridVirtualizer';
 import { nextGridIndex } from './assetBrowserKeyboard';
 import {
   itemRect,
@@ -87,20 +91,36 @@ export function AssetBrowserGrid(): React.ReactElement {
     return map;
   }, [items]);
 
-  const scrollRowIntoView = (index: number): void => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const row = Math.floor(index / win.columns);
-    const top = row * win.rowHeight;
-    const bottom = top + win.rowHeight;
-    if (top < el.scrollTop) el.scrollTop = top;
-    else if (bottom > el.scrollTop + el.clientHeight)
-      el.scrollTop = bottom - el.clientHeight;
-  };
+  const scrollIndexIntoView = useCallback(
+    (index: number, w: AssetGridWindow): void => {
+      const el = scrollerRef.current;
+      if (!el) return;
+      const row = Math.floor(index / w.columns);
+      const top = row * w.rowHeight;
+      const bottom = top + w.rowHeight;
+      if (top < el.scrollTop) el.scrollTop = top;
+      else if (bottom > el.scrollTop + el.clientHeight)
+        el.scrollTop = bottom - el.clientHeight;
+    },
+    []
+  );
+
+  // Bridge the imperative `scrollToItem` handle through the store so it works
+  // even when the target row is outside the virtualization window.
+  const winRef = useLatest(win);
+  useLayoutEffect(
+    () =>
+      store.registerScrollToIndex(index =>
+        scrollIndexIntoView(index, winRef.current)
+      ),
+    [store, winRef, scrollIndexIntoView]
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent): void => {
     if (count === 0) return;
     const key = e.key;
+    // Let Alt+ArrowUp bubble to the root's "go to parent" handler.
+    if (e.altKey && key === 'ArrowUp') return;
     const focusedId = store.getFocusedId();
     const current = focusedId ? (indexById.get(focusedId) ?? -1) : -1;
     const multiple = ctx.selectionMode === 'multiple';
@@ -146,7 +166,7 @@ export function AssetBrowserGrid(): React.ReactElement {
     if (next !== current && target) {
       e.preventDefault();
       store.setFocusedId(target.id);
-      scrollRowIntoView(next);
+      scrollIndexIntoView(next, win);
       if (ctx.selectionMode !== false) {
         ctx.selectByKeyboard(next, multiple && e.shiftKey);
       }
@@ -163,7 +183,7 @@ export function AssetBrowserGrid(): React.ReactElement {
     };
   };
 
-  const marqueeEnabled = ctx.selectionMode === 'multiple';
+  const marqueeEnabled = ctx.marqueeEnabled;
 
   const handlePointerDown = (e: React.PointerEvent): void => {
     if (e.button !== 0 || !marqueeEnabled) return;

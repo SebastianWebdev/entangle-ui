@@ -22,6 +22,8 @@ export interface DragState {
   externalOver: boolean;
 }
 
+const EMPTY_SELECTION: ReadonlySet<string> = new Set<string>();
+
 const INITIAL_MARQUEE: MarqueeState = {
   active: false,
   rect: null,
@@ -60,30 +62,45 @@ function sameMarquee(a: MarqueeState, b: MarqueeState): boolean {
  * Per-instance hot-path store for AssetBrowser. Holds only state that updates
  * faster than a click — roving focus, the marquee rectangle, and drag state.
  *
- * Selection, view, search, filters, and sort are low-frequency and live in
- * React state (via `useControlledState`), not here. Each slice exposes its own
- * `subscribe`/`get` pair for `useSyncExternalStore` so a marquee drag does not
- * re-render the toolbar.
+ * View, search, filters, and sort are low-frequency and live in React state
+ * (via `useControlledState`), not here. Selection is owned by React state too
+ * (for the controlled API) but mirrored into this store so each grid item can
+ * subscribe to its own "am I selected?" slice via `useAssetSelected(id)` rather
+ * than re-rendering every cell on every selection change. Each slice exposes
+ * its own `subscribe`/`get` pair for `useSyncExternalStore` so a marquee drag
+ * does not re-render the toolbar.
  */
 export class AssetBrowserStore {
   #focusedId: string | null = null;
   #marquee: MarqueeState = INITIAL_MARQUEE;
   #drag: DragState = INITIAL_DRAG;
+  #selection: ReadonlySet<string> = EMPTY_SELECTION;
 
   #focusListeners = new Set<() => void>();
   #marqueeListeners = new Set<() => void>();
   #dragListeners = new Set<() => void>();
+  #selectionListeners = new Set<() => void>();
+
+  /** Set by the grid so the imperative `scrollToItem` works under windowing. */
+  #scrollToIndex: ((index: number) => void) | null = null;
 
   // ── Reads (arrow fns so they pass straight to useSyncExternalStore) ──
   getFocusedId = (): string | null => this.#focusedId;
   getMarquee = (): MarqueeState => this.#marquee;
   getDrag = (): DragState => this.#drag;
+  getSelection = (): ReadonlySet<string> => this.#selection;
 
   // ── Subscriptions ──
   subscribeFocus = (cb: () => void): (() => void) => {
     this.#focusListeners.add(cb);
     return () => {
       this.#focusListeners.delete(cb);
+    };
+  };
+  subscribeSelection = (cb: () => void): (() => void) => {
+    this.#selectionListeners.add(cb);
+    return () => {
+      this.#selectionListeners.delete(cb);
     };
   };
   subscribeMarquee = (cb: () => void): (() => void) => {
@@ -124,5 +141,30 @@ export class AssetBrowserStore {
 
   clearDrag(): void {
     this.setDrag(INITIAL_DRAG);
+  }
+
+  /**
+   * Mirror the React-owned selection. Callers pass a memoized Set, so a cheap
+   * reference check keeps the snapshot stable when nothing changed.
+   */
+  setSelection(next: ReadonlySet<string>): void {
+    if (next === this.#selection) return;
+    this.#selection = next;
+    this.#selectionListeners.forEach(cb => cb());
+  }
+
+  // ── Imperative scroll bridge ──
+  registerScrollToIndex(fn: (index: number) => void): () => void {
+    this.#scrollToIndex = fn;
+    return () => {
+      if (this.#scrollToIndex === fn) this.#scrollToIndex = null;
+    };
+  }
+
+  /** Returns true when a grid was mounted to handle the scroll. */
+  scrollToIndex(index: number): boolean {
+    if (!this.#scrollToIndex) return false;
+    this.#scrollToIndex(index);
+    return true;
   }
 }

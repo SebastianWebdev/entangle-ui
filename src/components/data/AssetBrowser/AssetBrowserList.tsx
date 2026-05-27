@@ -8,7 +8,11 @@ import type {
 } from '@/components/data/DataTable';
 import { Icon } from '@/components/primitives/Icon';
 import { FileTextIcon, FolderIcon } from '@/components/Icons';
-import { useAssetBrowserContext } from './AssetBrowserContext';
+import {
+  useAssetBrowserChrome,
+  useAssetBrowserContext,
+  useAssetSelection,
+} from './AssetBrowserContext';
 import type { AssetItem } from './AssetBrowser.types';
 import { formatBytes, formatDate } from './assetBrowserFormat';
 import { listScroller, nameCell } from './AssetBrowser.css';
@@ -62,6 +66,8 @@ function defaultColumns(): DataTableColumn<AssetItem>[] {
 
 export function AssetBrowserList(): React.ReactElement {
   const ctx = useAssetBrowserContext();
+  const chrome = useAssetBrowserChrome();
+  const selectionSet = useAssetSelection();
 
   const columns = useMemo<readonly DataTableColumn<AssetItem>[]>(
     () => ctx.columns ?? defaultColumns(),
@@ -71,11 +77,11 @@ export function AssetBrowserList(): React.ReactElement {
   // We own sorting (rows arrive already shaped); DataTable only reflects the
   // indicator and reports the next desired sort.
   const sort: DataTableSortState = {
-    columnId: ctx.sort.field,
-    direction: ctx.sort.direction,
+    columnId: chrome.sort.field,
+    direction: chrome.sort.direction,
   };
 
-  const selection = useMemo(() => Array.from(ctx.selection), [ctx.selection]);
+  const selection = useMemo(() => Array.from(selectionSet), [selectionSet]);
 
   return (
     <div className={listScroller}>
@@ -89,10 +95,10 @@ export function AssetBrowserList(): React.ReactElement {
         manualSort
         onSortChange={next => {
           if (!next.columnId || !next.direction) {
-            ctx.setSort({ field: 'name', direction: 'asc' });
+            chrome.setSort({ field: 'name', direction: 'asc' });
             return;
           }
-          ctx.setSort({ field: next.columnId, direction: next.direction });
+          chrome.setSort({ field: next.columnId, direction: next.direction });
         }}
         selectionMode={ctx.selectionMode}
         selection={selection}

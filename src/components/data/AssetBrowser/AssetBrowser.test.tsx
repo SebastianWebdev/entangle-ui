@@ -137,6 +137,77 @@ describe('AssetBrowser', () => {
     });
   });
 
+  describe('History', () => {
+    it('shows Back/Forward controls only when history is enabled', () => {
+      const { rerender } = renderWithTheme(<AssetBrowser items={items} />);
+      expect(
+        screen.queryByRole('button', { name: 'Back' })
+      ).not.toBeInTheDocument();
+      rerender(<AssetBrowser items={items} history />);
+      expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Forward' })
+      ).toBeInTheDocument();
+    });
+
+    it('tracks a back/forward stack across folder navigation', () => {
+      const onNavigate = vi.fn();
+      renderWithTheme(
+        <AssetBrowser
+          items={items}
+          history
+          currentFolderId="root"
+          onNavigate={onNavigate}
+        />
+      );
+      expect(screen.getByRole('button', { name: 'Back' })).toBeDisabled();
+
+      fireEvent.doubleClick(screen.getByText('Textures'));
+      expect(onNavigate).toHaveBeenLastCalledWith('folder1', 'open');
+
+      const back = screen.getByRole('button', { name: 'Back' });
+      expect(back).toBeEnabled();
+      fireEvent.click(back);
+      expect(onNavigate).toHaveBeenLastCalledWith('root', 'back');
+
+      const forward = screen.getByRole('button', { name: 'Forward' });
+      expect(forward).toBeEnabled();
+      fireEvent.click(forward);
+      expect(onNavigate).toHaveBeenLastCalledWith('folder1', 'forward');
+    });
+
+    it('maps Backspace to "go to parent" when history is enabled', () => {
+      const onNavigate = vi.fn();
+      renderWithTheme(
+        <AssetBrowser
+          items={items}
+          path={path}
+          history
+          onNavigate={onNavigate}
+        />
+      );
+      fireEvent.keyDown(screen.getByRole('grid'), { key: 'Backspace' });
+      expect(onNavigate).toHaveBeenLastCalledWith('root', 'breadcrumb');
+    });
+  });
+
+  describe('Custom rendering', () => {
+    it('keeps the cell interactive when renderItem is provided', () => {
+      const onSelectionChange = vi.fn();
+      renderWithTheme(
+        <AssetBrowser
+          items={items}
+          onSelectionChange={onSelectionChange}
+          renderItem={item => <div>{item.name} (custom)</div>}
+        />
+      );
+      fireEvent.click(screen.getByText('wood.png (custom)'));
+      expect(onSelectionChange).toHaveBeenCalledWith(['file1'], {
+        reason: 'click',
+      });
+    });
+  });
+
   describe('Accessibility', () => {
     it('exposes a multiselectable grid', () => {
       renderWithTheme(<AssetBrowser items={items} />);

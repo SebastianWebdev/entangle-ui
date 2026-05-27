@@ -8,8 +8,9 @@ import { cx } from '@/utils/cx';
 import type { AssetItem } from './AssetBrowser.types';
 import {
   useAssetBrowserContext,
-  useAssetDrag,
-  useAssetFocus,
+  useAssetDropTarget,
+  useAssetFocused,
+  useAssetSelected,
 } from './AssetBrowserContext';
 import {
   cellLabel,
@@ -71,13 +72,11 @@ function GridItemImpl({
   index,
 }: AssetBrowserGridItemProps): React.ReactElement {
   const ctx = useAssetBrowserContext();
-  const focusedId = useAssetFocus();
-  const drag = useAssetDrag();
+  const selected = useAssetSelected(item.id);
+  const focused = useAssetFocused(item.id);
+  const dropActive = useAssetDropTarget(item.id);
 
-  const selected = ctx.selection.has(item.id);
-  const focused = focusedId === item.id;
-  const isDropTarget =
-    item.kind === 'folder' && drag.active && drag.dropTargetId === item.id;
+  const isDropTarget = item.kind === 'folder' && dropActive;
   const thumbPx = ctx.thumbnailSizePx;
 
   const isDraggable = item.draggable !== false && item.disabled !== true;
@@ -86,24 +85,20 @@ function GridItemImpl({
     item.droppable !== false &&
     ctx.dnd.internalEnabled;
 
-  if (ctx.renderItem) {
-    return (
-      <div
-        role="gridcell"
-        data-asset-id={item.id}
-        aria-selected={selected}
-        tabIndex={focused ? 0 : -1}
-      >
-        {ctx.renderItem(item, {
-          selected,
-          focused,
-          index,
-          view: 'grid',
-          dropTarget: isDropTarget,
-        })}
-      </div>
-    );
-  }
+  const inner = ctx.renderItem ? (
+    ctx.renderItem(item, {
+      selected,
+      focused,
+      index,
+      view: 'grid',
+      dropTarget: isDropTarget,
+    })
+  ) : (
+    <>
+      <Thumbnail item={item} thumbPx={thumbPx} selected={selected} />
+      <span className={cellLabel}>{item.name}</span>
+    </>
+  );
 
   return (
     <div
@@ -111,6 +106,7 @@ function GridItemImpl({
       data-asset-id={item.id}
       aria-selected={selected}
       aria-label={item.name}
+      title={item.name}
       tabIndex={focused ? 0 : -1}
       className={cx(
         cellRecipe({
@@ -127,7 +123,7 @@ function GridItemImpl({
       draggable={isDraggable}
       onClick={e => ctx.handleItemClick(item, index, e)}
       onDoubleClick={() => ctx.activateItem(item)}
-      onContextMenu={() => ctx.contextMenuSelect(item, index)}
+      onContextMenu={() => ctx.contextMenuSelect(item)}
       onDragStart={
         isDraggable ? e => ctx.dnd.onItemDragStart(item, e) : undefined
       }
@@ -142,8 +138,7 @@ function GridItemImpl({
         isFolderTarget ? e => ctx.dnd.onFolderDrop(item.id, e) : undefined
       }
     >
-      <Thumbnail item={item} thumbPx={thumbPx} selected={selected} />
-      <span className={cellLabel}>{item.name}</span>
+      {inner}
     </div>
   );
 }

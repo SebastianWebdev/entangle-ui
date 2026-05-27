@@ -6,6 +6,7 @@ import React, {
   useImperativeHandle,
   useMemo,
   useRef,
+  useState,
   type ReactNode,
 } from 'react';
 import { useControlledState, useLatest } from '@/hooks';
@@ -21,16 +22,16 @@ import type {
   AssetBrowserHandle,
   AssetBrowserProps,
   AssetFilterState,
-  AssetItem,
-  AssetSelectionReason,
   AssetSortState,
   AssetThumbnailSize,
   AssetView,
 } from './AssetBrowser.types';
 import {
+  AssetBrowserChromeContext,
   AssetBrowserContext,
   AssetBrowserStoreContext,
   useAssetDrag,
+  type AssetBrowserChromeValue,
   type AssetBrowserContextValue,
 } from './AssetBrowserContext';
 import { AssetBrowserStore } from './AssetBrowserStore';
@@ -40,9 +41,9 @@ import { AssetBrowserSidebar } from './AssetBrowserSidebar';
 import { AssetBrowserGrid } from './AssetBrowserGrid';
 import { AssetBrowserList } from './AssetBrowserList';
 import { useAssetDnd } from './useAssetDnd';
+import { useAssetSelectionController } from './useAssetSelectionController';
 import { collectTypes, shapeAssets } from './assetBrowserFilter';
 import { resolveThumbPx } from './assetBrowserGeometry';
-import { indexRange } from './assetBrowserKeyboard';
 import { getSlotKind, markSlot } from './slots';
 import {
   body,
@@ -58,6 +59,17 @@ import {
 
 const DEFAULT_MIME = 'application/x-entangle-asset';
 const DEFAULT_SORT: AssetSortState = { field: 'name', direction: 'asc' };
+
+interface HistoryState {
+  stack: string[];
+  index: number;
+}
+
+function initialHistory(currentFolderId: string | undefined): HistoryState {
+  return currentFolderId != null
+    ? { stack: [currentFolderId], index: 0 }
+    : { stack: [], index: -1 };
+}
 
 function cssEscape(value: string): string {
   if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
@@ -109,6 +121,8 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     loadingItemCount = 12,
     emptyState,
     columns,
+    marquee = true,
+    history = false,
     renderThumbnail,
     renderItem,
     renderItemContextMenu,
@@ -128,54 +142,69 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     children,
     ref,
     'aria-label': ariaLabel = 'Asset browser',
+    // Controlled-state props — destructured so they don't leak onto the DOM
+    // root via `...rest`.
+    view: viewProp,
+    defaultView,
+    onViewChange,
+    thumbnailSize: thumbnailSizeProp,
+    defaultThumbnailSize,
+    onThumbnailSizeChange,
+    search: searchProp,
+    defaultSearch,
+    onSearchChange,
+    filters: filtersProp,
+    defaultFilters,
+    onFiltersChange,
+    sort: sortProp,
+    defaultSort,
+    onSortChange,
+    selection: selectionProp,
+    defaultSelection,
+    onSelectionChange,
+    onItemOpen,
+    onNavigate,
     ...rest
   } = props;
 
   const rootRef = useRef<HTMLDivElement>(null);
   const store = useMemo(() => new AssetBrowserStore(), []);
-  const anchorRef = useRef<number | null>(null);
 
   const [view, setView] = useControlledState<AssetView>({
-    value: props.view,
-    defaultValue: props.defaultView,
-    onChange: props.onViewChange,
+    value: viewProp,
+    defaultValue: defaultView,
+    onChange: onViewChange,
     fallback: 'grid',
   });
   const [thumbnailSize, setThumbnailSize] =
     useControlledState<AssetThumbnailSize>({
-      value: props.thumbnailSize,
-      defaultValue: props.defaultThumbnailSize,
-      onChange: props.onThumbnailSizeChange,
+      value: thumbnailSizeProp,
+      defaultValue: defaultThumbnailSize,
+      onChange: onThumbnailSizeChange,
       fallback: 'md',
     });
   const [search, setSearch] = useControlledState<string>({
-    value: props.search,
-    defaultValue: props.defaultSearch,
-    onChange: props.onSearchChange,
+    value: searchProp,
+    defaultValue: defaultSearch,
+    onChange: onSearchChange,
     fallback: '',
   });
   const [filters, setFilters] = useControlledState<AssetFilterState>({
-    value: props.filters,
-    defaultValue: props.defaultFilters,
-    onChange: props.onFiltersChange,
+    value: filtersProp,
+    defaultValue: defaultFilters,
+    onChange: onFiltersChange,
     fallback: {},
   });
   const [sort, setSort] = useControlledState<AssetSortState>({
-    value: props.sort,
-    defaultValue: props.defaultSort,
-    onChange: props.onSortChange,
+    value: sortProp,
+    defaultValue: defaultSort,
+    onChange: onSortChange,
     fallback: DEFAULT_SORT,
   });
-  const [selectionArr, setSelectionArr] = useControlledState<readonly string[]>(
-    {
-      value: props.selection,
-      defaultValue: props.defaultSelection,
-      fallback: [],
-    }
-  );
 
   const deferredSearch = useDeferredValue(search);
   const thumbnailSizePx = resolveThumbPx(thumbnailSize);
+  const marqueeEnabled = selectionMode === 'multiple' && marquee !== false;
 
   const filterableTypes = useMemo(
     () => filterableTypesProp ?? collectTypes(items),
@@ -203,155 +232,92 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     ]
   );
 
-  const selectionSet = useMemo(() => new Set(selectionArr), [selectionArr]);
-
-  // Stable refs so handlers never re-create (consumer inline callbacks ok).
-  const displayedRef = useLatest(displayed);
   const itemsRef = useLatest(items);
-  const selectionRef = useLatest(selectionSet);
-  const setSelArrRef = useLatest(setSelectionArr);
-  const onSelectionChangeRef = useLatest(props.onSelectionChange);
-  const onItemOpenRef = useLatest(props.onItemOpen);
-  const onNavigateRef = useLatest(props.onNavigate);
-  const selectionModeRef = useLatest(selectionMode);
+  const displayedRef = useLatest(displayed);
+  const onItemOpenRef = useLatest(onItemOpen);
+  const onNavigateRef = useLatest(onNavigate);
 
-  const selectableIds = useCallback(
-    (list: readonly AssetItem[]): string[] =>
-      list.filter(it => it.selectable !== false).map(it => it.id),
-    []
+  const { selectionSet, handlers } = useAssetSelectionController({
+    store,
+    displayed,
+    selectionMode,
+    selection: selectionProp,
+    defaultSelection,
+    onSelectionChange,
+  });
+
+  // ── Navigation + history ──────────────────────────────────────────────────
+  const [hist, setHist] = useState<HistoryState>(() =>
+    initialHistory(currentFolderId)
   );
-
-  const commitSelection = useCallback(
-    (ids: string[], reason: AssetSelectionReason): void => {
-      setSelArrRef.current(ids);
-      onSelectionChangeRef.current?.(ids, { reason });
-    },
-    [setSelArrRef, onSelectionChangeRef]
-  );
-
-  const handleItemClick = useCallback(
-    (item: AssetItem, index: number, event: React.MouseEvent): void => {
-      store.setFocusedId(item.id);
-      const mode = selectionModeRef.current;
-      if (mode === false || item.selectable === false || item.disabled) return;
-      if (mode === 'single') {
-        commitSelection([item.id], 'click');
-        anchorRef.current = index;
-        return;
-      }
-      if (event.shiftKey && anchorRef.current !== null) {
-        const [a, b] = indexRange(anchorRef.current, index);
-        commitSelection(
-          selectableIds(displayedRef.current.slice(a, b + 1)),
-          'click'
-        );
-        return;
-      }
-      if (event.ctrlKey || event.metaKey) {
-        const set = new Set(selectionRef.current);
-        if (set.has(item.id)) set.delete(item.id);
-        else set.add(item.id);
-        commitSelection(Array.from(set), 'click');
-        anchorRef.current = index;
-        return;
-      }
-      commitSelection([item.id], 'click');
-      anchorRef.current = index;
-    },
-    [
-      store,
-      commitSelection,
-      selectableIds,
-      displayedRef,
-      selectionModeRef,
-      selectionRef,
-    ]
-  );
-
-  const selectByKeyboard = useCallback(
-    (index: number, extend: boolean): void => {
-      const item = displayedRef.current[index];
-      if (!item) return;
-      if (extend && anchorRef.current !== null) {
-        const [a, b] = indexRange(anchorRef.current, index);
-        commitSelection(
-          selectableIds(displayedRef.current.slice(a, b + 1)),
-          'keyboard'
-        );
-        return;
-      }
-      commitSelection(item.selectable === false ? [] : [item.id], 'keyboard');
-      anchorRef.current = index;
-    },
-    [commitSelection, selectableIds, displayedRef]
-  );
-
-  const toggleSelectId = useCallback(
-    (id: string): void => {
-      const set = new Set(selectionRef.current);
-      if (set.has(id)) set.delete(id);
-      else set.add(id);
-      commitSelection(Array.from(set), 'keyboard');
-    },
-    [commitSelection, selectionRef]
-  );
-
-  const setSelectionIds = useCallback(
-    (ids: string[], reason: AssetSelectionReason): void => {
-      commitSelection(ids, reason);
-    },
-    [commitSelection]
-  );
-
-  const commitMarquee = useCallback(
-    (ids: string[], additive: boolean): void => {
-      if (additive) {
-        const set = new Set(selectionRef.current);
-        ids.forEach(id => set.add(id));
-        commitSelection(Array.from(set), 'marquee');
-        return;
-      }
-      commitSelection(ids, 'marquee');
-    },
-    [commitSelection, selectionRef]
-  );
-
-  const selectAll = useCallback(() => {
-    commitSelection(selectableIds(displayedRef.current), 'selectAll');
-  }, [commitSelection, selectableIds, displayedRef]);
-
-  const clearSelection = useCallback(() => {
-    commitSelection([], 'clear');
-  }, [commitSelection]);
-
-  const contextMenuSelect = useCallback(
-    (item: AssetItem, index: number): void => {
-      store.setFocusedId(item.id);
-      if (!selectionRef.current.has(item.id) && item.selectable !== false) {
-        commitSelection([item.id], 'contextMenu');
-      }
-      anchorRef.current = index;
-    },
-    [store, commitSelection, selectionRef]
-  );
+  const histRef = useLatest(hist);
+  const canGoBack = history && hist.index > 0;
+  const canGoForward = history && hist.index < hist.stack.length - 1;
 
   const navigate = useCallback(
     (
       folderId: string,
       source: Parameters<NonNullable<AssetBrowserProps['onNavigate']>>[1]
     ): void => {
+      if (history) {
+        const h = histRef.current;
+        const stack = h.stack.slice(0, h.index + 1);
+        if (stack[stack.length - 1] !== folderId) {
+          stack.push(folderId);
+          setHist({ stack, index: stack.length - 1 });
+        }
+      }
       onNavigateRef.current?.(folderId, source);
     },
-    [onNavigateRef]
+    [history, histRef, onNavigateRef]
   );
 
+  const goBack = useCallback((): void => {
+    const h = histRef.current;
+    if (h.index <= 0) return;
+    const index = h.index - 1;
+    const target = h.stack[index];
+    if (target === undefined) return;
+    setHist({ stack: h.stack, index });
+    onNavigateRef.current?.(target, 'back');
+  }, [histRef, onNavigateRef]);
+
+  const goForward = useCallback((): void => {
+    const h = histRef.current;
+    if (h.index >= h.stack.length - 1) return;
+    const index = h.index + 1;
+    const target = h.stack[index];
+    if (target === undefined) return;
+    setHist({ stack: h.stack, index });
+    onNavigateRef.current?.(target, 'forward');
+  }, [histRef, onNavigateRef]);
+
   const activateItem = useCallback(
-    (item: AssetItem): void => {
+    (item: Parameters<AssetBrowserContextValue['activateItem']>[0]): void => {
       if (item.kind === 'folder') navigate(item.id, 'open');
       else onItemOpenRef.current?.(item);
     },
     [navigate, onItemOpenRef]
   );
+
+  const handleRootKeyDown = (e: React.KeyboardEvent): void => {
+    if (!history) return;
+    const target = e.target as HTMLElement;
+    if (
+      target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
+      target.isContentEditable
+    ) {
+      return;
+    }
+    const toParent = e.key === 'Backspace' || (e.altKey && e.key === 'ArrowUp');
+    if (!toParent) return;
+    const parent = path[path.length - 2];
+    if (parent) {
+      e.preventDefault();
+      navigate(parent.id, 'breadcrumb');
+    }
+  };
 
   const dnd = useAssetDnd({
     store,
@@ -366,35 +332,22 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     onFilesImport,
   });
 
-  const contextValue = useMemo<AssetBrowserContextValue>(
+  const itemValue = useMemo<AssetBrowserContextValue>(
     () => ({
       displayedItems: displayed,
-      rawCount: items.length,
-      view,
-      setView,
-      thumbnailSize,
       thumbnailSizePx,
-      setThumbnailSize,
       density,
       selectionMode,
-      selection: selectionSet,
-      selectionCount: selectionSet.size,
-      search,
-      setSearch,
-      filters,
-      setFilters,
-      filterableTypes,
-      sort,
-      setSort,
-      handleItemClick,
+      marqueeEnabled,
+      handleItemClick: handlers.handleItemClick,
       activateItem,
-      selectAll,
-      clearSelection,
-      contextMenuSelect,
-      selectByKeyboard,
-      toggleSelectId,
-      setSelectionIds,
-      commitMarquee,
+      selectAll: handlers.selectAll,
+      clearSelection: handlers.clearSelection,
+      contextMenuSelect: handlers.contextMenuSelect,
+      selectByKeyboard: handlers.selectByKeyboard,
+      toggleSelectId: handlers.toggleSelectId,
+      setSelectionIds: handlers.setSelectionIds,
+      commitMarquee: handlers.commitMarquee,
       path,
       folderTree,
       currentFolderId,
@@ -414,31 +367,12 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     }),
     [
       displayed,
-      items.length,
-      view,
-      setView,
-      thumbnailSize,
       thumbnailSizePx,
-      setThumbnailSize,
       density,
       selectionMode,
-      selectionSet,
-      search,
-      setSearch,
-      filters,
-      setFilters,
-      filterableTypes,
-      sort,
-      setSort,
-      handleItemClick,
+      marqueeEnabled,
+      handlers,
       activateItem,
-      selectAll,
-      clearSelection,
-      contextMenuSelect,
-      selectByKeyboard,
-      toggleSelectId,
-      setSelectionIds,
-      commitMarquee,
       path,
       folderTree,
       currentFolderId,
@@ -458,24 +392,61 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     ]
   );
 
+  const chromeValue = useMemo<AssetBrowserChromeValue>(
+    () => ({
+      view,
+      setView,
+      search,
+      setSearch,
+      filters,
+      setFilters,
+      filterableTypes,
+      sort,
+      setSort,
+      history,
+      canGoBack,
+      canGoForward,
+      goBack,
+      goForward,
+    }),
+    [
+      view,
+      setView,
+      search,
+      setSearch,
+      filters,
+      setFilters,
+      filterableTypes,
+      sort,
+      setSort,
+      history,
+      canGoBack,
+      canGoForward,
+      goBack,
+      goForward,
+    ]
+  );
+
   useImperativeHandle(
     ref,
     (): AssetBrowserHandle => ({
       focus: () => rootRef.current?.focus(),
       getElement: () => rootRef.current,
-      selectAll,
-      clearSelection,
+      selectAll: handlers.selectAll,
+      clearSelection: handlers.clearSelection,
       scrollToItem: (id: string) => {
         store.setFocusedId(id);
+        const index = displayedRef.current.findIndex(it => it.id === id);
+        if (index >= 0 && store.scrollToIndex(index)) return;
         const el = rootRef.current?.querySelector(
           `[data-asset-id="${cssEscape(id)}"]`
         );
         el?.scrollIntoView({ block: 'nearest' });
       },
       getSelectedItems: () =>
-        itemsRef.current.filter(it => selectionRef.current.has(it.id)),
+        itemsRef.current.filter(it => store.getSelection().has(it.id)),
     }),
-    [selectAll, clearSelection, store, itemsRef, selectionRef]
+    [handlers.selectAll, handlers.clearSelection, store, itemsRef, displayedRef]
   );
 
   // Slot extraction.
@@ -514,57 +485,60 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
 
   return (
     <AssetBrowserStoreContext.Provider value={store}>
-      <AssetBrowserContext.Provider value={contextValue}>
-        <div
-          ref={rootRef}
-          className={cx(root, className)}
-          style={style}
-          data-testid={testId}
-          tabIndex={-1}
-          aria-label={ariaLabel}
-          {...rest}
-        >
-          {toolbarSlot ?? <AssetBrowserToolbar />}
-          <AssetBrowserBreadcrumbs />
-          <div className={body}>
-            {sidebarSlot ?? <AssetBrowserSidebar />}
-            <div
-              className={main}
-              onDragOver={dnd.onSurfaceDragOver}
-              onDragLeave={dnd.onSurfaceDragLeave}
-              onDrop={dnd.onSurfaceDrop}
-            >
-              {content}
-              <ImportOverlay />
+      <AssetBrowserChromeContext.Provider value={chromeValue}>
+        <AssetBrowserContext.Provider value={itemValue}>
+          <div
+            ref={rootRef}
+            className={cx(root, className)}
+            style={style}
+            data-testid={testId}
+            tabIndex={-1}
+            aria-label={ariaLabel}
+            onKeyDown={handleRootKeyDown}
+            {...rest}
+          >
+            {toolbarSlot ?? <AssetBrowserToolbar />}
+            <AssetBrowserBreadcrumbs />
+            <div className={body}>
+              {sidebarSlot ?? <AssetBrowserSidebar />}
+              <div
+                className={main}
+                onDragOver={dnd.onSurfaceDragOver}
+                onDragLeave={dnd.onSurfaceDragLeave}
+                onDrop={dnd.onSurfaceDrop}
+              >
+                {content}
+                <ImportOverlay />
+              </div>
+            </div>
+            {showStatusBar && (
+              <div className={statusBar}>
+                <span>{announcement}</span>
+                <span className={statusSpacer} />
+                {view === 'grid' && (
+                  <SegmentedControl
+                    value={
+                      typeof thumbnailSize === 'string' ? thumbnailSize : 'md'
+                    }
+                    onChange={value =>
+                      setThumbnailSize(value as AssetThumbnailSize)
+                    }
+                    size="sm"
+                    aria-label="Thumbnail size"
+                  >
+                    <SegmentedControlItem value="sm">S</SegmentedControlItem>
+                    <SegmentedControlItem value="md">M</SegmentedControlItem>
+                    <SegmentedControlItem value="lg">L</SegmentedControlItem>
+                  </SegmentedControl>
+                )}
+              </div>
+            )}
+            <div className={srOnly} aria-live="polite" role="status">
+              {announcement}
             </div>
           </div>
-          {showStatusBar && (
-            <div className={statusBar}>
-              <span>{announcement}</span>
-              <span className={statusSpacer} />
-              {view === 'grid' && (
-                <SegmentedControl
-                  value={
-                    typeof thumbnailSize === 'string' ? thumbnailSize : 'md'
-                  }
-                  onChange={value =>
-                    setThumbnailSize(value as AssetThumbnailSize)
-                  }
-                  size="sm"
-                  aria-label="Thumbnail size"
-                >
-                  <SegmentedControlItem value="sm">S</SegmentedControlItem>
-                  <SegmentedControlItem value="md">M</SegmentedControlItem>
-                  <SegmentedControlItem value="lg">L</SegmentedControlItem>
-                </SegmentedControl>
-              )}
-            </div>
-          )}
-          <div className={srOnly} aria-live="polite" role="status">
-            {announcement}
-          </div>
-        </div>
-      </AssetBrowserContext.Provider>
+        </AssetBrowserContext.Provider>
+      </AssetBrowserChromeContext.Provider>
     </AssetBrowserStoreContext.Provider>
   );
 }

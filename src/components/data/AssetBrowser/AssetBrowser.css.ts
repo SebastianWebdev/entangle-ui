@@ -152,6 +152,11 @@ export const cellRecipe = recipe({
     cursor: 'default',
     userSelect: 'none',
     transition: `background ${vars.transitions.fast}, border-color ${vars.transitions.fast}`,
+    '@media': {
+      '(prefers-reduced-motion: reduce)': {
+        transition: 'none',
+      },
+    },
     selectors: {
       '&:hover': { background: vars.colors.surface.hover },
       '&:focus-visible': {

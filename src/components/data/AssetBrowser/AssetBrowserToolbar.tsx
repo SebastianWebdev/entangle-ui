@@ -8,14 +8,17 @@ import {
 import { Menu } from '@/components/navigation/Menu';
 import { Input } from '@/components/primitives/Input';
 import { Icon } from '@/components/primitives/Icon';
+import { IconButton } from '@/components/primitives/IconButton';
 import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
   FilterIcon,
   GridIcon,
   ListIcon,
   SearchIcon,
   SortIcon,
 } from '@/components/Icons';
-import { useAssetBrowserContext } from './AssetBrowserContext';
+import { useAssetBrowserChrome } from './AssetBrowserContext';
 import type { AssetSortField, AssetView } from './AssetBrowser.types';
 import { searchField, toolbar, toolbarSpacer } from './AssetBrowser.css';
 
@@ -27,20 +30,41 @@ const SORT_FIELDS: { value: AssetSortField; label: string }[] = [
 ];
 
 export function AssetBrowserToolbar(): React.ReactElement {
-  const ctx = useAssetBrowserContext();
+  const chrome = useAssetBrowserChrome();
 
   const toggleType = (type: string, checked: boolean): void => {
-    const current = new Set(ctx.filters.types ?? []);
+    const current = new Set(chrome.filters.types ?? []);
     if (checked) current.add(type);
     else current.delete(type);
-    ctx.setFilters({ types: Array.from(current) });
+    chrome.setFilters({ types: Array.from(current) });
   };
 
   return (
     <div className={toolbar}>
+      {chrome.history && (
+        <>
+          <IconButton
+            aria-label="Back"
+            size="sm"
+            disabled={!chrome.canGoBack}
+            onClick={chrome.goBack}
+          >
+            <ChevronLeftIcon size="sm" decorative />
+          </IconButton>
+          <IconButton
+            aria-label="Forward"
+            size="sm"
+            disabled={!chrome.canGoForward}
+            onClick={chrome.goForward}
+          >
+            <ChevronRightIcon size="sm" decorative />
+          </IconButton>
+        </>
+      )}
+
       <SegmentedControl
-        value={ctx.view}
-        onChange={value => ctx.setView(value as AssetView)}
+        value={chrome.view}
+        onChange={value => chrome.setView(value as AssetView)}
         size="sm"
         aria-label="View mode"
       >
@@ -61,8 +85,8 @@ export function AssetBrowserToolbar(): React.ReactElement {
         type="search"
         size="sm"
         placeholder="Search assets…"
-        value={ctx.search}
-        onChange={value => ctx.setSearch(value)}
+        value={chrome.search}
+        onChange={value => chrome.setSearch(value)}
         startIcon={
           <Icon size="sm" decorative>
             <SearchIcon />
@@ -81,9 +105,9 @@ export function AssetBrowserToolbar(): React.ReactElement {
         </Menu.Trigger>
         <Menu.Content>
           <Menu.RadioGroup
-            value={ctx.sort.field}
+            value={chrome.sort.field}
             onValueChange={field =>
-              ctx.setSort({ field, direction: ctx.sort.direction })
+              chrome.setSort({ field, direction: chrome.sort.direction })
             }
           >
             {SORT_FIELDS.map(field => (
@@ -94,10 +118,10 @@ export function AssetBrowserToolbar(): React.ReactElement {
           </Menu.RadioGroup>
           <Menu.Separator />
           <Menu.RadioGroup
-            value={ctx.sort.direction}
+            value={chrome.sort.direction}
             onValueChange={direction =>
-              ctx.setSort({
-                field: ctx.sort.field,
+              chrome.setSort({
+                field: chrome.sort.field,
                 direction: direction === 'desc' ? 'desc' : 'asc',
               })
             }
@@ -108,7 +132,7 @@ export function AssetBrowserToolbar(): React.ReactElement {
         </Menu.Content>
       </Menu>
 
-      {ctx.filterableTypes.length > 0 && (
+      {chrome.filterableTypes.length > 0 && (
         <Menu>
           <Menu.Trigger>
             <Icon size="sm" decorative>
@@ -117,10 +141,10 @@ export function AssetBrowserToolbar(): React.ReactElement {
             Filter
           </Menu.Trigger>
           <Menu.Content>
-            {ctx.filterableTypes.map(type => (
+            {chrome.filterableTypes.map(type => (
               <Menu.CheckboxItem
                 key={type}
-                checked={(ctx.filters.types ?? []).includes(type)}
+                checked={(chrome.filters.types ?? []).includes(type)}
                 onCheckedChange={checked => toggleType(type, checked)}
               >
                 {type}

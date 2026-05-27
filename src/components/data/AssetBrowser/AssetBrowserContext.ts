@@ -25,7 +25,6 @@ import type {
   AssetPathSegment,
   AssetSelectionReason,
   AssetSortState,
-  AssetThumbnailSize,
   AssetView,
 } from './AssetBrowser.types';
 
@@ -49,6 +48,19 @@ export function useAssetFocus(): string | null {
   return useSyncExternalStore(store.subscribeFocus, store.getFocusedId);
 }
 
+/**
+ * Per-id focus slice: `true` only for the roving-focus item. Returns a boolean
+ * so arrow-key navigation re-renders just the two affected cells, not the whole
+ * grid.
+ */
+export function useAssetFocused(id: string): boolean {
+  const store = useAssetBrowserStore();
+  return useSyncExternalStore(
+    store.subscribeFocus,
+    () => store.getFocusedId() === id
+  );
+}
+
 export function useAssetMarquee(): MarqueeState {
   const store = useAssetBrowserStore();
   return useSyncExternalStore(store.subscribeMarquee, store.getMarquee);
@@ -59,7 +71,33 @@ export function useAssetDrag(): DragState {
   return useSyncExternalStore(store.subscribeDrag, store.getDrag);
 }
 
-// ── Config / handler context (low frequency) ───────────────────────────────
+/** Per-id drop-target slice: `true` while an active drag hovers this folder. */
+export function useAssetDropTarget(id: string): boolean {
+  const store = useAssetBrowserStore();
+  return useSyncExternalStore(store.subscribeDrag, () => {
+    const drag = store.getDrag();
+    return drag.active && drag.dropTargetId === id;
+  });
+}
+
+/** The full selection set (whole-set consumers: list view, status bar). */
+export function useAssetSelection(): ReadonlySet<string> {
+  const store = useAssetBrowserStore();
+  return useSyncExternalStore(store.subscribeSelection, store.getSelection);
+}
+
+/**
+ * Per-id selection slice. Returns a boolean so selecting an item re-renders
+ * only the cells whose state actually flipped.
+ */
+export function useAssetSelected(id: string): boolean {
+  const store = useAssetBrowserStore();
+  return useSyncExternalStore(store.subscribeSelection, () =>
+    store.getSelection().has(id)
+  );
+}
+
+// ── Item context (data + interaction; consumed by every grid cell) ──────────
 
 export interface AssetDndContext {
   internalEnabled: boolean;
@@ -77,29 +115,13 @@ export interface AssetDndContext {
 export interface AssetBrowserContextValue {
   // data
   displayedItems: readonly AssetItem[];
-  rawCount: number;
 
-  // view config
-  view: AssetView;
-  setView: (view: AssetView) => void;
-  thumbnailSize: AssetThumbnailSize;
+  // layout / mode (read by cells)
   thumbnailSizePx: number;
-  setThumbnailSize: (size: AssetThumbnailSize) => void;
   density: DataTableDensity;
-
-  // selection
   selectionMode: 'single' | 'multiple' | false;
-  selection: ReadonlySet<string>;
-  selectionCount: number;
-
-  // search / filter / sort
-  search: string;
-  setSearch: (query: string) => void;
-  filters: AssetFilterState;
-  setFilters: (filters: AssetFilterState) => void;
-  filterableTypes: string[];
-  sort: AssetSortState;
-  setSort: (sort: AssetSortState) => void;
+  /** Whether rubber-band marquee selection is active (multiple + `marquee`). */
+  marqueeEnabled: boolean;
 
   // interaction handlers
   handleItemClick: (
@@ -110,7 +132,7 @@ export interface AssetBrowserContextValue {
   activateItem: (item: AssetItem) => void;
   selectAll: () => void;
   clearSelection: () => void;
-  contextMenuSelect: (item: AssetItem, index: number) => void;
+  contextMenuSelect: (item: AssetItem) => void;
   /** Select-or-extend driven by keyboard navigation over displayed order. */
   selectByKeyboard: (index: number, extend: boolean) => void;
   /** Toggle a single id (Space / Ctrl-click parity). */
@@ -158,6 +180,43 @@ export function useAssetBrowserContext(): AssetBrowserContextValue {
   if (!value) {
     throw new Error(
       'AssetBrowser subcomponents must be used inside an <AssetBrowser>.'
+    );
+  }
+  return value;
+}
+
+// ── Chrome context (view / search / filter / sort / history) ────────────────
+// Split from the item context so typing in the search box (a per-keystroke
+// update) re-renders only the toolbar, not every grid cell.
+
+export interface AssetBrowserChromeValue {
+  view: AssetView;
+  setView: (view: AssetView) => void;
+
+  search: string;
+  setSearch: (query: string) => void;
+  filters: AssetFilterState;
+  setFilters: (filters: AssetFilterState) => void;
+  filterableTypes: string[];
+  sort: AssetSortState;
+  setSort: (sort: AssetSortState) => void;
+
+  // history (only meaningful when the `history` prop is enabled)
+  history: boolean;
+  canGoBack: boolean;
+  canGoForward: boolean;
+  goBack: () => void;
+  goForward: () => void;
+}
+
+export const AssetBrowserChromeContext =
+  /*#__PURE__*/ createContext<AssetBrowserChromeValue | null>(null);
+
+export function useAssetBrowserChrome(): AssetBrowserChromeValue {
+  const value = useContext(AssetBrowserChromeContext);
+  if (!value) {
+    throw new Error(
+      'AssetBrowser chrome subcomponents must be used inside an <AssetBrowser>.'
     );
   }
   return value;
