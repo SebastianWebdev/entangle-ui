@@ -27,8 +27,8 @@ assets panel.
 
 It does **not** own a filesystem. It is a **controlled, presentational**
 component: the consumer owns the data source (local FS, S3, an in-memory
-catalog, a database) and feeds AssetBrowser the contents of the *current
-folder* plus a *folder tree* for the sidebar. AssetBrowser renders them, owns
+catalog, a database) and feeds AssetBrowser the contents of the _current
+folder_ plus a _folder tree_ for the sidebar. AssetBrowser renders them, owns
 view/selection/interaction state, and reports user intent through callbacks.
 
 ### When to reach for it
@@ -47,12 +47,12 @@ view/selection/interaction state, and reports user intent through callbacks.
 
 ## 2. Signed-off decisions (the four forks)
 
-| # | Decision | Choice | Consequence |
-|---|----------|--------|-------------|
-| 1 | Data & navigation model | **Controlled, current-folder** | Consumer passes the current folder's `items` + `path` + a separate `folderTree` for the sidebar, and handles `onNavigate`. Lazy loading and any backend work out of the box. |
-| 2 | API surface style | **Props + render-slots** | One `<AssetBrowser>` with data/callback props; render props for thumbnail / item / context menu / empty; two optional compound slots (`AssetBrowser.Toolbar`, `AssetBrowser.Sidebar`) for full overrides. |
-| 3 | Drag & drop (v1) | **Move + import** | Internal drag of items onto folders (move/reorder) + external OS-file drop (import), both via callbacks; items are also draggable out with a configurable `dataTransfer` payload. The actual move/import mutation is the consumer's job. |
-| 4 | Grid virtualization | **Custom windowed grid** | A purpose-built windowed renderer keeps thousands of thumbnails smooth. List view reuses `DataTable`'s virtualization. |
+| #   | Decision                | Choice                         | Consequence                                                                                                                                                                                                                              |
+| --- | ----------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Data & navigation model | **Controlled, current-folder** | Consumer passes the current folder's `items` + `path` + a separate `folderTree` for the sidebar, and handles `onNavigate`. Lazy loading and any backend work out of the box.                                                             |
+| 2   | API surface style       | **Props + render-slots**       | One `<AssetBrowser>` with data/callback props; render props for thumbnail / item / context menu / empty; two optional compound slots (`AssetBrowser.Toolbar`, `AssetBrowser.Sidebar`) for full overrides.                                |
+| 3   | Drag & drop (v1)        | **Move + import**              | Internal drag of items onto folders (move/reorder) + external OS-file drop (import), both via callbacks; items are also draggable out with a configurable `dataTransfer` payload. The actual move/import mutation is the consumer's job. |
+| 4   | Grid virtualization     | **Custom windowed grid**       | A purpose-built windowed renderer keeps thousands of thumbnails smooth. List view reuses `DataTable`'s virtualization.                                                                                                                   |
 
 ---
 
@@ -61,22 +61,22 @@ view/selection/interaction state, and reports user intent through callbacks.
 AssetBrowser is assembled from components that already exist. **Do not
 reimplement any of these.** Compose them.
 
-| Concern | Existing building block | Import |
-|---------|------------------------|--------|
-| List view | `DataTable` | `@/components/data/DataTable` |
-| Grid cell | `Card` + `Card.Media` / `Card.Body` | `@/components/layout/Card` |
-| Folder sidebar | `TreeView` (`TreeNodeData`) | `@/components/controls/TreeView` |
-| Path bar | `Breadcrumbs` + `Breadcrumbs.Item` | `@/components/navigation/Breadcrumbs` |
-| View toggle (grid/list) | `SegmentedControl` + `SegmentedControlItem` | `@/components/navigation/SegmentedControl` |
-| Toolbar chrome | `Toolbar` (`.Button` / `.Toggle` / `.Separator` / `.Group`) | `@/components/shell/Toolbar` |
-| Search field | `Input` (`type="search"`, `startIcon`) | `@/components/primitives/Input` |
-| Sort / filter menus | `Menu` (`.Trigger` / `.Content` / `.RadioGroup` / `.CheckboxItem`) | `@/components/navigation/Menu` |
-| Item context menu | `ContextMenu` + `Menu.*` items | `@/components/navigation/ContextMenu` |
-| Scroll containers | `ScrollArea` | `@/components/layout/ScrollArea` |
-| Canvas thumbnails (3D previews) | `CanvasContainer` + `useCanvasSetup` + `useCanvasRenderer` | `@/components/primitives/canvas` |
-| Loading placeholders | `Skeleton` | `@/components/feedback/Skeleton` |
-| Empty view | `EmptyState` | `@/components/feedback/EmptyState` |
-| Icons | `Icon`, `IconButton`, `FolderIcon`, `FolderOpenIcon`, `GridIcon`, `ListIcon`, `SearchIcon`, `FileTextIcon`, sort/filter icons | `@/components/primitives/*`, `@/components/Icons` |
+| Concern                         | Existing building block                                                                                                       | Import                                            |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| List view                       | `DataTable`                                                                                                                   | `@/components/data/DataTable`                     |
+| Grid cell                       | `Card` + `Card.Media` / `Card.Body`                                                                                           | `@/components/layout/Card`                        |
+| Folder sidebar                  | `TreeView` (`TreeNodeData`)                                                                                                   | `@/components/controls/TreeView`                  |
+| Path bar                        | `Breadcrumbs` + `Breadcrumbs.Item`                                                                                            | `@/components/navigation/Breadcrumbs`             |
+| View toggle (grid/list)         | `SegmentedControl` + `SegmentedControlItem`                                                                                   | `@/components/navigation/SegmentedControl`        |
+| Toolbar chrome                  | `Toolbar` (`.Button` / `.Toggle` / `.Separator` / `.Group`)                                                                   | `@/components/shell/Toolbar`                      |
+| Search field                    | `Input` (`type="search"`, `startIcon`)                                                                                        | `@/components/primitives/Input`                   |
+| Sort / filter menus             | `Menu` (`.Trigger` / `.Content` / `.RadioGroup` / `.CheckboxItem`)                                                            | `@/components/navigation/Menu`                    |
+| Item context menu               | `ContextMenu` + `Menu.*` items                                                                                                | `@/components/navigation/ContextMenu`             |
+| Scroll containers               | `ScrollArea`                                                                                                                  | `@/components/layout/ScrollArea`                  |
+| Canvas thumbnails (3D previews) | `CanvasContainer` + `useCanvasSetup` + `useCanvasRenderer`                                                                    | `@/components/primitives/canvas`                  |
+| Loading placeholders            | `Skeleton`                                                                                                                    | `@/components/feedback/Skeleton`                  |
+| Empty view                      | `EmptyState`                                                                                                                  | `@/components/feedback/EmptyState`                |
+| Icons                           | `Icon`, `IconButton`, `FolderIcon`, `FolderOpenIcon`, `GridIcon`, `ListIcon`, `SearchIcon`, `FileTextIcon`, sort/filter icons | `@/components/primitives/*`, `@/components/Icons` |
 
 ### Layout
 
@@ -116,14 +116,24 @@ import type { ReactNode, Ref, DragEvent } from 'react';
 import type { Prettify, LiteralUnion } from '@/types/utilities';
 import type { BaseComponent } from '@/types/common';
 import type { TreeNodeData } from '@/components/controls/TreeView';
-import type { DataTableColumn, DataTableDensity } from '@/components/data/DataTable';
+import type {
+  DataTableColumn,
+  DataTableDensity,
+} from '@/components/data/DataTable';
 
 /** Whether an entry is a file/asset or a navigable folder. */
 export type AssetKind = 'file' | 'folder';
 
 /** Well-known asset types (extensible — consumers add their own strings). */
 export type AssetType = LiteralUnion<
-  'image' | 'model' | 'material' | 'audio' | 'video' | 'text' | 'scene' | 'unknown',
+  | 'image'
+  | 'model'
+  | 'material'
+  | 'audio'
+  | 'video'
+  | 'text'
+  | 'scene'
+  | 'unknown',
   string
 >;
 
@@ -165,7 +175,10 @@ export interface AssetPathSegment {
 
 export type AssetView = 'grid' | 'list';
 
-export type AssetSortField = LiteralUnion<'name' | 'type' | 'size' | 'modified', string>;
+export type AssetSortField = LiteralUnion<
+  'name' | 'type' | 'size' | 'modified',
+  string
+>;
 
 export interface AssetSortState {
   field: AssetSortField;
@@ -181,18 +194,27 @@ export type AssetThumbnailSize = 'sm' | 'md' | 'lg' | number;
 
 /** Why a selection / navigation change fired — useful for analytics & undo. */
 export type AssetSelectionReason =
-  | 'click' | 'keyboard' | 'marquee' | 'selectAll' | 'clear' | 'contextMenu';
+  | 'click'
+  | 'keyboard'
+  | 'marquee'
+  | 'selectAll'
+  | 'clear'
+  | 'contextMenu';
 
 export type AssetNavigationSource =
-  | 'breadcrumb' | 'sidebar' | 'open' | 'back' | 'forward';
+  | 'breadcrumb'
+  | 'sidebar'
+  | 'open'
+  | 'back'
+  | 'forward';
 
 /** Per-item state handed to render props. */
 export interface AssetItemState {
   selected: boolean;
   focused: boolean;
-  index: number;        // index within the displayed (filtered+sorted) list
+  index: number; // index within the displayed (filtered+sorted) list
   view: AssetView;
-  dropTarget: boolean;  // a drag is currently hovering this item
+  dropTarget: boolean; // a drag is currently hovering this item
 }
 ```
 
@@ -209,8 +231,10 @@ the sidebar is literally a `TreeView`.
 ## 5. Public API — `AssetBrowserProps`
 
 ```ts
-export interface AssetBrowserBaseProps
-  extends Omit<BaseComponent<HTMLDivElement>, 'ref' | 'onChange'> {
+export interface AssetBrowserBaseProps extends Omit<
+  BaseComponent<HTMLDivElement>,
+  'ref' | 'onChange'
+> {
   ref?: Ref<AssetBrowserHandle>;
 
   // ── Data ──────────────────────────────────────────────────────────────
@@ -224,10 +248,10 @@ export interface AssetBrowserBaseProps
   currentFolderId?: string;
 
   // ── View ──────────────────────────────────────────────────────────────
-  view?: AssetView;                       // controlled
-  defaultView?: AssetView;                // default 'grid'
+  view?: AssetView; // controlled
+  defaultView?: AssetView; // default 'grid'
   onViewChange?: (view: AssetView) => void;
-  thumbnailSize?: AssetThumbnailSize;     // controlled
+  thumbnailSize?: AssetThumbnailSize; // controlled
   defaultThumbnailSize?: AssetThumbnailSize; // default 'md'
   onThumbnailSizeChange?: (size: AssetThumbnailSize) => void;
   /** List-view row density (passthrough to DataTable). Default 'comfortable'. */
@@ -237,28 +261,31 @@ export interface AssetBrowserBaseProps
 
   // ── Selection ─────────────────────────────────────────────────────────
   selectionMode?: 'single' | 'multiple' | false; // default 'multiple'
-  selection?: readonly string[];          // controlled selected ids
+  selection?: readonly string[]; // controlled selected ids
   defaultSelection?: readonly string[];
-  onSelectionChange?: (ids: string[], meta: { reason: AssetSelectionReason }) => void;
+  onSelectionChange?: (
+    ids: string[],
+    meta: { reason: AssetSelectionReason }
+  ) => void;
   /** Enable rubber-band marquee selection in grid empty space. Default true for 'multiple'. */
   marquee?: boolean;
 
   // ── Search / filter / sort ──────────────────────────────────────────────
-  search?: string;                        // controlled
+  search?: string; // controlled
   defaultSearch?: string;
   onSearchChange?: (query: string) => void;
   /** When true, the consumer pre-filters `items` and AssetBrowser does not filter by name. Default false. */
   manualSearch?: boolean;
-  filters?: AssetFilterState;             // controlled
+  filters?: AssetFilterState; // controlled
   defaultFilters?: AssetFilterState;
   onFiltersChange?: (filters: AssetFilterState) => void;
-  manualFilter?: boolean;                 // default false
+  manualFilter?: boolean; // default false
   /** Type values offered in the filter menu. Defaults to the distinct `assetType`s present in `items`. */
   filterableTypes?: AssetType[];
-  sort?: AssetSortState;                  // controlled
-  defaultSort?: AssetSortState;           // default { field: 'name', direction: 'asc' }
+  sort?: AssetSortState; // controlled
+  defaultSort?: AssetSortState; // default { field: 'name', direction: 'asc' }
   onSortChange?: (sort: AssetSortState) => void;
-  manualSort?: boolean;                   // default false
+  manualSort?: boolean; // default false
 
   // ── Navigation ───────────────────────────────────────────────────────────
   /** Fires when the user enters a folder (open / breadcrumb / sidebar / history). */
@@ -274,9 +301,15 @@ export interface AssetBrowserBaseProps
 
   // ── Drag & drop ──────────────────────────────────────────────────────────
   /** Internal move: items dropped onto a folder. Presence enables internal DnD. */
-  onItemsMove?: (payload: { itemIds: string[]; targetFolderId: string }) => void;
+  onItemsMove?: (payload: {
+    itemIds: string[];
+    targetFolderId: string;
+  }) => void;
   /** External import: OS files dropped onto the surface (or a folder). Presence enables external drop. */
-  onFilesImport?: (payload: { files: File[]; targetFolderId: string | null }) => void;
+  onFilesImport?: (payload: {
+    files: File[];
+    targetFolderId: string | null;
+  }) => void;
   /** MIME type used when dragging items out. Default 'application/x-entangle-asset'. */
   dragOutMimeType?: string;
   /** Override the drag-out dataTransfer payload. Default: JSON array of ids under `dragOutMimeType`. */
@@ -285,13 +318,16 @@ export interface AssetBrowserBaseProps
   onItemDragEnd?: (items: AssetItem[], event: DragEvent) => void;
 
   // ── States ───────────────────────────────────────────────────────────────
-  loading?: boolean;                      // default false → renders Skeleton grid/rows
-  loadingItemCount?: number;              // default 12
-  emptyState?: ReactNode;                 // overrides the default EmptyState
+  loading?: boolean; // default false → renders Skeleton grid/rows
+  loadingItemCount?: number; // default 12
+  emptyState?: ReactNode; // overrides the default EmptyState
 
   // ── Render props (escape hatches) ─────────────────────────────────────────
   /** Custom thumbnail (e.g. canvas 3D preview). Falls back to thumbnailUrl → icon → type icon. */
-  renderThumbnail?: (item: AssetItem, ctx: { size: number; selected: boolean }) => ReactNode;
+  renderThumbnail?: (
+    item: AssetItem,
+    ctx: { size: number; selected: boolean }
+  ) => ReactNode;
   /** Fully replace a grid cell's inner content (advanced). */
   renderItem?: (item: AssetItem, state: AssetItemState) => ReactNode;
   /** Returns the body of the item context menu (Menu.* children). Receives the selected items. */
@@ -300,14 +336,14 @@ export interface AssetBrowserBaseProps
   renderEmptyContextMenu?: () => ReactNode;
 
   // ── Virtualization (grid) ─────────────────────────────────────────────────
-  virtualized?: boolean | 'auto';        // default 'auto'
-  virtualizationThreshold?: number;      // default 200
-  overscanRows?: number;                 // default 4
+  virtualized?: boolean | 'auto'; // default 'auto'
+  virtualizationThreshold?: number; // default 200
+  overscanRows?: number; // default 4
 
   // ── A11y ──────────────────────────────────────────────────────────────────
-  'aria-label'?: string;                 // default 'Asset browser'
+  'aria-label'?: string; // default 'Asset browser'
 
-  children?: ReactNode;                  // compound slots only (Toolbar / Sidebar)
+  children?: ReactNode; // compound slots only (Toolbar / Sidebar)
 }
 
 export type AssetBrowserProps = Prettify<AssetBrowserBaseProps>;
@@ -359,15 +395,21 @@ never `displayName`):
 
 ```tsx
 <AssetBrowser items={items} folderTree={tree} onNavigate={go}>
-  <AssetBrowser.Toolbar>{/* custom toolbar; replaces the default */}</AssetBrowser.Toolbar>
-  <AssetBrowser.Sidebar>{/* custom sidebar; replaces the default TreeView */}</AssetBrowser.Sidebar>
+  <AssetBrowser.Toolbar>
+    {/* custom toolbar; replaces the default */}
+  </AssetBrowser.Toolbar>
+  <AssetBrowser.Sidebar>
+    {/* custom sidebar; replaces the default TreeView */}
+  </AssetBrowser.Sidebar>
 </AssetBrowser>
 ```
 
 Slot markers live in `slots.ts`:
 
 ```ts
-export const ASSET_BROWSER_SLOT: unique symbol = Symbol.for('etui.assetBrowser.slot');
+export const ASSET_BROWSER_SLOT: unique symbol = Symbol.for(
+  'etui.assetBrowser.slot'
+);
 export type AssetBrowserSlotKind = 'toolbar' | 'sidebar';
 ```
 
@@ -461,15 +503,15 @@ value. They do **not** belong in the hot store.
 
 Lives in `useAssetSelection.ts`, writing through the store.
 
-| Gesture | Result |
-|---------|--------|
-| Click item | Replace selection with that item. |
-| Ctrl/Cmd + click | Toggle that item; keep the rest. |
-| Shift + click | Range-select from the anchor to the clicked item (over the displayed order). |
-| Click empty space | Clear selection. |
-| Drag in empty space (grid) | Marquee select (additive with Ctrl/Cmd). |
-| `Ctrl/Cmd + A` | Select all selectable items. |
-| `Escape` | Clear selection / cancel an in-progress marquee. |
+| Gesture                    | Result                                                                       |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| Click item                 | Replace selection with that item.                                            |
+| Ctrl/Cmd + click           | Toggle that item; keep the rest.                                             |
+| Shift + click              | Range-select from the anchor to the clicked item (over the displayed order). |
+| Click empty space          | Clear selection.                                                             |
+| Drag in empty space (grid) | Marquee select (additive with Ctrl/Cmd).                                     |
+| `Ctrl/Cmd + A`             | Select all selectable items.                                                 |
+| `Escape`                   | Clear selection / cancel an in-progress marquee.                             |
 
 - `selectionMode='single'` ignores modifiers and marquee (one item max).
 - `selectionMode={false}` disables selection entirely (items still openable).
@@ -557,18 +599,18 @@ enter/leave flicker fix) — flagged for agents in §16.
 
 ### Keyboard matrix
 
-| Key | Grid | List |
-|-----|------|------|
-| Arrow keys | Move roving focus in 2D (cols from layout) | Up/Down rows (DataTable) |
-| Home / End | First / last item | First / last row |
-| PageUp / PageDown | By one viewport of rows | By one viewport |
-| Enter | Open (folder→navigate, file→open) | Same |
-| Space | Toggle selection of focused item | Same |
-| Shift + arrows | Extend range selection | Same |
-| Ctrl/Cmd + A | Select all | Select all |
-| Escape | Clear selection / cancel marquee | Clear selection |
-| Backspace / Alt+↑ | Go to parent (when `history`) | Same |
-| F2 | Begin rename (only if a rename callback is wired — see §17 open items) | Same |
+| Key               | Grid                                                                   | List                     |
+| ----------------- | ---------------------------------------------------------------------- | ------------------------ |
+| Arrow keys        | Move roving focus in 2D (cols from layout)                             | Up/Down rows (DataTable) |
+| Home / End        | First / last item                                                      | First / last row         |
+| PageUp / PageDown | By one viewport of rows                                                | By one viewport          |
+| Enter             | Open (folder→navigate, file→open)                                      | Same                     |
+| Space             | Toggle selection of focused item                                       | Same                     |
+| Shift + arrows    | Extend range selection                                                 | Same                     |
+| Ctrl/Cmd + A      | Select all                                                             | Select all               |
+| Escape            | Clear selection / cancel marquee                                       | Clear selection          |
+| Backspace / Alt+↑ | Go to parent (when `history`)                                          | Same                     |
+| F2                | Begin rename (only if a rename callback is wired — see §17 open items) | Same                     |
 
 2D arrow math is pure and unit-tested in `assetBrowserKeyboard.ts`
 (`nextIndex(current, key, columns, count)`).
@@ -669,18 +711,18 @@ Exports to update: `src/components/data/index.ts` and the root `src/index.ts`
 One PR overall, but build and commit in this order so each step type-checks,
 lints, and tests green on its own.
 
-| Phase | Deliverable |
-|-------|-------------|
-| **0. Foundations** | `*.types.ts`, `slots.ts`, `assetBrowserFilter.ts`, `assetBrowserKeyboard.ts`, store + context skeleton — all with unit tests. No UI yet. |
-| **1. Shell** | Root component, controlled-state wiring, default toolbar (view toggle + search), breadcrumbs, default TreeView sidebar, empty + loading (Skeleton) states. Static, non-virtualized. |
-| **2. List view** | `AssetBrowserList` over `DataTable` with default columns + sort/selection/density bridges + activation routing. |
-| **3. Grid view** | `AssetBrowserGrid` (non-virtualized) + `AssetBrowserGridItem` (Card) + thumbnail resolution (renderThumbnail → url(lazy) → icon → type icon). |
-| **4. Selection & keyboard** | `useAssetSelection`, modifiers, 2D keyboard nav, marquee, roving focus — through the store. |
-| **5. Grid virtualization** | `useAssetGridVirtualizer`, windowing wired into the grid; `virtualized`/threshold props. |
-| **6. Drag & drop** | `useAssetDnd`: internal move, external import overlay, drag-out payload. |
-| **7. Context menus + handle** | `renderItemContextMenu` / `renderEmptyContextMenu`, `useImperativeHandle`. |
-| **8. A11y + reduced-motion** | Roles, roving tabindex, live region, reduced-motion audit. |
-| **9. Docs + changeset** | MDX page, demo file, sidebar entry, `minor` changeset, light-theme check. |
+| Phase                         | Deliverable                                                                                                                                                                         |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0. Foundations**            | `*.types.ts`, `slots.ts`, `assetBrowserFilter.ts`, `assetBrowserKeyboard.ts`, store + context skeleton — all with unit tests. No UI yet.                                            |
+| **1. Shell**                  | Root component, controlled-state wiring, default toolbar (view toggle + search), breadcrumbs, default TreeView sidebar, empty + loading (Skeleton) states. Static, non-virtualized. |
+| **2. List view**              | `AssetBrowserList` over `DataTable` with default columns + sort/selection/density bridges + activation routing.                                                                     |
+| **3. Grid view**              | `AssetBrowserGrid` (non-virtualized) + `AssetBrowserGridItem` (Card) + thumbnail resolution (renderThumbnail → url(lazy) → icon → type icon).                                       |
+| **4. Selection & keyboard**   | `useAssetSelection`, modifiers, 2D keyboard nav, marquee, roving focus — through the store.                                                                                         |
+| **5. Grid virtualization**    | `useAssetGridVirtualizer`, windowing wired into the grid; `virtualized`/threshold props.                                                                                            |
+| **6. Drag & drop**            | `useAssetDnd`: internal move, external import overlay, drag-out payload.                                                                                                            |
+| **7. Context menus + handle** | `renderItemContextMenu` / `renderEmptyContextMenu`, `useImperativeHandle`.                                                                                                          |
+| **8. A11y + reduced-motion**  | Roles, roving tabindex, live region, reduced-motion audit.                                                                                                                          |
+| **9. Docs + changeset**       | MDX page, demo file, sidebar entry, `minor` changeset, light-theme check.                                                                                                           |
 
 ---
 
@@ -692,8 +734,8 @@ lints, and tests green on its own.
 
 ### Must do
 
-1. **Compose, don't reinvent.** List view *is* `DataTable`. Sidebar *is*
-   `TreeView`. Cells *are* `Card`. Path *is* `Breadcrumbs`. If you find
+1. **Compose, don't reinvent.** List view _is_ `DataTable`. Sidebar _is_
+   `TreeView`. Cells _are_ `Card`. Path _is_ `Breadcrumbs`. If you find
    yourself writing a table, a tree, or a card from scratch, stop — you took a
    wrong turn.
 2. **Reuse the hook catalog** (`component-patterns.md` §1): `useControlledState`
@@ -815,5 +857,7 @@ up:
 - [ ] `minor` changeset committed (not `major`).
 - [ ] One PR against `main`, conventional commits, branch
       `claude/etui-assetbrowser-OBs1N`.
+
 ```
 
+```
