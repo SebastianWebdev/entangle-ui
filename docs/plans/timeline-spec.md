@@ -234,10 +234,13 @@ src/components/editor/Timeline/
 - Global toggle (`mode`). In `'graph'`, the keyframe rows are replaced by
   value-curve lanes; each visible track maps to a `CurveData`
   (`domainX = [startFrame, endFrame]`, `domainY = valueRange ?? auto-fit`).
-- Reuse CurveEditor's curve sampling + tangent-handle drawing/interaction.
-  Extract the shared drawing/interaction into reusable units if they are
-  currently private to CurveEditor; otherwise call through.
-- Tangent editing obeys `editable` / track `locked`.
+- **Shipped:** reuses CurveEditor's `evaluateCurve` for the curve polyline;
+  keyframe points are draggable in time + value (`moveSelectedKeyframesGraph`),
+  and tangent handles render for the selected keyframe. Editing obeys
+  `editable` / track `locked`.
+- **Deferred:** dragging the bezier tangent handles themselves (editing
+  `handleIn` / `handleOut` + tangent modes) — a follow-up that can reuse
+  CurveEditor's `useCurveInteraction` once it is extracted.
 
 ## Playback specifics (v1)
 
