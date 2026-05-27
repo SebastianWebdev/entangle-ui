@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { act } from '@testing-library/react';
+import { act, fireEvent } from '@testing-library/react';
 import { createRef } from 'react';
 import { renderWithTheme } from '@/tests/testUtils';
 import { Timeline } from './Timeline';
@@ -153,6 +153,42 @@ describe('Timeline', () => {
         />
       );
       expect(ref.current?.getFrame()).toBe(20);
+    });
+  });
+
+  describe('Keyboard', () => {
+    it('ArrowRight steps the playhead and reports via onFrameChange', () => {
+      const onFrameChange = vi.fn();
+      const { getByRole } = renderWithTheme(
+        <Timeline
+          tracks={TRACKS}
+          endFrame={100}
+          defaultFrame={0}
+          onFrameChange={onFrameChange}
+          height={200}
+        />
+      );
+      fireEvent.keyDown(getByRole('group'), { key: 'ArrowRight' });
+      expect(onFrameChange).toHaveBeenLastCalledWith(1);
+    });
+
+    it('Delete removes the selected keyframes via onTracksChange', () => {
+      const onTracksChange = vi.fn<(t: TimelineTrack[]) => void>();
+      const { getByRole } = renderWithTheme(
+        <Timeline
+          tracks={TRACKS}
+          endFrame={100}
+          selection={[{ trackId: 'opacity', keyframeId: 'k1' }]}
+          onTracksChange={onTracksChange}
+          height={200}
+        />
+      );
+      fireEvent.keyDown(getByRole('group'), { key: 'Delete' });
+      expect(onTracksChange).toHaveBeenCalledTimes(1);
+      const arg = onTracksChange.mock.calls[0]?.[0];
+      if (!arg) throw new Error('onTracksChange was not called');
+      const opacity = arg.find(t => t.id === 'opacity');
+      expect(opacity?.keyframes.map(k => k.id)).toEqual(['k2']);
     });
   });
 });

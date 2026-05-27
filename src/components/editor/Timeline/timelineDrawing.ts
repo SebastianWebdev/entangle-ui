@@ -41,6 +41,8 @@ export interface TimelineDrawInput {
     ctx: CanvasRenderingContext2D,
     info: TimelineDrawInfo
   ) => void;
+  /** Active marquee rectangle (box-select) in track-area px, or null. */
+  marquee?: { x: number; y: number; width: number; height: number } | null;
 }
 
 const KEYFRAME_RADIUS = 4;
@@ -94,6 +96,7 @@ export function drawTimeline(input: TimelineDrawInput): void {
     formatTime,
     isSelected,
     renderOverlay,
+    marquee,
   } = input;
 
   const toX = (f: number): number => frameToX(f, view, size.width);
@@ -200,5 +203,23 @@ export function drawTimeline(input: TimelineDrawInput): void {
     ctx.lineTo(x, head);
     ctx.closePath();
     ctx.fill();
+  }
+
+  // ── Marquee (box-select) ──
+  if (marquee && (marquee.width > 0 || marquee.height > 0)) {
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = colors.keyframeSelected;
+    ctx.fillRect(marquee.x, marquee.y, marquee.width, marquee.height);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = colors.keyframeSelected;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(
+      marquee.x + 0.5,
+      marquee.y + 0.5,
+      Math.max(0, marquee.width - 1),
+      Math.max(0, marquee.height - 1)
+    );
+    ctx.restore();
   }
 }
