@@ -249,6 +249,8 @@ export function drawTimeline(input: TimelineDrawInput): void {
   visible.forEach((track, index) => {
     const rowH = track.height ?? trackHeight;
     const top = rulerHeight + trackTop(index, trackHeight, scrollTop);
+    // Virtualize: skip rows scrolled out of the track area.
+    if (top + rowH < rulerHeight || top > size.height) return;
 
     ctx.fillStyle = colors.rowSeparator;
     ctx.fillRect(0, top + rowH - 1, size.width, 1);

@@ -21,6 +21,7 @@ interface TimelineTrackHeadersProps {
   tracks: ReadonlyArray<TimelineTrack>;
   trackHeight: number;
   rulerHeight: number;
+  scrollTop: number;
   width: number;
   selection: TimelineSelection;
   editable: boolean;
@@ -45,6 +46,7 @@ export function TimelineTrackHeaders({
   tracks,
   trackHeight,
   rulerHeight,
+  scrollTop,
   width,
   selection,
   editable,
@@ -69,10 +71,12 @@ export function TimelineTrackHeaders({
     (clientY: number): number => {
       const rect = columnRef.current?.getBoundingClientRect();
       const top = (rect?.top ?? 0) + rulerHeight;
-      const raw = Math.round((clientY - top) / Math.max(1, trackHeight));
+      const raw = Math.round(
+        (clientY - top + scrollTop) / Math.max(1, trackHeight)
+      );
       return clamp(raw, 0, visible.length);
     },
-    [rulerHeight, trackHeight, visible.length]
+    [rulerHeight, trackHeight, visible.length, scrollTop]
   );
 
   const handleRowPointerDown = useCallback(
@@ -132,42 +136,48 @@ export function TimelineTrackHeaders({
           style={{ height: rulerHeight }}
         />
       )}
-      {visible.map((track, index) => {
-        const rowH = track.height ?? trackHeight;
-        const hasSelection = selectedTrackIds.has(track.id);
-        return (
-          <div
-            key={track.id}
-            className={timelineHeaderRowStyle}
-            style={{ height: rowH }}
-            data-draggable={reorderable || undefined}
-            data-dragging={drag?.id === track.id || undefined}
-            data-locked={track.locked ? true : undefined}
-            data-selected={hasSelection || undefined}
-            onPointerDown={
-              reorderable ? e => handleRowPointerDown(e, track.id) : undefined
-            }
-          >
-            {renderTrackHeader ? (
-              renderTrackHeader(track, { index, hasSelection })
-            ) : (
-              <>
-                <span
-                  className={timelineHeaderSwatchStyle}
-                  style={track.color ? { background: track.color } : undefined}
-                />
-                <span className={timelineHeaderLabelStyle}>
-                  {track.label ?? track.id}
-                </span>
-              </>
-            )}
-          </div>
-        );
-      })}
+      <div style={{ flexShrink: 0, transform: `translateY(${-scrollTop}px)` }}>
+        {visible.map((track, index) => {
+          const rowH = track.height ?? trackHeight;
+          const hasSelection = selectedTrackIds.has(track.id);
+          return (
+            <div
+              key={track.id}
+              className={timelineHeaderRowStyle}
+              style={{ height: rowH }}
+              data-draggable={reorderable || undefined}
+              data-dragging={drag?.id === track.id || undefined}
+              data-locked={track.locked ? true : undefined}
+              data-selected={hasSelection || undefined}
+              onPointerDown={
+                reorderable ? e => handleRowPointerDown(e, track.id) : undefined
+              }
+            >
+              {renderTrackHeader ? (
+                renderTrackHeader(track, { index, hasSelection })
+              ) : (
+                <>
+                  <span
+                    className={timelineHeaderSwatchStyle}
+                    style={
+                      track.color ? { background: track.color } : undefined
+                    }
+                  />
+                  <span className={timelineHeaderLabelStyle}>
+                    {track.label ?? track.id}
+                  </span>
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
       {drag && (
         <div
           className={timelineHeaderDropIndicatorStyle}
-          style={{ top: rulerHeight + drag.dropIndex * trackHeight }}
+          style={{
+            top: rulerHeight + drag.dropIndex * trackHeight - scrollTop,
+          }}
         />
       )}
     </div>

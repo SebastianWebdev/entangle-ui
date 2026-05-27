@@ -172,6 +172,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [size, setSize] = useState<ViewportSize>({ width: 0, height: 0 });
+  const [scrollTop, setScrollTop] = useState(0);
 
   const fullView = useMemo<TimelineView>(
     () => ({ startFrame, endFrame }),
@@ -231,7 +232,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
       view: viewState,
       size,
       trackHeight,
-      scrollTop: 0,
+      scrollTop,
       startFrame,
       endFrame,
       fps,
@@ -242,6 +243,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     viewState,
     size,
     trackHeight,
+    scrollTop,
     startFrame,
     endFrame,
     fps,
@@ -387,9 +389,29 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     );
   });
 
-  // ── Gestures ──
+  // ── Vertical scroll ──
 
   const rulerHeight = showRuler ? RULER_HEIGHT : 0;
+  const visibleCount = useMemo(
+    () => tracks.filter(t => !t.hidden).length,
+    [tracks]
+  );
+  const contentHeight = visibleCount * trackHeight;
+  const maxScrollTop = Math.max(0, contentHeight - (size.height - rulerHeight));
+
+  useLayoutEffect(() => {
+    setScrollTop(s => Math.min(s, maxScrollTop));
+  }, [maxScrollTop]);
+
+  const scrollBy = useCallback(
+    (deltaPixels: number): void => {
+      setScrollTop(s => clamp(s + deltaPixels, 0, maxScrollTop));
+    },
+    [maxScrollTop]
+  );
+
+  // ── Gestures ──
+
   const { handlers, onWheel } = useTimelineGestures({
     containerRef: bodyRef,
     store,
@@ -401,7 +423,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     startFrame,
     endFrame,
     trackHeight,
-    scrollTop: 0,
+    scrollTop,
     rulerHeight,
     snap,
     editable,
@@ -412,6 +434,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     minFramesVisible,
     maxFramesVisible,
     loopRegion,
+    maxScrollTop,
     seekLive,
     seekCommit,
     setSelection,
@@ -419,6 +442,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     commitTracks,
     setView,
     setLoop,
+    scrollBy,
   });
 
   // Native non-passive wheel listener (React onWheel is passive).
@@ -490,7 +514,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
         frame: frameState,
         tracks,
         trackHeight,
-        scrollTop: 0,
+        scrollTop,
         mode: modeState,
         rulerHeight,
         showPlayhead,
@@ -513,6 +537,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     endFrame,
     fps,
     trackHeight,
+    scrollTop,
     rulerHeight,
     showPlayhead,
     modeState,
@@ -568,6 +593,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             tracks={tracks}
             trackHeight={trackHeight}
             rulerHeight={rulerHeight}
+            scrollTop={scrollTop}
             width={trackHeaderWidth}
             selection={selectionState}
             editable={editable}

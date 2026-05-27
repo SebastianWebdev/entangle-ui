@@ -50,6 +50,7 @@ export interface TimelineGestureActions {
   commitTracks: (tracks: TimelineTrack[]) => void;
   setView: (view: TimelineView) => void;
   setLoop: (loop: TimelineLoop) => void;
+  scrollBy: (deltaPixels: number) => void;
 }
 
 export interface UseTimelineGesturesOptions extends TimelineGestureActions {
@@ -74,6 +75,7 @@ export interface UseTimelineGesturesOptions extends TimelineGestureActions {
   minFramesVisible: number;
   maxFramesVisible: number | undefined;
   loopRegion: { startFrame: number; endFrame: number } | null;
+  maxScrollTop: number;
 }
 
 interface PointerState {
@@ -180,7 +182,9 @@ export function useTimelineGestures(
   const commitTracksRef = useLatest(opts.commitTracks);
   const setViewRef = useLatest(opts.setView);
   const setLoopRef = useLatest(opts.setLoop);
+  const scrollByRef = useLatest(opts.scrollBy);
   const loopRegionRef = useLatest(opts.loopRegion);
+  const maxScrollTopRef = useLatest(opts.maxScrollTop);
 
   const stateRef = useRef<PointerState | null>(null);
   const clipboardRef = useRef<TimelineClipboard | null>(null);
@@ -659,6 +663,12 @@ export function useTimelineGestures(
         return;
       }
 
+      // Plain vertical wheel scrolls tracks when they overflow; Ctrl/Cmd zooms.
+      if (!e.ctrlKey && !e.metaKey && maxScrollTopRef.current > 0) {
+        scrollByRef.current(e.deltaY);
+        return;
+      }
+
       const rangeSpan = Math.max(
         1,
         endFrameRef.current - startFrameRef.current
@@ -688,6 +698,8 @@ export function useTimelineGestures(
       endFrameRef,
       minFramesVisibleRef,
       maxFramesVisibleRef,
+      scrollByRef,
+      maxScrollTopRef,
     ]
   );
 
