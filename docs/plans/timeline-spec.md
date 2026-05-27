@@ -8,16 +8,16 @@
 
 ## Decisions log (planning session)
 
-| # | Decision | Choice |
-| - | -------- | ------ |
-| 1 | Track content model | **Keyframes (dope sheet)** — no clips/ranges in v1 |
-| 2 | Relationship to CurveEditor | **Share keyframe model + graph mode** |
-| 3 | Rendering | **Hybrid: canvas keyframes + DOM chrome** |
-| 4 | Time domain | **Frames + fps** |
-| 5 | Internal architecture | **Canvas hooks + 1D time store** (not the Viewport component) |
-| 6 | Graph mode in v1 | **Yes — dope sheet AND graph both ship in v1** |
-| 7 | Playback | **Optional built-in rAF loop**, `frame` stays controllable |
-| 8 | Track headers | **Data-driven default + `renderTrackHeader` override** |
+| #   | Decision                    | Choice                                                        |
+| --- | --------------------------- | ------------------------------------------------------------- |
+| 1   | Track content model         | **Keyframes (dope sheet)** — no clips/ranges in v1            |
+| 2   | Relationship to CurveEditor | **Share keyframe model + graph mode**                         |
+| 3   | Rendering                   | **Hybrid: canvas keyframes + DOM chrome**                     |
+| 4   | Time domain                 | **Frames + fps**                                              |
+| 5   | Internal architecture       | **Canvas hooks + 1D time store** (not the Viewport component) |
+| 6   | Graph mode in v1            | **Yes — dope sheet AND graph both ship in v1**                |
+| 7   | Playback                    | **Optional built-in rAF loop**, `frame` stays controllable    |
+| 8   | Track headers               | **Data-driven default + `renderTrackHeader` override**        |
 
 ## What Timeline is
 
@@ -69,19 +69,25 @@ import type { CurveKeyframe, CurveData } from '@/types/keyframe'; // promoted sh
 interface TimelineTrack {
   id: string;
   label?: string;
-  color?: string;                 // keyframe/lane accent (theme fallback)
-  keyframes: CurveKeyframe[];     // x = frame, y = value
-  valueRange?: [number, number];  // domainY for graph mode (auto-fit if omitted)
-  infinity?: { pre?: CurveData['preInfinity']; post?: CurveData['postInfinity'] };
-  locked?: boolean;               // visible but not editable
-  hidden?: boolean;               // collapsed / not drawn
-  height?: number;                // row-height override
+  color?: string; // keyframe/lane accent (theme fallback)
+  keyframes: CurveKeyframe[]; // x = frame, y = value
+  valueRange?: [number, number]; // domainY for graph mode (auto-fit if omitted)
+  infinity?: {
+    pre?: CurveData['preInfinity'];
+    post?: CurveData['postInfinity'];
+  };
+  locked?: boolean; // visible but not editable
+  hidden?: boolean; // collapsed / not drawn
+  height?: number; // row-height override
 }
 
 type TimelineKeyframeRef = { trackId: string; keyframeId: string };
 type TimelineSelection = ReadonlyArray<TimelineKeyframeRef>;
 
-interface TimelineView { startFrame: number; endFrame: number } // visible window
+interface TimelineView {
+  startFrame: number;
+  endFrame: number;
+} // visible window
 ```
 
 ## Public API — `<Timeline>`
@@ -162,13 +168,15 @@ interface TimelineHandle {
   focus(): void;
   getElement(): HTMLDivElement | null;
   seek(frame: number): void;
-  play(): void; pause(): void; toggle(): void;
+  play(): void;
+  pause(): void;
+  toggle(): void;
   getFrame(): number;
   zoomToFit(paddingFrames?: number): void;
   zoomToSelection(): void;
   getView(): TimelineView;
-  frameToX(frame: number): number;   // time → CSS px (like worldToMinimap)
-  xToFrame(x: number): number;       // inverse
+  frameToX(frame: number): number; // time → CSS px (like worldToMinimap)
+  xToFrame(x: number): number; // inverse
 }
 ```
 
