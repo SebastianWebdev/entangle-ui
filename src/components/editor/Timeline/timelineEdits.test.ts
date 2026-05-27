@@ -5,6 +5,7 @@ import {
   moveSelectedKeyframes,
   moveSelectedKeyframesGraph,
   removeSelectedKeyframes,
+  setKeyframeTangent,
 } from './timelineEdits';
 import type { TimelineTrack } from './Timeline.types';
 
@@ -164,6 +165,64 @@ describe('timelineEdits', () => {
         true,
         0,
         100
+      );
+      expect(next[0]).toBe(locked[0]);
+    });
+  });
+
+  describe('setKeyframeTangent', () => {
+    it('sets the dragged handle and promotes auto to aligned', () => {
+      const tracks: TimelineTrack[] = [
+        { id: 't1', keyframes: [kf('a', 10, 0.5)] },
+      ];
+      const next = setKeyframeTangent(
+        tracks,
+        { trackId: 't1', keyframeId: 'a' },
+        'out',
+        { x: 4, y: 2 }
+      );
+      const a = track(next, 't1').keyframes.find(k => k.id === 'a');
+      expect(a?.handleOut).toEqual({ x: 4, y: 2 });
+      expect(a?.tangentMode).toBe('aligned');
+    });
+
+    it('mirrored makes the opposite handle the exact negation', () => {
+      const tracks: TimelineTrack[] = [
+        {
+          id: 't1',
+          keyframes: [
+            {
+              id: 'a',
+              x: 10,
+              y: 0,
+              handleIn: { x: -3, y: 0 },
+              handleOut: { x: 3, y: 0 },
+              tangentMode: 'mirrored',
+            },
+          ],
+        },
+      ];
+      const next = setKeyframeTangent(
+        tracks,
+        { trackId: 't1', keyframeId: 'a' },
+        'out',
+        { x: 4, y: 2 }
+      );
+      const a = track(next, 't1').keyframes.find(k => k.id === 'a');
+      expect(a?.handleOut).toEqual({ x: 4, y: 2 });
+      expect(a?.handleIn.x).toBeCloseTo(-4);
+      expect(a?.handleIn.y).toBeCloseTo(-2);
+    });
+
+    it('leaves locked tracks untouched', () => {
+      const locked: TimelineTrack[] = [
+        { id: 't1', locked: true, keyframes: [kf('a', 10, 0)] },
+      ];
+      const next = setKeyframeTangent(
+        locked,
+        { trackId: 't1', keyframeId: 'a' },
+        'in',
+        { x: -2, y: 1 }
       );
       expect(next[0]).toBe(locked[0]);
     });

@@ -5,7 +5,7 @@
 A horizontal, multi-track **animation timeline / dope sheet** for editor UIs. Each track is an animated property whose keyframes (the shared `CurveKeyframe` model, reused from `CurveEditor`) lie along a frame-based time axis. A playhead scrubs across all tracks; the view zooms and pans over time. Keyframes render on a perf-isolated canvas while chrome stays in the DOM.
 
 :::caution[In active development]
-Timeline is on the `etui-timeline` branch. **Working now:** rendering, scrubbing, zoom/pan, selection (click / shift / box-select), drag-move, add/delete, keyboard, the imperative handle, the track-header column, `Timeline.Toolbar` / `Timeline.Footer` slots, the built-in playback loop, **graph (curve) mode** — use the Dope sheet / Graph toggle in the demo toolbar below — and an accessibility baseline. **Still landing:** dragging bezier tangent handles in graph mode.
+Timeline is on the `etui-timeline` branch. **Working now:** rendering, scrubbing, zoom/pan, selection (click / shift / box-select), drag-move, add/delete, keyboard, the imperative handle, the track-header column, `Timeline.Toolbar` / `Timeline.Footer` slots, the built-in playback loop, **graph (curve) mode** with draggable keyframes + bezier tangent handles (use the Dope sheet / Graph toggle in the demo toolbar below), and an accessibility baseline. **Still landing:** track reordering, keyframe copy/paste, and loop-region drag UI.
 :::
 
 **Live Preview**
@@ -110,8 +110,9 @@ Time is expressed in **frames** with an `fps` prop that drives the
 Toggle `mode` between `'dope-sheet'` (keyframe timing, the default) and
 `'graph'` (value curves). In graph mode each track draws its animation curve
 — reusing the shared `CurveEditor` evaluation — with keyframe points you can
-drag in **time and value**, and tangent handles rendered for the selected
-keyframe. `mode` is controlled (`mode` / `defaultMode` / `onModeChange`).
+drag in **time and value**, plus **draggable bezier tangent handles** on the
+selected keyframe (honoring its `tangentMode`). `mode` is controlled
+(`mode` / `defaultMode` / `onModeChange`).
 
 ## Playback
 

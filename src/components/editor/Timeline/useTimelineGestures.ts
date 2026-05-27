@@ -13,7 +13,14 @@ import type {
   TimelineView,
 } from './Timeline.types';
 import type { TimelineStore } from './TimelineStore';
-import { clamp, snapFrame, xToFrame } from './timelineCoords';
+import {
+  autoValueRange,
+  clamp,
+  snapFrame,
+  trackTop,
+  xToFrame,
+  yToValue,
+} from './timelineCoords';
 import { hitTestTimeline, keyframesInRect } from './timelineHitTest';
 import {
   addKeyframe,
@@ -21,6 +28,7 @@ import {
   moveSelectedKeyframes,
   moveSelectedKeyframesGraph,
   removeSelectedKeyframes,
+  setKeyframeTangent,
 } from './timelineEdits';
 
 const CLICK_THRESHOLD_PX = 3;
@@ -64,7 +72,7 @@ export interface UseTimelineGesturesOptions extends TimelineGestureActions {
 
 interface PointerState {
   pointerId: number;
-  mode: 'scrub' | 'move' | 'marquee' | 'pan';
+  mode: 'scrub' | 'move' | 'marquee' | 'pan' | 'tangent';
   startX: number;
   startY: number;
   origTracks?: ReadonlyArray<TimelineTrack>;
@@ -72,6 +80,8 @@ interface PointerState {
   startFramePos?: number;
   startView?: TimelineView;
   additive?: boolean;
+  tangentRef?: TimelineKeyframeRef;
+  tangentWhich?: 'in' | 'out';
 }
 
 export interface UseTimelineGesturesReturn {
@@ -177,6 +187,8 @@ export function useTimelineGestures(
         frame: frameRef.current,
         showPlayhead: showPlayheadRef.current,
         mode: modeRef.current,
+        isSelected: (t, k) =>
+          selectionRef.current.some(r => r.trackId === t && r.keyframeId === k),
       }),
     [
       viewRef,
@@ -188,6 +200,7 @@ export function useTimelineGestures(
       frameRef,
       showPlayheadRef,
       modeRef,
+      selectionRef,
     ]
   );
 
@@ -232,6 +245,30 @@ export function useTimelineGestures(
     ]
   );
 
+  const tangentOffset = useCallback(
+    (state: PointerState, point: Point2D): { x: number; y: number } | null => {
+      const ref = state.tangentRef;
+      if (!ref) return null;
+      const tracks = state.origTracks ?? tracksRef.current;
+      const visible = tracks.filter(t => !t.hidden);
+      const index = visible.findIndex(t => t.id === ref.trackId);
+      const track = index >= 0 ? visible[index] : undefined;
+      if (!track) return null;
+      const kf = track.keyframes.find(k => k.id === ref.keyframeId);
+      if (!kf) return null;
+      const rowH = track.height ?? trackHeightRef.current;
+      const top =
+        rulerHeightRef.current +
+        trackTop(index, trackHeightRef.current, scrollTopRef.current);
+      const range = track.valueRange ?? autoValueRange(track.keyframes);
+      return {
+        x: xToFrame(point.x, viewRef.current, sizeRef.current.width) - kf.x,
+        y: yToValue(point.y, range, top, rowH) - kf.y,
+      };
+    },
+    [tracksRef, trackHeightRef, rulerHeightRef, scrollTopRef, viewRef, sizeRef]
+  );
+
   const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>): void => {
       const container = containerRef.current;
@@ -268,6 +305,22 @@ export function useTimelineGestures(
         };
         store.setDrag({ kind: 'scrub', marquee: null });
         seekLiveRef.current(xToFrame(point.x, view, width));
+        return;
+      }
+
+      if (hit.kind === 'tangent') {
+        e.preventDefault();
+        container.setPointerCapture(e.pointerId);
+        stateRef.current = {
+          pointerId: e.pointerId,
+          mode: 'tangent',
+          startX: point.x,
+          startY: point.y,
+          origTracks: tracksRef.current,
+          tangentRef: { trackId: hit.trackId, keyframeId: hit.keyframeId },
+          tangentWhich: hit.which,
+        };
+        store.setDrag({ kind: 'move', marquee: null });
         return;
       }
 
@@ -347,6 +400,20 @@ export function useTimelineGestures(
         });
         return;
       }
+      if (state.mode === 'tangent') {
+        const offset = tangentOffset(state, point);
+        if (offset && state.tangentRef && state.tangentWhich) {
+          setTracksRef.current(
+            setKeyframeTangent(
+              state.origTracks ?? tracksRef.current,
+              state.tangentRef,
+              state.tangentWhich,
+              offset
+            )
+          );
+        }
+        return;
+      }
       if (state.mode === 'move') {
         setTracksRef.current(moveFromState(state, point));
         return;
@@ -372,6 +439,7 @@ export function useTimelineGestures(
       setViewRef,
       setTracksRef,
       moveFromState,
+      tangentOffset,
     ]
   );
 
@@ -392,6 +460,18 @@ export function useTimelineGestures(
           seekCommitRef.current(xToFrame(point.x, view, size.width));
         } else if (state.mode === 'move') {
           commitTracksRef.current(moveFromState(state, point));
+        } else if (state.mode === 'tangent') {
+          const offset = tangentOffset(state, point);
+          if (offset && state.tangentRef && state.tangentWhich) {
+            commitTracksRef.current(
+              setKeyframeTangent(
+                state.origTracks ?? tracksRef.current,
+                state.tangentRef,
+                state.tangentWhich,
+                offset
+              )
+            );
+          }
         } else if (state.mode === 'marquee') {
           const rect = {
             x: Math.min(state.startX, point.x),
@@ -439,6 +519,7 @@ export function useTimelineGestures(
       scrollTopRef,
       rulerHeightRef,
       modeRef,
+      tangentOffset,
     ]
   );
 

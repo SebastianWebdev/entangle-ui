@@ -238,9 +238,10 @@ src/components/editor/Timeline/
   keyframe points are draggable in time + value (`moveSelectedKeyframesGraph`),
   and tangent handles render for the selected keyframe. Editing obeys
   `editable` / track `locked`.
-- **Deferred:** dragging the bezier tangent handles themselves (editing
-  `handleIn` / `handleOut` + tangent modes) — a follow-up that can reuse
-  CurveEditor's `useCurveInteraction` once it is extracted.
+- **Shipped (follow-up):** dragging the bezier tangent handles in graph mode
+  via `setKeyframeTangent` — promotes `auto`/`linear`/`step` to `aligned`,
+  keeps `aligned`/`mirrored` opposite handles collinear, leaves `free`
+  independent.
 
 ## Playback specifics (v1)
 

@@ -20,6 +20,12 @@ export type TimelineHit =
   | { kind: 'ruler' }
   | { kind: 'playhead' }
   | { kind: 'keyframe'; trackId: string; keyframeId: string }
+  | {
+      kind: 'tangent';
+      trackId: string;
+      keyframeId: string;
+      which: 'in' | 'out';
+    }
   | { kind: 'empty'; trackIndex: number }
   | { kind: 'outside' };
 
@@ -35,12 +41,16 @@ export interface TimelineHitInput {
   frame: number;
   showPlayhead: boolean;
   mode: TimelineMode;
+  /** Selection predicate — enables tangent-handle picking in graph mode. */
+  isSelected?: (trackId: string, keyframeId: string) => boolean;
 }
 
 /** Picking tolerance (CSS px) around a keyframe center on the X axis. */
 const KEYFRAME_PICK_X = 6;
 /** Picking tolerance (CSS px) around the playhead line. */
 const PLAYHEAD_PICK_X = 4;
+/** Picking tolerance (CSS px) around a graph-mode tangent handle endpoint. */
+const HANDLE_PICK_X = 6;
 
 /**
  * Resolve what's under a pointer: the ruler, the playhead line, a keyframe,
@@ -68,6 +78,35 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
         ? (track.valueRange ?? autoValueRange(track.keyframes))
         : null;
     const centerY = top + rowH / 2;
+
+    // Tangent handles (graph mode, selected keyframes) take pick priority.
+    if (range && input.isSelected) {
+      for (const kf of track.keyframes) {
+        if (kf.id === undefined || !input.isSelected(track.id, kf.id)) continue;
+        if (kf.tangentMode === 'linear' || kf.tangentMode === 'step') continue;
+        const inX = toX(kf.x + kf.handleIn.x);
+        const inY = valueToY(kf.y + kf.handleIn.y, range, top, rowH);
+        if (Math.hypot(point.x - inX, point.y - inY) <= HANDLE_PICK_X) {
+          return {
+            kind: 'tangent',
+            trackId: track.id,
+            keyframeId: kf.id,
+            which: 'in',
+          };
+        }
+        const outX = toX(kf.x + kf.handleOut.x);
+        const outY = valueToY(kf.y + kf.handleOut.y, range, top, rowH);
+        if (Math.hypot(point.x - outX, point.y - outY) <= HANDLE_PICK_X) {
+          return {
+            kind: 'tangent',
+            trackId: track.id,
+            keyframeId: kf.id,
+            which: 'out',
+          };
+        }
+      }
+    }
+
     for (const kf of track.keyframes) {
       if (kf.id === undefined) continue;
       const x = toX(kf.x);

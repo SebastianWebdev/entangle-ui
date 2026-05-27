@@ -1,5 +1,9 @@
 import type { CurveKeyframe } from '@/types/keyframe';
-import type { TimelineSelection, TimelineTrack } from './Timeline.types';
+import type {
+  TimelineKeyframeRef,
+  TimelineSelection,
+  TimelineTrack,
+} from './Timeline.types';
 import { autoValueRange, clamp, snapFrame } from './timelineCoords';
 
 function selKey(trackId: string, keyframeId: string): string {
@@ -125,5 +129,64 @@ export function addKeyframe(
     if (track.id !== trackId) return track;
     const keyframes = [...track.keyframes, keyframe].sort((a, b) => a.x - b.x);
     return { ...track, keyframes };
+  });
+}
+
+/**
+ * Apply a dragged tangent handle offset (domain units) to one keyframe,
+ * honoring its tangent mode. `auto` / `linear` / `step` are promoted to
+ * `aligned` on first drag; `aligned` keeps the opposite handle collinear at
+ * its current length; `mirrored` makes it the exact opposite; `free` moves
+ * only the dragged handle.
+ */
+function applyTangent(
+  kf: CurveKeyframe,
+  which: 'in' | 'out',
+  offset: { x: number; y: number }
+): CurveKeyframe {
+  const mode =
+    kf.tangentMode === 'auto' ||
+    kf.tangentMode === 'linear' ||
+    kf.tangentMode === 'step'
+      ? 'aligned'
+      : kf.tangentMode;
+
+  let handleIn = which === 'in' ? offset : kf.handleIn;
+  let handleOut = which === 'out' ? offset : kf.handleOut;
+
+  if (mode === 'aligned' || mode === 'mirrored') {
+    const draggedLen = Math.hypot(offset.x, offset.y);
+    const other = which === 'in' ? kf.handleOut : kf.handleIn;
+    const otherLen =
+      mode === 'mirrored' ? draggedLen : Math.hypot(other.x, other.y);
+    if (draggedLen > 1e-6) {
+      const opposite = {
+        x: (-offset.x / draggedLen) * otherLen,
+        y: (-offset.y / draggedLen) * otherLen,
+      };
+      if (which === 'in') handleOut = opposite;
+      else handleIn = opposite;
+    }
+  }
+
+  return { ...kf, handleIn, handleOut, tangentMode: mode };
+}
+
+/** Set one keyframe's in/out tangent handle to a new offset (domain units). */
+export function setKeyframeTangent(
+  tracks: ReadonlyArray<TimelineTrack>,
+  ref: TimelineKeyframeRef,
+  which: 'in' | 'out',
+  offset: { x: number; y: number }
+): TimelineTrack[] {
+  return tracks.map(track => {
+    if (track.id !== ref.trackId || track.locked) return track;
+    let changed = false;
+    const keyframes = track.keyframes.map(kf => {
+      if (kf.id !== ref.keyframeId) return kf;
+      changed = true;
+      return applyTangent(kf, which, offset);
+    });
+    return changed ? { ...track, keyframes } : track;
   });
 }
