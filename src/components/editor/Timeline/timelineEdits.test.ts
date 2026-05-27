@@ -142,6 +142,7 @@ describe('timelineEdits', () => {
         5,
         -6,
         20,
+        96,
         true,
         0,
         100
@@ -166,6 +167,7 @@ describe('timelineEdits', () => {
         5,
         -6,
         20,
+        96,
         true,
         0,
         100

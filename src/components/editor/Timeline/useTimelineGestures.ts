@@ -6,19 +6,19 @@ import { useLatest } from '@/hooks';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { ViewportSize } from '@/components/primitives/viewport';
 import type {
+  TimelineGroup,
   TimelineKeyframeRef,
   TimelineLoop,
-  TimelineMode,
   TimelineSelection,
   TimelineTrack,
   TimelineView,
 } from './Timeline.types';
+import type { TimelineRow, TrackGeometry } from './timelineLayout';
 import type { TimelineStore } from './TimelineStore';
 import {
   autoValueRange,
   clamp,
   snapFrame,
-  trackTop,
   xToFrame,
   yToValue,
 } from './timelineCoords';
@@ -51,6 +51,7 @@ export interface TimelineGestureActions {
   setView: (view: TimelineView) => void;
   setLoop: (loop: TimelineLoop) => void;
   scrollBy: (deltaPixels: number) => void;
+  setGroups: (groups: TimelineGroup[]) => void;
 }
 
 export interface UseTimelineGesturesOptions extends TimelineGestureActions {
@@ -71,7 +72,10 @@ export interface UseTimelineGesturesOptions extends TimelineGestureActions {
   allowAddKeyframe: boolean;
   allowDeleteKeyframe: boolean;
   showPlayhead: boolean;
-  mode: TimelineMode;
+  rows: ReadonlyArray<TimelineRow>;
+  trackTops: ReadonlyMap<string, TrackGeometry>;
+  expandedHeight: number;
+  groups: ReadonlyArray<TimelineGroup>;
   minFramesVisible: number;
   maxFramesVisible: number | undefined;
   loopRegion: { startFrame: number; endFrame: number } | null;
@@ -85,6 +89,7 @@ interface PointerState {
   startY: number;
   origTracks?: ReadonlyArray<TimelineTrack>;
   moveSelection?: TimelineSelection;
+  graphMove?: boolean;
   startFramePos?: number;
   startView?: TimelineView;
   additive?: boolean;
@@ -171,7 +176,10 @@ export function useTimelineGestures(
   const allowAddRef = useLatest(opts.allowAddKeyframe);
   const allowDeleteRef = useLatest(opts.allowDeleteKeyframe);
   const showPlayheadRef = useLatest(opts.showPlayhead);
-  const modeRef = useLatest(opts.mode);
+  const rowsRef = useLatest(opts.rows);
+  const trackTopsRef = useLatest(opts.trackTops);
+  const expandedHeightRef = useLatest(opts.expandedHeight);
+  const groupsRef = useLatest(opts.groups);
   const minFramesVisibleRef = useLatest(opts.minFramesVisible);
   const maxFramesVisibleRef = useLatest(opts.maxFramesVisible);
 
@@ -183,6 +191,7 @@ export function useTimelineGestures(
   const setViewRef = useLatest(opts.setView);
   const setLoopRef = useLatest(opts.setLoop);
   const scrollByRef = useLatest(opts.scrollBy);
+  const setGroupsRef = useLatest(opts.setGroups);
   const loopRegionRef = useLatest(opts.loopRegion);
   const maxScrollTopRef = useLatest(opts.maxScrollTop);
 
@@ -195,26 +204,24 @@ export function useTimelineGestures(
         point,
         view: viewRef.current,
         size: sizeRef.current,
-        tracks: tracksRef.current,
-        trackHeight: trackHeightRef.current,
+        rows: rowsRef.current,
         scrollTop: scrollTopRef.current,
         rulerHeight: rulerHeightRef.current,
         frame: frameRef.current,
         showPlayhead: showPlayheadRef.current,
-        mode: modeRef.current,
+        loopRegion: loopRegionRef.current,
         isSelected: (t, k) =>
           selectionRef.current.some(r => r.trackId === t && r.keyframeId === k),
       }),
     [
       viewRef,
       sizeRef,
-      tracksRef,
-      trackHeightRef,
+      rowsRef,
       scrollTopRef,
       rulerHeightRef,
       frameRef,
       showPlayheadRef,
-      modeRef,
+      loopRegionRef,
       selectionRef,
     ]
   );
@@ -227,13 +234,14 @@ export function useTimelineGestures(
       const delta = curFrame - (state.startFramePos ?? curFrame);
       const origTracks = state.origTracks ?? tracksRef.current;
       const sel = state.moveSelection ?? [];
-      if (modeRef.current === 'graph') {
+      if (state.graphMove) {
         return moveSelectedKeyframesGraph(
           origTracks,
           sel,
           delta,
           point.y - state.startY,
           trackHeightRef.current,
+          expandedHeightRef.current,
           snapRef.current,
           startFrameRef.current,
           endFrameRef.current
@@ -255,7 +263,7 @@ export function useTimelineGestures(
       snapRef,
       startFrameRef,
       endFrameRef,
-      modeRef,
+      expandedHeightRef,
       trackHeightRef,
     ]
   );
@@ -264,24 +272,21 @@ export function useTimelineGestures(
     (state: PointerState, point: Point2D): { x: number; y: number } | null => {
       const ref = state.tangentRef;
       if (!ref) return null;
+      const geom = trackTopsRef.current.get(ref.trackId);
+      if (!geom) return null;
       const tracks = state.origTracks ?? tracksRef.current;
-      const visible = tracks.filter(t => !t.hidden);
-      const index = visible.findIndex(t => t.id === ref.trackId);
-      const track = index >= 0 ? visible[index] : undefined;
-      if (!track) return null;
-      const kf = track.keyframes.find(k => k.id === ref.keyframeId);
-      if (!kf) return null;
-      const rowH = track.height ?? trackHeightRef.current;
-      const top =
-        rulerHeightRef.current +
-        trackTop(index, trackHeightRef.current, scrollTopRef.current);
+      const track = tracks.find(t => t.id === ref.trackId);
+      const kf = track?.keyframes.find(k => k.id === ref.keyframeId);
+      if (!track || !kf) return null;
+      const screenTop =
+        rulerHeightRef.current + geom.top - scrollTopRef.current;
       const range = track.valueRange ?? autoValueRange(track.keyframes);
       return {
         x: xToFrame(point.x, viewRef.current, sizeRef.current.width) - kf.x,
-        y: yToValue(point.y, range, top, rowH) - kf.y,
+        y: yToValue(point.y, range, screenTop, geom.height) - kf.y,
       };
     },
-    [tracksRef, trackHeightRef, rulerHeightRef, scrollTopRef, viewRef, sizeRef]
+    [trackTopsRef, tracksRef, rulerHeightRef, scrollTopRef, viewRef, sizeRef]
   );
 
   const onPointerDown = useCallback(
@@ -365,6 +370,16 @@ export function useTimelineGestures(
         return;
       }
 
+      if (hit.kind === 'group') {
+        const groups = groupsRef.current;
+        setGroupsRef.current(
+          groups.map(g =>
+            g.id === hit.groupId ? { ...g, collapsed: !g.collapsed } : g
+          )
+        );
+        return;
+      }
+
       if (hit.kind === 'keyframe') {
         const additive = e.shiftKey || e.ctrlKey || e.metaKey;
         const ref = { trackId: hit.trackId, keyframeId: hit.keyframeId };
@@ -380,6 +395,7 @@ export function useTimelineGestures(
             startY: point.y,
             origTracks: tracksRef.current,
             moveSelection: sel,
+            graphMove: trackTopsRef.current.get(hit.trackId)?.graph ?? false,
             startFramePos: xToFrame(point.x, view, width),
           };
           store.setDrag({ kind: 'move', marquee: null });
@@ -415,6 +431,9 @@ export function useTimelineGestures(
       editableRef,
       tracksRef,
       loopRegionRef,
+      groupsRef,
+      setGroupsRef,
+      trackTopsRef,
     ]
   );
 
@@ -556,14 +575,15 @@ export function useTimelineGestures(
             if (!state.additive) setSelectionRef.current([]);
           } else {
             const found = keyframesInRect(
-              rect,
+              {
+                x: rect.x,
+                y: rect.y - rulerHeightRef.current + scrollTopRef.current,
+                width: rect.width,
+                height: rect.height,
+              },
               view,
               size,
-              tracksRef.current,
-              trackHeightRef.current,
-              scrollTopRef.current,
-              rulerHeightRef.current,
-              modeRef.current
+              rowsRef.current
             );
             const base = state.additive ? selectionRef.current : [];
             setSelectionRef.current(mergeSelection(base, found));
@@ -585,10 +605,9 @@ export function useTimelineGestures(
       setSelectionRef,
       selectionRef,
       tracksRef,
-      trackHeightRef,
+      rowsRef,
       scrollTopRef,
       rulerHeightRef,
-      modeRef,
       tangentOffset,
     ]
   );
@@ -610,8 +629,7 @@ export function useTimelineGestures(
       const point = localPoint(e, container);
       const hit = hitAt(point);
       if (hit.kind !== 'empty') return;
-      const visible = tracksRef.current.filter(t => !t.hidden);
-      const track = visible[hit.trackIndex];
+      const track = tracksRef.current.find(t => t.id === hit.trackId);
       if (!track || track.locked) return;
       const view = viewRef.current;
       const width = sizeRef.current.width;

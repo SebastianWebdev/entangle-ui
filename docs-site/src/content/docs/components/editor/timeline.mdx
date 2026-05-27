@@ -8,8 +8,16 @@ import TimelineDemo from '../../../../components/demos/editor/TimelineDemo';
 
 A horizontal, multi-track **animation timeline / dope sheet** for editor UIs. Each track is an animated property whose keyframes (the shared `CurveKeyframe` model, reused from `CurveEditor`) lie along a frame-based time axis. A playhead scrubs across all tracks; the view zooms and pans over time. Keyframes render on a perf-isolated canvas while chrome stays in the DOM.
 
-:::caution[In active development]
-Timeline is on the `etui-timeline` branch. **Working now:** rendering, scrubbing, zoom/pan, selection (click / shift / box-select), drag-move, add/delete, keyboard, the imperative handle, the track-header column, `Timeline.Toolbar` / `Timeline.Footer` slots, the built-in playback loop, **graph (curve) mode** with draggable keyframes + bezier tangent handles (use the Dope sheet / Graph toggle in the demo toolbar below), and an accessibility baseline. **Still landing:** per-track graph expansion and track groups.
+:::caution[Alpha]
+Timeline is published on the `entangle-ui@alpha` line and still evolving.
+Working today: rendering, scrubbing, zoom/pan, selection (click / shift /
+box-select), drag-move, add/delete, keyboard, the imperative handle, the
+track-header column with reorder, `Timeline.Toolbar` / `Timeline.Footer`
+slots, the built-in playback loop with a draggable loop region, **graph
+(curve) mode** with draggable keyframes + bezier tangent handles (use the
+Dope sheet / Graph toggle in the demo toolbar below), **track groups**
+(collapsible folders), **per-track expand-to-graph**, vertical scrolling for
+overflowing tracks, and an accessibility baseline.
 :::
 
 <ComponentPreview title="Live Preview">
@@ -89,7 +97,9 @@ wrapper a height — or pass a fixed `height={number}`.
 | Ctrl/Cmd + C / V                         | Copy / paste the selected keyframes at the playhead    |
 
 Hold **Ctrl** while dragging to momentarily disable snap-to-frame. Drag a
-track's header row to **reorder** tracks (built-in header only).
+track's header row to **reorder** tracks (built-in header only). Click a group
+header (or its caret) to **collapse / expand** the group; use a track's
+disclosure caret to **expand it to a graph lane**.
 
 ## Imperative handle
 
@@ -122,6 +132,46 @@ Toggle `mode` between `'dope-sheet'` (keyframe timing, the default) and
 drag in **time and value**, plus **draggable bezier tangent handles** on the
 selected keyframe (honoring its `tangentMode`). `mode` is controlled
 (`mode` / `defaultMode` / `onModeChange`).
+
+### Per-track expand-to-graph
+
+In dope-sheet mode, an individual track can open its value curve in place —
+set `expanded: true` on the track (or use the disclosure caret in its header).
+Expanded tracks render a taller graph lane (`expandedTrackHeight`, default
+`96`) with the same draggable points and tangent handles as global graph mode,
+while the rest stay compact. This lets you tweak one channel's curve without
+leaving the dope sheet.
+
+## Track groups
+
+Organize related tracks into collapsible folders. A track joins a group via
+`groupId`; the `groups` prop lists the groups in order:
+
+```tsx
+<Timeline
+  tracks={tracks} // each with groupId: 'transform' | 'material' | …
+  groups={[
+    { id: 'transform', label: 'Transform' },
+    { id: 'material', label: 'Material', collapsed: true },
+  ]}
+  onGroupsChange={setGroups}
+/>
+```
+
+Each group renders a header row (in both the header column and the canvas);
+clicking it — or its caret — toggles `collapsed`, hiding the group's tracks.
+Groups are controlled or uncontrolled (`groups` / `onGroupsChange`); a
+`collapsed` flag on a group sets its initial state. Grouped track headers are
+indented under their group. Tune the header height with `groupHeaderHeight`
+(default `22`).
+
+## Vertical scrolling
+
+When tracks overflow the available height the track area scrolls vertically: a
+plain mouse **wheel** scrolls the rows (the time ruler stays pinned), while
+**Ctrl/Cmd + wheel** zooms the time axis instead. Row layout (group headers,
+expanded lanes, variable `height` overrides) is computed once and shared by the
+canvas, hit-testing, and the header column so everything stays aligned.
 
 ## Playback
 

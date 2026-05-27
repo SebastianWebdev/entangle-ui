@@ -16,6 +16,7 @@ import { vars } from '@/theme/contract.css';
 import { resolveVarValue } from '@/components/primitives/canvas/canvasTheme';
 import type { ViewportSize } from '@/components/primitives/viewport';
 import type {
+  TimelineGroup,
   TimelineLoop,
   TimelineMode,
   TimelineProps,
@@ -37,6 +38,7 @@ import {
   ariaLiveRegionStyle,
 } from './Timeline.css';
 import { TimelineTrackHeaders } from './TimelineTrackHeaders';
+import { computeRows } from './timelineLayout';
 import {
   clamp,
   framesToTimecode,
@@ -148,7 +150,11 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     loop,
     defaultLoop,
     onLoopChange,
+    groups,
+    onGroupsChange,
     trackHeight = 28,
+    expandedTrackHeight = 96,
+    groupHeaderHeight = 22,
     showRuler = true,
     showPlayhead = true,
     trackHeaderWidth = 160,
@@ -220,6 +226,41 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
   const loopRegion = useMemo(
     () => resolveLoop(loopState, startFrame, endFrame),
     [loopState, startFrame, endFrame]
+  );
+
+  // ── Groups (controlled or uncontrolled) ──
+
+  const [internalGroups, setInternalGroups] = useState<
+    ReadonlyArray<TimelineGroup>
+  >(groups ?? []);
+  const groupsState = groups ?? internalGroups;
+  const setGroups = useCallback(
+    (next: TimelineGroup[]): void => {
+      if (groups === undefined) setInternalGroups(next);
+      onGroupsChange?.(next);
+    },
+    [groups, onGroupsChange]
+  );
+
+  // ── Row layout (variable heights: expanded lanes + group headers) ──
+
+  const layout = useMemo(
+    () =>
+      computeRows(tracks, {
+        trackHeight,
+        expandedHeight: expandedTrackHeight,
+        groupHeaderHeight,
+        globalGraph: modeState === 'graph',
+        groups: groupsState,
+      }),
+    [
+      tracks,
+      trackHeight,
+      expandedTrackHeight,
+      groupHeaderHeight,
+      modeState,
+      groupsState,
+    ]
   );
 
   // ── Store ──
@@ -318,6 +359,26 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     },
     [setTracksLive, commitTracks]
   );
+  const handleToggleTrackExpanded = useCallback(
+    (trackId: string): void => {
+      const next = tracks.map(t =>
+        t.id === trackId ? { ...t, expanded: !t.expanded } : t
+      );
+      setTracksLive(next);
+      commitTracks(next);
+    },
+    [tracks, setTracksLive, commitTracks]
+  );
+  const handleToggleGroupCollapsed = useCallback(
+    (groupId: string): void => {
+      setGroups(
+        groupsState.map(g =>
+          g.id === groupId ? { ...g, collapsed: !g.collapsed } : g
+        )
+      );
+    },
+    [groupsState, setGroups]
+  );
 
   // ── View helpers + imperative handle ──
 
@@ -392,12 +453,10 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
   // ── Vertical scroll ──
 
   const rulerHeight = showRuler ? RULER_HEIGHT : 0;
-  const visibleCount = useMemo(
-    () => tracks.filter(t => !t.hidden).length,
-    [tracks]
+  const maxScrollTop = Math.max(
+    0,
+    layout.contentHeight - (size.height - rulerHeight)
   );
-  const contentHeight = visibleCount * trackHeight;
-  const maxScrollTop = Math.max(0, contentHeight - (size.height - rulerHeight));
 
   useLayoutEffect(() => {
     setScrollTop(s => Math.min(s, maxScrollTop));
@@ -430,7 +489,10 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     allowAddKeyframe,
     allowDeleteKeyframe,
     showPlayhead,
-    mode: modeState,
+    rows: layout.rows,
+    trackTops: layout.trackTops,
+    expandedHeight: expandedTrackHeight,
+    groups: groupsState,
     minFramesVisible,
     maxFramesVisible,
     loopRegion,
@@ -443,6 +505,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     setView,
     setLoop,
     scrollBy,
+    setGroups,
   });
 
   // Native non-passive wheel listener (React onWheel is passive).
@@ -498,6 +561,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
         ),
         playhead:
           playheadColor ?? resolveVarValue(canvas, vars.colors.accent.primary),
+        groupHeader: resolveVarValue(canvas, vars.colors.background.elevated),
       };
 
       const selKeys = new Set(
@@ -512,10 +576,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
         endFrame,
         fps,
         frame: frameState,
-        tracks,
-        trackHeight,
+        rows: layout.rows,
         scrollTop,
-        mode: modeState,
         rulerHeight,
         showPlayhead,
         colors,
@@ -531,16 +593,14 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     size,
     viewState,
     frameState,
-    tracks,
+    layout.rows,
     selectionState,
     startFrame,
     endFrame,
     fps,
-    trackHeight,
     scrollTop,
     rulerHeight,
     showPlayhead,
-    modeState,
     backgroundColor,
     playheadColor,
     drag.marquee,
@@ -590,15 +650,19 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
         {slots.toolbar}
         <div className={timelineMainRowStyle}>
           <TimelineTrackHeaders
+            rows={layout.rows}
+            contentHeight={layout.contentHeight}
             tracks={tracks}
-            trackHeight={trackHeight}
             rulerHeight={rulerHeight}
             scrollTop={scrollTop}
             width={trackHeaderWidth}
             selection={selectionState}
             editable={editable}
+            allowExpand={modeState !== 'graph'}
             renderTrackHeader={renderTrackHeader}
             onReorderTracks={handleReorderTracks}
+            onToggleGroupCollapsed={handleToggleGroupCollapsed}
+            onToggleTrackExpanded={handleToggleTrackExpanded}
           />
           <div
             ref={bodyRef}

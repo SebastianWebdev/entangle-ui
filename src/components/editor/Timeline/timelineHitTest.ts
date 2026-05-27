@@ -1,14 +1,10 @@
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { ViewportSize } from '@/components/primitives/viewport';
-import type {
-  TimelineKeyframeRef,
-  TimelineMode,
-  TimelineTrack,
-  TimelineView,
-} from './Timeline.types';
-import { autoValueRange, frameToX, trackTop, valueToY } from './timelineCoords';
+import type { TimelineKeyframeRef, TimelineView } from './Timeline.types';
+import type { TimelineRow } from './timelineLayout';
+import { autoValueRange, frameToX, valueToY } from './timelineCoords';
 
-/** Axis-aligned rectangle in track-area (CSS-pixel) coordinates. */
+/** Axis-aligned rectangle in content-space (CSS-pixel) coordinates. */
 export interface TimelineScreenRect {
   x: number;
   y: number;
@@ -22,6 +18,7 @@ export type TimelineHit =
   | { kind: 'loop-start' }
   | { kind: 'loop-end' }
   | { kind: 'loop-body' }
+  | { kind: 'group'; groupId: string }
   | { kind: 'keyframe'; trackId: string; keyframeId: string }
   | {
       kind: 'tangent';
@@ -29,7 +26,7 @@ export type TimelineHit =
       keyframeId: string;
       which: 'in' | 'out';
     }
-  | { kind: 'empty'; trackIndex: number }
+  | { kind: 'empty'; trackId: string }
   | { kind: 'outside' };
 
 export interface TimelineHitInput {
@@ -37,37 +34,30 @@ export interface TimelineHitInput {
   point: Point2D;
   view: TimelineView;
   size: ViewportSize;
-  tracks: ReadonlyArray<TimelineTrack>;
-  trackHeight: number;
+  /** Pre-computed rows (group headers + track lanes). */
+  rows: ReadonlyArray<TimelineRow>;
   scrollTop: number;
   rulerHeight: number;
   frame: number;
   showPlayhead: boolean;
-  mode: TimelineMode;
   /** Selection predicate — enables tangent-handle picking in graph mode. */
   isSelected?: (trackId: string, keyframeId: string) => boolean;
   /** Resolved loop region — enables loop-edge / body picking on the ruler. */
   loopRegion?: { startFrame: number; endFrame: number } | null;
 }
 
-/** Picking tolerance (CSS px) around a keyframe center on the X axis. */
 const KEYFRAME_PICK_X = 6;
-/** Picking tolerance (CSS px) around the playhead line. */
 const PLAYHEAD_PICK_X = 4;
-/** Picking tolerance (CSS px) around a graph-mode tangent handle endpoint. */
 const HANDLE_PICK_X = 6;
-/** Picking tolerance (CSS px) around a loop-region edge on the ruler. */
 const LOOP_EDGE_PICK_X = 5;
 
 /**
- * Resolve what's under a pointer: the ruler, the playhead line, a keyframe,
- * an empty track row, or outside the content. Keyframes take priority over
- * the playhead so editing wins over scrubbing when they overlap.
+ * Resolve what's under a pointer: ruler / loop handles, a group header, a
+ * keyframe, a graph tangent handle, an empty track row, or outside. Works in
+ * content space (scroll-adjusted), iterating the pre-computed rows.
  */
 export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
-  const { point, view, size, tracks, trackHeight, scrollTop, rulerHeight } =
-    input;
-
+  const { point, view, size, rows, scrollTop, rulerHeight } = input;
   const toX = (f: number): number => frameToX(f, view, size.width);
 
   if (point.y < rulerHeight) {
@@ -84,29 +74,29 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
     return { kind: 'ruler' };
   }
 
-  const visible = tracks.filter(t => !t.hidden);
+  const contentY = point.y - rulerHeight + scrollTop;
+  const playheadX = input.showPlayhead ? toX(input.frame) : null;
+  const nearPlayhead =
+    playheadX !== null && Math.abs(point.x - playheadX) <= PLAYHEAD_PICK_X;
 
-  // Keyframes (topmost row first is irrelevant — rows don't overlap on Y).
-  for (let index = 0; index < visible.length; index += 1) {
-    const track = visible[index];
-    if (!track) continue;
-    const rowH = track.height ?? trackHeight;
-    const top = rulerHeight + trackTop(index, trackHeight, scrollTop);
-    if (point.y < top || point.y > top + rowH) continue;
-    const range =
-      input.mode === 'graph'
-        ? (track.valueRange ?? autoValueRange(track.keyframes))
-        : null;
+  for (const row of rows) {
+    if (contentY < row.top || contentY >= row.top + row.height) continue;
+    if (row.kind === 'group') return { kind: 'group', groupId: row.group.id };
+
+    const track = row.track;
+    const { top, height: rowH } = row;
+    const range = row.graph
+      ? (track.valueRange ?? autoValueRange(track.keyframes))
+      : null;
     const centerY = top + rowH / 2;
 
-    // Tangent handles (graph mode, selected keyframes) take pick priority.
     if (range && input.isSelected) {
       for (const kf of track.keyframes) {
         if (kf.id === undefined || !input.isSelected(track.id, kf.id)) continue;
         if (kf.tangentMode === 'linear' || kf.tangentMode === 'step') continue;
         const inX = toX(kf.x + kf.handleIn.x);
         const inY = valueToY(kf.y + kf.handleIn.y, range, top, rowH);
-        if (Math.hypot(point.x - inX, point.y - inY) <= HANDLE_PICK_X) {
+        if (Math.hypot(point.x - inX, contentY - inY) <= HANDLE_PICK_X) {
           return {
             kind: 'tangent',
             trackId: track.id,
@@ -116,7 +106,7 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
         }
         const outX = toX(kf.x + kf.handleOut.x);
         const outY = valueToY(kf.y + kf.handleOut.y, range, top, rowH);
-        if (Math.hypot(point.x - outX, point.y - outY) <= HANDLE_PICK_X) {
+        if (Math.hypot(point.x - outX, contentY - outY) <= HANDLE_PICK_X) {
           return {
             kind: 'tangent',
             trackId: track.id,
@@ -133,68 +123,53 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
       if (Math.abs(point.x - x) > KEYFRAME_PICK_X) continue;
       const py = range ? valueToY(kf.y, range, top, rowH) : centerY;
       const yTol = range ? KEYFRAME_PICK_X : rowH / 2;
-      if (Math.abs(point.y - py) <= yTol) {
+      if (Math.abs(contentY - py) <= yTol) {
         return { kind: 'keyframe', trackId: track.id, keyframeId: kf.id };
       }
     }
+
+    if (nearPlayhead) return { kind: 'playhead' };
+    return { kind: 'empty', trackId: track.id };
   }
 
-  if (input.showPlayhead) {
-    const px = toX(input.frame);
-    if (Math.abs(point.x - px) <= PLAYHEAD_PICK_X) {
-      return { kind: 'playhead' };
-    }
-  }
-
-  const trackIndex = Math.floor(
-    (point.y - rulerHeight + scrollTop) / trackHeight
-  );
-  if (trackIndex >= 0 && trackIndex < visible.length) {
-    return { kind: 'empty', trackIndex };
-  }
+  if (nearPlayhead) return { kind: 'playhead' };
   return { kind: 'outside' };
 }
 
 /**
- * All keyframes whose center falls inside a marquee rectangle (track-area px).
+ * All keyframes whose center falls inside a content-space marquee rectangle.
  * Used for box selection.
  */
 export function keyframesInRect(
   rect: TimelineScreenRect,
   view: TimelineView,
   size: ViewportSize,
-  tracks: ReadonlyArray<TimelineTrack>,
-  trackHeight: number,
-  scrollTop: number,
-  rulerHeight: number,
-  mode: TimelineMode
+  rows: ReadonlyArray<TimelineRow>
 ): TimelineKeyframeRef[] {
   const x0 = Math.min(rect.x, rect.x + rect.width);
   const x1 = Math.max(rect.x, rect.x + rect.width);
   const y0 = Math.min(rect.y, rect.y + rect.height);
   const y1 = Math.max(rect.y, rect.y + rect.height);
   const toX = (f: number): number => frameToX(f, view, size.width);
-  const visible = tracks.filter(t => !t.hidden);
   const result: TimelineKeyframeRef[] = [];
 
-  visible.forEach((track, index) => {
-    const rowH = track.height ?? trackHeight;
-    const top = rulerHeight + trackTop(index, trackHeight, scrollTop);
-    const range =
-      mode === 'graph'
-        ? (track.valueRange ?? autoValueRange(track.keyframes))
-        : null;
-    const centerY = top + rowH / 2;
+  for (const row of rows) {
+    if (row.kind !== 'track') continue;
+    const { track, top, height } = row;
+    const range = row.graph
+      ? (track.valueRange ?? autoValueRange(track.keyframes))
+      : null;
+    const centerY = top + height / 2;
     for (const kf of track.keyframes) {
       if (kf.id === undefined) continue;
       const x = toX(kf.x);
       if (x < x0 || x > x1) continue;
-      const py = range ? valueToY(kf.y, range, top, rowH) : centerY;
+      const py = range ? valueToY(kf.y, range, top, height) : centerY;
       if (py >= y0 && py <= y1) {
         result.push({ trackId: track.id, keyframeId: kf.id });
       }
     }
-  });
+  }
 
   return result;
 }

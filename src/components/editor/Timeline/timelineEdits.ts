@@ -74,6 +74,7 @@ export function moveSelectedKeyframesGraph(
   deltaFrames: number,
   deltaYPixels: number,
   trackHeight: number,
+  expandedHeight: number,
   snap: boolean | number,
   min: number,
   max: number
@@ -85,7 +86,8 @@ export function moveSelectedKeyframesGraph(
       kf => kf.id !== undefined && keys.has(selKey(track.id, kf.id))
     );
     if (!keyMatches) return track;
-    const rowH = track.height ?? trackHeight;
+    const rowH =
+      track.height ?? (track.expanded ? expandedHeight : trackHeight);
     const range = track.valueRange ?? autoValueRange(track.keyframes);
     const inset = Math.min(8, rowH * 0.2);
     const usable = Math.max(1e-6, rowH - inset * 2);

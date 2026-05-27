@@ -3,17 +3,11 @@ import { evaluateCurve } from '@/components/controls/CurveEditor';
 import type { CurveData } from '@/types/keyframe';
 import type {
   TimelineDrawInfo,
-  TimelineMode,
   TimelineTrack,
   TimelineView,
 } from './Timeline.types';
-import {
-  autoValueRange,
-  frameToX,
-  trackTop,
-  valueToY,
-  xToFrame,
-} from './timelineCoords';
+import type { TimelineRow } from './timelineLayout';
+import { autoValueRange, frameToX, valueToY, xToFrame } from './timelineCoords';
 
 export interface TimelineDrawColors {
   background: string;
@@ -24,6 +18,7 @@ export interface TimelineDrawColors {
   keyframeSelected: string;
   keyframeStroke: string;
   playhead: string;
+  groupHeader: string;
 }
 
 export interface TimelineDrawInput {
@@ -35,11 +30,9 @@ export interface TimelineDrawInput {
   endFrame: number;
   fps: number;
   frame: number;
-  tracks: ReadonlyArray<TimelineTrack>;
-  trackHeight: number;
+  /** Pre-computed rows (group headers + track lanes), in draw order. */
+  rows: ReadonlyArray<TimelineRow>;
   scrollTop: number;
-  /** Dope-sheet (keyframe dots) or graph (value curves) rendering. */
-  mode: TimelineMode;
   /** Height of the top ruler band in CSS px (0 when hidden). */
   rulerHeight: number;
   showPlayhead: boolean;
@@ -163,10 +156,8 @@ export function drawTimeline(input: TimelineDrawInput): void {
     endFrame,
     fps,
     frame,
-    tracks,
-    trackHeight,
+    rows,
     scrollTop,
-    mode,
     rulerHeight,
     showPlayhead,
     colors,
@@ -245,20 +236,28 @@ export function drawTimeline(input: TimelineDrawInput): void {
   ctx.rect(0, rulerHeight, size.width, Math.max(0, size.height - rulerHeight));
   ctx.clip();
 
-  const visible = tracks.filter(t => !t.hidden);
-  visible.forEach((track, index) => {
-    const rowH = track.height ?? trackHeight;
-    const top = rulerHeight + trackTop(index, trackHeight, scrollTop);
+  for (const row of rows) {
+    const top = rulerHeight + row.top - scrollTop;
     // Virtualize: skip rows scrolled out of the track area.
-    if (top + rowH < rulerHeight || top > size.height) return;
+    if (top + row.height < rulerHeight || top > size.height) continue;
 
+    if (row.kind === 'group') {
+      ctx.fillStyle = colors.groupHeader;
+      ctx.fillRect(0, top, size.width, row.height);
+      ctx.fillStyle = colors.rowSeparator;
+      ctx.fillRect(0, top + row.height - 1, size.width, 1);
+      continue;
+    }
+
+    const track = row.track;
+    const rowH = row.height;
     ctx.fillStyle = colors.rowSeparator;
     ctx.fillRect(0, top + rowH - 1, size.width, 1);
 
     const accent = track.color ?? colors.keyframe;
-    if (mode === 'graph') {
+    if (row.graph) {
       drawGraphLane(input, track, top, rowH, accent);
-      return;
+      continue;
     }
 
     const centerY = top + rowH / 2;
@@ -273,7 +272,7 @@ export function drawTimeline(input: TimelineDrawInput): void {
       ctx.strokeStyle = colors.keyframeStroke;
       ctx.stroke();
     }
-  });
+  }
 
   if (renderOverlay) {
     const info: TimelineDrawInfo = {

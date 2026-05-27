@@ -2,6 +2,7 @@ import { useState } from 'react';
 import DemoWrapper from '../DemoWrapper';
 import {
   Timeline,
+  type TimelineGroup,
   type TimelineMode,
   type TimelineTrack,
 } from '@/components/editor/Timeline';
@@ -26,29 +27,40 @@ const INITIAL_TRACKS: TimelineTrack[] = [
   {
     id: 'pos-x',
     label: 'Position X',
+    groupId: 'transform',
     keyframes: [kf('a', 0, 0), kf('b', 24, 120), kf('c', 60, 40)],
   },
   {
     id: 'pos-y',
     label: 'Position Y',
+    groupId: 'transform',
     color: '#e0a64b',
     keyframes: [kf('d', 0, 0), kf('e', 36, 80)],
   },
   {
+    id: 'scale',
+    label: 'Scale',
+    groupId: 'transform',
+    expanded: true,
+    keyframes: [kf('i', 12, 1), kf('j', 60, 2)],
+  },
+  {
     id: 'opacity',
     label: 'Opacity',
+    groupId: 'material',
     color: '#5bbf7b',
     keyframes: [kf('f', 0, 1), kf('g', 48, 0), kf('h', 72, 1)],
   },
-  {
-    id: 'scale',
-    label: 'Scale',
-    keyframes: [kf('i', 12, 1), kf('j', 60, 2)],
-  },
+];
+
+const INITIAL_GROUPS: TimelineGroup[] = [
+  { id: 'transform', label: 'Transform' },
+  { id: 'material', label: 'Material' },
 ];
 
 export default function TimelineDemo() {
   const [tracks, setTracks] = useState<TimelineTrack[]>(INITIAL_TRACKS);
+  const [groups, setGroups] = useState<TimelineGroup[]>(INITIAL_GROUPS);
   const [frame, setFrame] = useState(18);
   const [mode, setMode] = useState<TimelineMode>('dope-sheet');
   const [playing, setPlaying] = useState(false);
@@ -59,6 +71,8 @@ export default function TimelineDemo() {
         <Timeline
           tracks={tracks}
           onTracksChange={setTracks}
+          groups={groups}
+          onGroupsChange={setGroups}
           endFrame={72}
           fps={24}
           frame={frame}

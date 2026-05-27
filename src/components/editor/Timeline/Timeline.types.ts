@@ -36,8 +36,20 @@ export interface TimelineTrack {
   locked?: boolean;
   /** Collapsed / not drawn. */
   hidden?: boolean;
+  /** Expand this track into a graph (curve) lane regardless of the global mode. */
+  expanded?: boolean;
+  /** Group this track belongs to (matches a `TimelineGroup.id`). */
+  groupId?: string;
   /** Row-height override (CSS px). */
   height?: number;
+}
+
+/** A collapsible group of tracks (matched by `TimelineTrack.groupId`). */
+export interface TimelineGroup {
+  id: string;
+  label?: string;
+  color?: string;
+  collapsed?: boolean;
 }
 
 /** A reference to one keyframe on one track. */
@@ -217,8 +229,17 @@ export interface TimelineBaseProps extends Omit<
   /** Fires when the loop region is dragged on the ruler. */
   onLoopChange?: (loop: TimelineLoop) => void;
 
+  /** Track groups (collapsible). Tracks join a group via `groupId`. */
+  groups?: ReadonlyArray<TimelineGroup>;
+  /** Fires when a group is collapsed / expanded via its header. */
+  onGroupsChange?: (groups: TimelineGroup[]) => void;
+
   /** Default row height in CSS px. @default 28 */
   trackHeight?: number;
+  /** Row height for a graph-expanded track in CSS px. @default 96 */
+  expandedTrackHeight?: number;
+  /** Group header row height in CSS px. @default 22 */
+  groupHeaderHeight?: number;
   /** Show the time ruler. @default true */
   showRuler?: boolean;
   /** Show the playhead. @default true */

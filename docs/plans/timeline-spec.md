@@ -45,16 +45,24 @@ with bezier tangents), reusing the existing CurveEditor.
 - Optional built-in playback loop (rAF advancing `frame` at `fps`), play/pause/loop.
 - Imperative handle. A11y baseline (roles, keyboard, labels).
 
-**Deferred (post-v1):**
+**Shipped in this PR (beyond the original v1 cut):**
 
-- Track groups / folders / nesting.
-- Track reorder (drag).
+- Track reorder (header drag).
+- Loop-region drag UI (draggable edges + body).
+- Copy / paste keyframes (Ctrl/Cmd + C / V at the playhead).
+- Vertical track scroll + lightweight row culling (skip off-screen rows in
+  draw + hit-test; the shared row layout is the seam for full windowing later).
+- Track groups / folders (flat `groupId` + `groups` prop, collapsible).
+- Per-track expand-to-graph (`track.expanded` → taller in-place graph lane).
+
+**Still deferred / excluded:**
+
 - Clips / ranges / segments (explicitly excluded per decision 1).
-- Per-track expand-to-graph (v1 uses a global mode toggle).
-- Loop-region drag UI, ripple edit, copy/paste keyframes.
-- Row virtualization (add only if real track counts demand it — same
-  `@tanstack/react-virtual` pattern as DataTable).
-- Audio waveforms, onion-skin.
+- Ripple edit.
+- `@tanstack/react-virtual`-style windowing (add only if real track counts
+  demand it — the `computeRows` layout is the seam to slot it in).
+- Audio waveforms, onion-skin (niche; excluded by user decision).
+- Nested groups (current model is flat: one `groupId` per track).
 
 ## Data model
 
@@ -290,6 +298,15 @@ Reviewable commits, in order:
 7. **Graph mode** — curve lanes reusing CurveEditor; mode toggle.
 8. **Handle + a11y** — imperative handle, roles/labels/keyboard matrix.
 9. **Docs + changeset** — MDX docs page in `docs-site/`, `minor` changeset, exports from `editor/index.ts` + `src/index.ts`.
+
+Follow-on commits in the same PR (deferred items, after sign-off):
+
+10. **Loop-region drag UI** — draggable loop edges + body on the ruler/track area.
+11. **Copy / paste keyframes** — clipboard with relative offsets, paste at playhead.
+12. **Track reorder** — header-drag reorder with a drop indicator.
+13. **Vertical scroll** — wheel scrolls overflowing rows; ruler stays pinned.
+14. **Row layout seam** — `computeRows` shared by draw / hit-test / headers; off-screen row culling.
+15. **Groups + per-track expand-to-graph** — collapsible `groupId`/`groups` folders and `track.expanded` graph lanes, both riding the variable-row layout.
 
 ## Testing / docs / release
 

@@ -169,6 +169,7 @@ export type {
   TimelineView,
   TimelineMode,
   TimelineLoop,
+  TimelineGroup,
   TimelineInfinity,
   TimelineHandle,
   TimelineDrawInfo,

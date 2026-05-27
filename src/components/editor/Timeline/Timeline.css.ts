@@ -91,9 +91,19 @@ export const timelineHeaderSpacerStyle = style({
   borderBottom: `1px solid ${vars.colors.border.default}`,
 });
 
+/** Scroll viewport for the header rows (clips + hosts the translated stack). */
+export const timelineHeaderRowsViewportStyle = style({
+  position: 'relative',
+  flex: 1,
+  minHeight: 0,
+  overflow: 'hidden',
+});
+
 export const timelineHeaderRowStyle = style({
   boxSizing: 'border-box',
-  flexShrink: 0,
+  position: 'absolute',
+  left: 0,
+  right: 0,
   display: 'flex',
   alignItems: 'center',
   gap: vars.spacing.xs,
@@ -115,6 +125,51 @@ export const timelineHeaderRowStyle = style({
     },
     '&[data-dragging]': {
       opacity: 0.4,
+    },
+  },
+});
+
+/** Group header row in the left column — collapse caret + label. */
+export const timelineHeaderGroupRowStyle = style({
+  boxSizing: 'border-box',
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.xs,
+  padding: `0 ${vars.spacing.xs}`,
+  background: vars.colors.background.elevated,
+  borderBottom: `1px solid ${vars.colors.border.default}`,
+  fontSize: vars.typography.fontSize.xs,
+  fontWeight: vars.typography.fontWeight.medium,
+  color: vars.colors.text.primary,
+  cursor: 'pointer',
+  overflow: 'hidden',
+});
+
+/** Small caret / disclosure button shared by group + expand toggles. */
+export const timelineHeaderToggleStyle = style({
+  flexShrink: 0,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: 14,
+  height: 14,
+  padding: 0,
+  border: 'none',
+  background: 'transparent',
+  color: vars.colors.text.muted,
+  cursor: 'pointer',
+  borderRadius: 2,
+  transition: `transform ${vars.transitions.fast}`,
+  selectors: {
+    '&[data-open]': {
+      transform: 'rotate(90deg)',
+    },
+    '&:hover': {
+      color: vars.colors.text.primary,
+      background: vars.colors.surface.hover,
     },
   },
 });
