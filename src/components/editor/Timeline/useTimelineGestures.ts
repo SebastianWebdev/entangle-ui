@@ -7,6 +7,7 @@ import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { ViewportSize } from '@/components/primitives/viewport';
 import type {
   TimelineKeyframeRef,
+  TimelineMode,
   TimelineSelection,
   TimelineTrack,
   TimelineView,
@@ -18,6 +19,7 @@ import {
   addKeyframe,
   makeKeyframe,
   moveSelectedKeyframes,
+  moveSelectedKeyframesGraph,
   removeSelectedKeyframes,
 } from './timelineEdits';
 
@@ -55,6 +57,7 @@ export interface UseTimelineGesturesOptions extends TimelineGestureActions {
   allowAddKeyframe: boolean;
   allowDeleteKeyframe: boolean;
   showPlayhead: boolean;
+  mode: TimelineMode;
   minFramesVisible: number;
   maxFramesVisible: number | undefined;
 }
@@ -148,6 +151,7 @@ export function useTimelineGestures(
   const allowAddRef = useLatest(opts.allowAddKeyframe);
   const allowDeleteRef = useLatest(opts.allowDeleteKeyframe);
   const showPlayheadRef = useLatest(opts.showPlayhead);
+  const modeRef = useLatest(opts.mode);
   const minFramesVisibleRef = useLatest(opts.minFramesVisible);
   const maxFramesVisibleRef = useLatest(opts.maxFramesVisible);
 
@@ -172,6 +176,7 @@ export function useTimelineGestures(
         rulerHeight: rulerHeightRef.current,
         frame: frameRef.current,
         showPlayhead: showPlayheadRef.current,
+        mode: modeRef.current,
       }),
     [
       viewRef,
@@ -182,6 +187,7 @@ export function useTimelineGestures(
       rulerHeightRef,
       frameRef,
       showPlayheadRef,
+      modeRef,
     ]
   );
 
@@ -191,16 +197,39 @@ export function useTimelineGestures(
       const width = sizeRef.current.width;
       const curFrame = xToFrame(point.x, view, width);
       const delta = curFrame - (state.startFramePos ?? curFrame);
+      const origTracks = state.origTracks ?? tracksRef.current;
+      const sel = state.moveSelection ?? [];
+      if (modeRef.current === 'graph') {
+        return moveSelectedKeyframesGraph(
+          origTracks,
+          sel,
+          delta,
+          point.y - state.startY,
+          trackHeightRef.current,
+          snapRef.current,
+          startFrameRef.current,
+          endFrameRef.current
+        );
+      }
       return moveSelectedKeyframes(
-        state.origTracks ?? tracksRef.current,
-        state.moveSelection ?? [],
+        origTracks,
+        sel,
         delta,
         snapRef.current,
         startFrameRef.current,
         endFrameRef.current
       );
     },
-    [viewRef, sizeRef, tracksRef, snapRef, startFrameRef, endFrameRef]
+    [
+      viewRef,
+      sizeRef,
+      tracksRef,
+      snapRef,
+      startFrameRef,
+      endFrameRef,
+      modeRef,
+      trackHeightRef,
+    ]
   );
 
   const onPointerDown = useCallback(
@@ -383,7 +412,8 @@ export function useTimelineGestures(
               tracksRef.current,
               trackHeightRef.current,
               scrollTopRef.current,
-              rulerHeightRef.current
+              rulerHeightRef.current,
+              modeRef.current
             );
             const base = state.additive ? selectionRef.current : [];
             setSelectionRef.current(mergeSelection(base, found));
@@ -408,6 +438,7 @@ export function useTimelineGestures(
       trackHeightRef,
       scrollTopRef,
       rulerHeightRef,
+      modeRef,
     ]
   );
 

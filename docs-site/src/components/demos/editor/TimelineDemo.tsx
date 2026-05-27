@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import DemoWrapper from '../DemoWrapper';
-import { Timeline, type TimelineTrack } from '@/components/editor/Timeline';
+import {
+  Timeline,
+  type TimelineMode,
+  type TimelineTrack,
+} from '@/components/editor/Timeline';
+import { Button } from '@/components/primitives/Button';
 
 function kf(
   id: string,
@@ -11,8 +16,8 @@ function kf(
     id,
     x,
     y,
-    handleIn: { x: 0, y: 0 },
-    handleOut: { x: 0, y: 0 },
+    handleIn: { x: -6, y: 0 },
+    handleOut: { x: 6, y: 0 },
     tangentMode: 'auto',
   };
 }
@@ -45,37 +50,42 @@ const INITIAL_TRACKS: TimelineTrack[] = [
 export default function TimelineDemo() {
   const [tracks, setTracks] = useState<TimelineTrack[]>(INITIAL_TRACKS);
   const [frame, setFrame] = useState(18);
+  const [mode, setMode] = useState<TimelineMode>('dope-sheet');
+  const [playing, setPlaying] = useState(false);
 
   return (
-    <DemoWrapper height="340px">
-      <div
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.5rem',
-        }}
-      >
-        <div
-          style={{
-            color: 'var(--etui-color-text-muted)',
-            fontSize: 'var(--etui-font-size-sm)',
-          }}
+    <DemoWrapper height="360px">
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Timeline
+          tracks={tracks}
+          onTracksChange={setTracks}
+          endFrame={72}
+          fps={24}
+          frame={frame}
+          onFrameChange={setFrame}
+          mode={mode}
+          onModeChange={setMode}
+          playing={playing}
+          onPlayingChange={setPlaying}
+          loop
         >
-          Frame {Math.round(frame)} — scrub the ruler, drag or box-select
-          keyframes, double-click empty space to add, Delete to remove, wheel to
-          zoom, shift+wheel / middle-drag to pan.
-        </div>
-        <div style={{ flex: 1, minHeight: 0 }}>
-          <Timeline
-            tracks={tracks}
-            onTracksChange={setTracks}
-            endFrame={72}
-            fps={24}
-            frame={frame}
-            onFrameChange={setFrame}
-          />
-        </div>
+          <Timeline.Toolbar>
+            <Button size="sm" onClick={() => setPlaying(p => !p)}>
+              {playing ? 'Pause' : 'Play'}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() =>
+                setMode(m => (m === 'graph' ? 'dope-sheet' : 'graph'))
+              }
+            >
+              {mode === 'graph' ? 'Dope sheet' : 'Graph'}
+            </Button>
+          </Timeline.Toolbar>
+          <Timeline.Footer>
+            Frame {Math.round(frame)} · {mode}
+          </Timeline.Footer>
+        </Timeline>
       </div>
     </DemoWrapper>
   );

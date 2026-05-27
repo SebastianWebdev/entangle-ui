@@ -72,3 +72,54 @@ export function framesToTimecode(frame: number, fps: number): string {
   const pad = (n: number): string => n.toString().padStart(2, '0');
   return `${pad(hh)}:${pad(mm)}:${pad(ss)}:${pad(ff)}`;
 }
+
+// ─── Graph-mode value axis ───
+
+/** Vertical inset (CSS px) inside a graph row so curves don't touch the edges. */
+function valueInset(rowHeight: number): number {
+  return Math.min(8, rowHeight * 0.2);
+}
+
+/** Map a value to a CSS-pixel Y inside a graph-mode row (higher value → higher up). */
+export function valueToY(
+  value: number,
+  range: readonly [number, number],
+  rowTop: number,
+  rowHeight: number
+): number {
+  const span = Math.max(1e-6, range[1] - range[0]);
+  const inset = valueInset(rowHeight);
+  const usable = Math.max(1e-6, rowHeight - inset * 2);
+  const t = (value - range[0]) / span;
+  return rowTop + inset + (1 - t) * usable;
+}
+
+/** Inverse of `valueToY`: a CSS-pixel Y inside a row to a value. */
+export function yToValue(
+  y: number,
+  range: readonly [number, number],
+  rowTop: number,
+  rowHeight: number
+): number {
+  const span = range[1] - range[0];
+  const inset = valueInset(rowHeight);
+  const usable = Math.max(1e-6, rowHeight - inset * 2);
+  const t = 1 - (y - rowTop - inset) / usable;
+  return range[0] + t * span;
+}
+
+/** Auto-fit a value range to a set of keyframes, with 10% padding. */
+export function autoValueRange(
+  keyframes: ReadonlyArray<{ y: number }>
+): [number, number] {
+  if (keyframes.length === 0) return [0, 1];
+  let lo = Infinity;
+  let hi = -Infinity;
+  for (const k of keyframes) {
+    if (k.y < lo) lo = k.y;
+    if (k.y > hi) hi = k.y;
+  }
+  if (lo === hi) return [lo - 1, hi + 1];
+  const pad = (hi - lo) * 0.1;
+  return [lo - pad, hi + pad];
+}

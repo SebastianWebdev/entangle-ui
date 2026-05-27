@@ -1,6 +1,6 @@
 import type { CurveKeyframe } from '@/types/keyframe';
 import type { TimelineSelection, TimelineTrack } from './Timeline.types';
-import { clamp, snapFrame } from './timelineCoords';
+import { autoValueRange, clamp, snapFrame } from './timelineCoords';
 
 function selKey(trackId: string, keyframeId: string): string {
   return `${trackId} ${keyframeId}`;
@@ -53,6 +53,47 @@ export function moveSelectedKeyframes(
       return { ...kf, x: clamp(snapFrame(kf.x + deltaFrames, snap), min, max) };
     });
     if (!changed) return track;
+    keyframes.sort((a, b) => a.x - b.x);
+    return { ...track, keyframes };
+  });
+}
+
+/**
+ * Graph-mode move: shifts selected keyframes by `deltaFrames` (x, snapped +
+ * clamped) and by a pixel delta on the value axis, converted per track using
+ * its row height + value range. Pass drag-start tracks so the range mapping
+ * stays stable across the drag.
+ */
+export function moveSelectedKeyframesGraph(
+  tracks: ReadonlyArray<TimelineTrack>,
+  selection: TimelineSelection,
+  deltaFrames: number,
+  deltaYPixels: number,
+  trackHeight: number,
+  snap: boolean | number,
+  min: number,
+  max: number
+): TimelineTrack[] {
+  const keys = selectionKeySet(selection);
+  return tracks.map(track => {
+    if (track.locked) return track;
+    const keyMatches = track.keyframes.some(
+      kf => kf.id !== undefined && keys.has(selKey(track.id, kf.id))
+    );
+    if (!keyMatches) return track;
+    const rowH = track.height ?? trackHeight;
+    const range = track.valueRange ?? autoValueRange(track.keyframes);
+    const inset = Math.min(8, rowH * 0.2);
+    const usable = Math.max(1e-6, rowH - inset * 2);
+    const valueDelta = -(deltaYPixels / usable) * (range[1] - range[0]);
+    const keyframes = track.keyframes.map(kf => {
+      if (kf.id === undefined || !keys.has(selKey(track.id, kf.id))) return kf;
+      return {
+        ...kf,
+        x: clamp(snapFrame(kf.x + deltaFrames, snap), min, max),
+        y: kf.y + valueDelta,
+      };
+    });
     keyframes.sort((a, b) => a.x - b.x);
     return { ...track, keyframes };
   });

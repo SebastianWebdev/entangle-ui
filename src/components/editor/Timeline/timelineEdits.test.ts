@@ -3,15 +3,16 @@ import {
   addKeyframe,
   makeKeyframe,
   moveSelectedKeyframes,
+  moveSelectedKeyframesGraph,
   removeSelectedKeyframes,
 } from './timelineEdits';
 import type { TimelineTrack } from './Timeline.types';
 
-function kf(id: string, x: number): TimelineTrack['keyframes'][number] {
+function kf(id: string, x: number, y = 0): TimelineTrack['keyframes'][number] {
   return {
     id,
     x,
-    y: 0,
+    y,
     handleIn: { x: 0, y: 0 },
     handleOut: { x: 0, y: 0 },
     tangentMode: 'auto',
@@ -117,6 +118,54 @@ describe('timelineEdits', () => {
       expect(a.id).not.toBe(b.id);
       expect(a.tangentMode).toBe('auto');
       expect(a.x).toBe(1);
+    });
+  });
+
+  describe('moveSelectedKeyframesGraph', () => {
+    it('moves x by frames and y by a value delta from the pixel drag', () => {
+      const tracks: TimelineTrack[] = [
+        {
+          id: 't1',
+          valueRange: [0, 1] as [number, number],
+          keyframes: [kf('a', 10, 0.5)],
+        },
+      ];
+      // rowH 20 -> usable 12, span 1; deltaY -6px -> valueDelta +0.5
+      const next = moveSelectedKeyframesGraph(
+        tracks,
+        [{ trackId: 't1', keyframeId: 'a' }],
+        5,
+        -6,
+        20,
+        true,
+        0,
+        100
+      );
+      expect(frameOf(track(next, 't1'), 'a')).toBe(15);
+      const a = track(next, 't1').keyframes.find(k => k.id === 'a');
+      expect(a?.y).toBeCloseTo(1);
+    });
+
+    it('leaves locked tracks untouched', () => {
+      const locked: TimelineTrack[] = [
+        {
+          id: 't1',
+          locked: true,
+          valueRange: [0, 1] as [number, number],
+          keyframes: [kf('a', 10, 0.5)],
+        },
+      ];
+      const next = moveSelectedKeyframesGraph(
+        locked,
+        [{ trackId: 't1', keyframeId: 'a' }],
+        5,
+        -6,
+        20,
+        true,
+        0,
+        100
+      );
+      expect(next[0]).toBe(locked[0]);
     });
   });
 });

@@ -1,10 +1,19 @@
 import type { ViewportSize } from '@/components/primitives/viewport';
+import { evaluateCurve } from '@/components/controls/CurveEditor';
+import type { CurveData } from '@/types/keyframe';
 import type {
   TimelineDrawInfo,
+  TimelineMode,
   TimelineTrack,
   TimelineView,
 } from './Timeline.types';
-import { frameToX, trackTop, xToFrame } from './timelineCoords';
+import {
+  autoValueRange,
+  frameToX,
+  trackTop,
+  valueToY,
+  xToFrame,
+} from './timelineCoords';
 
 export interface TimelineDrawColors {
   background: string;
@@ -29,6 +38,8 @@ export interface TimelineDrawInput {
   tracks: ReadonlyArray<TimelineTrack>;
   trackHeight: number;
   scrollTop: number;
+  /** Dope-sheet (keyframe dots) or graph (value curves) rendering. */
+  mode: TimelineMode;
   /** Height of the top ruler band in CSS px (0 when hidden). */
   rulerHeight: number;
   showPlayhead: boolean;
@@ -72,6 +83,70 @@ function diamondPath(
   ctx.closePath();
 }
 
+/** Graph-mode lane: the track's value curve + keyframe points (+ tangents when selected). */
+function drawGraphLane(
+  input: TimelineDrawInput,
+  track: TimelineTrack,
+  top: number,
+  rowH: number,
+  accent: string
+): void {
+  const { ctx, size, view, startFrame, endFrame, colors, isSelected } = input;
+  const range = track.valueRange ?? autoValueRange(track.keyframes);
+  const curve: CurveData = {
+    keyframes: track.keyframes,
+    domainX: [startFrame, endFrame],
+    domainY: range,
+    ...(track.infinity?.pre ? { preInfinity: track.infinity.pre } : {}),
+    ...(track.infinity?.post ? { postInfinity: track.infinity.post } : {}),
+  };
+  const toX = (f: number): number => frameToX(f, view, size.width);
+
+  if (track.keyframes.length > 0) {
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    const samples = Math.max(2, Math.ceil(size.width / 3));
+    for (let s = 0; s <= samples; s += 1) {
+      const px = (s / samples) * size.width;
+      const value = evaluateCurve(curve, xToFrame(px, view, size.width));
+      const py = valueToY(value, range, top, rowH);
+      if (s === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+
+  for (const kf of track.keyframes) {
+    const x = toX(kf.x);
+    if (x < -KEYFRAME_RADIUS || x > size.width + KEYFRAME_RADIUS) continue;
+    const y = valueToY(kf.y, range, top, rowH);
+    const selected = kf.id !== undefined && isSelected(track.id, kf.id);
+
+    if (selected && kf.tangentMode !== 'linear' && kf.tangentMode !== 'step') {
+      const inX = toX(kf.x + kf.handleIn.x);
+      const inY = valueToY(kf.y + kf.handleIn.y, range, top, rowH);
+      const outX = toX(kf.x + kf.handleOut.x);
+      const outY = valueToY(kf.y + kf.handleOut.y, range, top, rowH);
+      ctx.strokeStyle = colors.gridLine;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(inX, inY);
+      ctx.lineTo(x, y);
+      ctx.lineTo(outX, outY);
+      ctx.stroke();
+    }
+
+    ctx.beginPath();
+    ctx.arc(x, y, KEYFRAME_RADIUS - 0.5, 0, Math.PI * 2);
+    ctx.fillStyle = selected ? colors.keyframeSelected : accent;
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = colors.keyframeStroke;
+    ctx.stroke();
+  }
+}
+
 /**
  * Render a full dope-sheet frame: background → gridlines → ruler → track rows
  * → keyframes → caller `renderOverlay` → playhead. The caller is responsible
@@ -89,6 +164,7 @@ export function drawTimeline(input: TimelineDrawInput): void {
     tracks,
     trackHeight,
     scrollTop,
+    mode,
     rulerHeight,
     showPlayhead,
     colors,
@@ -147,18 +223,23 @@ export function drawTimeline(input: TimelineDrawInput): void {
   visible.forEach((track, index) => {
     const rowH = track.height ?? trackHeight;
     const top = rulerHeight + trackTop(index, trackHeight, scrollTop);
-    const centerY = top + rowH / 2;
 
     ctx.fillStyle = colors.rowSeparator;
     ctx.fillRect(0, top + rowH - 1, size.width, 1);
 
-    const fill = track.color ?? colors.keyframe;
+    const accent = track.color ?? colors.keyframe;
+    if (mode === 'graph') {
+      drawGraphLane(input, track, top, rowH, accent);
+      return;
+    }
+
+    const centerY = top + rowH / 2;
     for (const kf of track.keyframes) {
       const x = toX(kf.x);
       if (x < -KEYFRAME_RADIUS || x > size.width + KEYFRAME_RADIUS) continue;
       const selected = kf.id !== undefined && isSelected(track.id, kf.id);
       diamondPath(ctx, x, centerY, KEYFRAME_RADIUS);
-      ctx.fillStyle = selected ? colors.keyframeSelected : fill;
+      ctx.fillStyle = selected ? colors.keyframeSelected : accent;
       ctx.fill();
       ctx.lineWidth = 1;
       ctx.strokeStyle = colors.keyframeStroke;

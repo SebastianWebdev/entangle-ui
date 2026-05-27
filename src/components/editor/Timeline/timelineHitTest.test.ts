@@ -29,6 +29,7 @@ const base = {
   rulerHeight: 22,
   frame: 50, // playhead px 100
   showPlayhead: true,
+  mode: 'dope-sheet' as const,
 };
 
 describe('timelineHitTest', () => {
@@ -65,6 +66,33 @@ describe('timelineHitTest', () => {
         'outside'
       );
     });
+
+    it('hits a keyframe at its value position in graph mode', () => {
+      const gtracks: TimelineTrack[] = [
+        {
+          id: 't1',
+          valueRange: [0, 1] as [number, number],
+          keyframes: [
+            {
+              id: 'a',
+              x: 50,
+              y: 1,
+              handleIn: { x: 0, y: 0 },
+              handleOut: { x: 0, y: 0 },
+              tangentMode: 'auto',
+            },
+          ],
+        },
+      ];
+      // x=50 -> px 100; value 1 in [0,1] on row0 (top 22, h 20) -> y 26
+      const hit = hitTestTimeline({
+        ...base,
+        tracks: gtracks,
+        mode: 'graph',
+        point: { x: 100, y: 26 },
+      });
+      expect(hit).toEqual({ kind: 'keyframe', trackId: 't1', keyframeId: 'a' });
+    });
   });
 
   describe('keyframesInRect', () => {
@@ -76,7 +104,8 @@ describe('timelineHitTest', () => {
         tracks,
         20,
         0,
-        22
+        22,
+        'dope-sheet'
       );
       expect(found).toEqual([
         { trackId: 't1', keyframeId: 'a' },

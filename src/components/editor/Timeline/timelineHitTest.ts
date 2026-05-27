@@ -2,10 +2,11 @@ import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { ViewportSize } from '@/components/primitives/viewport';
 import type {
   TimelineKeyframeRef,
+  TimelineMode,
   TimelineTrack,
   TimelineView,
 } from './Timeline.types';
-import { frameToX, trackTop } from './timelineCoords';
+import { autoValueRange, frameToX, trackTop, valueToY } from './timelineCoords';
 
 /** Axis-aligned rectangle in track-area (CSS-pixel) coordinates. */
 export interface TimelineScreenRect {
@@ -33,6 +34,7 @@ export interface TimelineHitInput {
   rulerHeight: number;
   frame: number;
   showPlayhead: boolean;
+  mode: TimelineMode;
 }
 
 /** Picking tolerance (CSS px) around a keyframe center on the X axis. */
@@ -61,14 +63,18 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
     const rowH = track.height ?? trackHeight;
     const top = rulerHeight + trackTop(index, trackHeight, scrollTop);
     if (point.y < top || point.y > top + rowH) continue;
+    const range =
+      input.mode === 'graph'
+        ? (track.valueRange ?? autoValueRange(track.keyframes))
+        : null;
     const centerY = top + rowH / 2;
     for (const kf of track.keyframes) {
       if (kf.id === undefined) continue;
       const x = toX(kf.x);
-      if (
-        Math.abs(point.x - x) <= KEYFRAME_PICK_X &&
-        Math.abs(point.y - centerY) <= rowH / 2
-      ) {
+      if (Math.abs(point.x - x) > KEYFRAME_PICK_X) continue;
+      const py = range ? valueToY(kf.y, range, top, rowH) : centerY;
+      const yTol = range ? KEYFRAME_PICK_X : rowH / 2;
+      if (Math.abs(point.y - py) <= yTol) {
         return { kind: 'keyframe', trackId: track.id, keyframeId: kf.id };
       }
     }
@@ -101,7 +107,8 @@ export function keyframesInRect(
   tracks: ReadonlyArray<TimelineTrack>,
   trackHeight: number,
   scrollTop: number,
-  rulerHeight: number
+  rulerHeight: number,
+  mode: TimelineMode
 ): TimelineKeyframeRef[] {
   const x0 = Math.min(rect.x, rect.x + rect.width);
   const x1 = Math.max(rect.x, rect.x + rect.width);
@@ -113,13 +120,18 @@ export function keyframesInRect(
 
   visible.forEach((track, index) => {
     const rowH = track.height ?? trackHeight;
-    const centerY =
-      rulerHeight + trackTop(index, trackHeight, scrollTop) + rowH / 2;
-    if (centerY < y0 || centerY > y1) return;
+    const top = rulerHeight + trackTop(index, trackHeight, scrollTop);
+    const range =
+      mode === 'graph'
+        ? (track.valueRange ?? autoValueRange(track.keyframes))
+        : null;
+    const centerY = top + rowH / 2;
     for (const kf of track.keyframes) {
       if (kf.id === undefined) continue;
       const x = toX(kf.x);
-      if (x >= x0 && x <= x1) {
+      if (x < x0 || x > x1) continue;
+      const py = range ? valueToY(kf.y, range, top, rowH) : centerY;
+      if (py >= y0 && py <= y1) {
         result.push({ trackId: track.id, keyframeId: kf.id });
       }
     }

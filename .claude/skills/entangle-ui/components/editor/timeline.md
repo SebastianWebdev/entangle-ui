@@ -5,7 +5,7 @@
 A horizontal, multi-track **animation timeline / dope sheet** for editor UIs. Each track is an animated property whose keyframes (the shared `CurveKeyframe` model, reused from `CurveEditor`) lie along a frame-based time axis. A playhead scrubs across all tracks; the view zooms and pans over time. Keyframes render on a perf-isolated canvas while chrome stays in the DOM.
 
 :::caution[In active development]
-Timeline is being built incrementally on the `etui-timeline` branch. **Working now:** rendering (ruler, tracks, keyframes, playhead), scrubbing, zoom/pan, selection (click / shift / box-select), drag-move, add/delete, keyboard, and the imperative handle. **Still landing:** the track-header column + `Timeline.Toolbar`/`Timeline.Footer` slots, the built-in playback loop, and graph (curve) mode.
+Timeline is on the `etui-timeline` branch. **Working now:** rendering, scrubbing, zoom/pan, selection (click / shift / box-select), drag-move, add/delete, keyboard, the imperative handle, the track-header column, `Timeline.Toolbar` / `Timeline.Footer` slots, the built-in playback loop, and **graph (curve) mode** — use the Dope sheet / Graph toggle in the demo toolbar below. **Still landing:** dragging bezier tangent handles in graph mode, plus the accessibility + docs polish pass.
 :::
 
 **Live Preview**
@@ -104,6 +104,23 @@ Time is expressed in **frames** with an `fps` prop that drives the
 `HH:MM:SS:FF` ruler timecode and the snap grid. The global range is
 `startFrame`..`endFrame`; the visible window is the `view`
 (`{ startFrame, endFrame }`), bounded by `minFramesVisible` / `maxFramesVisible`.
+
+## Modes — dope sheet & graph
+
+Toggle `mode` between `'dope-sheet'` (keyframe timing, the default) and
+`'graph'` (value curves). In graph mode each track draws its animation curve
+— reusing the shared `CurveEditor` evaluation — with keyframe points you can
+drag in **time and value**, and tangent handles rendered for the selected
+keyframe. `mode` is controlled (`mode` / `defaultMode` / `onModeChange`).
+
+## Playback
+
+Timeline ships an optional built-in clock: set `playing` (or call
+`ref.play()` / `ref.toggle()`) and it advances `frame` in real time at `fps`,
+firing `onFrameChange` each tick. `loop` (`true`, or a
+`{ startFrame, endFrame }` sub-range) repeats; otherwise playback stops at the
+end. `frame` stays fully controllable, so external sync (audio, an engine
+tick) can drive it instead.
 
 ## Custom canvas overlay
 

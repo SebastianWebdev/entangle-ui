@@ -9,6 +9,9 @@ import {
   trackTop,
   yToTrackIndex,
   framesToTimecode,
+  valueToY,
+  yToValue,
+  autoValueRange,
 } from './timelineCoords';
 
 const VIEW = { startFrame: 0, endFrame: 100 };
@@ -108,6 +111,26 @@ describe('timelineCoords', () => {
     });
     it('falls back to 30 fps when fps is invalid', () => {
       expect(framesToTimecode(30, 0)).toBe('00:00:01:00');
+    });
+  });
+
+  describe('value axis (graph mode)', () => {
+    it('maps the value range to the row, top value up', () => {
+      // range [0,1], rowTop 0, rowH 20 -> inset 4, usable 12
+      expect(valueToY(1, [0, 1], 0, 20)).toBe(4);
+      expect(valueToY(0, [0, 1], 0, 20)).toBe(16);
+      expect(valueToY(0.5, [0, 1], 0, 20)).toBe(10);
+    });
+
+    it('yToValue inverts valueToY', () => {
+      const y = valueToY(0.3, [0, 2], 10, 40);
+      expect(yToValue(y, [0, 2], 10, 40)).toBeCloseTo(0.3);
+    });
+
+    it('autoValueRange pads min/max, handles single value + empty', () => {
+      expect(autoValueRange([{ y: 0 }, { y: 10 }])).toEqual([-1, 11]);
+      expect(autoValueRange([{ y: 5 }])).toEqual([4, 6]);
+      expect(autoValueRange([])).toEqual([0, 1]);
     });
   });
 });
