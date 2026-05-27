@@ -23,6 +23,7 @@ import type {
   AssetItemState,
   AssetNavigationSource,
   AssetPathSegment,
+  AssetSelectionReason,
   AssetSortState,
   AssetThumbnailSize,
   AssetView,
@@ -110,6 +111,14 @@ export interface AssetBrowserContextValue {
   selectAll: () => void;
   clearSelection: () => void;
   contextMenuSelect: (item: AssetItem, index: number) => void;
+  /** Select-or-extend driven by keyboard navigation over displayed order. */
+  selectByKeyboard: (index: number, extend: boolean) => void;
+  /** Toggle a single id (Space / Ctrl-click parity). */
+  toggleSelectId: (id: string) => void;
+  /** Replace selection with a raw id list (DataTable bridge). */
+  setSelectionIds: (ids: string[], reason: AssetSelectionReason) => void;
+  /** Commit a marquee result (additive merges with current selection). */
+  commitMarquee: (ids: string[], additive: boolean) => void;
 
   // navigation
   path: readonly AssetPathSegment[];
