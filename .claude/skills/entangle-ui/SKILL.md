@@ -131,6 +131,7 @@ export function App() {
 
 ### components/data
 
+- `AssetBrowser` → [components/data/asset-browser.md](./components/data/asset-browser.md) — Controlled content browser for files and folders — grid/list views, thumbnails, folder navigation, search, filter, sort, selection, and drag-and-drop.
 - `DataTable` → [components/data/data-table.md](./components/data/data-table.md) — Data-driven table with sortable columns, row selection, sticky header, optional column resizing, and row virtualization for large datasets.
 
 ### Hooks
