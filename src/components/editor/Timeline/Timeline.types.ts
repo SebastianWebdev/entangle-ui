@@ -210,8 +210,12 @@ export interface TimelineBaseProps extends Omit<
   defaultPlaying?: boolean;
   /** Fires when playback starts/stops. */
   onPlayingChange?: (playing: boolean) => void;
-  /** Loop the whole range (`true`) or a sub-range. @default false */
+  /** Loop the whole range (`true`) or a sub-range (controlled). @default false */
   loop?: TimelineLoop;
+  /** Initial loop (uncontrolled). */
+  defaultLoop?: TimelineLoop;
+  /** Fires when the loop region is dragged on the ruler. */
+  onLoopChange?: (loop: TimelineLoop) => void;
 
   /** Default row height in CSS px. @default 28 */
   trackHeight?: number;

@@ -9,7 +9,7 @@ import TimelineDemo from '../../../../components/demos/editor/TimelineDemo';
 A horizontal, multi-track **animation timeline / dope sheet** for editor UIs. Each track is an animated property whose keyframes (the shared `CurveKeyframe` model, reused from `CurveEditor`) lie along a frame-based time axis. A playhead scrubs across all tracks; the view zooms and pans over time. Keyframes render on a perf-isolated canvas while chrome stays in the DOM.
 
 :::caution[In active development]
-Timeline is on the `etui-timeline` branch. **Working now:** rendering, scrubbing, zoom/pan, selection (click / shift / box-select), drag-move, add/delete, keyboard, the imperative handle, the track-header column, `Timeline.Toolbar` / `Timeline.Footer` slots, the built-in playback loop, **graph (curve) mode** with draggable keyframes + bezier tangent handles (use the Dope sheet / Graph toggle in the demo toolbar below), and an accessibility baseline. **Still landing:** loop-region drag UI.
+Timeline is on the `etui-timeline` branch. **Working now:** rendering, scrubbing, zoom/pan, selection (click / shift / box-select), drag-move, add/delete, keyboard, the imperative handle, the track-header column, `Timeline.Toolbar` / `Timeline.Footer` slots, the built-in playback loop, **graph (curve) mode** with draggable keyframes + bezier tangent handles (use the Dope sheet / Graph toggle in the demo toolbar below), and an accessibility baseline. **Still landing:** vertical scroll / virtualization for many tracks, per-track graph expansion, and track groups.
 :::
 
 <ComponentPreview title="Live Preview">
@@ -129,7 +129,9 @@ Timeline ships an optional built-in clock: set `playing` (or call
 firing `onFrameChange` each tick. `loop` (`true`, or a
 `{ startFrame, endFrame }` sub-range) repeats; otherwise playback stops at the
 end. `frame` stays fully controllable, so external sync (audio, an engine
-tick) can drive it instead.
+tick) can drive it instead. When `loop` is set, its region is shown on the
+ruler and its edges (and body) are draggable — controlled via `loop` /
+`defaultLoop` / `onLoopChange`.
 
 ## Accessibility
 

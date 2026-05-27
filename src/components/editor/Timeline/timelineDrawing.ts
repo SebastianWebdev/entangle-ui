@@ -54,6 +54,8 @@ export interface TimelineDrawInput {
   ) => void;
   /** Active marquee rectangle (box-select) in track-area px, or null. */
   marquee?: { x: number; y: number; width: number; height: number } | null;
+  /** Resolved loop region highlighted on the ruler + track area, or null. */
+  loopRegion?: { startFrame: number; endFrame: number } | null;
 }
 
 const KEYFRAME_RADIUS = 4;
@@ -173,6 +175,7 @@ export function drawTimeline(input: TimelineDrawInput): void {
     isSelected,
     renderOverlay,
     marquee,
+    loopRegion,
   } = input;
 
   const toX = (f: number): number => frameToX(f, view, size.width);
@@ -211,6 +214,29 @@ export function drawTimeline(input: TimelineDrawInput): void {
     }
     ctx.fillStyle = colors.rowSeparator;
     ctx.fillRect(0, rulerHeight - 1, size.width, 1);
+  }
+
+  // ── Loop region ──
+  if (loopRegion) {
+    const lx = toX(loopRegion.startFrame);
+    const rx = toX(loopRegion.endFrame);
+    ctx.save();
+    ctx.fillStyle = colors.keyframeSelected;
+    ctx.globalAlpha = 0.06;
+    ctx.fillRect(
+      lx,
+      rulerHeight,
+      rx - lx,
+      Math.max(0, size.height - rulerHeight)
+    );
+    if (rulerHeight > 0) {
+      ctx.globalAlpha = 0.22;
+      ctx.fillRect(lx, 0, rx - lx, rulerHeight);
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillRect(lx, 0, 2, size.height);
+    ctx.fillRect(rx - 2, 0, 2, size.height);
+    ctx.restore();
   }
 
   // ── Track rows + keyframes (clipped to the area below the ruler) ──

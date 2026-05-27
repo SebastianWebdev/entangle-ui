@@ -1,4 +1,15 @@
-import type { TimelineView } from './Timeline.types';
+import type { TimelineLoop, TimelineView } from './Timeline.types';
+
+/** Resolve a loop prop to a concrete `{ startFrame, endFrame }` region, or null. */
+export function resolveLoop(
+  loop: TimelineLoop | undefined,
+  startFrame: number,
+  endFrame: number
+): { startFrame: number; endFrame: number } | null {
+  if (loop === true) return { startFrame, endFrame };
+  if (loop && typeof loop === 'object') return loop;
+  return null;
+}
 
 /** Visible frame span of a view window. Guards against a zero/negative span. */
 export function viewSpan(view: TimelineView): number {

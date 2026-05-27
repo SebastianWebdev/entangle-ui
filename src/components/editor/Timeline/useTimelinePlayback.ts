@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useLatest } from '@/hooks';
 import type { TimelineLoop } from './Timeline.types';
+import { resolveLoop } from './timelineCoords';
 
 export interface PlaybackRange {
   startFrame: number;
@@ -38,15 +39,6 @@ export function advancePlayback(
   }
   if (next >= range.endFrame) return { frame: range.endFrame, ended: true };
   return { frame: next, ended: false };
-}
-
-function resolveLoopRegion(
-  loop: TimelineLoop | undefined,
-  range: PlaybackRange
-): PlaybackRange | null {
-  if (loop === true) return range;
-  if (loop && typeof loop === 'object') return loop;
-  return null;
 }
 
 interface UseTimelinePlaybackOptions {
@@ -101,7 +93,11 @@ export function useTimelinePlayback(opts: UseTimelinePlaybackOptions): void {
         startFrame: startRef.current,
         endFrame: endRef.current,
       };
-      const region = resolveLoopRegion(loopRef.current, range);
+      const region = resolveLoop(
+        loopRef.current,
+        range.startFrame,
+        range.endFrame
+      );
       const result = advancePlayback(
         accRef.current,
         dt,

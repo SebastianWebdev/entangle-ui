@@ -12,6 +12,7 @@ import {
   valueToY,
   yToValue,
   autoValueRange,
+  resolveLoop,
 } from './timelineCoords';
 
 const VIEW = { startFrame: 0, endFrame: 100 };
@@ -131,6 +132,21 @@ describe('timelineCoords', () => {
       expect(autoValueRange([{ y: 0 }, { y: 10 }])).toEqual([-1, 11]);
       expect(autoValueRange([{ y: 5 }])).toEqual([4, 6]);
       expect(autoValueRange([])).toEqual([0, 1]);
+    });
+  });
+
+  describe('resolveLoop', () => {
+    it('resolves true / object / falsey', () => {
+      expect(resolveLoop(true, 0, 100)).toEqual({
+        startFrame: 0,
+        endFrame: 100,
+      });
+      expect(resolveLoop({ startFrame: 10, endFrame: 20 }, 0, 100)).toEqual({
+        startFrame: 10,
+        endFrame: 20,
+      });
+      expect(resolveLoop(false, 0, 100)).toBeNull();
+      expect(resolveLoop(undefined, 0, 100)).toBeNull();
     });
   });
 });

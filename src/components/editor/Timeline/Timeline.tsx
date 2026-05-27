@@ -16,6 +16,7 @@ import { vars } from '@/theme/contract.css';
 import { resolveVarValue } from '@/components/primitives/canvas/canvasTheme';
 import type { ViewportSize } from '@/components/primitives/viewport';
 import type {
+  TimelineLoop,
   TimelineMode,
   TimelineProps,
   TimelineSelection,
@@ -36,7 +37,12 @@ import {
   ariaLiveRegionStyle,
 } from './Timeline.css';
 import { TimelineTrackHeaders } from './TimelineTrackHeaders';
-import { clamp, framesToTimecode, snapFrame } from './timelineCoords';
+import {
+  clamp,
+  framesToTimecode,
+  resolveLoop,
+  snapFrame,
+} from './timelineCoords';
 import { drawTimeline, type TimelineDrawColors } from './timelineDrawing';
 import { TimelineStore } from './TimelineStore';
 import { TimelineStoreContext } from './TimelineContext';
@@ -140,6 +146,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     defaultPlaying,
     onPlayingChange,
     loop,
+    defaultLoop,
+    onLoopChange,
     trackHeight = 28,
     showRuler = true,
     showPlayhead = true,
@@ -202,6 +210,16 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     onChange: onPlayingChange,
     fallback: false,
   });
+  const [loopState, setLoop] = useControlledState<TimelineLoop>({
+    value: loop,
+    defaultValue: defaultLoop,
+    onChange: onLoopChange,
+    fallback: false,
+  });
+  const loopRegion = useMemo(
+    () => resolveLoop(loopState, startFrame, endFrame),
+    [loopState, startFrame, endFrame]
+  );
 
   // ── Store ──
 
@@ -274,7 +292,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     fps,
     startFrame,
     endFrame,
-    loop,
+    loop: loopState,
     onAdvance: setFrameRaw,
     onEnd: handlePlaybackEnd,
   });
@@ -393,12 +411,14 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     mode: modeState,
     minFramesVisible,
     maxFramesVisible,
+    loopRegion,
     seekLive,
     seekCommit,
     setSelection,
     setTracks: setTracksLive,
     commitTracks,
     setView,
+    setLoop,
   });
 
   // Native non-passive wheel listener (React onWheel is passive).
@@ -480,6 +500,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
         isSelected: (t, k) => selKeys.has(selectionKey(t, k)),
         renderOverlay: renderOverlayRef.current,
         marquee: drag.marquee,
+        loopRegion,
       });
     });
   }, [
@@ -498,6 +519,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     backgroundColor,
     playheadColor,
     drag.marquee,
+    loopRegion,
     renderOverlayRef,
     formatTimeRef,
   ]);

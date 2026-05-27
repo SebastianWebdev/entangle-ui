@@ -19,6 +19,9 @@ export interface TimelineScreenRect {
 export type TimelineHit =
   | { kind: 'ruler' }
   | { kind: 'playhead' }
+  | { kind: 'loop-start' }
+  | { kind: 'loop-end' }
+  | { kind: 'loop-body' }
   | { kind: 'keyframe'; trackId: string; keyframeId: string }
   | {
       kind: 'tangent';
@@ -43,6 +46,8 @@ export interface TimelineHitInput {
   mode: TimelineMode;
   /** Selection predicate — enables tangent-handle picking in graph mode. */
   isSelected?: (trackId: string, keyframeId: string) => boolean;
+  /** Resolved loop region — enables loop-edge / body picking on the ruler. */
+  loopRegion?: { startFrame: number; endFrame: number } | null;
 }
 
 /** Picking tolerance (CSS px) around a keyframe center on the X axis. */
@@ -51,6 +56,8 @@ const KEYFRAME_PICK_X = 6;
 const PLAYHEAD_PICK_X = 4;
 /** Picking tolerance (CSS px) around a graph-mode tangent handle endpoint. */
 const HANDLE_PICK_X = 6;
+/** Picking tolerance (CSS px) around a loop-region edge on the ruler. */
+const LOOP_EDGE_PICK_X = 5;
 
 /**
  * Resolve what's under a pointer: the ruler, the playhead line, a keyframe,
@@ -61,9 +68,22 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
   const { point, view, size, tracks, trackHeight, scrollTop, rulerHeight } =
     input;
 
-  if (point.y < rulerHeight) return { kind: 'ruler' };
-
   const toX = (f: number): number => frameToX(f, view, size.width);
+
+  if (point.y < rulerHeight) {
+    const loop = input.loopRegion;
+    if (loop) {
+      const lx = toX(loop.startFrame);
+      const rx = toX(loop.endFrame);
+      if (Math.abs(point.x - lx) <= LOOP_EDGE_PICK_X)
+        return { kind: 'loop-start' };
+      if (Math.abs(point.x - rx) <= LOOP_EDGE_PICK_X)
+        return { kind: 'loop-end' };
+      if (point.x > lx && point.x < rx) return { kind: 'loop-body' };
+    }
+    return { kind: 'ruler' };
+  }
+
   const visible = tracks.filter(t => !t.hidden);
 
   // Keyframes (topmost row first is irrelevant — rows don't overlap on Y).

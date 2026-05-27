@@ -7,6 +7,7 @@ import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { ViewportSize } from '@/components/primitives/viewport';
 import type {
   TimelineKeyframeRef,
+  TimelineLoop,
   TimelineMode,
   TimelineSelection,
   TimelineTrack,
@@ -48,6 +49,7 @@ export interface TimelineGestureActions {
   /** Commit (onTracksChangeComplete). */
   commitTracks: (tracks: TimelineTrack[]) => void;
   setView: (view: TimelineView) => void;
+  setLoop: (loop: TimelineLoop) => void;
 }
 
 export interface UseTimelineGesturesOptions extends TimelineGestureActions {
@@ -71,11 +73,12 @@ export interface UseTimelineGesturesOptions extends TimelineGestureActions {
   mode: TimelineMode;
   minFramesVisible: number;
   maxFramesVisible: number | undefined;
+  loopRegion: { startFrame: number; endFrame: number } | null;
 }
 
 interface PointerState {
   pointerId: number;
-  mode: 'scrub' | 'move' | 'marquee' | 'pan' | 'tangent';
+  mode: 'scrub' | 'move' | 'marquee' | 'pan' | 'tangent' | 'loop';
   startX: number;
   startY: number;
   origTracks?: ReadonlyArray<TimelineTrack>;
@@ -85,6 +88,8 @@ interface PointerState {
   additive?: boolean;
   tangentRef?: TimelineKeyframeRef;
   tangentWhich?: 'in' | 'out';
+  loopWhich?: 'start' | 'end' | 'body';
+  startLoop?: { startFrame: number; endFrame: number };
 }
 
 export interface UseTimelineGesturesReturn {
@@ -174,6 +179,8 @@ export function useTimelineGestures(
   const setTracksRef = useLatest(opts.setTracks);
   const commitTracksRef = useLatest(opts.commitTracks);
   const setViewRef = useLatest(opts.setView);
+  const setLoopRef = useLatest(opts.setLoop);
+  const loopRegionRef = useLatest(opts.loopRegion);
 
   const stateRef = useRef<PointerState | null>(null);
   const clipboardRef = useRef<TimelineClipboard | null>(null);
@@ -298,6 +305,32 @@ export function useTimelineGestures(
 
       const hit = hitAt(point);
 
+      if (
+        hit.kind === 'loop-start' ||
+        hit.kind === 'loop-end' ||
+        hit.kind === 'loop-body'
+      ) {
+        const region = loopRegionRef.current;
+        if (!region) return;
+        e.preventDefault();
+        container.setPointerCapture(e.pointerId);
+        stateRef.current = {
+          pointerId: e.pointerId,
+          mode: 'loop',
+          startX: point.x,
+          startY: point.y,
+          loopWhich:
+            hit.kind === 'loop-start'
+              ? 'start'
+              : hit.kind === 'loop-end'
+                ? 'end'
+                : 'body',
+          startLoop: region,
+        };
+        store.setDrag({ kind: 'scrub', marquee: null });
+        return;
+      }
+
       if (hit.kind === 'ruler' || hit.kind === 'playhead') {
         e.preventDefault();
         container.setPointerCapture(e.pointerId);
@@ -377,6 +410,7 @@ export function useTimelineGestures(
       seekLiveRef,
       editableRef,
       tracksRef,
+      loopRegionRef,
     ]
   );
 
@@ -390,6 +424,31 @@ export function useTimelineGestures(
       const view = viewRef.current;
       const width = sizeRef.current.width;
 
+      if (state.mode === 'loop') {
+        const frame = xToFrame(point.x, view, width);
+        const sl = state.startLoop;
+        if (sl && state.loopWhich === 'start') {
+          setLoopRef.current({
+            startFrame: clamp(frame, startFrameRef.current, sl.endFrame),
+            endFrame: sl.endFrame,
+          });
+        } else if (sl && state.loopWhich === 'end') {
+          setLoopRef.current({
+            startFrame: sl.startFrame,
+            endFrame: clamp(frame, sl.startFrame, endFrameRef.current),
+          });
+        } else if (sl) {
+          const span = sl.endFrame - sl.startFrame;
+          const delta = frame - xToFrame(state.startX, view, width);
+          const ns = clamp(
+            sl.startFrame + delta,
+            startFrameRef.current,
+            endFrameRef.current - span
+          );
+          setLoopRef.current({ startFrame: ns, endFrame: ns + span });
+        }
+        return;
+      }
       if (state.mode === 'scrub') {
         seekLiveRef.current(xToFrame(point.x, view, width));
         return;
@@ -444,6 +503,9 @@ export function useTimelineGestures(
       setTracksRef,
       moveFromState,
       tangentOffset,
+      setLoopRef,
+      startFrameRef,
+      endFrameRef,
     ]
   );
 
