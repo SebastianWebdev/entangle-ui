@@ -258,3 +258,42 @@ export function pasteKeyframes(
   });
   return { tracks: next, refs };
 }
+
+/** Move a track from one full-array index to another. */
+export function moveTrack(
+  tracks: ReadonlyArray<TimelineTrack>,
+  fromIndex: number,
+  toIndex: number
+): TimelineTrack[] {
+  const next = tracks.slice();
+  const [moved] = next.splice(fromIndex, 1);
+  if (!moved) return next;
+  next.splice(Math.max(0, Math.min(next.length, toIndex)), 0, moved);
+  return next;
+}
+
+/**
+ * Reorder from a header drag: move the dragged track to a gap among the
+ * visible rows (`dropVisibleIndex` in `[0, visibleCount]`). Maps visible gaps
+ * back to full-array indices and corrects for forward moves.
+ */
+export function reorderTracksByDrop(
+  tracks: ReadonlyArray<TimelineTrack>,
+  draggingId: string,
+  dropVisibleIndex: number
+): TimelineTrack[] {
+  const fromFull = tracks.findIndex(t => t.id === draggingId);
+  if (fromFull < 0) return tracks.slice();
+  const visible = tracks.filter(t => !t.hidden);
+  let gapFull: number;
+  if (dropVisibleIndex >= visible.length) {
+    gapFull = tracks.length;
+  } else {
+    const target = visible[dropVisibleIndex];
+    gapFull = target
+      ? tracks.findIndex(t => t.id === target.id)
+      : tracks.length;
+  }
+  const toIndex = fromFull < gapFull ? gapFull - 1 : gapFull;
+  return moveTrack(tracks, fromFull, toIndex);
+}

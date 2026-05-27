@@ -75,6 +75,7 @@ export const timelineMainRowStyle = style({
 
 /** Left header column — fixed width, one row per visible track. */
 export const timelineHeaderColumnStyle = style({
+  position: 'relative',
   flexShrink: 0,
   display: 'flex',
   flexDirection: 'column',
@@ -102,12 +103,18 @@ export const timelineHeaderRowStyle = style({
   color: vars.colors.text.secondary,
   overflow: 'hidden',
   selectors: {
+    '&[data-draggable]': {
+      cursor: 'grab',
+    },
     '&[data-selected]': {
       color: vars.colors.text.primary,
       background: vars.colors.surface.hover,
     },
     '&[data-locked]': {
       opacity: 0.5,
+    },
+    '&[data-dragging]': {
+      opacity: 0.4,
     },
   },
 });
@@ -146,4 +153,14 @@ export const timelineFooterStyle = style({
   borderTop: `1px solid ${vars.colors.border.default}`,
   fontSize: vars.typography.fontSize.xs,
   color: vars.colors.text.muted,
+});
+
+/** Drop indicator shown while reordering track headers. */
+export const timelineHeaderDropIndicatorStyle = style({
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  height: 2,
+  background: vars.colors.accent.primary,
+  pointerEvents: 'none',
 });

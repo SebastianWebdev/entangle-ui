@@ -291,6 +291,13 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     (t: TimelineTrack[]): void => onTracksCompleteRef.current?.(t),
     [onTracksCompleteRef]
   );
+  const handleReorderTracks = useCallback(
+    (next: TimelineTrack[]): void => {
+      setTracksLive(next);
+      commitTracks(next);
+    },
+    [setTracksLive, commitTracks]
+  );
 
   // ── View helpers + imperative handle ──
 
@@ -541,7 +548,9 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             rulerHeight={rulerHeight}
             width={trackHeaderWidth}
             selection={selectionState}
+            editable={editable}
             renderTrackHeader={renderTrackHeader}
+            onReorderTracks={handleReorderTracks}
           />
           <div
             ref={bodyRef}

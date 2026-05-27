@@ -5,8 +5,10 @@ import {
   makeKeyframe,
   moveSelectedKeyframes,
   moveSelectedKeyframesGraph,
+  moveTrack,
   pasteKeyframes,
   removeSelectedKeyframes,
+  reorderTracksByDrop,
   setKeyframeTangent,
 } from './timelineEdits';
 import type { TimelineTrack } from './Timeline.types';
@@ -261,6 +263,37 @@ describe('timelineEdits', () => {
       const { tracks: next, refs } = pasteKeyframes(locked, clip, 50);
       expect(track(next, 't1').keyframes).toHaveLength(1);
       expect(refs).toHaveLength(0);
+    });
+  });
+
+  describe('track reorder', () => {
+    const ts: TimelineTrack[] = [
+      { id: 'a', keyframes: [] },
+      { id: 'b', keyframes: [] },
+      { id: 'c', keyframes: [] },
+    ];
+
+    it('moveTrack moves between indices', () => {
+      expect(moveTrack(ts, 0, 2).map(t => t.id)).toEqual(['b', 'c', 'a']);
+      expect(moveTrack(ts, 2, 0).map(t => t.id)).toEqual(['c', 'a', 'b']);
+    });
+
+    it('reorderTracksByDrop drops at a visible gap', () => {
+      expect(reorderTracksByDrop(ts, 'a', 2).map(t => t.id)).toEqual([
+        'b',
+        'a',
+        'c',
+      ]);
+      expect(reorderTracksByDrop(ts, 'a', 3).map(t => t.id)).toEqual([
+        'b',
+        'c',
+        'a',
+      ]);
+      expect(reorderTracksByDrop(ts, 'c', 0).map(t => t.id)).toEqual([
+        'c',
+        'a',
+        'b',
+      ]);
     });
   });
 });
