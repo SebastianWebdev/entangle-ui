@@ -64,3 +64,86 @@ export const ariaLiveRegionStyle = style({
   whiteSpace: 'nowrap',
   borderWidth: 0,
 });
+
+/** Row holding the header column + the track-area body. */
+export const timelineMainRowStyle = style({
+  display: 'flex',
+  flexDirection: 'row',
+  flex: 1,
+  minHeight: 0,
+});
+
+/** Left header column — fixed width, one row per visible track. */
+export const timelineHeaderColumnStyle = style({
+  flexShrink: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  borderRight: `1px solid ${vars.colors.border.default}`,
+  background: vars.colors.background.primary,
+  overflow: 'hidden',
+  userSelect: 'none',
+});
+
+/** Spacer aligning the header column with the ruler band. */
+export const timelineHeaderSpacerStyle = style({
+  flexShrink: 0,
+  borderBottom: `1px solid ${vars.colors.border.default}`,
+});
+
+export const timelineHeaderRowStyle = style({
+  boxSizing: 'border-box',
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.xs,
+  padding: `0 ${vars.spacing.sm}`,
+  borderBottom: `1px solid ${vars.colors.border.default}`,
+  fontSize: vars.typography.fontSize.xs,
+  color: vars.colors.text.secondary,
+  overflow: 'hidden',
+  selectors: {
+    '&[data-selected]': {
+      color: vars.colors.text.primary,
+      background: vars.colors.surface.hover,
+    },
+    '&[data-locked]': {
+      opacity: 0.5,
+    },
+  },
+});
+
+export const timelineHeaderSwatchStyle = style({
+  flexShrink: 0,
+  width: 8,
+  height: 8,
+  borderRadius: 2,
+  background: vars.colors.accent.secondary,
+});
+
+export const timelineHeaderLabelStyle = style({
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
+/** Toolbar strip above the main row. */
+export const timelineToolbarStyle = style({
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.sm,
+  padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
+  borderBottom: `1px solid ${vars.colors.border.default}`,
+});
+
+/** Footer / status strip below the main row. */
+export const timelineFooterStyle = style({
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.sm,
+  padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
+  borderTop: `1px solid ${vars.colors.border.default}`,
+  fontSize: vars.typography.fontSize.xs,
+  color: vars.colors.text.muted,
+});

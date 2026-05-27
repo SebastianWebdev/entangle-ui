@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { act, fireEvent } from '@testing-library/react';
 import { createRef } from 'react';
 import { renderWithTheme } from '@/tests/testUtils';
-import { Timeline } from './Timeline';
+import { Timeline } from './index';
 import type { TimelineHandle, TimelineTrack } from './Timeline.types';
 
 function kf(
@@ -189,6 +189,43 @@ describe('Timeline', () => {
       if (!arg) throw new Error('onTracksChange was not called');
       const opacity = arg.find(t => t.id === 'opacity');
       expect(opacity?.keyframes.map(k => k.id)).toEqual(['k2']);
+    });
+  });
+
+  describe('Headers and slots', () => {
+    it('renders a default track header with the label', () => {
+      const { getByText } = renderWithTheme(
+        <Timeline tracks={TRACKS} endFrame={100} height={200} />
+      );
+      expect(getByText('Opacity')).toBeInTheDocument();
+    });
+
+    it('uses renderTrackHeader when provided', () => {
+      const { getByText, queryByText } = renderWithTheme(
+        <Timeline
+          tracks={TRACKS}
+          endFrame={100}
+          height={200}
+          renderTrackHeader={t => <span>{`hdr-${t.id}`}</span>}
+        />
+      );
+      expect(getByText('hdr-opacity')).toBeInTheDocument();
+      expect(queryByText('Opacity')).toBeNull();
+    });
+
+    it('renders Timeline.Toolbar and Timeline.Footer slots', () => {
+      const { getByText } = renderWithTheme(
+        <Timeline tracks={TRACKS} endFrame={100} height={200}>
+          <Timeline.Toolbar>
+            <span>transport</span>
+          </Timeline.Toolbar>
+          <Timeline.Footer>
+            <span>status</span>
+          </Timeline.Footer>
+        </Timeline>
+      );
+      expect(getByText('transport')).toBeInTheDocument();
+      expect(getByText('status')).toBeInTheDocument();
     });
   });
 });

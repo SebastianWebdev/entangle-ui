@@ -151,11 +151,14 @@ export type {
 
 export {
   Timeline,
+  TimelineToolbar,
+  TimelineFooter,
   useTimelineContext,
   useTimelineGeometry,
   useTimelinePlayhead,
   useTimelineSelection,
   framesToTimecode,
+  TIMELINE_SLOT,
 } from './Timeline';
 
 export type {
@@ -171,6 +174,10 @@ export type {
   TimelineDrawInfo,
   TimelineTrackHeaderInfo,
   TimelineContextValue,
+  TimelineToolbarProps,
+  TimelineFooterProps,
+  TimelineSlotKind,
+  TimelineSlotMarker,
   TimelineGeometryState,
   TimelinePlayheadState,
   TimelineDragState,

@@ -19,16 +19,23 @@ import type {
   TimelineMode,
   TimelineProps,
   TimelineSelection,
+  TimelineSlotKind,
+  TimelineSlotMarker,
   TimelineTrack,
   TimelineView,
 } from './Timeline.types';
+import { TIMELINE_SLOT } from './Timeline.types';
 import {
   timelineShellStyle,
   timelineBodyStyle,
   timelineCanvasStyle,
   timelineOverlayLayerStyle,
+  timelineMainRowStyle,
+  timelineToolbarStyle,
+  timelineFooterStyle,
   ariaLiveRegionStyle,
 } from './Timeline.css';
+import { TimelineTrackHeaders } from './TimelineTrackHeaders';
 import { clamp, framesToTimecode, snapFrame } from './timelineCoords';
 import { drawTimeline, type TimelineDrawColors } from './timelineDrawing';
 import { TimelineStore } from './TimelineStore';
@@ -39,6 +46,57 @@ const RULER_HEIGHT = 22;
 
 function selectionKey(trackId: string, keyframeId: string): string {
   return `${trackId} ${keyframeId}`;
+}
+
+interface CategorizedSlots {
+  toolbar: React.ReactNode;
+  footer: React.ReactNode;
+  overlay: React.ReactNode[];
+}
+
+function getSlotKind(el: React.ReactElement): TimelineSlotKind | null {
+  const marker = (el.type as Partial<TimelineSlotMarker>)[TIMELINE_SLOT];
+  return marker ?? null;
+}
+
+function categorizeChildren(children: React.ReactNode): CategorizedSlots {
+  const slots: CategorizedSlots = { toolbar: null, footer: null, overlay: [] };
+  React.Children.forEach(children, child => {
+    if (!React.isValidElement(child)) {
+      if (child !== null && child !== undefined && child !== false) {
+        slots.overlay.push(child);
+      }
+      return;
+    }
+    const kind = getSlotKind(child);
+    const props = child.props as {
+      children?: React.ReactNode;
+      className?: string;
+      style?: React.CSSProperties;
+    };
+    if (kind === 'toolbar') {
+      slots.toolbar = (
+        <div
+          className={cx(timelineToolbarStyle, props.className)}
+          style={props.style}
+        >
+          {props.children}
+        </div>
+      );
+    } else if (kind === 'footer') {
+      slots.footer = (
+        <div
+          className={cx(timelineFooterStyle, props.className)}
+          style={props.style}
+        >
+          {props.children}
+        </div>
+      );
+    } else {
+      slots.overlay.push(child);
+    }
+  });
+  return slots;
 }
 
 /**
@@ -83,11 +141,13 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     trackHeight = 28,
     showRuler = true,
     showPlayhead = true,
+    trackHeaderWidth = 160,
     responsive = true,
     height,
     playheadColor,
     backgroundColor,
     renderOverlay,
+    renderTrackHeader,
     formatTime,
     ariaLabel = 'Timeline',
     className,
@@ -427,6 +487,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
 
   // ── Layout ──
 
+  const slots = useMemo(() => categorizeChildren(children), [children]);
+
   const shellHeight =
     height !== undefined ? `${height}px` : responsive ? '100%' : '240px';
 
@@ -438,28 +500,40 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
         id={id}
         style={{ height: shellHeight, ...style }}
       >
-        <div
-          ref={bodyRef}
-          className={timelineBodyStyle}
-          data-dragging={drag.kind !== 'none' || undefined}
-          role="group"
-          aria-label={ariaLabel}
-          tabIndex={0}
-          onPointerDown={handlers.onPointerDown}
-          onPointerMove={handlers.onPointerMove}
-          onPointerUp={handlers.onPointerUp}
-          onPointerCancel={handlers.onPointerCancel}
-          onDoubleClick={handlers.onDoubleClick}
-          onKeyDown={handlers.onKeyDown}
-        >
-          <canvas ref={canvasRef} className={timelineCanvasStyle} />
-          <div className={timelineOverlayLayerStyle}>{children}</div>
-          <div
-            className={ariaLiveRegionStyle}
-            aria-live="polite"
-            role="status"
+        {slots.toolbar}
+        <div className={timelineMainRowStyle}>
+          <TimelineTrackHeaders
+            tracks={tracks}
+            trackHeight={trackHeight}
+            rulerHeight={rulerHeight}
+            width={trackHeaderWidth}
+            selection={selectionState}
+            renderTrackHeader={renderTrackHeader}
           />
+          <div
+            ref={bodyRef}
+            className={timelineBodyStyle}
+            data-dragging={drag.kind !== 'none' || undefined}
+            role="group"
+            aria-label={ariaLabel}
+            tabIndex={0}
+            onPointerDown={handlers.onPointerDown}
+            onPointerMove={handlers.onPointerMove}
+            onPointerUp={handlers.onPointerUp}
+            onPointerCancel={handlers.onPointerCancel}
+            onDoubleClick={handlers.onDoubleClick}
+            onKeyDown={handlers.onKeyDown}
+          >
+            <canvas ref={canvasRef} className={timelineCanvasStyle} />
+            <div className={timelineOverlayLayerStyle}>{slots.overlay}</div>
+            <div
+              className={ariaLiveRegionStyle}
+              aria-live="polite"
+              role="status"
+            />
+          </div>
         </div>
+        {slots.footer}
       </div>
     </TimelineStoreContext.Provider>
   );
