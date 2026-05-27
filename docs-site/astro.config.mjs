@@ -251,6 +251,10 @@ export default defineConfig({
                   slug: 'components/editor/property-inspector',
                 },
                 {
+                  label: 'Timeline',
+                  slug: 'components/editor/timeline',
+                },
+                {
                   label: 'TransformControl',
                   slug: 'components/editor/transform-control',
                 },

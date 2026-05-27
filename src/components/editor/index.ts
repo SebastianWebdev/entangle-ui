@@ -148,3 +148,31 @@ export type {
   UseChatScrollOptions,
   UseChatScrollReturn,
 } from './ChatPanel';
+
+export {
+  Timeline,
+  useTimelineContext,
+  useTimelineGeometry,
+  useTimelinePlayhead,
+  useTimelineSelection,
+  framesToTimecode,
+} from './Timeline';
+
+export type {
+  TimelineProps,
+  TimelineTrack,
+  TimelineKeyframeRef,
+  TimelineSelection,
+  TimelineView,
+  TimelineMode,
+  TimelineLoop,
+  TimelineInfinity,
+  TimelineHandle,
+  TimelineDrawInfo,
+  TimelineTrackHeaderInfo,
+  TimelineContextValue,
+  TimelineGeometryState,
+  TimelinePlayheadState,
+  TimelineDragState,
+  TimelineDragKind,
+} from './Timeline';
