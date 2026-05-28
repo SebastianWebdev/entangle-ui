@@ -26,6 +26,9 @@ export const timelineBodyStyle = style({
     '&:focus-visible': {
       boxShadow: vars.shadows.focus,
     },
+    '&[data-hover-target="playhead"]': {
+      cursor: 'ew-resize',
+    },
     '&[data-dragging]': {
       cursor: 'grabbing',
     },

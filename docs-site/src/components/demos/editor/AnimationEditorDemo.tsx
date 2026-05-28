@@ -13,6 +13,7 @@ import {
   Timeline,
   useTimelineSelectedTangentMode,
   type TimelineGroup,
+  type TimelineLoop,
   type TimelineMode,
   type TimelineTrack,
 } from '@/components/editor/Timeline';
@@ -414,6 +415,9 @@ function InspectorColumn({ cube, frame }: InspectorProps): JSX.Element {
 
 // ─── Top chrome (menu + toolbar) ────────────────────────────
 
+type FollowMode = 'smooth' | 'paged' | 'off';
+type LoopChoice = 'full' | 'first' | 'second' | 'off';
+
 interface TopChromeProps {
   playing: boolean;
   onTogglePlay: () => void;
@@ -424,6 +428,10 @@ interface TopChromeProps {
   onJumpToEnd: () => void;
   mode: TimelineMode;
   onModeChange: (mode: TimelineMode) => void;
+  followMode: FollowMode;
+  onFollowModeChange: (mode: FollowMode) => void;
+  loopChoice: LoopChoice;
+  onLoopChoiceChange: (choice: LoopChoice) => void;
 }
 
 function TopChrome({
@@ -436,6 +444,10 @@ function TopChrome({
   onJumpToEnd,
   mode,
   onModeChange,
+  followMode,
+  onFollowModeChange,
+  loopChoice,
+  onLoopChoiceChange,
 }: TopChromeProps): JSX.Element {
   return (
     <>
@@ -538,6 +550,43 @@ function TopChrome({
               Dope sheet
             </SegmentedControlItem>
             <SegmentedControlItem value="graph">Graph</SegmentedControlItem>
+          </SegmentedControl>
+          <Toolbar.Separator />
+          <Text
+            variant="caption"
+            color="muted"
+            style={{ padding: '0 4px 0 8px' }}
+          >
+            Follow
+          </Text>
+          <SegmentedControl
+            value={followMode}
+            onChange={next => onFollowModeChange(next as FollowMode)}
+            size="sm"
+            aria-label="Playhead follow mode"
+          >
+            <SegmentedControlItem value="smooth">Smooth</SegmentedControlItem>
+            <SegmentedControlItem value="paged">Paged</SegmentedControlItem>
+            <SegmentedControlItem value="off">Off</SegmentedControlItem>
+          </SegmentedControl>
+          <Toolbar.Separator />
+          <Text
+            variant="caption"
+            color="muted"
+            style={{ padding: '0 4px 0 8px' }}
+          >
+            Loop
+          </Text>
+          <SegmentedControl
+            value={loopChoice}
+            onChange={next => onLoopChoiceChange(next as LoopChoice)}
+            size="sm"
+            aria-label="Loop range"
+          >
+            <SegmentedControlItem value="full">Full</SegmentedControlItem>
+            <SegmentedControlItem value="first">1st half</SegmentedControlItem>
+            <SegmentedControlItem value="second">2nd half</SegmentedControlItem>
+            <SegmentedControlItem value="off">Off</SegmentedControlItem>
           </SegmentedControl>
           <Toolbar.Spacer />
           <Text
@@ -649,6 +698,22 @@ export default function AnimationEditorDemo(): JSX.Element {
   const [playing, setPlaying] = useState(false);
   const [mode, setMode] = useState<TimelineMode>('dope-sheet');
   const [selectionCount, setSelectionCount] = useState(0);
+  const [followMode, setFollowMode] = useState<FollowMode>('smooth');
+  const [loopChoice, setLoopChoice] = useState<LoopChoice>('full');
+
+  const loopValue = useMemo<TimelineLoop>(() => {
+    switch (loopChoice) {
+      case 'off':
+        return false;
+      case 'first':
+        return { startFrame: 0, endFrame: END_FRAME / 2 };
+      case 'second':
+        return { startFrame: END_FRAME / 2, endFrame: END_FRAME };
+      case 'full':
+      default:
+        return { startFrame: 0, endFrame: END_FRAME };
+    }
+  }, [loopChoice]);
 
   const cube = useMemo(() => readCube(tracks, frame), [tracks, frame]);
 
@@ -668,6 +733,10 @@ export default function AnimationEditorDemo(): JSX.Element {
           onJumpToEnd={() => jumpTo(END_FRAME)}
           mode={mode}
           onModeChange={setMode}
+          followMode={followMode}
+          onFollowModeChange={setFollowMode}
+          loopChoice={loopChoice}
+          onLoopChoiceChange={setLoopChoice}
         />
 
         <AppShell.Dock>
@@ -706,7 +775,8 @@ export default function AnimationEditorDemo(): JSX.Element {
                 onModeChange={setMode}
                 onSelectionChange={s => setSelectionCount(s.length)}
                 defaultView={{ startFrame: 0, endFrame: 60 }}
-                loop={{ startFrame: 0, endFrame: END_FRAME }}
+                loop={loopValue}
+                followMode={followMode}
                 trackHeaderWidth={180}
               >
                 <Timeline.Toolbar>

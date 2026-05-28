@@ -280,6 +280,10 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
   const store = useMemo(() => new TimelineStore(), []);
   const drag = useSyncExternalStore(store.subscribeDrag, store.getDrag);
   const hover = useSyncExternalStore(store.subscribeHover, store.getHover);
+  const hoverPlayhead = useSyncExternalStore(
+    store.subscribeHoverPlayhead,
+    store.getHoverPlayhead
+  );
 
   useLayoutEffect(() => {
     store.setGeometry({
@@ -646,6 +650,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
         isSelected: (t, k) => selKeys.has(selectionKey(t, k)),
         isHovered: (t, k) =>
           hover !== null && hover.trackId === t && hover.keyframeId === k,
+        playheadHovered: hoverPlayhead,
         renderOverlay: renderOverlayRef.current,
         marquee: drag.marquee,
         loopRegion,
@@ -667,6 +672,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     playheadColor,
     drag.marquee,
     hover,
+    hoverPlayhead,
     loopRegion,
     renderOverlayRef,
     formatTimeRef,
@@ -732,6 +738,9 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             ref={bodyRef}
             className={timelineBodyStyle}
             data-dragging={drag.kind !== 'none' || undefined}
+            data-hover-target={
+              hoverPlayhead && drag.kind === 'none' ? 'playhead' : undefined
+            }
             role="group"
             aria-label={ariaLabel}
             aria-roledescription="Timeline"

@@ -43,6 +43,8 @@ export interface TimelineDrawInput {
   isSelected: (trackId: string, keyframeId: string) => boolean;
   /** Whether a given keyframe is hovered (pointer-over, no active drag). */
   isHovered?: (trackId: string, keyframeId: string) => boolean;
+  /** Whether the playhead is currently pointer-hovered (renders a glow). */
+  playheadHovered?: boolean;
   renderOverlay?: (
     ctx: CanvasRenderingContext2D,
     info: TimelineDrawInfo
@@ -341,15 +343,29 @@ export function drawTimeline(input: TimelineDrawInput): void {
   // ── Playhead ──
   if (showPlayhead) {
     const x = Math.round(toX(frame)) + 0.5;
+    const hovered = input.playheadHovered === true;
+    ctx.save();
+    if (hovered) {
+      ctx.shadowColor = colors.playhead;
+      ctx.shadowBlur = 6;
+    }
     ctx.strokeStyle = colors.playhead;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = hovered ? 1.5 : 1;
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, size.height);
     ctx.stroke();
+    ctx.restore();
 
-    // Top handle (downward triangle in the ruler band).
-    const head = Math.max(4, Math.min(7, rulerHeight - 2)) || 6;
+    // Top handle (downward triangle in the ruler band) — bigger on hover so
+    // the user can clearly see the grabbable head.
+    const baseHead = Math.max(4, Math.min(7, rulerHeight - 2)) || 6;
+    const head = hovered ? baseHead + 2 : baseHead;
+    ctx.save();
+    if (hovered) {
+      ctx.shadowColor = colors.playhead;
+      ctx.shadowBlur = 6;
+    }
     ctx.fillStyle = colors.playhead;
     ctx.beginPath();
     ctx.moveTo(x - head, 0);
@@ -357,6 +373,7 @@ export function drawTimeline(input: TimelineDrawInput): void {
     ctx.lineTo(x, head);
     ctx.closePath();
     ctx.fill();
+    ctx.restore();
   }
 
   // ── Marquee (box-select) ──

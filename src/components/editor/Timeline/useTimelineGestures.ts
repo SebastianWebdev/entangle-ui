@@ -447,7 +447,8 @@ export function useTimelineGestures(
       const state = stateRef.current;
 
       // Hover-tracking: only when no active drag (so the diamond / circle can
-      // grow under the cursor as a "grabbable" affordance).
+      // grow under the cursor as a "grabbable" affordance; playhead glows
+      // when the cursor is over the line or its head).
       if (!state) {
         const hit = hitAt(point);
         if (hit.kind === 'keyframe') {
@@ -455,6 +456,7 @@ export function useTimelineGestures(
         } else {
           store.setHover(null);
         }
+        store.setHoverPlayhead(hit.kind === 'playhead');
       }
 
       if (state?.pointerId !== e.pointerId) return;
@@ -549,6 +551,7 @@ export function useTimelineGestures(
 
   const onPointerLeave = useCallback((): void => {
     store.setHover(null);
+    store.setHoverPlayhead(false);
   }, [store]);
 
   const endGesture = useCallback(

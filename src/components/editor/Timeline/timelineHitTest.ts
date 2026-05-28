@@ -76,8 +76,13 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
 
   const contentY = point.y - rulerHeight + scrollTop;
   const playheadX = input.showPlayhead ? toX(input.frame) : null;
+  // Expand the pick zone for the head (ruler band) so the triangle is easy
+  // to grab; keep a tighter band over the track area so it doesn't fight
+  // with keyframes for hover.
+  const playheadPickX =
+    point.y < rulerHeight ? PLAYHEAD_PICK_X + 4 : PLAYHEAD_PICK_X;
   const nearPlayhead =
-    playheadX !== null && Math.abs(point.x - playheadX) <= PLAYHEAD_PICK_X;
+    playheadX !== null && Math.abs(point.x - playheadX) <= playheadPickX;
 
   for (const row of rows) {
     if (contentY < row.top || contentY >= row.top + row.height) continue;

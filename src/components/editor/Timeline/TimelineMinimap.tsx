@@ -116,6 +116,13 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
       renderCtx.strokeStyle = accent;
       renderCtx.lineWidth = 1;
       renderCtx.strokeRect(vx + 0.5, 0.5, Math.max(0, vw - 1), h - 1);
+
+      // Edge "grippers" — small filled bars centred vertically on each edge
+      // hint that the viewport rectangle is resizable (zoom).
+      const gripH = Math.max(6, h * 0.4);
+      const gripY = (h - gripH) / 2;
+      renderCtx.fillRect(vx - 1, gripY, 2, gripH);
+      renderCtx.fillRect(vx + vw - 1, gripY, 2, gripH);
       renderCtx.restore();
 
       // Playhead
@@ -149,11 +156,13 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
     return () => cancelAnimationFrame(rafRef.current);
   }, [scheduleDraw]);
 
-  // ── Interactions: drag viewport, click outside to center ──
+  // ── Interactions: drag viewport, resize edges, click outside to center ──
+
+  const EDGE_PICK_PX = 6;
 
   const dragRef = useRef<{
     pointerId: number;
-    mode: 'move' | 'jump';
+    mode: 'move' | 'jump' | 'resize-start' | 'resize-end';
     grabOffset: number;
   } | null>(null);
 
@@ -167,6 +176,20 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
     [setView, ctx.startFrame, ctx.endFrame, span]
   );
 
+  const setViewRaw = useCallback(
+    (next: TimelineView): void => {
+      if (!setView) return;
+      setView(next);
+    },
+    [setView]
+  );
+
+  const frameToPx = useCallback(
+    (frame: number): number =>
+      ((frame - ctx.startFrame) / range) * Math.max(1, width),
+    [ctx.startFrame, range, width]
+  );
+
   const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>): void => {
       if (e.button !== 0) return;
@@ -177,16 +200,34 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
       const frame = pxToFrame(x);
       e.preventDefault();
       container.setPointerCapture(e.pointerId);
+      const startPx = frameToPx(ctx.view.startFrame);
+      const endPx = frameToPx(ctx.view.endFrame);
+      // Edge-resize takes priority: lets the user zoom by dragging the
+      // viewport rect's left or right edge.
+      if (Math.abs(x - startPx) <= EDGE_PICK_PX) {
+        dragRef.current = {
+          pointerId: e.pointerId,
+          mode: 'resize-start',
+          grabOffset: 0,
+        };
+        return;
+      }
+      if (Math.abs(x - endPx) <= EDGE_PICK_PX) {
+        dragRef.current = {
+          pointerId: e.pointerId,
+          mode: 'resize-end',
+          grabOffset: 0,
+        };
+        return;
+      }
       const inside = frame >= ctx.view.startFrame && frame <= ctx.view.endFrame;
       if (inside) {
-        // Drag the viewport rectangle.
         dragRef.current = {
           pointerId: e.pointerId,
           mode: 'move',
           grabOffset: frame - ctx.view.startFrame,
         };
       } else {
-        // Click outside → center viewport on the clicked frame.
         dragRef.current = {
           pointerId: e.pointerId,
           mode: 'jump',
@@ -195,7 +236,14 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
         setViewSpan(frame - span / 2);
       }
     },
-    [pxToFrame, ctx.view.startFrame, ctx.view.endFrame, setViewSpan, span]
+    [
+      pxToFrame,
+      frameToPx,
+      ctx.view.startFrame,
+      ctx.view.endFrame,
+      setViewSpan,
+      span,
+    ]
   );
 
   const onPointerMove = useCallback(
@@ -207,13 +255,35 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
       const rect = container.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const frame = pxToFrame(x);
-      if (drag.mode === 'move') {
-        setViewSpan(frame - drag.grabOffset);
-      } else {
-        setViewSpan(frame - span / 2);
+      switch (drag.mode) {
+        case 'move':
+          setViewSpan(frame - drag.grabOffset);
+          break;
+        case 'jump':
+          setViewSpan(frame - span / 2);
+          break;
+        case 'resize-start': {
+          const newStart = clamp(frame, ctx.startFrame, ctx.view.endFrame - 1);
+          setViewRaw({ startFrame: newStart, endFrame: ctx.view.endFrame });
+          break;
+        }
+        case 'resize-end': {
+          const newEnd = clamp(frame, ctx.view.startFrame + 1, ctx.endFrame);
+          setViewRaw({ startFrame: ctx.view.startFrame, endFrame: newEnd });
+          break;
+        }
       }
     },
-    [pxToFrame, setViewSpan, span]
+    [
+      pxToFrame,
+      setViewSpan,
+      setViewRaw,
+      span,
+      ctx.startFrame,
+      ctx.endFrame,
+      ctx.view.startFrame,
+      ctx.view.endFrame,
+    ]
   );
 
   const endDrag = useCallback((e: React.PointerEvent<HTMLDivElement>): void => {
