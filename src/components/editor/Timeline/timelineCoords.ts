@@ -134,3 +134,36 @@ export function autoValueRange(
   const pad = (hi - lo) * 0.1;
   return [lo - pad, hi + pad];
 }
+
+/**
+ * Compute the next view that should follow the playhead during playback,
+ * or `null` when no change is needed.
+ *
+ * - `'smooth'` — the view's `startFrame` is `frame - span/2`, clamped to
+ *   `[startFrame, endFrame - span]`. Called every frame tick → continuous
+ *   tracking with the playhead pinned to the centre.
+ * - `'paged'` — return a new view only when the playhead has left the
+ *   current view; the new view starts at the playhead, clamped to bounds.
+ * - `'off'` — always returns `null`.
+ */
+export function nextFollowView(
+  mode: 'smooth' | 'paged' | 'off',
+  view: TimelineView,
+  frame: number,
+  startFrame: number,
+  endFrame: number
+): TimelineView | null {
+  if (mode === 'off') return null;
+  const span = view.endFrame - view.startFrame;
+  if (span <= 0) return null;
+  const maxStart = endFrame - span;
+  let nextStart: number;
+  if (mode === 'paged') {
+    if (frame >= view.startFrame && frame <= view.endFrame) return null;
+    nextStart = clamp(frame, startFrame, maxStart);
+  } else {
+    nextStart = clamp(frame - span / 2, startFrame, maxStart);
+  }
+  if (nextStart === view.startFrame) return null;
+  return { startFrame: nextStart, endFrame: nextStart + span };
+}

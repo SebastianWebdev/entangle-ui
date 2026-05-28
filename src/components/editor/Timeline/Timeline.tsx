@@ -43,6 +43,7 @@ import { computeRows } from './timelineLayout';
 import {
   clamp,
   framesToTimecode,
+  nextFollowView,
   resolveLoop,
   snapFrame,
 } from './timelineCoords';
@@ -159,6 +160,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     loop,
     defaultLoop,
     onLoopChange,
+    followMode = 'smooth',
     groups,
     onGroupsChange,
     trackHeight = 28,
@@ -352,25 +354,30 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
   });
 
   // ── Follow-playhead during playback ──
-  // When the playhead enters the trailing third of the visible window, slide
-  // the view forward so the playhead stays at roughly the middle. Symmetric
-  // logic for the leading third (e.g. when seeking backwards while playing).
+  // `smooth` keeps the playhead centred in the view — the view slides
+  // continuously once the playhead reaches the centre (one frame per tick,
+  // so visually smooth). `paged` waits until the playhead leaves the view
+  // and then jumps forward by a full span (After Effects vs Premiere style).
+  // `off` leaves the view alone.
   useLayoutEffect(() => {
     if (!playingState) return;
-    const span = viewState.endFrame - viewState.startFrame;
-    if (span <= 0) return;
-    const leadingEdge = viewState.startFrame + span / 3;
-    const trailingEdge = viewState.endFrame - span / 3;
-    let nextStart: number | null = null;
-    if (frameState > trailingEdge) {
-      nextStart = clamp(frameState - span / 2, startFrame, endFrame - span);
-    } else if (frameState < leadingEdge) {
-      nextStart = clamp(frameState - span / 2, startFrame, endFrame - span);
-    }
-    if (nextStart !== null && nextStart !== viewState.startFrame) {
-      setView({ startFrame: nextStart, endFrame: nextStart + span });
-    }
-  }, [playingState, frameState, viewState, setView, startFrame, endFrame]);
+    const next = nextFollowView(
+      followMode,
+      viewState,
+      frameState,
+      startFrame,
+      endFrame
+    );
+    if (next) setView(next);
+  }, [
+    playingState,
+    followMode,
+    frameState,
+    viewState,
+    setView,
+    startFrame,
+    endFrame,
+  ]);
 
   // ── Track-edit helpers ──
 

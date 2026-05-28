@@ -12,6 +12,7 @@ import {
   valueToY,
   yToValue,
   autoValueRange,
+  nextFollowView,
   resolveLoop,
 } from './timelineCoords';
 
@@ -147,6 +148,65 @@ describe('timelineCoords', () => {
       });
       expect(resolveLoop(false, 0, 100)).toBeNull();
       expect(resolveLoop(undefined, 0, 100)).toBeNull();
+    });
+  });
+
+  describe('nextFollowView', () => {
+    const view = { startFrame: 40, endFrame: 100 }; // span 60
+
+    it("'off' always returns null", () => {
+      expect(nextFollowView('off', view, 70, 0, 200)).toBeNull();
+      expect(nextFollowView('off', view, 9999, 0, 200)).toBeNull();
+    });
+
+    it("'smooth' pins the playhead to the centre and reports new view", () => {
+      // frame 80 → start = 80 - 30 = 50, end = 110 (still in bounds)
+      expect(nextFollowView('smooth', view, 80, 0, 200)).toEqual({
+        startFrame: 50,
+        endFrame: 110,
+      });
+    });
+
+    it("'smooth' clamps to the global range at the right edge", () => {
+      // frame 195 → unclamped start = 165, clamped to 200 - 60 = 140
+      expect(nextFollowView('smooth', view, 195, 0, 200)).toEqual({
+        startFrame: 140,
+        endFrame: 200,
+      });
+    });
+
+    it("'smooth' clamps to startFrame at the left edge", () => {
+      // frame 5 → unclamped start = -25, clamped to 0
+      expect(nextFollowView('smooth', view, 5, 0, 200)).toEqual({
+        startFrame: 0,
+        endFrame: 60,
+      });
+    });
+
+    it("'smooth' returns null when the centred view equals the current view", () => {
+      // frame 70 is already at the centre of [40, 100]
+      expect(nextFollowView('smooth', view, 70, 0, 200)).toBeNull();
+    });
+
+    it("'paged' returns null while the playhead is inside the current view", () => {
+      expect(nextFollowView('paged', view, 70, 0, 200)).toBeNull();
+      expect(nextFollowView('paged', view, 99, 0, 200)).toBeNull();
+    });
+
+    it("'paged' jumps by a full span when the playhead leaves the view", () => {
+      // frame 101 is past view.endFrame → new view starts at 101
+      expect(nextFollowView('paged', view, 101, 0, 200)).toEqual({
+        startFrame: 101,
+        endFrame: 161,
+      });
+    });
+
+    it("'paged' clamps the jump so the view never sails past the global range", () => {
+      // frame 180 would yield start 180, clamped to 200 - 60 = 140
+      expect(nextFollowView('paged', view, 180, 0, 200)).toEqual({
+        startFrame: 140,
+        endFrame: 200,
+      });
     });
   });
 });

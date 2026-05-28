@@ -230,6 +230,16 @@ export interface TimelineBaseProps extends Omit<
   defaultLoop?: TimelineLoop;
   /** Fires when the loop region is dragged on the ruler. */
   onLoopChange?: (loop: TimelineLoop) => void;
+  /**
+   * How the view tracks the playhead during playback.
+   * - `'smooth'` — keep the playhead centred in the view; the view slides
+   *   continuously once the playhead reaches the centre.
+   * - `'paged'` — leave the view still until the playhead leaves it, then
+   *   jump forward by one full view span.
+   * - `'off'` — never auto-scroll; user manages the view.
+   * @default 'smooth'
+   */
+  followMode?: 'smooth' | 'paged' | 'off';
 
   /** Track groups (collapsible). Tracks join a group via `groupId`. */
   groups?: ReadonlyArray<TimelineGroup>;
