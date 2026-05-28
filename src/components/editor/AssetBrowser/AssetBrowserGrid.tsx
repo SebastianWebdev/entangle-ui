@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import { useLatest } from '@/hooks';
 import { cx } from '@/utils/cx';
@@ -14,8 +14,8 @@ import {
   useAssetGridVirtualizer,
   type AssetGridWindow,
 } from './useAssetGridVirtualizer';
+import { useAssetGridKeyboardNav } from './useAssetGridKeyboardNav';
 import { useAssetMarqueeGesture } from './useAssetMarqueeGesture';
-import { nextGridIndex } from './assetBrowserKeyboard';
 import { GRID_GAP, cellWidth } from './assetBrowserGeometry';
 import {
   columnsVar,
@@ -71,12 +71,6 @@ export function AssetBrowserGrid(): React.ReactElement {
     enabled: windowed,
   });
 
-  const indexById = useMemo(() => {
-    const map = new Map<string, number>();
-    items.forEach((item, i) => map.set(item.id, i));
-    return map;
-  }, [items]);
-
   const scrollIndexIntoView = useCallback(
     (index: number, w: AssetGridWindow): void => {
       const el = scrollerRef.current;
@@ -102,62 +96,19 @@ export function AssetBrowserGrid(): React.ReactElement {
     [store, winRef, scrollIndexIntoView]
   );
 
-  const handleKeyDown = (e: React.KeyboardEvent): void => {
-    if (count === 0) return;
-    const key = e.key;
-    // Let Alt+ArrowUp bubble to the root's "go to parent" handler.
-    if (e.altKey && key === 'ArrowUp') return;
-    const focusedId = store.getFocusedId();
-    const current = focusedId ? (indexById.get(focusedId) ?? -1) : -1;
-    const multiple = ctx.selectionMode === 'multiple';
-
-    if ((e.ctrlKey || e.metaKey) && (key === 'a' || key === 'A')) {
-      e.preventDefault();
-      ctx.selectAll();
-      return;
-    }
-    if (key === 'Escape') {
-      ctx.clearSelection();
-      return;
-    }
-    if (key === 'Enter') {
-      const item = current >= 0 ? items[current] : undefined;
-      if (item) {
-        e.preventDefault();
-        ctx.activateItem(item);
-      }
-      return;
-    }
-    if (key === ' ') {
-      const item = current >= 0 ? items[current] : undefined;
-      if (item) {
-        e.preventDefault();
-        ctx.toggleSelectId(item.id);
-      }
-      return;
-    }
-
-    const rowsPerPage = Math.max(
-      1,
-      Math.floor(
-        (scrollerRef.current?.clientHeight ?? win.rowHeight) / win.rowHeight
-      )
-    );
-    const next = nextGridIndex(current, key, {
-      columns: win.columns,
-      count,
-      rowsPerPage,
-    });
-    const target = next >= 0 ? items[next] : undefined;
-    if (next !== current && target) {
-      e.preventDefault();
-      store.setFocusedId(target.id);
-      scrollIndexIntoView(next, win);
-      if (ctx.selectionMode !== false) {
-        ctx.selectByKeyboard(next, multiple && e.shiftKey);
-      }
-    }
-  };
+  const keyboard = useAssetGridKeyboardNav({
+    store,
+    items,
+    win,
+    scrollerRef,
+    selectionMode: ctx.selectionMode,
+    selectAll: ctx.selectAll,
+    clearSelection: ctx.clearSelection,
+    activateItem: ctx.activateItem,
+    toggleSelectId: ctx.toggleSelectId,
+    selectByKeyboard: ctx.selectByKeyboard,
+    scrollIndexIntoView,
+  });
 
   const marquee = useAssetMarqueeGesture({
     scrollerRef,
@@ -189,7 +140,7 @@ export function AssetBrowserGrid(): React.ReactElement {
       aria-label="Assets"
       aria-multiselectable={ctx.selectionMode === 'multiple'}
       tabIndex={0}
-      onKeyDown={handleKeyDown}
+      onKeyDown={keyboard.onKeyDown}
       onPointerDown={marquee.onPointerDown}
       onPointerMove={marquee.onPointerMove}
       onPointerUp={marquee.onPointerUp}

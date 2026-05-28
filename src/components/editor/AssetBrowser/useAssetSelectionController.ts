@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  useCallback,
+  useEffectEvent,
   useLayoutEffect,
   useMemo,
   useRef,
   useTransition,
   type MouseEvent,
 } from 'react';
-import { useControlledState, useLatest } from '@/hooks';
+import { useControlledState } from '@/hooks';
 import type { AssetItem, AssetSelectionReason } from './AssetBrowser.types';
 import type { AssetBrowserStore } from './AssetBrowserStore';
 import { indexRange } from './assetBrowserKeyboard';
@@ -43,6 +43,10 @@ export interface AssetSelectionController {
   handlers: AssetSelectionHandlers;
 }
 
+function selectableIds(list: readonly AssetItem[]): string[] {
+  return list.filter(it => it.selectable !== false).map(it => it.id);
+}
+
 /**
  * Owns selection state and the click/keyboard/marquee gestures that mutate it.
  *
@@ -50,12 +54,13 @@ export interface AssetSelectionController {
  * `onSelectionChange` work) but is mirrored into the store on commit, letting
  * each cell subscribe to its own `useAssetSelected(id)` slice instead of
  * re-rendering the whole grid. The anchor is tracked by **id**, not index, so
- * shift-ranges survive a re-sort or re-filter between clicks.
+ * shift-ranges survive a re-sort or re-filter between clicks. All handlers are
+ * `useEffectEvent`s — stable identity, latest closures.
  */
 export function useAssetSelectionController(
   options: UseAssetSelectionControllerOptions
 ): AssetSelectionController {
-  const { store } = options;
+  const { store, displayed, selectionMode, onSelectionChange } = options;
   const [, startTransition] = useTransition();
 
   const [selectionArr, setSelectionArr] = useControlledState<readonly string[]>(
@@ -76,38 +81,30 @@ export function useAssetSelectionController(
 
   const anchorRef = useRef<string | null>(null);
 
-  const displayedRef = useLatest(options.displayed);
-  const selectionRef = useLatest(selectionSet);
-  const setSelArrRef = useLatest(setSelectionArr);
-  const onSelectionChangeRef = useLatest(options.onSelectionChange);
-  const selectionModeRef = useLatest(options.selectionMode);
-
-  const selectableIds = useCallback(
-    (list: readonly AssetItem[]): string[] =>
-      list.filter(it => it.selectable !== false).map(it => it.id),
-    []
-  );
-
-  const commitSelection = useCallback(
-    (ids: string[], reason: AssetSelectionReason): void => {
-      setSelArrRef.current(ids);
-      onSelectionChangeRef.current?.(ids, { reason });
-    },
-    [setSelArrRef, onSelectionChangeRef]
-  );
-
   /** Resolve the anchor id to its current position in the displayed list. */
-  const anchorIndex = useCallback((): number => {
+  const anchorIndex = (): number => {
     if (anchorRef.current === null) return -1;
-    return displayedRef.current.findIndex(it => it.id === anchorRef.current);
-  }, [displayedRef]);
+    return displayed.findIndex(it => it.id === anchorRef.current);
+  };
 
-  const handleItemClick = useCallback(
+  const commitSelection = useEffectEvent(
+    (ids: string[], reason: AssetSelectionReason): void => {
+      setSelectionArr(ids);
+      onSelectionChange?.(ids, { reason });
+    }
+  );
+
+  const handleItemClick = useEffectEvent(
     (item: AssetItem, index: number, event: MouseEvent): void => {
       store.setFocusedId(item.id);
-      const mode = selectionModeRef.current;
-      if (mode === false || item.selectable === false || item.disabled) return;
-      if (mode === 'single') {
+      if (
+        selectionMode === false ||
+        item.selectable === false ||
+        item.disabled
+      ) {
+        return;
+      }
+      if (selectionMode === 'single') {
         commitSelection([item.id], 'click');
         anchorRef.current = item.id;
         return;
@@ -117,44 +114,35 @@ export function useAssetSelectionController(
         if (a !== -1) {
           const [from, to] = indexRange(a, index);
           commitSelection(
-            selectableIds(displayedRef.current.slice(from, to + 1)),
+            selectableIds(displayed.slice(from, to + 1)),
             'click'
           );
           return;
         }
       }
       if (event.ctrlKey || event.metaKey) {
-        const set = new Set(selectionRef.current);
-        if (set.has(item.id)) set.delete(item.id);
-        else set.add(item.id);
-        commitSelection(Array.from(set), 'click');
+        const next = new Set(selectionSet);
+        if (next.has(item.id)) next.delete(item.id);
+        else next.add(item.id);
+        commitSelection(Array.from(next), 'click');
         anchorRef.current = item.id;
         return;
       }
       commitSelection([item.id], 'click');
       anchorRef.current = item.id;
-    },
-    [
-      store,
-      commitSelection,
-      selectableIds,
-      anchorIndex,
-      displayedRef,
-      selectionModeRef,
-      selectionRef,
-    ]
+    }
   );
 
-  const selectByKeyboard = useCallback(
+  const selectByKeyboard = useEffectEvent(
     (index: number, extend: boolean): void => {
-      const item = displayedRef.current[index];
+      const item = displayed[index];
       if (!item) return;
       if (extend) {
         const a = anchorIndex();
         if (a !== -1) {
           const [from, to] = indexRange(a, index);
           commitSelection(
-            selectableIds(displayedRef.current.slice(from, to + 1)),
+            selectableIds(displayed.slice(from, to + 1)),
             'keyboard'
           );
           return;
@@ -162,62 +150,53 @@ export function useAssetSelectionController(
       }
       commitSelection(item.selectable === false ? [] : [item.id], 'keyboard');
       anchorRef.current = item.id;
-    },
-    [commitSelection, selectableIds, anchorIndex, displayedRef]
+    }
   );
 
-  const toggleSelectId = useCallback(
-    (id: string): void => {
-      const set = new Set(selectionRef.current);
-      if (set.has(id)) set.delete(id);
-      else set.add(id);
-      commitSelection(Array.from(set), 'keyboard');
-    },
-    [commitSelection, selectionRef]
-  );
+  const toggleSelectId = useEffectEvent((id: string): void => {
+    const next = new Set(selectionSet);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    commitSelection(Array.from(next), 'keyboard');
+  });
 
-  const setSelectionIds = useCallback(
+  const setSelectionIds = useEffectEvent(
     (ids: string[], reason: AssetSelectionReason): void => {
       commitSelection(ids, reason);
-    },
-    [commitSelection]
+    }
   );
 
-  const commitMarquee = useCallback(
+  const commitMarquee = useEffectEvent(
     (ids: string[], additive: boolean): void => {
       startTransition(() => {
         if (additive) {
-          const set = new Set(selectionRef.current);
-          ids.forEach(id => set.add(id));
-          commitSelection(Array.from(set), 'marquee');
+          const next = new Set(selectionSet);
+          ids.forEach(id => next.add(id));
+          commitSelection(Array.from(next), 'marquee');
           return;
         }
         commitSelection(ids, 'marquee');
       });
-    },
-    [commitSelection, selectionRef, startTransition]
+    }
   );
 
-  const selectAll = useCallback(() => {
+  const selectAll = useEffectEvent((): void => {
     startTransition(() => {
-      commitSelection(selectableIds(displayedRef.current), 'selectAll');
+      commitSelection(selectableIds(displayed), 'selectAll');
     });
-  }, [commitSelection, selectableIds, displayedRef, startTransition]);
+  });
 
-  const clearSelection = useCallback(() => {
+  const clearSelection = useEffectEvent((): void => {
     commitSelection([], 'clear');
-  }, [commitSelection]);
+  });
 
-  const contextMenuSelect = useCallback(
-    (item: AssetItem): void => {
-      store.setFocusedId(item.id);
-      if (!selectionRef.current.has(item.id) && item.selectable !== false) {
-        commitSelection([item.id], 'contextMenu');
-      }
-      anchorRef.current = item.id;
-    },
-    [store, commitSelection, selectionRef]
-  );
+  const contextMenuSelect = useEffectEvent((item: AssetItem): void => {
+    store.setFocusedId(item.id);
+    if (!selectionSet.has(item.id) && item.selectable !== false) {
+      commitSelection([item.id], 'contextMenu');
+    }
+    anchorRef.current = item.id;
+  });
 
   const handlers = useMemo<AssetSelectionHandlers>(
     () => ({

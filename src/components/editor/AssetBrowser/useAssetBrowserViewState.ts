@@ -138,20 +138,38 @@ export function useAssetBrowserViewState(
     ]
   );
 
-  return {
-    view,
-    setView,
-    thumbnailSize,
-    setThumbnailSize,
-    thumbnailSizePx,
-    search,
-    setSearch,
-    filters,
-    setFilters,
-    sort,
-    setSort,
-    filterableTypes,
-    displayed,
-    marqueeEnabled,
-  };
+  return useMemo(
+    () => ({
+      view,
+      setView,
+      thumbnailSize,
+      setThumbnailSize,
+      thumbnailSizePx,
+      search,
+      setSearch,
+      filters,
+      setFilters,
+      sort,
+      setSort,
+      filterableTypes,
+      displayed,
+      marqueeEnabled,
+    }),
+    [
+      view,
+      setView,
+      thumbnailSize,
+      setThumbnailSize,
+      thumbnailSizePx,
+      search,
+      setSearch,
+      filters,
+      setFilters,
+      sort,
+      setSort,
+      filterableTypes,
+      displayed,
+      marqueeEnabled,
+    ]
+  );
 }

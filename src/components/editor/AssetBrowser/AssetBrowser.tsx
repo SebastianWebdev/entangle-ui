@@ -19,13 +19,15 @@ import { AssetBrowserBreadcrumbs } from './AssetBrowserBreadcrumbs';
 import { AssetBrowserSidebar } from './AssetBrowserSidebar';
 import { AssetBrowserContent } from './AssetBrowserContent';
 import { AssetBrowserStatusBar } from './AssetBrowserStatusBar';
+import { AssetBrowserAnnouncementLive } from './AssetBrowserAnnouncementLive';
 import { useAssetDnd } from './useAssetDnd';
 import { useAssetNavigation } from './useAssetNavigation';
 import { useAssetSelectionController } from './useAssetSelectionController';
 import { useAssetBrowserViewState } from './useAssetBrowserViewState';
 import { useAssetBrowserHandle } from './useAssetBrowserHandle';
+import { useStableRenderFn } from './useStableRenderFn';
 import { getSlotKind, markSlot } from './slots';
-import { body, importOverlay, main, root, srOnly } from './AssetBrowser.css';
+import { body, importOverlay, main, root } from './AssetBrowser.css';
 
 const DEFAULT_MIME = 'application/x-entangle-asset';
 
@@ -210,6 +212,17 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     clearSelection: handlers.clearSelection,
   });
 
+  // Stabilize render-props so a consumer's inline function doesn't bust the
+  // item context (which would re-render every grid cell on every parent
+  // render). Render-props are called from render, so they need this wrapper
+  // rather than `useEffectEvent`.
+  const stableRenderThumbnail = useStableRenderFn(renderThumbnail);
+  const stableRenderItem = useStableRenderFn(renderItem);
+  const stableRenderItemContextMenu = useStableRenderFn(renderItemContextMenu);
+  const stableRenderEmptyContextMenu = useStableRenderFn(
+    renderEmptyContextMenu
+  );
+
   const itemValue = useMemo<AssetBrowserContextValue>(
     () => ({
       displayedItems: displayed,
@@ -230,10 +243,10 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       folderTree,
       currentFolderId,
       navigate,
-      renderThumbnail,
-      renderItem,
-      renderItemContextMenu,
-      renderEmptyContextMenu,
+      renderThumbnail: stableRenderThumbnail,
+      renderItem: stableRenderItem,
+      renderItemContextMenu: stableRenderItemContextMenu,
+      renderEmptyContextMenu: stableRenderEmptyContextMenu,
       loading,
       loadingItemCount,
       emptyState,
@@ -255,10 +268,10 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       folderTree,
       currentFolderId,
       navigate,
-      renderThumbnail,
-      renderItem,
-      renderItemContextMenu,
-      renderEmptyContextMenu,
+      stableRenderThumbnail,
+      stableRenderItem,
+      stableRenderItemContextMenu,
+      stableRenderEmptyContextMenu,
       loading,
       loadingItemCount,
       emptyState,
@@ -316,10 +329,6 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     else if (kind === 'sidebar') sidebarSlot = slotChildren;
   });
 
-  const announcement = `${displayed.length} item${displayed.length === 1 ? '' : 's'}${
-    selectionSet.size > 0 ? `, ${selectionSet.size} selected` : ''
-  }`;
-
   return (
     <AssetBrowserStoreContext.Provider value={store}>
       <AssetBrowserChromeContext.Provider value={chromeValue}>
@@ -350,14 +359,12 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
             </div>
             {showStatusBar && (
               <AssetBrowserStatusBar
-                announcement={announcement}
+                view={view}
                 thumbnailSize={thumbnailSize}
                 setThumbnailSize={setThumbnailSize}
               />
             )}
-            <div className={srOnly} aria-live="polite" role="status">
-              {announcement}
-            </div>
+            <AssetBrowserAnnouncementLive />
           </div>
         </AssetBrowserContext.Provider>
       </AssetBrowserChromeContext.Provider>
