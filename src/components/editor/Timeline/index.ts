@@ -2,20 +2,23 @@ import { Timeline as TimelineBase } from './Timeline';
 import { TimelineToolbar } from './TimelineToolbar';
 import { TimelineFooter } from './TimelineFooter';
 import { TimelineMinimap } from './TimelineMinimap';
+import { TimelineTrackScale } from './TimelineTrackScale';
 
 type TimelineCompound = typeof TimelineBase & {
   Toolbar: typeof TimelineToolbar;
   Footer: typeof TimelineFooter;
   Minimap: typeof TimelineMinimap;
+  TrackScale: typeof TimelineTrackScale;
 };
 
 const TimelineWithSlots = TimelineBase as TimelineCompound;
 TimelineWithSlots.Toolbar = TimelineToolbar;
 TimelineWithSlots.Footer = TimelineFooter;
 TimelineWithSlots.Minimap = TimelineMinimap;
+TimelineWithSlots.TrackScale = TimelineTrackScale;
 
 export const Timeline = TimelineWithSlots;
-export { TimelineToolbar, TimelineFooter, TimelineMinimap };
+export { TimelineToolbar, TimelineFooter, TimelineMinimap, TimelineTrackScale };
 export {
   useTimelineContext,
   useTimelineGeometry,
@@ -45,6 +48,7 @@ export type {
   TimelineToolbarProps,
   TimelineFooterProps,
   TimelineMinimapProps,
+  TimelineTrackScaleProps,
   TimelineSlotKind,
   TimelineSlotMarker,
 } from './Timeline.types';

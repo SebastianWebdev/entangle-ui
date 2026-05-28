@@ -112,7 +112,7 @@ export interface TimelineTrackHeaderInfo {
  */
 export const TIMELINE_SLOT: unique symbol = Symbol.for('etui.timeline.slot');
 
-export type TimelineSlotKind = 'toolbar' | 'footer' | 'minimap';
+export type TimelineSlotKind = 'toolbar' | 'footer' | 'minimap' | 'track-scale';
 
 export interface TimelineSlotMarker {
   [TIMELINE_SLOT]: TimelineSlotKind;
@@ -308,6 +308,23 @@ export interface TimelineFooterProps {
   children?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+}
+
+export interface TimelineTrackScaleProps {
+  /**
+   * Which side of the lane the scale labels are drawn on.
+   * @default 'start'
+   */
+  position?: 'start' | 'end';
+  /**
+   * Custom value formatter. Receives the raw value and returns the label.
+   * @default `(v) => Number(v.toFixed(2)).toString()`
+   */
+  format?: (value: number) => string;
+  /**
+   * Override the label color. Defaults to the muted text colour.
+   */
+  color?: string;
 }
 
 export interface TimelineMinimapProps {

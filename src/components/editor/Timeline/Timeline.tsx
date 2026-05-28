@@ -25,6 +25,7 @@ import type {
   TimelineSlotKind,
   TimelineSlotMarker,
   TimelineTrack,
+  TimelineTrackScaleProps,
   TimelineView,
 } from './Timeline.types';
 import { TIMELINE_SLOT } from './Timeline.types';
@@ -63,6 +64,7 @@ interface CategorizedSlots {
   toolbar: React.ReactNode;
   footer: React.ReactNode;
   minimap: React.ReactElement | null;
+  trackScale: TimelineTrackScaleProps | null;
   overlay: React.ReactNode[];
 }
 
@@ -76,6 +78,7 @@ function categorizeChildren(children: React.ReactNode): CategorizedSlots {
     toolbar: null,
     footer: null,
     minimap: null,
+    trackScale: null,
     overlay: [],
   };
   React.Children.forEach(children, child => {
@@ -91,6 +94,10 @@ function categorizeChildren(children: React.ReactNode): CategorizedSlots {
       className?: string;
       style?: React.CSSProperties;
     };
+    if (kind === 'track-scale') {
+      slots.trackScale = child.props as TimelineTrackScaleProps;
+      return;
+    }
     if (kind === 'toolbar') {
       slots.toolbar = (
         <div
@@ -586,6 +593,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
   const formatTimeRef = useLatest(formatTime ?? framesToTimecode);
   const rafRef = useRef<number>(0);
 
+  const slots = useMemo(() => categorizeChildren(children), [children]);
+
   const scheduleDraw = useCallback((): void => {
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
@@ -651,6 +660,19 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
         isHovered: (t, k) =>
           hover !== null && hover.trackId === t && hover.keyframeId === k,
         playheadHovered: hoverPlayhead,
+        ...(slots.trackScale
+          ? {
+              trackScale: {
+                position: slots.trackScale.position ?? 'start',
+                format:
+                  slots.trackScale.format ??
+                  ((v: number) => Number(v.toFixed(2)).toString()),
+                ...(slots.trackScale.color
+                  ? { color: slots.trackScale.color }
+                  : {}),
+              },
+            }
+          : {}),
         renderOverlay: renderOverlayRef.current,
         marquee: drag.marquee,
         loopRegion,
@@ -674,6 +696,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     hover,
     hoverPlayhead,
     loopRegion,
+    slots.trackScale,
     renderOverlayRef,
     formatTimeRef,
   ]);
@@ -695,8 +718,6 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
   }, [scheduleDraw]);
 
   // ── Layout ──
-
-  const slots = useMemo(() => categorizeChildren(children), [children]);
 
   // Announce the playhead on discrete moves (keyboard / click), but stay quiet
   // during continuous scrub drags and playback so AT isn't flooded.

@@ -45,6 +45,15 @@ export interface TimelineDrawInput {
   isHovered?: (trackId: string, keyframeId: string) => boolean;
   /** Whether the playhead is currently pointer-hovered (renders a glow). */
   playheadHovered?: boolean;
+  /**
+   * When provided, draws min / max value labels at the start (or end) of
+   * each graph / expanded lane. Used by the `<Timeline.TrackScale />` slot.
+   */
+  trackScale?: {
+    position: 'start' | 'end';
+    format: (value: number) => string;
+    color?: string;
+  };
   renderOverlay?: (
     ctx: CanvasRenderingContext2D,
     info: TimelineDrawInfo
@@ -93,6 +102,24 @@ function drawGraphLane(
   const { ctx, size, view, startFrame, endFrame, colors, isSelected } = input;
   const isHovered = input.isHovered ?? ((): boolean => false);
   const range = track.valueRange ?? autoValueRange(track.keyframes);
+
+  // ── Track scale (min / max labels inside the lane)
+  if (input.trackScale) {
+    const { position, format } = input.trackScale;
+    const scaleColor = input.trackScale.color ?? colors.rulerText;
+    const minLabel = format(range[0]);
+    const maxLabel = format(range[1]);
+    ctx.save();
+    ctx.fillStyle = scaleColor;
+    ctx.font = input.font;
+    ctx.textBaseline = 'top';
+    ctx.textAlign = position === 'start' ? 'left' : 'right';
+    const x = position === 'start' ? 4 : size.width - 4;
+    ctx.fillText(maxLabel, x, top + 2);
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(minLabel, x, top + rowH - 2);
+    ctx.restore();
+  }
   const curve: CurveData = {
     keyframes: track.keyframes,
     domainX: [startFrame, endFrame],
