@@ -11,10 +11,12 @@ import { evaluateCurve } from '@/components/controls/CurveEditor';
 import type { CurveData } from '@/types/keyframe';
 import {
   Timeline,
+  useTimelineSelectedTangentMode,
   type TimelineGroup,
   type TimelineMode,
   type TimelineTrack,
 } from '@/components/editor/Timeline';
+import type { TangentMode } from '@/types/keyframe';
 import {
   SegmentedControl,
   SegmentedControlItem,
@@ -35,6 +37,12 @@ import {
   UndoIcon,
   RedoIcon,
   SettingsIcon,
+  TangentAutoIcon,
+  TangentLinearIcon,
+  TangentStepIcon,
+  TangentAlignedIcon,
+  TangentMirroredIcon,
+  TangentFreeIcon,
 } from '@/components/Icons';
 import {
   shellBgStyle,
@@ -578,6 +586,60 @@ function Footer({ frame, playing, selectionCount }: FooterProps): JSX.Element {
   );
 }
 
+// ─── Tangent-mode bar (slot child; uses the selected-tangent hook) ──
+
+const TANGENT_MODES: ReadonlyArray<{
+  mode: TangentMode;
+  Icon: typeof TangentAutoIcon;
+  label: string;
+}> = [
+  { mode: 'auto', Icon: TangentAutoIcon, label: 'Auto' },
+  { mode: 'linear', Icon: TangentLinearIcon, label: 'Linear' },
+  { mode: 'step', Icon: TangentStepIcon, label: 'Step' },
+  { mode: 'aligned', Icon: TangentAlignedIcon, label: 'Aligned' },
+  { mode: 'mirrored', Icon: TangentMirroredIcon, label: 'Mirrored' },
+  { mode: 'free', Icon: TangentFreeIcon, label: 'Free' },
+];
+
+interface TangentBarProps {
+  tracks: TimelineTrack[];
+  onTracksChange: (tracks: TimelineTrack[]) => void;
+}
+
+function TangentBar({ tracks, onTracksChange }: TangentBarProps): JSX.Element {
+  const t = useTimelineSelectedTangentMode(tracks, onTracksChange);
+  if (t.current === null) {
+    return (
+      <Text variant="caption" color="muted" style={{ padding: '0 8px' }}>
+        Select a keyframe to change its tangent mode
+      </Text>
+    );
+  }
+  return (
+    <Toolbar size="sm" aria-label="Tangent mode">
+      <Toolbar.Group aria-label="Tangent mode">
+        {TANGENT_MODES.map(({ mode, Icon, label }) => (
+          <Toolbar.Toggle
+            key={mode}
+            pressed={t.current === mode}
+            onPressedChange={() => t.set(mode)}
+            icon={<Icon size="sm" />}
+            tooltip={label}
+          />
+        ))}
+      </Toolbar.Group>
+      <Toolbar.Spacer />
+      <Text
+        variant="caption"
+        color="muted"
+        style={{ padding: '0 4px', fontVariantNumeric: 'tabular-nums' }}
+      >
+        {t.current === 'mixed' ? 'mixed' : t.current}
+      </Text>
+    </Toolbar>
+  );
+}
+
 // ─── Demo root ───────────────────────────────────────────────
 
 export default function AnimationEditorDemo(): JSX.Element {
@@ -647,6 +709,9 @@ export default function AnimationEditorDemo(): JSX.Element {
                 loop={{ startFrame: 0, endFrame: END_FRAME }}
                 trackHeaderWidth={180}
               >
+                <Timeline.Toolbar>
+                  <TangentBar tracks={tracks} onTracksChange={setTracks} />
+                </Timeline.Toolbar>
                 <Timeline.Minimap tracks={tracks} height={36} />
               </Timeline>
             </div>

@@ -9,7 +9,9 @@ import {
   pasteKeyframes,
   removeSelectedKeyframes,
   reorderTracksByDrop,
+  selectedTangentMode,
   setKeyframeTangent,
+  setSelectedTangentMode,
   valueAtPointer,
 } from './timelineEdits';
 import type { TimelineTrack } from './Timeline.types';
@@ -418,6 +420,90 @@ describe('timelineEdits', () => {
         scrollTop: 0,
       });
       expect(v).toBe(0);
+    });
+  });
+
+  describe('selectedTangentMode + setSelectedTangentMode', () => {
+    const tracks: TimelineTrack[] = [
+      {
+        id: 't1',
+        keyframes: [
+          { ...kf('a', 0), tangentMode: 'aligned' },
+          { ...kf('b', 10), tangentMode: 'aligned' },
+        ],
+      },
+      {
+        id: 't2',
+        keyframes: [{ ...kf('c', 5), tangentMode: 'free' }],
+      },
+    ];
+
+    it('returns null when nothing is selected', () => {
+      expect(selectedTangentMode(tracks, [])).toBeNull();
+    });
+
+    it('returns the unified mode when selected keyframes agree', () => {
+      expect(
+        selectedTangentMode(tracks, [
+          { trackId: 't1', keyframeId: 'a' },
+          { trackId: 't1', keyframeId: 'b' },
+        ])
+      ).toBe('aligned');
+    });
+
+    it('returns "mixed" when selected keyframes disagree', () => {
+      expect(
+        selectedTangentMode(tracks, [
+          { trackId: 't1', keyframeId: 'a' },
+          { trackId: 't2', keyframeId: 'c' },
+        ])
+      ).toBe('mixed');
+    });
+
+    it('setSelectedTangentMode writes the mode to all selected keyframes', () => {
+      const next = setSelectedTangentMode(
+        tracks,
+        [
+          { trackId: 't1', keyframeId: 'a' },
+          { trackId: 't2', keyframeId: 'c' },
+        ],
+        'mirrored'
+      );
+      expect(next[0]?.keyframes.find(k => k.id === 'a')?.tangentMode).toBe(
+        'mirrored'
+      );
+      expect(next[1]?.keyframes.find(k => k.id === 'c')?.tangentMode).toBe(
+        'mirrored'
+      );
+      // Unselected keyframe untouched
+      expect(next[0]?.keyframes.find(k => k.id === 'b')?.tangentMode).toBe(
+        'aligned'
+      );
+    });
+
+    it('skips locked tracks', () => {
+      const locked: TimelineTrack[] = [
+        {
+          id: 't1',
+          locked: true,
+          keyframes: [{ ...kf('a', 0), tangentMode: 'aligned' }],
+        },
+      ];
+      const next = setSelectedTangentMode(
+        locked,
+        [{ trackId: 't1', keyframeId: 'a' }],
+        'free'
+      );
+      expect(next[0]).toBe(locked[0]);
+    });
+
+    it('preserves identity when the mode already matches', () => {
+      const same = setSelectedTangentMode(
+        tracks,
+        [{ trackId: 't1', keyframeId: 'a' }],
+        'aligned'
+      );
+      expect(same[0]).toBe(tracks[0]);
     });
   });
 });

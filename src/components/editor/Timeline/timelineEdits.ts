@@ -1,4 +1,4 @@
-import type { CurveKeyframe } from '@/types/keyframe';
+import type { CurveKeyframe, TangentMode } from '@/types/keyframe';
 import { evaluateCurve } from '@/components/controls/CurveEditor';
 import type {
   TimelineKeyframeRef,
@@ -210,6 +210,54 @@ function applyTangent(
   }
 
   return { ...kf, handleIn, handleOut, tangentMode: mode };
+}
+
+/**
+ * Set the tangent mode on every selected keyframe. The mode interpretation
+ * (how handles are read during draw / drag) happens elsewhere — this writes
+ * the `tangentMode` field and leaves handle values alone, so flipping back
+ * preserves them.
+ */
+export function setSelectedTangentMode(
+  tracks: ReadonlyArray<TimelineTrack>,
+  selection: TimelineSelection,
+  mode: TangentMode
+): TimelineTrack[] {
+  const keys = selectionKeySet(selection);
+  return tracks.map(track => {
+    if (track.locked) return track;
+    let changed = false;
+    const keyframes = track.keyframes.map(kf => {
+      if (kf.id === undefined || !keys.has(selKey(track.id, kf.id))) return kf;
+      if (kf.tangentMode === mode) return kf;
+      changed = true;
+      return { ...kf, tangentMode: mode };
+    });
+    return changed ? { ...track, keyframes } : track;
+  });
+}
+
+/**
+ * The tangent mode that's currently in effect for the selection — or
+ * `'mixed'` when selected keyframes disagree, or `null` when nothing
+ * applicable is selected. Lets a UI render the right toggle state.
+ */
+export function selectedTangentMode(
+  tracks: ReadonlyArray<TimelineTrack>,
+  selection: TimelineSelection
+): TangentMode | 'mixed' | null {
+  if (selection.length === 0) return null;
+  const byId = new Map(tracks.map(t => [t.id, t]));
+  let mode: TangentMode | null = null;
+  for (const ref of selection) {
+    const t = byId.get(ref.trackId);
+    if (!t) continue;
+    const kf = t.keyframes.find(k => k.id === ref.keyframeId);
+    if (!kf) continue;
+    if (mode === null) mode = kf.tangentMode;
+    else if (mode !== kf.tangentMode) return 'mixed';
+  }
+  return mode;
 }
 
 /** Set one keyframe's in/out tangent handle to a new offset (domain units). */

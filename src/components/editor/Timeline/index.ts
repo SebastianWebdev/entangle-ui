@@ -21,7 +21,10 @@ export {
   useTimelineGeometry,
   useTimelinePlayhead,
   useTimelineSelection,
+  useTimelineSelectedTangentMode,
 } from './TimelineContext';
+export type { TimelineSelectedTangentMode } from './TimelineContext';
+export { selectedTangentMode, setSelectedTangentMode } from './timelineEdits';
 export { framesToTimecode } from './timelineCoords';
 export { TIMELINE_SLOT } from './Timeline.types';
 

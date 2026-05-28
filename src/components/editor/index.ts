@@ -158,6 +158,9 @@ export {
   useTimelineGeometry,
   useTimelinePlayhead,
   useTimelineSelection,
+  useTimelineSelectedTangentMode,
+  selectedTangentMode,
+  setSelectedTangentMode,
   framesToTimecode,
   TIMELINE_SLOT,
 } from './Timeline';
@@ -179,6 +182,7 @@ export type {
   TimelineToolbarProps,
   TimelineFooterProps,
   TimelineMinimapProps,
+  TimelineSelectedTangentMode,
   TimelineSlotKind,
   TimelineSlotMarker,
   TimelineGeometryState,
