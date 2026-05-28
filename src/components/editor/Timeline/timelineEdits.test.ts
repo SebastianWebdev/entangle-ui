@@ -10,8 +10,10 @@ import {
   removeSelectedKeyframes,
   reorderTracksByDrop,
   setKeyframeTangent,
+  valueAtPointer,
 } from './timelineEdits';
 import type { TimelineTrack } from './Timeline.types';
+import type { TrackGeometry } from './timelineLayout';
 
 function kf(id: string, x: number, y = 0): TimelineTrack['keyframes'][number] {
   return {
@@ -331,6 +333,91 @@ describe('timelineEdits', () => {
         'a',
         'b',
       ]);
+    });
+  });
+
+  describe('valueAtPointer', () => {
+    const graphGeom: TrackGeometry = { top: 0, height: 100, graph: true };
+    const dopeGeom: TrackGeometry = { top: 0, height: 24, graph: false };
+
+    it('graph row: converts a pointer Y to a value on the track axis', () => {
+      const track: TimelineTrack = {
+        id: 't1',
+        valueRange: [0, 1],
+        keyframes: [],
+      };
+      // inset=8, usable=100-16=84; screenTop=20+0-0=20; centerY=20+8+42=70 → value 0.5
+      const v = valueAtPointer({
+        pointerY: 70,
+        frame: 10,
+        track,
+        geometry: graphGeom,
+        rulerHeight: 20,
+        scrollTop: 0,
+      });
+      expect(v).toBeCloseTo(0.5, 2);
+    });
+
+    it('graph row: clamps to the track value range', () => {
+      const track: TimelineTrack = {
+        id: 't1',
+        valueRange: [0, 1],
+        keyframes: [],
+      };
+      const above = valueAtPointer({
+        pointerY: -1000,
+        frame: 10,
+        track,
+        geometry: graphGeom,
+        rulerHeight: 20,
+        scrollTop: 0,
+      });
+      const below = valueAtPointer({
+        pointerY: 5000,
+        frame: 10,
+        track,
+        geometry: graphGeom,
+        rulerHeight: 20,
+        scrollTop: 0,
+      });
+      expect(above).toBe(1);
+      expect(below).toBe(0);
+    });
+
+    it('dope row with keyframes: places the new keyframe on the existing curve', () => {
+      const track: TimelineTrack = {
+        id: 't1',
+        valueRange: [0, 1],
+        keyframes: [kf('a', 0, 0), kf('b', 10, 1)],
+      };
+      const v = valueAtPointer({
+        pointerY: 999,
+        frame: 5,
+        track,
+        geometry: dopeGeom,
+        rulerHeight: 20,
+        scrollTop: 0,
+      });
+      // halfway between the two keyframes — pointer Y is ignored in dope mode
+      expect(v).toBeGreaterThan(0);
+      expect(v).toBeLessThan(1);
+    });
+
+    it('dope row without keyframes: falls back to the midpoint of the range', () => {
+      const track: TimelineTrack = {
+        id: 't1',
+        valueRange: [-100, 100],
+        keyframes: [],
+      };
+      const v = valueAtPointer({
+        pointerY: 50,
+        frame: 5,
+        track,
+        geometry: dopeGeom,
+        rulerHeight: 20,
+        scrollTop: 0,
+      });
+      expect(v).toBe(0);
     });
   });
 });

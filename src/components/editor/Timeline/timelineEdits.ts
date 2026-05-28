@@ -1,10 +1,12 @@
 import type { CurveKeyframe } from '@/types/keyframe';
+import { evaluateCurve } from '@/components/controls/CurveEditor';
 import type {
   TimelineKeyframeRef,
   TimelineSelection,
   TimelineTrack,
 } from './Timeline.types';
-import { autoValueRange, clamp, snapFrame } from './timelineCoords';
+import type { TrackGeometry } from './timelineLayout';
+import { autoValueRange, clamp, snapFrame, yToValue } from './timelineCoords';
 
 function selKey(trackId: string, keyframeId: string): string {
   return `${trackId} ${keyframeId}`;
@@ -32,6 +34,42 @@ export function makeKeyframe(frame: number, value = 0): CurveKeyframe {
     handleOut: { x: 0, y: 0 },
     tangentMode: 'auto',
   };
+}
+
+/**
+ * Pick the value (y) for a new keyframe inserted at a pointer position.
+ * In a graph / expanded row, the click's pixel-y is converted back to a value
+ * on the track's value axis (clamped to `valueRange`), so the new keyframe
+ * lands exactly under the cursor. In a dope-sheet row (no visible y axis) the
+ * new keyframe sits **on the existing curve** at the clicked frame so it
+ * doesn't disturb the shape; with no existing keyframes it falls back to the
+ * midpoint of the range.
+ */
+export function valueAtPointer(args: {
+  pointerY: number;
+  frame: number;
+  track: TimelineTrack;
+  geometry: TrackGeometry | undefined;
+  rulerHeight: number;
+  scrollTop: number;
+}): number {
+  const { pointerY, frame, track, geometry, rulerHeight, scrollTop } = args;
+  const range = track.valueRange ?? autoValueRange(track.keyframes);
+  if (geometry?.graph) {
+    const screenTop = rulerHeight + geometry.top - scrollTop;
+    return clamp(
+      yToValue(pointerY, range, screenTop, geometry.height),
+      range[0],
+      range[1]
+    );
+  }
+  if (track.keyframes.length > 0) {
+    return evaluateCurve(
+      { keyframes: track.keyframes, domainX: [0, 1], domainY: range },
+      frame
+    );
+  }
+  return (range[0] + range[1]) / 2;
 }
 
 /**

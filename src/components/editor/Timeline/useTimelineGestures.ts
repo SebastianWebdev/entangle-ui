@@ -32,6 +32,7 @@ import {
   pasteKeyframes,
   removeSelectedKeyframes,
   setKeyframeTangent,
+  valueAtPointer,
 } from './timelineEdits';
 import type { TimelineClipboard } from './timelineEdits';
 
@@ -638,10 +639,18 @@ export function useTimelineGestures(
         startFrameRef.current,
         endFrameRef.current
       );
+      const value = valueAtPointer({
+        pointerY: point.y,
+        frame,
+        track,
+        geometry: trackTopsRef.current.get(track.id),
+        rulerHeight: rulerHeightRef.current,
+        scrollTop: scrollTopRef.current,
+      });
       const next = addKeyframe(
         tracksRef.current,
         track.id,
-        makeKeyframe(frame)
+        makeKeyframe(frame, value)
       );
       setTracksRef.current(next);
       commitTracksRef.current(next);
@@ -659,6 +668,9 @@ export function useTimelineGestures(
       endFrameRef,
       setTracksRef,
       commitTracksRef,
+      trackTopsRef,
+      rulerHeightRef,
+      scrollTopRef,
     ]
   );
 
