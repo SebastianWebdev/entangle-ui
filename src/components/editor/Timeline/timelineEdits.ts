@@ -260,6 +260,30 @@ export function selectedTangentMode(
   return mode;
 }
 
+/**
+ * Clamp a keyframe's handle offsets so the bezier control points
+ * `(kf.x + handle.x, kf.y + handle.y)` stay inside the track's value range.
+ * A cubic bezier always lies in the convex hull of its four control points,
+ * so once every control point is in range the rendered curve is too — this
+ * is the unified guarantee against "curve escapes the lane".
+ */
+function clampHandlesToRange(
+  kf: CurveKeyframe,
+  range: [number, number]
+): CurveKeyframe {
+  const lo = range[0] - kf.y;
+  const hi = range[1] - kf.y;
+  const clampY = (y: number): number => clamp(y, lo, hi);
+  const inY = clampY(kf.handleIn.y);
+  const outY = clampY(kf.handleOut.y);
+  if (inY === kf.handleIn.y && outY === kf.handleOut.y) return kf;
+  return {
+    ...kf,
+    handleIn: { x: kf.handleIn.x, y: inY },
+    handleOut: { x: kf.handleOut.x, y: outY },
+  };
+}
+
 /** Set one keyframe's in/out tangent handle to a new offset (domain units). */
 export function setKeyframeTangent(
   tracks: ReadonlyArray<TimelineTrack>,
@@ -269,11 +293,12 @@ export function setKeyframeTangent(
 ): TimelineTrack[] {
   return tracks.map(track => {
     if (track.id !== ref.trackId || track.locked) return track;
+    const range = track.valueRange ?? autoValueRange(track.keyframes);
     let changed = false;
     const keyframes = track.keyframes.map(kf => {
       if (kf.id !== ref.keyframeId) return kf;
       changed = true;
-      return applyTangent(kf, which, offset);
+      return clampHandlesToRange(applyTangent(kf, which, offset), range);
     });
     return changed ? { ...track, keyframes } : track;
   });

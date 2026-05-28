@@ -134,9 +134,17 @@ function drawGraphLane(
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     const samples = Math.max(2, Math.ceil(size.width / 3));
+    // Visual safety net: clamp every sampled curve value to the track's
+    // range so the line cannot escape the lane even if the data was loaded
+    // with control points outside the range (the canonical guarantee comes
+    // from clamping handles in `setKeyframeTangent`, but we still clip here
+    // so legacy / unconstrained data renders cleanly).
+    const lo = range[0];
+    const hi = range[1];
     for (let s = 0; s <= samples; s += 1) {
       const px = (s / samples) * size.width;
-      const value = evaluateCurve(curve, xToFrame(px, view, size.width));
+      const raw = evaluateCurve(curve, xToFrame(px, view, size.width));
+      const value = raw < lo ? lo : raw > hi ? hi : raw;
       const py = valueToY(value, range, top, rowH);
       if (s === 0) ctx.moveTo(px, py);
       else ctx.lineTo(px, py);
