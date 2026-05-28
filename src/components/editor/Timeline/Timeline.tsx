@@ -639,7 +639,6 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             width={trackHeaderWidth}
             selection={selectionState}
             editable={editable}
-            allowExpand={modeState !== 'graph'}
             renderTrackHeader={renderTrackHeader}
             onReorderTracks={handleReorderTracks}
             onToggleGroupCollapsed={handleToggleGroupCollapsed}

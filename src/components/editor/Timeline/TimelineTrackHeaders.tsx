@@ -32,8 +32,6 @@ interface TimelineTrackHeadersProps {
   width: number;
   selection: TimelineSelection;
   editable: boolean;
-  /** Show the per-track expand-to-graph toggle (hidden in global graph mode). */
-  allowExpand: boolean;
   renderTrackHeader?:
     | ((track: TimelineTrack, info: TimelineTrackHeaderInfo) => React.ReactNode)
     | undefined;
@@ -77,7 +75,6 @@ export function TimelineTrackHeaders({
   width,
   selection,
   editable,
-  allowExpand,
   renderTrackHeader,
   onReorderTracks,
   onToggleGroupCollapsed,
@@ -257,26 +254,22 @@ export function TimelineTrackHeaders({
                   })
                 ) : (
                   <>
-                    {allowExpand && (
-                      <button
-                        type="button"
-                        className={timelineHeaderToggleStyle}
-                        data-open={track.expanded ? true : undefined}
-                        onPointerDown={e => e.stopPropagation()}
-                        onClick={e => {
-                          e.stopPropagation();
-                          onToggleTrackExpanded(track.id);
-                        }}
-                        aria-label={
-                          track.expanded
-                            ? 'Collapse track graph'
-                            : 'Expand track to graph'
-                        }
-                        aria-expanded={track.expanded ?? false}
-                      >
-                        <Caret />
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      className={timelineHeaderToggleStyle}
+                      data-open={track.expanded ? true : undefined}
+                      onPointerDown={e => e.stopPropagation()}
+                      onClick={e => {
+                        e.stopPropagation();
+                        onToggleTrackExpanded(track.id);
+                      }}
+                      aria-label={
+                        track.expanded ? 'Collapse track' : 'Expand track'
+                      }
+                      aria-expanded={track.expanded ?? false}
+                    >
+                      <Caret />
+                    </button>
                     <span
                       className={timelineHeaderSwatchStyle}
                       style={

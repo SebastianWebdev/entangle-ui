@@ -90,7 +90,7 @@ interface PointerState {
   additive?: boolean;
   tangentRef?: TimelineKeyframeRef;
   tangentWhich?: 'in' | 'out';
-  loopWhich?: 'start' | 'end' | 'body';
+  loopWhich?: 'start' | 'end' | 'body' | 'create';
   startLoop?: { startFrame: number; endFrame: number };
 }
 
@@ -274,6 +274,27 @@ export function useTimelineGestures(
         return;
       }
 
+      // Alt+drag on the ruler creates / narrows the loop region — works
+      // even when looping is currently off (the drag flips `loop` to a
+      // sub-range object via `setLoop`).
+      if (hit.kind === 'ruler' && e.altKey) {
+        e.preventDefault();
+        container.setPointerCapture(e.pointerId);
+        const anchorFrame = xToFrame(point.x, view, width);
+        const anchor = clamp(anchorFrame, opts.startFrame, opts.endFrame);
+        stateRef.current = {
+          pointerId: e.pointerId,
+          mode: 'loop',
+          startX: point.x,
+          startY: point.y,
+          loopWhich: 'create',
+          startLoop: { startFrame: anchor, endFrame: anchor },
+        };
+        store.setDrag({ kind: 'scrub', marquee: null });
+        opts.setLoop({ startFrame: anchor, endFrame: anchor });
+        return;
+      }
+
       if (hit.kind === 'ruler' || hit.kind === 'playhead') {
         e.preventDefault();
         container.setPointerCapture(e.pointerId);
@@ -382,7 +403,13 @@ export function useTimelineGestures(
       if (state.mode === 'loop') {
         const frame = xToFrame(point.x, view, width);
         const sl = state.startLoop;
-        if (sl && state.loopWhich === 'start') {
+        if (sl && state.loopWhich === 'create') {
+          const cur = clamp(frame, opts.startFrame, opts.endFrame);
+          opts.setLoop({
+            startFrame: Math.min(sl.startFrame, cur),
+            endFrame: Math.max(sl.startFrame, cur),
+          });
+        } else if (sl && state.loopWhich === 'start') {
           opts.setLoop({
             startFrame: clamp(frame, opts.startFrame, sl.endFrame),
             endFrame: sl.endFrame,
@@ -468,7 +495,13 @@ export function useTimelineGestures(
       const size = opts.size;
 
       if (!cancelled) {
-        if (state.mode === 'scrub') {
+        if (state.mode === 'loop' && state.loopWhich === 'create') {
+          // Bare Alt-click (no drag) on the ruler: don't leave a zero-width
+          // loop hanging around — clear it.
+          if (Math.abs(point.x - state.startX) < CLICK_THRESHOLD_PX) {
+            opts.setLoop(false);
+          }
+        } else if (state.mode === 'scrub') {
           opts.seekCommit(xToFrame(point.x, view, size.width));
         } else if (state.mode === 'move') {
           opts.commitTracks(moveFromState(state, point));
