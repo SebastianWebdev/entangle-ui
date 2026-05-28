@@ -7,7 +7,8 @@
 > **PR base:** `main` (the pre-1.0 line lands flagship PRs directly on `main`).
 > **Changeset:** `minor` (new flagship component + new public hooks). **Never
 > `major`** on this line.
-> **Category:** `src/components/data/` (sits next to `DataTable`).
+> **Category:** `src/components/editor/` (editor-domain composition; sits with
+> `PropertyInspector`, `Minimap`, `ChatPanel`, `TransformControl`, `ViewportGizmo`).
 >
 > This document is the source of truth for the AssetBrowser. The API below is
 > signed off — agents implement it, they do not redesign it. If an agent
@@ -672,7 +673,7 @@ enter/leave flicker fix) — flagged for agents in §16.
 ## 15. File structure
 
 ```
-src/components/data/AssetBrowser/
+src/components/editor/AssetBrowser/
 ├── AssetBrowser.tsx              # root: ref-as-prop + imperative handle, composes everything
 ├── AssetBrowser.types.ts         # all public types (§4–§5)
 ├── AssetBrowser.css.ts           # Vanilla Extract styles
@@ -699,7 +700,7 @@ src/components/data/AssetBrowser/
 └── index.ts                      # re-exports component + public types
 ```
 
-Exports to update: `src/components/data/index.ts` and the root `src/index.ts`
+Exports to update: `src/components/editor/index.ts` and the root `src/index.ts`
 (component + every public type + any new public hook). If
 `useAssetGridVirtualizer` proves generally useful it graduates to
 `src/hooks/` with its own folder, tests, and export — otherwise it stays local.

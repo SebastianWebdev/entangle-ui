@@ -1,0 +1,670 @@
+---
+title: AssetBrowser
+description: Controlled content browser for files and folders — grid/list views, thumbnails, folder navigation, search, filter, sort, selection, marquee, and drag-and-drop.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import AssetBrowserDemo, {
+  AssetBrowserGridView,
+  AssetBrowserListView,
+  AssetBrowserThumbnailSizes,
+  AssetBrowserDensities,
+  AssetBrowserFolderNavigation,
+  AssetBrowserSelectionMultiple,
+  AssetBrowserSelectionSingle,
+  AssetBrowserSearchAndFilter,
+  AssetBrowserSorting,
+  AssetBrowserDragAndDrop,
+  AssetBrowserCustomThumbnail,
+  AssetBrowserCustomItem,
+  AssetBrowserCustomToolbar,
+  AssetBrowserCustomSidebar,
+  AssetBrowserCustomColumns,
+  AssetBrowserStates,
+  AssetBrowserStatusBar,
+  AssetBrowserStyledViaTokens,
+  AssetBrowserRealWorldExample,
+} from '../../../../components/demos/editor/AssetBrowserDemo';
+
+The content browser of a professional editor — the surface that lists assets (textures, models, materials, audio, arbitrary files) and the folders that hold them, like the Unreal Content Browser or the Unity Project window. It composes the existing `DataTable` (list view), `Card` grid (grid view), `TreeView` (folder sidebar), and `Breadcrumbs` (path bar) into one cohesive surface.
+
+AssetBrowser is **controlled and presentational** — it does not own a filesystem. You feed it the contents of the _current folder_ plus a _folder tree_; it renders them and reports navigation, selection, and drag intent through callbacks. Lazy loading and any backend (local FS, S3, an in-memory catalog) work out of the box.
+
+<ComponentPreview title="Live Preview">
+  <AssetBrowserDemo client:only="react" />
+</ComponentPreview>
+
+## What you get out of the box
+
+Drop in `<AssetBrowser items={items} />` with nothing else and you get:
+
+- A **grid view** with the default thumbnail scale (`md`, 104 px), folder-first ordering, and ascending name sort.
+- A **toolbar** with the grid/list toggle, a search field, a sort menu (name / type / size / modified · asc / desc), and a filter menu populated from the `assetType` values present in `items`.
+- A **virtualized scroll area** that auto-engages above 200 items.
+- A **breadcrumb bar** when you pass `path`, and a **TreeView sidebar** when you pass `folderTree`.
+- **Selection** — `multiple` by default; click replaces, Ctrl/Cmd-click toggles, Shift-click range-selects, dragging in empty space draws a marquee.
+- **Keyboard navigation** — arrows / Home / End / PageUp / PageDown, Enter to open (folders navigate, files emit `onItemOpen`), Space to toggle, Ctrl/Cmd+A to select all, Escape to clear.
+- **A11y** — `role="grid"`, `aria-multiselectable`, per-cell `aria-selected`, roving tabindex, a live region for selection / folder changes.
+- An **empty state** when `items.length === 0`, and a **loading state** when `loading` is set.
+
+The defaults are picked for editor-grade density and the dark theme; everything is overridable via props, render slots, or theme tokens.
+
+## Import
+
+```tsx
+import { AssetBrowser } from 'entangle-ui';
+import type { AssetItem, AssetPathSegment, AssetSortState } from 'entangle-ui';
+```
+
+## Quick start
+
+The minimum: an items array and an `onItemOpen` handler.
+
+```tsx
+const items: AssetItem[] = [
+  { id: 'wood', name: 'wood.png', kind: 'file', assetType: 'image' },
+  { id: 'stone', name: 'stone.png', kind: 'file', assetType: 'image' },
+];
+
+<AssetBrowser items={items} onItemOpen={item => openPreview(item)} />;
+```
+
+Add folder navigation by holding the current folder id and a `path` in state, then responding to `onNavigate`:
+
+```tsx
+const [folder, setFolder] = useState('root');
+
+<AssetBrowser
+  items={contentsOf(folder)}
+  path={pathTo(folder)}
+  folderTree={tree}
+  currentFolderId={folder}
+  onNavigate={id => setFolder(id)}
+  onItemOpen={item => openPreview(item)}
+/>;
+```
+
+## Real-world example
+
+A complete editor-style content browser with a selection-driven inspector panel, an activity log, and full drag-and-drop wiring.
+
+<ComponentPreview title="Editor with inspector & activity panel">
+  <AssetBrowserRealWorldExample client:only="react" />
+</ComponentPreview>
+
+```tsx
+const [folder, setFolder] = useState('textures');
+const [selection, setSelection] = useState<string[]>([]);
+const [activity, setActivity] = useState<Activity[]>([]);
+
+const log = (message: string) =>
+  setActivity(prev => [{ message, time: new Date() }, ...prev].slice(0, 8));
+
+<AssetBrowser
+  items={contentsOf(folder)}
+  path={pathTo(folder)}
+  folderTree={tree}
+  currentFolderId={folder}
+  selection={selection}
+  onSelectionChange={ids => setSelection(ids)}
+  onNavigate={id => {
+    setFolder(id);
+    setSelection([]);
+  }}
+  onItemOpen={item => log(`Open ${item.name}`)}
+  onItemsMove={({ itemIds, targetFolderId }) =>
+    log(`Move ${itemIds.length} → ${targetFolderId}`)
+  }
+  onFilesImport={({ files, targetFolderId }) =>
+    log(`Import ${files.length} file(s) → ${targetFolderId ?? 'current'}`)
+  }
+  renderThumbnail={item => <TypeBadge type={item.assetType} />}
+  filterableTypes={['image', 'model', 'audio', 'material']}
+  showStatusBar
+/>;
+```
+
+## Data model
+
+Each entry is an `AssetItem` discriminated by `kind`. Folders and files share the same shape; folders don't need an `assetType` (they always sort before files).
+
+```tsx
+interface AssetItem {
+  id: string; // stable, unique within the browser
+  name: string; // display label
+  kind: 'file' | 'folder'; // drives navigation vs. open
+  assetType?: string; // 'image' | 'model' | 'audio' | …; extensible
+  thumbnailUrl?: string; // grid view; lazy-loaded
+  icon?: ReactNode; // explicit icon override
+  size?: number; // bytes; feeds the list "Size" column + sort
+  modifiedAt?: number | Date; // feeds the list "Modified" column + sort
+  meta?: Record<string, unknown>; // arbitrary consumer payload
+  selectable?: boolean; // default true
+  draggable?: boolean; // default true
+  droppable?: boolean; // default: true for folders
+  disabled?: boolean;
+}
+```
+
+The `path` prop is a flat list of breadcrumb segments, oldest → newest:
+
+```tsx
+const path: AssetPathSegment[] = [
+  { id: 'root', name: 'Assets' },
+  { id: 'textures', name: 'Textures' },
+];
+```
+
+## Views
+
+`view` and `defaultView` toggle between **grid** and **list**. The toolbar exposes the same toggle. Selection is preserved when you switch.
+
+<ComponentPreview title="Grid view (default)">
+  <AssetBrowserGridView client:only="react" />
+</ComponentPreview>
+
+<ComponentPreview title="List view (DataTable bridge)">
+  <AssetBrowserListView client:only="react" />
+</ComponentPreview>
+
+```tsx
+<AssetBrowser items={items} defaultView="list" />
+```
+
+## Thumbnails
+
+The grid view sizes cells from `thumbnailSize` — `'sm'` (72 px), `'md'` (104 px, default), `'lg'` (144 px), or any number for raw pixels. Resolution order for the image is `renderThumbnail` → `item.thumbnailUrl` (lazy-loaded) → `item.icon` → a type-derived fallback icon.
+
+<ComponentPreview title="Thumbnail sizes">
+  <AssetBrowserThumbnailSizes client:only="react" />
+</ComponentPreview>
+
+Custom thumbnails — pass a `renderThumbnail` for canvas previews, gradient swatches, or anything that needs more than an `<img>`:
+
+<ComponentPreview title="Custom thumbnail via renderThumbnail">
+  <AssetBrowserCustomThumbnail client:only="react" />
+</ComponentPreview>
+
+```tsx
+<AssetBrowser
+  items={items}
+  renderThumbnail={(item, { size }) => (
+    <CanvasModelPreview src={item.meta?.url} px={size} />
+  )}
+/>
+```
+
+## Folder navigation
+
+Provide a `folderTree` (a `TreeNodeData[]`, the same shape used by `TreeView`) for a sidebar, and a `path` for the breadcrumb bar. Respond to `onNavigate` by swapping the `items` prop — AssetBrowser never walks the tree itself.
+
+<ComponentPreview title="Folder navigation">
+  <AssetBrowserFolderNavigation client:only="react" />
+</ComponentPreview>
+
+Double-click / Enter on a folder fires `onNavigate(id, 'open')`. Clicking a breadcrumb fires `onNavigate(id, 'breadcrumb')`. Clicking a sidebar node fires `onNavigate(id, 'sidebar')`. The `source` argument lets you distinguish them for analytics or undo.
+
+## Selection
+
+`selectionMode` is `'multiple'` by default; `'single'` and `false` are also supported. Selection is controlled via `selection` (+ `onSelectionChange`) or uncontrolled via `defaultSelection`. The callback reports the new ids and a `reason` describing which gesture caused the change.
+
+<ComponentPreview title="Multiple selection with modifiers">
+  <AssetBrowserSelectionMultiple client:only="react" />
+</ComponentPreview>
+
+<ComponentPreview title="Single selection">
+  <AssetBrowserSelectionSingle client:only="react" />
+</ComponentPreview>
+
+| Gesture                  | Result                                               |
+| ------------------------ | ---------------------------------------------------- |
+| Click                    | Replace selection with that item.                    |
+| Ctrl/Cmd + click         | Toggle that item; keep the rest.                     |
+| Shift + click            | Range-select from the anchor over displayed order.   |
+| Click empty grid space   | Clear selection.                                     |
+| Drag in empty grid space | Marquee select (additive with Ctrl/Cmd).             |
+| `Ctrl/Cmd + A`           | Select every selectable displayed item.              |
+| `Escape`                 | Clear selection (and cancel an in-progress marquee). |
+
+## Search, filter, sort
+
+Search, filters, and sort are managed internally by default (client-side, deferred for responsiveness). Pass `manualSearch` / `manualFilter` / `manualSort` to delegate any axis to the consumer — useful for server-side filtering.
+
+<ComponentPreview title="Search & filter">
+  <AssetBrowserSearchAndFilter client:only="react" />
+</ComponentPreview>
+
+The filter menu lists every distinct `assetType` present in `items`. Override that list with `filterableTypes`. Folders always pass the type filter so navigation stays intact.
+
+<ComponentPreview title="Sorting (list view)">
+  <AssetBrowserSorting client:only="react" />
+</ComponentPreview>
+
+Click a list-view column header to sort; the grid view exposes the same sort via the toolbar menu. Folders always group before files within a direction.
+
+## Drag & drop
+
+Provide `onItemsMove` to enable dropping items onto folders, and `onFilesImport` to accept OS files dropped on the surface (or onto a folder). Items are also draggable out with a configurable `dataTransfer` payload (`dragOutMimeType`, default `application/x-entangle-asset`). The actual move/import mutation is yours — AssetBrowser only reports intent.
+
+<ComponentPreview title="Drag & drop with callback log">
+  <AssetBrowserDragAndDrop client:only="react" />
+</ComponentPreview>
+
+```tsx
+<AssetBrowser
+  items={items}
+  onItemsMove={({ itemIds, targetFolderId }) => move(itemIds, targetFolderId)}
+  onFilesImport={({ files, targetFolderId }) => upload(files, targetFolderId)}
+  getDragData={items => ({
+    'application/x-my-app': JSON.stringify(items.map(i => i.id)),
+  })}
+/>
+```
+
+Folder cells highlight as drop targets while a compatible drag hovers them. When OS files are dragged over the surface a full-surface import overlay appears.
+
+## Render props
+
+`renderThumbnail` overrides just the image; `renderItem` replaces the entire grid cell content (you take over selected/focused styling). `renderItemContextMenu` / `renderEmptyContextMenu` let you populate a right-click menu with `Menu.*` items.
+
+<ComponentPreview title="renderItem (full cell takeover)">
+  <AssetBrowserCustomItem client:only="react" />
+</ComponentPreview>
+
+```tsx
+<AssetBrowser
+  items={items}
+  renderItem={(item, state) => (
+    <MyAssetCard
+      item={item}
+      selected={state.selected}
+      focused={state.focused}
+      onClick={state.onClick}
+    />
+  )}
+/>
+```
+
+## Compound slots
+
+For full toolbar or sidebar replacement, use the compound slot components. The slots are marked with a Symbol (not `displayName`), so they survive `React.memo` and minification.
+
+<ComponentPreview title="Custom toolbar (AssetBrowser.Toolbar)">
+  <AssetBrowserCustomToolbar client:only="react" />
+</ComponentPreview>
+
+<ComponentPreview title="Custom sidebar (AssetBrowser.Sidebar)">
+  <AssetBrowserCustomSidebar client:only="react" />
+</ComponentPreview>
+
+```tsx
+<AssetBrowser items={items} search={q} onSearchChange={setQ}>
+  <AssetBrowser.Toolbar>
+    <MyBrandedToolbar query={q} onChange={setQ} onImport={openImport} />
+  </AssetBrowser.Toolbar>
+  <AssetBrowser.Sidebar>
+    <MyFavoritesPanel />
+  </AssetBrowser.Sidebar>
+</AssetBrowser>
+```
+
+Omit a slot to keep the default rendering; provide one to replace it entirely.
+
+## Custom columns (list view)
+
+The default list columns are **Name**, **Type**, **Size**, **Modified**. Pass a `columns` prop to override them with any `DataTableColumn<AssetItem>[]` you like — sorting indicators, sticky-left, custom cells all work.
+
+<ComponentPreview title="Custom columns">
+  <AssetBrowserCustomColumns client:only="react" />
+</ComponentPreview>
+
+```tsx
+const columns: DataTableColumn<AssetItem>[] = [
+  {
+    id: 'name',
+    header: 'Asset',
+    accessor: 'name',
+    sortable: true,
+    sticky: true,
+  },
+  { id: 'tags', header: 'Tags', accessor: row => row.meta?.tags?.join(', ') },
+];
+
+<AssetBrowser items={items} defaultView="list" columns={columns} />;
+```
+
+## States
+
+When `items.length === 0` and `loading` is false, a default empty state is shown — override with `emptyState`. When `loading` is true, a spinner placeholder takes over both views.
+
+<ComponentPreview title="Empty and loading">
+  <AssetBrowserStates client:only="react" />
+</ComponentPreview>
+
+## Status bar & list density
+
+`showStatusBar` reveals a footer with the displayed item count, selection size, and a thumbnail-size control (grid view only). `density` propagates to `DataTable` in list view.
+
+<ComponentPreview title="Status bar visible">
+  <AssetBrowserStatusBar client:only="react" />
+</ComponentPreview>
+
+<ComponentPreview title="List densities">
+  <AssetBrowserDensities client:only="react" />
+</ComponentPreview>
+
+## Styling via theme tokens
+
+Every color, border, radius, and surface in AssetBrowser reads from the `--etui-*` CSS custom properties that make up the theme contract. To re-skin the component (or a subtree of your app) override those variables on any ancestor element — no component-level prop drilling required.
+
+<ComponentPreview title="Default vs. custom token overrides">
+  <AssetBrowserStyledViaTokens client:only="react" />
+</ComponentPreview>
+
+```tsx
+const warmTheme: CSSProperties = {
+  '--etui-color-bg-primary': '#1f1612',
+  '--etui-color-bg-secondary': '#2a1d18',
+  '--etui-color-border-default': '#5a4423',
+  '--etui-color-accent-primary': '#f59e0b',
+  '--etui-color-surface-active': '#4a2f1f',
+  '--etui-color-text-primary': '#f5e6d3',
+  '--etui-borderRadius-md': '10px',
+};
+
+<div style={warmTheme}>
+  <AssetBrowser items={items} />
+</div>;
+```
+
+The tokens AssetBrowser reads most heavily:
+
+| Token                         | Affects                                                 |
+| ----------------------------- | ------------------------------------------------------- |
+| `--etui-color-bg-primary`     | Main panel background.                                  |
+| `--etui-color-bg-secondary`   | Sidebar background.                                     |
+| `--etui-color-bg-inset`       | Thumbnail placeholder background.                       |
+| `--etui-color-border-default` | Separators (toolbar, breadcrumbs, sidebar, status bar). |
+| `--etui-color-border-focus`   | Focus ring and selected-cell outline.                   |
+| `--etui-color-accent-primary` | Marquee, drop-target ring, import overlay border.       |
+| `--etui-color-surface-hover`  | Cell hover background.                                  |
+| `--etui-color-surface-active` | Selected cell background and active sidebar node.       |
+| `--etui-color-text-primary`   | Cell labels, breadcrumb current segment.                |
+| `--etui-color-text-muted`     | Status bar text, fallback icons, empty-state text.      |
+| `--etui-borderRadius-md`      | Panel corner radius and grid cells.                     |
+
+For a fully custom palette across the whole app, prefer `createCustomTheme(...)` from the public API — overriding `--etui-*` directly is the right pattern for a localized accent.
+
+## Imperative handle
+
+Pass a `ref` to get a typed `AssetBrowserHandle` with `focus()`, `selectAll()`, `clearSelection()`, `scrollToItem(id)`, `getSelectedItems()`, and `getElement()`.
+
+```tsx
+const ref = useRef<AssetBrowserHandle>(null);
+
+useEffect(() => {
+  ref.current?.scrollToItem('hero_character.fbx');
+}, []);
+
+<AssetBrowser ref={ref} items={items} />;
+```
+
+## Accessibility
+
+- The grid view is a `role="grid"` with `aria-multiselectable` (in multi-select mode); cells are `role="gridcell"` with `aria-selected` and roving `tabIndex`.
+- The list view inherits DataTable's `role="grid"` semantics; the wrapper does not double-wrap.
+- The breadcrumb bar is a labelled `nav`; the current segment carries `aria-current="page"`.
+- A visually-hidden live region announces the item count and selection size.
+- Animations honour `prefers-reduced-motion: reduce` via the same transition tokens used by the rest of the library.
+
+### Keyboard reference
+
+| Key                          | Action                                                |
+| ---------------------------- | ----------------------------------------------------- |
+| Arrow keys                   | Move roving focus (2D in grid, vertical in list).     |
+| Home / End                   | Jump to the first / last item.                        |
+| PageUp / PageDown            | Move by one viewport's worth of rows.                 |
+| Enter                        | Activate — folder navigates, file emits `onItemOpen`. |
+| Space                        | Toggle selection of the focused item.                 |
+| Shift + arrows / Shift+click | Extend range selection from the anchor.               |
+| Ctrl/Cmd + A                 | Select every selectable displayed item.               |
+| Escape                       | Clear selection (and cancel a marquee in progress).   |
+
+## API Reference
+
+<PropsTable
+  props={[
+    {
+      name: 'items',
+      type: 'AssetItem[]',
+      required: true,
+      description:
+        'Direct children of the current folder (files + sub-folders).',
+    },
+    {
+      name: 'path',
+      type: 'AssetPathSegment[]',
+      description:
+        'Current location, oldest → newest. Drives the breadcrumb bar.',
+    },
+    {
+      name: 'folderTree',
+      type: 'TreeNodeData[]',
+      description:
+        'Folder hierarchy for the sidebar. Omit to hide the sidebar.',
+    },
+    {
+      name: 'currentFolderId',
+      type: 'string',
+      description:
+        'Id of the folder currently shown. Highlights the sidebar node.',
+    },
+    {
+      name: 'view',
+      type: "'grid' | 'list'",
+      description: 'Controlled view mode.',
+    },
+    {
+      name: 'defaultView',
+      type: "'grid' | 'list'",
+      default: "'grid'",
+      description: 'Uncontrolled initial view.',
+    },
+    {
+      name: 'onViewChange',
+      type: '(view) => void',
+      description: 'Fired when the view toggles.',
+    },
+    {
+      name: 'thumbnailSize',
+      type: "'sm' | 'md' | 'lg' | number",
+      default: "'md'",
+      description: 'Grid thumbnail scale (number = px).',
+    },
+    {
+      name: 'density',
+      type: "'comfortable' | 'compact' | 'dense'",
+      default: "'comfortable'",
+      description: 'List-view row density.',
+    },
+    {
+      name: 'selectionMode',
+      type: "'single' | 'multiple' | false",
+      default: "'multiple'",
+      description: 'Selection behaviour.',
+    },
+    {
+      name: 'selection',
+      type: 'string[]',
+      description: 'Controlled selected ids.',
+    },
+    {
+      name: 'defaultSelection',
+      type: 'string[]',
+      description: 'Uncontrolled initial selection.',
+    },
+    {
+      name: 'onSelectionChange',
+      type: '(ids, { reason }) => void',
+      description: 'Fired when selection changes.',
+    },
+    {
+      name: 'search',
+      type: 'string',
+      description: 'Controlled search query.',
+    },
+    {
+      name: 'onSearchChange',
+      type: '(query) => void',
+      description: 'Fired when the search input changes.',
+    },
+    {
+      name: 'manualSearch',
+      type: 'boolean',
+      default: 'false',
+      description: 'When true, you pre-filter items by name.',
+    },
+    {
+      name: 'filters',
+      type: '{ types?: string[] }',
+      description: 'Controlled type filters.',
+    },
+    {
+      name: 'onFiltersChange',
+      type: '(filters) => void',
+      description: 'Fired when filters change.',
+    },
+    {
+      name: 'filterableTypes',
+      type: 'string[]',
+      description:
+        'Type values offered in the filter menu. Defaults to the distinct assetTypes present in items.',
+    },
+    {
+      name: 'sort',
+      type: '{ field, direction }',
+      description: 'Controlled sort state.',
+    },
+    {
+      name: 'defaultSort',
+      type: '{ field, direction }',
+      default: "{ field: 'name', direction: 'asc' }",
+      description: 'Uncontrolled initial sort.',
+    },
+    {
+      name: 'onSortChange',
+      type: '(sort) => void',
+      description: 'Fired when sort changes.',
+    },
+    {
+      name: 'onNavigate',
+      type: '(folderId, source) => void',
+      description: 'Fired when the user enters a folder.',
+    },
+    {
+      name: 'onItemOpen',
+      type: '(item) => void',
+      description: 'Fired when a file is activated (double-click / Enter).',
+    },
+    {
+      name: 'columns',
+      type: 'DataTableColumn<AssetItem>[]',
+      description: 'Override the default list columns.',
+    },
+    {
+      name: 'onItemsMove',
+      type: '({ itemIds, targetFolderId }) => void',
+      description: 'Enables dropping items onto folders.',
+    },
+    {
+      name: 'onFilesImport',
+      type: '({ files, targetFolderId }) => void',
+      description: 'Enables external OS-file drop.',
+    },
+    {
+      name: 'dragOutMimeType',
+      type: 'string',
+      default: "'application/x-entangle-asset'",
+      description: 'MIME type used when dragging items out.',
+    },
+    {
+      name: 'getDragData',
+      type: '(items) => Record<string, string>',
+      description: 'Override the drag-out dataTransfer payload.',
+    },
+    {
+      name: 'renderThumbnail',
+      type: '(item, ctx) => ReactNode',
+      description: 'Custom thumbnail (e.g. canvas preview).',
+    },
+    {
+      name: 'renderItem',
+      type: '(item, state) => ReactNode',
+      description: "Fully replace a grid cell's content.",
+    },
+    {
+      name: 'renderItemContextMenu',
+      type: '(items) => ReactNode',
+      description: 'Body of the item context menu.',
+    },
+    {
+      name: 'renderEmptyContextMenu',
+      type: '() => ReactNode',
+      description: 'Body of the empty-area context menu.',
+    },
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: 'Show a loading placeholder.',
+    },
+    {
+      name: 'loadingItemCount',
+      type: 'number',
+      default: '12',
+      description: 'How many placeholder cells to draw while loading.',
+    },
+    {
+      name: 'emptyState',
+      type: 'ReactNode',
+      description: 'Override the default empty view.',
+    },
+    {
+      name: 'virtualized',
+      type: "boolean | 'auto'",
+      default: "'auto'",
+      description: 'Grid windowing; engages above the threshold.',
+    },
+    {
+      name: 'virtualizationThreshold',
+      type: 'number',
+      default: '200',
+      description: 'Item count above which auto windowing engages.',
+    },
+    {
+      name: 'overscanRows',
+      type: 'number',
+      default: '4',
+      description: 'Off-screen rows kept mounted during windowing.',
+    },
+    {
+      name: 'showStatusBar',
+      type: 'boolean',
+      default: 'false',
+      description: 'Show the count/selection footer + thumbnail-size control.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      default: "'Asset browser'",
+      description: 'Accessible name for the root region.',
+    },
+    {
+      name: 'ref',
+      type: 'Ref<AssetBrowserHandle>',
+      description:
+        'Imperative handle: focus, selectAll, clearSelection, scrollToItem, getSelectedItems, getElement.',
+    },
+  ]}
+/>

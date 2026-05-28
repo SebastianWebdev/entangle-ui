@@ -217,10 +217,6 @@ export default defineConfig({
               label: 'Data',
               collapsed: false,
               items: [
-                {
-                  label: 'AssetBrowser',
-                  slug: 'components/data/asset-browser',
-                },
                 { label: 'DataTable', slug: 'components/data/data-table' },
               ],
             },
@@ -242,6 +238,10 @@ export default defineConfig({
               label: 'Editor',
               collapsed: true,
               items: [
+                {
+                  label: 'AssetBrowser',
+                  slug: 'components/editor/asset-browser',
+                },
                 {
                   label: 'ChatPanel',
                   slug: 'components/editor/chat-panel',

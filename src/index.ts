@@ -127,7 +127,7 @@ export {
   TabPanel,
   Tabs,
 } from '@/components/navigation';
-export { AssetBrowser, DataTable } from '@/components/data';
+export { DataTable } from '@/components/data';
 export { FormHelperText, FormLabel, InputWrapper } from '@/components/form';
 export {
   Alert,
@@ -152,6 +152,7 @@ export {
   ToastProvider,
   useToast,
 } from '@/components/feedback';
+export { AssetBrowser } from '@/components/editor';
 export {
   PropertyGroup,
   PropertyPanel,
@@ -457,21 +458,6 @@ export type {
   TabsVariant,
 } from '@/components/navigation';
 export type {
-  AssetBrowserBaseProps,
-  AssetBrowserHandle,
-  AssetBrowserProps,
-  AssetFilterState,
-  AssetItem,
-  AssetItemState,
-  AssetKind,
-  AssetNavigationSource,
-  AssetPathSegment,
-  AssetSelectionReason,
-  AssetSortField,
-  AssetSortState,
-  AssetThumbnailSize,
-  AssetType,
-  AssetView,
   DataTableAlign,
   DataTableBaseProps,
   DataTableColumn,
@@ -551,6 +537,21 @@ export type {
   UseToastReturn,
 } from '@/components/feedback';
 export type {
+  AssetBrowserBaseProps,
+  AssetBrowserHandle,
+  AssetBrowserProps,
+  AssetFilterState,
+  AssetItem,
+  AssetItemState,
+  AssetKind,
+  AssetNavigationSource,
+  AssetPathSegment,
+  AssetSelectionReason,
+  AssetSortField,
+  AssetSortState,
+  AssetThumbnailSize,
+  AssetType,
+  AssetView,
   PropertyGroupProps,
   PropertyInspectorSize,
   PropertyPanelProps,
