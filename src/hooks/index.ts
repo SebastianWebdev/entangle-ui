@@ -74,3 +74,9 @@ export type {
   ThemeVariant,
   UseThemeReturn,
 } from './useTheme';
+
+export { useNavigationHistory } from './useNavigationHistory';
+export type {
+  NavigationHistoryApi,
+  UseNavigationHistoryOptions,
+} from './useNavigationHistory';

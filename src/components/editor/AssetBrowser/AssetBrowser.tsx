@@ -1,12 +1,10 @@
 'use client';
 
 import React, {
-  useCallback,
   useDeferredValue,
   useImperativeHandle,
   useMemo,
   useRef,
-  useState,
   type ReactNode,
 } from 'react';
 import { useControlledState, useLatest } from '@/hooks';
@@ -41,6 +39,7 @@ import { AssetBrowserSidebar } from './AssetBrowserSidebar';
 import { AssetBrowserGrid } from './AssetBrowserGrid';
 import { AssetBrowserList } from './AssetBrowserList';
 import { useAssetDnd } from './useAssetDnd';
+import { useAssetNavigation } from './useAssetNavigation';
 import { useAssetSelectionController } from './useAssetSelectionController';
 import { collectTypes, shapeAssets } from './assetBrowserFilter';
 import { resolveThumbPx } from './assetBrowserGeometry';
@@ -59,17 +58,6 @@ import {
 
 const DEFAULT_MIME = 'application/x-entangle-asset';
 const DEFAULT_SORT: AssetSortState = { field: 'name', direction: 'asc' };
-
-interface HistoryState {
-  stack: string[];
-  index: number;
-}
-
-function initialHistory(currentFolderId: string | undefined): HistoryState {
-  return currentFolderId != null
-    ? { stack: [currentFolderId], index: 0 }
-    : { stack: [], index: -1 };
-}
 
 function cssEscape(value: string): string {
   if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
@@ -234,8 +222,6 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
 
   const itemsRef = useLatest(items);
   const displayedRef = useLatest(displayed);
-  const onItemOpenRef = useLatest(onItemOpen);
-  const onNavigateRef = useLatest(onNavigate);
 
   const { selectionSet, handlers } = useAssetSelectionController({
     store,
@@ -246,78 +232,21 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     onSelectionChange,
   });
 
-  // ── Navigation + history ──────────────────────────────────────────────────
-  const [hist, setHist] = useState<HistoryState>(() =>
-    initialHistory(currentFolderId)
-  );
-  const histRef = useLatest(hist);
-  const canGoBack = history && hist.index > 0;
-  const canGoForward = history && hist.index < hist.stack.length - 1;
-
-  const navigate = useCallback(
-    (
-      folderId: string,
-      source: Parameters<NonNullable<AssetBrowserProps['onNavigate']>>[1]
-    ): void => {
-      if (history) {
-        const h = histRef.current;
-        const stack = h.stack.slice(0, h.index + 1);
-        if (stack[stack.length - 1] !== folderId) {
-          stack.push(folderId);
-          setHist({ stack, index: stack.length - 1 });
-        }
-      }
-      onNavigateRef.current?.(folderId, source);
-    },
-    [history, histRef, onNavigateRef]
-  );
-
-  const goBack = useCallback((): void => {
-    const h = histRef.current;
-    if (h.index <= 0) return;
-    const index = h.index - 1;
-    const target = h.stack[index];
-    if (target === undefined) return;
-    setHist({ stack: h.stack, index });
-    onNavigateRef.current?.(target, 'back');
-  }, [histRef, onNavigateRef]);
-
-  const goForward = useCallback((): void => {
-    const h = histRef.current;
-    if (h.index >= h.stack.length - 1) return;
-    const index = h.index + 1;
-    const target = h.stack[index];
-    if (target === undefined) return;
-    setHist({ stack: h.stack, index });
-    onNavigateRef.current?.(target, 'forward');
-  }, [histRef, onNavigateRef]);
-
-  const activateItem = useCallback(
-    (item: Parameters<AssetBrowserContextValue['activateItem']>[0]): void => {
-      if (item.kind === 'folder') navigate(item.id, 'open');
-      else onItemOpenRef.current?.(item);
-    },
-    [navigate, onItemOpenRef]
-  );
-
-  const handleRootKeyDown = (e: React.KeyboardEvent): void => {
-    if (!history) return;
-    const target = e.target as HTMLElement;
-    if (
-      target.tagName === 'INPUT' ||
-      target.tagName === 'TEXTAREA' ||
-      target.isContentEditable
-    ) {
-      return;
-    }
-    const toParent = e.key === 'Backspace' || (e.altKey && e.key === 'ArrowUp');
-    if (!toParent) return;
-    const parent = path[path.length - 2];
-    if (parent) {
-      e.preventDefault();
-      navigate(parent.id, 'breadcrumb');
-    }
-  };
+  const {
+    navigate,
+    activateItem,
+    goBack,
+    goForward,
+    canGoBack,
+    canGoForward,
+    handleRootKeyDown,
+  } = useAssetNavigation({
+    history,
+    path,
+    currentFolderId,
+    onNavigate,
+    onItemOpen,
+  });
 
   const dnd = useAssetDnd({
     store,
