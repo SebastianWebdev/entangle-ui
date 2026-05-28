@@ -782,7 +782,7 @@ export default function AnimationEditorDemo(): JSX.Element {
                 <Timeline.Toolbar>
                   <TangentBar tracks={tracks} onTracksChange={setTracks} />
                 </Timeline.Toolbar>
-                <Timeline.TrackScale position="start" />
+                <Timeline.TrackScale position="start" showMidpoint gridlines />
                 <Timeline.Minimap tracks={tracks} height={36} />
               </Timeline>
             </div>

@@ -46,12 +46,14 @@ export interface TimelineDrawInput {
   /** Whether the playhead is currently pointer-hovered (renders a glow). */
   playheadHovered?: boolean;
   /**
-   * When provided, draws min / max value labels at the start (or end) of
+   * When provided, draws an axis line + tick labels at the start (or end) of
    * each graph / expanded lane. Used by the `<Timeline.TrackScale />` slot.
    */
   trackScale?: {
     position: 'start' | 'end';
     format: (value: number) => string;
+    showMidpoint: boolean;
+    gridlines: boolean;
     color?: string;
   };
   renderOverlay?: (
@@ -103,21 +105,73 @@ function drawGraphLane(
   const isHovered = input.isHovered ?? ((): boolean => false);
   const range = track.valueRange ?? autoValueRange(track.keyframes);
 
-  // ── Track scale (min / max labels inside the lane)
+  // ── Track scale (axis line + min/max [+ midpoint] labels, optional gridlines)
   if (input.trackScale) {
-    const { position, format } = input.trackScale;
+    const { position, format, showMidpoint, gridlines } = input.trackScale;
     const scaleColor = input.trackScale.color ?? colors.rulerText;
-    const minLabel = format(range[0]);
-    const maxLabel = format(range[1]);
+    const isStart = position === 'start';
+    const inset = Math.min(8, rowH * 0.2);
+    const axisX = isStart ? 6 : size.width - 6;
+    const lineX = Math.round(axisX) + 0.5;
+    const yTop = top + inset;
+    const yBot = top + rowH - inset;
+    const yMid = (yTop + yBot) / 2;
+    const midValue = (range[0] + range[1]) / 2;
+    const ticks: Array<{
+      y: number;
+      value: number;
+      baseline: CanvasTextBaseline;
+    }> = [
+      { y: yTop, value: range[1], baseline: 'top' },
+      { y: yBot, value: range[0], baseline: 'bottom' },
+    ];
+    if (showMidpoint) {
+      ticks.push({ y: yMid, value: midValue, baseline: 'middle' });
+    }
+
     ctx.save();
+    ctx.strokeStyle = scaleColor;
     ctx.fillStyle = scaleColor;
     ctx.font = input.font;
-    ctx.textBaseline = 'top';
-    ctx.textAlign = position === 'start' ? 'left' : 'right';
-    const x = position === 'start' ? 4 : size.width - 4;
-    ctx.fillText(maxLabel, x, top + 2);
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(minLabel, x, top + rowH - 2);
+    ctx.lineWidth = 1;
+
+    // Gridlines first so the axis + curve draw on top.
+    if (gridlines) {
+      ctx.save();
+      ctx.globalAlpha = 0.18;
+      ctx.setLineDash([2, 3]);
+      ctx.beginPath();
+      for (const tick of ticks) {
+        const y = Math.round(tick.y) + 0.5;
+        ctx.moveTo(0, y);
+        ctx.lineTo(size.width, y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+
+    // Axis line.
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(lineX, yTop);
+    ctx.lineTo(lineX, yBot);
+    ctx.stroke();
+
+    // Ticks + labels.
+    const tickLen = 3;
+    const tickInside = isStart ? lineX + tickLen : lineX - tickLen;
+    const labelX = isStart ? lineX + tickLen + 3 : lineX - tickLen - 3;
+    ctx.textAlign = isStart ? 'left' : 'right';
+    for (const tick of ticks) {
+      const y = Math.round(tick.y) + 0.5;
+      ctx.beginPath();
+      ctx.moveTo(lineX, y);
+      ctx.lineTo(tickInside, y);
+      ctx.stroke();
+      ctx.textBaseline = tick.baseline;
+      ctx.fillText(format(tick.value), labelX, tick.y);
+    }
     ctx.restore();
   }
   const curve: CurveData = {

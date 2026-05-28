@@ -667,6 +667,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
                 format:
                   slots.trackScale.format ??
                   ((v: number) => Number(v.toFixed(2)).toString()),
+                showMidpoint: slots.trackScale.showMidpoint ?? false,
+                gridlines: slots.trackScale.gridlines ?? false,
                 ...(slots.trackScale.color
                   ? { color: slots.trackScale.color }
                   : {}),

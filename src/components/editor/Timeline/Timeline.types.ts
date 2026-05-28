@@ -312,7 +312,7 @@ export interface TimelineFooterProps {
 
 export interface TimelineTrackScaleProps {
   /**
-   * Which side of the lane the scale labels are drawn on.
+   * Which side of the lane the scale axis is drawn on.
    * @default 'start'
    */
   position?: 'start' | 'end';
@@ -322,7 +322,16 @@ export interface TimelineTrackScaleProps {
    */
   format?: (value: number) => string;
   /**
-   * Override the label color. Defaults to the muted text colour.
+   * Draw a tick + label at the midpoint of the range too. @default false
+   */
+  showMidpoint?: boolean;
+  /**
+   * Draw thin horizontal gridlines across the whole lane width at each tick
+   * (`min` / `max`, plus midpoint when `showMidpoint` is on). @default false
+   */
+  gridlines?: boolean;
+  /**
+   * Override the axis / label color. Defaults to the muted text colour.
    */
   color?: string;
 }
