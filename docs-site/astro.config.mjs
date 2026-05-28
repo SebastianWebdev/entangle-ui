@@ -310,7 +310,10 @@ export default defineConfig({
         },
         {
           label: 'Showcase',
-          items: [{ label: 'Full Editor', slug: 'showcase/editor' }],
+          items: [
+            { label: 'Full Editor', slug: 'showcase/editor' },
+            { label: 'Animation Editor', slug: 'showcase/animation-editor' },
+          ],
         },
         {
           label: 'Icons',

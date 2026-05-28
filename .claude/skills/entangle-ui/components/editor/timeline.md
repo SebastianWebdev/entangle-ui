@@ -1,28 +1,50 @@
 # Timeline
 
-> Horizontal multi-track animation timeline / dope sheet. Frame-based time axis, keyframes (shared CurveEditor model), a scrubbing playhead, zoom/pan, snap-to-frame, and full keyframe editing on a perf-isolated canvas.
+> Horizontal multi-track animation timeline / dope sheet. Frame-based time axis, keyframes (shared CurveEditor model), a scrubbing playhead, zoom/pan, snap-to-frame, full keyframe editing, dope-sheet & graph modes, collapsible track groups, per-track expand-to-graph, and an optional built-in playback loop — all on a perf-isolated canvas.
 
-A horizontal, multi-track **animation timeline / dope sheet** for editor UIs. Each track is an animated property whose keyframes (the shared `CurveKeyframe` model, reused from `CurveEditor`) lie along a frame-based time axis. A playhead scrubs across all tracks; the view zooms and pans over time. Keyframes render on a perf-isolated canvas while chrome stays in the DOM.
+A horizontal, multi-track **animation timeline / dope sheet** for editor UIs.
+Each track is an animated property whose keyframes (the shared `CurveKeyframe`
+model, reused from `CurveEditor`) lie along a frame-based time axis. A
+playhead scrubs across all tracks; the view zooms and pans over time.
+Keyframes render on a perf-isolated canvas while chrome stays in the DOM.
 
-:::caution[Alpha]
-Timeline is published on the `entangle-ui@alpha` line and still evolving.
-Working today: rendering, scrubbing, zoom/pan, selection (click / shift /
-box-select), drag-move, add/delete, keyboard, the imperative handle, the
-track-header column with reorder, `Timeline.Toolbar` / `Timeline.Footer`
-slots, the built-in playback loop with a draggable loop region, **graph
-(curve) mode** with draggable keyframes + bezier tangent handles (use the
-Dope sheet / Graph toggle in the demo toolbar below), **track groups**
-(collapsible folders), **per-track expand-to-graph**, vertical scrolling for
-overflowing tracks, and an accessibility baseline.
-:::
+Timeline is the flagship editor component: it ships dope-sheet **and** graph
+(value-curve) modes, collapsible track groups, per-track expand-to-graph,
+header reorder, a draggable loop region, copy / paste, vertical scrolling, an
+imperative handle, hooks for live state, and an accessibility baseline — all
+in one component.
 
 **Live Preview**
+
+For a full, self-contained editor built around Timeline (3D-CSS cube driven
+live by the keyframe curves, scene tree, frame-bound inspector), see the
+[**Animation Editor showcase →**](/showcase/animation-editor/)
 
 ## Import
 
 ```tsx
-import { Timeline } from 'entangle-ui';
-import type { TimelineTrack, TimelineHandle, TimelineView } from 'entangle-ui';
+import {
+  Timeline,
+  framesToTimecode,
+  useTimelineContext,
+  useTimelineGeometry,
+  useTimelinePlayhead,
+  useTimelineSelection,
+} from 'entangle-ui';
+import type {
+  TimelineProps,
+  TimelineTrack,
+  TimelineGroup,
+  TimelineKeyframeRef,
+  TimelineSelection,
+  TimelineView,
+  TimelineMode,
+  TimelineLoop,
+  TimelineInfinity,
+  TimelineHandle,
+  TimelineDrawInfo,
+  TimelineTrackHeaderInfo,
+} from 'entangle-ui';
 ```
 
 ## Basic usage
@@ -30,7 +52,9 @@ import type { TimelineTrack, TimelineHandle, TimelineView } from 'entangle-ui';
 `tracks` is controlled — hold the data yourself and update it from
 `onTracksChange` (continuous, during a drag) and/or `onTracksChangeComplete`
 (commit, for an undo stack). The playhead `frame` and the visible `view` are
-each controlled or uncontrolled.
+each independently controlled or uncontrolled.
+
+**Minimal setup**
 
 ```tsx
 import { useState } from 'react';
@@ -73,135 +97,453 @@ function Editor() {
 The timeline fills its parent when `responsive` (the default), so give the
 wrapper a height — or pass a fixed `height={number}`.
 
-## Interactions
+## Data model
 
-| Gesture                                  | Action                                                 |
-| ---------------------------------------- | ------------------------------------------------------ |
-| Drag / click the ruler (or the playhead) | Scrub the playhead (snaps to frame)                    |
-| Click a keyframe                         | Select it                                              |
-| Shift / Ctrl + click                     | Add / toggle in the selection                          |
-| Drag on empty space                      | Box-select across tracks                               |
-| Drag a selected keyframe                 | Move keyframes (snapped, clamped to range)             |
-| Double-click empty space                 | Add a keyframe on that track                           |
-| Delete / Backspace                       | Remove the selected keyframes                          |
-| Wheel                                    | Scroll tracks vertically when they overflow, else zoom |
-| Ctrl/Cmd + wheel                         | Zoom the time axis around the cursor                   |
-| Shift + wheel / middle-drag              | Pan the time axis                                      |
-| ← / → (Shift = ×10)                      | Step the playhead; Home / End jump to the range ends   |
-| Ctrl/Cmd + C / V                         | Copy / paste the selected keyframes at the playhead    |
-
-Hold **Ctrl** while dragging to momentarily disable snap-to-frame. Drag a
-track's header row to **reorder** tracks (built-in header only). Click a group
-header (or its caret) to **collapse / expand** the group; use a track's
-disclosure caret to **expand it to a graph lane**.
-
-## Imperative handle
-
-Pass a `ref` to drive the timeline programmatically:
+A `TimelineTrack` is a thin wrapper around a list of `CurveKeyframe`s — the
+**same model** used by `CurveEditor`, so timelines and curve editors speak the
+same language and a curve panel can pop out of a row without converting data.
 
 ```tsx
-const ref = useRef<TimelineHandle>(null);
+interface TimelineTrack {
+  id: string;
+  label?: string;
+  color?: string;
+  keyframes: CurveKeyframe[]; // shared with CurveEditor
+  valueRange?: [number, number]; // graph-mode domain; auto-fit if omitted
+  infinity?: { pre?: InfinityMode; post?: InfinityMode };
+  locked?: boolean; // ignore edits + dim header
+  hidden?: boolean; // exclude from layout entirely
+  expanded?: boolean; // open as a graph lane in dope mode
+  groupId?: string; // join a TimelineGroup
+  height?: number; // row-height override
+}
 
-ref.current?.seek(48);
-ref.current?.play();
-ref.current?.zoomToSelection();
-const x = ref.current?.frameToX(48); // frame → track-area pixel
+interface CurveKeyframe {
+  id?: string;
+  x: number; // frame
+  y: number; // value
+  handleIn: { x: number; y: number };
+  handleOut: { x: number; y: number };
+  tangentMode: 'auto' | 'linear' | 'step' | 'aligned' | 'mirrored' | 'free';
+}
 ```
 
-`seek` · `play` / `pause` / `toggle` · `getFrame` · `zoomToFit(paddingFrames?)` ·
-`zoomToSelection` · `getView` · `frameToX` / `xToFrame` · `focus` / `getElement`.
+Pure helpers consumed by the timeline:
+
+- `framesToTimecode(frame, fps)` — the built-in `HH:MM:SS:FF` formatter.
+- `evaluateCurve(curve, frame)` (re-exported by `CurveEditor`) — sample a
+  track's value at any frame for live-driven scenes; the
+  [Animation Editor showcase](/showcase/animation-editor/) uses this to drive
+  a CSS-3D cube straight from the timeline tracks.
 
 ## Time domain
 
 Time is expressed in **frames** with an `fps` prop that drives the
 `HH:MM:SS:FF` ruler timecode and the snap grid. The global range is
 `startFrame`..`endFrame`; the visible window is the `view`
-(`{ startFrame, endFrame }`), bounded by `minFramesVisible` / `maxFramesVisible`.
+(`{ startFrame, endFrame }`), bounded by `minFramesVisible` /
+`maxFramesVisible`. Pass `formatTime={(frame, fps) => string}` to override
+ruler labels — e.g. show plain seconds instead of timecode.
+
+**Custom ruler format**
 
 ## Modes — dope sheet & graph
 
-Toggle `mode` between `'dope-sheet'` (keyframe timing, the default) and
-`'graph'` (value curves). In graph mode each track draws its animation curve
-— reusing the shared `CurveEditor` evaluation — with keyframe points you can
+Toggle `mode` between `'dope-sheet'` (keyframe **timing**, the default) and
+`'graph'` (value **curves**). In graph mode every track draws its animation
+curve — reusing `CurveEditor`'s `evaluateCurve` — with keyframe points you can
 drag in **time and value**, plus **draggable bezier tangent handles** on the
-selected keyframe (honoring its `tangentMode`). `mode` is controlled
-(`mode` / `defaultMode` / `onModeChange`).
+selected keyframe (honoring its `tangentMode`).
+
+**Dope sheet ↔ graph**
+
+`mode` is controlled (`mode` / `defaultMode` / `onModeChange`).
 
 ### Per-track expand-to-graph
 
-In dope-sheet mode, an individual track can open its value curve in place —
+In dope-sheet mode an individual track can open its value curve in place —
 set `expanded: true` on the track (or use the disclosure caret in its header).
 Expanded tracks render a taller graph lane (`expandedTrackHeight`, default
-`96`) with the same draggable points and tangent handles as global graph mode,
-while the rest stay compact. This lets you tweak one channel's curve without
-leaving the dope sheet.
+`96`) with the same draggable points and tangent handles as global graph
+mode, while the rest stay compact. This lets you tweak one channel's curve
+without leaving the dope sheet.
+
+**One track, opened in place**
 
 ## Track groups
 
 Organize related tracks into collapsible folders. A track joins a group via
 `groupId`; the `groups` prop lists the groups in order:
 
+**Transform / Material / Light**
+
 ```tsx
 <Timeline
-  tracks={tracks} // each with groupId: 'transform' | 'material' | …
+  tracks={tracks} // each with groupId: 'transform' | 'material' | 'light'
   groups={[
     { id: 'transform', label: 'Transform' },
-    { id: 'material', label: 'Material', collapsed: true },
+    { id: 'material', label: 'Material' },
+    { id: 'light', label: 'Light', collapsed: true },
   ]}
   onGroupsChange={setGroups}
 />
 ```
 
-Each group renders a header row (in both the header column and the canvas);
-clicking it — or its caret — toggles `collapsed`, hiding the group's tracks.
-Groups are controlled or uncontrolled (`groups` / `onGroupsChange`); a
-`collapsed` flag on a group sets its initial state. Grouped track headers are
-indented under their group. Tune the header height with `groupHeaderHeight`
-(default `22`).
+Each group renders a header row in **both** the header column and the canvas;
+clicking the header (or its caret) toggles `collapsed`, hiding the group's
+tracks. Groups are controlled or uncontrolled (`groups` / `onGroupsChange`).
+Grouped track headers are indented under their group; tune the header height
+with `groupHeaderHeight` (default `22`). The current model is **flat** — one
+`groupId` per track, no nested folders.
 
-## Vertical scrolling
-
-When tracks overflow the available height the track area scrolls vertically: a
-plain mouse **wheel** scrolls the rows (the time ruler stays pinned), while
-**Ctrl/Cmd + wheel** zooms the time axis instead. Row layout (group headers,
-expanded lanes, variable `height` overrides) is computed once and shared by the
-canvas, hit-testing, and the header column so everything stays aligned.
-
-## Playback
+## Playback & loop region
 
 Timeline ships an optional built-in clock: set `playing` (or call
 `ref.play()` / `ref.toggle()`) and it advances `frame` in real time at `fps`,
 firing `onFrameChange` each tick. `loop` (`true`, or a
 `{ startFrame, endFrame }` sub-range) repeats; otherwise playback stops at the
-end. `frame` stays fully controllable, so external sync (audio, an engine
-tick) can drive it instead. When `loop` is set, its region is shown on the
-ruler and its edges (and body) are draggable — controlled via `loop` /
-`defaultLoop` / `onLoopChange`.
+end. `frame` stays fully controllable, so an external clock — audio playback,
+an engine tick, a server-driven sequence — can drive it instead of the
+built-in loop.
 
-## Accessibility
+**Play / loop region drag**
 
-The body is a focusable `role="group"` with `aria-roledescription="Timeline"`
-and your `ariaLabel`. Every playhead and editing action has a keyboard
-equivalent (see [Interactions](#interactions)), and a polite live region
-announces the playhead frame on discrete moves (keyboard steps, clicks) while
-staying quiet during continuous scrubs and playback. The canvas is decorative
-— the keyboard model and live region carry the semantics.
+When `loop` is set its region is highlighted on the ruler and shaded across
+the track area; its **edges and body are draggable** — controlled via `loop`
+/ `defaultLoop` / `onLoopChange`.
+
+## Selection & box-select
+
+Selection is a `TimelineSelection` (`{ trackId, keyframeId }[]`) — controlled
+or uncontrolled. Click a keyframe to select; Shift / Ctrl / Cmd toggles into
+the selection; drag on empty space to **box-select** across tracks.
+
+**Live selection readout**
+
+## Keyframe editing
+
+Drag a selected keyframe to **move** it (snapped, clamped to range);
+double-click empty space on a track to **add** a keyframe there; **Delete /
+Backspace** removes the selection; **Ctrl / Cmd + C / V** copies the
+selection and pastes it at the current playhead frame, preserving relative
+offsets. In an expanded lane (or in graph mode) the **bezier tangent
+handles** on the selected keyframe are draggable too — handle dragging
+respects the keyframe's `tangentMode` (auto/linear/step are promoted to
+aligned on first drag; mirrored keeps both handles equal-and-opposite).
+
+**Full edit playground**
+
+For an undo stack: subscribe to `onTracksChangeComplete` (fired on
+pointer-up, **not** on every drag tick) and push that snapshot — drag
+intermediates go through `onTracksChange` only.
+
+## Vertical scrolling
+
+When tracks overflow the available height the track area scrolls vertically:
+a plain mouse **wheel** scrolls the rows (the time ruler stays pinned), while
+**Ctrl/Cmd + wheel** zooms the time axis instead. Off-screen rows are skipped
+in draw + hit-test, and row layout (group headers, expanded lanes, variable
+`height` overrides) is computed once and shared by the canvas, hit-testing,
+and the header column so everything stays aligned.
+
+**24 tracks, scrollable**
+
+## Custom track headers
+
+`renderTrackHeader(track, info)` replaces the built-in label + swatch with
+your own DOM — use it for mute / solo, per-track icons, level meters, or any
+inline control. The function receives the rendered track index and a
+`hasSelection` flag for highlight styling.
+
+**Mute / solo headers**
+
+```tsx
+<Timeline
+  tracks={tracks}
+  renderTrackHeader={(track, info) => (
+    <ChannelHeaderRow
+      track={track}
+      muted={meta[track.id]?.muted}
+      solo={meta[track.id]?.solo}
+      selected={info.hasSelection}
+    />
+  )}
+/>
+```
+
+When `renderTrackHeader` is provided, header-drag reorder is **disabled**
+(custom headers own their own pointer interactions). Wire your own reorder
+inside the custom row if you need it, and call `onTracksChange` with the new
+order.
+
+## Toolbar & footer slots
+
+Drop arbitrary children into `Timeline.Toolbar` and `Timeline.Footer` and
+they're slotted into the matching chrome strips. Use the slots to host
+transport buttons, mode toggles, current-frame timecode, statistics, or
+anything else that belongs **inside** the timeline frame instead of around it.
+
+**Custom transport + footer readout**
+
+```tsx
+<Timeline tracks={tracks} endFrame={90} fps={30}>
+  <Timeline.Toolbar>
+    <Button onClick={togglePlay}>{playing ? 'Pause' : 'Play'}</Button>
+  </Timeline.Toolbar>
+  <Timeline.Footer>
+    <span>{framesToTimecode(frame, 30)}</span>
+  </Timeline.Footer>
+</Timeline>
+```
 
 ## Custom canvas overlay
 
-`renderOverlay` runs after the built-in content (and before the playhead),
-receiving the 2D context plus the same `frameToX` / `xToFrame` math the
-component uses — draw loop regions, markers, or annotations aligned to the
-time axis.
+`renderOverlay` runs after the built-in track content (and before the
+playhead), receiving the 2D context plus the same `frameToX` / `xToFrame`
+math the component uses internally — draw act breaks, region highlights,
+markers, or any annotations aligned to the time axis.
+
+**Region highlight + label**
 
 ```tsx
 <Timeline
   tracks={tracks}
   endFrame={72}
   renderOverlay={(ctx, info) => {
-    const x = info.frameToX(36);
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
-    ctx.fillRect(x, 0, info.frameToX(48) - x, info.size.height);
+    const x0 = info.frameToX(30);
+    const x1 = info.frameToX(50);
+    ctx.fillStyle = 'rgba(224, 166, 75, 0.10)';
+    ctx.fillRect(x0, 0, x1 - x0, info.size.height);
   }}
 />
 ```
+
+## Imperative handle
+
+Pass a `ref` to drive the timeline programmatically — useful for binding
+external transport buttons, syncing from a parent player, or running scripted
+demos.
+
+**External transport via ref**
+
+```tsx
+const ref = useRef<TimelineHandle>(null);
+
+ref.current?.seek(48);
+ref.current?.play();
+ref.current?.toggle();
+ref.current?.zoomToFit(8);
+ref.current?.zoomToSelection();
+const x = ref.current?.frameToX(48); // frame → track-area pixel
+```
+
+`seek` · `play` / `pause` / `toggle` · `getFrame` ·
+`zoomToFit(paddingFrames?)` · `zoomToSelection` · `getView` · `frameToX` /
+`xToFrame` · `focus` / `getElement`.
+
+## Live state hooks
+
+Children rendered inside `<Timeline>` can subscribe to the live store via
+hooks — `useTimelinePlayhead()` (current `frame` + `playing` flag),
+`useTimelineSelection()` (selection list), `useTimelineGeometry()` (view /
+size / track-height / scroll), and `useTimelineContext()` (the raw store).
+Each hook uses `useSyncExternalStore` so children only re-render on the
+slice they read.
+
+**Overlay reading the store**
+
+```tsx
+function PlayheadBadge() {
+  const { frame, playing } = useTimelinePlayhead();
+  return (
+    <span>
+      Frame {Math.round(frame)} · {playing ? 'playing' : 'idle'}
+    </span>
+  );
+}
+
+<Timeline tracks={tracks} endFrame={72}>
+  <PlayheadBadge />
+</Timeline>;
+```
+
+## Pre / post infinity & value range
+
+Each graph-mode track can extrapolate beyond its first / last keyframe via
+`infinity: { pre, post }` — the modes (`'constant'`, `'linear'`, `'cycle'`,
+`'oscillate'`) are reused from `CurveEditor`. Pair with `valueRange` to fix
+the Y domain so the curve doesn't auto-fit as you edit.
+
+**Cycle + oscillate**
+
+## Interactions
+
+| Gesture                                   | Action                                                 |
+| ----------------------------------------- | ------------------------------------------------------ |
+| Drag / click the ruler (or the playhead)  | Scrub the playhead (snaps to frame)                    |
+| Click a keyframe                          | Select it                                              |
+| Shift / Ctrl + click                      | Add / toggle in the selection                          |
+| Drag on empty space                       | Box-select across tracks                               |
+| Drag a selected keyframe                  | Move keyframes (snapped, clamped to range)             |
+| Drag a tangent handle (selected keyframe) | Edit the curve shape (graph / expanded lanes)          |
+| Drag the loop edges or body               | Resize / move the loop region                          |
+| Double-click empty space on a row         | Add a keyframe on that track                           |
+| Delete / Backspace                        | Remove the selected keyframes                          |
+| Ctrl/Cmd + C / V                          | Copy / paste the selected keyframes at the playhead    |
+| Wheel                                     | Scroll tracks vertically when they overflow, else zoom |
+| Ctrl/Cmd + wheel                          | Zoom the time axis around the cursor                   |
+| Shift + wheel / middle-drag               | Pan the time axis                                      |
+| ← / → (Shift = ×10)                       | Step the playhead; Home / End jump to the range ends   |
+| Drag a track header                       | Reorder tracks (built-in header only)                  |
+| Click a group header (or caret)           | Collapse / expand the group                            |
+| Click a track's expand caret              | Open / close that track as a graph lane                |
+
+Hold **Ctrl** while dragging to momentarily disable snap-to-frame.
+
+## Recipes
+
+### Push to an undo stack
+
+```tsx
+const [tracks, setTracks] = useState(initialTracks);
+const undoStack = useRef<TimelineTrack[][]>([]);
+
+<Timeline
+  tracks={tracks}
+  onTracksChange={setTracks} // live: every drag tick
+  onTracksChangeComplete={next => {
+    undoStack.current.push(tracks); // snapshot the *previous* state
+    setTracks(next);
+  }}
+/>;
+```
+
+### Drive the playhead from an external clock
+
+```tsx
+// Built-in playback off; advance the frame from your audio engine instead.
+const audioRef = useRef<HTMLAudioElement>(null);
+
+useEffect(() => {
+  const el = audioRef.current;
+  if (!el) return;
+  const tick = () => setFrame(el.currentTime * fps);
+  el.addEventListener('timeupdate', tick);
+  return () => el.removeEventListener('timeupdate', tick);
+}, [fps]);
+
+<Timeline frame={frame} onFrameChange={f => seekAudio(f / fps)} />;
+```
+
+### Read-only / locked playback
+
+```tsx
+<Timeline
+  tracks={tracks}
+  editable={false} // disables drag, add, delete, copy/paste
+  showPlayhead
+/>
+```
+
+### Lock a single track
+
+```tsx
+const tracks = [
+  { id: 'reference', label: 'Reference (locked)', locked: true, keyframes },
+  { id: 'live', label: 'Live edit', keyframes },
+];
+```
+
+### Insert a keyframe programmatically at the playhead
+
+```tsx
+function insertKey(trackId: string) {
+  setTracks(prev =>
+    prev.map(t =>
+      t.id !== trackId
+        ? t
+        : {
+            ...t,
+            keyframes: [
+              ...t.keyframes,
+              {
+                id: crypto.randomUUID(),
+                x: frame,
+                y: 0,
+                handleIn: { x: 0, y: 0 },
+                handleOut: { x: 0, y: 0 },
+                tangentMode: 'auto',
+              },
+            ].sort((a, b) => a.x - b.x),
+          }
+    )
+  );
+}
+```
+
+### Filter the selection to one track
+
+```tsx
+<Timeline
+  selection={selection}
+  onSelectionChange={next =>
+    setSelection(next.filter(r => r.trackId === activeTrackId))
+  }
+/>
+```
+
+### Frame-step from a keyboard binding outside the timeline
+
+```tsx
+const ref = useRef<TimelineHandle>(null);
+
+useHotkey('Right', () => ref.current?.seek(ref.current.getFrame() + 1));
+useHotkey('Shift+Right', () => ref.current?.seek(ref.current.getFrame() + 10));
+```
+
+## Accessibility
+
+The body is a focusable `role="group"` with `aria-roledescription="Timeline"`
+and your `ariaLabel`. Every playhead and editing action has a keyboard
+equivalent (see [Interactions](#interactions)), and a **polite live region**
+announces the playhead frame on discrete moves (keyboard steps, clicks)
+while staying quiet during continuous scrubs and playback so AT isn't
+flooded. The canvas is decorative — the keyboard model and live region carry
+the semantics. Group header rows and the per-track expand toggle expose
+`aria-expanded`, and the track header buttons advertise reorder affordance
+with `data-draggable`.
+
+## Tips & gotchas
+
+- **Always give the wrapper a height.** Timeline is `responsive` by default
+  and fills its parent; if the parent has no height, the canvas will collapse
+  to 0px. Either set `height={number}` or wrap in a flex / fixed-height
+  container.
+- **`endFrame` is required.** It bounds the global timeline range and the
+  default `view`. There's no auto-fit.
+- **Controlled / uncontrolled is per-axis.** `frame`, `view`, `selection`,
+  `mode`, `playing`, `loop`, `groups`, and `tracks` are each independently
+  controllable; mixing controlled `frame` with uncontrolled `view` is fine.
+- **Keep `tracks` referentially stable across renders.** Construct it
+  outside the component (or memoize) so the canvas only redraws when
+  something actually changed — Timeline already compares carefully, but a
+  fresh array of fresh keyframes every render burns frames.
+- **Selection identity uses `trackId` + `keyframeId`.** Always give each
+  keyframe a stable `id` so selection / copy-paste survive edits.
+- **Custom headers disable reorder drag.** Add your own pointer handlers
+  inside the custom header if you want reorder behavior to come back.
+- **`onTracksChange` fires on every drag tick.** Use it for live preview;
+  push to an undo stack from `onTracksChangeComplete` (pointer-up only).
+
+## Reference
+
+The full props / type reference is auto-generated from TypeScript and lives
+under [API → `Timeline`](../../../api/variables/timeline/) and
+[`TimelineProps`](../../../api/type-aliases/timelineprops/). Notable types:
+[`TimelineTrack`](../../../api/interfaces/timelinetrack/),
+[`TimelineGroup`](../../../api/type-aliases/timelinegroup/),
+[`TimelineHandle`](../../../api/interfaces/timelinehandle/),
+[`TimelineSelection`](../../../api/type-aliases/timelineselection/),
+[`TimelineView`](../../../api/interfaces/timelineview/),
+[`TimelineDrawInfo`](../../../api/interfaces/timelinedrawinfo/), and
+[`TimelineTrackHeaderInfo`](../../../api/interfaces/timelinetrackheaderinfo/).

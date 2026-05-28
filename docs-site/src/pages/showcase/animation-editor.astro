@@ -1,0 +1,30 @@
+---
+// Full-page Animation Editor showcase — bypasses Starlight layout for 100vh experience
+import AnimationEditorPage from '../../components/demos/editor/AnimationEditorPage';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Animation Editor Showcase — Entangle UI</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+        background: #0a0a0a;
+      }
+    </style>
+  </head>
+  <body>
+    <AnimationEditorPage client:only="react" />
+  </body>
+</html>
