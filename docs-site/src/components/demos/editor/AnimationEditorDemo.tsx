@@ -778,11 +778,15 @@ export default function AnimationEditorDemo(): JSX.Element {
                 loop={loopValue}
                 followMode={followMode}
                 trackHeaderWidth={180}
+                trackScale={{
+                  position: 'start',
+                  showMidpoint: true,
+                  gridlines: true,
+                }}
               >
                 <Timeline.Toolbar>
                   <TangentBar tracks={tracks} onTracksChange={setTracks} />
                 </Timeline.Toolbar>
-                <Timeline.TrackScale position="start" showMidpoint gridlines />
                 <Timeline.Minimap tracks={tracks} height={36} />
               </Timeline>
             </div>

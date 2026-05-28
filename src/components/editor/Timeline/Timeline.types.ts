@@ -208,8 +208,6 @@ export interface TimelineBaseProps extends Omit<
   allowDeleteKeyframe?: boolean;
   /** Snap-to-frame: `true` = 1 frame, number = N-frame grid, `false` = off. @default true */
   snap?: boolean | number;
-  /** Minimum frame distance between keyframes on a track. @default 0 */
-  minKeyframeDistance?: number;
 
   /** Editor mode (controlled). */
   mode?: TimelineMode;
@@ -267,6 +265,12 @@ export interface TimelineBaseProps extends Omit<
   playheadColor?: string;
   /** Background color. Defaults to theme `--etui-color-bg-secondary`. */
   backgroundColor?: string;
+
+  /**
+   * Per-track value scale on graph / expanded-track lanes (axis line + min/max
+   * labels, optional midpoint + gridlines). Omit to hide the scale entirely.
+   */
+  trackScale?: TimelineTrackScaleProps;
 
   /** Custom canvas pass, drawn after built-in content, before the playhead. */
   renderOverlay?: (

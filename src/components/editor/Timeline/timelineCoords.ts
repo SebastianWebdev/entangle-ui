@@ -12,14 +12,8 @@ export function resolveLoop(
 }
 
 /** Visible frame span of a view window. Guards against a zero/negative span. */
-export function viewSpan(view: TimelineView): number {
+function viewSpan(view: TimelineView): number {
   return Math.max(1e-6, view.endFrame - view.startFrame);
-}
-
-/** Frames represented by one CSS pixel of the track area. */
-export function framesPerPixel(view: TimelineView, width: number): number {
-  if (width <= 0) return viewSpan(view);
-  return viewSpan(view) / width;
 }
 
 /** Map a frame to a CSS-pixel X within the track area `[0, width]`. */
@@ -47,25 +41,6 @@ export function snapFrame(frame: number, snap: boolean | number): number {
 /** Clamp a value to `[min, max]`. */
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
-}
-
-/** Top Y (CSS px) of a track row, given a uniform row height + scroll offset. */
-export function trackTop(
-  index: number,
-  trackHeight: number,
-  scrollTop: number
-): number {
-  return index * trackHeight - scrollTop;
-}
-
-/** Track row index at a CSS-pixel Y (may be out of range — caller validates). */
-export function yToTrackIndex(
-  y: number,
-  trackHeight: number,
-  scrollTop: number
-): number {
-  if (trackHeight <= 0) return 0;
-  return Math.floor((y + scrollTop) / trackHeight);
 }
 
 /**

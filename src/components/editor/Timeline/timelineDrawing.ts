@@ -7,7 +7,7 @@ import type {
   TimelineView,
 } from './Timeline.types';
 import type { TimelineRow } from './timelineLayout';
-import { autoValueRange, frameToX, valueToY, xToFrame } from './timelineCoords';
+import { frameToX, valueToY, xToFrame } from './timelineCoords';
 
 export interface TimelineDrawColors {
   background: string;
@@ -74,9 +74,10 @@ function niceFrameStep(value: number): number {
   if (value <= 1) return 1;
   const exp = Math.floor(Math.log10(value));
   const base = Math.pow(10, exp);
+  // `f` is in [1, 10] by construction; pick the next multiple in {1,2,5,10}.
   const f = value / base;
   const m = f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10;
-  return Math.max(1, m * base);
+  return m * base;
 }
 
 function diamondPath(
@@ -99,11 +100,11 @@ function drawGraphLane(
   track: TimelineTrack,
   top: number,
   rowH: number,
-  accent: string
+  accent: string,
+  range: readonly [number, number]
 ): void {
   const { ctx, size, view, startFrame, endFrame, colors, isSelected } = input;
   const isHovered = input.isHovered ?? ((): boolean => false);
-  const range = track.valueRange ?? autoValueRange(track.keyframes);
 
   // ── Track scale (axis line + min/max [+ midpoint] labels, optional gridlines)
   if (input.trackScale) {
@@ -177,7 +178,7 @@ function drawGraphLane(
   const curve: CurveData = {
     keyframes: track.keyframes,
     domainX: [startFrame, endFrame],
-    domainY: range,
+    domainY: [range[0], range[1]],
     ...(track.infinity?.pre ? { preInfinity: track.infinity.pre } : {}),
     ...(track.infinity?.post ? { postInfinity: track.infinity.post } : {}),
   };
@@ -385,7 +386,7 @@ export function drawTimeline(input: TimelineDrawInput): void {
 
     const accent = track.color ?? colors.keyframe;
     if (row.graph) {
-      drawGraphLane(input, track, top, rowH, accent);
+      drawGraphLane(input, track, top, rowH, accent, row.range);
       continue;
     }
 

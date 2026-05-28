@@ -3,6 +3,7 @@
 import React, {
   useCallback,
   useEffect,
+  useEffectEvent,
   useImperativeHandle,
   useLayoutEffect,
   useMemo,
@@ -10,10 +11,8 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { useControlledState, useLatest, useResizeObserver } from '@/hooks';
+import { useControlledState, useResizeObserver } from '@/hooks';
 import { cx } from '@/utils/cx';
-import { vars } from '@/theme/contract.css';
-import { resolveVarValue } from '@/components/primitives/canvas/canvasTheme';
 import type { ViewportSize } from '@/components/primitives/viewport';
 import type {
   TimelineGroup,
@@ -43,27 +42,23 @@ import { TimelineTrackHeaders } from './TimelineTrackHeaders';
 import { computeRows } from './timelineLayout';
 import {
   clamp,
-  framesToTimecode,
   nextFollowView,
   resolveLoop,
   snapFrame,
 } from './timelineCoords';
-import { drawTimeline, type TimelineDrawColors } from './timelineDrawing';
 import { TimelineStore } from './TimelineStore';
 import { TimelineStoreContext } from './TimelineContext';
 import { useTimelineGestures } from './useTimelineGestures';
 import { useTimelinePlayback } from './useTimelinePlayback';
+import { useTimelineDraw } from './useTimelineDraw';
 
 const RULER_HEIGHT = 22;
-
-function selectionKey(trackId: string, keyframeId: string): string {
-  return `${trackId} ${keyframeId}`;
-}
 
 interface CategorizedSlots {
   toolbar: React.ReactNode;
   footer: React.ReactNode;
   minimap: React.ReactElement | null;
+  /** Deprecated: prefer the `trackScale` prop on `<Timeline>`. */
   trackScale: TimelineTrackScaleProps | null;
   overlay: React.ReactNode[];
 }
@@ -180,6 +175,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     height,
     playheadColor,
     backgroundColor,
+    trackScale: trackScaleProp,
     renderOverlay,
     renderTrackHeader,
     formatTime,
@@ -325,7 +321,6 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
 
   // ── Seek helpers (snap + clamp) ──
 
-  const onFrameCompleteRef = useLatest(onFrameChangeComplete);
   const applyFrame = useCallback(
     (f: number): number => clamp(snapFrame(f, snap), startFrame, endFrame),
     [snap, startFrame, endFrame]
@@ -334,13 +329,17 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     (f: number): void => setFrame(applyFrame(f)),
     [setFrame, applyFrame]
   );
+  const onFrameCompleteEvt = useEffectEvent((f: number): void => {
+    onFrameChangeComplete?.(f);
+  });
   const seekCommit = useCallback(
     (f: number): void => {
       const v = applyFrame(f);
       setFrame(v);
-      onFrameCompleteRef.current?.(v);
+      onFrameCompleteEvt(v);
     },
-    [setFrame, applyFrame, onFrameCompleteRef]
+    // `onFrameCompleteEvt` is a stable `useEffectEvent`.
+    [setFrame, applyFrame]
   );
 
   // ── Playback (optional built-in rAF loop) ──
@@ -392,32 +391,30 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
 
   // ── Track-edit helpers ──
 
-  const onTracksChangeRef = useLatest(onTracksChange);
-  const onTracksCompleteRef = useLatest(onTracksChangeComplete);
-  const setTracksLive = useCallback(
-    (t: TimelineTrack[]): void => onTracksChangeRef.current?.(t),
-    [onTracksChangeRef]
-  );
-  const commitTracks = useCallback(
-    (t: TimelineTrack[]): void => onTracksCompleteRef.current?.(t),
-    [onTracksCompleteRef]
-  );
+  const setTracksLiveEvt = useEffectEvent((t: TimelineTrack[]): void => {
+    onTracksChange?.(t);
+  });
+  const commitTracksEvt = useEffectEvent((t: TimelineTrack[]): void => {
+    onTracksChangeComplete?.(t);
+  });
   const handleReorderTracks = useCallback(
     (next: TimelineTrack[]): void => {
-      setTracksLive(next);
-      commitTracks(next);
+      setTracksLiveEvt(next);
+      commitTracksEvt(next);
     },
-    [setTracksLive, commitTracks]
+    // `setTracksLiveEvt` / `commitTracksEvt` are stable `useEffectEvent`s.
+    []
   );
   const handleToggleTrackExpanded = useCallback(
     (trackId: string): void => {
       const next = tracks.map(t =>
         t.id === trackId ? { ...t, expanded: !t.expanded } : t
       );
-      setTracksLive(next);
-      commitTracks(next);
+      setTracksLiveEvt(next);
+      commitTracksEvt(next);
     },
-    [tracks, setTracksLive, commitTracks]
+    // `setTracksLiveEvt` / `commitTracksEvt` are stable `useEffectEvent`s.
+    [tracks]
   );
   const handleToggleGroupCollapsed = useCallback(
     (groupId: string): void => {
@@ -446,9 +443,6 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     [minFramesVisible, maxFramesVisible, rangeSpan]
   );
 
-  const tracksRef = useLatest(tracks);
-  const selectionRef = useLatest(selectionState);
-
   const requestZoomToFit = useCallback(
     (paddingFrames?: number): void => {
       const p = paddingFrames ?? 0;
@@ -459,24 +453,25 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     [setView, clampView, startFrame, endFrame]
   );
 
-  const requestZoomToSelection = useCallback((): void => {
-    const sel = selectionRef.current;
+  const requestZoomToSelection = useEffectEvent((): void => {
+    const sel = selectionState;
     if (sel.length === 0) return;
-    const keys = new Set(sel.map(r => selectionKey(r.trackId, r.keyframeId)));
+    // O(|selection|) walk: index tracks once, look up the keyframe per ref.
+    const tracksById = new Map(tracks.map(t => [t.id, t]));
     let min = Infinity;
     let max = -Infinity;
-    for (const track of tracksRef.current) {
-      for (const kf of track.keyframes) {
-        if (kf.id !== undefined && keys.has(selectionKey(track.id, kf.id))) {
-          if (kf.x < min) min = kf.x;
-          if (kf.x > max) max = kf.x;
-        }
-      }
+    for (const ref of sel) {
+      const track = tracksById.get(ref.trackId);
+      if (!track) continue;
+      const kf = track.keyframes.find(k => k.id === ref.keyframeId);
+      if (!kf) continue;
+      if (kf.x < min) min = kf.x;
+      if (kf.x > max) max = kf.x;
     }
     if (!Number.isFinite(min) || !Number.isFinite(max)) return;
     const pad = Math.max(1, (max - min) * 0.1);
     setView(clampView({ startFrame: min - pad, endFrame: max + pad }));
-  }, [setView, clampView, selectionRef, tracksRef]);
+  });
 
   const requestSetView = useCallback(
     (v: TimelineView): void => {
@@ -495,14 +490,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
       zoomToFit: requestZoomToFit,
       zoomToSelection: requestZoomToSelection,
     });
-  }, [
-    store,
-    seekCommit,
-    setPlaying,
-    requestSetView,
-    requestZoomToFit,
-    requestZoomToSelection,
-  ]);
+    // `requestZoomToSelection` is a stable `useEffectEvent`.
+  }, [store, seekCommit, setPlaying, requestSetView, requestZoomToFit]);
 
   useImperativeHandle(ref, () => store.handle, [store]);
 
@@ -565,8 +554,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     seekLive,
     seekCommit,
     setSelection,
-    setTracks: setTracksLive,
-    commitTracks,
+    setTracks: setTracksLiveEvt,
+    commitTracks: commitTracksEvt,
     setView,
     setLoop,
     scrollBy,
@@ -575,7 +564,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
 
   // Native non-passive wheel listener (React onWheel is passive). Attach to
   // both the track body and the left header column so vertical scrolling works
-  // when the cursor is over the track names too.
+  // when the cursor is over the track names too. `onWheel` is a stable
+  // `useEffectEvent` so this effect attaches once.
   useEffect(() => {
     const body = bodyRef.current;
     const header = headerColumnRef.current;
@@ -585,139 +575,37 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
       body?.removeEventListener('wheel', onWheel);
       header?.removeEventListener('wheel', onWheel);
     };
-  }, [onWheel]);
+  }, []);
 
-  // ── Draw — useLayoutEffect + scheduleDraw, theme resolved per-frame ──
-
-  const renderOverlayRef = useLatest(renderOverlay);
-  const formatTimeRef = useLatest(formatTime ?? framesToTimecode);
-  const rafRef = useRef<number>(0);
+  // ── Slots + draw ──
 
   const slots = useMemo(() => categorizeChildren(children), [children]);
+  // Prop wins; the deprecated `<Timeline.TrackScale />` slot still works.
+  const trackScale = trackScaleProp ?? slots.trackScale ?? undefined;
 
-  const scheduleDraw = useCallback((): void => {
-    cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const w = Math.max(1, size.width);
-      const h = Math.max(1, size.height);
-      const dpr =
-        typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-      const targetW = Math.max(1, Math.round(w * dpr));
-      const targetH = Math.max(1, Math.round(h * dpr));
-      if (canvas.width !== targetW || canvas.height !== targetH) {
-        canvas.width = targetW;
-        canvas.height = targetH;
-      }
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      const fontPx =
-        parseFloat(resolveVarValue(canvas, vars.typography.fontSize.xs)) || 10;
-      const family = getComputedStyle(canvas).fontFamily || 'sans-serif';
-
-      const colors: TimelineDrawColors = {
-        background:
-          backgroundColor ??
-          resolveVarValue(canvas, vars.colors.background.secondary),
-        gridLine: resolveVarValue(canvas, vars.colors.border.default),
-        rulerText: resolveVarValue(canvas, vars.colors.text.muted),
-        rowSeparator: resolveVarValue(canvas, vars.colors.border.default),
-        keyframe: resolveVarValue(canvas, vars.colors.accent.secondary),
-        keyframeSelected: resolveVarValue(canvas, vars.colors.accent.primary),
-        keyframeStroke: resolveVarValue(
-          canvas,
-          vars.colors.background.secondary
-        ),
-        playhead:
-          playheadColor ?? resolveVarValue(canvas, vars.colors.accent.primary),
-        groupHeader: resolveVarValue(canvas, vars.colors.background.elevated),
-      };
-
-      const selKeys = new Set(
-        selectionState.map(r => selectionKey(r.trackId, r.keyframeId))
-      );
-
-      drawTimeline({
-        ctx,
-        size: { width: w, height: h },
-        view: viewState,
-        startFrame,
-        endFrame,
-        fps,
-        frame: frameState,
-        rows: layout.rows,
-        scrollTop,
-        rulerHeight,
-        showPlayhead,
-        colors,
-        font: `${fontPx}px ${family}`,
-        formatTime: formatTimeRef.current,
-        isSelected: (t, k) => selKeys.has(selectionKey(t, k)),
-        isHovered: (t, k) =>
-          hover !== null && hover.trackId === t && hover.keyframeId === k,
-        playheadHovered: hoverPlayhead,
-        ...(slots.trackScale
-          ? {
-              trackScale: {
-                position: slots.trackScale.position ?? 'start',
-                format:
-                  slots.trackScale.format ??
-                  ((v: number) => Number(v.toFixed(2)).toString()),
-                showMidpoint: slots.trackScale.showMidpoint ?? false,
-                gridlines: slots.trackScale.gridlines ?? false,
-                ...(slots.trackScale.color
-                  ? { color: slots.trackScale.color }
-                  : {}),
-              },
-            }
-          : {}),
-        renderOverlay: renderOverlayRef.current,
-        marquee: drag.marquee,
-        loopRegion,
-      });
-    });
-  }, [
+  useTimelineDraw({
+    canvasRef,
     size,
-    viewState,
-    frameState,
-    layout.rows,
-    selectionState,
+    view: viewState,
     startFrame,
     endFrame,
     fps,
+    frame: frameState,
+    rows: layout.rows,
     scrollTop,
     rulerHeight,
     showPlayhead,
-    backgroundColor,
-    playheadColor,
-    drag.marquee,
+    selection: selectionState,
     hover,
     hoverPlayhead,
+    marquee: drag.marquee,
     loopRegion,
-    slots.trackScale,
-    renderOverlayRef,
-    formatTimeRef,
-  ]);
-
-  useLayoutEffect(() => {
-    scheduleDraw();
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [scheduleDraw]);
-
-  // Redraw when DPR changes (e.g. dragging to a different display).
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mq = window.matchMedia(
-      `(resolution: ${window.devicePixelRatio}dppx)`
-    );
-    const handler = (): void => scheduleDraw();
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, [scheduleDraw]);
+    ...(backgroundColor !== undefined ? { backgroundColor } : {}),
+    ...(playheadColor !== undefined ? { playheadColor } : {}),
+    ...(trackScale ? { trackScale } : {}),
+    ...(renderOverlay ? { renderOverlay } : {}),
+    ...(formatTime ? { formatTime } : {}),
+  });
 
   // ── Layout ──
 

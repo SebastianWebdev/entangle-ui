@@ -1,4 +1,5 @@
 import type { TimelineGroup, TimelineTrack } from './Timeline.types';
+import { autoValueRange } from './timelineCoords';
 
 /** A rendered track lane. */
 export interface TimelineTrackRow {
@@ -9,6 +10,8 @@ export interface TimelineTrackRow {
   height: number;
   /** Render as a graph (curve) lane. */
   graph: boolean;
+  /** Cached value range — `track.valueRange` or auto-fit from keyframes. */
+  range: readonly [number, number];
 }
 
 /** A group header row. */
@@ -34,6 +37,7 @@ export interface TrackGeometry {
   top: number;
   height: number;
   graph: boolean;
+  range: readonly [number, number];
 }
 
 export interface RowLayout {
@@ -72,23 +76,12 @@ export function computeRows(
     const graph = opts.globalGraph || !!track.expanded;
     const height =
       track.height ?? (track.expanded ? opts.expandedHeight : opts.trackHeight);
-    const geom: TrackGeometry = { top, height, graph };
-    rows.push({ kind: 'track', track, top, height, graph });
+    const range = track.valueRange ?? autoValueRange(track.keyframes);
+    const geom: TrackGeometry = { top, height, graph, range };
+    rows.push({ kind: 'track', track, top, height, graph, range });
     trackTops.set(track.id, geom);
     top += height;
   }
 
   return { rows, trackTops, contentHeight: top };
-}
-
-/** Index of the row whose band contains content-space `y`, or -1. */
-export function rowIndexAtY(
-  rows: ReadonlyArray<TimelineRow>,
-  y: number
-): number {
-  for (let i = 0; i < rows.length; i += 1) {
-    const r = rows[i];
-    if (r && y >= r.top && y < r.top + r.height) return i;
-  }
-  return -1;
 }

@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { useLatest } from '@/hooks';
+import { useEffect, useEffectEvent, useRef } from 'react';
 import type { TimelineLoop } from './Timeline.types';
 import { resolveLoop } from './timelineCoords';
 
@@ -61,72 +60,46 @@ interface UseTimelinePlaybackOptions {
  * (e.g. the user scrubs mid-playback).
  */
 export function useTimelinePlayback(opts: UseTimelinePlaybackOptions): void {
-  const fpsRef = useLatest(opts.fps);
-  const startRef = useLatest(opts.startFrame);
-  const endRef = useLatest(opts.endFrame);
-  const loopRef = useLatest(opts.loop);
-  const frameRef = useLatest(opts.frame);
-  const onAdvanceRef = useLatest(opts.onAdvance);
-  const onEndRef = useLatest(opts.onEnd);
-
   const accRef = useRef(opts.frame);
   const lastEmittedRef = useRef(opts.frame);
 
+  // `useEffectEvent` reads the latest props/state without re-triggering the
+  // effect — replaces a swarm of `useLatest` refs.
+  const tick = useEffectEvent((dt: number): boolean => {
+    // External scrub during playback → resync the accumulator.
+    if (opts.frame !== lastEmittedRef.current) {
+      accRef.current = opts.frame;
+    }
+    const range: PlaybackRange = {
+      startFrame: opts.startFrame,
+      endFrame: opts.endFrame,
+    };
+    const region = resolveLoop(opts.loop, range.startFrame, range.endFrame);
+    const result = advancePlayback(accRef.current, dt, opts.fps, range, region);
+    accRef.current = result.frame;
+    lastEmittedRef.current = result.frame;
+    opts.onAdvance(result.frame);
+    if (result.ended) {
+      opts.onEnd();
+      return true;
+    }
+    return false;
+  });
+
   useEffect(() => {
     if (!opts.playing || typeof window === 'undefined') return;
-
-    accRef.current = frameRef.current;
-    lastEmittedRef.current = frameRef.current;
+    accRef.current = opts.frame;
+    lastEmittedRef.current = opts.frame;
     let raf = 0;
     let last = performance.now();
-
-    const tick = (now: number): void => {
+    const loop = (now: number): void => {
       const dt = (now - last) / 1000;
       last = now;
-
-      // External scrub during playback → resync the accumulator.
-      if (frameRef.current !== lastEmittedRef.current) {
-        accRef.current = frameRef.current;
-      }
-
-      const range: PlaybackRange = {
-        startFrame: startRef.current,
-        endFrame: endRef.current,
-      };
-      const region = resolveLoop(
-        loopRef.current,
-        range.startFrame,
-        range.endFrame
-      );
-      const result = advancePlayback(
-        accRef.current,
-        dt,
-        fpsRef.current,
-        range,
-        region
-      );
-
-      accRef.current = result.frame;
-      lastEmittedRef.current = result.frame;
-      onAdvanceRef.current(result.frame);
-
-      if (result.ended) {
-        onEndRef.current();
-        return;
-      }
-      raf = requestAnimationFrame(tick);
+      const ended = tick(dt);
+      if (!ended) raf = requestAnimationFrame(loop);
     };
-
-    raf = requestAnimationFrame(tick);
+    raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [
-    opts.playing,
-    fpsRef,
-    startRef,
-    endRef,
-    loopRef,
-    frameRef,
-    onAdvanceRef,
-    onEndRef,
-  ]);
+    // Only `playing` drives the rAF lifecycle; the rest reads through `tick`.
+  }, [opts.playing]);
 }

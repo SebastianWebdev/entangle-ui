@@ -1,8 +1,7 @@
 'use client';
 
-import { useCallback, useMemo, useRef } from 'react';
+import { useEffectEvent, useMemo, useRef } from 'react';
 import type React from 'react';
-import { useLatest } from '@/hooks';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { ViewportSize } from '@/components/primitives/viewport';
 import type {
@@ -15,13 +14,7 @@ import type {
 } from './Timeline.types';
 import type { TimelineRow, TrackGeometry } from './timelineLayout';
 import type { TimelineStore } from './TimelineStore';
-import {
-  autoValueRange,
-  clamp,
-  snapFrame,
-  xToFrame,
-  yToValue,
-} from './timelineCoords';
+import { clamp, snapFrame, xToFrame, yToValue } from './timelineCoords';
 import { hitTestTimeline, keyframesInRect } from './timelineHitTest';
 import {
   addKeyframe,
@@ -35,6 +28,7 @@ import {
   valueAtPointer,
 } from './timelineEdits';
 import type { TimelineClipboard } from './timelineEdits';
+import { sameRef } from './timelineSelection';
 
 const CLICK_THRESHOLD_PX = 3;
 const KEYBOARD_LARGE_STEP = 10;
@@ -123,10 +117,6 @@ function localPoint(
   return { x: e.clientX - rect.left, y: e.clientY - rect.top };
 }
 
-function sameRef(a: TimelineKeyframeRef, b: TimelineKeyframeRef): boolean {
-  return a.trackId === b.trackId && a.keyframeId === b.keyframeId;
-}
-
 function nextSelection(
   selection: TimelineSelection,
   ref: TimelineKeyframeRef,
@@ -154,7 +144,7 @@ function mergeSelection(
 
 /**
  * Pointer / wheel / keyboard gesture machine for `<Timeline>`. Live props and
- * actions are read through `useLatest` refs so the returned handlers stay
+ * actions are read through `useEffectEvent` so the returned handlers stay
  * stable for the component's lifetime. Drag state (cursor + marquee) is
  * written to the store, not React state.
  */
@@ -163,78 +153,32 @@ export function useTimelineGestures(
 ): UseTimelineGesturesReturn {
   const { containerRef, store } = opts;
 
-  const viewRef = useLatest(opts.view);
-  const sizeRef = useLatest(opts.size);
-  const tracksRef = useLatest(opts.tracks);
-  const selectionRef = useLatest(opts.selection);
-  const frameRef = useLatest(opts.frame);
-  const startFrameRef = useLatest(opts.startFrame);
-  const endFrameRef = useLatest(opts.endFrame);
-  const trackHeightRef = useLatest(opts.trackHeight);
-  const scrollTopRef = useLatest(opts.scrollTop);
-  const rulerHeightRef = useLatest(opts.rulerHeight);
-  const snapRef = useLatest(opts.snap);
-  const editableRef = useLatest(opts.editable);
-  const allowAddRef = useLatest(opts.allowAddKeyframe);
-  const allowDeleteRef = useLatest(opts.allowDeleteKeyframe);
-  const showPlayheadRef = useLatest(opts.showPlayhead);
-  const rowsRef = useLatest(opts.rows);
-  const trackTopsRef = useLatest(opts.trackTops);
-  const expandedHeightRef = useLatest(opts.expandedHeight);
-  const groupsRef = useLatest(opts.groups);
-  const minFramesVisibleRef = useLatest(opts.minFramesVisible);
-  const maxFramesVisibleRef = useLatest(opts.maxFramesVisible);
-
-  const seekLiveRef = useLatest(opts.seekLive);
-  const seekCommitRef = useLatest(opts.seekCommit);
-  const setSelectionRef = useLatest(opts.setSelection);
-  const setTracksRef = useLatest(opts.setTracks);
-  const commitTracksRef = useLatest(opts.commitTracks);
-  const setViewRef = useLatest(opts.setView);
-  const setLoopRef = useLatest(opts.setLoop);
-  const scrollByRef = useLatest(opts.scrollBy);
-  const setGroupsRef = useLatest(opts.setGroups);
-  const loopRegionRef = useLatest(opts.loopRegion);
-  const maxScrollTopRef = useLatest(opts.maxScrollTop);
-
   const stateRef = useRef<PointerState | null>(null);
   const clipboardRef = useRef<TimelineClipboard | null>(null);
 
-  const hitAt = useCallback(
-    (point: Point2D) =>
-      hitTestTimeline({
-        point,
-        view: viewRef.current,
-        size: sizeRef.current,
-        rows: rowsRef.current,
-        scrollTop: scrollTopRef.current,
-        rulerHeight: rulerHeightRef.current,
-        frame: frameRef.current,
-        showPlayhead: showPlayheadRef.current,
-        loopRegion: loopRegionRef.current,
-        isSelected: (t, k) =>
-          selectionRef.current.some(r => r.trackId === t && r.keyframeId === k),
-      }),
-    [
-      viewRef,
-      sizeRef,
-      rowsRef,
-      scrollTopRef,
-      rulerHeightRef,
-      frameRef,
-      showPlayheadRef,
-      loopRegionRef,
-      selectionRef,
-    ]
+  const hitAt = useEffectEvent((point: Point2D) =>
+    hitTestTimeline({
+      point,
+      view: opts.view,
+      size: opts.size,
+      rows: opts.rows,
+      scrollTop: opts.scrollTop,
+      rulerHeight: opts.rulerHeight,
+      frame: opts.frame,
+      showPlayhead: opts.showPlayhead,
+      loopRegion: opts.loopRegion,
+      isSelected: (t, k) =>
+        opts.selection.some(r => r.trackId === t && r.keyframeId === k),
+    })
   );
 
-  const moveFromState = useCallback(
+  const moveFromState = useEffectEvent(
     (state: PointerState, point: Point2D): TimelineTrack[] => {
-      const view = viewRef.current;
-      const width = sizeRef.current.width;
+      const view = opts.view;
+      const width = opts.size.width;
       const curFrame = xToFrame(point.x, view, width);
       const delta = curFrame - (state.startFramePos ?? curFrame);
-      const origTracks = state.origTracks ?? tracksRef.current;
+      const origTracks = state.origTracks ?? opts.tracks;
       const sel = state.moveSelection ?? [];
       if (state.graphMove) {
         return moveSelectedKeyframesGraph(
@@ -242,62 +186,50 @@ export function useTimelineGestures(
           sel,
           delta,
           point.y - state.startY,
-          trackHeightRef.current,
-          expandedHeightRef.current,
-          snapRef.current,
-          startFrameRef.current,
-          endFrameRef.current
+          opts.trackHeight,
+          opts.expandedHeight,
+          opts.snap,
+          opts.startFrame,
+          opts.endFrame
         );
       }
       return moveSelectedKeyframes(
         origTracks,
         sel,
         delta,
-        snapRef.current,
-        startFrameRef.current,
-        endFrameRef.current
+        opts.snap,
+        opts.startFrame,
+        opts.endFrame
       );
-    },
-    [
-      viewRef,
-      sizeRef,
-      tracksRef,
-      snapRef,
-      startFrameRef,
-      endFrameRef,
-      expandedHeightRef,
-      trackHeightRef,
-    ]
+    }
   );
 
-  const tangentOffset = useCallback(
+  const tangentOffset = useEffectEvent(
     (state: PointerState, point: Point2D): { x: number; y: number } | null => {
       const ref = state.tangentRef;
       if (!ref) return null;
-      const geom = trackTopsRef.current.get(ref.trackId);
+      const geom = opts.trackTops.get(ref.trackId);
       if (!geom) return null;
-      const tracks = state.origTracks ?? tracksRef.current;
+      const tracks = state.origTracks ?? opts.tracks;
       const track = tracks.find(t => t.id === ref.trackId);
       const kf = track?.keyframes.find(k => k.id === ref.keyframeId);
       if (!track || !kf) return null;
-      const screenTop =
-        rulerHeightRef.current + geom.top - scrollTopRef.current;
-      const range = track.valueRange ?? autoValueRange(track.keyframes);
+      const screenTop = opts.rulerHeight + geom.top - opts.scrollTop;
+      const range = geom.range;
       return {
-        x: xToFrame(point.x, viewRef.current, sizeRef.current.width) - kf.x,
+        x: xToFrame(point.x, opts.view, opts.size.width) - kf.x,
         y: yToValue(point.y, range, screenTop, geom.height) - kf.y,
       };
-    },
-    [trackTopsRef, tracksRef, rulerHeightRef, scrollTopRef, viewRef, sizeRef]
+    }
   );
 
-  const onPointerDown = useCallback(
+  const onPointerDown = useEffectEvent(
     (e: React.PointerEvent<HTMLDivElement>): void => {
       const container = containerRef.current;
       if (!container) return;
       const point = localPoint(e, container);
-      const view = viewRef.current;
-      const width = sizeRef.current.width;
+      const view = opts.view;
+      const width = opts.size.width;
 
       if (e.button === 1) {
         e.preventDefault();
@@ -321,7 +253,7 @@ export function useTimelineGestures(
         hit.kind === 'loop-end' ||
         hit.kind === 'loop-body'
       ) {
-        const region = loopRegionRef.current;
+        const region = opts.loopRegion;
         if (!region) return;
         e.preventDefault();
         container.setPointerCapture(e.pointerId);
@@ -352,7 +284,7 @@ export function useTimelineGestures(
           startY: point.y,
         };
         store.setDrag({ kind: 'scrub', marquee: null });
-        seekLiveRef.current(xToFrame(point.x, view, width));
+        opts.seekLive(xToFrame(point.x, view, width));
         return;
       }
 
@@ -364,7 +296,7 @@ export function useTimelineGestures(
           mode: 'tangent',
           startX: point.x,
           startY: point.y,
-          origTracks: tracksRef.current,
+          origTracks: opts.tracks,
           tangentRef: { trackId: hit.trackId, keyframeId: hit.keyframeId },
           tangentWhich: hit.which,
         };
@@ -373,8 +305,8 @@ export function useTimelineGestures(
       }
 
       if (hit.kind === 'group') {
-        const groups = groupsRef.current;
-        setGroupsRef.current(
+        const groups = opts.groups;
+        opts.setGroups(
           groups.map(g =>
             g.id === hit.groupId ? { ...g, collapsed: !g.collapsed } : g
           )
@@ -385,9 +317,9 @@ export function useTimelineGestures(
       if (hit.kind === 'keyframe') {
         const additive = e.shiftKey || e.ctrlKey || e.metaKey;
         const ref = { trackId: hit.trackId, keyframeId: hit.keyframeId };
-        const sel = nextSelection(selectionRef.current, ref, additive);
-        setSelectionRef.current(sel);
-        if (editableRef.current) {
+        const sel = nextSelection(opts.selection, ref, additive);
+        opts.setSelection(sel);
+        if (opts.editable) {
           e.preventDefault();
           container.setPointerCapture(e.pointerId);
           stateRef.current = {
@@ -395,9 +327,9 @@ export function useTimelineGestures(
             mode: 'move',
             startX: point.x,
             startY: point.y,
-            origTracks: tracksRef.current,
+            origTracks: opts.tracks,
             moveSelection: sel,
-            graphMove: trackTopsRef.current.get(hit.trackId)?.graph ?? false,
+            graphMove: opts.trackTops.get(hit.trackId)?.graph ?? false,
             startFramePos: xToFrame(point.x, view, width),
           };
           store.setDrag({ kind: 'move', marquee: null });
@@ -420,26 +352,10 @@ export function useTimelineGestures(
         kind: 'marquee',
         marquee: { x: point.x, y: point.y, width: 0, height: 0 },
       });
-    },
-    [
-      containerRef,
-      store,
-      hitAt,
-      viewRef,
-      sizeRef,
-      selectionRef,
-      setSelectionRef,
-      seekLiveRef,
-      editableRef,
-      tracksRef,
-      loopRegionRef,
-      groupsRef,
-      setGroupsRef,
-      trackTopsRef,
-    ]
+    }
   );
 
-  const onPointerMove = useCallback(
+  const onPointerMove = useEffectEvent(
     (e: React.PointerEvent<HTMLDivElement>): void => {
       const container = containerRef.current;
       if (!container) return;
@@ -460,43 +376,43 @@ export function useTimelineGestures(
       }
 
       if (state?.pointerId !== e.pointerId) return;
-      const view = viewRef.current;
-      const width = sizeRef.current.width;
+      const view = opts.view;
+      const width = opts.size.width;
 
       if (state.mode === 'loop') {
         const frame = xToFrame(point.x, view, width);
         const sl = state.startLoop;
         if (sl && state.loopWhich === 'start') {
-          setLoopRef.current({
-            startFrame: clamp(frame, startFrameRef.current, sl.endFrame),
+          opts.setLoop({
+            startFrame: clamp(frame, opts.startFrame, sl.endFrame),
             endFrame: sl.endFrame,
           });
         } else if (sl && state.loopWhich === 'end') {
-          setLoopRef.current({
+          opts.setLoop({
             startFrame: sl.startFrame,
-            endFrame: clamp(frame, sl.startFrame, endFrameRef.current),
+            endFrame: clamp(frame, sl.startFrame, opts.endFrame),
           });
         } else if (sl) {
           const span = sl.endFrame - sl.startFrame;
           const delta = frame - xToFrame(state.startX, view, width);
           const ns = clamp(
             sl.startFrame + delta,
-            startFrameRef.current,
-            endFrameRef.current - span
+            opts.startFrame,
+            opts.endFrame - span
           );
-          setLoopRef.current({ startFrame: ns, endFrame: ns + span });
+          opts.setLoop({ startFrame: ns, endFrame: ns + span });
         }
         return;
       }
       if (state.mode === 'scrub') {
-        seekLiveRef.current(xToFrame(point.x, view, width));
+        opts.seekLive(xToFrame(point.x, view, width));
         return;
       }
       if (state.mode === 'pan') {
         const startView = state.startView ?? view;
         const span = startView.endFrame - startView.startFrame;
         const dxFrames = ((point.x - state.startX) / Math.max(1, width)) * span;
-        setViewRef.current({
+        opts.setView({
           startFrame: startView.startFrame - dxFrames,
           endFrame: startView.endFrame - dxFrames,
         });
@@ -505,9 +421,9 @@ export function useTimelineGestures(
       if (state.mode === 'tangent') {
         const offset = tangentOffset(state, point);
         if (offset && state.tangentRef && state.tangentWhich) {
-          setTracksRef.current(
+          opts.setTracks(
             setKeyframeTangent(
-              state.origTracks ?? tracksRef.current,
+              state.origTracks ?? opts.tracks,
               state.tangentRef,
               state.tangentWhich,
               offset
@@ -517,7 +433,7 @@ export function useTimelineGestures(
         return;
       }
       if (state.mode === 'move') {
-        setTracksRef.current(moveFromState(state, point));
+        opts.setTracks(moveFromState(state, point));
         return;
       }
       if (state.mode === 'marquee') {
@@ -531,30 +447,15 @@ export function useTimelineGestures(
           },
         });
       }
-    },
-    [
-      containerRef,
-      store,
-      viewRef,
-      sizeRef,
-      seekLiveRef,
-      setViewRef,
-      setTracksRef,
-      moveFromState,
-      tangentOffset,
-      setLoopRef,
-      startFrameRef,
-      endFrameRef,
-      hitAt,
-    ]
+    }
   );
 
-  const onPointerLeave = useCallback((): void => {
+  const onPointerLeave = useEffectEvent((): void => {
     store.setHover(null);
     store.setHoverPlayhead(false);
-  }, [store]);
+  });
 
-  const endGesture = useCallback(
+  const endGesture = useEffectEvent(
     (e: React.PointerEvent<HTMLDivElement>, cancelled: boolean): void => {
       const state = stateRef.current;
       if (state?.pointerId !== e.pointerId) return;
@@ -563,20 +464,20 @@ export function useTimelineGestures(
         container.releasePointerCapture(e.pointerId);
       }
       const point = localPoint(e, container);
-      const view = viewRef.current;
-      const size = sizeRef.current;
+      const view = opts.view;
+      const size = opts.size;
 
       if (!cancelled) {
         if (state.mode === 'scrub') {
-          seekCommitRef.current(xToFrame(point.x, view, size.width));
+          opts.seekCommit(xToFrame(point.x, view, size.width));
         } else if (state.mode === 'move') {
-          commitTracksRef.current(moveFromState(state, point));
+          opts.commitTracks(moveFromState(state, point));
         } else if (state.mode === 'tangent') {
           const offset = tangentOffset(state, point);
           if (offset && state.tangentRef && state.tangentWhich) {
-            commitTracksRef.current(
+            opts.commitTracks(
               setKeyframeTangent(
-                state.origTracks ?? tracksRef.current,
+                state.origTracks ?? opts.tracks,
                 state.tangentRef,
                 state.tangentWhich,
                 offset
@@ -594,167 +495,111 @@ export function useTimelineGestures(
             rect.width < CLICK_THRESHOLD_PX &&
             rect.height < CLICK_THRESHOLD_PX
           ) {
-            if (!state.additive) setSelectionRef.current([]);
+            if (!state.additive) opts.setSelection([]);
           } else {
             const found = keyframesInRect(
               {
                 x: rect.x,
-                y: rect.y - rulerHeightRef.current + scrollTopRef.current,
+                y: rect.y - opts.rulerHeight + opts.scrollTop,
                 width: rect.width,
                 height: rect.height,
               },
               view,
               size,
-              rowsRef.current
+              opts.rows
             );
-            const base = state.additive ? selectionRef.current : [];
-            setSelectionRef.current(mergeSelection(base, found));
+            const base = state.additive ? opts.selection : [];
+            opts.setSelection(mergeSelection(base, found));
           }
         }
       }
 
       store.setDrag({ kind: 'none', marquee: null });
       stateRef.current = null;
-    },
-    [
-      containerRef,
-      store,
-      viewRef,
-      sizeRef,
-      seekCommitRef,
-      commitTracksRef,
-      moveFromState,
-      setSelectionRef,
-      selectionRef,
-      tracksRef,
-      rowsRef,
-      scrollTopRef,
-      rulerHeightRef,
-      tangentOffset,
-    ]
+    }
   );
 
-  const onPointerUp = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>): void => endGesture(e, false),
-    [endGesture]
+  const onPointerUp = useEffectEvent(
+    (e: React.PointerEvent<HTMLDivElement>): void => endGesture(e, false)
   );
-  const onPointerCancel = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>): void => endGesture(e, true),
-    [endGesture]
+  const onPointerCancel = useEffectEvent(
+    (e: React.PointerEvent<HTMLDivElement>): void => endGesture(e, true)
   );
 
-  const onDoubleClick = useCallback(
+  const onDoubleClick = useEffectEvent(
     (e: React.MouseEvent<HTMLDivElement>): void => {
-      if (!editableRef.current || !allowAddRef.current) return;
+      if (!opts.editable || !opts.allowAddKeyframe) return;
       const container = containerRef.current;
       if (!container) return;
       const point = localPoint(e, container);
       const hit = hitAt(point);
       if (hit.kind !== 'empty') return;
-      const track = tracksRef.current.find(t => t.id === hit.trackId);
+      const track = opts.tracks.find(t => t.id === hit.trackId);
       if (!track || track.locked) return;
-      const view = viewRef.current;
-      const width = sizeRef.current.width;
+      const view = opts.view;
+      const width = opts.size.width;
       const frame = clamp(
-        snapFrame(xToFrame(point.x, view, width), snapRef.current),
-        startFrameRef.current,
-        endFrameRef.current
+        snapFrame(xToFrame(point.x, view, width), opts.snap),
+        opts.startFrame,
+        opts.endFrame
       );
       const value = valueAtPointer({
         pointerY: point.y,
         frame,
         track,
-        geometry: trackTopsRef.current.get(track.id),
-        rulerHeight: rulerHeightRef.current,
-        scrollTop: scrollTopRef.current,
+        geometry: opts.trackTops.get(track.id),
+        rulerHeight: opts.rulerHeight,
+        scrollTop: opts.scrollTop,
       });
       const next = addKeyframe(
-        tracksRef.current,
+        opts.tracks,
         track.id,
         makeKeyframe(frame, value)
       );
-      setTracksRef.current(next);
-      commitTracksRef.current(next);
-    },
-    [
-      containerRef,
-      hitAt,
-      editableRef,
-      allowAddRef,
-      tracksRef,
-      viewRef,
-      sizeRef,
-      snapRef,
-      startFrameRef,
-      endFrameRef,
-      setTracksRef,
-      commitTracksRef,
-      trackTopsRef,
-      rulerHeightRef,
-      scrollTopRef,
-    ]
+      opts.setTracks(next);
+      opts.commitTracks(next);
+    }
   );
 
-  const onWheel = useCallback(
-    (e: WheelEvent): void => {
-      const container = containerRef.current;
-      if (!container) return;
-      e.preventDefault();
-      const view = viewRef.current;
-      const width = Math.max(1, sizeRef.current.width);
-      const span = view.endFrame - view.startFrame;
+  const onWheel = useEffectEvent((e: WheelEvent): void => {
+    const container = containerRef.current;
+    if (!container) return;
+    e.preventDefault();
+    const view = opts.view;
+    const width = Math.max(1, opts.size.width);
+    const span = view.endFrame - view.startFrame;
 
-      if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-        const delta = e.shiftKey ? e.deltaY : e.deltaX;
-        const panFrames = (delta / width) * span;
-        setViewRef.current({
-          startFrame: view.startFrame + panFrames,
-          endFrame: view.endFrame + panFrames,
-        });
-        return;
-      }
-
-      // Plain vertical wheel scrolls tracks when they overflow; Ctrl/Cmd zooms.
-      if (!e.ctrlKey && !e.metaKey && maxScrollTopRef.current > 0) {
-        scrollByRef.current(e.deltaY);
-        return;
-      }
-
-      const rangeSpan = Math.max(
-        1,
-        endFrameRef.current - startFrameRef.current
-      );
-      const maxSpan = maxFramesVisibleRef.current ?? rangeSpan;
-      const factor = Math.exp(e.deltaY * 0.0015);
-      const newSpan = clamp(
-        span * factor,
-        minFramesVisibleRef.current,
-        maxSpan
-      );
-      const point = localPoint(e, container);
-      const frac = point.x / width;
-      const cursorFrame = view.startFrame + frac * span;
-      const newStart = cursorFrame - frac * newSpan;
-      setViewRef.current({
-        startFrame: newStart,
-        endFrame: newStart + newSpan,
+    if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      const delta = e.shiftKey ? e.deltaY : e.deltaX;
+      const panFrames = (delta / width) * span;
+      opts.setView({
+        startFrame: view.startFrame + panFrames,
+        endFrame: view.endFrame + panFrames,
       });
-    },
-    [
-      containerRef,
-      viewRef,
-      sizeRef,
-      setViewRef,
-      startFrameRef,
-      endFrameRef,
-      minFramesVisibleRef,
-      maxFramesVisibleRef,
-      scrollByRef,
-      maxScrollTopRef,
-    ]
-  );
+      return;
+    }
 
-  const onKeyDown = useCallback(
+    // Plain vertical wheel scrolls tracks when they overflow; Ctrl/Cmd zooms.
+    if (!e.ctrlKey && !e.metaKey && opts.maxScrollTop > 0) {
+      opts.scrollBy(e.deltaY);
+      return;
+    }
+
+    const rangeSpan = Math.max(1, opts.endFrame - opts.startFrame);
+    const maxSpan = opts.maxFramesVisible ?? rangeSpan;
+    const factor = Math.exp(e.deltaY * 0.0015);
+    const newSpan = clamp(span * factor, opts.minFramesVisible, maxSpan);
+    const point = localPoint(e, container);
+    const frac = point.x / width;
+    const cursorFrame = view.startFrame + frac * span;
+    const newStart = cursorFrame - frac * newSpan;
+    opts.setView({
+      startFrame: newStart,
+      endFrame: newStart + newSpan,
+    });
+  });
+
+  const onKeyDown = useEffectEvent(
     (e: React.KeyboardEvent<HTMLDivElement>): void => {
       switch (e.key) {
         case 'ArrowLeft':
@@ -762,27 +607,27 @@ export function useTimelineGestures(
           e.preventDefault();
           const dir = e.key === 'ArrowLeft' ? -1 : 1;
           const step = (e.shiftKey ? KEYBOARD_LARGE_STEP : 1) * dir;
-          seekCommitRef.current(frameRef.current + step);
+          opts.seekCommit(opts.frame + step);
           return;
         }
         case 'Home':
           e.preventDefault();
-          seekCommitRef.current(startFrameRef.current);
+          opts.seekCommit(opts.startFrame);
           return;
         case 'End':
           e.preventDefault();
-          seekCommitRef.current(endFrameRef.current);
+          opts.seekCommit(opts.endFrame);
           return;
         case 'Delete':
         case 'Backspace': {
-          if (!editableRef.current || !allowDeleteRef.current) return;
-          const sel = selectionRef.current;
+          if (!opts.editable || !opts.allowDeleteKeyframe) return;
+          const sel = opts.selection;
           if (sel.length === 0) return;
           e.preventDefault();
-          const next = removeSelectedKeyframes(tracksRef.current, sel);
-          setTracksRef.current(next);
-          commitTracksRef.current(next);
-          setSelectionRef.current([]);
+          const next = removeSelectedKeyframes(opts.tracks, sel);
+          opts.setTracks(next);
+          opts.commitTracks(next);
+          opts.setSelection([]);
           return;
         }
         case 'c':
@@ -790,45 +635,27 @@ export function useTimelineGestures(
           if (!(e.ctrlKey || e.metaKey)) return;
           e.preventDefault();
           clipboardRef.current = copySelectedKeyframes(
-            tracksRef.current,
-            selectionRef.current
+            opts.tracks,
+            opts.selection
           );
           return;
         }
         case 'v':
         case 'V': {
-          if (!(e.ctrlKey || e.metaKey) || !editableRef.current) return;
+          if (!(e.ctrlKey || e.metaKey) || !opts.editable) return;
           const clip = clipboardRef.current;
           if (!clip || clip.entries.length === 0) return;
           e.preventDefault();
-          const pasted = pasteKeyframes(
-            tracksRef.current,
-            clip,
-            frameRef.current
-          );
-          setTracksRef.current(pasted.tracks);
-          commitTracksRef.current(pasted.tracks);
-          setSelectionRef.current(pasted.refs);
+          const pasted = pasteKeyframes(opts.tracks, clip, opts.frame);
+          opts.setTracks(pasted.tracks);
+          opts.commitTracks(pasted.tracks);
+          opts.setSelection(pasted.refs);
           return;
         }
         default:
           return;
       }
-    },
-    [
-      seekCommitRef,
-      frameRef,
-      startFrameRef,
-      endFrameRef,
-      editableRef,
-      allowDeleteRef,
-      selectionRef,
-      tracksRef,
-      setTracksRef,
-      commitTracksRef,
-      setSelectionRef,
-      clipboardRef,
-    ]
+    }
   );
 
   const handlers = useMemo(
@@ -841,15 +668,9 @@ export function useTimelineGestures(
       onDoubleClick,
       onKeyDown,
     }),
-    [
-      onPointerDown,
-      onPointerMove,
-      onPointerUp,
-      onPointerCancel,
-      onPointerLeave,
-      onDoubleClick,
-      onKeyDown,
-    ]
+    // `useEffectEvent` returns stable callbacks — the bag is stable for the
+    // component's lifetime.
+    []
   );
 
   return { handlers, onWheel };

@@ -2,7 +2,7 @@ import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { ViewportSize } from '@/components/primitives/viewport';
 import type { TimelineKeyframeRef, TimelineView } from './Timeline.types';
 import type { TimelineRow } from './timelineLayout';
-import { autoValueRange, frameToX, valueToY } from './timelineCoords';
+import { frameToX, valueToY } from './timelineCoords';
 
 /** Axis-aligned rectangle in content-space (CSS-pixel) coordinates. */
 export interface TimelineScreenRect {
@@ -90,18 +90,19 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
 
     const track = row.track;
     const { top, height: rowH } = row;
-    const range = row.graph
-      ? (track.valueRange ?? autoValueRange(track.keyframes))
-      : null;
+    const range = row.graph ? row.range : null;
     const centerY = top + rowH / 2;
 
     if (range && input.isSelected) {
+      const pickRadiusSq = HANDLE_PICK_X * HANDLE_PICK_X;
       for (const kf of track.keyframes) {
         if (kf.id === undefined || !input.isSelected(track.id, kf.id)) continue;
         if (kf.tangentMode === 'linear' || kf.tangentMode === 'step') continue;
         const inX = toX(kf.x + kf.handleIn.x);
         const inY = valueToY(kf.y + kf.handleIn.y, range, top, rowH);
-        if (Math.hypot(point.x - inX, contentY - inY) <= HANDLE_PICK_X) {
+        const inDx = point.x - inX;
+        const inDy = contentY - inY;
+        if (inDx * inDx + inDy * inDy <= pickRadiusSq) {
           return {
             kind: 'tangent',
             trackId: track.id,
@@ -111,7 +112,9 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
         }
         const outX = toX(kf.x + kf.handleOut.x);
         const outY = valueToY(kf.y + kf.handleOut.y, range, top, rowH);
-        if (Math.hypot(point.x - outX, contentY - outY) <= HANDLE_PICK_X) {
+        const outDx = point.x - outX;
+        const outDy = contentY - outY;
+        if (outDx * outDx + outDy * outDy <= pickRadiusSq) {
           return {
             kind: 'tangent',
             trackId: track.id,
@@ -161,9 +164,7 @@ export function keyframesInRect(
   for (const row of rows) {
     if (row.kind !== 'track') continue;
     const { track, top, height } = row;
-    const range = row.graph
-      ? (track.valueRange ?? autoValueRange(track.keyframes))
-      : null;
+    const range = row.graph ? row.range : null;
     const centerY = top + height / 2;
     for (const kf of track.keyframes) {
       if (kf.id === undefined) continue;

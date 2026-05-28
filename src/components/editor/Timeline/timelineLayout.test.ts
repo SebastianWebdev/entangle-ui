@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeRows, rowIndexAtY } from './timelineLayout';
+import { computeRows } from './timelineLayout';
 import type { TimelineTrack } from './Timeline.types';
 
 function t(id: string, extra: Partial<TimelineTrack> = {}): TimelineTrack {
@@ -43,7 +43,12 @@ describe('computeRows', () => {
       [t('a', { expanded: true }), t('b')],
       base
     );
-    expect(trackTops.get('a')).toEqual({ top: 0, height: 96, graph: true });
+    expect(trackTops.get('a')).toEqual({
+      top: 0,
+      height: 96,
+      graph: true,
+      range: [0, 1],
+    });
     expect(trackTops.get('b')?.top).toBe(96);
     expect(trackTops.get('b')?.graph).toBe(false);
   });
@@ -68,12 +73,5 @@ describe('computeRows', () => {
       'G',
       'c',
     ]);
-  });
-
-  it('rowIndexAtY finds the row band', () => {
-    const { rows } = computeRows([t('a'), t('b')], base);
-    expect(rowIndexAtY(rows, 0)).toBe(0);
-    expect(rowIndexAtY(rows, 30)).toBe(1);
-    expect(rowIndexAtY(rows, 999)).toBe(-1);
   });
 });

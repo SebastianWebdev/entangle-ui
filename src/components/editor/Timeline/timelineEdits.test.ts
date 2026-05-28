@@ -342,8 +342,18 @@ describe('timelineEdits', () => {
   });
 
   describe('valueAtPointer', () => {
-    const graphGeom: TrackGeometry = { top: 0, height: 100, graph: true };
-    const dopeGeom: TrackGeometry = { top: 0, height: 24, graph: false };
+    const graphGeom: TrackGeometry = {
+      top: 0,
+      height: 100,
+      graph: true,
+      range: [0, 1],
+    };
+    const dopeGeom: TrackGeometry = {
+      top: 0,
+      height: 24,
+      graph: false,
+      range: [0, 1],
+    };
 
     it('graph row: converts a pointer Y to a value on the track axis', () => {
       const track: TimelineTrack = {
@@ -418,7 +428,7 @@ describe('timelineEdits', () => {
         pointerY: 50,
         frame: 5,
         track,
-        geometry: dopeGeom,
+        geometry: { ...dopeGeom, range: [-100, 100] },
         rulerHeight: 20,
         scrollTop: 0,
       });

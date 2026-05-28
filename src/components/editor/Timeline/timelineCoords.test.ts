@@ -1,13 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
-  viewSpan,
-  framesPerPixel,
   frameToX,
   xToFrame,
   snapFrame,
   clamp,
-  trackTop,
-  yToTrackIndex,
   framesToTimecode,
   valueToY,
   yToValue,
@@ -19,25 +15,6 @@ import {
 const VIEW = { startFrame: 0, endFrame: 100 };
 
 describe('timelineCoords', () => {
-  describe('viewSpan', () => {
-    it('returns the frame span', () => {
-      expect(viewSpan({ startFrame: 10, endFrame: 60 })).toBe(50);
-    });
-    it('guards against zero/negative spans', () => {
-      expect(viewSpan({ startFrame: 5, endFrame: 5 })).toBeGreaterThan(0);
-      expect(viewSpan({ startFrame: 10, endFrame: 0 })).toBeGreaterThan(0);
-    });
-  });
-
-  describe('framesPerPixel', () => {
-    it('divides span by width', () => {
-      expect(framesPerPixel(VIEW, 200)).toBe(0.5);
-    });
-    it('falls back to span when width <= 0', () => {
-      expect(framesPerPixel(VIEW, 0)).toBe(100);
-    });
-  });
-
   describe('frameToX / xToFrame', () => {
     it('maps frames to pixels across the width', () => {
       expect(frameToX(0, VIEW, 200)).toBe(0);
@@ -77,22 +54,6 @@ describe('timelineCoords', () => {
       expect(clamp(5, 0, 10)).toBe(5);
       expect(clamp(-1, 0, 10)).toBe(0);
       expect(clamp(11, 0, 10)).toBe(10);
-    });
-  });
-
-  describe('trackTop / yToTrackIndex', () => {
-    it('computes row top with scroll', () => {
-      expect(trackTop(0, 28, 0)).toBe(0);
-      expect(trackTop(2, 28, 0)).toBe(56);
-      expect(trackTop(2, 28, 10)).toBe(46);
-    });
-    it('inverts to a row index', () => {
-      expect(yToTrackIndex(0, 28, 0)).toBe(0);
-      expect(yToTrackIndex(56, 28, 0)).toBe(2);
-      expect(yToTrackIndex(46, 28, 10)).toBe(2);
-    });
-    it('guards zero row height', () => {
-      expect(yToTrackIndex(100, 0, 0)).toBe(0);
     });
   });
 

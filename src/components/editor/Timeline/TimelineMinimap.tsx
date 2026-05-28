@@ -3,6 +3,7 @@
 import React, {
   useCallback,
   useEffect,
+  useEffectEvent,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -10,8 +11,8 @@ import React, {
 } from 'react';
 import { vars } from '@/theme/contract.css';
 import { resolveVarValue } from '@/components/primitives/canvas/canvasTheme';
-import { useLatest, useResizeObserver } from '@/hooks';
-import { useTimelineContext } from './TimelineContext';
+import { useResizeObserver } from '@/hooks';
+import { useTimelineGeometry, useTimelinePlayhead } from './TimelineContext';
 import { TIMELINE_SLOT } from './Timeline.types';
 import type { TimelineMinimapProps, TimelineView } from './Timeline.types';
 import { timelineMinimapStyle } from './Timeline.css';
@@ -40,12 +41,13 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
     setView,
   } = props;
 
-  const ctx = useTimelineContext();
+  // Subscribe only to the slices the minimap actually reads — selection,
+  // hover, drag and mode changes do not invalidate this strip.
+  const geometry = useTimelineGeometry();
+  const playhead = useTimelinePlayhead();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
-
-  const tracksRef = useLatest(tracks);
 
   useResizeObserver(containerRef, entry => {
     setWidth(w =>
@@ -53,108 +55,114 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
     );
   });
 
-  const range = Math.max(1, ctx.endFrame - ctx.startFrame);
+  const range = Math.max(1, geometry.endFrame - geometry.startFrame);
   const pxToFrame = useCallback(
     (px: number): number =>
-      ctx.startFrame + (clamp(px, 0, width) / Math.max(1, width)) * range,
-    [ctx.startFrame, range, width]
+      geometry.startFrame + (clamp(px, 0, width) / Math.max(1, width)) * range,
+    [geometry.startFrame, range, width]
   );
 
   // ── Render ──
   const rafRef = useRef<number>(0);
+  const drawNow = useEffectEvent((): void => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const renderCtx = canvas.getContext('2d');
+    if (!renderCtx) return;
+
+    const w = Math.max(1, width);
+    const h = Math.max(1, height);
+    const dpr =
+      typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+    const targetW = Math.max(1, Math.round(w * dpr));
+    const targetH = Math.max(1, Math.round(h * dpr));
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
+    renderCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const bg = resolveVarValue(canvas, vars.colors.background.inset);
+    const border = resolveVarValue(canvas, vars.colors.border.default);
+    const marker =
+      markerColor ?? resolveVarValue(canvas, vars.colors.accent.secondary);
+    const accent =
+      viewportColor ?? resolveVarValue(canvas, vars.colors.accent.primary);
+
+    renderCtx.clearRect(0, 0, w, h);
+    renderCtx.fillStyle = bg;
+    renderCtx.fillRect(0, 0, w, h);
+
+    // Keyframe markers (small vertical ticks)
+    renderCtx.fillStyle = marker;
+    renderCtx.globalAlpha = 0.6;
+    for (const track of tracks) {
+      if (track.hidden) continue;
+      for (const kf of track.keyframes) {
+        const x = Math.round(((kf.x - geometry.startFrame) / range) * w);
+        renderCtx.fillRect(x, h * 0.25, 1, h * 0.5);
+      }
+    }
+    renderCtx.globalAlpha = 1;
+
+    // Viewport rectangle
+    const vx = ((geometry.view.startFrame - geometry.startFrame) / range) * w;
+    const vw =
+      ((geometry.view.endFrame - geometry.view.startFrame) / range) * w;
+    renderCtx.save();
+    renderCtx.fillStyle = accent;
+    renderCtx.globalAlpha = 0.16;
+    renderCtx.fillRect(vx, 0, vw, h);
+    renderCtx.globalAlpha = 1;
+    renderCtx.strokeStyle = accent;
+    renderCtx.lineWidth = 1;
+    renderCtx.strokeRect(vx + 0.5, 0.5, Math.max(0, vw - 1), h - 1);
+
+    // Edge "grippers" — small filled bars centred vertically on each edge
+    // hint that the viewport rectangle is resizable (zoom).
+    const gripH = Math.max(6, h * 0.4);
+    const gripY = (h - gripH) / 2;
+    renderCtx.fillRect(vx - 1, gripY, 2, gripH);
+    renderCtx.fillRect(vx + vw - 1, gripY, 2, gripH);
+    renderCtx.restore();
+
+    // Playhead
+    const px =
+      Math.round(((playhead.frame - geometry.startFrame) / range) * w) + 0.5;
+    renderCtx.strokeStyle = accent;
+    renderCtx.lineWidth = 1;
+    renderCtx.beginPath();
+    renderCtx.moveTo(px, 0);
+    renderCtx.lineTo(px, h);
+    renderCtx.stroke();
+
+    // Top + bottom borders
+    renderCtx.fillStyle = border;
+    renderCtx.fillRect(0, 0, w, 1);
+  });
+
   const scheduleDraw = useCallback((): void => {
     cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const renderCtx = canvas.getContext('2d');
-      if (!renderCtx) return;
-
-      const w = Math.max(1, width);
-      const h = Math.max(1, height);
-      const dpr =
-        typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-      const targetW = Math.max(1, Math.round(w * dpr));
-      const targetH = Math.max(1, Math.round(h * dpr));
-      if (canvas.width !== targetW || canvas.height !== targetH) {
-        canvas.width = targetW;
-        canvas.height = targetH;
-      }
-      renderCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      const bg = resolveVarValue(canvas, vars.colors.background.inset);
-      const border = resolveVarValue(canvas, vars.colors.border.default);
-      const marker =
-        markerColor ?? resolveVarValue(canvas, vars.colors.accent.secondary);
-      const accent =
-        viewportColor ?? resolveVarValue(canvas, vars.colors.accent.primary);
-
-      renderCtx.clearRect(0, 0, w, h);
-      renderCtx.fillStyle = bg;
-      renderCtx.fillRect(0, 0, w, h);
-
-      // Keyframe markers (small vertical ticks)
-      renderCtx.fillStyle = marker;
-      renderCtx.globalAlpha = 0.6;
-      for (const track of tracksRef.current) {
-        if (track.hidden) continue;
-        for (const kf of track.keyframes) {
-          const x = Math.round(((kf.x - ctx.startFrame) / range) * w);
-          renderCtx.fillRect(x, h * 0.25, 1, h * 0.5);
-        }
-      }
-      renderCtx.globalAlpha = 1;
-
-      // Viewport rectangle
-      const vx = ((ctx.view.startFrame - ctx.startFrame) / range) * w;
-      const vw = ((ctx.view.endFrame - ctx.view.startFrame) / range) * w;
-      renderCtx.save();
-      renderCtx.fillStyle = accent;
-      renderCtx.globalAlpha = 0.16;
-      renderCtx.fillRect(vx, 0, vw, h);
-      renderCtx.globalAlpha = 1;
-      renderCtx.strokeStyle = accent;
-      renderCtx.lineWidth = 1;
-      renderCtx.strokeRect(vx + 0.5, 0.5, Math.max(0, vw - 1), h - 1);
-
-      // Edge "grippers" — small filled bars centred vertically on each edge
-      // hint that the viewport rectangle is resizable (zoom).
-      const gripH = Math.max(6, h * 0.4);
-      const gripY = (h - gripH) / 2;
-      renderCtx.fillRect(vx - 1, gripY, 2, gripH);
-      renderCtx.fillRect(vx + vw - 1, gripY, 2, gripH);
-      renderCtx.restore();
-
-      // Playhead
-      const px = Math.round(((ctx.frame - ctx.startFrame) / range) * w) + 0.5;
-      renderCtx.strokeStyle = accent;
-      renderCtx.lineWidth = 1;
-      renderCtx.beginPath();
-      renderCtx.moveTo(px, 0);
-      renderCtx.lineTo(px, h);
-      renderCtx.stroke();
-
-      // Top + bottom borders
-      renderCtx.fillStyle = border;
-      renderCtx.fillRect(0, 0, w, 1);
-    });
-  }, [
-    width,
-    height,
-    range,
-    ctx.startFrame,
-    ctx.view.startFrame,
-    ctx.view.endFrame,
-    ctx.frame,
-    markerColor,
-    viewportColor,
-    tracksRef,
-  ]);
+    rafRef.current = requestAnimationFrame(() => drawNow());
+    // `drawNow` is a stable `useEffectEvent`.
+  }, []);
 
   useLayoutEffect(() => {
     scheduleDraw();
     return () => cancelAnimationFrame(rafRef.current);
-  }, [scheduleDraw]);
+  }, [
+    scheduleDraw,
+    width,
+    height,
+    range,
+    geometry.startFrame,
+    geometry.view.startFrame,
+    geometry.view.endFrame,
+    playhead.frame,
+    tracks,
+    markerColor,
+    viewportColor,
+  ]);
 
   // ── Interactions: drag viewport, resize edges, click outside to center ──
 
@@ -166,14 +174,18 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
     grabOffset: number;
   } | null>(null);
 
-  const span = ctx.view.endFrame - ctx.view.startFrame;
+  const span = geometry.view.endFrame - geometry.view.startFrame;
   const setViewSpan = useCallback(
     (start: number): void => {
       if (!setView) return;
-      const clamped = clamp(start, ctx.startFrame, ctx.endFrame - span);
+      const clamped = clamp(
+        start,
+        geometry.startFrame,
+        geometry.endFrame - span
+      );
       setView({ startFrame: clamped, endFrame: clamped + span });
     },
-    [setView, ctx.startFrame, ctx.endFrame, span]
+    [setView, geometry.startFrame, geometry.endFrame, span]
   );
 
   const setViewRaw = useCallback(
@@ -186,11 +198,11 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
 
   const frameToPx = useCallback(
     (frame: number): number =>
-      ((frame - ctx.startFrame) / range) * Math.max(1, width),
-    [ctx.startFrame, range, width]
+      ((frame - geometry.startFrame) / range) * Math.max(1, width),
+    [geometry.startFrame, range, width]
   );
 
-  const onPointerDown = useCallback(
+  const onPointerDown = useEffectEvent(
     (e: React.PointerEvent<HTMLDivElement>): void => {
       if (e.button !== 0) return;
       const container = containerRef.current;
@@ -200,8 +212,8 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
       const frame = pxToFrame(x);
       e.preventDefault();
       container.setPointerCapture(e.pointerId);
-      const startPx = frameToPx(ctx.view.startFrame);
-      const endPx = frameToPx(ctx.view.endFrame);
+      const startPx = frameToPx(geometry.view.startFrame);
+      const endPx = frameToPx(geometry.view.endFrame);
       // Edge-resize takes priority: lets the user zoom by dragging the
       // viewport rect's left or right edge.
       if (Math.abs(x - startPx) <= EDGE_PICK_PX) {
@@ -220,12 +232,13 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
         };
         return;
       }
-      const inside = frame >= ctx.view.startFrame && frame <= ctx.view.endFrame;
+      const inside =
+        frame >= geometry.view.startFrame && frame <= geometry.view.endFrame;
       if (inside) {
         dragRef.current = {
           pointerId: e.pointerId,
           mode: 'move',
-          grabOffset: frame - ctx.view.startFrame,
+          grabOffset: frame - geometry.view.startFrame,
         };
       } else {
         dragRef.current = {
@@ -235,18 +248,10 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
         };
         setViewSpan(frame - span / 2);
       }
-    },
-    [
-      pxToFrame,
-      frameToPx,
-      ctx.view.startFrame,
-      ctx.view.endFrame,
-      setViewSpan,
-      span,
-    ]
+    }
   );
 
-  const onPointerMove = useCallback(
+  const onPointerMove = useEffectEvent(
     (e: React.PointerEvent<HTMLDivElement>): void => {
       const drag = dragRef.current;
       if (drag?.pointerId !== e.pointerId) return;
@@ -263,38 +268,44 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
           setViewSpan(frame - span / 2);
           break;
         case 'resize-start': {
-          const newStart = clamp(frame, ctx.startFrame, ctx.view.endFrame - 1);
-          setViewRaw({ startFrame: newStart, endFrame: ctx.view.endFrame });
+          const newStart = clamp(
+            frame,
+            geometry.startFrame,
+            geometry.view.endFrame - 1
+          );
+          setViewRaw({
+            startFrame: newStart,
+            endFrame: geometry.view.endFrame,
+          });
           break;
         }
         case 'resize-end': {
-          const newEnd = clamp(frame, ctx.view.startFrame + 1, ctx.endFrame);
-          setViewRaw({ startFrame: ctx.view.startFrame, endFrame: newEnd });
+          const newEnd = clamp(
+            frame,
+            geometry.view.startFrame + 1,
+            geometry.endFrame
+          );
+          setViewRaw({
+            startFrame: geometry.view.startFrame,
+            endFrame: newEnd,
+          });
           break;
         }
       }
-    },
-    [
-      pxToFrame,
-      setViewSpan,
-      setViewRaw,
-      span,
-      ctx.startFrame,
-      ctx.endFrame,
-      ctx.view.startFrame,
-      ctx.view.endFrame,
-    ]
+    }
   );
 
-  const endDrag = useCallback((e: React.PointerEvent<HTMLDivElement>): void => {
-    const drag = dragRef.current;
-    if (drag?.pointerId !== e.pointerId) return;
-    const container = containerRef.current;
-    if (container?.hasPointerCapture(e.pointerId)) {
-      container.releasePointerCapture(e.pointerId);
+  const endDrag = useEffectEvent(
+    (e: React.PointerEvent<HTMLDivElement>): void => {
+      const drag = dragRef.current;
+      if (drag?.pointerId !== e.pointerId) return;
+      const container = containerRef.current;
+      if (container?.hasPointerCapture(e.pointerId)) {
+        container.releasePointerCapture(e.pointerId);
+      }
+      dragRef.current = null;
     }
-    dragRef.current = null;
-  }, []);
+  );
 
   // Redraw when DPR changes
   useEffect(() => {

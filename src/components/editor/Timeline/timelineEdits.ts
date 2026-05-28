@@ -7,14 +7,7 @@ import type {
 } from './Timeline.types';
 import type { TrackGeometry } from './timelineLayout';
 import { autoValueRange, clamp, snapFrame, yToValue } from './timelineCoords';
-
-function selKey(trackId: string, keyframeId: string): string {
-  return `${trackId} ${keyframeId}`;
-}
-
-function selectionKeySet(selection: TimelineSelection): Set<string> {
-  return new Set(selection.map(r => selKey(r.trackId, r.keyframeId)));
-}
+import { selectionKey, selectionKeySet } from './timelineSelection';
 
 let idCounter = 0;
 
@@ -54,7 +47,7 @@ export function valueAtPointer(args: {
   scrollTop: number;
 }): number {
   const { pointerY, frame, track, geometry, rulerHeight, scrollTop } = args;
-  const range = track.valueRange ?? autoValueRange(track.keyframes);
+  const range = geometry?.range ?? autoValueRange(track.keyframes);
   if (geometry?.graph) {
     const screenTop = rulerHeight + geometry.top - scrollTop;
     return clamp(
@@ -65,7 +58,11 @@ export function valueAtPointer(args: {
   }
   if (track.keyframes.length > 0) {
     return evaluateCurve(
-      { keyframes: track.keyframes, domainX: [0, 1], domainY: range },
+      {
+        keyframes: track.keyframes,
+        domainX: [0, 1],
+        domainY: [range[0], range[1]],
+      },
       frame
     );
   }
@@ -90,7 +87,11 @@ export function moveSelectedKeyframes(
     if (track.locked) return track;
     let changed = false;
     const keyframes = track.keyframes.map(kf => {
-      if (kf.id === undefined || !keys.has(selKey(track.id, kf.id))) return kf;
+      if (
+        kf.id === undefined ||
+        !keys.has(selectionKey({ trackId: track.id, keyframeId: kf.id }))
+      )
+        return kf;
       changed = true;
       return { ...kf, x: clamp(snapFrame(kf.x + deltaFrames, snap), min, max) };
     });
@@ -121,7 +122,9 @@ export function moveSelectedKeyframesGraph(
   return tracks.map(track => {
     if (track.locked) return track;
     const keyMatches = track.keyframes.some(
-      kf => kf.id !== undefined && keys.has(selKey(track.id, kf.id))
+      kf =>
+        kf.id !== undefined &&
+        keys.has(selectionKey({ trackId: track.id, keyframeId: kf.id }))
     );
     if (!keyMatches) return track;
     const rowH =
@@ -131,7 +134,11 @@ export function moveSelectedKeyframesGraph(
     const usable = Math.max(1e-6, rowH - inset * 2);
     const valueDelta = -(deltaYPixels / usable) * (range[1] - range[0]);
     const keyframes = track.keyframes.map(kf => {
-      if (kf.id === undefined || !keys.has(selKey(track.id, kf.id))) return kf;
+      if (
+        kf.id === undefined ||
+        !keys.has(selectionKey({ trackId: track.id, keyframeId: kf.id }))
+      )
+        return kf;
       return {
         ...kf,
         x: clamp(snapFrame(kf.x + deltaFrames, snap), min, max),
@@ -151,7 +158,9 @@ export function removeSelectedKeyframes(
   const keys = selectionKeySet(selection);
   return tracks.map(track => {
     const keyframes = track.keyframes.filter(
-      kf => kf.id === undefined || !keys.has(selKey(track.id, kf.id))
+      kf =>
+        kf.id === undefined ||
+        !keys.has(selectionKey({ trackId: track.id, keyframeId: kf.id }))
     );
     return keyframes.length === track.keyframes.length
       ? track
@@ -228,7 +237,11 @@ export function setSelectedTangentMode(
     if (track.locked) return track;
     let changed = false;
     const keyframes = track.keyframes.map(kf => {
-      if (kf.id === undefined || !keys.has(selKey(track.id, kf.id))) return kf;
+      if (
+        kf.id === undefined ||
+        !keys.has(selectionKey({ trackId: track.id, keyframeId: kf.id }))
+      )
+        return kf;
       if (kf.tangentMode === mode) return kf;
       changed = true;
       return { ...kf, tangentMode: mode };
@@ -297,13 +310,18 @@ export function copySelectedKeyframes(
   const picked: { trackId: string; keyframe: CurveKeyframe }[] = [];
   for (const track of tracks) {
     for (const kf of track.keyframes) {
-      if (kf.id !== undefined && keys.has(selKey(track.id, kf.id))) {
+      if (
+        kf.id !== undefined &&
+        keys.has(selectionKey({ trackId: track.id, keyframeId: kf.id }))
+      ) {
         picked.push({ trackId: track.id, keyframe: kf });
       }
     }
   }
   if (picked.length === 0) return { entries: [] };
-  const base = Math.min(...picked.map(p => p.keyframe.x));
+  // Avoid `Math.min(...spread)` — stack overflows at large selections.
+  let base = Infinity;
+  for (const p of picked) if (p.keyframe.x < base) base = p.keyframe.x;
   return {
     entries: picked.map(p => ({
       trackId: p.trackId,
