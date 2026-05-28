@@ -18,6 +18,7 @@ import type { ViewportSize } from '@/components/primitives/viewport';
 import type {
   TimelineGroup,
   TimelineLoop,
+  TimelineMinimapProps,
   TimelineMode,
   TimelineProps,
   TimelineSelection,
@@ -60,6 +61,7 @@ function selectionKey(trackId: string, keyframeId: string): string {
 interface CategorizedSlots {
   toolbar: React.ReactNode;
   footer: React.ReactNode;
+  minimap: React.ReactElement | null;
   overlay: React.ReactNode[];
 }
 
@@ -69,7 +71,12 @@ function getSlotKind(el: React.ReactElement): TimelineSlotKind | null {
 }
 
 function categorizeChildren(children: React.ReactNode): CategorizedSlots {
-  const slots: CategorizedSlots = { toolbar: null, footer: null, overlay: [] };
+  const slots: CategorizedSlots = {
+    toolbar: null,
+    footer: null,
+    minimap: null,
+    overlay: [],
+  };
   React.Children.forEach(children, child => {
     if (!React.isValidElement(child)) {
       if (child !== null && child !== undefined && child !== false) {
@@ -101,6 +108,8 @@ function categorizeChildren(children: React.ReactNode): CategorizedSlots {
           {props.children}
         </div>
       );
+    } else if (kind === 'minimap') {
+      slots.minimap = child;
     } else {
       slots.overlay.push(child);
     }
@@ -268,6 +277,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
 
   const store = useMemo(() => new TimelineStore(), []);
   const drag = useSyncExternalStore(store.subscribeDrag, store.getDrag);
+  const hover = useSyncExternalStore(store.subscribeHover, store.getHover);
 
   useLayoutEffect(() => {
     store.setGeometry({
@@ -340,6 +350,27 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     onAdvance: setFrameRaw,
     onEnd: handlePlaybackEnd,
   });
+
+  // ── Follow-playhead during playback ──
+  // When the playhead enters the trailing third of the visible window, slide
+  // the view forward so the playhead stays at roughly the middle. Symmetric
+  // logic for the leading third (e.g. when seeking backwards while playing).
+  useLayoutEffect(() => {
+    if (!playingState) return;
+    const span = viewState.endFrame - viewState.startFrame;
+    if (span <= 0) return;
+    const leadingEdge = viewState.startFrame + span / 3;
+    const trailingEdge = viewState.endFrame - span / 3;
+    let nextStart: number | null = null;
+    if (frameState > trailingEdge) {
+      nextStart = clamp(frameState - span / 2, startFrame, endFrame - span);
+    } else if (frameState < leadingEdge) {
+      nextStart = clamp(frameState - span / 2, startFrame, endFrame - span);
+    }
+    if (nextStart !== null && nextStart !== viewState.startFrame) {
+      setView({ startFrame: nextStart, endFrame: nextStart + span });
+    }
+  }, [playingState, frameState, viewState, setView, startFrame, endFrame]);
 
   // ── Track-edit helpers ──
 
@@ -429,16 +460,31 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     setView(clampView({ startFrame: min - pad, endFrame: max + pad }));
   }, [setView, clampView, selectionRef, tracksRef]);
 
+  const requestSetView = useCallback(
+    (v: TimelineView): void => {
+      setView(clampView(v));
+    },
+    [setView, clampView]
+  );
+
   useLayoutEffect(() => {
     store.configureHandle({
       focus: () => bodyRef.current?.focus(),
       getElement: () => bodyRef.current,
       seek: seekCommit,
       setPlaying,
+      setView: requestSetView,
       zoomToFit: requestZoomToFit,
       zoomToSelection: requestZoomToSelection,
     });
-  }, [store, seekCommit, setPlaying, requestZoomToFit, requestZoomToSelection]);
+  }, [
+    store,
+    seekCommit,
+    setPlaying,
+    requestSetView,
+    requestZoomToFit,
+    requestZoomToSelection,
+  ]);
 
   useImperativeHandle(ref, () => store.handle, [store]);
 
@@ -591,6 +637,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
         font: `${fontPx}px ${family}`,
         formatTime: formatTimeRef.current,
         isSelected: (t, k) => selKeys.has(selectionKey(t, k)),
+        isHovered: (t, k) =>
+          hover !== null && hover.trackId === t && hover.keyframeId === k,
         renderOverlay: renderOverlayRef.current,
         marquee: drag.marquee,
         loopRegion,
@@ -611,6 +659,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     backgroundColor,
     playheadColor,
     drag.marquee,
+    hover,
     loopRegion,
     renderOverlayRef,
     formatTimeRef,
@@ -684,6 +733,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             onPointerMove={handlers.onPointerMove}
             onPointerUp={handlers.onPointerUp}
             onPointerCancel={handlers.onPointerCancel}
+            onPointerLeave={handlers.onPointerLeave}
             onDoubleClick={handlers.onDoubleClick}
             onKeyDown={handlers.onKeyDown}
           >
@@ -698,6 +748,11 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             </div>
           </div>
         </div>
+        {slots.minimap
+          ? React.cloneElement(slots.minimap, {
+              setView: requestSetView,
+            } as Partial<TimelineMinimapProps>)
+          : null}
         {slots.footer}
       </div>
     </TimelineStoreContext.Provider>

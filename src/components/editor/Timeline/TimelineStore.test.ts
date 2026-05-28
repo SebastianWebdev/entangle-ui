@@ -102,6 +102,7 @@ describe('TimelineStore', () => {
         getElement: () => null,
         seek,
         setPlaying,
+        setView: vi.fn(),
         zoomToFit: vi.fn(),
         zoomToSelection: vi.fn(),
       });

@@ -188,6 +188,18 @@ export const timelineHeaderLabelStyle = style({
   whiteSpace: 'nowrap',
 });
 
+/** Minimap overview strip rendered below the main timeline body. */
+export const timelineMinimapStyle = style({
+  flexShrink: 0,
+  position: 'relative',
+  width: '100%',
+  cursor: 'pointer',
+  background: vars.colors.background.inset,
+  borderTop: `1px solid ${vars.colors.border.default}`,
+  userSelect: 'none',
+  touchAction: 'none',
+});
+
 /** Toolbar strip above the main row. */
 export const timelineToolbarStyle = style({
   flexShrink: 0,

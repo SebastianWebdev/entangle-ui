@@ -112,7 +112,7 @@ export interface TimelineTrackHeaderInfo {
  */
 export const TIMELINE_SLOT: unique symbol = Symbol.for('etui.timeline.slot');
 
-export type TimelineSlotKind = 'toolbar' | 'footer';
+export type TimelineSlotKind = 'toolbar' | 'footer' | 'minimap';
 
 export interface TimelineSlotMarker {
   [TIMELINE_SLOT]: TimelineSlotKind;
@@ -145,6 +145,8 @@ export interface TimelineHandle {
   zoomToSelection(): void;
   /** Current visible frame window. */
   getView(): TimelineView;
+  /** Set the visible frame window (clamped to bounds + minFramesVisible). */
+  setView(view: TimelineView): void;
   /** Map a frame to a track-area CSS-pixel X. */
   frameToX(frame: number): number;
   /** Inverse of `frameToX`. */
@@ -294,6 +296,22 @@ export interface TimelineToolbarProps {
 
 export interface TimelineFooterProps {
   children?: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export interface TimelineMinimapProps {
+  /**
+   * Tracks to summarize as keyframe markers in the minimap.
+   * Pass the same array you pass to `<Timeline tracks={...} />`.
+   */
+  tracks: ReadonlyArray<TimelineTrack>;
+  /** Strip height in CSS px. @default 40 */
+  height?: number;
+  /** Override the keyframe marker color. */
+  markerColor?: string;
+  /** Override the viewport rectangle color. */
+  viewportColor?: string;
   className?: string;
   style?: React.CSSProperties;
 }

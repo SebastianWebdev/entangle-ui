@@ -106,6 +106,7 @@ export interface UseTimelineGesturesReturn {
     onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => void;
     onPointerCancel: (e: React.PointerEvent<HTMLDivElement>) => void;
+    onPointerLeave: () => void;
     onDoubleClick: (e: React.MouseEvent<HTMLDivElement>) => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
   };
@@ -440,11 +441,23 @@ export function useTimelineGestures(
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>): void => {
-      const state = stateRef.current;
-      if (state?.pointerId !== e.pointerId) return;
       const container = containerRef.current;
       if (!container) return;
       const point = localPoint(e, container);
+      const state = stateRef.current;
+
+      // Hover-tracking: only when no active drag (so the diamond / circle can
+      // grow under the cursor as a "grabbable" affordance).
+      if (!state) {
+        const hit = hitAt(point);
+        if (hit.kind === 'keyframe') {
+          store.setHover({ trackId: hit.trackId, keyframeId: hit.keyframeId });
+        } else {
+          store.setHover(null);
+        }
+      }
+
+      if (state?.pointerId !== e.pointerId) return;
       const view = viewRef.current;
       const width = sizeRef.current.width;
 
@@ -530,8 +543,13 @@ export function useTimelineGestures(
       setLoopRef,
       startFrameRef,
       endFrameRef,
+      hitAt,
     ]
   );
+
+  const onPointerLeave = useCallback((): void => {
+    store.setHover(null);
+  }, [store]);
 
   const endGesture = useCallback(
     (e: React.PointerEvent<HTMLDivElement>, cancelled: boolean): void => {
@@ -816,6 +834,7 @@ export function useTimelineGestures(
       onPointerMove,
       onPointerUp,
       onPointerCancel,
+      onPointerLeave,
       onDoubleClick,
       onKeyDown,
     }),
@@ -824,6 +843,7 @@ export function useTimelineGestures(
       onPointerMove,
       onPointerUp,
       onPointerCancel,
+      onPointerLeave,
       onDoubleClick,
       onKeyDown,
     ]

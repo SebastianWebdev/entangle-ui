@@ -643,9 +643,12 @@ export default function AnimationEditorDemo(): JSX.Element {
                 mode={mode}
                 onModeChange={setMode}
                 onSelectionChange={s => setSelectionCount(s.length)}
+                defaultView={{ startFrame: 0, endFrame: 60 }}
                 loop={{ startFrame: 0, endFrame: END_FRAME }}
                 trackHeaderWidth={180}
-              />
+              >
+                <Timeline.Minimap tracks={tracks} height={36} />
+              </Timeline>
             </div>
           </SplitPane>
         </AppShell.Dock>

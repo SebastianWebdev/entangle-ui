@@ -41,6 +41,8 @@ export interface TimelineDrawInput {
   font: string;
   formatTime: (frame: number, fps: number) => string;
   isSelected: (trackId: string, keyframeId: string) => boolean;
+  /** Whether a given keyframe is hovered (pointer-over, no active drag). */
+  isHovered?: (trackId: string, keyframeId: string) => boolean;
   renderOverlay?: (
     ctx: CanvasRenderingContext2D,
     info: TimelineDrawInfo
@@ -87,6 +89,7 @@ function drawGraphLane(
   accent: string
 ): void {
   const { ctx, size, view, startFrame, endFrame, colors, isSelected } = input;
+  const isHovered = input.isHovered ?? ((): boolean => false);
   const range = track.valueRange ?? autoValueRange(track.keyframes);
   const curve: CurveData = {
     keyframes: track.keyframes,
@@ -112,31 +115,66 @@ function drawGraphLane(
     ctx.stroke();
   }
 
+  // ── Tangent handles on the selected keyframe (CurveEditor-parity styling)
+  for (const kf of track.keyframes) {
+    if (kf.id === undefined || !isSelected(track.id, kf.id)) continue;
+    if (kf.tangentMode === 'linear' || kf.tangentMode === 'step') continue;
+    const x = toX(kf.x);
+    if (x < -KEYFRAME_RADIUS * 4 || x > size.width + KEYFRAME_RADIUS * 4)
+      continue;
+    const y = valueToY(kf.y, range, top, rowH);
+    const isAuto = kf.tangentMode === 'auto';
+    const lineAlpha = isAuto ? 0.4 : 0.7;
+    const dotRadius = isAuto ? 3 : 4;
+
+    const drawHandle = (hx: number, hy: number): void => {
+      ctx.save();
+      ctx.globalAlpha = lineAlpha;
+      ctx.strokeStyle = colors.rulerText;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(hx, hy);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = colors.rulerText;
+      ctx.beginPath();
+      ctx.arc(hx, hy, dotRadius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    };
+
+    drawHandle(
+      toX(kf.x + kf.handleIn.x),
+      valueToY(kf.y + kf.handleIn.y, range, top, rowH)
+    );
+    drawHandle(
+      toX(kf.x + kf.handleOut.x),
+      valueToY(kf.y + kf.handleOut.y, range, top, rowH)
+    );
+  }
+
+  // ── Keyframe points (sized by selected / hovered state)
   for (const kf of track.keyframes) {
     const x = toX(kf.x);
-    if (x < -KEYFRAME_RADIUS || x > size.width + KEYFRAME_RADIUS) continue;
+    if (x < -KEYFRAME_RADIUS * 2 || x > size.width + KEYFRAME_RADIUS * 2)
+      continue;
     const y = valueToY(kf.y, range, top, rowH);
     const selected = kf.id !== undefined && isSelected(track.id, kf.id);
-
-    if (selected && kf.tangentMode !== 'linear' && kf.tangentMode !== 'step') {
-      const inX = toX(kf.x + kf.handleIn.x);
-      const inY = valueToY(kf.y + kf.handleIn.y, range, top, rowH);
-      const outX = toX(kf.x + kf.handleOut.x);
-      const outY = valueToY(kf.y + kf.handleOut.y, range, top, rowH);
-      ctx.strokeStyle = colors.gridLine;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(inX, inY);
-      ctx.lineTo(x, y);
-      ctx.lineTo(outX, outY);
-      ctx.stroke();
-    }
+    const hovered = kf.id !== undefined && isHovered(track.id, kf.id);
+    const radius = hovered
+      ? KEYFRAME_RADIUS + 2
+      : selected
+        ? KEYFRAME_RADIUS + 1
+        : KEYFRAME_RADIUS - 0.5;
 
     ctx.beginPath();
-    ctx.arc(x, y, KEYFRAME_RADIUS - 0.5, 0, Math.PI * 2);
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fillStyle = selected ? colors.keyframeSelected : accent;
     ctx.fill();
-    ctx.lineWidth = 1;
+    ctx.lineWidth = selected ? 1.5 : 1;
     ctx.strokeStyle = colors.keyframeStroke;
     ctx.stroke();
   }
@@ -261,14 +299,22 @@ export function drawTimeline(input: TimelineDrawInput): void {
     }
 
     const centerY = top + rowH / 2;
+    const hoveredAt = input.isHovered ?? ((): boolean => false);
     for (const kf of track.keyframes) {
       const x = toX(kf.x);
-      if (x < -KEYFRAME_RADIUS || x > size.width + KEYFRAME_RADIUS) continue;
+      if (x < -KEYFRAME_RADIUS * 2 || x > size.width + KEYFRAME_RADIUS * 2)
+        continue;
       const selected = kf.id !== undefined && isSelected(track.id, kf.id);
-      diamondPath(ctx, x, centerY, KEYFRAME_RADIUS);
+      const hovered = kf.id !== undefined && hoveredAt(track.id, kf.id);
+      const radius = hovered
+        ? KEYFRAME_RADIUS + 2
+        : selected
+          ? KEYFRAME_RADIUS + 1
+          : KEYFRAME_RADIUS;
+      diamondPath(ctx, x, centerY, radius);
       ctx.fillStyle = selected ? colors.keyframeSelected : accent;
       ctx.fill();
-      ctx.lineWidth = 1;
+      ctx.lineWidth = selected ? 1.5 : 1;
       ctx.strokeStyle = colors.keyframeStroke;
       ctx.stroke();
     }
