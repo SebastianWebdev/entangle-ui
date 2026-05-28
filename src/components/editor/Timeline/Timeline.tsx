@@ -176,6 +176,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
 
   const bodyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const headerColumnRef = useRef<HTMLDivElement>(null);
 
   const [size, setSize] = useState<ViewportSize>({ width: 0, height: 0 });
   const [scrollTop, setScrollTop] = useState(0);
@@ -508,12 +509,18 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     setGroups,
   });
 
-  // Native non-passive wheel listener (React onWheel is passive).
+  // Native non-passive wheel listener (React onWheel is passive). Attach to
+  // both the track body and the left header column so vertical scrolling works
+  // when the cursor is over the track names too.
   useEffect(() => {
-    const el = bodyRef.current;
-    if (!el) return;
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
+    const body = bodyRef.current;
+    const header = headerColumnRef.current;
+    body?.addEventListener('wheel', onWheel, { passive: false });
+    header?.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      body?.removeEventListener('wheel', onWheel);
+      header?.removeEventListener('wheel', onWheel);
+    };
   }, [onWheel]);
 
   // ── Draw — useLayoutEffect + scheduleDraw, theme resolved per-frame ──
@@ -650,6 +657,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
         {slots.toolbar}
         <div className={timelineMainRowStyle}>
           <TimelineTrackHeaders
+            ref={headerColumnRef}
             rows={layout.rows}
             contentHeight={layout.contentHeight}
             tracks={tracks}

@@ -174,6 +174,41 @@ describe('timelineEdits', () => {
       );
       expect(next[0]).toBe(locked[0]);
     });
+
+    it('clamps y to the track value range so points stay in the lane', () => {
+      const tracks: TimelineTrack[] = [
+        {
+          id: 't1',
+          valueRange: [0, 1] as [number, number],
+          keyframes: [kf('a', 10, 0.5)],
+        },
+      ];
+      const up = moveSelectedKeyframesGraph(
+        tracks,
+        [{ trackId: 't1', keyframeId: 'a' }],
+        0,
+        -5000,
+        20,
+        96,
+        true,
+        0,
+        100
+      );
+      expect(up[0]?.keyframes.find(k => k.id === 'a')?.y).toBe(1);
+
+      const down = moveSelectedKeyframesGraph(
+        tracks,
+        [{ trackId: 't1', keyframeId: 'a' }],
+        0,
+        5000,
+        20,
+        96,
+        true,
+        0,
+        100
+      );
+      expect(down[0]?.keyframes.find(k => k.id === 'a')?.y).toBe(0);
+    });
   });
 
   describe('setKeyframeTangent', () => {

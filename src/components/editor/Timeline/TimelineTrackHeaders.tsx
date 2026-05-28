@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useMergedRef } from '@/hooks';
 import { reorderTracksByDrop } from './timelineEdits';
 import type {
   TimelineSelection,
@@ -39,6 +40,9 @@ interface TimelineTrackHeadersProps {
   onReorderTracks?: ((tracks: TimelineTrack[]) => void) | undefined;
   onToggleGroupCollapsed: (groupId: string) => void;
   onToggleTrackExpanded: (trackId: string) => void;
+  /** Forwarded ref to the column root, so the parent can attach extra DOM
+   *  handlers (e.g. a native non-passive wheel listener for row scrolling). */
+  ref?: React.Ref<HTMLDivElement>;
 }
 
 interface DragState {
@@ -78,8 +82,10 @@ export function TimelineTrackHeaders({
   onReorderTracks,
   onToggleGroupCollapsed,
   onToggleTrackExpanded,
+  ref,
 }: TimelineTrackHeadersProps): React.ReactElement {
   const columnRef = useRef<HTMLDivElement>(null);
+  const mergedRef = useMergedRef<HTMLDivElement>(columnRef, ref);
   const [drag, setDrag] = useState<DragState | null>(null);
 
   const selectedTrackIds = useMemo(() => {
@@ -172,7 +178,7 @@ export function TimelineTrackHeaders({
 
   return (
     <div
-      ref={columnRef}
+      ref={mergedRef}
       className={timelineHeaderColumnStyle}
       style={{ width }}
       onPointerMove={handlePointerMove}

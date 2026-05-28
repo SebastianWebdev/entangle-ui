@@ -201,8 +201,10 @@ export const timelineWrapStyle = style({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  background: vars.colors.background.secondary,
+  background: vars.colors.background.primary,
   borderTop: `1px solid ${vars.colors.border.default}`,
+  borderBottom: `1px solid ${vars.colors.border.default}`,
+  paddingBottom: 6,
 });
 
 // ─── Status bar bits ────────────────────────────────────────

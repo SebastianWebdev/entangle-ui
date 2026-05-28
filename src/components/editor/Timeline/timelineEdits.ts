@@ -97,7 +97,7 @@ export function moveSelectedKeyframesGraph(
       return {
         ...kf,
         x: clamp(snapFrame(kf.x + deltaFrames, snap), min, max),
-        y: kf.y + valueDelta,
+        y: clamp(kf.y + valueDelta, range[0], range[1]),
       };
     });
     keyframes.sort((a, b) => a.x - b.x);
