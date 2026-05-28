@@ -15,10 +15,18 @@ import {
   type TimelineMode,
   type TimelineTrack,
 } from '@/components/editor/Timeline';
-import { Button } from '@/components/primitives/Button';
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from '@/components/navigation/SegmentedControl';
 import { Text } from '@/components/primitives/Text';
 import {
   PlayIcon,
+  PauseIcon,
+  FirstIcon,
+  LastIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   CheckIcon,
   WarningIcon,
   AddIcon,
@@ -483,41 +491,47 @@ function TopChrome({
 
       <AppShell.Toolbar>
         <Toolbar size="sm" aria-label="Transport">
-          <Toolbar.Button onClick={onJumpToStart} tooltip="Jump to start">
-            ⏮
-          </Toolbar.Button>
-          <Toolbar.Button onClick={onStepBack} tooltip="Step −1">
-            ⏪
-          </Toolbar.Button>
-          <Toolbar.Toggle
-            pressed={playing}
-            onPressedChange={onTogglePlay}
-            tooltip={playing ? 'Pause' : 'Play'}
-          >
-            <PlayIcon size="sm" />
-          </Toolbar.Toggle>
-          <Toolbar.Button onClick={onStepForward} tooltip="Step +1">
-            ⏩
-          </Toolbar.Button>
-          <Toolbar.Button onClick={onJumpToEnd} tooltip="Jump to end">
-            ⏭
-          </Toolbar.Button>
+          <Toolbar.Group aria-label="Transport">
+            <Toolbar.Button
+              onClick={onJumpToStart}
+              icon={<FirstIcon size="sm" />}
+              tooltip="Jump to start (Home)"
+            />
+            <Toolbar.Button
+              onClick={onStepBack}
+              icon={<ChevronLeftIcon size="sm" />}
+              tooltip="Step −1 frame (←)"
+            />
+            <Toolbar.Toggle
+              pressed={playing}
+              onPressedChange={onTogglePlay}
+              icon={playing ? <PauseIcon size="sm" /> : <PlayIcon size="sm" />}
+              tooltip={playing ? 'Pause (Space)' : 'Play (Space)'}
+            />
+            <Toolbar.Button
+              onClick={onStepForward}
+              icon={<ChevronRightIcon size="sm" />}
+              tooltip="Step +1 frame (→)"
+            />
+            <Toolbar.Button
+              onClick={onJumpToEnd}
+              icon={<LastIcon size="sm" />}
+              tooltip="Jump to end (End)"
+            />
+          </Toolbar.Group>
           <Toolbar.Separator />
-          <Toolbar.Toggle
-            pressed={mode === 'dope-sheet'}
-            onPressedChange={() => onModeChange('dope-sheet')}
-            tooltip="Dope sheet"
+          <SegmentedControl
+            value={mode}
+            onChange={next => onModeChange(next as TimelineMode)}
+            size="sm"
+            aria-label="Editor mode"
           >
-            Dope
-          </Toolbar.Toggle>
-          <Toolbar.Toggle
-            pressed={mode === 'graph'}
-            onPressedChange={() => onModeChange('graph')}
-            tooltip="Graph editor"
-          >
-            Graph
-          </Toolbar.Toggle>
-          <Toolbar.Separator />
+            <SegmentedControlItem value="dope-sheet">
+              Dope sheet
+            </SegmentedControlItem>
+            <SegmentedControlItem value="graph">Graph</SegmentedControlItem>
+          </SegmentedControl>
+          <Toolbar.Spacer />
           <Text
             variant="caption"
             color="muted"
