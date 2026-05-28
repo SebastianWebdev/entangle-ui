@@ -1,29 +1,10 @@
 'use client';
 
-import React, {
-  useDeferredValue,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  type ReactNode,
-} from 'react';
-import { useControlledState, useLatest } from '@/hooks';
-import { EmptyState } from '@/components/feedback/EmptyState';
-import {
-  SegmentedControl,
-  SegmentedControlItem,
-} from '@/components/navigation/SegmentedControl';
+import React, { useMemo, useRef, type ReactNode } from 'react';
 import { Icon } from '@/components/primitives/Icon';
 import { CloudUploadIcon } from '@/components/Icons';
 import { cx } from '@/utils/cx';
-import type {
-  AssetBrowserHandle,
-  AssetBrowserProps,
-  AssetFilterState,
-  AssetSortState,
-  AssetThumbnailSize,
-  AssetView,
-} from './AssetBrowser.types';
+import type { AssetBrowserProps } from './AssetBrowser.types';
 import {
   AssetBrowserChromeContext,
   AssetBrowserContext,
@@ -36,35 +17,17 @@ import { AssetBrowserStore } from './AssetBrowserStore';
 import { AssetBrowserToolbar } from './AssetBrowserToolbar';
 import { AssetBrowserBreadcrumbs } from './AssetBrowserBreadcrumbs';
 import { AssetBrowserSidebar } from './AssetBrowserSidebar';
-import { AssetBrowserGrid } from './AssetBrowserGrid';
-import { AssetBrowserList } from './AssetBrowserList';
+import { AssetBrowserContent } from './AssetBrowserContent';
+import { AssetBrowserStatusBar } from './AssetBrowserStatusBar';
 import { useAssetDnd } from './useAssetDnd';
 import { useAssetNavigation } from './useAssetNavigation';
 import { useAssetSelectionController } from './useAssetSelectionController';
-import { collectTypes, shapeAssets } from './assetBrowserFilter';
-import { resolveThumbPx } from './assetBrowserGeometry';
+import { useAssetBrowserViewState } from './useAssetBrowserViewState';
+import { useAssetBrowserHandle } from './useAssetBrowserHandle';
 import { getSlotKind, markSlot } from './slots';
-import {
-  body,
-  emptyText,
-  emptyWrap,
-  importOverlay,
-  main,
-  root,
-  srOnly,
-  statusBar,
-  statusSpacer,
-} from './AssetBrowser.css';
+import { body, importOverlay, main, root, srOnly } from './AssetBrowser.css';
 
 const DEFAULT_MIME = 'application/x-entangle-asset';
-const DEFAULT_SORT: AssetSortState = { field: 'name', direction: 'asc' };
-
-function cssEscape(value: string): string {
-  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
-    return CSS.escape(value);
-  }
-  return value.replace(/["\\]/g, '\\$&');
-}
 
 function ImportOverlay(): React.ReactElement | null {
   const drag = useAssetDrag();
@@ -131,7 +94,8 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     ref,
     'aria-label': ariaLabel = 'Asset browser',
     // Controlled-state props — destructured so they don't leak onto the DOM
-    // root via `...rest`.
+    // root via `...rest`. Consumed by the view-state / selection / navigation
+    // hooks below.
     view: viewProp,
     defaultView,
     onViewChange,
@@ -158,70 +122,45 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
   const rootRef = useRef<HTMLDivElement>(null);
   const store = useMemo(() => new AssetBrowserStore(), []);
 
-  const [view, setView] = useControlledState<AssetView>({
-    value: viewProp,
-    defaultValue: defaultView,
-    onChange: onViewChange,
-    fallback: 'grid',
+  const {
+    view,
+    setView,
+    thumbnailSize,
+    setThumbnailSize,
+    thumbnailSizePx,
+    search,
+    setSearch,
+    filters,
+    setFilters,
+    sort,
+    setSort,
+    filterableTypes,
+    displayed,
+    marqueeEnabled,
+  } = useAssetBrowserViewState({
+    items,
+    selectionMode,
+    marquee,
+    view: viewProp,
+    defaultView,
+    onViewChange,
+    thumbnailSize: thumbnailSizeProp,
+    defaultThumbnailSize,
+    onThumbnailSizeChange,
+    search: searchProp,
+    defaultSearch,
+    onSearchChange,
+    manualSearch,
+    filters: filtersProp,
+    defaultFilters,
+    onFiltersChange,
+    manualFilter,
+    sort: sortProp,
+    defaultSort,
+    onSortChange,
+    manualSort,
+    filterableTypesProp,
   });
-  const [thumbnailSize, setThumbnailSize] =
-    useControlledState<AssetThumbnailSize>({
-      value: thumbnailSizeProp,
-      defaultValue: defaultThumbnailSize,
-      onChange: onThumbnailSizeChange,
-      fallback: 'md',
-    });
-  const [search, setSearch] = useControlledState<string>({
-    value: searchProp,
-    defaultValue: defaultSearch,
-    onChange: onSearchChange,
-    fallback: '',
-  });
-  const [filters, setFilters] = useControlledState<AssetFilterState>({
-    value: filtersProp,
-    defaultValue: defaultFilters,
-    onChange: onFiltersChange,
-    fallback: {},
-  });
-  const [sort, setSort] = useControlledState<AssetSortState>({
-    value: sortProp,
-    defaultValue: defaultSort,
-    onChange: onSortChange,
-    fallback: DEFAULT_SORT,
-  });
-
-  const deferredSearch = useDeferredValue(search);
-  const thumbnailSizePx = resolveThumbPx(thumbnailSize);
-  const marqueeEnabled = selectionMode === 'multiple' && marquee !== false;
-
-  const filterableTypes = useMemo(
-    () => filterableTypesProp ?? collectTypes(items),
-    [filterableTypesProp, items]
-  );
-
-  const displayed = useMemo(
-    () =>
-      shapeAssets(items, {
-        search: deferredSearch,
-        filters,
-        sort,
-        manualSearch,
-        manualFilter,
-        manualSort,
-      }),
-    [
-      items,
-      deferredSearch,
-      filters,
-      sort,
-      manualSearch,
-      manualFilter,
-      manualSort,
-    ]
-  );
-
-  const itemsRef = useLatest(items);
-  const displayedRef = useLatest(displayed);
 
   const { selectionSet, handlers } = useAssetSelectionController({
     store,
@@ -259,6 +198,16 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     onItemDragEnd,
     onItemsMove,
     onFilesImport,
+  });
+
+  useAssetBrowserHandle({
+    ref,
+    rootRef,
+    store,
+    items,
+    displayed,
+    selectAll: handlers.selectAll,
+    clearSelection: handlers.clearSelection,
   });
 
   const itemValue = useMemo<AssetBrowserContextValue>(
@@ -356,28 +305,6 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     ]
   );
 
-  useImperativeHandle(
-    ref,
-    (): AssetBrowserHandle => ({
-      focus: () => rootRef.current?.focus(),
-      getElement: () => rootRef.current,
-      selectAll: handlers.selectAll,
-      clearSelection: handlers.clearSelection,
-      scrollToItem: (id: string) => {
-        store.setFocusedId(id);
-        const index = displayedRef.current.findIndex(it => it.id === id);
-        if (index >= 0 && store.scrollToIndex(index)) return;
-        const el = rootRef.current?.querySelector(
-          `[data-asset-id="${cssEscape(id)}"]`
-        );
-        el?.scrollIntoView({ block: 'nearest' });
-      },
-      getSelectedItems: () =>
-        itemsRef.current.filter(it => store.getSelection().has(it.id)),
-    }),
-    [handlers.selectAll, handlers.clearSelection, store, itemsRef, displayedRef]
-  );
-
   // Slot extraction.
   let toolbarSlot: ReactNode = null;
   let sidebarSlot: ReactNode = null;
@@ -392,25 +319,6 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
   const announcement = `${displayed.length} item${displayed.length === 1 ? '' : 's'}${
     selectionSet.size > 0 ? `, ${selectionSet.size} selected` : ''
   }`;
-
-  let content: ReactNode;
-  if (loading) {
-    content = (
-      <div className={emptyWrap}>
-        <EmptyState loading title="Loading assets…" />
-      </div>
-    );
-  } else if (displayed.length === 0) {
-    content = (
-      <div className={emptyWrap}>
-        {emptyState ?? <span className={emptyText}>This folder is empty.</span>}
-      </div>
-    );
-  } else if (view === 'grid') {
-    content = <AssetBrowserGrid />;
-  } else {
-    content = <AssetBrowserList />;
-  }
 
   return (
     <AssetBrowserStoreContext.Provider value={store}>
@@ -436,31 +344,16 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
                 onDragLeave={dnd.onSurfaceDragLeave}
                 onDrop={dnd.onSurfaceDrop}
               >
-                {content}
+                <AssetBrowserContent />
                 <ImportOverlay />
               </div>
             </div>
             {showStatusBar && (
-              <div className={statusBar}>
-                <span>{announcement}</span>
-                <span className={statusSpacer} />
-                {view === 'grid' && (
-                  <SegmentedControl
-                    value={
-                      typeof thumbnailSize === 'string' ? thumbnailSize : 'md'
-                    }
-                    onChange={value =>
-                      setThumbnailSize(value as AssetThumbnailSize)
-                    }
-                    size="sm"
-                    aria-label="Thumbnail size"
-                  >
-                    <SegmentedControlItem value="sm">S</SegmentedControlItem>
-                    <SegmentedControlItem value="md">M</SegmentedControlItem>
-                    <SegmentedControlItem value="lg">L</SegmentedControlItem>
-                  </SegmentedControl>
-                )}
-              </div>
+              <AssetBrowserStatusBar
+                announcement={announcement}
+                thumbnailSize={thumbnailSize}
+                setThumbnailSize={setThumbnailSize}
+              />
             )}
             <div className={srOnly} aria-live="polite" role="status">
               {announcement}

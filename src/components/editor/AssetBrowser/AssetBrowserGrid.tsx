@@ -14,14 +14,9 @@ import {
   useAssetGridVirtualizer,
   type AssetGridWindow,
 } from './useAssetGridVirtualizer';
+import { useAssetMarqueeGesture } from './useAssetMarqueeGesture';
 import { nextGridIndex } from './assetBrowserKeyboard';
-import {
-  itemRect,
-  rectFromPoints,
-  rectsIntersect,
-  GRID_GAP,
-  cellWidth,
-} from './assetBrowserGeometry';
+import { GRID_GAP, cellWidth } from './assetBrowserGeometry';
 import {
   columnsVar,
   gridGapVar,
@@ -38,13 +33,6 @@ import {
   offsetYVar,
   totalHeightVar,
 } from './AssetBrowser.css';
-
-interface MarqueeDrag {
-  startX: number;
-  startY: number;
-  additive: boolean;
-  moved: boolean;
-}
 
 function MarqueeLayer(): React.ReactElement | null {
   const marquee = useAssetMarquee();
@@ -66,8 +54,6 @@ export function AssetBrowserGrid(): React.ReactElement {
   const ctx = useAssetBrowserContext();
   const store = useAssetBrowserStore();
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<MarqueeDrag | null>(null);
-  const rafRef = useRef(0);
 
   const items = ctx.displayedItems;
   const count = items.length;
@@ -173,70 +159,14 @@ export function AssetBrowserGrid(): React.ReactElement {
     }
   };
 
-  const contentPoint = (e: React.PointerEvent): { x: number; y: number } => {
-    const el = scrollerRef.current;
-    if (!el) return { x: 0, y: 0 };
-    const rect = el.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left + el.scrollLeft,
-      y: e.clientY - rect.top + el.scrollTop,
-    };
-  };
-
-  const marqueeEnabled = ctx.marqueeEnabled;
-
-  const handlePointerDown = (e: React.PointerEvent): void => {
-    if (e.button !== 0 || !marqueeEnabled) return;
-    if (e.target !== e.currentTarget) return; // started on an item, not empty space
-    const p = contentPoint(e);
-    dragRef.current = {
-      startX: p.x,
-      startY: p.y,
-      additive: e.ctrlKey || e.metaKey,
-      moved: false,
-    };
-    scrollerRef.current?.setPointerCapture(e.pointerId);
-    store.setMarquee({
-      active: true,
-      rect: { x: p.x, y: p.y, width: 0, height: 0 },
-      additive: dragRef.current.additive,
-    });
-  };
-
-  const handlePointerMove = (e: React.PointerEvent): void => {
-    const drag = dragRef.current;
-    if (!drag) return;
-    drag.moved = true;
-    cancelAnimationFrame(rafRef.current);
-    const p = contentPoint(e);
-    rafRef.current = requestAnimationFrame(() => {
-      store.setMarquee({
-        active: true,
-        rect: rectFromPoints(drag.startX, drag.startY, p.x, p.y),
-        additive: drag.additive,
-      });
-    });
-  };
-
-  const handlePointerUp = (e: React.PointerEvent): void => {
-    const drag = dragRef.current;
-    if (!drag) return;
-    cancelAnimationFrame(rafRef.current);
-    dragRef.current = null;
-    scrollerRef.current?.releasePointerCapture(e.pointerId);
-    const p = contentPoint(e);
-    const rect = rectFromPoints(drag.startX, drag.startY, p.x, p.y);
-    const ids: string[] = [];
-    for (let i = 0; i < count; i += 1) {
-      const item = items[i];
-      if (!item || item.selectable === false) continue;
-      if (rectsIntersect(rect, itemRect(i, win.columns, thumbPx))) {
-        ids.push(item.id);
-      }
-    }
-    ctx.commitMarquee(ids, drag.additive);
-    store.clearMarquee();
-  };
+  const marquee = useAssetMarqueeGesture({
+    scrollerRef,
+    enabled: ctx.marqueeEnabled,
+    items,
+    columns: win.columns,
+    thumbPx,
+    commitMarquee: ctx.commitMarquee,
+  });
 
   const sharedVars = assignInlineVars({
     [columnsVar]: String(win.columns),
@@ -260,9 +190,9 @@ export function AssetBrowserGrid(): React.ReactElement {
       aria-multiselectable={ctx.selectionMode === 'multiple'}
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
+      onPointerDown={marquee.onPointerDown}
+      onPointerMove={marquee.onPointerMove}
+      onPointerUp={marquee.onPointerUp}
     >
       {windowed ? (
         <div

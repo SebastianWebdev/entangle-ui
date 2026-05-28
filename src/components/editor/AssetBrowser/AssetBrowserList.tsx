@@ -17,62 +17,56 @@ import type { AssetItem } from './AssetBrowser.types';
 import { formatBytes, formatDate } from './assetBrowserFormat';
 import { listScroller, nameCell } from './AssetBrowser.css';
 
-function defaultColumns(): DataTableColumn<AssetItem>[] {
-  return [
-    {
-      id: 'name',
-      header: 'Name',
-      accessor: 'name',
-      sortable: true,
-      sticky: true,
-      minWidth: 160,
-      cell: ({ row }) => (
-        <span className={nameCell}>
-          <Icon size="sm" color="muted" decorative>
-            {row.kind === 'folder' ? <FolderIcon /> : <FileTextIcon />}
-          </Icon>
-          <span>{row.name}</span>
-        </span>
-      ),
-    },
-    {
-      id: 'type',
-      header: 'Type',
-      sortable: true,
-      width: 120,
-      accessor: row =>
-        row.kind === 'folder' ? 'Folder' : (row.assetType ?? ''),
-    },
-    {
-      id: 'size',
-      header: 'Size',
-      sortable: true,
-      align: 'right',
-      width: 100,
-      accessor: 'size',
-      cell: ({ row }) => (row.kind === 'folder' ? '—' : formatBytes(row.size)),
-    },
-    {
-      id: 'modified',
-      header: 'Modified',
-      sortable: true,
-      align: 'right',
-      width: 140,
-      accessor: 'modifiedAt',
-      cell: ({ row }) => formatDate(row.modifiedAt),
-    },
-  ];
-}
+const DEFAULT_LIST_COLUMNS: readonly DataTableColumn<AssetItem>[] = [
+  {
+    id: 'name',
+    header: 'Name',
+    accessor: 'name',
+    sortable: true,
+    sticky: true,
+    minWidth: 160,
+    cell: ({ row }) => (
+      <span className={nameCell}>
+        <Icon size="sm" color="muted" decorative>
+          {row.kind === 'folder' ? <FolderIcon /> : <FileTextIcon />}
+        </Icon>
+        <span>{row.name}</span>
+      </span>
+    ),
+  },
+  {
+    id: 'type',
+    header: 'Type',
+    sortable: true,
+    width: 120,
+    accessor: row => (row.kind === 'folder' ? 'Folder' : (row.assetType ?? '')),
+  },
+  {
+    id: 'size',
+    header: 'Size',
+    sortable: true,
+    align: 'right',
+    width: 100,
+    accessor: 'size',
+    cell: ({ row }) => (row.kind === 'folder' ? '—' : formatBytes(row.size)),
+  },
+  {
+    id: 'modified',
+    header: 'Modified',
+    sortable: true,
+    align: 'right',
+    width: 140,
+    accessor: 'modifiedAt',
+    cell: ({ row }) => formatDate(row.modifiedAt),
+  },
+];
 
 export function AssetBrowserList(): React.ReactElement {
   const ctx = useAssetBrowserContext();
   const chrome = useAssetBrowserChrome();
   const selectionSet = useAssetSelection();
 
-  const columns = useMemo<readonly DataTableColumn<AssetItem>[]>(
-    () => ctx.columns ?? defaultColumns(),
-    [ctx.columns]
-  );
+  const columns = ctx.columns ?? DEFAULT_LIST_COLUMNS;
 
   // We own sorting (rows arrive already shaped); DataTable only reflects the
   // indicator and reports the next desired sort.
