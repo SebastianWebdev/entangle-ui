@@ -58,6 +58,12 @@ export const worldLayerStyle = style({
   width: 0,
   height: 0,
   transformOrigin: '0 0',
+  // This wrapper's `transform` mutates on every pan/zoom frame — hint the
+  // compositor to keep it on its own GPU layer so a sustained pan doesn't
+  // repeatedly promote/demote it (the cause of the zoom-in pan stutter).
+  // Applied to the single transforming element, NOT to each node: 600+
+  // `will-change` layers would blow GPU memory and backfire.
+  willChange: 'transform',
   // Children opt in to pointer events; the wrapper itself never blocks input.
   pointerEvents: 'none',
 });

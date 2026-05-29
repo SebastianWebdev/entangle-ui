@@ -78,6 +78,38 @@ function toScreenCp(
   };
 }
 
+/**
+ * Margin (screen px) added around the viewport before culling an edge.
+ * Covers the stroke half-width + round line-cap overshoot for the default
+ * styles, plus headroom for moderately wider consumer `edgeStyle` widths.
+ * A curve whose control-point bbox is more than this far outside the
+ * viewport cannot paint a visible pixel inside it.
+ */
+const EDGE_CULL_MARGIN_PX = 32;
+
+/**
+ * True when a cubic Bézier (given by its screen-space control points)
+ * cannot intersect the viewport. The curve lies within the convex hull of
+ * its control points, so an axis-aligned bbox of the four points is a
+ * conservative bound — if that bbox is entirely past one viewport edge
+ * (plus {@link EDGE_CULL_MARGIN_PX}), the curve is off-screen.
+ */
+export function bezierOutsideViewport(
+  cp: BezierControlPoints,
+  width: number,
+  height: number
+): boolean {
+  const minX = Math.min(cp.p0.x, cp.c1.x, cp.c2.x, cp.p3.x);
+  if (minX > width + EDGE_CULL_MARGIN_PX) return true;
+  const maxX = Math.max(cp.p0.x, cp.c1.x, cp.c2.x, cp.p3.x);
+  if (maxX < -EDGE_CULL_MARGIN_PX) return true;
+  const minY = Math.min(cp.p0.y, cp.c1.y, cp.c2.y, cp.p3.y);
+  if (minY > height + EDGE_CULL_MARGIN_PX) return true;
+  const maxY = Math.max(cp.p0.y, cp.c1.y, cp.c2.y, cp.p3.y);
+  if (maxY < -EDGE_CULL_MARGIN_PX) return true;
+  return false;
+}
+
 /** Draw all edges in the graph. */
 export function drawEdges(
   ctx: CanvasRenderingContext2D,
@@ -144,6 +176,16 @@ export function drawEdges(
       endpoints.tgtSide
     );
     const cpScreen = toScreenCp(cpWorld, p => info.worldToScreen(p));
+
+    // Frustum cull: a cubic Bézier is fully contained in the convex hull of
+    // its four control points, so if the screen-space bbox of those points
+    // lies entirely outside the viewport (plus a margin) the curve can't be
+    // visible — skip the style callback + stroke entirely. This bounds the
+    // per-frame edge cost by what's on screen rather than total edge count,
+    // which is the dominant cost when zoomed in on a large graph.
+    if (bezierOutsideViewport(cpScreen, info.size.width, info.size.height)) {
+      continue;
+    }
 
     const isSelected = selectedEdgeIds.has(edge.id);
     const isHovered = hoveredEdgeId === edge.id;

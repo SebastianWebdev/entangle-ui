@@ -41,6 +41,17 @@ export const nodeWrapperRecipe = recipe({
         // Library-controlled dimensions via inline CSS vars.
         width: nodeWidthVar,
         height: nodeHeightVar,
+        // Off-screen culling: skip layout + paint of nodes scrolled out of
+        // the viewport. Bounds per-frame node cost by what's visible rather
+        // than total node count — the win when zoomed in on a large graph.
+        // `contain-intrinsic-size` lets the skipped node reserve its known
+        // box so geometry stays stable. Only applied to the explicit-size
+        // variant: auto-size nodes feed their measured DOM size back to the
+        // store via ResizeObserver, which doesn't fire while rendering is
+        // skipped — culling those would corrupt fitToContent / marquee /
+        // minimap bounds for off-screen nodes.
+        contentVisibility: 'auto',
+        containIntrinsicSize: `${nodeWidthVar} ${nodeHeightVar}`,
       },
     },
     draggable: {
@@ -48,7 +59,15 @@ export const nodeWrapperRecipe = recipe({
       false: {},
     },
     dragging: {
-      true: { cursor: 'grabbing', userSelect: 'none' },
+      true: {
+        cursor: 'grabbing',
+        userSelect: 'none',
+        // Promote the actively-dragged node to its own compositor layer for
+        // the duration of the gesture — its `transform` mutates every frame.
+        // Scoped to the `dragging` variant so the hint is removed on release
+        // rather than left on every node permanently.
+        willChange: 'transform',
+      },
       false: {},
     },
     selectable: {
