@@ -52,7 +52,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   indeterminate = false,
   label,
   labelPosition = 'right',
-  size: sizeProp = 'md',
+  size: sizeProp,
   variant = 'default',
   disabled: disabledProp = false,
   required = false,
@@ -79,10 +79,9 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 
   // Resolve group context
   const disabled = disabledProp || (groupContext?.disabled ?? false);
-  // NOTE: `sizeProp` already defaults to 'md' via destructuring, so it is never
-  // nullish and the group context size cannot currently be inherited. Behavior
-  // is preserved here; see reported logic bug about group size inheritance.
-  const size = sizeProp;
+  // Size resolves from the checkbox prop, then the group, then the default —
+  // mirroring how `disabled` above falls back to the group context.
+  const size = sizeProp ?? groupContext?.size ?? 'md';
 
   // Determine checked state for group integration
   const isGrouped = groupContext !== null && value !== undefined;
