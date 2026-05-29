@@ -23,7 +23,11 @@ export function useCanvasRenderer(options: UseCanvasRendererOptions): void {
   const { draw, deps, paused = false } = options;
   const rafRef = useRef<number>(0);
 
-  const stableDraw = useCallback(draw, deps); // deps intentionally dynamic
+  // This hook's contract is to re-run an arbitrary `draw` when caller-supplied
+  // `deps` change, so the dependency list is intentionally dynamic rather than
+  // a literal — the two rules below cannot model that generic pass-through.
+  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/use-memo
+  const stableDraw = useCallback(draw, deps);
 
   useEffect(() => {
     if (paused) return;

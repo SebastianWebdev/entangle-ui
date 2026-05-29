@@ -73,7 +73,9 @@ export const ToastItem: React.FC<ToastItemProps> = ({
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const remainingRef = useRef(duration);
-  const startRef = useRef(Date.now());
+  // Seeded on mount by startTimer(); 0 is a safe placeholder and avoids calling
+  // the impure Date.now() during render.
+  const startRef = useRef(0);
 
   const isAlert = severity === 'warning' || severity === 'error';
   const role = isAlert ? 'alert' : 'status';

@@ -115,9 +115,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     maxRecent,
   });
 
-  // Reset state when the palette opens.
+  // Reset state on each open transition. This reacts to the `open` prop
+  // toggling rather than synchronizing continuous state, so the one-shot
+  // setState in the effect is intentional.
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setQuery('');
       setActiveIndex(0);
     }
@@ -202,14 +205,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     return { rows, selectableItems: flat };
   }, [items, debouncedQuery, recentIds, recentLabel]);
 
-  // Clamp activeIndex when the result list shrinks.
-  useEffect(() => {
-    setActiveIndex(prev => {
-      if (selectableItems.length === 0) return 0;
-      if (prev >= selectableItems.length) return selectableItems.length - 1;
-      return prev;
-    });
-  }, [selectableItems.length]);
+  // Clamp the active index during render when the result list shrinks. This is
+  // React's documented adjust-state-during-render pattern — it avoids an extra
+  // commit, and the guards make it self-terminating.
+  if (selectableItems.length === 0) {
+    if (activeIndex !== 0) setActiveIndex(0);
+  } else if (activeIndex >= selectableItems.length) {
+    setActiveIndex(selectableItems.length - 1);
+  }
 
   const moveActive = useCallback(
     (delta: number) => {

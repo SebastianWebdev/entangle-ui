@@ -372,9 +372,10 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
   ...rest
 }) => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const menuIdsRef = useRef<string[]>([]);
+  // Registered child menu ids, kept in state so the context value stays
+  // reactive (previously a ref + forceUpdate, which read the ref during render).
+  const [menuIds, setMenuIds] = useState<string[]>([]);
   const safeMenuOffset = Math.max(0, menuOffset);
-  const [, forceUpdate] = useState(0);
   const barRef = useRef<HTMLDivElement>(null);
   const setBarRef = useMemo(
     () => (node: HTMLDivElement | null) => {
@@ -389,15 +390,11 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
   );
 
   const registerMenu = useCallback((id: string) => {
-    if (!menuIdsRef.current.includes(id)) {
-      menuIdsRef.current = [...menuIdsRef.current, id];
-      forceUpdate(c => c + 1);
-    }
+    setMenuIds(prev => (prev.includes(id) ? prev : [...prev, id]));
   }, []);
 
   const unregisterMenu = useCallback((id: string) => {
-    menuIdsRef.current = menuIdsRef.current.filter(m => m !== id);
-    forceUpdate(c => c + 1);
+    setMenuIds(prev => prev.filter(m => m !== id));
   }, []);
 
   const handleBarKeyDown = useCallback(
@@ -442,7 +439,7 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
       setOpenMenuId,
       registerMenu,
       unregisterMenu,
-      menuIds: menuIdsRef.current,
+      menuIds,
     }),
     [
       size,
@@ -451,6 +448,7 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
       setOpenMenuId,
       registerMenu,
       unregisterMenu,
+      menuIds,
     ]
   );
 

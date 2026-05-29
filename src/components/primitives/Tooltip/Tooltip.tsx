@@ -284,9 +284,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   }
 
-  // Handle cursor tracking
+  // Handle cursor tracking. Copy into a local object instead of mutating the
+  // caller-owned `rootProps` prop.
+  const finalRootProps: Partial<BaseTooltipRootProps> = { ...rootProps };
   if (trackCursor) {
-    rootProps.trackCursorAxis = trackCursor;
+    finalRootProps.trackCursorAxis = trackCursor;
   }
 
   // Build animation transition style. Honors `prefers-reduced-motion: reduce`
@@ -307,7 +309,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
     : { transition: 'none' };
 
   return (
-    <BaseTooltip.Provider delay={delay} closeDelay={closeDelay} {...rootProps}>
+    <BaseTooltip.Provider
+      delay={delay}
+      closeDelay={closeDelay}
+      {...finalRootProps}
+    >
       <BaseTooltip.Root>
         <BaseTooltip.Trigger
           render={props => (

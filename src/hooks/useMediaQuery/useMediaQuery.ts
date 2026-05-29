@@ -47,6 +47,8 @@ export function useMediaQuery(
     }
 
     const mql = window.matchMedia(query);
+    // External-system sync: seed state from matchMedia on mount/query change.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMatches(mql.matches);
 
     const handler = (event: MediaQueryListEvent): void => {

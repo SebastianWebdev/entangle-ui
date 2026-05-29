@@ -349,6 +349,10 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
 
   const rowHeightPx = estimatedRowHeight ?? DENSITY_ROW_HEIGHT[density];
 
+  // TanStack Virtual's useVirtualizer returns functions that cannot be safely
+  // memoized; the Compiler flags it as an incompatible library. Behavior is
+  // correct here because the virtualizer is read imperatively per render.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
     count: shouldVirtualize ? sortedRows.length : 0,
     getScrollElement: () => scrollContainerRef.current,

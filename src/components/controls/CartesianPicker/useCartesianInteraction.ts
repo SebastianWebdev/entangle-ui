@@ -69,8 +69,10 @@ export function useCartesianInteraction(
   } = options;
 
   const [isHovered, setIsHovered] = useState(false);
+  // Ref drives synchronous reads inside the pointer handlers; the state mirror
+  // is the value exposed for rendering (kept in sync on drag start/end).
   const isDraggingRef = useRef(false);
-  const [, setForceUpdate] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const getCanvasSize = useCallback(() => {
     const canvas = canvasRef.current;
@@ -131,7 +133,7 @@ export function useCartesianInteraction(
       const newPoint = applyConstraints(domain.x, domain.y, e.ctrlKey);
 
       isDraggingRef.current = true;
-      setForceUpdate(n => n + 1);
+      setIsDragging(true);
       canvas.setPointerCapture(e.pointerId);
 
       onChange(newPoint);
@@ -198,7 +200,7 @@ export function useCartesianInteraction(
 
       if (isDraggingRef.current) {
         isDraggingRef.current = false;
-        setForceUpdate(n => n + 1);
+        setIsDragging(false);
         canvas.releasePointerCapture(e.pointerId);
 
         // Compute final point for onChangeComplete
@@ -304,7 +306,7 @@ export function useCartesianInteraction(
   );
 
   return {
-    isDragging: isDraggingRef.current,
+    isDragging,
     isHovered,
     handlers: {
       onPointerDown,

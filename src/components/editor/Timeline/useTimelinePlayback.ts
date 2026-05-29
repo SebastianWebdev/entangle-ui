@@ -107,6 +107,9 @@ export function useTimelinePlayback(opts: UseTimelinePlaybackOptions): void {
     return () => {
       cancelAnimationFrame(raf);
     };
-    // Only `playing` drives the rAF lifecycle; the rest reads through `tick`.
+    // Only `playing` drives the rAF lifecycle. `opts.frame` is read solely to
+    // seed the accumulator at playback start; including it would restart the
+    // loop on every emitted frame, so it is intentionally excluded.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opts.playing]);
 }

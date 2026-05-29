@@ -292,6 +292,10 @@ export function useNumberInput({
       const formatted = formatValue
         ? formatValue(value)
         : defaultFormatValue(value, effectivePrecision);
+      // Sync the display string to the controlled `value` prop while the user
+      // is not actively editing/dragging — an external-value sync that the
+      // edit guard makes safe from cascading renders.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDisplayValue(formatted);
       setError(undefined);
     }

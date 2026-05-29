@@ -51,9 +51,11 @@ export function useRecentItems({
     storageKey ? readStorage(storageKey).slice(0, maxRecent) : []
   );
 
-  // Re-read storage if the key changes after mount.
+  // Re-read storage if the key changes after mount. External-system sync
+  // (localStorage), so setState in the effect is the correct pattern.
   useEffect(() => {
     if (storageKey) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRecentIds(readStorage(storageKey).slice(0, maxRecent));
     } else {
       setRecentIds([]);

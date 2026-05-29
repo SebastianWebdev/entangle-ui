@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type React from 'react';
 
@@ -141,6 +141,19 @@ export function useListboxNav<T>(
     return out;
   }, []);
 
+  // Reactive navigable-index list for the returned value. Derived from the
+  // live props rather than the latest-refs above, which exist only for reads
+  // inside the event-time keyboard handlers.
+  const navigableIndices = useMemo(() => {
+    if (!isItemDisabled) return items.map((_, i) => i);
+    const out: number[] = [];
+    for (let i = 0; i < items.length; i += 1) {
+      const item = items[i] as T;
+      if (!isItemDisabled(item, i)) out.push(i);
+    }
+    return out;
+  }, [items, isItemDisabled]);
+
   const move = useCallback(
     (direction: 'next' | 'prev' | 'first' | 'last') => {
       const navigable = getNavigableIndices();
@@ -254,6 +267,6 @@ export function useListboxNav<T>(
     last,
     selectActive,
     handleKeyDown,
-    navigableIndices: getNavigableIndices(),
+    navigableIndices,
   };
 }

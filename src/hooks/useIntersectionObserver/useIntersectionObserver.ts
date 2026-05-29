@@ -73,6 +73,8 @@ export function useIntersectionObserver<T extends Element = Element>(
       observerRef.current.disconnect();
       observerRef.current = null;
     }
+    // Sync state to the external observer being torn down when disabled.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEntry(null);
   }, [enabled]);
 

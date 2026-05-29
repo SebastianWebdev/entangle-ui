@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 
+import { useLatest } from '@/hooks/useLatest';
 import { useResizeObserver } from '@/hooks/useResizeObserver';
 import { cx } from '@/utils/cx';
 
@@ -261,25 +262,21 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
   const isControlled = controlledSizes !== undefined;
   const sizes = isControlled ? controlledSizes : internalSizes;
 
-  // Stable reference to panelConfigs for use in effects/callbacks
+  // Stable reference to panelConfigs for use in effects/callbacks. The
+  // serialized key is the deliberate deep-equality dependency, so panelConfigs
+  // itself is intentionally absent from the array.
   const panelConfigsKey = JSON.stringify(panelConfigs);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const stablePanelConfigs = useMemo(() => panelConfigs, [panelConfigsKey]);
 
-  // Keep a ref so the ResizeObserver callback always reads latest values
-  const latestRef = useRef({
+  // Keep a ref so the ResizeObserver callback always reads latest values.
+  const latestRef = useLatest({
     panelCount,
     dividerSize,
     direction,
     isControlled,
     panelConfigs: stablePanelConfigs,
   });
-  latestRef.current = {
-    panelCount,
-    dividerSize,
-    direction,
-    isControlled,
-    panelConfigs: stablePanelConfigs,
-  };
 
   // -----------------------------------------------------------------------
   // Initial size calculation + ResizeObserver
@@ -334,7 +331,8 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
         );
       });
     }
-  }, []);
+    // latestRef is a stable useLatest ref; listed to satisfy the rule.
+  }, [latestRef]);
 
   const getAvailableSpace = useCallback((): number | null => {
     const container = containerRef.current;

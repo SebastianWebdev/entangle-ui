@@ -60,6 +60,9 @@ export const PopoverContent: React.FC<PopoverContentProps> = ({
         setVisible(true);
       });
     } else {
+      // Reset enter-animation state on close; gated by the `isOpen` prop, so
+      // this is a one-shot transition rather than continuous state sync.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(false);
     }
   }, [isOpen]);

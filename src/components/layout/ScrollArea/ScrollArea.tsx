@@ -68,6 +68,11 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
   const [hThumbOffset, setHThumbOffset] = useState(0);
   const [hasVOverflow, setHasVOverflow] = useState(false);
   const [hasHOverflow, setHasHOverflow] = useState(false);
+  // Scroll position as a 0–100 percentage, exposed via aria-valuenow. Kept in
+  // state (updated in recalculate) so it stays reactive instead of being read
+  // from the viewport ref during render.
+  const [vScrollPercent, setVScrollPercent] = useState(0);
+  const [hScrollPercent, setHScrollPercent] = useState(0);
 
   // Visibility state
   const [scrollbarVisibleState, setScrollbarVisibleState] = useState(
@@ -75,7 +80,12 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
   );
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  // Ref drives synchronous reads in the move handler; the state mirror is used
+  // for the thumb's dragging class during render.
   const dragAxisRef = useRef<'vertical' | 'horizontal' | null>(null);
+  const [dragAxis, setDragAxis] = useState<'vertical' | 'horizontal' | null>(
+    null
+  );
   const dragStartRef = useRef({ pointerPos: 0, scrollPos: 0 });
 
   // Fade mask state
@@ -96,12 +106,13 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
       const ratio = vp.clientHeight / vp.scrollHeight;
       const overflow = ratio < 1;
       setHasVOverflow(overflow);
+      const maxScroll = vp.scrollHeight - vp.clientHeight;
+      const scrollRatio = maxScroll > 0 ? vp.scrollTop / maxScroll : 0;
+      setVScrollPercent(Math.round(scrollRatio * 100));
       if (overflow) {
         const trackHeight = vp.clientHeight - scrollbarPadding * 2;
         const thumbH = Math.max(minThumbLength, ratio * trackHeight);
         setVThumbSize(thumbH);
-        const maxScroll = vp.scrollHeight - vp.clientHeight;
-        const scrollRatio = maxScroll > 0 ? vp.scrollTop / maxScroll : 0;
         setVThumbOffset(scrollRatio * (trackHeight - thumbH));
       }
     }
@@ -110,12 +121,13 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
       const ratio = vp.clientWidth / vp.scrollWidth;
       const overflow = ratio < 1;
       setHasHOverflow(overflow);
+      const maxScroll = vp.scrollWidth - vp.clientWidth;
+      const scrollRatio = maxScroll > 0 ? vp.scrollLeft / maxScroll : 0;
+      setHScrollPercent(Math.round(scrollRatio * 100));
       if (overflow) {
         const trackWidth = vp.clientWidth - scrollbarPadding * 2;
         const thumbW = Math.max(minThumbLength, ratio * trackWidth);
         setHThumbSize(thumbW);
-        const maxScroll = vp.scrollWidth - vp.clientWidth;
-        const scrollRatio = maxScroll > 0 ? vp.scrollLeft / maxScroll : 0;
         setHThumbOffset(scrollRatio * (trackWidth - thumbW));
       }
     }
@@ -197,6 +209,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
 
       setIsDragging(true);
       dragAxisRef.current = axis;
+      setDragAxis(axis);
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
 
       if (axis === 'vertical') {
@@ -242,6 +255,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
   const handleThumbPointerUp = useCallback(() => {
     setIsDragging(false);
     dragAxisRef.current = null;
+    setDragAxis(null);
   }, []);
 
   // Track click handler
@@ -394,17 +408,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
           role="scrollbar"
           aria-controls={viewportId}
           aria-orientation="vertical"
-          aria-valuenow={Math.round(
-            viewportRef.current
-              ? (viewportRef.current.scrollTop /
-                  Math.max(
-                    1,
-                    viewportRef.current.scrollHeight -
-                      viewportRef.current.clientHeight
-                  )) *
-                  100
-              : 0
-          )}
+          aria-valuenow={vScrollPercent}
           aria-valuemin={0}
           aria-valuemax={100}
           data-testid={testId ? `${testId}-scrollbar-v` : undefined}
@@ -416,7 +420,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             className={cx(
               thumbBase,
               thumbVertical,
-              isDragging && dragAxisRef.current === 'vertical' && thumbDragging
+              isDragging && dragAxis === 'vertical' && thumbDragging
             )}
             style={{
               height: `${vThumbSize}px`,
@@ -442,17 +446,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
           role="scrollbar"
           aria-controls={viewportId}
           aria-orientation="horizontal"
-          aria-valuenow={Math.round(
-            viewportRef.current
-              ? (viewportRef.current.scrollLeft /
-                  Math.max(
-                    1,
-                    viewportRef.current.scrollWidth -
-                      viewportRef.current.clientWidth
-                  )) *
-                  100
-              : 0
-          )}
+          aria-valuenow={hScrollPercent}
           aria-valuemin={0}
           aria-valuemax={100}
           data-testid={testId ? `${testId}-scrollbar-h` : undefined}
@@ -464,9 +458,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             className={cx(
               thumbBase,
               thumbHorizontal,
-              isDragging &&
-                dragAxisRef.current === 'horizontal' &&
-                thumbDragging
+              isDragging && dragAxis === 'horizontal' && thumbDragging
             )}
             style={{
               width: `${hThumbSize}px`,

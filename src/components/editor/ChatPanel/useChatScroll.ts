@@ -126,6 +126,9 @@ export function useChatScroll(
         scrollToBottom();
       });
     } else {
+      // Reacts to an incoming-message event (count grew while scrolled away) —
+      // event-driven, not derivable during render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHasNewMessages(true);
     }
   }, [messages.length, enabled, isAtBottom, scrollToBottom]);

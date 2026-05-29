@@ -16,6 +16,7 @@ import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { ChevronUpIcon } from '@/components/Icons/ChevronUpIcon';
 import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { ScrollArea } from '@/components/layout/ScrollArea';
+import { useLatest } from '@/hooks/useLatest';
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
 
@@ -86,6 +87,10 @@ export const FloatingManager: React.FC<FloatingManagerProps> = ({
 
   const contextValue = useMemo<FloatingManagerContextValue>(
     () => ({ bringToFront, getZIndex, register, unregister }),
+    // `revision` is bumped whenever the panel stack changes; it intentionally
+    // busts this memo so consumers re-render and re-read z-indices from the
+    // (otherwise stable) getZIndex, even though it is not read in the factory.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [revision, bringToFront, getZIndex, register, unregister]
   );
 
@@ -164,18 +169,26 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
     onCollapsedChange?.(next);
   }, [isCollapsed, controlledCollapsed, onCollapsedChange]);
 
-  // FloatingManager registration -- use stable id, run once
-  const managerRef = useRef(manager);
-  managerRef.current = manager;
+  // FloatingManager registration -- use stable id, run once. Latest manager via
+  // useLatest so the register/unregister effect and handlers read it without
+  // writing a ref during render.
+  const managerRef = useLatest(manager);
 
   useEffect(() => {
     managerRef.current?.register(id);
+    // Reading the latest manager from the ref at cleanup is intentional.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => managerRef.current?.unregister(id);
+    // Register/unregister exactly once per id. managerRef is a stable useLatest
+    // ref read at both register and unregister time; the manager is read via
+    // the ref because the manager context value changes on every panel
+    // registration and must not re-trigger this effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleBringToFront = useCallback(() => {
     managerRef.current?.bringToFront(id);
-  }, [id]);
+  }, [id, managerRef]);
 
   const zIndex = manager?.getZIndex(id) ?? 100;
 

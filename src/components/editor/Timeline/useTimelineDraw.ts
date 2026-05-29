@@ -183,6 +183,8 @@ export function useTimelineDraw(opts: UseTimelineDrawOptions): void {
     opts.backgroundColor,
     opts.playheadColor,
     opts.trackScale,
+    formatTimeRef,
+    renderOverlayRef,
   ]);
 
   useLayoutEffect(() => {

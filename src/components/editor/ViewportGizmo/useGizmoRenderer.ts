@@ -103,7 +103,6 @@ export function useGizmoRenderer(options: UseGizmoRendererOptions): void {
     showOriginHandle,
     background,
     disabled,
-    isDragging,
     hoveredRegion,
   } = options;
 
@@ -259,7 +258,6 @@ export function useGizmoRenderer(options: UseGizmoRendererOptions): void {
     showOriginHandle,
     background,
     disabled,
-    isDragging,
     hoveredRegion,
   ]);
 

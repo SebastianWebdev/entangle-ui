@@ -109,6 +109,7 @@ export const ViewportLayer: React.FC<ViewportLayerProps> = ({
       cancelAnimationFrame(rafRef.current);
     };
     // `invalidateOn` is intentionally spread into deps so each entry is tracked.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transform, size, scheduleDraw, ...(invalidateOn ?? [])]);
 
   // Re-render when DPR changes (e.g., dragging the window to a different display).

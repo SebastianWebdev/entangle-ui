@@ -83,17 +83,19 @@ export function useTreeState({
   const [internalExpanded, setInternalExpanded] = useState<Set<string>>(
     () => new Set(defaultExpandedIds ?? [])
   );
-  const expandedSet = controlledExpanded
-    ? new Set(controlledExpanded)
-    : internalExpanded;
+  const expandedSet = useMemo(
+    () => (controlledExpanded ? new Set(controlledExpanded) : internalExpanded),
+    [controlledExpanded, internalExpanded]
+  );
 
   // Internal selection state
   const [internalSelected, setInternalSelected] = useState<Set<string>>(
     () => new Set(defaultSelectedIds ?? [])
   );
-  const selectedSet = controlledSelected
-    ? new Set(controlledSelected)
-    : internalSelected;
+  const selectedSet = useMemo(
+    () => (controlledSelected ? new Set(controlledSelected) : internalSelected),
+    [controlledSelected, internalSelected]
+  );
 
   // Focused node
   const [focusedId, setFocused] = useState<string | null>(null);

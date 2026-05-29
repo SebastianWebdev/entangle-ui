@@ -226,6 +226,9 @@ const HoverCardContent: React.FC<HoverCardContentProps> = ({
         cancelAnimationFrame(handle);
       };
     }
+    // Reset enter-animation state on close; gated by the `isOpen` prop, so this
+    // is a one-shot transition rather than continuous state synchronization.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisible(false);
     return undefined;
   }, [isOpen]);

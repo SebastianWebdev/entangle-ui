@@ -545,9 +545,13 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     layout.contentHeight - (size.height - chromeHeight)
   );
 
-  useLayoutEffect(() => {
-    setScrollTop(s => Math.min(s, maxScrollTop));
-  }, [maxScrollTop]);
+  // Clamp the scroll offset when the scrollable area shrinks (content removed
+  // or viewport grown). Adjusting state during render is React's documented
+  // alternative to a layout effect here — it avoids an extra commit, and the
+  // guard makes it self-terminating.
+  if (scrollTop > maxScrollTop) {
+    setScrollTop(maxScrollTop);
+  }
 
   const scrollBy = useCallback(
     (deltaPixels: number): void => {

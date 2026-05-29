@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef } from 'react';
 
+import { useLatest } from '@/hooks/useLatest';
 import { getPlatform, parseShortcut } from '@/utils/platform';
 
 import type { HotkeyTarget, UseHotkeyOptions } from './useHotkey.types';
@@ -164,25 +165,18 @@ export function useHotkey(
     target,
   } = options;
 
-  const handlerRef = useRef(handler);
-  handlerRef.current = handler;
-
-  const optionsRef = useRef({
+  // Latest handler / options / parsed combo, refreshed after each commit so
+  // the document listener reads live values without re-subscribing.
+  const handlerRef = useLatest(handler);
+  const optionsRef = useLatest({
     enabled,
     enableInInputs,
     preventDefault,
     stopPropagation,
   });
-  optionsRef.current = {
-    enabled,
-    enableInInputs,
-    preventDefault,
-    stopPropagation,
-  };
 
   const parsed = useMemo(() => parseCombo(combo), [combo]);
-  const parsedRef = useRef(parsed);
-  parsedRef.current = parsed;
+  const parsedRef = useLatest(parsed);
 
   const attachedTargetRef = useRef<EventTarget | null>(null);
   const listenerRef = useRef<((event: Event) => void) | null>(null);

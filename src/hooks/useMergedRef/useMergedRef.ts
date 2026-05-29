@@ -25,15 +25,20 @@ export function useMergedRef<T>(
   ...refs: Array<Ref<T> | undefined | null>
 ): RefCallback<T> {
   // The spread of refs is intentional — the merged callback must pick up the
-  // latest set of refs the consumer is passing in.
+  // latest set of refs the consumer is passing in, so the dependency list is
+  // dynamic by design (use-memo / exhaustive-deps cannot model that).
   return useCallback((node: T | null) => {
     for (const ref of refs) {
       if (!ref) continue;
       if (typeof ref === 'function') {
         ref(node);
       } else {
+        // Assigning a node into an object ref's `.current` is the entire point
+        // of a callback ref; it is not a forbidden mutation of hook arguments.
+        // eslint-disable-next-line react-hooks/immutability
         (ref as { current: T | null }).current = node;
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/use-memo
   }, refs);
 }

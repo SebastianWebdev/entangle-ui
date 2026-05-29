@@ -178,6 +178,9 @@ export function useTheme(): UseThemeReturn {
       values: resolveValues(darkThemeValues, root, vars),
     };
     tokenCacheRef.current.clear();
+    // External-system sync: read resolved CSS custom properties from the DOM
+    // into state once mounted (they are unavailable during SSR/first render).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSnapshot(next);
   }, []);
 
