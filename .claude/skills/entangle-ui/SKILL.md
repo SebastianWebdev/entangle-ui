@@ -126,6 +126,7 @@ export function App() {
 - `ChatPanel` → [components/editor/chat-panel.md](./components/editor/chat-panel.md) — Complete chat interface system for AI assistant integration with messages, input, tool calls, code blocks, and attachments.
 - `Minimap` → [components/editor/minimap.md](./components/editor/minimap.md) — Shared navigation primitive that renders a miniature of editor content alongside a draggable rectangle mirroring the main viewport's visible region. Designed for NodeGraph, Timeline, and custom 2D editor surfaces.
 - `PropertyInspector` → [components/editor/property-inspector.md](./components/editor/property-inspector.md) — Property inspector system with collapsible sections, label-value rows, groups, search filtering, and undo support.
+- `Timeline` → [components/editor/timeline.md](./components/editor/timeline.md) — Horizontal multi-track animation timeline / dope sheet. Frame-based time axis, keyframes (shared CurveEditor model), a scrubbing playhead, zoom/pan, snap-to-frame, full keyframe editing, dope-sheet & graph modes, collapsible track groups, per-track expand-to-graph, and an optional built-in playback loop — all on a perf-isolated canvas.
 - `TransformControl` → [components/editor/transform-control.md](./components/editor/transform-control.md) — The canonical position / rotation / scale property control for 3D editor interfaces. Composes VectorInput, Select and PropertyRow into one high-level component.
 - `ViewportGizmo` → [components/editor/viewport-gizmo.md](./components/editor/viewport-gizmo.md) — 3D orientation gizmo for viewport navigation with orbit, snap-to-view, axis colors, and multiple interaction modes.
 
@@ -163,6 +164,7 @@ export function App() {
 
 ### Reference
 
+- `Animation Editor` → [reference/showcase/animation-editor.md](./reference/showcase/animation-editor.md) — A timeline-driven animation editor built around the Entangle UI Timeline — multi-track dope sheet / graph editor, a live 3D-CSS cube driven by the keyframe curves, scene tree, and frame-bound inspector.
 - `Docs for LLMs` → [reference/llms-txt.md](./reference/llms-txt.md) — Plain-text documentation tuned for LLM coding assistants — short index and full single-file copy of the entangle-ui docs.
 - `Entangle UI` → [reference/overview.md](./reference/overview.md) — React component library for professional editor interfaces
 - `Full Editor` → [reference/showcase/editor.md](./reference/showcase/editor.md) — A complete 3D editor interface built entirely with Entangle UI components.

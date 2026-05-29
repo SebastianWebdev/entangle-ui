@@ -26,8 +26,7 @@ export const PauseIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
   props => {
     return (
       <Icon {...props}>
-        <rect x="6" y="4" width="4" height="16" rx="1" />
-        <rect x="14" y="4" width="4" height="16" rx="1" />
+        <path d="M9 4v16M15 4v16" />
       </Icon>
     );
   }
