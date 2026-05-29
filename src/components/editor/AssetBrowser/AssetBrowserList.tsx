@@ -1,21 +1,24 @@
 'use client';
 
 import React, { useMemo } from 'react';
+
 import { DataTable } from '@/components/data/DataTable';
-import type {
-  DataTableColumn,
-  DataTableSortState,
-} from '@/components/data/DataTable';
-import { Icon } from '@/components/primitives/Icon';
 import { FileTextIcon, FolderIcon } from '@/components/Icons';
+import { Icon } from '@/components/primitives/Icon';
+
+import { listScroller, nameCell } from './AssetBrowser.css';
 import {
   useAssetBrowserChrome,
   useAssetBrowserContext,
   useAssetSelection,
 } from './AssetBrowserContext';
-import type { AssetItem } from './AssetBrowser.types';
 import { formatBytes, formatDate } from './assetBrowserFormat';
-import { listScroller, nameCell } from './AssetBrowser.css';
+
+import type { AssetItem } from './AssetBrowser.types';
+import type {
+  DataTableColumn,
+  DataTableSortState,
+} from '@/components/data/DataTable';
 
 const DEFAULT_LIST_COLUMNS: readonly DataTableColumn<AssetItem>[] = [
   {
@@ -96,11 +99,15 @@ export function AssetBrowserList(): React.ReactElement {
         }}
         selectionMode={ctx.selectionMode}
         selection={selection}
-        onSelectionChange={ids => ctx.setSelectionIds(ids, 'click')}
+        onSelectionChange={ids => {
+          ctx.setSelectionIds(ids, 'click');
+        }}
         isRowSelectable={row =>
           row.selectable !== false && row.disabled !== true
         }
-        onRowActivate={row => ctx.activateItem(row)}
+        onRowActivate={row => {
+          ctx.activateItem(row);
+        }}
         emptyState={ctx.emptyState}
         loading={ctx.loading}
         aria-label="Assets"

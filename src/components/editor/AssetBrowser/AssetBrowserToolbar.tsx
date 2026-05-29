@@ -1,14 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  SegmentedControl,
-  SegmentedControlItem,
-} from '@/components/navigation/SegmentedControl';
-import { Menu } from '@/components/navigation/Menu';
-import { Input } from '@/components/primitives/Input';
-import { Icon } from '@/components/primitives/Icon';
-import { IconButton } from '@/components/primitives/IconButton';
+
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -18,9 +11,19 @@ import {
   SearchIcon,
   SortIcon,
 } from '@/components/Icons';
-import { useAssetBrowserChrome } from './AssetBrowserContext';
-import type { AssetSortField, AssetView } from './AssetBrowser.types';
+import { Menu } from '@/components/navigation/Menu';
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from '@/components/navigation/SegmentedControl';
+import { Icon } from '@/components/primitives/Icon';
+import { IconButton } from '@/components/primitives/IconButton';
+import { Input } from '@/components/primitives/Input';
+
 import { searchField, toolbar, toolbarSpacer } from './AssetBrowser.css';
+import { useAssetBrowserChrome } from './AssetBrowserContext';
+
+import type { AssetSortField, AssetView } from './AssetBrowser.types';
 
 const SORT_FIELDS: { value: AssetSortField; label: string }[] = [
   { value: 'name', label: 'Name' },
@@ -64,7 +67,9 @@ export function AssetBrowserToolbar(): React.ReactElement {
 
       <SegmentedControl
         value={chrome.view}
-        onChange={value => chrome.setView(value as AssetView)}
+        onChange={value => {
+          chrome.setView(value as AssetView);
+        }}
         size="sm"
         aria-label="View mode"
       >
@@ -86,7 +91,9 @@ export function AssetBrowserToolbar(): React.ReactElement {
         size="sm"
         placeholder="Search assets…"
         value={chrome.search}
-        onChange={value => chrome.setSearch(value)}
+        onChange={value => {
+          chrome.setSearch(value);
+        }}
         startIcon={
           <Icon size="sm" decorative>
             <SearchIcon />
@@ -106,9 +113,9 @@ export function AssetBrowserToolbar(): React.ReactElement {
         <Menu.Content>
           <Menu.RadioGroup
             value={chrome.sort.field}
-            onValueChange={field =>
-              chrome.setSort({ field, direction: chrome.sort.direction })
-            }
+            onValueChange={field => {
+              chrome.setSort({ field, direction: chrome.sort.direction });
+            }}
           >
             {SORT_FIELDS.map(field => (
               <Menu.RadioItem key={field.value} value={field.value}>
@@ -119,12 +126,12 @@ export function AssetBrowserToolbar(): React.ReactElement {
           <Menu.Separator />
           <Menu.RadioGroup
             value={chrome.sort.direction}
-            onValueChange={direction =>
+            onValueChange={direction => {
               chrome.setSort({
                 field: chrome.sort.field,
                 direction: direction === 'desc' ? 'desc' : 'asc',
-              })
-            }
+              });
+            }}
           >
             <Menu.RadioItem value="asc">Ascending</Menu.RadioItem>
             <Menu.RadioItem value="desc">Descending</Menu.RadioItem>
@@ -145,7 +152,9 @@ export function AssetBrowserToolbar(): React.ReactElement {
               <Menu.CheckboxItem
                 key={type}
                 checked={(chrome.filters.types ?? []).includes(type)}
-                onCheckedChange={checked => toggleType(type, checked)}
+                onCheckedChange={checked => {
+                  toggleType(type, checked);
+                }}
               >
                 {type}
               </Menu.CheckboxItem>

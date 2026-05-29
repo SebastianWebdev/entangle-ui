@@ -1,22 +1,7 @@
 'use client';
 
-import type React from 'react';
-import {
-  createContext,
-  useContext,
-  useSyncExternalStore,
-  type ReactNode,
-} from 'react';
-import type {
-  DataTableColumn,
-  DataTableDensity,
-} from '@/components/data/DataTable';
-import type { TreeNodeData } from '@/components/controls/TreeView';
-import type {
-  AssetBrowserStore,
-  DragState,
-  MarqueeState,
-} from './AssetBrowserStore';
+import { createContext, useContext, useSyncExternalStore } from 'react';
+
 import type {
   AssetFilterState,
   AssetItem,
@@ -27,6 +12,18 @@ import type {
   AssetSortState,
   AssetView,
 } from './AssetBrowser.types';
+import type {
+  AssetBrowserStore,
+  DragState,
+  MarqueeState,
+} from './AssetBrowserStore';
+import type { TreeNodeData } from '@/components/controls/TreeView';
+import type {
+  DataTableColumn,
+  DataTableDensity,
+} from '@/components/data/DataTable';
+import type { ReactNode } from 'react';
+import type React from 'react';
 
 // ── Store context (hot path) ─────────────────────────────────────────────
 

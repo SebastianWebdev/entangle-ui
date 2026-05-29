@@ -1,12 +1,15 @@
 'use client';
 
-import { useEffectEvent, useMemo, type KeyboardEvent } from 'react';
-import { useNavigationHistory } from '@/hooks';
+import { useCallback, useMemo } from 'react';
+
+import { useLatest, useNavigationHistory } from '@/hooks';
+
 import type {
   AssetItem,
   AssetNavigationSource,
   AssetPathSegment,
 } from './AssetBrowser.types';
+import type { KeyboardEvent } from 'react';
 
 export interface UseAssetNavigationOptions {
   /** Enables Back/Forward + parent-nav. When false, the hook is a thin pass-through. */
@@ -46,15 +49,15 @@ function isEditableTarget(target: EventTarget | null): boolean {
 /**
  * Folder navigation + back/forward stack + "go to parent" keyboard shortcuts,
  * built on top of the library's `useNavigationHistory` primitive. Every handler
- * is a `useEffectEvent`, so identities are stable for the component lifetime
- * but bodies always read the latest props.
+ * has a stable identity (`useCallback`) and reads the latest props through
+ * `useLatest` refs, matching `component-patterns.md` rules #3/#11.
  */
 export function useAssetNavigation(
   options: UseAssetNavigationOptions
 ): AssetNavigationApi {
   const { history, path, onNavigate, onItemOpen, currentFolderId } = options;
 
-  const histApi = useNavigationHistory<string>({
+  const histApi = useNavigationHistory({
     initial: currentFolderId,
     enabled: history,
   });
@@ -62,42 +65,55 @@ export function useAssetNavigation(
   const histGoBack = histApi.goBack;
   const histGoForward = histApi.goForward;
 
-  const navigate = useEffectEvent(
+  const onNavigateRef = useLatest(onNavigate);
+  const onItemOpenRef = useLatest(onItemOpen);
+  const historyRef = useLatest(history);
+  const pathRef = useLatest(path);
+
+  const navigate = useCallback(
     (folderId: string, source: AssetNavigationSource): void => {
       push(folderId);
-      onNavigate?.(folderId, source);
-    }
+      onNavigateRef.current?.(folderId, source);
+    },
+    [push, onNavigateRef]
   );
 
-  const goBack = useEffectEvent((): void => {
+  const goBack = useCallback((): void => {
     const target = histGoBack();
     if (target === undefined) return;
-    onNavigate?.(target, 'back');
-  });
+    onNavigateRef.current?.(target, 'back');
+  }, [histGoBack, onNavigateRef]);
 
-  const goForward = useEffectEvent((): void => {
+  const goForward = useCallback((): void => {
     const target = histGoForward();
     if (target === undefined) return;
-    onNavigate?.(target, 'forward');
-  });
+    onNavigateRef.current?.(target, 'forward');
+  }, [histGoForward, onNavigateRef]);
 
-  const activateItem = useEffectEvent((item: AssetItem): void => {
-    if (item.kind === 'folder') navigate(item.id, 'open');
-    else onItemOpen?.(item);
-  });
+  const activateItem = useCallback(
+    (item: AssetItem): void => {
+      if (item.kind === 'folder') navigate(item.id, 'open');
+      else onItemOpenRef.current?.(item);
+    },
+    [navigate, onItemOpenRef]
+  );
 
-  const handleRootKeyDown = useEffectEvent((event: KeyboardEvent): void => {
-    if (!history) return;
-    if (isEditableTarget(event.target)) return;
-    const goToParent =
-      event.key === 'Backspace' || (event.altKey && event.key === 'ArrowUp');
-    if (!goToParent) return;
-    const parent = path[path.length - 2];
-    if (parent) {
-      event.preventDefault();
-      navigate(parent.id, 'breadcrumb');
-    }
-  });
+  const handleRootKeyDown = useCallback(
+    (event: KeyboardEvent): void => {
+      if (!historyRef.current) return;
+      if (isEditableTarget(event.target)) return;
+      const goToParent =
+        event.key === 'Backspace' || (event.altKey && event.key === 'ArrowUp');
+      if (!goToParent) return;
+      const currentPath = pathRef.current;
+      const parent = currentPath[currentPath.length - 2];
+      if (parent) {
+        event.preventDefault();
+        navigate(parent.id, 'breadcrumb');
+      }
+    },
+    [navigate, historyRef, pathRef]
+  );
 
   return useMemo(
     () => ({

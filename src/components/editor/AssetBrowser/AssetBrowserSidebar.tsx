@@ -1,10 +1,13 @@
 'use client';
 
 import React from 'react';
+
 import { TreeView } from '@/components/controls/TreeView';
-import type { TreeNodeData } from '@/components/controls/TreeView';
-import { useAssetBrowserContext } from './AssetBrowserContext';
+
 import { sidebar } from './AssetBrowser.css';
+import { useAssetBrowserContext } from './AssetBrowserContext';
+
+import type { TreeNodeData } from '@/components/controls/TreeView';
 
 export function AssetBrowserSidebar(): React.ReactElement | null {
   const ctx = useAssetBrowserContext();

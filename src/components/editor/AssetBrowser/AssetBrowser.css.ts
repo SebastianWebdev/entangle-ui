@@ -1,5 +1,6 @@
 import { createVar, style } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
+
 import { vars } from '@/theme/contract.css';
 
 // Dynamic values driven from JS (thumbnail scale, grid geometry, marquee rect).

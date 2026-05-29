@@ -1,22 +1,11 @@
 'use client';
 
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
+
 import { useLatest } from '@/hooks';
 import { cx } from '@/utils/cx';
-import {
-  useAssetBrowserContext,
-  useAssetBrowserStore,
-  useAssetMarquee,
-} from './AssetBrowserContext';
-import { AssetBrowserGridItem } from './AssetBrowserGridItem';
-import {
-  useAssetGridVirtualizer,
-  type AssetGridWindow,
-} from './useAssetGridVirtualizer';
-import { useAssetGridKeyboardNav } from './useAssetGridKeyboardNav';
-import { useAssetMarqueeGesture } from './useAssetMarqueeGesture';
-import { GRID_GAP, cellWidth } from './assetBrowserGeometry';
+
 import {
   columnsVar,
   gridGapVar,
@@ -33,6 +22,18 @@ import {
   offsetYVar,
   totalHeightVar,
 } from './AssetBrowser.css';
+import {
+  useAssetBrowserContext,
+  useAssetBrowserStore,
+  useAssetMarquee,
+} from './AssetBrowserContext';
+import { GRID_GAP, cellWidth } from './assetBrowserGeometry';
+import { AssetBrowserGridItem } from './AssetBrowserGridItem';
+import { useAssetGridKeyboardNav } from './useAssetGridKeyboardNav';
+import { useAssetGridVirtualizer } from './useAssetGridVirtualizer';
+import { useAssetMarqueeGesture } from './useAssetMarqueeGesture';
+
+import type { AssetGridWindow } from './useAssetGridVirtualizer';
 
 function MarqueeLayer(): React.ReactElement | null {
   const marquee = useAssetMarquee();
@@ -90,9 +91,9 @@ export function AssetBrowserGrid(): React.ReactElement {
   const winRef = useLatest(win);
   useLayoutEffect(
     () =>
-      store.registerScrollToIndex(index =>
-        scrollIndexIntoView(index, winRef.current)
-      ),
+      store.registerScrollToIndex(index => {
+        scrollIndexIntoView(index, winRef.current);
+      }),
     [store, winRef, scrollIndexIntoView]
   );
 

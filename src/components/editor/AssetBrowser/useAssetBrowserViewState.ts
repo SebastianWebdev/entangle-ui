@@ -1,7 +1,12 @@
 'use client';
 
 import { useDeferredValue, useMemo } from 'react';
+
 import { useControlledState } from '@/hooks';
+
+import { collectTypes, shapeAssets } from './assetBrowserFilter';
+import { resolveThumbPx } from './assetBrowserGeometry';
+
 import type {
   AssetFilterState,
   AssetItem,
@@ -10,8 +15,6 @@ import type {
   AssetType,
   AssetView,
 } from './AssetBrowser.types';
-import { collectTypes, shapeAssets } from './assetBrowserFilter';
-import { resolveThumbPx } from './assetBrowserGeometry';
 
 const DEFAULT_SORT: AssetSortState = { field: 'name', direction: 'asc' };
 
@@ -110,7 +113,7 @@ export function useAssetBrowserViewState(
   const deferredSearch = useDeferredValue(search);
   const thumbnailSizePx = resolveThumbPx(thumbnailSize);
   const marqueeEnabled =
-    options.selectionMode === 'multiple' && options.marquee !== false;
+    options.selectionMode === 'multiple' && options.marquee;
 
   const filterableTypes = useMemo(
     () => options.filterableTypesProp ?? collectTypes(options.items),

@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState, type RefObject } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
 import { useResizeObserver } from '@/hooks';
+
 import { columnsFor, rowHeight as rowHeightFor } from './assetBrowserGeometry';
+
+import type { RefObject } from 'react';
 
 export interface UseAssetGridVirtualizerOptions {
   containerRef: RefObject<HTMLElement | null>;
@@ -56,7 +60,9 @@ export function useAssetGridVirtualizer(
     let raf = 0;
     const onScroll = (): void => {
       cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setScrollTop(el.scrollTop));
+      raf = requestAnimationFrame(() => {
+        setScrollTop(el.scrollTop);
+      });
     };
     el.addEventListener('scroll', onScroll, { passive: true });
     return () => {

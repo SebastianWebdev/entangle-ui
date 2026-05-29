@@ -1,12 +1,14 @@
 'use client';
 
 import React from 'react';
+
 import {
   Breadcrumbs,
   BreadcrumbItem,
 } from '@/components/navigation/Breadcrumbs';
-import { useAssetBrowserContext } from './AssetBrowserContext';
+
 import { breadcrumbsBar } from './AssetBrowser.css';
+import { useAssetBrowserContext } from './AssetBrowserContext';
 
 export function AssetBrowserBreadcrumbs(): React.ReactElement | null {
   const ctx = useAssetBrowserContext();
@@ -24,7 +26,9 @@ export function AssetBrowserBreadcrumbs(): React.ReactElement | null {
               onClick={
                 isLast
                   ? undefined
-                  : () => ctx.navigate(segment.id, 'breadcrumb')
+                  : () => {
+                      ctx.navigate(segment.id, 'breadcrumb');
+                    }
               }
             >
               {segment.name}

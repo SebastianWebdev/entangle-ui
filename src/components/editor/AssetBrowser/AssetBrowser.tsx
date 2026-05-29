@@ -1,33 +1,38 @@
 'use client';
 
-import React, { useMemo, useRef, type ReactNode } from 'react';
-import { Icon } from '@/components/primitives/Icon';
+import React, { useMemo, useRef } from 'react';
+
 import { CloudUploadIcon } from '@/components/Icons';
+import { Icon } from '@/components/primitives/Icon';
 import { cx } from '@/utils/cx';
-import type { AssetBrowserProps } from './AssetBrowser.types';
+
+import { body, importOverlay, main, root } from './AssetBrowser.css';
+import { AssetBrowserAnnouncementLive } from './AssetBrowserAnnouncementLive';
+import { AssetBrowserBreadcrumbs } from './AssetBrowserBreadcrumbs';
+import { AssetBrowserContent } from './AssetBrowserContent';
 import {
   AssetBrowserChromeContext,
   AssetBrowserContext,
   AssetBrowserStoreContext,
   useAssetDrag,
-  type AssetBrowserChromeValue,
-  type AssetBrowserContextValue,
 } from './AssetBrowserContext';
+import { AssetBrowserSidebar } from './AssetBrowserSidebar';
+import { AssetBrowserStatusBar } from './AssetBrowserStatusBar';
 import { AssetBrowserStore } from './AssetBrowserStore';
 import { AssetBrowserToolbar } from './AssetBrowserToolbar';
-import { AssetBrowserBreadcrumbs } from './AssetBrowserBreadcrumbs';
-import { AssetBrowserSidebar } from './AssetBrowserSidebar';
-import { AssetBrowserContent } from './AssetBrowserContent';
-import { AssetBrowserStatusBar } from './AssetBrowserStatusBar';
-import { AssetBrowserAnnouncementLive } from './AssetBrowserAnnouncementLive';
+import { getSlotKind, markSlot } from './slots';
+import { useAssetBrowserHandle } from './useAssetBrowserHandle';
+import { useAssetBrowserViewState } from './useAssetBrowserViewState';
 import { useAssetDnd } from './useAssetDnd';
 import { useAssetNavigation } from './useAssetNavigation';
 import { useAssetSelectionController } from './useAssetSelectionController';
-import { useAssetBrowserViewState } from './useAssetBrowserViewState';
-import { useAssetBrowserHandle } from './useAssetBrowserHandle';
-import { useStableRenderFn } from './useStableRenderFn';
-import { getSlotKind, markSlot } from './slots';
-import { body, importOverlay, main, root } from './AssetBrowser.css';
+
+import type { AssetBrowserProps } from './AssetBrowser.types';
+import type {
+  AssetBrowserChromeValue,
+  AssetBrowserContextValue,
+} from './AssetBrowserContext';
+import type { ReactNode } from 'react';
 
 const DEFAULT_MIME = 'application/x-entangle-asset';
 
@@ -48,14 +53,30 @@ interface SlotProps {
   children?: ReactNode;
 }
 
-const ToolbarSlot = markSlot(
-  (() => null) as (props: SlotProps) => null,
-  'toolbar'
-);
-const SidebarSlot = markSlot(
-  (() => null) as (props: SlotProps) => null,
-  'sidebar'
-);
+const ToolbarSlot = markSlot(() => null, 'toolbar');
+const SidebarSlot = markSlot(() => null, 'sidebar');
+
+/**
+ * Pull the optional `Toolbar` / `Sidebar` slot children out of `children`.
+ * Returns through an explicit type so the slots stay `ReactNode` at the call
+ * site (a `let x: ReactNode = null` assigned only inside the forEach callback
+ * would otherwise stay flow-narrowed to `null`).
+ */
+function extractSlots(children: ReactNode): {
+  toolbarSlot: ReactNode;
+  sidebarSlot: ReactNode;
+} {
+  let toolbarSlot: ReactNode = null;
+  let sidebarSlot: ReactNode = null;
+  React.Children.forEach(children, child => {
+    if (!React.isValidElement(child)) return;
+    const kind = getSlotKind(child);
+    const slotChildren = (child.props as SlotProps).children;
+    if (kind === 'toolbar') toolbarSlot = slotChildren;
+    else if (kind === 'sidebar') sidebarSlot = slotChildren;
+  });
+  return { toolbarSlot, sidebarSlot };
+}
 
 function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
   const {
@@ -212,17 +233,11 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     clearSelection: handlers.clearSelection,
   });
 
-  // Stabilize render-props so a consumer's inline function doesn't bust the
-  // item context (which would re-render every grid cell on every parent
-  // render). Render-props are called from render, so they need this wrapper
-  // rather than `useEffectEvent`.
-  const stableRenderThumbnail = useStableRenderFn(renderThumbnail);
-  const stableRenderItem = useStableRenderFn(renderItem);
-  const stableRenderItemContextMenu = useStableRenderFn(renderItemContextMenu);
-  const stableRenderEmptyContextMenu = useStableRenderFn(
-    renderEmptyContextMenu
-  );
-
+  // Render-props are forwarded through the item context as-is. They are called
+  // during render (by grid/list cells), so they can't be stabilized with a
+  // render-phase ref write (react-hooks/refs) or `useLatest` (its ref updates
+  // in an effect, one render late). Consumers that pass inline render-props and
+  // care about per-cell render cost should memoize them, mirroring `TreeView`.
   const itemValue = useMemo<AssetBrowserContextValue>(
     () => ({
       displayedItems: displayed,
@@ -243,10 +258,10 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       folderTree,
       currentFolderId,
       navigate,
-      renderThumbnail: stableRenderThumbnail,
-      renderItem: stableRenderItem,
-      renderItemContextMenu: stableRenderItemContextMenu,
-      renderEmptyContextMenu: stableRenderEmptyContextMenu,
+      renderThumbnail,
+      renderItem,
+      renderItemContextMenu,
+      renderEmptyContextMenu,
       loading,
       loadingItemCount,
       emptyState,
@@ -268,10 +283,10 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       folderTree,
       currentFolderId,
       navigate,
-      stableRenderThumbnail,
-      stableRenderItem,
-      stableRenderItemContextMenu,
-      stableRenderEmptyContextMenu,
+      renderThumbnail,
+      renderItem,
+      renderItemContextMenu,
+      renderEmptyContextMenu,
       loading,
       loadingItemCount,
       emptyState,
@@ -319,25 +334,23 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
   );
 
   // Slot extraction.
-  let toolbarSlot: ReactNode = null;
-  let sidebarSlot: ReactNode = null;
-  React.Children.forEach(children, child => {
-    if (!React.isValidElement(child)) return;
-    const kind = getSlotKind(child);
-    const slotChildren = (child.props as SlotProps).children;
-    if (kind === 'toolbar') toolbarSlot = slotChildren;
-    else if (kind === 'sidebar') sidebarSlot = slotChildren;
-  });
+  const { toolbarSlot, sidebarSlot } = extractSlots(children);
 
   return (
     <AssetBrowserStoreContext.Provider value={store}>
       <AssetBrowserChromeContext.Provider value={chromeValue}>
         <AssetBrowserContext.Provider value={itemValue}>
+          {/* The root is a labelled region that hosts the asset-browser widget;
+              its onKeyDown adds widget-level shortcuts (Backspace / Alt+ArrowUp
+              → parent folder), so the handler on a non-interactive role is
+              intentional. */}
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
           <div
             ref={rootRef}
             className={cx(root, className)}
             style={style}
             data-testid={testId}
+            role="region"
             tabIndex={-1}
             aria-label={ariaLabel}
             onKeyDown={handleRootKeyDown}

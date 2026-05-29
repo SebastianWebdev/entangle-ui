@@ -1,13 +1,16 @@
 'use client';
 
 import React from 'react';
+
 import {
   SegmentedControl,
   SegmentedControlItem,
 } from '@/components/navigation/SegmentedControl';
-import type { AssetThumbnailSize, AssetView } from './AssetBrowser.types';
-import { useAssetBrowserAnnouncement } from './useAssetBrowserAnnouncement';
+
 import { statusBar, statusSpacer } from './AssetBrowser.css';
+import { useAssetBrowserAnnouncement } from './useAssetBrowserAnnouncement';
+
+import type { AssetThumbnailSize, AssetView } from './AssetBrowser.types';
 
 export interface AssetBrowserStatusBarProps {
   /** Current view — drives whether the thumbnail-size control is rendered. */
@@ -35,7 +38,9 @@ export function AssetBrowserStatusBar({
       {view === 'grid' && (
         <SegmentedControl
           value={typeof thumbnailSize === 'string' ? thumbnailSize : 'md'}
-          onChange={value => setThumbnailSize(value as AssetThumbnailSize)}
+          onChange={value => {
+            setThumbnailSize(value as AssetThumbnailSize);
+          }}
           size="sm"
           aria-label="Thumbnail size"
         >

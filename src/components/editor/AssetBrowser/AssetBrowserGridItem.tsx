@@ -1,17 +1,12 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { Icon } from '@/components/primitives/Icon';
+import React from 'react';
+
 import { FileTextIcon, FolderIcon } from '@/components/Icons';
+import { Icon } from '@/components/primitives/Icon';
 import { cx } from '@/utils/cx';
-import type { AssetItem } from './AssetBrowser.types';
-import {
-  useAssetBrowserContext,
-  useAssetDropTarget,
-  useAssetFocused,
-  useAssetSelected,
-} from './AssetBrowserContext';
+
 import {
   cellLabel,
   cellRecipe,
@@ -21,7 +16,15 @@ import {
   thumbImage,
   thumbSizeVar,
 } from './AssetBrowser.css';
+import {
+  useAssetBrowserContext,
+  useAssetDropTarget,
+  useAssetFocused,
+  useAssetSelected,
+} from './AssetBrowserContext';
 import { cellHeight, cellWidth } from './assetBrowserGeometry';
+
+import type { AssetItem } from './AssetBrowser.types';
 
 export interface AssetBrowserGridItemProps {
   item: AssetItem;
@@ -101,6 +104,10 @@ function GridItemImpl({
   );
 
   return (
+    // Keyboard interaction is centralized at the grid level: cells use roving
+    // tabIndex and AssetBrowserGrid's onKeyDown drives Enter/Space/arrow nav,
+    // so a redundant per-cell key handler is intentionally omitted.
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
       role="gridcell"
       data-asset-id={item.id}
@@ -121,21 +128,49 @@ function GridItemImpl({
         [thumbSizeVar]: `${thumbPx}px`,
       })}
       draggable={isDraggable}
-      onClick={e => ctx.handleItemClick(item, index, e)}
-      onDoubleClick={() => ctx.activateItem(item)}
-      onContextMenu={() => ctx.contextMenuSelect(item)}
+      onClick={e => {
+        ctx.handleItemClick(item, index, e);
+      }}
+      onDoubleClick={() => {
+        ctx.activateItem(item);
+      }}
+      onContextMenu={() => {
+        ctx.contextMenuSelect(item);
+      }}
       onDragStart={
-        isDraggable ? e => ctx.dnd.onItemDragStart(item, e) : undefined
+        isDraggable
+          ? e => {
+              ctx.dnd.onItemDragStart(item, e);
+            }
+          : undefined
       }
-      onDragEnd={isDraggable ? e => ctx.dnd.onItemDragEnd(item, e) : undefined}
+      onDragEnd={
+        isDraggable
+          ? e => {
+              ctx.dnd.onItemDragEnd(item, e);
+            }
+          : undefined
+      }
       onDragOver={
-        isFolderTarget ? e => ctx.dnd.onFolderDragOver(item.id, e) : undefined
+        isFolderTarget
+          ? e => {
+              ctx.dnd.onFolderDragOver(item.id, e);
+            }
+          : undefined
       }
       onDragLeave={
-        isFolderTarget ? e => ctx.dnd.onFolderDragLeave(item.id, e) : undefined
+        isFolderTarget
+          ? e => {
+              ctx.dnd.onFolderDragLeave(item.id, e);
+            }
+          : undefined
       }
       onDrop={
-        isFolderTarget ? e => ctx.dnd.onFolderDrop(item.id, e) : undefined
+        isFolderTarget
+          ? e => {
+              ctx.dnd.onFolderDrop(item.id, e);
+            }
+          : undefined
       }
     >
       {inner}

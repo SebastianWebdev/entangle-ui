@@ -1,14 +1,16 @@
 'use client';
 
 import React from 'react';
+
 import { EmptyState } from '@/components/feedback/EmptyState';
+
+import { emptyText, emptyWrap } from './AssetBrowser.css';
 import {
   useAssetBrowserChrome,
   useAssetBrowserContext,
 } from './AssetBrowserContext';
 import { AssetBrowserGrid } from './AssetBrowserGrid';
 import { AssetBrowserList } from './AssetBrowserList';
-import { emptyText, emptyWrap } from './AssetBrowser.css';
 
 /**
  * Resolves the main content area: loading → spinner, empty → empty state,

@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { useAssetBrowserAnnouncement } from './useAssetBrowserAnnouncement';
+
 import { srOnly } from './AssetBrowser.css';
+import { useAssetBrowserAnnouncement } from './useAssetBrowserAnnouncement';
 
 /**
  * Screen-reader-only `aria-live="polite"` region carrying the current

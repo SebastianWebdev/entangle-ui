@@ -1,19 +1,18 @@
 'use client';
 
-import {
-  useEffect,
-  useEffectEvent,
-  useRef,
-  type PointerEvent,
-  type RefObject,
-} from 'react';
-import type { AssetItem } from './AssetBrowser.types';
+import { useCallback, useEffect, useRef } from 'react';
+
+import { useLatest } from '@/hooks';
+
 import { useAssetBrowserStore } from './AssetBrowserContext';
 import {
   itemRect,
   rectFromPoints,
   rectsIntersect,
 } from './assetBrowserGeometry';
+
+import type { AssetItem } from './AssetBrowser.types';
+import type { PointerEvent, RefObject } from 'react';
 
 export interface UseAssetMarqueeGestureOptions {
   /** The scroll container — also the pointer-capture target and coordinate origin. */
@@ -49,7 +48,8 @@ interface MarqueeDrag {
  * slice), while pointer-move updates are RAF-throttled. The hit-test runs once
  * on pointer-up and reports through `commitMarquee`.
  *
- * Handlers are `useEffectEvent`s — stable identity, latest closures.
+ * Handlers have stable identities (`useCallback`) and read the latest props
+ * through `useLatest` refs, matching `component-patterns.md` rules #3/#11.
  */
 export function useAssetMarqueeGesture(
   options: UseAssetMarqueeGestureOptions
@@ -61,69 +61,101 @@ export function useAssetMarqueeGesture(
   const dragRef = useRef<MarqueeDrag | null>(null);
   const rafRef = useRef(0);
 
-  const contentPoint = (event: PointerEvent): { x: number; y: number } => {
-    const el = scrollerRef.current;
-    if (!el) return { x: 0, y: 0 };
-    const rect = el.getBoundingClientRect();
-    return {
-      x: event.clientX - rect.left + el.scrollLeft,
-      y: event.clientY - rect.top + el.scrollTop,
-    };
-  };
+  const enabledRef = useLatest(enabled);
+  const itemsRef = useLatest(items);
+  const columnsRef = useLatest(columns);
+  const thumbPxRef = useLatest(thumbPx);
+  const commitMarqueeRef = useLatest(commitMarquee);
 
-  const onPointerDown = useEffectEvent((event: PointerEvent): void => {
-    if (event.button !== 0 || !enabled) return;
-    // Started on an item, not empty space — let the item handle the click.
-    if (event.target !== event.currentTarget) return;
-    const p = contentPoint(event);
-    dragRef.current = {
-      startX: p.x,
-      startY: p.y,
-      additive: event.ctrlKey || event.metaKey,
-      moved: false,
-    };
-    scrollerRef.current?.setPointerCapture(event.pointerId);
-    store.setMarquee({
-      active: true,
-      rect: { x: p.x, y: p.y, width: 0, height: 0 },
-      additive: dragRef.current.additive,
-    });
-  });
+  const contentPoint = useCallback(
+    (event: PointerEvent): { x: number; y: number } => {
+      const el = scrollerRef.current;
+      if (!el) return { x: 0, y: 0 };
+      const rect = el.getBoundingClientRect();
+      return {
+        x: event.clientX - rect.left + el.scrollLeft,
+        y: event.clientY - rect.top + el.scrollTop,
+      };
+    },
+    [scrollerRef]
+  );
 
-  const onPointerMove = useEffectEvent((event: PointerEvent): void => {
-    const drag = dragRef.current;
-    if (!drag) return;
-    drag.moved = true;
-    cancelAnimationFrame(rafRef.current);
-    const p = contentPoint(event);
-    rafRef.current = requestAnimationFrame(() => {
+  const onPointerDown = useCallback(
+    (event: PointerEvent): void => {
+      if (event.button !== 0 || !enabledRef.current) return;
+      // Started on an item, not empty space — let the item handle the click.
+      if (event.target !== event.currentTarget) return;
+      const p = contentPoint(event);
+      dragRef.current = {
+        startX: p.x,
+        startY: p.y,
+        additive: event.ctrlKey || event.metaKey,
+        moved: false,
+      };
+      scrollerRef.current?.setPointerCapture(event.pointerId);
       store.setMarquee({
         active: true,
-        rect: rectFromPoints(drag.startX, drag.startY, p.x, p.y),
-        additive: drag.additive,
+        rect: { x: p.x, y: p.y, width: 0, height: 0 },
+        additive: dragRef.current.additive,
       });
-    });
-  });
+    },
+    [store, scrollerRef, contentPoint, enabledRef]
+  );
 
-  const onPointerUp = useEffectEvent((event: PointerEvent): void => {
-    const drag = dragRef.current;
-    if (!drag) return;
-    cancelAnimationFrame(rafRef.current);
-    dragRef.current = null;
-    scrollerRef.current?.releasePointerCapture(event.pointerId);
-    const p = contentPoint(event);
-    const rect = rectFromPoints(drag.startX, drag.startY, p.x, p.y);
-    const ids: string[] = [];
-    for (let i = 0; i < items.length; i += 1) {
-      const item = items[i];
-      if (!item || item.selectable === false) continue;
-      if (rectsIntersect(rect, itemRect(i, columns, thumbPx))) {
-        ids.push(item.id);
+  const onPointerMove = useCallback(
+    (event: PointerEvent): void => {
+      const drag = dragRef.current;
+      if (!drag) return;
+      drag.moved = true;
+      cancelAnimationFrame(rafRef.current);
+      const p = contentPoint(event);
+      rafRef.current = requestAnimationFrame(() => {
+        store.setMarquee({
+          active: true,
+          rect: rectFromPoints(drag.startX, drag.startY, p.x, p.y),
+          additive: drag.additive,
+        });
+      });
+    },
+    [store, contentPoint]
+  );
+
+  const onPointerUp = useCallback(
+    (event: PointerEvent): void => {
+      const drag = dragRef.current;
+      if (!drag) return;
+      cancelAnimationFrame(rafRef.current);
+      dragRef.current = null;
+      scrollerRef.current?.releasePointerCapture(event.pointerId);
+      const p = contentPoint(event);
+      const rect = rectFromPoints(drag.startX, drag.startY, p.x, p.y);
+      const ids: string[] = [];
+      const currentItems = itemsRef.current;
+      for (let i = 0; i < currentItems.length; i += 1) {
+        const item = currentItems[i];
+        if (!item || item.selectable === false) continue;
+        if (
+          rectsIntersect(
+            rect,
+            itemRect(i, columnsRef.current, thumbPxRef.current)
+          )
+        ) {
+          ids.push(item.id);
+        }
       }
-    }
-    commitMarquee(ids, drag.additive);
-    store.clearMarquee();
-  });
+      commitMarqueeRef.current(ids, drag.additive);
+      store.clearMarquee();
+    },
+    [
+      store,
+      scrollerRef,
+      contentPoint,
+      itemsRef,
+      columnsRef,
+      thumbPxRef,
+      commitMarqueeRef,
+    ]
+  );
 
   // Cancel any in-flight RAF on unmount.
   useEffect(

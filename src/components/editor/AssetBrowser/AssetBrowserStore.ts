@@ -120,13 +120,17 @@ export class AssetBrowserStore {
   setFocusedId(next: string | null): void {
     if (next === this.#focusedId) return;
     this.#focusedId = next;
-    this.#focusListeners.forEach(cb => cb());
+    this.#focusListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setMarquee(next: MarqueeState): void {
     if (sameMarquee(this.#marquee, next)) return;
     this.#marquee = next;
-    this.#marqueeListeners.forEach(cb => cb());
+    this.#marqueeListeners.forEach(cb => {
+      cb();
+    });
   }
 
   clearMarquee(): void {
@@ -136,7 +140,9 @@ export class AssetBrowserStore {
   setDrag(next: DragState): void {
     if (sameDrag(this.#drag, next)) return;
     this.#drag = next;
-    this.#dragListeners.forEach(cb => cb());
+    this.#dragListeners.forEach(cb => {
+      cb();
+    });
   }
 
   clearDrag(): void {
@@ -150,7 +156,9 @@ export class AssetBrowserStore {
   setSelection(next: ReadonlySet<string>): void {
     if (next === this.#selection) return;
     this.#selection = next;
-    this.#selectionListeners.forEach(cb => cb());
+    this.#selectionListeners.forEach(cb => {
+      cb();
+    });
   }
 
   // ── Imperative scroll bridge ──

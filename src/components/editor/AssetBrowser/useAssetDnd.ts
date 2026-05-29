@@ -1,9 +1,13 @@
 'use client';
 
-import { useEffectEvent, useMemo, type DragEvent } from 'react';
+import { useCallback, useMemo } from 'react';
+
+import { useLatest } from '@/hooks';
+
 import type { AssetItem } from './AssetBrowser.types';
-import type { AssetBrowserStore } from './AssetBrowserStore';
 import type { AssetDndContext } from './AssetBrowserContext';
+import type { AssetBrowserStore } from './AssetBrowserStore';
+import type { DragEvent } from 'react';
 
 export interface UseAssetDndOptions {
   store: AssetBrowserStore;
@@ -34,6 +38,12 @@ function leftElement(event: DragEvent): boolean {
   return !(related && event.currentTarget.contains(related));
 }
 
+/**
+ * Drag-and-drop wiring for the AssetBrowser: internal item moves (gated by
+ * `onItemsMove`) and external file import (gated by `onFilesImport`). Every
+ * handler has a stable identity (`useCallback`) and reads the latest props
+ * through `useLatest` refs, matching `component-patterns.md` rules #3/#11.
+ */
 export function useAssetDnd(options: UseAssetDndOptions): AssetDndContext {
   const {
     store,
@@ -51,19 +61,33 @@ export function useAssetDnd(options: UseAssetDndOptions): AssetDndContext {
   const internalEnabled = onItemsMove !== undefined;
   const externalEnabled = onFilesImport !== undefined;
 
-  const resolveItems = (ids: string[]): AssetItem[] => {
-    const map = new Map(items.map(item => [item.id, item]));
-    return ids
-      .map(id => map.get(id))
-      .filter((item): item is AssetItem => item !== undefined);
-  };
+  const mimeRef = useLatest(mime);
+  const itemsRef = useLatest(items);
+  const selectionRef = useLatest(selection);
+  const currentFolderIdRef = useLatest(currentFolderId);
+  const getDragDataRef = useLatest(getDragData);
+  const cbItemDragStartRef = useLatest(cbItemDragStart);
+  const cbItemDragEndRef = useLatest(cbItemDragEnd);
+  const onItemsMoveRef = useLatest(onItemsMove);
+  const onFilesImportRef = useLatest(onFilesImport);
 
-  const onItemDragStart = useEffectEvent(
+  const resolveItems = useCallback(
+    (ids: string[]): AssetItem[] => {
+      const map = new Map(itemsRef.current.map(item => [item.id, item]));
+      return ids
+        .map(id => map.get(id))
+        .filter((item): item is AssetItem => item !== undefined);
+    },
+    [itemsRef]
+  );
+
+  const onItemDragStart = useCallback(
     (item: AssetItem, event: DragEvent): void => {
-      const ids = selection.has(item.id) ? Array.from(selection) : [item.id];
+      const sel = selectionRef.current;
+      const ids = sel.has(item.id) ? Array.from(sel) : [item.id];
       const dragged = resolveItems(ids);
-      const payload = getDragData?.(dragged) ?? {
-        [mime]: JSON.stringify(ids),
+      const payload = getDragDataRef.current?.(dragged) ?? {
+        [mimeRef.current]: JSON.stringify(ids),
       };
       for (const [type, value] of Object.entries(payload)) {
         event.dataTransfer.setData(type, value);
@@ -75,24 +99,34 @@ export function useAssetDnd(options: UseAssetDndOptions): AssetDndContext {
         dropTargetId: null,
         externalOver: false,
       });
-      cbItemDragStart?.(dragged, event);
-    }
+      cbItemDragStartRef.current?.(dragged, event);
+    },
+    [
+      store,
+      resolveItems,
+      selectionRef,
+      getDragDataRef,
+      mimeRef,
+      cbItemDragStartRef,
+    ]
   );
 
-  const onItemDragEnd = useEffectEvent(
+  const onItemDragEnd = useCallback(
     (item: AssetItem, event: DragEvent): void => {
       const ids = store.getDrag().draggingIds;
       const dragged = resolveItems(ids.length > 0 ? ids : [item.id]);
       store.clearDrag();
-      cbItemDragEnd?.(dragged, event);
-    }
+      cbItemDragEndRef.current?.(dragged, event);
+    },
+    [store, resolveItems, cbItemDragEndRef]
   );
 
-  const onFolderDragOver = useEffectEvent(
+  const onFolderDragOver = useCallback(
     (folderId: string, event: DragEvent): void => {
       const drag = store.getDrag();
-      const external = externalEnabled && hasFiles(event);
-      const internal = internalEnabled && drag.active;
+      const external =
+        onFilesImportRef.current !== undefined && hasFiles(event);
+      const internal = onItemsMoveRef.current !== undefined && drag.active;
       if (!external && !internal) return;
       event.preventDefault();
       event.dataTransfer.dropEffect = external ? 'copy' : 'move';
@@ -102,29 +136,33 @@ export function useAssetDnd(options: UseAssetDndOptions): AssetDndContext {
         dropTargetId: folderId,
         externalOver: external,
       });
-    }
+    },
+    [store, onFilesImportRef, onItemsMoveRef]
   );
 
-  const onFolderDragLeave = useEffectEvent(
+  const onFolderDragLeave = useCallback(
     (folderId: string, event: DragEvent): void => {
       if (!leftElement(event)) return;
       const drag = store.getDrag();
       if (drag.dropTargetId !== folderId) return;
       store.setDrag({ ...drag, dropTargetId: null });
-    }
+    },
+    [store]
   );
 
-  const onFolderDrop = useEffectEvent(
+  const onFolderDrop = useCallback(
     (folderId: string, event: DragEvent): void => {
       event.preventDefault();
       const files = Array.from(event.dataTransfer.files);
-      if (files.length > 0 && onFilesImport) {
-        onFilesImport({ files, targetFolderId: folderId });
-      } else if (onItemsMove) {
+      const filesImport = onFilesImportRef.current;
+      const itemsMove = onItemsMoveRef.current;
+      if (files.length > 0 && filesImport) {
+        filesImport({ files, targetFolderId: folderId });
+      } else if (itemsMove) {
         const drag = store.getDrag();
         let ids = drag.draggingIds;
         if (ids.length === 0) {
-          const raw = event.dataTransfer.getData(mime);
+          const raw = event.dataTransfer.getData(mimeRef.current);
           if (raw) {
             try {
               ids = JSON.parse(raw) as string[];
@@ -134,47 +172,58 @@ export function useAssetDnd(options: UseAssetDndOptions): AssetDndContext {
           }
         }
         if (ids.length > 0) {
-          onItemsMove({ itemIds: ids, targetFolderId: folderId });
+          itemsMove({ itemIds: ids, targetFolderId: folderId });
         }
       }
       store.clearDrag();
-    }
+    },
+    [store, onFilesImportRef, onItemsMoveRef, mimeRef]
   );
 
-  const onSurfaceDragOver = useEffectEvent((event: DragEvent): void => {
-    if (!externalEnabled || !hasFiles(event)) return;
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'copy';
-    const drag = store.getDrag();
-    store.setDrag({
-      active: true,
-      draggingIds: drag.draggingIds,
-      dropTargetId: null,
-      externalOver: true,
-    });
-  });
+  const onSurfaceDragOver = useCallback(
+    (event: DragEvent): void => {
+      if (onFilesImportRef.current === undefined || !hasFiles(event)) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'copy';
+      const drag = store.getDrag();
+      store.setDrag({
+        active: true,
+        draggingIds: drag.draggingIds,
+        dropTargetId: null,
+        externalOver: true,
+      });
+    },
+    [store, onFilesImportRef]
+  );
 
-  const onSurfaceDragLeave = useEffectEvent((event: DragEvent): void => {
-    if (!leftElement(event)) return;
-    const drag = store.getDrag();
-    if (!drag.externalOver) return;
-    store.setDrag({ ...drag, externalOver: false });
-  });
+  const onSurfaceDragLeave = useCallback(
+    (event: DragEvent): void => {
+      if (!leftElement(event)) return;
+      const drag = store.getDrag();
+      if (!drag.externalOver) return;
+      store.setDrag({ ...drag, externalOver: false });
+    },
+    [store]
+  );
 
-  const onSurfaceDrop = useEffectEvent((event: DragEvent): void => {
-    if (!externalEnabled) return;
-    const files = Array.from(event.dataTransfer.files);
-    if (files.length === 0) {
+  const onSurfaceDrop = useCallback(
+    (event: DragEvent): void => {
+      const filesImport = onFilesImportRef.current;
+      if (!filesImport) return;
+      const files = Array.from(event.dataTransfer.files);
+      if (files.length === 0) {
+        store.clearDrag();
+        return;
+      }
+      event.preventDefault();
+      filesImport({
+        files,
+        targetFolderId: currentFolderIdRef.current ?? null,
+      });
       store.clearDrag();
-      return;
-    }
-    event.preventDefault();
-    onFilesImport?.({
-      files,
-      targetFolderId: currentFolderId ?? null,
-    });
-    store.clearDrag();
-  });
+    },
+    [store, onFilesImportRef, currentFolderIdRef]
+  );
 
   return useMemo<AssetDndContext>(
     () => ({

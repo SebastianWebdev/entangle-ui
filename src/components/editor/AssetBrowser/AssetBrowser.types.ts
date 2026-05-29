@@ -1,11 +1,11 @@
-import type React from 'react';
-import type { Prettify, LiteralUnion } from '@/types/utilities';
-import type { BaseComponent } from '@/types/common';
 import type { TreeNodeData } from '@/components/controls/TreeView';
 import type {
   DataTableColumn,
   DataTableDensity,
 } from '@/components/data/DataTable';
+import type { BaseComponent } from '@/types/common';
+import type { Prettify, LiteralUnion } from '@/types/utilities';
+import type React from 'react';
 
 /** Whether an entry is a file/asset or a navigable folder. */
 export type AssetKind = 'file' | 'folder';
@@ -19,8 +19,7 @@ export type AssetType = LiteralUnion<
   | 'video'
   | 'text'
   | 'scene'
-  | 'unknown',
-  string
+  | 'unknown'
 >;
 
 /** A single entry shown in the current folder (file OR sub-folder). */
@@ -62,8 +61,7 @@ export interface AssetPathSegment {
 export type AssetView = 'grid' | 'list';
 
 export type AssetSortField = LiteralUnion<
-  'name' | 'type' | 'size' | 'modified',
-  string
+  'name' | 'type' | 'size' | 'modified'
 >;
 
 export interface AssetSortState {
@@ -116,7 +114,7 @@ export interface AssetBrowserHandle {
 }
 
 export interface AssetBrowserBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent,
   'ref' | 'onChange'
 > {
   ref?: React.Ref<AssetBrowserHandle>;

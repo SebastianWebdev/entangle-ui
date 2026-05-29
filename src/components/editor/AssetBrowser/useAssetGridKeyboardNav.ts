@@ -1,15 +1,13 @@
 'use client';
 
-import {
-  useEffectEvent,
-  useMemo,
-  type KeyboardEvent,
-  type RefObject,
-} from 'react';
+import { useCallback, useMemo } from 'react';
+
+import { nextGridIndex } from './assetBrowserKeyboard';
+
 import type { AssetItem } from './AssetBrowser.types';
 import type { AssetBrowserStore } from './AssetBrowserStore';
-import { nextGridIndex } from './assetBrowserKeyboard';
 import type { AssetGridWindow } from './useAssetGridVirtualizer';
+import type { KeyboardEvent, RefObject } from 'react';
 
 export interface UseAssetGridKeyboardNavOptions {
   store: AssetBrowserStore;
@@ -35,7 +33,9 @@ export interface AssetGridKeyboardNav {
 /**
  * 2D grid keyboard navigation for `AssetBrowserGrid`. Handles arrows, Home/End,
  * PageUp/PageDown, Enter (activate), Space (toggle), Ctrl/Cmd+A (select all),
- * Escape (clear). Returns a stable `onKeyDown` (`useEffectEvent`).
+ * Escape (clear). `onKeyDown` is a `useCallback` — the selection/navigation
+ * callbacks it depends on are themselves stable, and the handler is only spread
+ * onto the grid `onKeyDown` so re-attaching on layout changes is free.
  *
  * Alt+ArrowUp is intentionally **not** handled here — it bubbles to the root's
  * "go to parent" handler when `history` is on.
@@ -63,63 +63,79 @@ export function useAssetGridKeyboardNav(
     return map;
   }, [items]);
 
-  const onKeyDown = useEffectEvent((event: KeyboardEvent): void => {
-    const count = items.length;
-    if (count === 0) return;
-    const key = event.key;
-    // Let Alt+ArrowUp bubble to the root's "go to parent" handler.
-    if (event.altKey && key === 'ArrowUp') return;
-    const focusedId = store.getFocusedId();
-    const current = focusedId ? (indexById.get(focusedId) ?? -1) : -1;
-    const multiple = selectionMode === 'multiple';
+  const onKeyDown = useCallback(
+    (event: KeyboardEvent): void => {
+      const count = items.length;
+      if (count === 0) return;
+      const key = event.key;
+      // Let Alt+ArrowUp bubble to the root's "go to parent" handler.
+      if (event.altKey && key === 'ArrowUp') return;
+      const focusedId = store.getFocusedId();
+      const current = focusedId ? (indexById.get(focusedId) ?? -1) : -1;
+      const multiple = selectionMode === 'multiple';
 
-    if ((event.ctrlKey || event.metaKey) && (key === 'a' || key === 'A')) {
-      event.preventDefault();
-      selectAll();
-      return;
-    }
-    if (key === 'Escape') {
-      clearSelection();
-      return;
-    }
-    if (key === 'Enter') {
-      const item = current >= 0 ? items[current] : undefined;
-      if (item) {
+      if ((event.ctrlKey || event.metaKey) && (key === 'a' || key === 'A')) {
         event.preventDefault();
-        activateItem(item);
+        selectAll();
+        return;
       }
-      return;
-    }
-    if (key === ' ') {
-      const item = current >= 0 ? items[current] : undefined;
-      if (item) {
-        event.preventDefault();
-        toggleSelectId(item.id);
+      if (key === 'Escape') {
+        clearSelection();
+        return;
       }
-      return;
-    }
+      if (key === 'Enter') {
+        const item = current >= 0 ? items[current] : undefined;
+        if (item) {
+          event.preventDefault();
+          activateItem(item);
+        }
+        return;
+      }
+      if (key === ' ') {
+        const item = current >= 0 ? items[current] : undefined;
+        if (item) {
+          event.preventDefault();
+          toggleSelectId(item.id);
+        }
+        return;
+      }
 
-    const rowsPerPage = Math.max(
-      1,
-      Math.floor(
-        (scrollerRef.current?.clientHeight ?? win.rowHeight) / win.rowHeight
-      )
-    );
-    const next = nextGridIndex(current, key, {
-      columns: win.columns,
-      count,
-      rowsPerPage,
-    });
-    const target = next >= 0 ? items[next] : undefined;
-    if (next !== current && target) {
-      event.preventDefault();
-      store.setFocusedId(target.id);
-      scrollIndexIntoView(next, win);
-      if (selectionMode !== false) {
-        selectByKeyboard(next, multiple && event.shiftKey);
+      const rowsPerPage = Math.max(
+        1,
+        Math.floor(
+          (scrollerRef.current?.clientHeight ?? win.rowHeight) / win.rowHeight
+        )
+      );
+      const next = nextGridIndex(current, key, {
+        columns: win.columns,
+        count,
+        rowsPerPage,
+      });
+      const target = next >= 0 ? items[next] : undefined;
+      if (next !== current && target) {
+        event.preventDefault();
+        store.setFocusedId(target.id);
+        scrollIndexIntoView(next, win);
+        if (selectionMode !== false) {
+          selectByKeyboard(next, multiple && event.shiftKey);
+        }
       }
-    }
-  });
+    },
+    [
+      store,
+      items,
+      win,
+      scrollerRef,
+      selectionMode,
+      indexById,
+      selectAll,
+      clearSelection,
+      activateItem,
+      toggleSelectId,
+      selectByKeyboard,
+      scrollIndexIntoView,
+    ]
+  );
 
   return { onKeyDown };
 }

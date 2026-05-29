@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState, useSyncExternalStore } from 'react';
+
 import type {
   NavigationHistoryApi,
   UseNavigationHistoryOptions,
@@ -38,7 +39,9 @@ class NavigationHistoryStore<T> {
   getCanGoForward = (): boolean => this.#index < this.#stack.length - 1;
 
   #notify(): void {
-    this.#listeners.forEach(l => l());
+    this.#listeners.forEach(l => {
+      l();
+    });
   }
 
   push(entry: T): void {

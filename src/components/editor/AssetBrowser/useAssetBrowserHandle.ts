@@ -1,13 +1,12 @@
 'use client';
 
-import {
-  useEffectEvent,
-  useImperativeHandle,
-  type Ref,
-  type RefObject,
-} from 'react';
+import { useCallback, useImperativeHandle } from 'react';
+
+import { useLatest } from '@/hooks';
+
 import type { AssetBrowserHandle, AssetItem } from './AssetBrowser.types';
 import type { AssetBrowserStore } from './AssetBrowserStore';
+import type { Ref, RefObject } from 'react';
 
 function cssEscape(value: string): string {
   if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
@@ -30,8 +29,9 @@ export interface UseAssetBrowserHandleOptions {
 
 /**
  * Wires the imperative `AssetBrowserHandle` onto the consumer-provided ref.
- * Each handle method is a `useEffectEvent`, so the handle object is built once
- * and its methods always see the latest props. `scrollToItem` prefers the
+ * Each handle method has a stable identity (`useCallback`) and reads the latest
+ * props through `useLatest` refs, so the handle object is built once and its
+ * methods always see the latest props. `scrollToItem` prefers the
  * store-registered grid scroller (works under virtualization) and falls back
  * to a `data-asset-id` DOM query for the list view or when no grid is mounted.
  */
@@ -41,27 +41,36 @@ export function useAssetBrowserHandle(
   const { ref, rootRef, store, items, displayed, selectAll, clearSelection } =
     options;
 
-  const focus = useEffectEvent((): void => {
+  const itemsRef = useLatest(items);
+  const displayedRef = useLatest(displayed);
+
+  const focus = useCallback((): void => {
     rootRef.current?.focus();
-  });
+  }, [rootRef]);
 
-  const getElement = useEffectEvent((): HTMLDivElement | null => {
-    return rootRef.current;
-  });
+  const getElement = useCallback(
+    (): HTMLDivElement | null => rootRef.current,
+    [rootRef]
+  );
 
-  const scrollToItem = useEffectEvent((id: string): void => {
-    store.setFocusedId(id);
-    const index = displayed.findIndex(it => it.id === id);
-    if (index >= 0 && store.scrollToIndex(index)) return;
-    const el = rootRef.current?.querySelector(
-      `[data-asset-id="${cssEscape(id)}"]`
-    );
-    el?.scrollIntoView({ block: 'nearest' });
-  });
+  const scrollToItem = useCallback(
+    (id: string): void => {
+      store.setFocusedId(id);
+      const index = displayedRef.current.findIndex(it => it.id === id);
+      if (index >= 0 && store.scrollToIndex(index)) return;
+      const el = rootRef.current?.querySelector(
+        `[data-asset-id="${cssEscape(id)}"]`
+      );
+      el?.scrollIntoView({ block: 'nearest' });
+    },
+    [store, rootRef, displayedRef]
+  );
 
-  const getSelectedItems = useEffectEvent((): AssetItem[] => {
-    return items.filter(it => store.getSelection().has(it.id));
-  });
+  const getSelectedItems = useCallback(
+    (): AssetItem[] =>
+      itemsRef.current.filter(it => store.getSelection().has(it.id)),
+    [store, itemsRef]
+  );
 
   useImperativeHandle(
     ref,
