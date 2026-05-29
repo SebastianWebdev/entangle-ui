@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useSyncExternalStore } from 'react';
+import React, { useCallback, useSyncExternalStore } from 'react';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { NodeGraphEdge } from './NodeGraph.types';
 import type { NodeGraphInteractionState } from './NodeGraphStore';
@@ -46,7 +46,7 @@ function selectEdgeDeltas(
   sourceNode: string,
   targetNode: string
 ): EdgeEndpointDeltas {
-  let ids: ReadonlyArray<string> | null = null;
+  let ids: ReadonlySet<string> | null = null;
   let delta: Point2D | null = null;
   if (interaction.kind === 'drag-nodes') {
     ids = interaction.nodeIds;
@@ -56,8 +56,8 @@ function selectEdgeDeltas(
     delta = interaction.delta;
   }
   if (!ids || !delta) return NO_EDGE_DELTAS;
-  const src = ids.includes(sourceNode) ? delta : null;
-  const tgt = ids.includes(targetNode) ? delta : null;
+  const src = ids.has(sourceNode) ? delta : null;
+  const tgt = ids.has(targetNode) ? delta : null;
   if (src === null && tgt === null) return NO_EDGE_DELTAS;
   return { src, tgt };
 }
@@ -76,8 +76,18 @@ function selectEdgeDeltas(
  */
 export function EdgeLabelsLayer({
   renderEdgeLabelRef,
+  hasRenderEdgeLabel,
 }: {
   renderEdgeLabelRef: RenderEdgeLabelRef;
+  /**
+   * Whether the consumer supplied a `renderEdgeLabel` callback. When `false`,
+   * edges without an explicit `edge.label` prop are skipped — no `EdgeLabel`
+   * subscriber is mounted for them. This avoids the cost of one interaction-
+   * slice subscriber per edge in graphs that don't use labels at all (the
+   * benchmark, simple recipes, etc.), which is otherwise pure waste — the
+   * subscriber fires on every drag tick and the body returns `null`.
+   */
+  hasRenderEdgeLabel: boolean;
 }): React.ReactElement | null {
   const store = useNodeGraphStore();
   // Subscribe to data + port positions at this level so we know which
@@ -91,13 +101,23 @@ export function EdgeLabelsLayer({
 
   return (
     <>
-      {data.edges.map(edge => (
-        <EdgeLabel
-          key={edge.id}
-          edge={edge}
-          renderEdgeLabelRef={renderEdgeLabelRef}
-        />
-      ))}
+      {data.edges.map(edge => {
+        // Skip mounting an `EdgeLabel` subscriber when there's nothing it
+        // could ever render. When `renderEdgeLabel` is provided the
+        // consumer controls visibility per edge from inside their callback
+        // (and may return `null`), so we still have to mount — but if no
+        // callback exists, the only thing the label could show is
+        // `edge.label`, and a `null` value there means there's nothing to
+        // draw and no reason to pay for a per-edge store subscription.
+        if (!hasRenderEdgeLabel && edge.label == null) return null;
+        return (
+          <EdgeLabel
+            key={edge.id}
+            edge={edge}
+            renderEdgeLabelRef={renderEdgeLabelRef}
+          />
+        );
+      })}
     </>
   );
 }
@@ -110,20 +130,35 @@ function EdgeLabel({
   renderEdgeLabelRef: RenderEdgeLabelRef;
 }): React.ReactElement | null {
   const store = useNodeGraphStore();
-  // Per-edge slice of the interaction state — yields this edge's endpoint
-  // deltas (or the shared empty sentinel). Paired with `edgeDeltasEqual`,
-  // a drag of nodes this edge doesn't touch leaves the selection equal, so
-  // the label bails out of the re-render instead of churning every frame —
-  // the same per-id pattern `NodeGraphNode` uses. (A raw interaction
-  // subscription re-rendered *every* label on *every* gesture tick.)
+  const sourceNode = edge.source.node;
+  const targetNode = edge.target.node;
+  // Subscribe to interaction changes affecting either endpoint via the
+  // per-node channel — a drag of an unrelated node never wakes this
+  // subscriber, even before the selector runs. When source and target
+  // sit on the same node, a single subscription is enough (deduplicates
+  // the notification).
+  const subscribeEndpoints = useCallback(
+    (cb: () => void): (() => void) => {
+      const unsubSource = store.subscribeNodeInteraction(sourceNode, cb);
+      if (sourceNode === targetNode) return unsubSource;
+      const unsubTarget = store.subscribeNodeInteraction(targetNode, cb);
+      return () => {
+        unsubSource();
+        unsubTarget();
+      };
+    },
+    [store, sourceNode, targetNode]
+  );
+  // Selector still reads the global snapshot to compute per-endpoint
+  // deltas — the subscription change above only narrows *when* this
+  // subscriber gets woken, not *what* it sees.
   const { src: srcDelta, tgt: tgtDelta } = useStoreSlice<
     NodeGraphInteractionState,
     EdgeEndpointDeltas
   >(
-    store.subscribeInteraction,
+    subscribeEndpoints,
     store.getInteraction,
-    interaction =>
-      selectEdgeDeltas(interaction, edge.source.node, edge.target.node),
+    interaction => selectEdgeDeltas(interaction, sourceNode, targetNode),
     edgeDeltasEqual
   );
   // Re-render when port positions update too (initial measure + body

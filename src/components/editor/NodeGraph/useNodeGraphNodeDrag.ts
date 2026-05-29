@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useLatest } from '@/hooks';
 import { screenToWorld as worldFromScreen } from '@/components/primitives/viewport';
 import type { ViewportTransform } from '@/components/primitives/viewport';
@@ -12,6 +12,13 @@ import { snapDelta, toggleSelected } from './nodeGraphMath';
 import { useDragGesture } from './useDragGesture';
 
 const DRAG_START_THRESHOLD_PX = 3;
+
+/** Pending drag state buffered between pointermove and the next rAF flush. */
+interface PendingDragMove {
+  ids: ReadonlySet<string>;
+  startWorld: Point2D;
+  delta: Point2D;
+}
 
 interface UseNodeGraphNodeDragOptions {
   store: NodeGraphStore;
@@ -78,6 +85,52 @@ export function useNodeGraphNodeDrag(
   const dragRef = useRef<DragSession | null>(null);
   const gesture = useDragGesture();
 
+  // ── rAF-throttled interaction commits ──
+  //
+  // Native pointermove fires at the display's refresh rate (up to several
+  // hundred Hz on high-refresh monitors) — without throttling, every event
+  // triggers a full notification cycle through every NodeGraphStore
+  // subscriber (one per node + one per edge label). Buffering the latest
+  // delta in a ref and flushing once per frame caps the commit rate at
+  // requestAnimationFrame, which already matches the refresh rate the
+  // canvas layers are drawing at.
+  const pendingMoveRef = useRef<PendingDragMove | null>(null);
+  const rafRef = useRef<number>(0);
+
+  const commitPending = useCallback((): void => {
+    const pending = pendingMoveRef.current;
+    if (!pending) return;
+    pendingMoveRef.current = null;
+    store.setInteraction({
+      kind: 'drag-nodes',
+      nodeIds: pending.ids,
+      startWorld: pending.startWorld,
+      delta: pending.delta,
+    });
+  }, [store]);
+
+  const cancelRaf = useCallback((): void => {
+    if (rafRef.current !== 0) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
+  }, []);
+
+  /** Synchronous flush — cancels any pending rAF and commits immediately. */
+  const flushPending = useCallback((): void => {
+    cancelRaf();
+    commitPending();
+  }, [cancelRaf, commitPending]);
+
+  // Cancel any in-flight rAF on unmount so a teardown mid-drag doesn't fire
+  // a commit into a torn-down store.
+  useEffect(() => {
+    return () => {
+      cancelRaf();
+      pendingMoveRef.current = null;
+    };
+  }, [cancelRaf]);
+
   const onNodeBodyPointerDown = useCallback(
     (event: React.PointerEvent<HTMLDivElement>, node: NodeGraphNode): void => {
       if (event.button !== 0) return; // only primary button
@@ -140,18 +193,29 @@ export function useNodeGraphNodeDrag(
           y: dy / transform.zoom,
         };
         const snapped = snapDelta(worldDelta, snapToGridRef.current);
-        const ids = Array.from(session.nodeStartPositions.keys());
-        store.setInteraction({
-          kind: 'drag-nodes',
-          nodeIds: ids,
+        const ids: ReadonlySet<string> = new Set(
+          session.nodeStartPositions.keys()
+        );
+        // Buffer the latest delta; the rAF callback below picks the most
+        // recent value when the frame fires, so any intermediate moves
+        // between frames are coalesced into one commit.
+        pendingMoveRef.current = {
+          ids,
           startWorld: session.startWorld,
           delta: snapped,
+        };
+        if (rafRef.current !== 0) return;
+        rafRef.current = requestAnimationFrame(() => {
+          rafRef.current = 0;
+          commitPending();
         });
       };
 
       gesture.begin(event, {
         onMove: handleMove,
         onCancel: () => {
+          cancelRaf();
+          pendingMoveRef.current = null;
           dragRef.current = null;
           store.setInteraction({ kind: 'idle' });
         },
@@ -168,7 +232,16 @@ export function useNodeGraphNodeDrag(
         didDrag: false,
       };
     },
-    [store, getTransform, localScreenPoint, snapToGridRef, disabledRef, gesture]
+    [
+      store,
+      getTransform,
+      localScreenPoint,
+      snapToGridRef,
+      disabledRef,
+      gesture,
+      cancelRaf,
+      commitPending,
+    ]
   );
 
   const onNodeBodyPointerUp = useCallback(
@@ -177,6 +250,11 @@ export function useNodeGraphNodeDrag(
       if (session?.pointerId !== event.pointerId) return;
       event.stopPropagation();
       gesture.finish(event);
+
+      // Drain any deferred pointermove update before reading from the store —
+      // otherwise the commit would use the previous frame's delta and drop
+      // the final sub-frame movement before pointerup.
+      flushPending();
 
       if (session.didDrag) {
         // Commit positions from store's interaction delta.
@@ -208,7 +286,7 @@ export function useNodeGraphNodeDrag(
 
       dragRef.current = null;
     },
-    [store, emitNodesChangeRef, emitSelectionChangeRef, gesture]
+    [store, emitNodesChangeRef, emitSelectionChangeRef, gesture, flushPending]
   );
 
   return { onNodeBodyPointerDown, onNodeBodyPointerUp };

@@ -177,6 +177,63 @@ function BenchNode({ node }: { node: NodeGraphNode }): React.ReactElement {
   );
 }
 
+/**
+ * Live frame-time meter. Owns its own state + rAF loop so the parent demo
+ * — and the `<NodeGraph>` mounted alongside it — don't rerender every
+ * 300 ms when the readings update. Critical for the benchmark itself:
+ * without isolation, the React profiler shows the entire demo subtree
+ * repainting at the meter's cadence, masking the real interaction cost
+ * we're trying to measure.
+ */
+function FpsStatsBadges(): React.ReactElement {
+  const [stats, setStats] = useState({ fps: 60, ms: 16.7, worst: 17 });
+
+  useEffect(() => {
+    let raf = 0;
+    let last = performance.now();
+    let acc = 0;
+    let frames = 0;
+    let worst = 0;
+    const loop = (now: number): void => {
+      const dt = now - last;
+      last = now;
+      acc += dt;
+      frames += 1;
+      if (dt > worst) worst = dt;
+      if (acc >= 300) {
+        setStats({
+          fps: Math.round((frames * 1000) / acc),
+          ms: Math.round((acc / frames) * 10) / 10,
+          worst: Math.round(worst),
+        });
+        acc = 0;
+        frames = 0;
+        worst = 0;
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const fpsColor =
+    stats.fps >= 50 ? 'success' : stats.fps >= 30 ? 'warning' : 'error';
+
+  return (
+    <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+      <Badge color={fpsColor} variant="subtle">
+        {stats.fps} fps
+      </Badge>
+      <Badge color="neutral" variant="subtle">
+        {stats.ms} ms/frame
+      </Badge>
+      <Badge color="neutral" variant="subtle">
+        worst {stats.worst} ms
+      </Badge>
+    </div>
+  );
+}
+
 export default function NodeGraphBenchmarkDemo(): React.ReactElement {
   const initial = useMemo(() => buildGrid(COUNTS[0]), []);
   const graph = useNodeGraph({ nodes: initial.nodes, edges: initial.edges });
@@ -186,9 +243,8 @@ export default function NodeGraphBenchmarkDemo(): React.ReactElement {
   const [count, setCount] = useState<number>(COUNTS[0]);
   const [netKey, setNetKey] = useState<string>(NETS[0].key);
   const [animate, setAnimate] = useState(false);
-  const [stats, setStats] = useState({ fps: 60, ms: 16.7, worst: 17 });
 
-  // Live values the rAF loop reads without re-subscribing.
+  // Live values the orbit rAF loop reads without re-subscribing.
   const animateRef = useRef(animate);
   animateRef.current = animate;
   const extentRef = useRef({ center: initial.center, radius: initial.radius });
@@ -214,22 +270,13 @@ export default function NodeGraphBenchmarkDemo(): React.ReactElement {
     [graph]
   );
 
-  // Frame-time meter + optional camera orbit. The orbit pans the viewport in a
-  // slow circle so every layer redraws each frame — that's the cost the meter
-  // reports. Idle (animate off) it just measures the browser's natural cadence.
+  // Orbit camera. Pans the viewport in a slow circle so every canvas layer
+  // redraws each frame — purely imperative (`ref.current?.centerOn`), no
+  // setState, so this loop doesn't trigger any React work in the demo
+  // itself. `<FpsStatsBadges>` owns the meter readings separately.
   useEffect(() => {
     let raf = 0;
-    let last = performance.now();
-    let acc = 0;
-    let frames = 0;
-    let worst = 0;
     const loop = (now: number): void => {
-      const dt = now - last;
-      last = now;
-      acc += dt;
-      frames += 1;
-      if (dt > worst) worst = dt;
-
       if (animateRef.current) {
         const { center, radius } = extentRef.current;
         const t = now / 1000;
@@ -238,17 +285,6 @@ export default function NodeGraphBenchmarkDemo(): React.ReactElement {
           x: center.x + Math.cos(t * 0.5) * r,
           y: center.y + Math.sin(t * 0.5) * r,
         });
-      }
-
-      if (acc >= 300) {
-        setStats({
-          fps: Math.round((frames * 1000) / acc),
-          ms: Math.round((acc / frames) * 10) / 10,
-          worst: Math.round(worst),
-        });
-        acc = 0;
-        frames = 0;
-        worst = 0;
       }
       raf = requestAnimationFrame(loop);
     };
@@ -261,9 +297,6 @@ export default function NodeGraphBenchmarkDemo(): React.ReactElement {
     const id = window.setTimeout(() => ref.current?.fitToContent(80), 80);
     return () => window.clearTimeout(id);
   }, []);
-
-  const fpsColor =
-    stats.fps >= 50 ? 'success' : stats.fps >= 30 ? 'warning' : 'error';
 
   return (
     <DemoWrapper>
@@ -348,17 +381,7 @@ export default function NodeGraphBenchmarkDemo(): React.ReactElement {
             onChange={setAnimate}
             label="Orbit camera"
           />
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-            <Badge color={fpsColor} variant="subtle">
-              {stats.fps} fps
-            </Badge>
-            <Badge color="neutral" variant="subtle">
-              {stats.ms} ms/frame
-            </Badge>
-            <Badge color="neutral" variant="subtle">
-              worst {stats.worst} ms
-            </Badge>
-          </div>
+          <FpsStatsBadges />
         </div>
         <div style={{ flex: 1, minHeight: 0 }}>
           <NodeGraph

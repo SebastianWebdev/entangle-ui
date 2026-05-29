@@ -140,10 +140,7 @@ function selectGroupGesture(
   interaction: NodeGraphInteractionState,
   groupId: string
 ): GroupGestureState {
-  if (
-    interaction.kind === 'drag-groups' &&
-    interaction.groupIds.includes(groupId)
-  ) {
+  if (interaction.kind === 'drag-groups' && interaction.groupIds.has(groupId)) {
     return {
       kind: 'drag',
       delta: interaction.delta,
