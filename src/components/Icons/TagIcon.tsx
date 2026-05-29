@@ -2,8 +2,10 @@
 
 // src/icons/TagIcon.tsx
 import React from 'react';
-import { Icon } from '../primitives/Icon';
-import type { IconProps } from '../primitives/Icon';
+
+import { Icon } from '@/components/primitives/Icon';
+
+import type { IconProps } from '@/components/primitives/Icon';
 
 /**
  * Tag icon component for tagging and labeling.

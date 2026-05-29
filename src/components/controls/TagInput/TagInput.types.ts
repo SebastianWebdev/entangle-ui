@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { BaseComponent, Size } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type TagInputSize = Size;
 export type TagInputVariant = 'default' | 'ghost' | 'filled';
@@ -20,7 +20,7 @@ export interface TagInputRenderTagState {
 }
 
 export interface TagInputBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent,
   'onChange' | 'defaultValue' | 'children'
 > {
   /** Controlled list of tags */

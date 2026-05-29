@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { BaseComponent, Size } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type TextAreaSize = Size;
 export type TextAreaResize = 'none' | 'vertical' | 'horizontal' | 'both';

@@ -1,14 +1,5 @@
 'use client';
 
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
 import {
   useFloating,
   offset as offsetMiddleware,
@@ -18,8 +9,17 @@ import {
   useClick,
   useDismiss,
   useInteractions,
-  type Placement,
 } from '@floating-ui/react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+
 import type { PopoverContextValue, PopoverProps } from './Popover.types';
 
 // --- Context ---
@@ -113,7 +113,7 @@ export const Popover: React.FC<PopoverProps> = ({
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
     onOpenChange: handleOpenChange,
-    placement: placement as Placement,
+    placement: placement,
     middleware: [offsetMiddleware(offset), flip(), shift({ padding: 8 })],
     whileElementsMounted: autoUpdate,
   });

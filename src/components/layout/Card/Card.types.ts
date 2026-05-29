@@ -1,13 +1,10 @@
-import type React from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type CardVariant = 'outlined' | 'filled' | 'elevated';
 
-export interface CardBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'onClick'
-> {
+export interface CardBaseProps extends Omit<BaseComponent, 'onClick'> {
   /** Visual variant. @default "outlined" */
   variant?: CardVariant;
   /** Click handler — when set, the whole card becomes interactive (button role). */
@@ -22,10 +19,7 @@ export interface CardBaseProps extends Omit<
 
 export type CardProps = Prettify<CardBaseProps>;
 
-export interface CardHeaderBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'title'
-> {
+export interface CardHeaderBaseProps extends Omit<BaseComponent, 'title'> {
   /** Title row content. Ignored when `children` is provided. */
   title?: React.ReactNode;
   /** Subtitle below the title. Ignored when `children` is provided. */
@@ -40,7 +34,7 @@ export interface CardHeaderBaseProps extends Omit<
 
 export type CardHeaderProps = Prettify<CardHeaderBaseProps>;
 
-export interface CardMediaBaseProps extends BaseComponent<HTMLDivElement> {
+export interface CardMediaBaseProps extends BaseComponent {
   /** Image source — shortcut for an `<img>` child. */
   src?: string;
   /** Alt text for the image. */
@@ -52,7 +46,7 @@ export interface CardMediaBaseProps extends BaseComponent<HTMLDivElement> {
 
 export type CardMediaProps = Prettify<CardMediaBaseProps>;
 
-export interface CardBodyBaseProps extends BaseComponent<HTMLDivElement> {
+export interface CardBodyBaseProps extends BaseComponent {
   children?: React.ReactNode;
 }
 
@@ -60,7 +54,7 @@ export type CardBodyProps = Prettify<CardBodyBaseProps>;
 
 export type CardFooterAlign = 'left' | 'center' | 'right' | 'space-between';
 
-export interface CardFooterBaseProps extends BaseComponent<HTMLDivElement> {
+export interface CardFooterBaseProps extends BaseComponent {
   /** Horizontal alignment of footer content. @default "right" */
   align?: CardFooterAlign;
   children?: React.ReactNode;

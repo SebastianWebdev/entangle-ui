@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
+
+import { Spinner } from '@/components/feedback/Spinner';
 import { cx } from '@/utils/cx';
-import { Spinner } from '../Spinner';
-import type { EmptyStateProps } from './EmptyState.types';
+
 import {
   emptyStateActionStyle,
   emptyStateDescriptionStyle,
@@ -13,6 +14,8 @@ import {
   emptyStateTextColumnStyle,
   emptyStateTitleStyle,
 } from './EmptyState.css';
+
+import type { EmptyStateProps } from './EmptyState.types';
 
 /**
  * Generic empty / loading state surface.

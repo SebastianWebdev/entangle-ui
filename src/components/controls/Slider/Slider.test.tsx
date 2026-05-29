@@ -140,11 +140,13 @@ describe('Slider', () => {
       expect(slider).toHaveAttribute('aria-readonly', 'true');
     });
 
-    it('has aria-required when required', () => {
-      renderSlider({ required: true });
+    it('does not set aria-required on the slider role (unsupported by ARIA)', () => {
+      // The slider role does not support aria-required; the required state is
+      // conveyed through the associated FormLabel instead.
+      renderSlider({ required: true, label: 'Volume' });
 
       const slider = screen.getByRole('slider');
-      expect(slider).toHaveAttribute('aria-required', 'true');
+      expect(slider).not.toHaveAttribute('aria-required');
     });
 
     it('has aria-invalid when error', () => {

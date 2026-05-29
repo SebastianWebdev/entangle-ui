@@ -49,25 +49,22 @@ beforeEach(() => {
   HTMLElement.prototype.setPointerCapture = vi.fn();
   HTMLElement.prototype.releasePointerCapture = vi.fn();
   HTMLElement.prototype.hasPointerCapture = vi.fn(() => true);
-  HTMLDivElement.prototype.getBoundingClientRect = vi.fn(
-    () =>
-      ({
-        x: 0,
-        y: 0,
-        left: 0,
-        top: 0,
-        right: 200,
-        bottom: 100,
-        width: 200,
-        height: 100,
-        toJSON: () => ({}),
-      }) as DOMRect
-  );
+  HTMLDivElement.prototype.getBoundingClientRect = vi.fn(() => ({
+    x: 0,
+    y: 0,
+    left: 0,
+    top: 0,
+    right: 200,
+    bottom: 100,
+    width: 200,
+    height: 100,
+    toJSON: () => ({}),
+  }));
   globalThis.ResizeObserver = class {
     observe = vi.fn();
     unobserve = vi.fn();
     disconnect = vi.fn();
-  } as unknown as typeof ResizeObserver;
+  };
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
     cb(0);
     return 0;
@@ -192,7 +189,7 @@ describe('ViewportMinimap', () => {
         clientX: 190,
         clientY: 90,
         button: 0,
-      }) as unknown as PointerEvent
+      })
     );
     fireEvent(
       body,
@@ -200,7 +197,7 @@ describe('ViewportMinimap', () => {
         clientX: 190,
         clientY: 90,
         button: 0,
-      }) as unknown as PointerEvent
+      })
     );
     expect(userNav).toHaveBeenCalled();
   });

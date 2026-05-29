@@ -1,10 +1,10 @@
-import type React from 'react';
-import type { Prettify } from '@/types/utilities';
-import type { BaseComponent, Size } from '@/types/common';
 import type {
   Point2D,
   CanvasBackgroundInfo,
 } from '@/components/primitives/canvas/canvas.types';
+import type { BaseComponent, Size } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type CartesianPickerSize = Size;
 

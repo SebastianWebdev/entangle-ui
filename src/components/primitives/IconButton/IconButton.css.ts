@@ -1,6 +1,9 @@
-import { recipe, type RecipeVariants } from '@vanilla-extract/recipes';
 import { style, keyframes, globalStyle } from '@vanilla-extract/css';
+import { recipe } from '@vanilla-extract/recipes';
+
 import { vars } from '@/theme/contract.css';
+
+import type { RecipeVariants } from '@vanilla-extract/recipes';
 
 const iconButtonBase = style({
   margin: 0,

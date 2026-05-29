@@ -5,7 +5,18 @@ description: Checkbox component for boolean selection with indeterminate state, 
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import CheckboxDemo from '../../../../components/demos/primitives/CheckboxDemo';
+import CheckboxDemo, {
+  CheckboxControlled,
+  CheckboxSizes,
+  CheckboxVariants,
+  CheckboxIndeterminate,
+  CheckboxLabelPosition,
+  CheckboxHelperError,
+  CheckboxRequired,
+  CheckboxDisabled,
+  CheckboxFormSubmission,
+  CheckboxCombined,
+} from '../../../../components/demos/primitives/CheckboxDemo';
 
 Checkbox component for boolean selection in settings panels, property inspectors, and form interfaces. Supports controlled and uncontrolled modes, indeterminate state, label positioning, sizes, variants, and error states.
 
@@ -35,7 +46,15 @@ const [checked, setChecked] = useState(false);
 <Checkbox checked={checked} onChange={setChecked} label="Auto-save" />;
 ```
 
+<ComponentPreview title="Controlled">
+  <CheckboxControlled client:only="react" />
+</ComponentPreview>
+
 ## Sizes
+
+<ComponentPreview title="Sizes">
+  <CheckboxSizes client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Checkbox size="sm" label="Small (14px)" />
@@ -51,6 +70,10 @@ const [checked, setChecked] = useState(false);
 
 ## Variants
 
+<ComponentPreview title="Variants">
+  <CheckboxVariants client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Checkbox variant="default" label="Default variant" />
 <Checkbox variant="filled" label="Filled variant" />
@@ -65,6 +88,10 @@ const [checked, setChecked] = useState(false);
 
 The `indeterminate` prop shows a dash icon instead of a checkmark. Used for "select all" patterns when some items are checked. Takes visual precedence over the checked state.
 
+<ComponentPreview title="Indeterminate">
+  <CheckboxIndeterminate client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Checkbox indeterminate label="Select all" />
 ```
@@ -72,6 +99,10 @@ The `indeterminate` prop shows a dash icon instead of a checkmark. Used for "sel
 ## Label Position
 
 The label can be placed on either side of the checkbox.
+
+<ComponentPreview title="Label Position">
+  <CheckboxLabelPosition client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Checkbox label="Label on right" labelPosition="right" />
@@ -81,6 +112,10 @@ The label can be placed on either side of the checkbox.
 ## Helper Text and Error
 
 Display helper text below the checkbox, or an error message when validation fails.
+
+<ComponentPreview title="Helper Text and Error">
+  <CheckboxHelperError client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Checkbox
@@ -97,11 +132,19 @@ Display helper text below the checkbox, or an error message when validation fail
 
 ## Required
 
+<ComponentPreview title="Required">
+  <CheckboxRequired client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Checkbox label="I agree to the terms" required />
 ```
 
 ## Disabled
+
+<ComponentPreview title="Disabled">
+  <CheckboxDisabled client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Checkbox disabled label="Disabled unchecked" />
@@ -112,12 +155,20 @@ Display helper text below the checkbox, or an error message when validation fail
 
 Use the `name` and `value` props for form integration. A hidden input is rendered with the appropriate value.
 
+<ComponentPreview title="Form Submission">
+  <CheckboxFormSubmission client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Checkbox name="features" value="shadows" label="Enable shadows" />
 <Checkbox name="features" value="reflections" label="Enable reflections" />
 ```
 
 ## Combining Props
+
+<ComponentPreview title="Combining Props">
+  <CheckboxCombined client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Checkbox

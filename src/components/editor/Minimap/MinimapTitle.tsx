@@ -1,4 +1,5 @@
 import { MINIMAP_SLOT } from './Minimap.types';
+
 import type { MinimapTitleProps } from './Minimap.types';
 
 /**

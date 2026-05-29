@@ -1,15 +1,13 @@
 'use client';
 
-import React, { useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { cx } from '@/utils/cx';
+import React, { useCallback } from 'react';
+
 import { UndoIcon } from '@/components/Icons';
 import { Tooltip } from '@/components/primitives/Tooltip';
+import { cx } from '@/utils/cx';
+
 import { usePropertyPanelContext } from './PropertyPanel';
-import type {
-  PropertyInspectorSize,
-  PropertyRowProps,
-} from './PropertyInspector.types';
 import {
   RESET_BUTTON_CLASS,
   splitRatioVar,
@@ -22,6 +20,11 @@ import {
   fullWidthControl,
   resetButton,
 } from './PropertyRow.css';
+
+import type {
+  PropertyInspectorSize,
+  PropertyRowProps,
+} from './PropertyInspector.types';
 
 // --- Size maps ---
 

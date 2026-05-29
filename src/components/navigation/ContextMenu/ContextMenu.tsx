@@ -1,18 +1,21 @@
 'use client';
 
-import React from 'react';
 import { ContextMenu as BaseContextMenu } from '@base-ui/react/context-menu';
-import type { MenuRootActions } from '@base-ui/react/menu';
+import React from 'react';
 
+import { menuContentStyle } from '@/components/navigation/Menu/Menu.css';
+import {
+  MenuGapContext,
+  DEFAULT_MENU_GAP,
+} from '@/components/navigation/Menu/MenuGapContext';
 import { cx } from '@/utils/cx';
 
-import { menuContentStyle } from '../Menu/Menu.css';
-import { MenuGapContext, DEFAULT_MENU_GAP } from '../Menu/MenuGapContext';
 import type {
   ContextMenuProps,
   ContextMenuTriggerProps,
   ContextMenuContentProps,
 } from './ContextMenu.types';
+import type { MenuRootActions } from '@base-ui/react/menu';
 
 /**
  * Right-click context menu, built on `@base-ui/react` ContextMenu primitives.

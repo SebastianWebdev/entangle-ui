@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useSyncExternalStore } from 'react';
+
 import { cx } from '@/utils/cx';
-import type { ViewportWorldProps } from './Viewport.types';
-import { useViewportStore } from './ViewportContext';
+
 import { worldLayerStyle } from './Viewport.css';
+import { useViewportStore } from './ViewportContext';
+
+import type { ViewportWorldProps } from './Viewport.types';
 
 /**
  * Container for HTML children positioned in **world coordinates**.

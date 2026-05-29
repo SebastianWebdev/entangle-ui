@@ -1,12 +1,15 @@
 'use client';
 
 // src/components/layout/Stack/Stack.tsx
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React from 'react';
+
+import { cx } from '@/utils/cx';
+
+import { stackRecipe, gapVar } from './Stack.css';
+
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
-import { cx } from '@/utils/cx';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { stackRecipe, gapVar } from './Stack.css';
 
 /**
  * Stack direction options
@@ -44,10 +47,7 @@ export type StackAlign =
  */
 export type StackSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-export interface StackBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'children'
-> {
+export interface StackBaseProps extends Omit<BaseComponent, 'children'> {
   /**
    * Stack content - any React elements
    */

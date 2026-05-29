@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
+
 import { cx } from '@/utils/cx';
-import type { PageHeaderProps } from './PageHeader.types';
+
 import {
   pageHeaderActionsStyle,
   pageHeaderBreadcrumbsStyle,
@@ -12,6 +13,8 @@ import {
   pageHeaderTitleColumnStyle,
   pageHeaderTitleRecipe,
 } from './PageHeader.css';
+
+import type { PageHeaderProps } from './PageHeader.types';
 
 /**
  * Structural page/view header with optional breadcrumbs, subtitle,

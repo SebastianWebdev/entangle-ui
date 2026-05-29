@@ -9,19 +9,15 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
+import { FormHelperText } from '@/components/form/FormHelperText';
+import { FormLabel } from '@/components/form/FormLabel';
 import { CheckIcon } from '@/components/Icons/CheckIcon';
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { CloseIcon } from '@/components/Icons/CloseIcon';
-import { FormLabel } from '@/components/form/FormLabel';
-import { FormHelperText } from '@/components/form/FormHelperText';
 import { ScrollArea } from '@/components/layout/ScrollArea';
 import { cx } from '@/utils/cx';
-import type {
-  SelectOptionItem,
-  SelectOptionGroup,
-  SelectProps,
-  SelectSize,
-} from './Select.types';
+
 import {
   selectContainerStyle,
   triggerRecipe,
@@ -36,6 +32,13 @@ import {
   emptyMessageStyle,
   checkmarkStyle,
 } from './Select.css';
+
+import type {
+  SelectOptionItem,
+  SelectOptionGroup,
+  SelectProps,
+  SelectSize,
+} from './Select.types';
 
 // --- Helpers ---
 
@@ -248,7 +251,9 @@ export function Select<T extends string = string>({
     };
 
     document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+    };
   }, [isOpen, close]);
 
   // Get navigable options (non-disabled)
@@ -382,8 +387,7 @@ export function Select<T extends string = string>({
       if (typeof ref === 'function') {
         ref(node);
       } else if (ref) {
-        (ref as React.MutableRefObject<HTMLButtonElement | null>).current =
-          node;
+        ref.current = node;
       }
     },
     [ref]
@@ -430,10 +434,17 @@ export function Select<T extends string = string>({
     const isSelected = opt.value === currentValue;
     const isHighlighted = index === highlightedIndex;
 
+    const selectOption = () => {
+      if (!opt.disabled) {
+        selectValue(opt.value);
+      }
+    };
+
     return (
       <div
         key={opt.value}
         role="option"
+        tabIndex={-1}
         aria-selected={isSelected}
         aria-disabled={opt.disabled ?? undefined}
         className={optionItemRecipe({
@@ -441,9 +452,11 @@ export function Select<T extends string = string>({
           selected: isSelected,
           disabled: opt.disabled ?? false,
         })}
-        onClick={() => {
-          if (!opt.disabled) {
-            selectValue(opt.value);
+        onClick={selectOption}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectOption();
           }
         }}
         onMouseEnter={() => {
@@ -488,7 +501,13 @@ export function Select<T extends string = string>({
         aria-invalid={error || undefined}
         aria-describedby={showHelperText ? helperId : undefined}
         disabled={disabled}
-        onClick={() => (isOpen ? close() : open())}
+        onClick={() => {
+          if (isOpen) {
+            close();
+          } else {
+            open();
+          }
+        }}
         onKeyDown={handleTriggerKeyDown}
         className={triggerRecipe({
           size,
@@ -517,6 +536,13 @@ export function Select<T extends string = string>({
             className={clearButtonStyle}
             role="button"
             onClick={handleClear}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                selectValue(null);
+              }
+            }}
             aria-label="Clear selection"
             tabIndex={-1}
           >

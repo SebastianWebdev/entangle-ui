@@ -1,5 +1,6 @@
 import { createVar, style } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
+
 import { vars } from '@/theme/contract.css';
 import { pulseKeyframe, spinKeyframe } from '@/utils/animations.css';
 

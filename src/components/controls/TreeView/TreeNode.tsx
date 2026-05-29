@@ -1,13 +1,10 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useState, useRef, useCallback } from 'react';
+
 import { ChevronRightIcon } from '@/components/Icons';
-import type {
-  TreeNodeData,
-  TreeNodeState,
-  TreeViewSize,
-} from './TreeView.types';
+
 import {
   rowRecipe,
   chevronRecipe,
@@ -19,6 +16,12 @@ import {
   paddingLeftVar,
   guideLineLeftVar,
 } from './TreeNode.css';
+
+import type {
+  TreeNodeData,
+  TreeNodeState,
+  TreeViewSize,
+} from './TreeView.types';
 
 // --- Size configurations ---
 
@@ -208,6 +211,11 @@ export const TreeNodeComponent = ({
       : null;
 
   return (
+    // Keyboard interaction is handled centrally by the parent role="tree"
+    // container via the aria-activedescendant pattern (it owns tabIndex and
+    // onKeyDown). Individual treeitems are not separately focusable, so their
+    // onClick is a pointer-only enhancement and they carry no key handler.
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
       id={`treenode-${nodeId}`}
       role="treeitem"
@@ -259,11 +267,15 @@ export const TreeNodeComponent = ({
               ref={renameInputRef}
               className={renameInputRecipe({ size })}
               value={renameValue}
-              onChange={e => setRenameValue(e.target.value)}
+              onChange={e => {
+                setRenameValue(e.target.value);
+              }}
               onKeyDown={handleRenameKeyDown}
               onBlur={confirmRename}
               aria-label={`Rename ${node.label}`}
-              onClick={e => e.stopPropagation()}
+              onClick={e => {
+                e.stopPropagation();
+              }}
             />
           ) : (
             <span className={labelRecipe({ size })}>{node.label}</span>
@@ -273,7 +285,17 @@ export const TreeNodeComponent = ({
 
       {/* Actions */}
       {renderActions && (
-        <span className={actionsStyle} onClick={e => e.stopPropagation()}>
+        // This span is a non-interactive container; its onClick only stops
+        // row-click propagation so that the genuinely interactive controls
+        // produced by renderActions handle their own activation. It has no
+        // activatable behavior of its own, so no role or key handler applies.
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+        <span
+          className={actionsStyle}
+          onClick={e => {
+            e.stopPropagation();
+          }}
+        >
           {renderActions(node, state)}
         </span>
       )}

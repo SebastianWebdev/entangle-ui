@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
-import type { ChatBubbleProps } from './ChatPanel.types';
+
 import { cx } from '@/utils/cx';
+
 import { bubbleRecipe } from './ChatPanel.css';
+
+import type { ChatBubbleProps } from './ChatPanel.types';
 
 export const ChatBubble = /*#__PURE__*/ React.memo<ChatBubbleProps>(
   ({

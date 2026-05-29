@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React from 'react';
+
 import { cx } from '@/utils/cx';
-import type { ToastInternalData, ToastPosition } from './Toast.types';
-import { ToastItem } from './ToastItem';
+
 import {
   gapVar,
   zIndexVar,
@@ -12,6 +12,9 @@ import {
   containerReverse,
   containerNormal,
 } from './ToastContainer.css';
+import { ToastItem } from './ToastItem';
+
+import type { ToastInternalData, ToastPosition } from './Toast.types';
 
 // --- Position style map ---
 

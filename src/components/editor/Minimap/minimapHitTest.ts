@@ -1,6 +1,6 @@
+import type { MinimapItem } from './Minimap.types';
 import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { WorldRect } from '@/components/primitives/viewport';
-import type { MinimapItem } from './Minimap.types';
 
 /** Distance from point P to line segment A-B (in world units). */
 function distancePointToSegment(p: Point2D, a: Point2D, b: Point2D): number {

@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 /** Visual density. Affects row height and cell padding. */
 export type DataTableDensity = 'comfortable' | 'compact' | 'dense';
@@ -89,7 +89,7 @@ export interface DataTableRowRenderInfo<R> {
 export type DataTableVirtualizationMode = boolean | 'auto';
 
 export interface DataTableBaseProps<R> extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent,
   'onSelect' | 'children' | 'onChange'
 > {
   /** Row data. */

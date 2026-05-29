@@ -1,0 +1,173 @@
+import { describe, it, expect } from 'vitest';
+import {
+  frameToX,
+  xToFrame,
+  snapFrame,
+  clamp,
+  framesToTimecode,
+  valueToY,
+  yToValue,
+  autoValueRange,
+  nextFollowView,
+  resolveLoop,
+} from './timelineCoords';
+
+const VIEW = { startFrame: 0, endFrame: 100 };
+
+describe('timelineCoords', () => {
+  describe('frameToX / xToFrame', () => {
+    it('maps frames to pixels across the width', () => {
+      expect(frameToX(0, VIEW, 200)).toBe(0);
+      expect(frameToX(100, VIEW, 200)).toBe(200);
+      expect(frameToX(50, VIEW, 200)).toBe(100);
+    });
+    it('round-trips', () => {
+      const x = frameToX(37, VIEW, 640);
+      expect(xToFrame(x, VIEW, 640)).toBeCloseTo(37);
+    });
+    it('respects a non-zero start frame', () => {
+      const view = { startFrame: 20, endFrame: 120 };
+      expect(frameToX(20, view, 100)).toBe(0);
+      expect(frameToX(120, view, 100)).toBe(100);
+    });
+    it('xToFrame returns startFrame when width <= 0', () => {
+      expect(xToFrame(10, VIEW, 0)).toBe(0);
+    });
+  });
+
+  describe('snapFrame', () => {
+    it('snaps to whole frames when true', () => {
+      expect(snapFrame(12.4, true)).toBe(12);
+      expect(snapFrame(12.6, true)).toBe(13);
+    });
+    it('snaps to an N-frame grid', () => {
+      expect(snapFrame(13, 5)).toBe(15);
+      expect(snapFrame(12, 5)).toBe(10);
+    });
+    it('does not snap when false', () => {
+      expect(snapFrame(12.4, false)).toBe(12.4);
+    });
+  });
+
+  describe('clamp', () => {
+    it('clamps to range', () => {
+      expect(clamp(5, 0, 10)).toBe(5);
+      expect(clamp(-1, 0, 10)).toBe(0);
+      expect(clamp(11, 0, 10)).toBe(10);
+    });
+  });
+
+  describe('framesToTimecode', () => {
+    it('formats zero', () => {
+      expect(framesToTimecode(0, 30)).toBe('00:00:00:00');
+    });
+    it('rolls frames into seconds at fps', () => {
+      expect(framesToTimecode(30, 30)).toBe('00:00:01:00');
+      expect(framesToTimecode(45, 30)).toBe('00:00:01:15');
+    });
+    it('rolls into minutes and hours', () => {
+      expect(framesToTimecode(30 * 60, 30)).toBe('00:01:00:00');
+      expect(framesToTimecode(30 * 3600, 30)).toBe('01:00:00:00');
+    });
+    it('clamps negatives to zero', () => {
+      expect(framesToTimecode(-10, 30)).toBe('00:00:00:00');
+    });
+    it('falls back to 30 fps when fps is invalid', () => {
+      expect(framesToTimecode(30, 0)).toBe('00:00:01:00');
+    });
+  });
+
+  describe('value axis (graph mode)', () => {
+    it('maps the value range to the row, top value up', () => {
+      // range [0,1], rowTop 0, rowH 20 -> inset 4, usable 12
+      expect(valueToY(1, [0, 1], 0, 20)).toBe(4);
+      expect(valueToY(0, [0, 1], 0, 20)).toBe(16);
+      expect(valueToY(0.5, [0, 1], 0, 20)).toBe(10);
+    });
+
+    it('yToValue inverts valueToY', () => {
+      const y = valueToY(0.3, [0, 2], 10, 40);
+      expect(yToValue(y, [0, 2], 10, 40)).toBeCloseTo(0.3);
+    });
+
+    it('autoValueRange pads min/max, handles single value + empty', () => {
+      expect(autoValueRange([{ y: 0 }, { y: 10 }])).toEqual([-1, 11]);
+      expect(autoValueRange([{ y: 5 }])).toEqual([4, 6]);
+      expect(autoValueRange([])).toEqual([0, 1]);
+    });
+  });
+
+  describe('resolveLoop', () => {
+    it('resolves true / object / falsey', () => {
+      expect(resolveLoop(true, 0, 100)).toEqual({
+        startFrame: 0,
+        endFrame: 100,
+      });
+      expect(resolveLoop({ startFrame: 10, endFrame: 20 }, 0, 100)).toEqual({
+        startFrame: 10,
+        endFrame: 20,
+      });
+      expect(resolveLoop(false, 0, 100)).toBeNull();
+      expect(resolveLoop(undefined, 0, 100)).toBeNull();
+    });
+  });
+
+  describe('nextFollowView', () => {
+    const view = { startFrame: 40, endFrame: 100 }; // span 60
+
+    it("'off' always returns null", () => {
+      expect(nextFollowView('off', view, 70, 0, 200)).toBeNull();
+      expect(nextFollowView('off', view, 9999, 0, 200)).toBeNull();
+    });
+
+    it("'smooth' pins the playhead to the centre and reports new view", () => {
+      // frame 80 → start = 80 - 30 = 50, end = 110 (still in bounds)
+      expect(nextFollowView('smooth', view, 80, 0, 200)).toEqual({
+        startFrame: 50,
+        endFrame: 110,
+      });
+    });
+
+    it("'smooth' clamps to the global range at the right edge", () => {
+      // frame 195 → unclamped start = 165, clamped to 200 - 60 = 140
+      expect(nextFollowView('smooth', view, 195, 0, 200)).toEqual({
+        startFrame: 140,
+        endFrame: 200,
+      });
+    });
+
+    it("'smooth' clamps to startFrame at the left edge", () => {
+      // frame 5 → unclamped start = -25, clamped to 0
+      expect(nextFollowView('smooth', view, 5, 0, 200)).toEqual({
+        startFrame: 0,
+        endFrame: 60,
+      });
+    });
+
+    it("'smooth' returns null when the centred view equals the current view", () => {
+      // frame 70 is already at the centre of [40, 100]
+      expect(nextFollowView('smooth', view, 70, 0, 200)).toBeNull();
+    });
+
+    it("'paged' returns null while the playhead is inside the current view", () => {
+      expect(nextFollowView('paged', view, 70, 0, 200)).toBeNull();
+      expect(nextFollowView('paged', view, 99, 0, 200)).toBeNull();
+    });
+
+    it("'paged' jumps by a full span when the playhead leaves the view", () => {
+      // frame 101 is past view.endFrame → new view starts at 101
+      expect(nextFollowView('paged', view, 101, 0, 200)).toEqual({
+        startFrame: 101,
+        endFrame: 161,
+      });
+    });
+
+    it("'paged' clamps the jump so the view never sails past the global range", () => {
+      // frame 180 would yield start 180, clamped to 200 - 60 = 140
+      expect(nextFollowView('paged', view, 180, 0, 200)).toEqual({
+        startFrame: 140,
+        endFrame: 200,
+      });
+    });
+  });
+});

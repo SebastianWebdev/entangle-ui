@@ -1,12 +1,15 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React from 'react';
+
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
+
 import { Skeleton } from './Skeleton';
-import type { SkeletonGroupProps } from './Skeleton.types';
 import { skeletonGroupGapVar, skeletonGroupRecipe } from './Skeleton.css';
+
+import type { SkeletonGroupProps } from './Skeleton.types';
 
 const SPACING_SCALE: readonly string[] = [
   '0',

@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
-import type { DialogFooterProps } from './Dialog.types';
+
 import { cx } from '@/utils/cx';
+
 import { dialogFooterRecipe } from './Dialog.css';
+
+import type { DialogFooterProps } from './Dialog.types';
 
 // --- Component ---
 

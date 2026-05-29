@@ -1,14 +1,11 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React from 'react';
+
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
-import type {
-  CircularProgressProps,
-  CircularProgressSize,
-  ProgressBarColor,
-} from './ProgressBar.types';
+
 import {
   circularFillCircleStyle,
   circularIndeterminateStyle,
@@ -18,6 +15,12 @@ import {
   circularTrackCircleStyle,
   progressColorVar,
 } from './ProgressBar.css';
+
+import type {
+  CircularProgressProps,
+  CircularProgressSize,
+  ProgressBarColor,
+} from './ProgressBar.types';
 
 const SIZE_MAP: Record<CircularProgressSize, number> = {
   xs: 16,
@@ -51,7 +54,7 @@ const NAMED_COLOR_MAP: Record<string, string> = {
 };
 
 function resolveColor(color: ProgressBarColor): string {
-  return NAMED_COLOR_MAP[color as string] ?? color;
+  return NAMED_COLOR_MAP[color] ?? color;
 }
 
 function clampValue(value: number, min: number, max: number): number {

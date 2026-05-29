@@ -1,6 +1,9 @@
-import { recipe, type RecipeVariants } from '@vanilla-extract/recipes';
 import { style } from '@vanilla-extract/css';
+import { recipe } from '@vanilla-extract/recipes';
+
 import { vars } from '@/theme/contract.css';
+
+import type { RecipeVariants } from '@vanilla-extract/recipes';
 
 export const textRecipe = recipe({
   base: {

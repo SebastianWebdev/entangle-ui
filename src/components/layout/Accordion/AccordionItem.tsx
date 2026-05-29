@@ -1,13 +1,16 @@
 'use client';
 
 import React from 'react';
+
+import { cx } from '@/utils/cx';
+
 import { useAccordionContext, AccordionItemContext } from './Accordion';
+import { accordionItem } from './Accordion.css';
+
 import type {
   AccordionItemContextValue,
   AccordionItemProps,
 } from './Accordion.types';
-import { cx } from '@/utils/cx';
-import { accordionItem } from './Accordion.css';
 
 // --- Component ---
 

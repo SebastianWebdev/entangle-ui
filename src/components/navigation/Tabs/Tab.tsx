@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import { useTabsContext } from './Tabs';
-import type { TabProps, TabsSize } from './Tabs.types';
+
 import { CloseIcon } from '@/components/Icons/CloseIcon';
-import { cx } from '@/utils/cx';
 import { vars } from '@/theme/contract.css';
+import { cx } from '@/utils/cx';
+
+import { useTabsContext } from './Tabs';
 import {
   tabBaseStyle,
   tabRecipe,
@@ -25,6 +26,8 @@ import {
   tabIconStyle,
   tabCloseButtonStyle,
 } from './Tabs.css';
+
+import type { TabProps, TabsSize } from './Tabs.types';
 
 // --- Size maps ---
 
@@ -136,6 +139,17 @@ export const Tab: React.FC<TabProps> = ({
     [onClose, value]
   );
 
+  const handleCloseKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose?.(value);
+      }
+    },
+    [onClose, value]
+  );
+
   const variantClasses = getVariantClasses(variant, isActive, orientation);
 
   return (
@@ -179,8 +193,10 @@ export const Tab: React.FC<TabProps> = ({
         <span
           className={tabCloseButtonStyle}
           role="button"
+          tabIndex={0}
           aria-label={`Close ${typeof children === 'string' ? children : value}`}
           onClick={handleClose}
+          onKeyDown={handleCloseKeyDown}
         >
           <CloseIcon size={closeIconSize} decorative />
         </span>

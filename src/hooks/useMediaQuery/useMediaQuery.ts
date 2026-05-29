@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+
 import type { UseMediaQueryOptions } from './useMediaQuery.types';
 
 function getInitialMatch(query: string, fallback: boolean): boolean {
@@ -46,6 +47,8 @@ export function useMediaQuery(
     }
 
     const mql = window.matchMedia(query);
+    // External-system sync: seed state from matchMedia on mount/query change.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMatches(mql.matches);
 
     const handler = (event: MediaQueryListEvent): void => {
@@ -59,9 +62,13 @@ export function useMediaQuery(
       };
     }
 
-    // Legacy Safari fallback.
+    // Legacy Safari fallback, reached only when the modern addEventListener
+    // API above is unavailable. addListener/removeListener are deprecated but
+    // remain the only option on those older engines.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     mql.addListener(handler);
     return () => {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       mql.removeListener(handler);
     };
   }, [query]);

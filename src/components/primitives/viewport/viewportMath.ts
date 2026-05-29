@@ -1,10 +1,11 @@
 import { clamp } from '@/utils/mathUtils';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+
 import type {
   ViewportSize,
   ViewportTransform,
   WorldRect,
 } from './Viewport.types';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 
 interface ZoomLimits {
   minZoom: number;

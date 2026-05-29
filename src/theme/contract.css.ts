@@ -1,4 +1,5 @@
 import { createGlobalThemeContract } from '@vanilla-extract/css';
+
 import { themeContractData } from './themeContractData';
 
 /**

@@ -1,15 +1,12 @@
-import type { ReactNode } from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type { ReactNode } from 'react';
 
 export type ToolbarPosition = 'top' | 'left' | 'right';
 export type AppShellTopChromeSeparator = 'none' | 'border' | 'shadow' | 'both';
 export type AppShellSideChromeSeparator = 'none' | 'border' | 'shadow' | 'both';
 
-export interface AppShellBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'children'
-> {
+export interface AppShellBaseProps extends Omit<BaseComponent, 'children'> {
   /** Lock the shell to the viewport (injects global html/body styles) */
   viewportLock?: boolean;
   /**

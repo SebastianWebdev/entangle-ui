@@ -1,4 +1,5 @@
 import { recipe } from '@vanilla-extract/recipes';
+
 import { vars } from '@/theme/contract.css';
 
 export const hoverCardContentRecipe = recipe({

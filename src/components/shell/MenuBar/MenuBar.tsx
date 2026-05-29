@@ -11,15 +11,9 @@ import React, {
   KeyboardEvent,
   useMemo,
 } from 'react';
+
 import { cx } from '@/utils/cx';
-import type {
-  MenuBarProps,
-  MenuBarMenuProps,
-  MenuBarItemProps,
-  MenuBarSubProps,
-  MenuBarSeparatorProps,
-  MenuBarContextValue,
-} from './MenuBar.types';
+
 import {
   menuBarRoot,
   menuContainer,
@@ -32,6 +26,15 @@ import {
   subDropdown,
   subContainer,
 } from './MenuBar.css';
+
+import type {
+  MenuBarProps,
+  MenuBarMenuProps,
+  MenuBarItemProps,
+  MenuBarSubProps,
+  MenuBarSeparatorProps,
+  MenuBarContextValue,
+} from './MenuBar.types';
 
 // --- Context ---
 
@@ -132,7 +135,9 @@ const MenuBarSub: React.FC<MenuBarSubProps> = ({
   }, [disabled]);
 
   const handleLeave = useCallback(() => {
-    closeTimer.current = setTimeout(() => setOpen(false), SUBMENU_CLOSE_DELAY);
+    closeTimer.current = setTimeout(() => {
+      setOpen(false);
+    }, SUBMENU_CLOSE_DELAY);
   }, []);
 
   useEffect(() => {
@@ -226,7 +231,9 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
 
   useEffect(() => {
     registerMenu(menuId);
-    return () => unregisterMenu(menuId);
+    return () => {
+      unregisterMenu(menuId);
+    };
   }, [menuId, registerMenu, unregisterMenu]);
 
   const handleClick = useCallback(() => {
@@ -305,7 +312,9 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
     };
 
     document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
   }, [isOpen, setOpenMenuId]);
 
   return (
@@ -337,6 +346,9 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
           className={dropdown}
           role="menu"
           aria-label={label}
+          // Focusable programmatically so the open menu can receive focus and
+          // handle arrow-key navigation across its items.
+          tabIndex={-1}
           onKeyDown={handleDropdownKeyDown}
           style={{ top: `calc(100% + ${menuOffset}px)` }}
         >
@@ -363,9 +375,10 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
   ...rest
 }) => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const menuIdsRef = useRef<string[]>([]);
+  // Registered child menu ids, kept in state so the context value stays
+  // reactive (previously a ref + forceUpdate, which read the ref during render).
+  const [menuIds, setMenuIds] = useState<string[]>([]);
   const safeMenuOffset = Math.max(0, menuOffset);
-  const [, forceUpdate] = useState(0);
   const barRef = useRef<HTMLDivElement>(null);
   const setBarRef = useMemo(
     () => (node: HTMLDivElement | null) => {
@@ -373,23 +386,18 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
       if (typeof externalRef === 'function') {
         externalRef(node);
       } else if (externalRef && typeof externalRef === 'object') {
-        (externalRef as React.MutableRefObject<HTMLDivElement | null>).current =
-          node;
+        externalRef.current = node;
       }
     },
     [externalRef]
   );
 
   const registerMenu = useCallback((id: string) => {
-    if (!menuIdsRef.current.includes(id)) {
-      menuIdsRef.current = [...menuIdsRef.current, id];
-      forceUpdate(c => c + 1);
-    }
+    setMenuIds(prev => (prev.includes(id) ? prev : [...prev, id]));
   }, []);
 
   const unregisterMenu = useCallback((id: string) => {
-    menuIdsRef.current = menuIdsRef.current.filter(m => m !== id);
-    forceUpdate(c => c + 1);
+    setMenuIds(prev => prev.filter(m => m !== id));
   }, []);
 
   const handleBarKeyDown = useCallback(
@@ -434,7 +442,7 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
       setOpenMenuId,
       registerMenu,
       unregisterMenu,
-      menuIds: menuIdsRef.current,
+      menuIds,
     }),
     [
       size,
@@ -443,6 +451,7 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
       setOpenMenuId,
       registerMenu,
       unregisterMenu,
+      menuIds,
     ]
   );
 

@@ -1,20 +1,15 @@
 'use client';
 
 import React, { useCallback, useMemo } from 'react';
-import { cx } from '@/utils/cx';
-import { useControlledState } from '@/hooks/useControlledState';
-import { VectorInput } from '@/components/controls/VectorInput';
+
 import { Select } from '@/components/controls/Select';
+import { VectorInput } from '@/components/controls/VectorInput';
+import { PropertyRow } from '@/components/editor/PropertyInspector/PropertyRow';
 import { LockIcon } from '@/components/Icons/LockIcon';
 import { UnlockIcon } from '@/components/Icons/UnlockIcon';
-import { PropertyRow } from '../PropertyInspector/PropertyRow';
-import type {
-  CoordinateSpace,
-  CoordinateSpaceOption,
-  TransformControlProps,
-  TransformValue,
-  Vec3,
-} from './TransformControl.types';
+import { useControlledState } from '@/hooks/useControlledState';
+import { cx } from '@/utils/cx';
+
 import {
   lockButtonRecipe,
   lockSpacerRecipe,
@@ -22,6 +17,14 @@ import {
   rowVectorWrapper,
   transformRoot,
 } from './TransformControl.css';
+
+import type {
+  CoordinateSpace,
+  CoordinateSpaceOption,
+  TransformControlProps,
+  TransformValue,
+  Vec3,
+} from './TransformControl.types';
 
 // --- Defaults ---
 

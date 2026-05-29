@@ -1,5 +1,6 @@
 'use client';
 
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, {
   createContext,
   useCallback,
@@ -7,14 +8,16 @@ import React, {
   useId,
   useState,
 } from 'react';
+
 import { cx } from '@/utils/cx';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
+
+import { accordionRoot, accordionGapVar } from './Accordion.css';
+
 import type {
   AccordionContextValue,
   AccordionItemContextValue,
   AccordionProps,
 } from './Accordion.types';
-import { accordionRoot, accordionGapVar } from './Accordion.css';
 
 // --- Contexts ---
 

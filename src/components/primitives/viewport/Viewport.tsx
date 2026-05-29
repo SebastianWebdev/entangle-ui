@@ -1,5 +1,6 @@
 'use client';
 
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, {
   useCallback,
   useImperativeHandle,
@@ -8,19 +9,21 @@ import React, {
   useRef,
   useSyncExternalStore,
 } from 'react';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
+
 import { useControlledState, useResizeObserver } from '@/hooks';
-import { clamp } from '@/utils/mathUtils';
 import { cx } from '@/utils/cx';
-import type { ViewportProps, ViewportTransform } from './Viewport.types';
-import { ViewportStoreContext, useViewportStore } from './ViewportContext';
-import { ViewportStore } from './ViewportStore';
+import { clamp } from '@/utils/mathUtils';
+
 import { useViewportGestures } from './useViewportGestures';
 import {
   viewportRootRecipe,
   viewportHeightVar,
   marqueeRectStyle,
 } from './Viewport.css';
+import { ViewportStoreContext, useViewportStore } from './ViewportContext';
+import { ViewportStore } from './ViewportStore';
+
+import type { ViewportProps, ViewportTransform } from './Viewport.types';
 
 const IDENTITY_TRANSFORM: ViewportTransform = { x: 0, y: 0, zoom: 1 };
 
@@ -151,7 +154,9 @@ export const Viewport = ({
     [transformRaw, clampTransform]
   );
   const setTransform = useCallback(
-    (next: ViewportTransform) => setTransformRaw(clampTransform(next)),
+    (next: ViewportTransform) => {
+      setTransformRaw(clampTransform(next));
+    },
     [setTransformRaw, clampTransform]
   );
 

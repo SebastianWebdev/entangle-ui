@@ -157,6 +157,9 @@ describe('useControlledState', () => {
       const { rerender } = renderHook(
         ({ value }: { value?: string }) =>
           useControlledState({ value, defaultValue: 'a', fallback: '' }),
+        // The assertion widens the inferred initialProps type so the undefined
+        // rerender below type-checks; it is load-bearing despite the rule.
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         { initialProps: { value: 'controlled' as string | undefined } }
       );
 

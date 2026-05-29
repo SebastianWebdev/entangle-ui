@@ -1,10 +1,10 @@
-import type { ReactNode } from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type { ReactNode } from 'react';
 
 export type MenuBarSize = 'sm' | 'md';
 
-export interface MenuBarBaseProps extends BaseComponent<HTMLDivElement> {
+export interface MenuBarBaseProps extends BaseComponent {
   /** Size of the menu bar */
   size?: MenuBarSize;
   /** Vertical gap in pixels between top-level trigger and dropdown */
@@ -14,7 +14,7 @@ export interface MenuBarBaseProps extends BaseComponent<HTMLDivElement> {
 }
 export type MenuBarProps = Prettify<MenuBarBaseProps>;
 
-export interface MenuBarMenuBaseProps extends BaseComponent<HTMLDivElement> {
+export interface MenuBarMenuBaseProps extends BaseComponent {
   /** The trigger label */
   label: string;
   /** Dropdown menu items */
@@ -41,7 +41,7 @@ export interface MenuBarItemBaseProps extends Omit<
 }
 export type MenuBarItemProps = Prettify<MenuBarItemBaseProps>;
 
-export interface MenuBarSubBaseProps extends BaseComponent<HTMLDivElement> {
+export interface MenuBarSubBaseProps extends BaseComponent {
   /** Sub-menu trigger label */
   label: string;
   /** Sub-menu items */
@@ -51,7 +51,7 @@ export interface MenuBarSubBaseProps extends BaseComponent<HTMLDivElement> {
 }
 export type MenuBarSubProps = Prettify<MenuBarSubBaseProps>;
 
-export type MenuBarSeparatorProps = Prettify<BaseComponent<HTMLDivElement>>;
+export type MenuBarSeparatorProps = Prettify<BaseComponent>;
 
 export interface MenuBarContextValue {
   size: MenuBarSize;

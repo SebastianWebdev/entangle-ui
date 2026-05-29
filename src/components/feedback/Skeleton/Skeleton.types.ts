@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 /**
  * Visual shape of a skeleton block.
@@ -20,7 +20,7 @@ export type SkeletonShape = 'rect' | 'circle' | 'line';
  */
 export type SkeletonAnimation = 'pulse' | 'wave' | 'none';
 
-export interface SkeletonBaseProps extends BaseComponent<HTMLDivElement> {
+export interface SkeletonBaseProps extends BaseComponent {
   /**
    * Shape of the skeleton.
    * @default "rect"
@@ -58,7 +58,7 @@ export interface SkeletonBaseProps extends BaseComponent<HTMLDivElement> {
 
 export type SkeletonProps = Prettify<SkeletonBaseProps>;
 
-export interface SkeletonGroupBaseProps extends BaseComponent<HTMLDivElement> {
+export interface SkeletonGroupBaseProps extends BaseComponent {
   /**
    * Number of skeletons to auto-generate. Ignored when `children` is provided.
    */
@@ -103,7 +103,7 @@ export type SkeletonGroupProps = Prettify<SkeletonGroupBaseProps>;
  */
 export type SkeletonLayoutVariant = 'card' | 'list' | 'table' | 'grid' | 'chat';
 
-export interface SkeletonLayoutBaseProps extends BaseComponent<HTMLDivElement> {
+export interface SkeletonLayoutBaseProps extends BaseComponent {
   /**
    * Which pre-built arrangement to render.
    */

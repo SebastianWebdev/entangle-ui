@@ -1,6 +1,8 @@
 'use client';
 
-import { useCallback, type KeyboardEvent, type RefObject } from 'react';
+import { useCallback } from 'react';
+
+import type { KeyboardEvent, RefObject } from 'react';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',

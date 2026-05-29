@@ -8,12 +8,15 @@ import React, {
   useRef,
 } from 'react';
 import { createPortal } from 'react-dom';
-import type { DialogContextValue, DialogProps } from './Dialog.types';
-import { overlayRecipe, dialogPanelRecipe } from './Dialog.css';
-import { useDialogAnimation } from './useDialogAnimation';
+
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
+
+import { overlayRecipe, dialogPanelRecipe } from './Dialog.css';
+import { useDialogAnimation } from './useDialogAnimation';
+
+import type { DialogContextValue, DialogProps } from './Dialog.types';
 
 // --- Context ---
 
@@ -124,12 +127,19 @@ export const Dialog: React.FC<DialogProps> = ({
   const dialogContent = (
     <DialogContext.Provider value={contextValue}>
       {showOverlay && (
+        // Decorative backdrop: pointer users can click to dismiss, while
+        // keyboard users dismiss via Escape handled on the dialog panel.
         <div
+          aria-hidden="true"
           className={overlayRecipe({ closing })}
           onClick={handleOverlayClick}
           data-testid={testId ? `${testId}-overlay` : undefined}
         />
       )}
+      {/* The dialog panel needs a keydown handler for Escape-to-close and
+          focus trapping; this is required modal-dialog behavior, not a static
+          element repurposed as interactive. */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         ref={setPanelRef}
         role="dialog"

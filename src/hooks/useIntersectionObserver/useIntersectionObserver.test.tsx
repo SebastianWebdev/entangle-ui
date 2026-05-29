@@ -19,7 +19,7 @@ function setupMockIO() {
     disconnected = false;
     constructor(cb: IntersectionObserverCallback) {
       this.callback = cb;
-      instances.push(this as unknown as MockObserver);
+      instances.push(this);
     }
     observe(target: Element) {
       this.observed.push(target);

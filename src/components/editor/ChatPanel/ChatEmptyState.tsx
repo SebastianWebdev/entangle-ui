@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import type { ChatEmptyStateProps } from './ChatPanel.types';
+
 import { cx } from '@/utils/cx';
+
 import {
   emptyStateStyle,
   emptyStateIconStyle,
@@ -11,6 +12,8 @@ import {
   emptyStateSuggestionsStyle,
   emptyStateSuggestionStyle,
 } from './ChatPanel.css';
+
+import type { ChatEmptyStateProps } from './ChatPanel.types';
 
 export const ChatEmptyState = /*#__PURE__*/ React.memo<ChatEmptyStateProps>(
   ({
@@ -52,7 +55,9 @@ export const ChatEmptyState = /*#__PURE__*/ React.memo<ChatEmptyStateProps>(
                 key={suggestion}
                 type="button"
                 className={emptyStateSuggestionStyle}
-                onClick={() => handleSuggestionClick(suggestion)}
+                onClick={() => {
+                  handleSuggestionClick(suggestion);
+                }}
               >
                 {suggestion}
               </button>

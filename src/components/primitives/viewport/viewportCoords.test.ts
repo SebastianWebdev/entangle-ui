@@ -64,18 +64,17 @@ describe('viewportCoords', () => {
   describe('getViewportPointerPosition', () => {
     it('subtracts the viewport rect origin', () => {
       const el = document.createElement('div');
-      el.getBoundingClientRect = (): DOMRect =>
-        ({
-          left: 30,
-          top: 60,
-          width: 200,
-          height: 100,
-          right: 230,
-          bottom: 160,
-          x: 30,
-          y: 60,
-          toJSON: () => ({}),
-        }) as DOMRect;
+      el.getBoundingClientRect = (): DOMRect => ({
+        left: 30,
+        top: 60,
+        width: 200,
+        height: 100,
+        right: 230,
+        bottom: 160,
+        x: 30,
+        y: 60,
+        toJSON: () => ({}),
+      });
 
       expect(
         getViewportPointerPosition({ clientX: 50, clientY: 80 }, el)

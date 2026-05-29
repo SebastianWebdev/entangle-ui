@@ -1,5 +1,5 @@
-import type { WorldRect } from '@/components/primitives/viewport';
 import type { MinimapItem } from './Minimap.types';
+import type { WorldRect } from '@/components/primitives/viewport';
 
 /**
  * Compute the tight axis-aligned bounding box of a set of minimap items,

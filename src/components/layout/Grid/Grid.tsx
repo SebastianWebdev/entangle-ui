@@ -1,12 +1,15 @@
 'use client';
 
 // src/components/layout/Grid/Grid.tsx
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React from 'react';
+
+import { cx } from '@/utils/cx';
+
+import { gridContainer, gridItem, gapVar, columnsVar } from './Grid.css';
+
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
-import { cx } from '@/utils/cx';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { gridContainer, gridItem, gapVar, columnsVar } from './Grid.css';
 
 /**
  * Grid size variants from 1-12 columns or auto-sizing
@@ -32,10 +35,7 @@ export type GridSize =
  */
 export type GridSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-export interface GridBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'children'
-> {
+export interface GridBaseProps extends Omit<BaseComponent, 'children'> {
   /**
    * Grid content - other Grid components or any React elements
    */

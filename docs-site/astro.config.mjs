@@ -255,6 +255,10 @@ export default defineConfig({
                   slug: 'components/editor/property-inspector',
                 },
                 {
+                  label: 'Timeline',
+                  slug: 'components/editor/timeline',
+                },
+                {
                   label: 'TransformControl',
                   slug: 'components/editor/transform-control',
                 },
@@ -310,7 +314,10 @@ export default defineConfig({
         },
         {
           label: 'Showcase',
-          items: [{ label: 'Full Editor', slug: 'showcase/editor' }],
+          items: [
+            { label: 'Full Editor', slug: 'showcase/editor' },
+            { label: 'Animation Editor', slug: 'showcase/animation-editor' },
+          ],
         },
         {
           label: 'Icons',

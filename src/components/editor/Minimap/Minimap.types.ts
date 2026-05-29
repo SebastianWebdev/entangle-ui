@@ -1,12 +1,12 @@
-import type React from 'react';
-import type { Prettify } from '@/types/utilities';
-import type { BaseComponent } from '@/types/common';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type {
   ViewportTransform,
   ViewportSize,
   WorldRect,
 } from '@/components/primitives/viewport';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type { BaseComponent } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 // ─── Drawing info ───
 
@@ -163,7 +163,7 @@ export interface MinimapHandle {
 // ─── Props ───
 
 export interface MinimapBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent,
   'onChange' | 'ref'
 > {
   /** Items rendered as the content miniature. */

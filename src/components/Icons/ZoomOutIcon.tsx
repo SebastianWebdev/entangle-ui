@@ -2,8 +2,10 @@
 
 // src/icons/ZoomOutIcon.tsx
 import React from 'react';
-import { Icon } from '../primitives/Icon';
-import type { IconProps } from '../primitives/Icon';
+
+import { Icon } from '@/components/primitives/Icon';
+
+import type { IconProps } from '@/components/primitives/Icon';
 
 /**
  * Zoom Out icon component for zoom out actions.

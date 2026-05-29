@@ -1,3 +1,7 @@
+import { clamp } from '@/utils/mathUtils';
+
+import { domainToCanvas } from './canvasCoords';
+
 import type {
   CanvasViewport,
   DomainBounds,
@@ -7,8 +11,6 @@ import type {
   CrosshairOptions,
   PointMarkerOptions,
 } from './canvas.types';
-import { domainToCanvas } from './canvasCoords';
-import { clamp } from '@/utils/mathUtils';
 
 /**
  * Format a number for axis labels.

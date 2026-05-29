@@ -118,12 +118,16 @@ export function projectAxes(
   armLength: number,
   upAxis: GizmoUpAxis
 ): ProjectedArm[] {
+  // The drawn direction of each labelled axis depends on the up-axis
+  // convention. For z-up (Blender, Unreal, CAD) the world is rotated -90°
+  // about X relative to y-up, so the Z arm points up and the Y arm points
+  // into the scene. (x, y, z) -> (x, z, -y).
   const axes: Vec3[] =
     upAxis === 'z-up'
       ? [
           { x: 1, y: 0, z: 0 }, // X
-          { x: 0, y: 1, z: 0 }, // Y
-          { x: 0, y: 0, z: 1 }, // Z (up)
+          { x: 0, y: 0, z: -1 }, // Y (into the scene)
+          { x: 0, y: 1, z: 0 }, // Z (up)
         ]
       : [
           { x: 1, y: 0, z: 0 }, // X

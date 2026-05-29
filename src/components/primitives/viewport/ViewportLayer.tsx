@@ -1,17 +1,24 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef } from 'react';
-import { useSyncExternalStore } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useSyncExternalStore,
+} from 'react';
+
 import { resolveCanvasTheme } from '@/components/primitives/canvas/canvasTheme';
 import { useLatest } from '@/hooks';
 import { cx } from '@/utils/cx';
+
+import { layerCanvasStyle } from './Viewport.css';
+import { useViewportStore } from './ViewportContext';
+import { worldToScreen, screenToWorld } from './viewportCoords';
+
 import type {
   ViewportLayerDrawInfo,
   ViewportLayerProps,
 } from './Viewport.types';
-import { useViewportStore } from './ViewportContext';
-import { worldToScreen, screenToWorld } from './viewportCoords';
-import { layerCanvasStyle } from './Viewport.css';
 
 /**
  * A perf-isolated canvas layer inside a `<Viewport>`.
@@ -98,8 +105,11 @@ export const ViewportLayer: React.FC<ViewportLayerProps> = ({
   // Schedule a redraw when transform, size, or `invalidateOn` deps change.
   useEffect(() => {
     scheduleDraw();
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+    };
     // `invalidateOn` is intentionally spread into deps so each entry is tracked.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transform, size, scheduleDraw, ...(invalidateOn ?? [])]);
 
   // Re-render when DPR changes (e.g., dragging the window to a different display).
@@ -108,9 +118,13 @@ export const ViewportLayer: React.FC<ViewportLayerProps> = ({
     const mq = window.matchMedia(
       `(resolution: ${window.devicePixelRatio}dppx)`
     );
-    const handler = (): void => scheduleDraw();
+    const handler = (): void => {
+      scheduleDraw();
+    };
     mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    return () => {
+      mq.removeEventListener('change', handler);
+    };
   }, [scheduleDraw]);
 
   return (

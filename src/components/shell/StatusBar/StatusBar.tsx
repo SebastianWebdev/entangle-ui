@@ -1,13 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useMemo } from 'react';
+
 import { cx } from '@/utils/cx';
-import type {
-  StatusBarProps,
-  StatusBarSectionProps,
-  StatusBarItemProps,
-  StatusBarContextValue,
-} from './StatusBar.types';
+
 import {
   statusBarRoot,
   statusBarSection,
@@ -15,6 +11,13 @@ import {
   itemSpan,
   badge,
 } from './StatusBar.css';
+
+import type {
+  StatusBarProps,
+  StatusBarSectionProps,
+  StatusBarItemProps,
+  StatusBarContextValue,
+} from './StatusBar.types';
 
 const StatusBarContext = /*#__PURE__*/ createContext<StatusBarContextValue>({
   size: 'sm',
@@ -104,7 +107,7 @@ const StatusBarItem = /*#__PURE__*/ React.memo<StatusBarItemProps>(
         className={cx(itemSpan, className)}
         style={style}
         data-testid={testId}
-        ref={ref as React.Ref<HTMLSpanElement>}
+        ref={ref}
         {...rest}
       >
         {content}

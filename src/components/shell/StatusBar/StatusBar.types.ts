@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type { ReactNode } from 'react';
 
 export type StatusBarSize = 'sm' | 'md';
 export type StatusBarVariant = 'default' | 'error' | 'accent';
 
-export interface StatusBarBaseProps extends BaseComponent<HTMLDivElement> {
+export interface StatusBarBaseProps extends BaseComponent {
   /** Size of the status bar */
   size?: StatusBarSize;
   /** Visual variant */
@@ -17,7 +17,7 @@ export type StatusBarProps = Prettify<StatusBarBaseProps>;
 
 export type StatusBarSectionSide = 'left' | 'right';
 
-export interface StatusBarSectionBaseProps extends BaseComponent<HTMLDivElement> {
+export interface StatusBarSectionBaseProps extends BaseComponent {
   /** Which side of the status bar */
   side?: StatusBarSectionSide;
   /** Children (StatusBar.Item components) */
