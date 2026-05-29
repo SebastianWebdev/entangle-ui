@@ -103,6 +103,42 @@ describe('hitTestTimeline', () => {
       hitTestTimeline({ ...base, rows: groupRows, point: { x: 30, y: 32 } })
     ).toEqual({ kind: 'group', groupId: 'g' });
   });
+
+  it('grabs the playhead over a group header row (on its thin band)', () => {
+    const gtracks: TimelineTrack[] = [
+      { id: 't1', groupId: 'g', keyframes: [] },
+    ];
+    const groupRows = computeRows(gtracks, {
+      ...layoutOpts,
+      groups: [{ id: 'g', label: 'G' }],
+    }).rows;
+    // playhead at frame 50 -> px 100; over the group row (screen y 32) but on
+    // the playhead's thin band -> playhead wins; elsewhere -> group.
+    expect(
+      hitTestTimeline({ ...base, rows: groupRows, point: { x: 100, y: 32 } })
+        .kind
+    ).toBe('playhead');
+    expect(
+      hitTestTimeline({ ...base, rows: groupRows, point: { x: 30, y: 32 } })
+        .kind
+    ).toBe('group');
+  });
+
+  it('grabs the playhead on the ruler even inside a loop region', () => {
+    const loopRegion = { startFrame: 20, endFrame: 80 }; // px 40..160
+    // On the ruler (y 5): playhead (px 100) beats the loop body...
+    expect(
+      hitTestTimeline({ ...base, loopRegion, point: { x: 100, y: 5 } }).kind
+    ).toBe('playhead');
+    // ...the loop body is still hit away from the playhead + edges...
+    expect(
+      hitTestTimeline({ ...base, loopRegion, point: { x: 70, y: 5 } }).kind
+    ).toBe('loop-body');
+    // ...and the loop edge still wins where they don't overlap.
+    expect(
+      hitTestTimeline({ ...base, loopRegion, point: { x: 40, y: 5 } }).kind
+    ).toBe('loop-start');
+  });
 });
 
 describe('keyframesInRect', () => {

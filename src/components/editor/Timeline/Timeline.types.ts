@@ -335,6 +335,12 @@ export interface TimelineTrackScaleProps {
    */
   gridlines?: boolean;
   /**
+   * Lanes shorter than this (CSS px) skip the scale, so the labels never
+   * overlap into an unreadable blob on a short / collapsed graph lane.
+   * @default 48
+   */
+  minLaneHeight?: number;
+  /**
    * Override the axis / label color. Defaults to the muted text colour.
    */
   color?: string;

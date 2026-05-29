@@ -44,6 +44,9 @@ export interface TimelinePlayheadState {
 /** The active pointer gesture. */
 export type TimelineDragKind = 'none' | 'scrub' | 'move' | 'marquee' | 'pan';
 
+/** Which part of the loop region the pointer is hovering (for highlight + cursor). */
+export type TimelineLoopHover = 'start' | 'end' | 'body' | null;
+
 /** Snapshot of the drag slice — active gesture + optional marquee rectangle. */
 export interface TimelineDragState {
   kind: TimelineDragKind;
@@ -89,6 +92,7 @@ export class TimelineStore {
   private drag: TimelineDragState = { kind: 'none', marquee: null };
   private hover: TimelineKeyframeRef | null = null;
   private hoverPlayhead = false;
+  private hoverLoop: TimelineLoopHover = null;
   private snapshot: TimelineContextValue = this.computeSnapshot();
 
   private allListeners = new Set<() => void>();
@@ -98,6 +102,7 @@ export class TimelineStore {
   private dragListeners = new Set<() => void>();
   private hoverListeners = new Set<() => void>();
   private hoverPlayheadListeners = new Set<() => void>();
+  private hoverLoopListeners = new Set<() => void>();
 
   // ── Public read API (arrow functions so they can be passed as callbacks) ──
 
@@ -108,6 +113,7 @@ export class TimelineStore {
   getDrag = (): TimelineDragState => this.drag;
   getHover = (): TimelineKeyframeRef | null => this.hover;
   getHoverPlayhead = (): boolean => this.hoverPlayhead;
+  getHoverLoop = (): TimelineLoopHover => this.hoverLoop;
   isSelected = (ref: TimelineKeyframeRef): boolean =>
     this.selectionKeys.has(selectionKey(ref));
   isHovered = (ref: TimelineKeyframeRef): boolean =>
@@ -163,6 +169,13 @@ export class TimelineStore {
     this.hoverPlayheadListeners.add(cb);
     return () => {
       this.hoverPlayheadListeners.delete(cb);
+    };
+  };
+
+  subscribeHoverLoop = (cb: () => void): (() => void) => {
+    this.hoverLoopListeners.add(cb);
+    return () => {
+      this.hoverLoopListeners.delete(cb);
     };
   };
 
@@ -242,6 +255,12 @@ export class TimelineStore {
     if (next === this.hoverPlayhead) return;
     this.hoverPlayhead = next;
     this.hoverPlayheadListeners.forEach(cb => cb());
+  }
+
+  setHoverLoop(next: TimelineLoopHover): void {
+    if (next === this.hoverLoop) return;
+    this.hoverLoop = next;
+    this.hoverLoopListeners.forEach(cb => cb());
   }
 
   // ── Imperative handle ──

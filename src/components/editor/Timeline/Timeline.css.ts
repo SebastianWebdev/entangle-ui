@@ -29,6 +29,12 @@ export const timelineBodyStyle = style({
     '&[data-hover-target="playhead"]': {
       cursor: 'ew-resize',
     },
+    '&[data-hover-target="loop-edge"]': {
+      cursor: 'ew-resize',
+    },
+    '&[data-hover-target="loop-body"]': {
+      cursor: 'grab',
+    },
     '&[data-dragging]': {
       cursor: 'grabbing',
     },

@@ -55,6 +55,8 @@ export interface TimelineDrawInput {
     showMidpoint: boolean;
     gridlines: boolean;
     color?: string;
+    /** Lanes shorter than this (CSS px) skip the scale to avoid label overlap. */
+    minLaneHeight: number;
   };
   renderOverlay?: (
     ctx: CanvasRenderingContext2D,
@@ -64,6 +66,8 @@ export interface TimelineDrawInput {
   marquee?: { x: number; y: number; width: number; height: number } | null;
   /** Resolved loop region highlighted on the ruler + track area, or null. */
   loopRegion?: { startFrame: number; endFrame: number } | null;
+  /** Which loop part is hovered (brightens that edge / body), or null. */
+  loopHover?: 'start' | 'end' | 'body' | null;
 }
 
 const KEYFRAME_RADIUS = 4;
@@ -107,7 +111,9 @@ function drawGraphLane(
   const isHovered = input.isHovered ?? ((): boolean => false);
 
   // ── Track scale (axis line + min/max [+ midpoint] labels, optional gridlines)
-  if (input.trackScale) {
+  // Skipped on short lanes (e.g. a collapsed graph-mode track) so the labels
+  // never overlap into an unreadable blob.
+  if (input.trackScale && rowH >= input.trackScale.minLaneHeight) {
     const { position, format, showMidpoint, gridlines } = input.trackScale;
     const scaleColor = input.trackScale.color ?? colors.rulerText;
     const isStart = position === 'start';
@@ -297,6 +303,7 @@ export function drawTimeline(input: TimelineDrawInput): void {
     renderOverlay,
     marquee,
     loopRegion,
+    loopHover,
   } = input;
 
   const toX = (f: number): number => frameToX(f, view, size.width);
@@ -343,7 +350,8 @@ export function drawTimeline(input: TimelineDrawInput): void {
     const rx = toX(loopRegion.endFrame);
     ctx.save();
     ctx.fillStyle = colors.keyframeSelected;
-    ctx.globalAlpha = 0.06;
+    // Body fill (brighter when the body is hovered, hinting it's draggable).
+    ctx.globalAlpha = loopHover === 'body' ? 0.12 : 0.06;
     ctx.fillRect(
       lx,
       rulerHeight,
@@ -351,12 +359,19 @@ export function drawTimeline(input: TimelineDrawInput): void {
       Math.max(0, size.height - rulerHeight)
     );
     if (rulerHeight > 0) {
-      ctx.globalAlpha = 0.22;
+      ctx.globalAlpha = loopHover === 'body' ? 0.3 : 0.22;
       ctx.fillRect(lx, 0, rx - lx, rulerHeight);
     }
+    // Edges — thicker + glow on the hovered edge so it reads as grabbable.
     ctx.globalAlpha = 1;
-    ctx.fillRect(lx, 0, 2, size.height);
-    ctx.fillRect(rx - 2, 0, 2, size.height);
+    const startW = loopHover === 'start' ? 4 : 2;
+    const endW = loopHover === 'end' ? 4 : 2;
+    if (loopHover === 'start' || loopHover === 'end') {
+      ctx.shadowColor = colors.keyframeSelected;
+      ctx.shadowBlur = 6;
+    }
+    ctx.fillRect(lx, 0, startW, size.height);
+    ctx.fillRect(rx - endW, 0, endW, size.height);
     ctx.restore();
   }
 

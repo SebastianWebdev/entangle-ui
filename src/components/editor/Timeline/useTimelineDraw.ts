@@ -39,6 +39,7 @@ export interface UseTimelineDrawOptions {
   hoverPlayhead: boolean;
   marquee: { x: number; y: number; width: number; height: number } | null;
   loopRegion: { startFrame: number; endFrame: number } | null;
+  loopHover: 'start' | 'end' | 'body' | null;
   backgroundColor?: string;
   playheadColor?: string;
   trackScale?: TimelineTrackScaleProps;
@@ -143,6 +144,7 @@ export function useTimelineDraw(opts: UseTimelineDrawOptions): void {
                   ((v: number) => Number(v.toFixed(2)).toString()),
                 showMidpoint: opts.trackScale.showMidpoint ?? false,
                 gridlines: opts.trackScale.gridlines ?? false,
+                minLaneHeight: opts.trackScale.minLaneHeight ?? 48,
                 ...(opts.trackScale.color
                   ? { color: opts.trackScale.color }
                   : {}),
@@ -152,6 +154,7 @@ export function useTimelineDraw(opts: UseTimelineDrawOptions): void {
         renderOverlay: callRenderOverlay,
         marquee: opts.marquee,
         loopRegion: opts.loopRegion,
+        loopHover: opts.loopHover,
       });
     });
     // `callRenderOverlay` and `callFormatTime` are stable `useEffectEvent`s.
@@ -172,6 +175,7 @@ export function useTimelineDraw(opts: UseTimelineDrawOptions): void {
     opts.hoverPlayhead,
     opts.marquee,
     opts.loopRegion,
+    opts.loopHover,
     opts.backgroundColor,
     opts.playheadColor,
     opts.trackScale,

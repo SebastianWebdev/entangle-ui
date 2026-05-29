@@ -276,8 +276,13 @@ export function useTimelineGestures(
 
       // Alt+drag on the ruler creates / narrows the loop region — works
       // even when looping is currently off (the drag flips `loop` to a
-      // sub-range object via `setLoop`).
-      if (hit.kind === 'ruler' && e.altKey) {
+      // sub-range object via `setLoop`). Gated on the ruler band so it still
+      // fires when the drag starts right on the playhead line.
+      if (
+        e.altKey &&
+        point.y < opts.rulerHeight &&
+        (hit.kind === 'ruler' || hit.kind === 'playhead')
+      ) {
         e.preventDefault();
         container.setPointerCapture(e.pointerId);
         const anchorFrame = xToFrame(point.x, view, width);
@@ -394,6 +399,15 @@ export function useTimelineGestures(
           store.setHover(null);
         }
         store.setHoverPlayhead(hit.kind === 'playhead');
+        store.setHoverLoop(
+          hit.kind === 'loop-start'
+            ? 'start'
+            : hit.kind === 'loop-end'
+              ? 'end'
+              : hit.kind === 'loop-body'
+                ? 'body'
+                : null
+        );
       }
 
       if (state?.pointerId !== e.pointerId) return;
@@ -480,6 +494,7 @@ export function useTimelineGestures(
   const onPointerLeave = useEffectEvent((): void => {
     store.setHover(null);
     store.setHoverPlayhead(false);
+    store.setHoverLoop(null);
   });
 
   const endGesture = useEffectEvent(

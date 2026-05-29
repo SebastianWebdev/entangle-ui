@@ -60,33 +60,46 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
   const { point, view, size, rows, scrollTop, rulerHeight } = input;
   const toX = (f: number): number => frameToX(f, view, size.width);
 
+  const playheadX = input.showPlayhead ? toX(input.frame) : null;
+  // The playhead line is grabbable along its whole height. The head (ruler
+  // band) gets a wider pick zone so the triangle is easy to grab.
+  const nearPlayheadHead =
+    playheadX !== null && Math.abs(point.x - playheadX) <= PLAYHEAD_PICK_X + 4;
+  const nearPlayheadBody =
+    playheadX !== null && Math.abs(point.x - playheadX) <= PLAYHEAD_PICK_X;
+
   if (point.y < rulerHeight) {
     const loop = input.loopRegion;
     if (loop) {
       const lx = toX(loop.startFrame);
       const rx = toX(loop.endFrame);
+      // Loop edges are deliberate small targets → they win over the playhead.
       if (Math.abs(point.x - lx) <= LOOP_EDGE_PICK_X)
         return { kind: 'loop-start' };
       if (Math.abs(point.x - rx) <= LOOP_EDGE_PICK_X)
         return { kind: 'loop-end' };
+      // The playhead line beats the (wide) loop body so it stays grabbable
+      // even when it sits inside the loop region.
+      if (nearPlayheadHead) return { kind: 'playhead' };
       if (point.x > lx && point.x < rx) return { kind: 'loop-body' };
+    } else if (nearPlayheadHead) {
+      return { kind: 'playhead' };
     }
     return { kind: 'ruler' };
   }
 
   const contentY = point.y - rulerHeight + scrollTop;
-  const playheadX = input.showPlayhead ? toX(input.frame) : null;
-  // Expand the pick zone for the head (ruler band) so the triangle is easy
-  // to grab; keep a tighter band over the track area so it doesn't fight
-  // with keyframes for hover.
-  const playheadPickX =
-    point.y < rulerHeight ? PLAYHEAD_PICK_X + 4 : PLAYHEAD_PICK_X;
-  const nearPlayhead =
-    playheadX !== null && Math.abs(point.x - playheadX) <= playheadPickX;
+  const nearPlayhead = nearPlayheadBody;
 
   for (const row of rows) {
     if (contentY < row.top || contentY >= row.top + row.height) continue;
-    if (row.kind === 'group') return { kind: 'group', groupId: row.group.id };
+    // The playhead line is grabbable over group-header rows too (it spans the
+    // full height), but only on its thin pick band so the rest of the header
+    // still toggles collapse.
+    if (row.kind === 'group') {
+      if (nearPlayhead) return { kind: 'playhead' };
+      return { kind: 'group', groupId: row.group.id };
+    }
 
     const track = row.track;
     const { top, height: rowH } = row;

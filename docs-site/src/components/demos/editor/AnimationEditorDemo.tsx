@@ -430,7 +430,7 @@ interface TopChromeProps {
   onModeChange: (mode: TimelineMode) => void;
   followMode: FollowMode;
   onFollowModeChange: (mode: FollowMode) => void;
-  loopChoice: LoopChoice;
+  loopChoice: LoopChoice | '';
   onLoopChoiceChange: (choice: LoopChoice) => void;
 }
 
@@ -699,21 +699,42 @@ export default function AnimationEditorDemo(): JSX.Element {
   const [mode, setMode] = useState<TimelineMode>('dope-sheet');
   const [selectionCount, setSelectionCount] = useState(0);
   const [followMode, setFollowMode] = useState<FollowMode>('smooth');
-  const [loopChoice, setLoopChoice] = useState<LoopChoice>('full');
+  // The loop is real state so an Alt-drag / edge-drag on the ruler persists;
+  // the preset buttons just set it to a known sub-range.
+  const [loop, setLoop] = useState<TimelineLoop>({
+    startFrame: 0,
+    endFrame: END_FRAME,
+  });
 
-  const loopValue = useMemo<TimelineLoop>(() => {
-    switch (loopChoice) {
+  const applyLoopChoice = (choice: LoopChoice): void => {
+    switch (choice) {
       case 'off':
-        return false;
+        setLoop(false);
+        break;
       case 'first':
-        return { startFrame: 0, endFrame: END_FRAME / 2 };
+        setLoop({ startFrame: 0, endFrame: END_FRAME / 2 });
+        break;
       case 'second':
-        return { startFrame: END_FRAME / 2, endFrame: END_FRAME };
+        setLoop({ startFrame: END_FRAME / 2, endFrame: END_FRAME });
+        break;
       case 'full':
-      default:
-        return { startFrame: 0, endFrame: END_FRAME };
+        setLoop({ startFrame: 0, endFrame: END_FRAME });
+        break;
     }
-  }, [loopChoice]);
+  };
+
+  // Which preset (if any) the current loop matches — drives the toolbar
+  // selection. A custom drag matches none, so nothing is highlighted.
+  const loopChoice: LoopChoice | '' =
+    loop === false
+      ? 'off'
+      : loop.startFrame === 0 && loop.endFrame === END_FRAME
+        ? 'full'
+        : loop.startFrame === 0 && loop.endFrame === END_FRAME / 2
+          ? 'first'
+          : loop.startFrame === END_FRAME / 2 && loop.endFrame === END_FRAME
+            ? 'second'
+            : '';
 
   const cube = useMemo(() => readCube(tracks, frame), [tracks, frame]);
 
@@ -736,7 +757,7 @@ export default function AnimationEditorDemo(): JSX.Element {
           followMode={followMode}
           onFollowModeChange={setFollowMode}
           loopChoice={loopChoice}
-          onLoopChoiceChange={setLoopChoice}
+          onLoopChoiceChange={applyLoopChoice}
         />
 
         <AppShell.Dock>
@@ -775,13 +796,15 @@ export default function AnimationEditorDemo(): JSX.Element {
                 onModeChange={setMode}
                 onSelectionChange={s => setSelectionCount(s.length)}
                 defaultView={{ startFrame: 0, endFrame: 60 }}
-                loop={loopValue}
+                loop={loop}
+                onLoopChange={setLoop}
                 followMode={followMode}
                 trackHeaderWidth={180}
                 trackScale={{
                   position: 'start',
                   showMidpoint: true,
                   gridlines: true,
+                  minLaneHeight: 48,
                 }}
               >
                 <Timeline.Toolbar>

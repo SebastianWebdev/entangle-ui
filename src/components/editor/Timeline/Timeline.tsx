@@ -287,6 +287,10 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     store.subscribeHoverPlayhead,
     store.getHoverPlayhead
   );
+  const hoverLoop = useSyncExternalStore(
+    store.subscribeHoverLoop,
+    store.getHoverLoop
+  );
 
   useLayoutEffect(() => {
     store.setGeometry({
@@ -600,6 +604,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     hoverPlayhead,
     marquee: drag.marquee,
     loopRegion,
+    loopHover: drag.kind === 'none' ? hoverLoop : null,
     ...(backgroundColor !== undefined ? { backgroundColor } : {}),
     ...(playheadColor !== undefined ? { playheadColor } : {}),
     ...(trackScale ? { trackScale } : {}),
@@ -649,7 +654,15 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             className={timelineBodyStyle}
             data-dragging={drag.kind !== 'none' || undefined}
             data-hover-target={
-              hoverPlayhead && drag.kind === 'none' ? 'playhead' : undefined
+              drag.kind !== 'none'
+                ? undefined
+                : hoverPlayhead
+                  ? 'playhead'
+                  : hoverLoop === 'start' || hoverLoop === 'end'
+                    ? 'loop-edge'
+                    : hoverLoop === 'body'
+                      ? 'loop-body'
+                      : undefined
             }
             role="group"
             aria-label={ariaLabel}

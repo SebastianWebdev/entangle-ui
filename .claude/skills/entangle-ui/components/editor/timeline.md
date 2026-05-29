@@ -209,8 +209,17 @@ built-in loop.
 **Play / loop region drag**
 
 When `loop` is set its region is highlighted on the ruler and shaded across
-the track area; its **edges and body are draggable** — controlled via `loop`
-/ `defaultLoop` / `onLoopChange`.
+the track area. Editing it (all controlled via `loop` / `defaultLoop` /
+`onLoopChange`):
+
+- **Alt + drag on the ruler** creates or re-draws the loop — even when
+  looping was off, the drag turns it on. A bare Alt-click clears it.
+- **Drag a loop edge** to resize; the edge brightens + the cursor becomes
+  `ew-resize` on hover so it reads as grabbable.
+- **Drag the loop body** to move the whole region (cursor `grab`).
+
+Wire `onLoopChange` to persist these drags — without it the loop is fully
+controlled and any drag snaps back to the prop value.
 
 ## Selection & box-select
 
@@ -376,27 +385,53 @@ the Y domain so the curve doesn't auto-fit as you edit.
 
 **Cycle + oscillate**
 
+## Track value scale
+
+Pass `trackScale` to draw a value axis on each graph / expanded lane — a thin
+axis line with min / max tick labels, an optional midpoint, and optional
+gridlines across the lane:
+
+```tsx
+<Timeline
+  tracks={tracks}
+  trackScale={{
+    position: 'start', // or 'end'
+    showMidpoint: true,
+    gridlines: true,
+    minLaneHeight: 48, // hide the scale on lanes shorter than this
+    format: v => `${Math.round(v)}px`,
+  }}
+/>
+```
+
+`minLaneHeight` (default `48`) is the important one in graph mode: a collapsed
+track lane is too short to fit three labels, so the scale is skipped below
+that height instead of collapsing into an unreadable blob. The deprecated
+`<Timeline.TrackScale />` slot accepts the same props.
+
 ## Interactions
 
-| Gesture                                   | Action                                                 |
-| ----------------------------------------- | ------------------------------------------------------ |
-| Drag / click the ruler (or the playhead)  | Scrub the playhead (snaps to frame)                    |
-| Click a keyframe                          | Select it                                              |
-| Shift / Ctrl + click                      | Add / toggle in the selection                          |
-| Drag on empty space                       | Box-select across tracks                               |
-| Drag a selected keyframe                  | Move keyframes (snapped, clamped to range)             |
-| Drag a tangent handle (selected keyframe) | Edit the curve shape (graph / expanded lanes)          |
-| Drag the loop edges or body               | Resize / move the loop region                          |
-| Double-click empty space on a row         | Add a keyframe on that track                           |
-| Delete / Backspace                        | Remove the selected keyframes                          |
-| Ctrl/Cmd + C / V                          | Copy / paste the selected keyframes at the playhead    |
-| Wheel                                     | Scroll tracks vertically when they overflow, else zoom |
-| Ctrl/Cmd + wheel                          | Zoom the time axis around the cursor                   |
-| Shift + wheel / middle-drag               | Pan the time axis                                      |
-| ← / → (Shift = ×10)                       | Step the playhead; Home / End jump to the range ends   |
-| Drag a track header                       | Reorder tracks (built-in header only)                  |
-| Click a group header (or caret)           | Collapse / expand the group                            |
-| Click a track's expand caret              | Open / close that track as a graph lane                |
+| Gesture                                   | Action                                                                   |
+| ----------------------------------------- | ------------------------------------------------------------------------ |
+| Drag / click the ruler                    | Scrub the playhead (snaps to frame)                                      |
+| Grab the playhead line                    | Scrub — grabbable along its **whole height** (ruler, group rows, tracks) |
+| Click a keyframe                          | Select it                                                                |
+| Shift / Ctrl + click                      | Add / toggle in the selection                                            |
+| Drag on empty space                       | Box-select across tracks                                                 |
+| Drag a selected keyframe                  | Move keyframes (snapped, clamped to range)                               |
+| Drag a tangent handle (selected keyframe) | Edit the curve shape (graph / expanded lanes)                            |
+| Alt + drag on the ruler                   | Create / re-draw the loop region (Alt-click clears it)                   |
+| Drag the loop edges or body               | Resize / move the loop region                                            |
+| Double-click empty space on a row         | Add a keyframe on that track                                             |
+| Delete / Backspace                        | Remove the selected keyframes                                            |
+| Ctrl/Cmd + C / V                          | Copy / paste the selected keyframes at the playhead                      |
+| Wheel                                     | Scroll tracks vertically when they overflow, else zoom                   |
+| Ctrl/Cmd + wheel                          | Zoom the time axis around the cursor                                     |
+| Shift + wheel / middle-drag               | Pan the time axis                                                        |
+| ← / → (Shift = ×10)                       | Step the playhead; Home / End jump to the range ends                     |
+| Drag a track header                       | Reorder tracks (built-in header only)                                    |
+| Click a group header (or caret)           | Collapse / expand the group                                              |
+| Click a track's expand caret              | Open / close that track as a graph lane                                  |
 
 Hold **Ctrl** while dragging to momentarily disable snap-to-frame.
 
