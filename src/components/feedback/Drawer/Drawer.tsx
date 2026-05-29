@@ -162,12 +162,19 @@ const DrawerRoot: React.FC<DrawerProps> = ({
   const drawerContent = (
     <DrawerContext.Provider value={contextValue}>
       {modal && (
+        // Decorative backdrop: pointer users can click to dismiss, while
+        // keyboard users dismiss via Escape handled on the drawer panel.
         <div
+          aria-hidden="true"
           className={overlayRecipe({ closing })}
           onClick={handleOverlayClick}
           data-testid={testId ? `${testId}-overlay` : undefined}
         />
       )}
+      {/* The drawer panel needs a keydown handler for Escape-to-close and
+          focus trapping; this is required modal-dialog behavior, not a static
+          element repurposed as interactive. */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         ref={setPanelRef}
         role="dialog"

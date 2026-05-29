@@ -353,7 +353,9 @@ export function useCurveInteraction(
         return;
       }
 
-      if (drag.type === 'handleIn' || drag.type === 'handleOut') {
+      // The only remaining drag types here are 'handleIn' and 'handleOut'
+      // (idle, boxSelect and keyframe are handled and returned above).
+      {
         const kf = curve.keyframes[drag.keyframeIndex];
         if (!kf) return;
 

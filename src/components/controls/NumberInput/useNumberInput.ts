@@ -1,9 +1,6 @@
 'use client';
 
-import React from 'react';
-
-// src/controls/NumberInput/useNumberInput.ts
-import { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 
 import { useKeyboardContext } from '@/context/KeyboardContext';
 import { devError } from '@/utils/devWarn';
@@ -464,8 +461,8 @@ export function useNumberInput({
     setError(undefined);
     // Place cursor at end of input
     setTimeout(() => {
-      const input = document.activeElement as HTMLInputElement;
-      if (input) {
+      const input = document.activeElement;
+      if (input instanceof HTMLInputElement) {
         const len = input.value.length;
         input.setSelectionRange(len, len);
       }

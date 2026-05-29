@@ -87,9 +87,8 @@ export function useDialogAnimation({
       } else {
         const panel = panelRef.current;
         if (panel) {
-          const firstFocusable = panel.querySelector(
-            FOCUSABLE_SELECTOR
-          ) as HTMLElement;
+          const firstFocusable =
+            panel.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
           if (firstFocusable) {
             firstFocusable.focus();
           } else {

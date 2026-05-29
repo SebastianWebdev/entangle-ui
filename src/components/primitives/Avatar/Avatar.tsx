@@ -159,7 +159,7 @@ export const Avatar = /*#__PURE__*/ React.memo<AvatarProps>(
     );
 
     const resolvedInitials =
-      initials !== undefined && initials !== null && initials !== ''
+      initials !== undefined && initials !== ''
         ? initials.slice(0, 2).toUpperCase()
         : name
           ? getAvatarInitials(name)

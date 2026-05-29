@@ -62,9 +62,13 @@ export function useMediaQuery(
       };
     }
 
-    // Legacy Safari fallback.
+    // Legacy Safari fallback, reached only when the modern addEventListener
+    // API above is unavailable. addListener/removeListener are deprecated but
+    // remain the only option on those older engines.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     mql.addListener(handler);
     return () => {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       mql.removeListener(handler);
     };
   }, [query]);

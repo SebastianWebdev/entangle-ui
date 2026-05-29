@@ -121,7 +121,6 @@ export const SegmentedControlItem: React.FC<SegmentedControlItemProps> = ({
     <button
       ref={ref}
       type="button"
-      role="button"
       data-segmented-item="true"
       data-value={value}
       data-disabled={isDisabled || undefined}

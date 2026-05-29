@@ -509,7 +509,7 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
       (e.target as HTMLElement).releasePointerCapture(e.pointerId);
       setDraggingIndex(null);
 
-      if (isControlled && controlledSizes) {
+      if (isControlled) {
         onResizeEnd?.(controlledSizes);
       } else {
         onResizeEnd?.(internalSizes);
@@ -689,9 +689,14 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
       const leftCfg = panelConfigs[i];
 
       elements.push(
+        // Focusable window-splitter: a separator with aria-valuenow that the
+        // user can move with the keyboard is an interactive separator per the
+        // WAI-ARIA window splitter pattern, which jsx-a11y does not model.
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
         <div
           key={`divider-${i}`}
           role="separator"
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
           tabIndex={0}
           aria-orientation={
             direction === 'horizontal' ? 'vertical' : 'horizontal'

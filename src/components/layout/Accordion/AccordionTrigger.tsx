@@ -55,7 +55,13 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = ({
     }
   }, [isDisabled, toggleItem, value]);
 
+  // Prevent clicks/keypresses originating from the actions area (which hosts
+  // its own interactive controls) from bubbling up and toggling the accordion.
   const handleActionsClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  const handleActionsKeyDown = useCallback((e: React.KeyboardEvent) => {
     e.stopPropagation();
   }, []);
 
@@ -98,7 +104,12 @@ export const AccordionTrigger: React.FC<AccordionTriggerProps> = ({
       {icon && <span className={iconArea}>{icon}</span>}
       <span>{children}</span>
       {actions && (
-        <span className={actionsArea} onClick={handleActionsClick}>
+        <span
+          className={actionsArea}
+          role="presentation"
+          onClick={handleActionsClick}
+          onKeyDown={handleActionsKeyDown}
+        >
           {actions}
         </span>
       )}

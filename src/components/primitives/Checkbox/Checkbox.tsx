@@ -79,7 +79,10 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 
   // Resolve group context
   const disabled = disabledProp || (groupContext?.disabled ?? false);
-  const size = sizeProp ?? groupContext?.size ?? 'md';
+  // NOTE: `sizeProp` already defaults to 'md' via destructuring, so it is never
+  // nullish and the group context size cannot currently be inherited. Behavior
+  // is preserved here; see reported logic bug about group size inheritance.
+  const size = sizeProp;
 
   // Determine checked state for group integration
   const isGrouped = groupContext !== null && value !== undefined;

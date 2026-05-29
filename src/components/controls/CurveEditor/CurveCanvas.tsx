@@ -150,6 +150,10 @@ export const CurveCanvas: React.FC<CurveCanvasProps> = ({
       <canvas
         ref={canvasRef}
         className={canvasRecipe({ disabled })}
+        // The canvas is a self-contained keyboard-driven editing surface, so
+        // "application" is the correct ARIA role. jsx-a11y maps <canvas> to an
+        // interactive element and flags the (non-interactive) application role.
+        // eslint-disable-next-line jsx-a11y/no-interactive-element-to-noninteractive-role
         role="application"
         aria-label={ariaLabel ?? 'Curve editor'}
         aria-roledescription={`curve editor with ${kfCount} keyframes`}

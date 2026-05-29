@@ -258,17 +258,16 @@ export function useMinimapGestures(
         return;
       }
 
-      if (state.mode === 'drag-rect') {
-        const pointerWorld = minimapToWorld(screen, worldBounds, minimapSize);
-        const offset = state.grabOffsetWorld ?? { x: 0, y: 0 };
-        emit({
-          worldPoint: {
-            x: pointerWorld.x - offset.x,
-            y: pointerWorld.y - offset.y,
-          },
-          phase: 'drag',
-        });
-      }
+      // Only 'drag-rect' remains after the early returns above.
+      const pointerWorld = minimapToWorld(screen, worldBounds, minimapSize);
+      const offset = state.grabOffsetWorld ?? { x: 0, y: 0 };
+      emit({
+        worldPoint: {
+          x: pointerWorld.x - offset.x,
+          y: pointerWorld.y - offset.y,
+        },
+        phase: 'drag',
+      });
     },
     [
       containerRef,

@@ -76,12 +76,11 @@ export const Icon = /*#__PURE__*/ React.memo<IconProps>(
     const isStandardColor = STANDARD_COLORS.has(color);
     const isStandardSize = typeof size === 'string' && STANDARD_SIZES.has(size);
 
-    const resolvedSize =
-      isStandardSize || size === undefined
-        ? undefined
-        : typeof size === 'number'
-          ? `${size}px`
-          : size;
+    const resolvedSize = isStandardSize
+      ? undefined
+      : typeof size === 'number'
+        ? `${size}px`
+        : size;
 
     const inlineStyle: React.CSSProperties = {};
     if (!isStandardColor) inlineStyle.color = color;

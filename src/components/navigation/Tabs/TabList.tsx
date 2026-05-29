@@ -83,6 +83,9 @@ export const TabList: React.FC<TabListProps> = ({
     <div
       ref={setListRef}
       role="tablist"
+      // Roving tabindex lives on the individual tabs; the list itself is only
+      // focusable programmatically while it manages arrow-key navigation.
+      tabIndex={-1}
       aria-orientation={orientation}
       className={cx(
         tabListRecipe({ orientation, variant, pillsFrame }),

@@ -174,7 +174,7 @@ export function Combobox<T extends string = string>({
     (val: T | null): string => {
       if (val === null) return '';
       const found = options.find(o => o.value === val);
-      return found?.label ?? String(val);
+      return found?.label ?? val;
     },
     [options]
   );
@@ -259,9 +259,7 @@ export function Combobox<T extends string = string>({
       }
       setIsEditing(false);
       setQuery(
-        opt.value === (CREATE_ROW_VALUE as T)
-          ? query
-          : (opt.label ?? String(opt.value))
+        opt.value === (CREATE_ROW_VALUE as T) ? query : (opt.label ?? opt.value)
       );
       close();
     },
@@ -453,6 +451,7 @@ export function Combobox<T extends string = string>({
           aria-selected={isSelected}
           aria-disabled={isDisabled || undefined}
           id={`${listboxId}-${String(idx)}`}
+          tabIndex={-1}
           className={cx(
             optionItemRecipe({
               active: isActive,
@@ -463,6 +462,12 @@ export function Combobox<T extends string = string>({
           )}
           onClick={() => {
             commitOption(opt);
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              commitOption(opt);
+            }
           }}
           onMouseEnter={() => {
             if (!isDisabled) listbox.setActiveIndex(idx);

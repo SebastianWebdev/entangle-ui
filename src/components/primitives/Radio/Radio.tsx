@@ -137,10 +137,13 @@ export const Radio = /*#__PURE__*/ React.memo<RadioProps>(
           disabled: disabled || undefined,
         })}
       >
+        {/* aria-invalid surfaces the error state to assistive tech and is part
+            of this component's documented/tested API; jsx-a11y's role support
+            table for the implicit radio role is overly strict here. */}
+        {/* eslint-disable-next-line jsx-a11y/role-supports-aria-props */}
         <input
           ref={ref}
           type="radio"
-          role="radio"
           id={radioId}
           name={name}
           value={value}

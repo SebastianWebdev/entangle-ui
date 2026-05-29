@@ -269,9 +269,9 @@ export const NumberInput = ({
     ...(precisionStep !== undefined && { precisionStep }),
     ...(largeStep !== undefined && { largeStep }),
     ...(precision !== undefined && { precision }),
-    ...(allowExpressions !== undefined && { allowExpressions }),
+    allowExpressions,
     disabled: disabled || readOnly,
-    ...(dragSensitivity !== undefined && { dragSensitivity }),
+    dragSensitivity,
     ...(formatValue !== undefined && { formatValue }),
     ...(parseValue !== undefined && { parseValue }),
   });
@@ -421,6 +421,12 @@ export const NumberInput = ({
   const inputId = React.useId();
 
   return (
+    // The mouse handlers below implement a pointer-only drag-to-scrub
+    // enhancement on this presentational wrapper. Keyboard accessibility is
+    // provided by the inner native <input> (handleInputKeyDown) and the
+    // native step <button>s, so no role/keyboard handlers belong on the
+    // wrapper itself.
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
       ref={containerRef}
       className={cx(

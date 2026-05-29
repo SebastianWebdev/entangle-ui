@@ -205,10 +205,19 @@ export function TimelineTrackHeaders({
               return (
                 <div
                   key={`group:${row.group.id}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={!collapsed}
                   className={timelineHeaderGroupRowStyle}
                   style={{ top: row.top, height: row.height }}
                   onClick={() => {
                     onToggleGroupCollapsed(row.group.id);
+                  }}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onToggleGroupCollapsed(row.group.id);
+                    }
                   }}
                 >
                   <span
@@ -298,7 +307,7 @@ export function TimelineTrackHeaders({
       {drag && dropTop !== null && (
         <div
           className={timelineHeaderDropIndicatorStyle}
-          style={{ top: rulerHeight + (dropTop ?? 0) - scrollTop }}
+          style={{ top: rulerHeight + dropTop - scrollTop }}
         />
       )}
     </div>

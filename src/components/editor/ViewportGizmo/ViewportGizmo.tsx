@@ -136,6 +136,10 @@ export const ViewportGizmo: React.FC<ViewportGizmoProps> = ({
       <canvas
         ref={canvasRef}
         className={gizmoCanvasStyle({ disabled })}
+        // The canvas is a self-contained interactive widget driven entirely by
+        // custom pointer/keyboard handlers, so it is exposed as an ARIA
+        // application rather than its implicit canvas role.
+        // eslint-disable-next-line jsx-a11y/no-interactive-element-to-noninteractive-role
         role="application"
         aria-label="Viewport orientation gizmo"
         aria-roledescription={ariaDescription}

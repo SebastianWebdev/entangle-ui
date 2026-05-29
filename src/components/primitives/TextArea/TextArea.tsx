@@ -125,7 +125,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
   };
 
   const effectiveHelper = error && errorMessage ? errorMessage : helperText;
-  const count = currentValue?.length ?? 0;
+  const count = currentValue.length;
 
   return (
     <div className={cx(textAreaContainerStyle, className)} style={style}>

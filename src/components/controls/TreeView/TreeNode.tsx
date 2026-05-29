@@ -211,6 +211,11 @@ export const TreeNodeComponent = ({
       : null;
 
   return (
+    // Keyboard interaction is handled centrally by the parent role="tree"
+    // container via the aria-activedescendant pattern (it owns tabIndex and
+    // onKeyDown). Individual treeitems are not separately focusable, so their
+    // onClick is a pointer-only enhancement and they carry no key handler.
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
       id={`treenode-${nodeId}`}
       role="treeitem"
@@ -280,6 +285,11 @@ export const TreeNodeComponent = ({
 
       {/* Actions */}
       {renderActions && (
+        // This span is a non-interactive container; its onClick only stops
+        // row-click propagation so that the genuinely interactive controls
+        // produced by renderActions handle their own activation. It has no
+        // activatable behavior of its own, so no role or key handler applies.
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
         <span
           className={actionsStyle}
           onClick={e => {

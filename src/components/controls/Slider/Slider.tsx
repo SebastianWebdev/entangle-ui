@@ -303,10 +303,8 @@ export const Slider: React.FC<SliderProps> = ({
   const displayValue = formatValue
     ? formatValue(clampedValue)
     : unit
-      ? `${precision !== undefined ? clampedValue.toFixed(precision) : clampedValue}${unit}`
-      : precision !== undefined
-        ? clampedValue.toFixed(precision)
-        : clampedValue.toString();
+      ? `${clampedValue.toFixed(precision)}${unit}`
+      : clampedValue.toFixed(precision);
 
   /**
    * Applies a new value with proper bounds checking and rounding
@@ -524,7 +522,6 @@ export const Slider: React.FC<SliderProps> = ({
           aria-valuetext={displayValue}
           aria-disabled={disabled}
           aria-readonly={readOnly}
-          aria-required={required}
           aria-invalid={error}
           aria-labelledby={label ? sliderId : undefined}
           onFocus={handleFocus}

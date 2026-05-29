@@ -330,25 +330,22 @@ export function constrainTangent(
       : { ...keyframe, handleIn: opposite };
   }
 
-  if (tangentMode === 'aligned') {
-    // Opposite handle keeps its length but aligns direction
-    const other = movedHandle === 'in' ? keyframe.handleOut : keyframe.handleIn;
-    const otherLength = Math.sqrt(other.x * other.x + other.y * other.y);
+  // Remaining mode is 'aligned': the opposite handle keeps its length but
+  // aligns direction with the moved handle.
+  const other = movedHandle === 'in' ? keyframe.handleOut : keyframe.handleIn;
+  const otherLength = Math.sqrt(other.x * other.x + other.y * other.y);
 
-    if (otherLength < 1e-10) {
-      return keyframe;
-    }
-
-    // Direction opposite to moved handle, scaled to original length
-    const scale = otherLength / movedLength;
-    const opposite = { x: -moved.x * scale, y: -moved.y * scale };
-
-    return movedHandle === 'in'
-      ? { ...keyframe, handleOut: opposite }
-      : { ...keyframe, handleIn: opposite };
+  if (otherLength < 1e-10) {
+    return keyframe;
   }
 
-  return keyframe;
+  // Direction opposite to moved handle, scaled to original length
+  const scale = otherLength / movedLength;
+  const opposite = { x: -moved.x * scale, y: -moved.y * scale };
+
+  return movedHandle === 'in'
+    ? { ...keyframe, handleOut: opposite }
+    : { ...keyframe, handleIn: opposite };
 }
 
 /**

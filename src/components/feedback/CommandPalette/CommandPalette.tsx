@@ -310,11 +310,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   const content = (
     <>
+      {/* Decorative backdrop: pointer users can click to dismiss, while
+          keyboard users dismiss via Escape handled on the dialog panel. */}
       <div
+        aria-hidden="true"
         className={overlayStyle}
         data-testid={testId ? `${testId}-overlay` : undefined}
         onClick={handleOverlayClick}
       />
+      {/* The dialog panel needs a keydown handler for Escape-to-close and
+          listbox navigation; this is required dialog behavior, not a static
+          element repurposed as interactive. */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         role="dialog"
         aria-modal="true"
@@ -382,6 +389,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               const isSelected = itemIndex === activeIndex;
               const itemDomId = `${listboxId}-item-${String(itemIndex)}`;
               return (
+                // Keyboard selection is handled centrally via the
+                // aria-activedescendant model on the dialog (Enter selects the
+                // active option); the click is a pointer-only convenience.
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events
                 <li
                   key={`${row.group}-${item.id}`}
                   id={itemDomId}

@@ -139,6 +139,17 @@ export const Tab: React.FC<TabProps> = ({
     [onClose, value]
   );
 
+  const handleCloseKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose?.(value);
+      }
+    },
+    [onClose, value]
+  );
+
   const variantClasses = getVariantClasses(variant, isActive, orientation);
 
   return (
@@ -182,8 +193,10 @@ export const Tab: React.FC<TabProps> = ({
         <span
           className={tabCloseButtonStyle}
           role="button"
+          tabIndex={0}
           aria-label={`Close ${typeof children === 'string' ? children : value}`}
           onClick={handleClose}
+          onKeyDown={handleCloseKeyDown}
         >
           <CloseIcon size={closeIconSize} decorative />
         </span>

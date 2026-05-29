@@ -169,6 +169,26 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
     onCollapsedChange?.(next);
   }, [isCollapsed, controlledCollapsed, onCollapsedChange]);
 
+  const handleCollapseKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleCollapse();
+      }
+    },
+    [toggleCollapse]
+  );
+
+  const handleCloseKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClose?.();
+      }
+    },
+    [onClose]
+  );
+
   // FloatingManager registration -- use stable id, run once. Latest manager via
   // useLatest so the register/unregister effect and handlers read it without
   // writing a ref during render.
@@ -295,6 +315,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
             role="button"
             tabIndex={0}
             onClick={toggleCollapse}
+            onKeyDown={handleCollapseKeyDown}
             aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
           >
             {isCollapsed ? (
@@ -309,6 +330,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
               role="button"
               tabIndex={0}
               onClick={onClose}
+              onKeyDown={handleCloseKeyDown}
               aria-label="Close panel"
             >
               <CloseIcon size="sm" color="secondary" decorative />

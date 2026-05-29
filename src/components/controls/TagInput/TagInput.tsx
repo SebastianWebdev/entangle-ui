@@ -293,6 +293,13 @@ export function TagInput({
         </FormLabel>
       )}
 
+      {/*
+        The onMouseDown handler only forwards clicks on the wrapper padding to
+        focus the inner native <input>, which is the actual accessible control
+        (focusable, keyboard-driven). The wrapper is presentational, so no
+        widget role belongs on it.
+      */}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         ref={setWrapperRef}
         className={wrapperRecipe({

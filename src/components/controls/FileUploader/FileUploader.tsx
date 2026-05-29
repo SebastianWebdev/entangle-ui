@@ -263,7 +263,7 @@ export function FileUploader({
     (event: React.DragEvent<HTMLDivElement>) => {
       if (disabled) return;
       event.preventDefault();
-      if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+      event.dataTransfer.dropEffect = 'copy';
     },
     [disabled]
   );
@@ -285,7 +285,6 @@ export function FileUploader({
       dragCounterRef.current = 0;
       setDragging(false);
       const dt = event.dataTransfer;
-      if (!dt) return;
       const dropped: File[] = [];
       if (dt.files.length > 0) {
         dropped.push(...Array.from(dt.files));

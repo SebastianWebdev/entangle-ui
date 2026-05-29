@@ -103,6 +103,9 @@ export function moveSelectedKeyframes(
       changed = true;
       return { ...kf, x: clamp(snapFrame(kf.x + deltaFrames, snap), min, max) };
     });
+    // `changed` is mutated inside the map callback above; TS narrows it to the
+    // `false` literal because it can't track that mutation across the closure.
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!changed) return track;
     keyframes.sort((a, b) => a.x - b.x);
     return { ...track, keyframes };
@@ -254,6 +257,9 @@ export function setSelectedTangentMode(
       changed = true;
       return { ...kf, tangentMode: mode };
     });
+    // `changed` is mutated inside the map callback; TS can't track that across
+    // the closure and narrows it to the `false` literal.
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     return changed ? { ...track, keyframes } : track;
   });
 }
@@ -296,6 +302,9 @@ export function setKeyframeTangent(
       changed = true;
       return applyTangent(kf, which, offset);
     });
+    // `changed` is mutated inside the map callback; TS can't track that across
+    // the closure and narrows it to the `false` literal.
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     return changed ? { ...track, keyframes } : track;
   });
 }

@@ -156,7 +156,8 @@ function categorizeChildren(children: React.ReactNode): CategorizedSlots {
       );
       if (placement === 'bottom-inside') slots.footerInside = node;
       else slots.footerBelow = node;
-    } else if (kind === 'corner') {
+    } else {
+      // kind is narrowed to 'corner' here (only remaining slot kind).
       const side: MinimapCornerSide = props.side ?? 'top-right';
       const cornerStyle =
         side === 'top-left'
@@ -206,6 +207,9 @@ function MinimapBody({
 }): React.ReactElement {
   const isDragging = useMinimapDragState();
   return (
+    // The minimap body is a labelled landmark region that doubles as an
+    // interactive pan/zoom surface (focusable, with pointer + key handlers).
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       ref={bodyRef}
       className={minimapBodyStyle}

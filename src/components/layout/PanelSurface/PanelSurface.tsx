@@ -72,7 +72,7 @@ const PanelSurfaceBody: React.FC<PanelSurfaceBodyProps> = ({
   ...rest
 }) => {
   const resolvedPadding =
-    typeof padding === 'number' ? `${padding}px` : String(padding);
+    typeof padding === 'number' ? `${padding}px` : padding;
 
   const mergedStyle: React.CSSProperties = {
     padding: resolvedPadding,

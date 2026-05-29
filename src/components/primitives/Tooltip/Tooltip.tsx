@@ -298,9 +298,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
     typeof window !== 'undefined' &&
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const animated = animation?.animated !== false && !prefersReducedMotion;
-  const duration = animation?.duration ?? 200;
-  const easing = animation?.easing ?? 'ease-out';
+  const animated = animation.animated !== false && !prefersReducedMotion;
+  const duration = animation.duration ?? 200;
+  const easing = animation.easing ?? 'ease-out';
 
   const animationStyle: React.CSSProperties = animated
     ? {

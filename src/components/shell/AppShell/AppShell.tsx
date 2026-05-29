@@ -179,7 +179,7 @@ const AppShellRoot: React.FC<AppShellProps> = ({
   });
 
   const isToolbarVisible = useCallback(
-    (position: ToolbarPosition) => toolbarVisibility[position] ?? true,
+    (position: ToolbarPosition) => toolbarVisibility[position],
     [toolbarVisibility]
   );
 

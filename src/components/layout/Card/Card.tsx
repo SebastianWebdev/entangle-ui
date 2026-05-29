@@ -72,7 +72,7 @@ const CardRoot: React.FC<CardProps> = ({
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (!interactive || !onClick) return;
+      if (!interactive) return;
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         onClick(event as unknown as React.MouseEvent<HTMLDivElement>);

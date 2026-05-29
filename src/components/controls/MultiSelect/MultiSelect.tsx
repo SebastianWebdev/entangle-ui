@@ -361,10 +361,18 @@ export function MultiSelect<T extends string = string>({
       typeof max === 'number' && !isSelected && selected.length >= max;
     const interactiveDisabled = isDisabled || reachedMax;
 
+    const selectOption = () => {
+      if (!interactiveDisabled) {
+        toggleValue(opt.value, false);
+        if (closeOnSelect) close();
+      }
+    };
+
     return (
       <div
         key={opt.value}
         role="option"
+        tabIndex={-1}
         aria-selected={isSelected}
         aria-disabled={interactiveDisabled || undefined}
         id={`${listboxId}-${opt.value}`}
@@ -373,10 +381,11 @@ export function MultiSelect<T extends string = string>({
           selected: isSelected,
           disabled: interactiveDisabled,
         })}
-        onClick={() => {
-          if (!interactiveDisabled) {
-            toggleValue(opt.value, false);
-            if (closeOnSelect) close();
+        onClick={selectOption}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectOption();
           }
         }}
         onMouseEnter={() => {
@@ -424,7 +433,11 @@ export function MultiSelect<T extends string = string>({
         aria-describedby={showHelperText ? helperId : undefined}
         disabled={disabled}
         onClick={() => {
-          isOpen ? close() : open();
+          if (isOpen) {
+            close();
+          } else {
+            open();
+          }
         }}
         onKeyDown={handleTriggerKeyDown}
         className={triggerRecipe({
@@ -465,6 +478,13 @@ export function MultiSelect<T extends string = string>({
                         e.stopPropagation();
                         removeValue(opt.value);
                       }}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          removeValue(opt.value);
+                        }
+                      }}
                     >
                       <CloseIcon size="sm" decorative />
                     </span>
@@ -485,6 +505,13 @@ export function MultiSelect<T extends string = string>({
             aria-label="Clear selection"
             className={clearButtonStyle}
             onClick={handleClearAll}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                setSelected([]);
+              }
+            }}
           >
             <CloseIcon size="sm" decorative />
           </span>

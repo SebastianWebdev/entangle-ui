@@ -727,8 +727,8 @@ the review checklist is mechanically checked. The setup (src files):
     with real `useState`, keeping a ref only if a handler needs a synchronous
     read.
   - **`react-hooks/set-state-in-effect`** — prefer deriving during render, or
-    the *adjust-state-during-render* pattern (a guarded `if (x > max)
-    setX(max)` in the render body) over a layout/effect that calls `setState`.
+    the _adjust-state-during-render_ pattern (a guarded `if (x > max)
+setX(max)` in the render body) over a layout/effect that calls `setState`.
     Reserve `setState`-in-effect for genuine external-system sync
     (`matchMedia`, `IntersectionObserver`, reading committed DOM, enter/exit
     animation timing) and annotate it with a one-line

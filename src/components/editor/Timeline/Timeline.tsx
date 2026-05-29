@@ -687,6 +687,10 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             onToggleGroupCollapsed={handleToggleGroupCollapsed}
             onToggleTrackExpanded={handleToggleTrackExpanded}
           />
+          {/* The timeline body is a labelled group that doubles as an
+              interactive canvas surface (focusable, with pointer + key
+              handlers driving the gesture model). */}
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
           <div
             ref={bodyRef}
             className={timelineBodyStyle}
@@ -705,6 +709,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             role="group"
             aria-label={ariaLabel}
             aria-roledescription="Timeline"
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- focusable interactive canvas surface
             tabIndex={0}
             onPointerDown={handlers.onPointerDown}
             onPointerMove={handlers.onPointerMove}

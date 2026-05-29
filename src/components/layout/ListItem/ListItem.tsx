@@ -53,7 +53,7 @@ export const ListItem = /*#__PURE__*/ React.memo<ListItemProps>(
         if (!clickable) return;
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          onClick?.(event as unknown as React.MouseEvent<HTMLDivElement>);
+          onClick(event as unknown as React.MouseEvent<HTMLDivElement>);
         }
       },
       [clickable, onClick]

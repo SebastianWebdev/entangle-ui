@@ -348,7 +348,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
     <SegmentedControlContext.Provider value={contextValue}>
       <div
         ref={setRootRef}
-        role="group"
+        role="toolbar"
         aria-label={ariaLabel}
         aria-disabled={disabled || undefined}
         aria-orientation={orientation}

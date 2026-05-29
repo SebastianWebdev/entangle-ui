@@ -528,17 +528,16 @@ export function useTimelineGestures(
         o.setTracks(moveFromState(state, point));
         return;
       }
-      if (state.mode === 'marquee') {
-        o.store.setDrag({
-          kind: 'marquee',
-          marquee: {
-            x: Math.min(state.startX, point.x),
-            y: Math.min(state.startY, point.y),
-            width: Math.abs(point.x - state.startX),
-            height: Math.abs(point.y - state.startY),
-          },
-        });
-      }
+      // Only 'marquee' remains after the early returns above.
+      o.store.setDrag({
+        kind: 'marquee',
+        marquee: {
+          x: Math.min(state.startX, point.x),
+          y: Math.min(state.startY, point.y),
+          width: Math.abs(point.x - state.startX),
+          height: Math.abs(point.y - state.startY),
+        },
+      });
     },
     [optsRef, hitAt, tangentOffset, moveFromState]
   );

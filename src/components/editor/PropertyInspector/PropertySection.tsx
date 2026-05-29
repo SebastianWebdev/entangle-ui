@@ -85,6 +85,14 @@ export const PropertySection: React.FC<PropertySectionProps> = ({
     e.stopPropagation();
   }, []);
 
+  // Prevent keyboard activation on nested action controls from bubbling up
+  // and toggling the section trigger.
+  const handleActionsKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.stopPropagation();
+    }
+  }, []);
+
   const showIndicator = indicator !== null;
 
   return (
@@ -126,7 +134,15 @@ export const PropertySection: React.FC<PropertySectionProps> = ({
         {icon && <span className={iconArea}>{icon}</span>}
         <span className={sectionLabel}>{title}</span>
         {actions && (
-          <span className={actionsArea} onClick={handleActionsClick}>
+          // This wrapper is a non-semantic propagation boundary for the
+          // user-supplied action controls it hosts; it is not itself
+          // interactive, so it intentionally has no role.
+          // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+          <span
+            className={actionsArea}
+            onClick={handleActionsClick}
+            onKeyDown={handleActionsKeyDown}
+          >
             {actions}
           </span>
         )}

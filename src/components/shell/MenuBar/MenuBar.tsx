@@ -346,6 +346,9 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
           className={dropdown}
           role="menu"
           aria-label={label}
+          // Focusable programmatically so the open menu can receive focus and
+          // handle arrow-key navigation across its items.
+          tabIndex={-1}
           onKeyDown={handleDropdownKeyDown}
           style={{ top: `calc(100% + ${menuOffset}px)` }}
         >

@@ -434,10 +434,17 @@ export function Select<T extends string = string>({
     const isSelected = opt.value === currentValue;
     const isHighlighted = index === highlightedIndex;
 
+    const selectOption = () => {
+      if (!opt.disabled) {
+        selectValue(opt.value);
+      }
+    };
+
     return (
       <div
         key={opt.value}
         role="option"
+        tabIndex={-1}
         aria-selected={isSelected}
         aria-disabled={opt.disabled ?? undefined}
         className={optionItemRecipe({
@@ -445,9 +452,11 @@ export function Select<T extends string = string>({
           selected: isSelected,
           disabled: opt.disabled ?? false,
         })}
-        onClick={() => {
-          if (!opt.disabled) {
-            selectValue(opt.value);
+        onClick={selectOption}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectOption();
           }
         }}
         onMouseEnter={() => {
@@ -493,7 +502,11 @@ export function Select<T extends string = string>({
         aria-describedby={showHelperText ? helperId : undefined}
         disabled={disabled}
         onClick={() => {
-          isOpen ? close() : open();
+          if (isOpen) {
+            close();
+          } else {
+            open();
+          }
         }}
         onKeyDown={handleTriggerKeyDown}
         className={triggerRecipe({
@@ -523,6 +536,13 @@ export function Select<T extends string = string>({
             className={clearButtonStyle}
             role="button"
             onClick={handleClear}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                selectValue(null);
+              }
+            }}
             aria-label="Clear selection"
             tabIndex={-1}
           >

@@ -279,6 +279,59 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
     []
   );
 
+  // Keyboard scrolling for the focusable scrollbar role, mirroring the native
+  // scrollbar interaction model (arrows step, PageUp/Down page, Home/End jump).
+  const handleTrackKeyDown = useCallback(
+    (axis: 'vertical' | 'horizontal', e: React.KeyboardEvent) => {
+      const vp = viewportRef.current;
+      if (!vp) return;
+
+      const step = 40;
+      const isVertical = axis === 'vertical';
+      const page = isVertical ? vp.clientHeight : vp.clientWidth;
+      const maxScroll = isVertical
+        ? vp.scrollHeight - vp.clientHeight
+        : vp.scrollWidth - vp.clientWidth;
+      const current = isVertical ? vp.scrollTop : vp.scrollLeft;
+
+      let next: number | undefined;
+      const decKey = isVertical ? 'ArrowUp' : 'ArrowLeft';
+      const incKey = isVertical ? 'ArrowDown' : 'ArrowRight';
+
+      switch (e.key) {
+        case decKey:
+          next = current - step;
+          break;
+        case incKey:
+          next = current + step;
+          break;
+        case 'PageUp':
+          next = current - page;
+          break;
+        case 'PageDown':
+          next = current + page;
+          break;
+        case 'Home':
+          next = 0;
+          break;
+        case 'End':
+          next = maxScroll;
+          break;
+        default:
+          return;
+      }
+
+      e.preventDefault();
+      const clamped = Math.max(0, Math.min(next, maxScroll));
+      if (isVertical) {
+        vp.scrollTop = clamped;
+      } else {
+        vp.scrollLeft = clamped;
+      }
+    },
+    []
+  );
+
   // Initial measurement once the viewport is mounted.
   useEffect(() => {
     if (viewportRef.current) recalculate();
@@ -351,6 +404,10 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
         ref={setViewportRef}
         id={viewportId}
         role="region"
+        // The scroll viewport is intentionally focusable so keyboard users can
+        // scroll overflowing content with the arrow/page keys (native behavior
+        // of a focused scroll container).
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
         tabIndex={0}
         className={viewportRecipe({ direction })}
         onScroll={handleScroll}
@@ -406,6 +463,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             isScrollbarShown ? scrollbarVisible : scrollbarHidden
           )}
           role="scrollbar"
+          tabIndex={0}
           aria-controls={viewportId}
           aria-orientation="vertical"
           aria-valuenow={vScrollPercent}
@@ -414,6 +472,9 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
           data-testid={testId ? `${testId}-scrollbar-v` : undefined}
           onClick={e => {
             handleTrackClick('vertical', e);
+          }}
+          onKeyDown={e => {
+            handleTrackKeyDown('vertical', e);
           }}
         >
           <div
@@ -444,6 +505,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             isScrollbarShown ? scrollbarVisible : scrollbarHidden
           )}
           role="scrollbar"
+          tabIndex={0}
           aria-controls={viewportId}
           aria-orientation="horizontal"
           aria-valuenow={hScrollPercent}
@@ -452,6 +514,9 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
           data-testid={testId ? `${testId}-scrollbar-h` : undefined}
           onClick={e => {
             handleTrackClick('horizontal', e);
+          }}
+          onKeyDown={e => {
+            handleTrackKeyDown('horizontal', e);
           }}
         >
           <div

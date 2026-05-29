@@ -651,12 +651,18 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
         {showSelectColumn && (
           <div
             role="gridcell"
+            tabIndex={-1}
             className={cellRecipe({ selectColumn: true, sticky: true })}
             onClickCapture={event => {
               selectionShiftKeyRef.current = event.shiftKey;
             }}
             onClick={event => {
               event.stopPropagation();
+            }}
+            onKeyDown={event => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.stopPropagation();
+              }
             }}
           >
             <Checkbox
@@ -692,6 +698,16 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
       onRowActivate?.(row, rowIdx);
     };
 
+    const handleRowKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        if (selectionMode === 'single') {
+          toggleRowSelection(k, row, rowIdx);
+        }
+        setActiveRowIndex(rowIdx);
+      }
+    };
+
     const rowContent = renderRow
       ? renderRow({ row, rowIndex: rowIdx, selected: isSelected }, cells)
       : cells;
@@ -719,7 +735,9 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
         data-row-interactive={interactive ? 'true' : undefined}
         className={rowClassName}
         style={rowStyle}
+        tabIndex={interactive ? -1 : undefined}
         onClick={interactive ? handleRowClick : undefined}
+        onKeyDown={interactive ? handleRowKeyDown : undefined}
         onDoubleClick={onRowActivate ? handleRowDoubleClick : undefined}
       >
         {rowContent}
