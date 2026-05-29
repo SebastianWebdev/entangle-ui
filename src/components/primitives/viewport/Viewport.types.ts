@@ -1,10 +1,10 @@
-import type React from 'react';
-import type { Prettify } from '@/types/utilities';
-import type { BaseComponent } from '@/types/common';
 import type {
   Point2D,
   CanvasThemeColors,
 } from '@/components/primitives/canvas/canvas.types';
+import type { BaseComponent } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 // ─── Transform ───
 
@@ -219,7 +219,7 @@ export interface ViewportContextValue {
 // ─── Main Viewport props ───
 
 export interface ViewportBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent,
   'onChange' | 'ref'
 > {
   /** Controlled transform. */

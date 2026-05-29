@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
 import { FOCUSABLE_SELECTOR } from '@/hooks/useFocusTrap';
+
 import { DRAWER_ANIMATION_MS } from './Drawer.css';
+
+import type { RefObject } from 'react';
 
 interface UseDrawerAnimationOptions {
   open: boolean;

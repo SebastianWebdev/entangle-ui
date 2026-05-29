@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import type { ColorPreset } from './ColorPicker.types';
+
 import {
   presetsGridStyle,
   presetButtonRecipe,
   presetColorStyle,
 } from './ColorPicker.css';
+
+import type { ColorPreset } from './ColorPicker.types';
 
 interface ColorPresetsProps {
   presets: ColorPreset[];
@@ -45,7 +47,9 @@ export const ColorPresets: React.FC<ColorPresetsProps> = ({
           className={presetButtonRecipe({
             selected: preset.color.toLowerCase() === normalizedCurrent,
           })}
-          onClick={() => handleClick(preset.color)}
+          onClick={() => {
+            handleClick(preset.color);
+          }}
         >
           <span
             className={presetColorStyle}

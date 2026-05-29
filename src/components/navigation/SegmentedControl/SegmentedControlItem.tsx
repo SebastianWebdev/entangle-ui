@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef } from 'react';
+
 import { Tooltip } from '@/components/primitives/Tooltip/Tooltip';
 import { cx } from '@/utils/cx';
 import { devWarn } from '@/utils/devWarn';
+
 import { useSegmentedControlContext } from './SegmentedControl';
-import type { SegmentedControlItemProps } from './SegmentedControl.types';
 import {
   itemOutlineStyle,
   itemSolidStyle,
@@ -15,6 +16,8 @@ import {
   segmentedItemRecipe,
   segmentedItemWrapperRecipe,
 } from './SegmentedControl.css';
+
+import type { SegmentedControlItemProps } from './SegmentedControl.types';
 
 function getVariantClass(variant: 'subtle' | 'solid' | 'outline'): string {
   switch (variant) {

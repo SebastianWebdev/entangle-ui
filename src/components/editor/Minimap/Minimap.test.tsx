@@ -114,20 +114,17 @@ function getRoot() {
  * is (0, 0) and the size matches the rendered minimap.
  */
 function stubBoundingRect(width: number, height: number) {
-  HTMLDivElement.prototype.getBoundingClientRect = vi.fn(
-    () =>
-      ({
-        x: 0,
-        y: 0,
-        left: 0,
-        top: 0,
-        right: width,
-        bottom: height,
-        width,
-        height,
-        toJSON: () => ({}),
-      }) as DOMRect
-  );
+  HTMLDivElement.prototype.getBoundingClientRect = vi.fn(() => ({
+    x: 0,
+    y: 0,
+    left: 0,
+    top: 0,
+    right: width,
+    bottom: height,
+    width,
+    height,
+    toJSON: () => ({}),
+  }));
 }
 
 function pointerEvent(

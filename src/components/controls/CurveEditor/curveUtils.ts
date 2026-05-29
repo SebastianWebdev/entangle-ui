@@ -1,15 +1,16 @@
-import { clamp } from '@/utils/mathUtils';
 import {
   domainToCanvas as sharedDomainToCanvas,
   canvasToDomain as sharedCanvasToDomain,
 } from '@/components/primitives/canvas/canvasCoords';
-import type { CanvasViewport } from '@/components/primitives/canvas/canvas.types';
+import { clamp } from '@/utils/mathUtils';
+
 import type {
   CurveData,
   CurveKeyframe,
   CurveViewport,
   CurveHitTest,
 } from './CurveEditor.types';
+import type { CanvasViewport } from '@/components/primitives/canvas/canvas.types';
 
 let idCounter = 0;
 

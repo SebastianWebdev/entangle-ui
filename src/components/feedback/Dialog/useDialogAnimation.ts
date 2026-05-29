@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
 import { FOCUSABLE_SELECTOR } from '@/hooks/useFocusTrap';
+
 import { DIALOG_ANIMATION_MS } from './Dialog.css';
+
+import type { RefObject } from 'react';
 
 interface UseDialogAnimationOptions {
   open: boolean;
@@ -62,7 +66,9 @@ export function useDialogAnimation({
           previousFocusRef.current = null;
         }
       }, delay);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+      };
     }
     return undefined;
   }, [open]);
@@ -88,7 +94,9 @@ export function useDialogAnimation({
         }
       }
     }, 0);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [open, mounted, initialFocusRef, panelRef]);
 
   return { mounted, closing };

@@ -1,8 +1,11 @@
 'use client';
 
-import type React from 'react';
 import { useState, useCallback, useRef } from 'react';
+
 import { clamp } from '@/utils/mathUtils';
+
+import { gizmoHitTest, axisToPresetView } from './gizmoMath';
+
 import type {
   GizmoOrientation,
   GizmoUpAxis,
@@ -10,7 +13,7 @@ import type {
   GizmoHitRegion,
   OrbitDelta,
 } from './ViewportGizmo.types';
-import { gizmoHitTest, axisToPresetView } from './gizmoMath';
+import type React from 'react';
 
 interface UseGizmoInteractionOptions {
   orientation: GizmoOrientation;

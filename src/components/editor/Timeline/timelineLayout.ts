@@ -1,5 +1,6 @@
-import type { TimelineGroup, TimelineTrack } from './Timeline.types';
 import { autoValueRange } from './timelineCoords';
+
+import type { TimelineGroup, TimelineTrack } from './Timeline.types';
 
 /** A rendered track lane. */
 export interface TimelineTrackRow {

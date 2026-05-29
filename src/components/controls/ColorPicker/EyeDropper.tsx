@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useCallback } from 'react';
+
 import { EyeDropperIcon } from '@/components/Icons/EyeDropperIcon';
-import type { Prettify } from '@/types/utilities';
-import type { BaseComponent, Size } from '@/types/common';
+
 import { eyeDropperRecipe } from './ColorPicker.css';
+
+import type { BaseComponent, Size } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 // ---------- EyeDropper API types (not yet in TypeScript lib) ----------
 

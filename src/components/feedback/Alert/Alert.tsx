@@ -1,16 +1,17 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { cx } from '@/utils/cx';
-import { vars } from '@/theme/contract.css';
-import { IconButton } from '@/components/primitives/IconButton';
-import { CloseIcon } from '@/components/Icons/CloseIcon';
-import { InfoIcon } from '@/components/Icons/InfoIcon';
+import React from 'react';
+
 import { CheckIcon } from '@/components/Icons/CheckIcon';
-import { WarningIcon } from '@/components/Icons/WarningIcon';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { ErrorIcon } from '@/components/Icons/ErrorIcon';
-import type { AlertProps, AlertVariant } from './Alert.types';
+import { InfoIcon } from '@/components/Icons/InfoIcon';
+import { WarningIcon } from '@/components/Icons/WarningIcon';
+import { IconButton } from '@/components/primitives/IconButton';
+import { vars } from '@/theme/contract.css';
+import { cx } from '@/utils/cx';
+
 import {
   alertCloseButtonSolidStyle,
   alertCloseColumnStyle,
@@ -20,9 +21,11 @@ import {
   alertIconStyle,
   alertRecipe,
 } from './Alert.css';
-import { AlertTitle } from './AlertTitle';
-import { AlertDescription } from './AlertDescription';
 import { AlertActions } from './AlertActions';
+import { AlertDescription } from './AlertDescription';
+import { AlertTitle } from './AlertTitle';
+
+import type { AlertProps, AlertVariant } from './Alert.types';
 
 const VARIANT_COLOR: Record<AlertVariant, string> = {
   info: vars.colors.accent.primary,

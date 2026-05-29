@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback } from 'react';
+
 import { cx } from '@/utils/cx';
+
 import {
   cardBodyStyle,
   cardFooterStyle,
@@ -17,6 +19,7 @@ import {
   cardMediaStyle,
   cardRecipe,
 } from './Card.css';
+
 import type {
   CardBodyProps,
   CardFooterProps,

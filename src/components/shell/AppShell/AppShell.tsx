@@ -7,14 +7,9 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
+
 import { cx } from '@/utils/cx';
-import type {
-  AppShellProps,
-  AppShellSlotProps,
-  AppShellToolbarSlotProps,
-  AppShellContextValue,
-  ToolbarPosition,
-} from './AppShell.types';
+
 import {
   viewportLockClass,
   shellRoot,
@@ -24,6 +19,14 @@ import {
   dockSlot,
   statusBarSlot,
 } from './AppShell.css';
+
+import type {
+  AppShellProps,
+  AppShellSlotProps,
+  AppShellToolbarSlotProps,
+  AppShellContextValue,
+  ToolbarPosition,
+} from './AppShell.types';
 
 // --- Context ---
 
@@ -47,7 +50,7 @@ const MenuBarSlot: React.FC<AppShellSlotProps> = ({
   ...rest
 }) => (
   <header
-    ref={ref as React.Ref<HTMLElement>}
+    ref={ref}
     className={cx(menuBarSlot, className)}
     style={style}
     data-testid={testId}
@@ -77,7 +80,7 @@ const ToolbarSlot: React.FC<AppShellToolbarSlotProps> = ({
     case 'right':
       return (
         <aside
-          ref={ref as React.Ref<HTMLElement>}
+          ref={ref}
           className={cx(
             sideToolbarSlot({
               side: position,
@@ -121,7 +124,7 @@ const DockSlot: React.FC<AppShellSlotProps> = ({
   ...rest
 }) => (
   <main
-    ref={ref as React.Ref<HTMLElement>}
+    ref={ref}
     className={cx(dockSlot, className)}
     style={style}
     data-testid={testId}
@@ -142,7 +145,7 @@ const StatusBarSlot: React.FC<AppShellSlotProps> = ({
   ...rest
 }) => (
   <footer
-    ref={ref as React.Ref<HTMLElement>}
+    ref={ref}
     className={cx(statusBarSlot, className)}
     style={style}
     data-testid={testId}

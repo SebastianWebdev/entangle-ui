@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import type { ChatToolCallProps } from './ChatPanel.types';
+
 import { cx } from '@/utils/cx';
+
+import { MiniWrenchIcon, MiniChevronIcon } from './ChatIcons';
 import {
   toolCallContainerStyle,
   toolCallHeaderStyle,
@@ -16,7 +18,8 @@ import {
   toolCallErrorStyle,
   toolCallDurationStyle,
 } from './ChatPanel.css';
-import { MiniWrenchIcon, MiniChevronIcon } from './ChatIcons';
+
+import type { ChatToolCallProps } from './ChatPanel.types';
 
 // ─── Status label map ────────────────────────────────────────────
 

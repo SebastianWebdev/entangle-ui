@@ -1,5 +1,6 @@
 'use client';
 
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, {
   useCallback,
   useEffect,
@@ -7,15 +8,17 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { cx } from '@/utils/cx';
+
 import { useResizeObserver } from '@/hooks/useResizeObserver';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-import type { PanelConfig, SplitPaneProps } from './SplitPane.types';
+import { cx } from '@/utils/cx';
+
 import {
   containerRecipe,
   dividerRecipe,
   dividerSizeVar,
 } from './SplitPane.css';
+
+import type { PanelConfig, SplitPaneProps } from './SplitPane.types';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -649,7 +652,7 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
       if (typeof ref === 'function') {
         ref(node);
       } else if (ref && typeof ref === 'object') {
-        (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        ref.current = node;
       }
     },
     [ref]
@@ -707,10 +710,18 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
           style={assignInlineVars({
             [dividerSizeVar]: `${dividerSize}px`,
           })}
-          onPointerDown={e => handlePointerDown(i, e)}
-          onPointerMove={e => handlePointerMove(i, e)}
-          onPointerUp={e => handlePointerUp(i, e)}
-          onKeyDown={e => handleKeyDown(i, e)}
+          onPointerDown={e => {
+            handlePointerDown(i, e);
+          }}
+          onPointerMove={e => {
+            handlePointerMove(i, e);
+          }}
+          onPointerUp={e => {
+            handlePointerUp(i, e);
+          }}
+          onKeyDown={e => {
+            handleKeyDown(i, e);
+          }}
         />
       );
     }

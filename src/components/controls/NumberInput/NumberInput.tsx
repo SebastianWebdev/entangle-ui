@@ -2,12 +2,11 @@
 
 // src/controls/NumberInput/NumberInput.tsx
 import React, { useRef, useEffect } from 'react';
-import type { Prettify } from '@/types/utilities';
-import type { BaseComponent, Size } from '@/types/common';
+
 import { inputWrapperRecipe } from '@/components/form/InputWrapper.css';
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
-import { useNumberInput, type UseNumberInputOptions } from './useNumberInput';
 import { cx } from '@/utils/cx';
+
 import {
   numberInputContainerStyle,
   containerHoveredStyle,
@@ -21,6 +20,11 @@ import {
   unitLabelStyle,
   helperTextRecipe,
 } from './NumberInput.css';
+import { useNumberInput } from './useNumberInput';
+
+import type { UseNumberInputOptions } from './useNumberInput';
+import type { BaseComponent, Size } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 /**
  * Props specific to NumberInput component

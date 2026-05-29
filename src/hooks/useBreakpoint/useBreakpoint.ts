@@ -1,13 +1,12 @@
 'use client';
 
 import { useMemo } from 'react';
-import {
-  BREAKPOINT_ORDER,
-  breakpoints,
-  type Breakpoint,
-} from '@/theme/breakpoints';
+
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { BREAKPOINT_ORDER, breakpoints } from '@/theme/breakpoints';
+
 import type { UseBreakpointReturn } from './useBreakpoint.types';
+import type { Breakpoint } from '@/theme/breakpoints';
 
 const SM_QUERY = `(min-width: ${breakpoints.sm}px)`;
 const MD_QUERY = `(min-width: ${breakpoints.md}px)`;

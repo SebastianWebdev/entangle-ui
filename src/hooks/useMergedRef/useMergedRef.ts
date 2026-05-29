@@ -1,6 +1,8 @@
 'use client';
 
-import { useCallback, type Ref, type RefCallback } from 'react';
+import { useCallback } from 'react';
+
+import type { Ref, RefCallback } from 'react';
 
 /**
  * Merge multiple refs into a single callback ref. Each provided ref (object

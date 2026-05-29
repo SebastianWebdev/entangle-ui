@@ -1,21 +1,25 @@
 'use client';
 
-import type React from 'react';
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+
+import { resolveVarValue } from '@/components/primitives/canvas/canvasTheme';
 import { useLatest } from '@/hooks';
 import { vars } from '@/theme/contract.css';
-import { resolveVarValue } from '@/components/primitives/canvas/canvasTheme';
-import type { ViewportSize } from '@/components/primitives/viewport';
+
+import { framesToTimecode } from './timelineCoords';
+import { drawTimeline } from './timelineDrawing';
+import { selectionKey, selectionKeySet } from './timelineSelection';
+
 import type {
   TimelineDrawInfo,
   TimelineSelection,
   TimelineTrackScaleProps,
   TimelineView,
 } from './Timeline.types';
+import type { TimelineDrawColors } from './timelineDrawing';
 import type { TimelineRow } from './timelineLayout';
-import { framesToTimecode } from './timelineCoords';
-import { drawTimeline, type TimelineDrawColors } from './timelineDrawing';
-import { selectionKey, selectionKeySet } from './timelineSelection';
+import type { ViewportSize } from '@/components/primitives/viewport';
+import type React from 'react';
 
 export interface UseTimelineDrawOptions {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -183,7 +187,9 @@ export function useTimelineDraw(opts: UseTimelineDrawOptions): void {
 
   useLayoutEffect(() => {
     scheduleDraw();
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+    };
   }, [scheduleDraw]);
 
   // Redraw when DPR changes (e.g. dragging to a different display).
@@ -192,8 +198,12 @@ export function useTimelineDraw(opts: UseTimelineDrawOptions): void {
     const mq = window.matchMedia(
       `(resolution: ${window.devicePixelRatio}dppx)`
     );
-    const handler = (): void => scheduleDraw();
+    const handler = (): void => {
+      scheduleDraw();
+    };
     mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    return () => {
+      mq.removeEventListener('change', handler);
+    };
   }, [scheduleDraw]);
 }

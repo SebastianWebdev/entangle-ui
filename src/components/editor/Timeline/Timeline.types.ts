@@ -1,8 +1,8 @@
-import type React from 'react';
-import type { Prettify } from '@/types/utilities';
+import type { ViewportSize } from '@/components/primitives/viewport';
 import type { BaseComponent } from '@/types/common';
 import type { CurveData, CurveKeyframe } from '@/types/keyframe';
-import type { ViewportSize } from '@/components/primitives/viewport';
+import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 // ─── Core model ───
 
@@ -156,7 +156,7 @@ export interface TimelineHandle {
 // ─── Props ───
 
 export interface TimelineBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent,
   'onChange' | 'ref'
 > {
   /** Tracks rendered top-to-bottom. */

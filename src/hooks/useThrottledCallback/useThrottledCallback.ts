@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
+
 import type {
   ThrottledCallback,
   UseThrottledCallbackOptions,

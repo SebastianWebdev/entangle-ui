@@ -1,5 +1,5 @@
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type { ViewportTransform } from './Viewport.types';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 
 /**
  * Convert a world-space point to a screen-space (CSS-pixel) point.

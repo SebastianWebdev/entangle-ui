@@ -9,18 +9,20 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
+import { fuzzyScore } from '@/components/feedback/CommandPalette/fuzzySearch';
+import { Spinner } from '@/components/feedback/Spinner';
+import { FormHelperText } from '@/components/form/FormHelperText';
+import { FormLabel } from '@/components/form/FormLabel';
 import { CheckIcon } from '@/components/Icons/CheckIcon';
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { CloseIcon } from '@/components/Icons/CloseIcon';
-import { fuzzyScore } from '@/components/feedback/CommandPalette/fuzzySearch';
-import { FormHelperText } from '@/components/form/FormHelperText';
-import { FormLabel } from '@/components/form/FormLabel';
 import { ScrollArea } from '@/components/layout/ScrollArea';
-import { Spinner } from '@/components/feedback/Spinner';
 import { useControlledState } from '@/hooks/useControlledState';
 import { useListboxNav } from '@/hooks/useListboxNav';
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
+
 import {
   checkmarkStyle,
   chevronButtonStyle,
@@ -37,6 +39,7 @@ import {
   optionLabelStyle,
   optionsListStyle,
 } from './Combobox.css';
+
 import type {
   ComboboxOption,
   ComboboxProps,

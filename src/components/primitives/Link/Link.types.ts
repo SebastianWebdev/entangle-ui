@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { Size } from '@/types/common';
 import type { LiteralUnion, Prettify } from '@/types/utilities';
+import type React from 'react';
 
 /**
  * Link size — mirrors the typography scale.

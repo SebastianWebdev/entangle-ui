@@ -9,10 +9,12 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import { SearchIcon } from '@/components/Icons/SearchIcon';
 import { Kbd } from '@/components/primitives/Kbd';
 import { useDebouncedValue } from '@/hooks/useDebounced';
 import { cx } from '@/utils/cx';
+
 import {
   emptyStyle,
   groupHeaderStyle,
@@ -30,9 +32,10 @@ import {
   panelStyle,
   searchIconStyle,
 } from './CommandPalette.css';
-import type { CommandItem, CommandPaletteProps } from './CommandPalette.types';
 import { fuzzyFilter } from './fuzzySearch';
 import { useRecentItems } from './useRecentItems';
+
+import type { CommandItem, CommandPaletteProps } from './CommandPalette.types';
 
 const DEFAULT_GROUP = 'default';
 const RECENT_GROUP = '__recent__';

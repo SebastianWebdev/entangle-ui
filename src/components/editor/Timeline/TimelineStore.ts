@@ -1,4 +1,9 @@
-import type { ViewportSize } from '@/components/primitives/viewport';
+import {
+  frameToX as frameToXFn,
+  xToFrame as xToFrameFn,
+} from './timelineCoords';
+import { selectionKey } from './timelineSelection';
+
 import type {
   TimelineContextValue,
   TimelineHandle,
@@ -7,11 +12,7 @@ import type {
   TimelineSelection,
   TimelineView,
 } from './Timeline.types';
-import {
-  frameToX as frameToXFn,
-  xToFrame as xToFrameFn,
-} from './timelineCoords';
-import { selectionKey } from './timelineSelection';
+import type { ViewportSize } from '@/components/primitives/viewport';
 
 const ZERO_SIZE: ViewportSize = { width: 0, height: 0 };
 const DEFAULT_VIEW: TimelineView = { startFrame: 0, endFrame: 1 };
@@ -195,8 +196,12 @@ export class TimelineStore {
     if (geometryEqual(next, this.geometry)) return;
     this.geometry = next;
     this.snapshot = this.computeSnapshot();
-    this.geometryListeners.forEach(cb => cb());
-    this.allListeners.forEach(cb => cb());
+    this.geometryListeners.forEach(cb => {
+      cb();
+    });
+    this.allListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setPlayhead(partial: Partial<TimelinePlayheadState>): void {
@@ -212,8 +217,12 @@ export class TimelineStore {
     }
     this.playhead = next;
     this.snapshot = this.computeSnapshot();
-    this.playheadListeners.forEach(cb => cb());
-    this.allListeners.forEach(cb => cb());
+    this.playheadListeners.forEach(cb => {
+      cb();
+    });
+    this.allListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setSelection(next: TimelineSelection): void {
@@ -222,8 +231,12 @@ export class TimelineStore {
     this.selection = next;
     this.selectionKeys = nextKeys;
     this.snapshot = this.computeSnapshot();
-    this.selectionListeners.forEach(cb => cb());
-    this.allListeners.forEach(cb => cb());
+    this.selectionListeners.forEach(cb => {
+      cb();
+    });
+    this.allListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setDrag(next: TimelineDragState): void {
@@ -234,7 +247,9 @@ export class TimelineStore {
       return;
     }
     this.drag = next;
-    this.dragListeners.forEach(cb => cb());
+    this.dragListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setHover(next: TimelineKeyframeRef | null): void {
@@ -248,19 +263,25 @@ export class TimelineStore {
       return;
     }
     this.hover = next;
-    this.hoverListeners.forEach(cb => cb());
+    this.hoverListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setHoverPlayhead(next: boolean): void {
     if (next === this.hoverPlayhead) return;
     this.hoverPlayhead = next;
-    this.hoverPlayheadListeners.forEach(cb => cb());
+    this.hoverPlayheadListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setHoverLoop(next: TimelineLoopHover): void {
     if (next === this.hoverLoop) return;
     this.hoverLoop = next;
-    this.hoverLoopListeners.forEach(cb => cb());
+    this.hoverLoopListeners.forEach(cb => {
+      cb();
+    });
   }
 
   // ── Imperative handle ──

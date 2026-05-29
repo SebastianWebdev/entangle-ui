@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+
 import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { ErrorIcon } from '@/components/Icons/ErrorIcon';
 import { InfoIcon } from '@/components/Icons/InfoIcon';
 import { SuccessIcon } from '@/components/Icons/SuccessIcon';
 import { WarningIcon } from '@/components/Icons/WarningIcon';
-import type { ToastInternalData, ToastSeverity } from './Toast.types';
+
 import {
   progressDurationVar,
   toast,
@@ -20,6 +21,8 @@ import {
   actionButton,
   progressBar,
 } from './ToastItem.css';
+
+import type { ToastInternalData, ToastSeverity } from './Toast.types';
 
 // --- Severity icons ---
 
@@ -139,7 +142,9 @@ export const ToastItem: React.FC<ToastItemProps> = ({
         {closable && (
           <button
             className={closeButton}
-            onClick={() => onDismiss(id)}
+            onClick={() => {
+              onDismiss(id);
+            }}
             aria-label="Dismiss notification"
             type="button"
           >

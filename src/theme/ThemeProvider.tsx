@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { GLOBAL_SCROLLBARS_CLASS } from './globalScrollbars.css';
+
 import { KeyboardContextProvider } from '@/context/KeyboardContext';
+
+import { GLOBAL_SCROLLBARS_CLASS } from './globalScrollbars.css';
 
 export interface ThemeProviderProps {
   children: React.ReactNode;

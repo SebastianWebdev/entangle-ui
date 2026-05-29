@@ -1,4 +1,5 @@
 import { style, globalStyle, createVar } from '@vanilla-extract/css';
+
 import { vars } from '@/theme/contract.css';
 
 export const RESET_BUTTON_CLASS = 'property-row-reset';

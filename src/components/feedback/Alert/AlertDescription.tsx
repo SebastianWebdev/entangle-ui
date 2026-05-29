@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
+
 import { cx } from '@/utils/cx';
-import type { AlertDescriptionProps } from './Alert.types';
+
 import { alertDescriptionStyle } from './Alert.css';
+
+import type { AlertDescriptionProps } from './Alert.types';
 
 /**
  * Body text slot for an `Alert`. Most one-line alerts can pass a string as

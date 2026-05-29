@@ -1,5 +1,6 @@
 'use client';
 
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, {
   createContext,
   useContext,
@@ -10,20 +11,14 @@ import React, {
   useId,
   useMemo,
 } from 'react';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { cx } from '@/utils/cx';
-import { useMergedRef } from '@/hooks/useMergedRef';
-import { ScrollArea } from '@/components/layout/ScrollArea';
-import { CloseIcon } from '@/components/Icons/CloseIcon';
-import { ChevronUpIcon } from '@/components/Icons/ChevronUpIcon';
+
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
-import type {
-  FloatingPanelProps,
-  FloatingManagerProps,
-  FloatingManagerContextValue,
-  Position,
-  FloatingPanelSize,
-} from './FloatingPanel.types';
+import { ChevronUpIcon } from '@/components/Icons/ChevronUpIcon';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
+import { ScrollArea } from '@/components/layout/ScrollArea';
+import { useMergedRef } from '@/hooks/useMergedRef';
+import { cx } from '@/utils/cx';
+
 import {
   posXVar,
   posYVar,
@@ -39,6 +34,14 @@ import {
   collapsibleHidden,
   resizeHandle,
 } from './FloatingPanel.css';
+
+import type {
+  FloatingPanelProps,
+  FloatingManagerProps,
+  FloatingManagerContextValue,
+  Position,
+  FloatingPanelSize,
+} from './FloatingPanel.types';
 
 // --- FloatingManager Context ---
 

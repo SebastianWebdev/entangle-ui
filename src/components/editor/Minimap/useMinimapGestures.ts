@@ -1,26 +1,29 @@
 'use client';
 
 import { useCallback, useMemo, useRef } from 'react';
-import type React from 'react';
+
 import { useLatest } from '@/hooks';
-import type {
-  ViewportSize,
-  ViewportTransform,
-  WorldRect,
-} from '@/components/primitives/viewport';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
-import type {
-  MinimapInteractionConfig,
-  MinimapItem,
-  MinimapNavigateInfo,
-} from './Minimap.types';
+
 import {
   getViewportCenterWorld,
   getViewportRectOnMinimap,
   minimapToWorld,
 } from './minimapCoords';
 import { hitTestItems } from './minimapHitTest';
+
+import type {
+  MinimapInteractionConfig,
+  MinimapItem,
+  MinimapNavigateInfo,
+} from './Minimap.types';
 import type { MinimapStore } from './MinimapStore';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type {
+  ViewportSize,
+  ViewportTransform,
+  WorldRect,
+} from '@/components/primitives/viewport';
+import type React from 'react';
 
 const CLICK_THRESHOLD_PX = 3;
 /** Hover line-picking tolerance, in minimap CSS px. Translated to world units per gesture. */

@@ -1,4 +1,5 @@
 import { style } from '@vanilla-extract/css';
+
 import { vars } from '@/theme/contract.css';
 
 /** Outer container — column stack of optional toolbar, body, optional footer. */

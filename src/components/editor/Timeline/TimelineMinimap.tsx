@@ -8,15 +8,18 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { vars } from '@/theme/contract.css';
-import { cx } from '@/utils/cx';
+
 import { resolveVarValue } from '@/components/primitives/canvas/canvasTheme';
 import { useResizeObserver } from '@/hooks';
-import { useTimelineGeometry, useTimelinePlayhead } from './TimelineContext';
-import { TIMELINE_SLOT } from './Timeline.types';
-import type { TimelineMinimapProps, TimelineView } from './Timeline.types';
+import { vars } from '@/theme/contract.css';
+import { cx } from '@/utils/cx';
+
 import { timelineMinimapStyle } from './Timeline.css';
+import { TIMELINE_SLOT } from './Timeline.types';
+import { useTimelineGeometry, useTimelinePlayhead } from './TimelineContext';
 import { clamp } from './timelineCoords';
+
+import type { TimelineMinimapProps, TimelineView } from './Timeline.types';
 
 interface InternalProps extends TimelineMinimapProps {
   /** Wired by the Timeline parent via the slot mechanism. */
@@ -162,7 +165,9 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
 
   useLayoutEffect(() => {
     scheduleDraw();
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+    };
   }, [scheduleDraw]);
 
   // ── Interactions: drag viewport, resize edges, click outside to center ──
@@ -330,9 +335,13 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
     const mq = window.matchMedia(
       `(resolution: ${window.devicePixelRatio}dppx)`
     );
-    const handler = (): void => scheduleDraw();
+    const handler = (): void => {
+      scheduleDraw();
+    };
     mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    return () => {
+      mq.removeEventListener('change', handler);
+    };
   }, [scheduleDraw]);
 
   const wrapperStyle = useMemo<React.CSSProperties>(

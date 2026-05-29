@@ -1,11 +1,11 @@
-import type React from 'react';
-import type { Prettify } from '@/types/utilities';
-import type { BaseComponent, Size } from '@/types/common';
 import type {
   CanvasViewport,
   CanvasBackgroundInfo,
 } from '@/components/primitives/canvas/canvas.types';
+import type { BaseComponent, Size } from '@/types/common';
 import type { CurveKeyframe, CurveData, TangentMode } from '@/types/keyframe';
+import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type CurveEditorSize = Size;
 

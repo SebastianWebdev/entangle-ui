@@ -8,10 +8,12 @@ import React, {
   useRef,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
+
 import {
   DRAWER_SIZE_MAP,
   drawerBodyStyle,
@@ -24,6 +26,8 @@ import {
   drawerTitleStyle,
   overlayRecipe,
 } from './Drawer.css';
+import { useDrawerAnimation } from './useDrawerAnimation';
+
 import type {
   DrawerBodyProps,
   DrawerCloseButtonProps,
@@ -33,7 +37,6 @@ import type {
   DrawerProps,
   DrawerSize,
 } from './Drawer.types';
-import { useDrawerAnimation } from './useDrawerAnimation';
 
 const DrawerContext = /*#__PURE__*/ createContext<DrawerContextValue | null>(
   null

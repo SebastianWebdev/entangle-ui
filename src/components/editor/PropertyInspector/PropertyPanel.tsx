@@ -1,5 +1,6 @@
 'use client';
 
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, {
   createContext,
   useCallback,
@@ -7,14 +8,10 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { cx } from '@/utils/cx';
+
 import { ScrollArea } from '@/components/layout/ScrollArea';
-import type {
-  PropertyInspectorSize,
-  PropertyPanelContextValue,
-  PropertyPanelProps,
-} from './PropertyInspector.types';
+import { cx } from '@/utils/cx';
+
 import {
   panelRoot,
   panelHeader,
@@ -25,6 +22,12 @@ import {
   contentTopSpacingVar,
   contentBottomSpacingVar,
 } from './PropertyPanel.css';
+
+import type {
+  PropertyInspectorSize,
+  PropertyPanelContextValue,
+  PropertyPanelProps,
+} from './PropertyInspector.types';
 
 // --- Context ---
 

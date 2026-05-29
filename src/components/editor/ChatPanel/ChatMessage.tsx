@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import type { ChatMessageProps } from './ChatPanel.types';
-import { cx } from '@/utils/cx';
-import { Avatar } from '@/components/primitives/Avatar';
+
 import { ErrorIcon } from '@/components/Icons';
+import { Avatar } from '@/components/primitives/Avatar';
+import { cx } from '@/utils/cx';
+
 import { ChatBubble } from './ChatBubble';
 import {
   bubbleErrorStyle,
@@ -16,6 +17,8 @@ import {
   messageTextStyle,
   messageTimestampStyle,
 } from './ChatPanel.css';
+
+import type { ChatMessageProps } from './ChatPanel.types';
 
 function resolveMaxWidth(
   value: number | string | undefined

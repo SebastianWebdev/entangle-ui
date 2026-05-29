@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useCallback } from 'react';
+
 import { Collapsible } from '@/components/primitives/Collapsible';
-import type { PaletteColor } from './palettes';
+
 import {
   paletteContainerStyle,
   paletteRowStyle,
@@ -10,6 +11,8 @@ import {
   paletteShadeRecipe,
   paletteShadeColorStyle,
 } from './ColorPicker.css';
+
+import type { PaletteColor } from './palettes';
 
 interface ColorPaletteProps {
   palette: PaletteColor[];
@@ -60,7 +63,9 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
                 className={paletteShadeRecipe({
                   selected: shade.color.toLowerCase() === normalizedCurrent,
                 })}
-                onClick={() => handleSelect(shade.color)}
+                onClick={() => {
+                  handleSelect(shade.color);
+                }}
               >
                 <span
                   className={paletteShadeColorStyle}

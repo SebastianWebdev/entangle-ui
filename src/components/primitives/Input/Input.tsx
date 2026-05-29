@@ -1,11 +1,11 @@
 'use client';
 
 // src/primitives/Input/Input.tsx
-import type { Size } from '@/types/common';
-import type { Prettify } from '@/types/utilities';
+import React from 'react';
+
 import { inputWrapperRecipe } from '@/components/form/InputWrapper.css';
 import { cx } from '@/utils/cx';
-import React from 'react';
+
 import {
   inputContainerStyle,
   labelRecipe,
@@ -14,6 +14,9 @@ import {
   iconEndStyle,
   helperTextRecipe,
 } from './Input.css';
+
+import type { Size } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 /**
  * Standard input sizes using library sizing.

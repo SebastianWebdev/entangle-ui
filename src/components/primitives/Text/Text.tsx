@@ -1,13 +1,16 @@
 'use client';
 
 import React from 'react';
-import type { Prettify } from '@/types/utilities';
+
 import { cx } from '@/utils/cx';
+
 import {
   textRecipe,
   truncateSingleLineStyle,
   truncateMultiLineStyle,
 } from './Text.css';
+
+import type { Prettify } from '@/types/utilities';
 
 /**
  * HTML element types that Text component can render as

@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 /**
  * Semantic intent of an alert.
@@ -22,10 +22,7 @@ export type AlertVariant = 'info' | 'success' | 'warning' | 'error' | 'neutral';
  */
 export type AlertAppearance = 'subtle' | 'solid' | 'outline';
 
-export interface AlertBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'title'
-> {
+export interface AlertBaseProps extends Omit<BaseComponent, 'title'> {
   /**
    * Semantic intent. Drives color and the default icon.
    * @default "info"
@@ -81,19 +78,19 @@ export interface AlertBaseProps extends Omit<
 
 export type AlertProps = Prettify<AlertBaseProps>;
 
-export interface AlertTitleBaseProps extends BaseComponent<HTMLDivElement> {
+export interface AlertTitleBaseProps extends BaseComponent {
   children: React.ReactNode;
 }
 
 export type AlertTitleProps = Prettify<AlertTitleBaseProps>;
 
-export interface AlertDescriptionBaseProps extends BaseComponent<HTMLDivElement> {
+export interface AlertDescriptionBaseProps extends BaseComponent {
   children: React.ReactNode;
 }
 
 export type AlertDescriptionProps = Prettify<AlertDescriptionBaseProps>;
 
-export interface AlertActionsBaseProps extends BaseComponent<HTMLDivElement> {
+export interface AlertActionsBaseProps extends BaseComponent {
   /**
    * Horizontal alignment of action buttons.
    * @default "left"

@@ -1,7 +1,16 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useRef, useEffect, useState } from 'react';
+
+import {
+  canvasContainerRecipe,
+  canvasRecipe,
+  ariaLiveRegionStyle,
+  canvasHeightVar,
+} from './CurveEditor.css';
+import { useCurveRenderer } from './useCurveRenderer';
+
 import type {
   CurveData,
   CurveViewport,
@@ -9,13 +18,6 @@ import type {
   CurveEditorSize,
   CurveBackgroundInfo,
 } from './CurveEditor.types';
-import { useCurveRenderer } from './useCurveRenderer';
-import {
-  canvasContainerRecipe,
-  canvasRecipe,
-  ariaLiveRegionStyle,
-  canvasHeightVar,
-} from './CurveEditor.css';
 
 interface CurveCanvasProps {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -93,7 +95,9 @@ export const CurveCanvas: React.FC<CurveCanvasProps> = ({
     });
 
     observer.observe(containerRef.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, [responsive]);
 
   // Renderer hook

@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useCallback } from 'react';
+
 import { ChevronRightIcon } from '@/components/Icons/ChevronRightIcon';
-import { useAccordionContext, useAccordionItemContext } from './Accordion';
-import type { AccordionSize, AccordionTriggerProps } from './Accordion.types';
 import { cx } from '@/utils/cx';
+
+import { useAccordionContext, useAccordionItemContext } from './Accordion';
 import {
   triggerButton,
   chevronStyle,
@@ -13,6 +14,8 @@ import {
   actionsArea,
   iconArea,
 } from './Accordion.css';
+
+import type { AccordionSize, AccordionTriggerProps } from './Accordion.types';
 
 // --- Size maps ---
 

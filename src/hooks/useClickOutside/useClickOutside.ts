@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useRef, type RefObject } from 'react';
+import { useEffect, useRef } from 'react';
+
+import type { RefObject } from 'react';
 
 export interface UseClickOutsideOptions {
   /**
@@ -62,7 +64,7 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
   handlerRef.current = handler;
   // Latest ref(s) — refreshed every render so consumers may pass inline
   // arrays without forcing a re-subscribe of the document listener.
-  refsRef.current = Array.isArray(ref) ? ref : [ref as AnyHTMLRef];
+  refsRef.current = Array.isArray(ref) ? ref : [ref];
 
   useEffect(() => {
     if (!enabled) return;

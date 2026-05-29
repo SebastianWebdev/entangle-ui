@@ -1,11 +1,12 @@
 'use client';
 
-import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 import type {
   UseIntersectionObserverOptions,
   UseIntersectionObserverReturn,
 } from './useIntersectionObserver.types';
+import type React from 'react';
 
 /**
  * Observe whether an element intersects a root (defaults to the viewport).

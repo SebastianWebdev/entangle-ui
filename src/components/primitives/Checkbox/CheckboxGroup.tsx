@@ -1,20 +1,23 @@
 'use client';
 
-import React, { createContext, useCallback, useId, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { FormLabel } from '@/components/form/FormLabel';
+import React, { createContext, useCallback, useId, useState } from 'react';
+
 import { FormHelperText } from '@/components/form/FormHelperText';
+import { FormLabel } from '@/components/form/FormLabel';
 import { cx } from '@/utils/cx';
-import type {
-  CheckboxGroupProps,
-  CheckboxGroupContextValue,
-} from './Checkbox.types';
+
 import {
   groupContainerStyle,
   groupItemsStyle,
   groupDirectionVar,
   groupGapVar,
 } from './Checkbox.css';
+
+import type {
+  CheckboxGroupProps,
+  CheckboxGroupContextValue,
+} from './Checkbox.types';
 
 export const CheckboxGroupContext =
   /*#__PURE__*/ createContext<CheckboxGroupContextValue | null>(null);

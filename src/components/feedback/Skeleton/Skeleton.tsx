@@ -1,17 +1,20 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React from 'react';
+
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
 import { devWarn } from '@/utils/devWarn';
-import type { SkeletonProps, SkeletonShape } from './Skeleton.types';
+
 import {
   skeletonHeightVar,
   skeletonRadiusVar,
   skeletonRecipe,
   skeletonWidthVar,
 } from './Skeleton.css';
+
+import type { SkeletonProps, SkeletonShape } from './Skeleton.types';
 
 const LINE_DEFAULT_HEIGHT = '12px';
 

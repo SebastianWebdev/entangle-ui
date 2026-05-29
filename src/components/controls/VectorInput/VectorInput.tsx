@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useState, useCallback, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import type { VectorInputProps } from './VectorInput.types';
+import React, { useState, useCallback, useRef } from 'react';
+
 import { NumberInput } from '@/components/controls/NumberInput';
-import { FormLabel } from '@/components/form/FormLabel';
 import { FormHelperText } from '@/components/form/FormHelperText';
+import { FormLabel } from '@/components/form/FormLabel';
 import { LinkIcon, UnlinkIcon } from '@/components/Icons';
-import { cx } from '@/utils/cx';
 import { vars } from '@/theme/contract.css';
+import { cx } from '@/utils/cx';
+
 import {
   vectorContainerStyle,
   vectorRowRecipe,
@@ -18,6 +19,8 @@ import {
   linkButtonRecipe,
   gapVar,
 } from './VectorInput.css';
+
+import type { VectorInputProps } from './VectorInput.types';
 
 // --- Label presets ---
 
@@ -220,7 +223,9 @@ export const VectorInput = ({
               </div>
               <NumberInput
                 value={axisValue}
-                onChange={(val: number) => handleAxisChange(i, val)}
+                onChange={(val: number) => {
+                  handleAxisChange(i, val);
+                }}
                 onBlur={handleCommit}
                 min={min}
                 max={max}

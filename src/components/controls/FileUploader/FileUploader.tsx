@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useCallback, useId, useMemo, useRef, useState } from 'react';
-import { CloudUploadIcon } from '@/components/Icons/CloudUploadIcon';
-import { TrashIcon } from '@/components/Icons/TrashIcon';
+
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { FormLabel } from '@/components/form/FormLabel';
+import { CloudUploadIcon } from '@/components/Icons/CloudUploadIcon';
+import { TrashIcon } from '@/components/Icons/TrashIcon';
 import { useControlledState } from '@/hooks/useControlledState';
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
+
 import {
   containerStyle,
   dropZoneHintStyle,
@@ -24,6 +26,7 @@ import {
   removeButtonStyle,
   statusBadgeRecipe,
 } from './FileUploader.css';
+
 import type {
   FileUploaderItem,
   FileUploaderProps,

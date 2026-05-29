@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { BaseComponent, Size } from '@/types/common';
 import type { LiteralUnion, Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type ProgressBarSize = Size;
 
@@ -15,7 +15,7 @@ export type ProgressBarColor = LiteralUnion<
 
 export type ProgressBarLabelPosition = false | 'inline' | 'overlay';
 
-export interface ProgressBarBaseProps extends BaseComponent<HTMLDivElement> {
+export interface ProgressBarBaseProps extends BaseComponent {
   /**
    * Current progress value. When `undefined`, the bar is indeterminate
    * (an animated sliding gradient).
@@ -104,7 +104,7 @@ export type ProgressBarProps = Prettify<ProgressBarBaseProps>;
 
 export type CircularProgressSize = 'xs' | Size | 'xl';
 
-export interface CircularProgressBaseProps extends BaseComponent<HTMLDivElement> {
+export interface CircularProgressBaseProps extends BaseComponent {
   /** Current value; `undefined` → indeterminate (rotating arc). */
   value?: number;
 

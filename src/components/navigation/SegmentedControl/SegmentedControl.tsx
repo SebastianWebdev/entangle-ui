@@ -10,17 +10,20 @@ import React, {
   useRef,
   useState,
 } from 'react';
+
 import { cx } from '@/utils/cx';
+
+import {
+  segmentedControlRecipe,
+  segmentedIndicatorRecipe,
+} from './SegmentedControl.css';
+
 import type {
   SegmentedControlContextValue,
   SegmentedControlOrientation,
   SegmentedControlProps,
   SegmentedControlVariant,
 } from './SegmentedControl.types';
-import {
-  segmentedControlRecipe,
-  segmentedIndicatorRecipe,
-} from './SegmentedControl.css';
 
 // --- Context ---
 
@@ -152,7 +155,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
       if (typeof ref === 'function') {
         ref(node);
       } else if (ref) {
-        (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        ref.current = node;
       }
     },
     [ref]
@@ -231,15 +234,25 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
     if (!root) return;
 
     if (typeof ResizeObserver === 'undefined') {
-      const onResize = () => updateIndicator();
+      const onResize = () => {
+        updateIndicator();
+      };
       window.addEventListener('resize', onResize);
-      return () => window.removeEventListener('resize', onResize);
+      return () => {
+        window.removeEventListener('resize', onResize);
+      };
     }
 
-    const ro = new ResizeObserver(() => updateIndicator());
+    const ro = new ResizeObserver(() => {
+      updateIndicator();
+    });
     ro.observe(root);
-    itemsRef.current.forEach(node => ro.observe(node));
-    return () => ro.disconnect();
+    itemsRef.current.forEach(node => {
+      ro.observe(node);
+    });
+    return () => {
+      ro.disconnect();
+    };
   }, [updateIndicator]);
 
   // --- Keyboard navigation (roving) ---

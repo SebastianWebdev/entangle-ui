@@ -1,12 +1,15 @@
 'use client';
 
 import React from 'react';
+
 import { cx } from '@/utils/cx';
-import type { VisuallyHiddenProps } from './VisuallyHidden.types';
+
 import {
   visuallyHiddenStyle,
   visuallyHiddenFocusableStyle,
 } from './VisuallyHidden.css';
+
+import type { VisuallyHiddenProps } from './VisuallyHidden.types';
 
 /**
  * Hides content visually while keeping it accessible to screen readers.

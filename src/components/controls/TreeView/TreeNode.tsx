@@ -1,13 +1,10 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useState, useRef, useCallback } from 'react';
+
 import { ChevronRightIcon } from '@/components/Icons';
-import type {
-  TreeNodeData,
-  TreeNodeState,
-  TreeViewSize,
-} from './TreeView.types';
+
 import {
   rowRecipe,
   chevronRecipe,
@@ -19,6 +16,12 @@ import {
   paddingLeftVar,
   guideLineLeftVar,
 } from './TreeNode.css';
+
+import type {
+  TreeNodeData,
+  TreeNodeState,
+  TreeViewSize,
+} from './TreeView.types';
 
 // --- Size configurations ---
 
@@ -259,11 +262,15 @@ export const TreeNodeComponent = ({
               ref={renameInputRef}
               className={renameInputRecipe({ size })}
               value={renameValue}
-              onChange={e => setRenameValue(e.target.value)}
+              onChange={e => {
+                setRenameValue(e.target.value);
+              }}
               onKeyDown={handleRenameKeyDown}
               onBlur={confirmRename}
               aria-label={`Rename ${node.label}`}
-              onClick={e => e.stopPropagation()}
+              onClick={e => {
+                e.stopPropagation();
+              }}
             />
           ) : (
             <span className={labelRecipe({ size })}>{node.label}</span>
@@ -273,7 +280,12 @@ export const TreeNodeComponent = ({
 
       {/* Actions */}
       {renderActions && (
-        <span className={actionsStyle} onClick={e => e.stopPropagation()}>
+        <span
+          className={actionsStyle}
+          onClick={e => {
+            e.stopPropagation();
+          }}
+        >
           {renderActions(node, state)}
         </span>
       )}

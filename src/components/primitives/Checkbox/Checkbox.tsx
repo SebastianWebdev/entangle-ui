@@ -1,19 +1,22 @@
 'use client';
 
-import React, { useCallback, useId, useContext, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback, useId, useContext, useState } from 'react';
+
+import { FormHelperText } from '@/components/form/FormHelperText';
 import { CheckIcon } from '@/components/Icons/CheckIcon';
 import { MinusIcon } from '@/components/Icons/MinusIcon';
-import { FormHelperText } from '@/components/form/FormHelperText';
-import type { CheckboxProps, CheckboxSize } from './Checkbox.types';
-import { CheckboxGroupContext } from './CheckboxGroup';
 import { cx } from '@/utils/cx';
+
 import {
   checkboxContainerStyle,
   checkboxLabelRecipe,
   checkboxBoxRecipe,
   boxSizeVar,
 } from './Checkbox.css';
+import { CheckboxGroupContext } from './CheckboxGroup';
+
+import type { CheckboxProps, CheckboxSize } from './Checkbox.types';
 
 // --- Size maps ---
 

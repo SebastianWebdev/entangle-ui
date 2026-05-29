@@ -1,8 +1,9 @@
 'use client';
 
-import type React from 'react';
 import { useCallback, useEffect, useRef } from 'react';
+
 import type { CanvasSize } from './canvas.types';
+import type React from 'react';
 
 interface UseCanvasSetupOptions {
   /** Ref to the canvas element */
@@ -93,7 +94,9 @@ export function useCanvasSetup(
     observer.observe(target);
     resizeObserverRef.current = observer;
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, [responsive, containerRef, canvasRef, onResize]);
 
   return { getCanvasSize, prepareContext };

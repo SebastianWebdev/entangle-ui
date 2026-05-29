@@ -1,11 +1,12 @@
 'use client';
 
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
-import type { ScrollAreaProps } from './ScrollArea.types';
-import { cx } from '@/utils/cx';
+
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { useResizeObserver } from '@/hooks/useResizeObserver';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { cx } from '@/utils/cx';
+
 import {
   rootStyle,
   rootAutoFill,
@@ -29,6 +30,8 @@ import {
   scrollbarPaddingVar,
   fadeMaskSizeVar,
 } from './ScrollArea.css';
+
+import type { ScrollAreaProps } from './ScrollArea.types';
 
 // --- Component ---
 
@@ -278,9 +281,13 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
     const child = vp.firstElementChild;
     if (!child || typeof ResizeObserver === 'undefined') return;
 
-    const ro = new ResizeObserver(() => recalculate());
+    const ro = new ResizeObserver(() => {
+      recalculate();
+    });
     ro.observe(child);
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+    };
   }, [recalculate]);
 
   // Cleanup timer
@@ -401,7 +408,9 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
           aria-valuemin={0}
           aria-valuemax={100}
           data-testid={testId ? `${testId}-scrollbar-v` : undefined}
-          onClick={e => handleTrackClick('vertical', e)}
+          onClick={e => {
+            handleTrackClick('vertical', e);
+          }}
         >
           <div
             className={cx(
@@ -413,7 +422,9 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
               height: `${vThumbSize}px`,
               transform: `translateY(${vThumbOffset}px)`,
             }}
-            onPointerDown={e => handleThumbPointerDown('vertical', e)}
+            onPointerDown={e => {
+              handleThumbPointerDown('vertical', e);
+            }}
             onPointerMove={handleThumbPointerMove}
             onPointerUp={handleThumbPointerUp}
             data-testid={testId ? `${testId}-thumb-v` : undefined}
@@ -445,7 +456,9 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
           aria-valuemin={0}
           aria-valuemax={100}
           data-testid={testId ? `${testId}-scrollbar-h` : undefined}
-          onClick={e => handleTrackClick('horizontal', e)}
+          onClick={e => {
+            handleTrackClick('horizontal', e);
+          }}
         >
           <div
             className={cx(
@@ -459,7 +472,9 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
               width: `${hThumbSize}px`,
               transform: `translateX(${hThumbOffset}px)`,
             }}
-            onPointerDown={e => handleThumbPointerDown('horizontal', e)}
+            onPointerDown={e => {
+              handleThumbPointerDown('horizontal', e);
+            }}
             onPointerMove={handleThumbPointerMove}
             onPointerUp={handleThumbPointerUp}
             data-testid={testId ? `${testId}-thumb-h` : undefined}

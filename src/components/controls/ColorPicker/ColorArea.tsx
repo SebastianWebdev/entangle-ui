@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useCallback, useRef } from 'react';
-import { hsvToRgb, rgbToHex } from './colorUtils';
+
 import {
   colorAreaStyle,
   saturationGradientStyle,
   valueGradientStyle,
   colorAreaThumbStyle,
 } from './ColorPicker.css';
+import { hsvToRgb, rgbToHex } from './colorUtils';
 
 interface ColorAreaProps {
   hue: number;

@@ -1,5 +1,7 @@
 import { createVar, globalStyle } from '@vanilla-extract/css';
-import { recipe, type RecipeVariants } from '@vanilla-extract/recipes';
+import { recipe } from '@vanilla-extract/recipes';
+
+import type { RecipeVariants } from '@vanilla-extract/recipes';
 
 export const gapVar = createVar();
 export const growVar = createVar();

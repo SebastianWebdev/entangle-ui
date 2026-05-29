@@ -1,5 +1,7 @@
 'use client';
 
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, {
   useCallback,
   useEffect,
@@ -7,14 +9,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { cx } from '@/utils/cx';
-import { useControlledState } from '@/hooks/useControlledState';
-import { Checkbox } from '@/components/primitives/Checkbox';
+
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { ChevronUpIcon } from '@/components/Icons/ChevronUpIcon';
 import { SortIcon } from '@/components/Icons/SortIcon';
+import { Checkbox } from '@/components/primitives/Checkbox';
+import { useControlledState } from '@/hooks/useControlledState';
+import { cx } from '@/utils/cx';
+
 import {
   bodyStyle,
   cellRecipe,
@@ -36,6 +38,7 @@ import {
   totalHeightVar,
   virtualBodyStyle,
 } from './DataTable.css';
+
 import type {
   DataTableColumn,
   DataTableDensity,

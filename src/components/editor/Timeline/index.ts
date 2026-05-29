@@ -1,7 +1,7 @@
 import { Timeline as TimelineBase } from './Timeline';
-import { TimelineToolbar } from './TimelineToolbar';
 import { TimelineFooter } from './TimelineFooter';
 import { TimelineMinimap } from './TimelineMinimap';
+import { TimelineToolbar } from './TimelineToolbar';
 import { TimelineTrackScale } from './TimelineTrackScale';
 
 type TimelineCompound = typeof TimelineBase & {

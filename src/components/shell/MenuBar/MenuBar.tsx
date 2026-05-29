@@ -11,15 +11,9 @@ import React, {
   KeyboardEvent,
   useMemo,
 } from 'react';
+
 import { cx } from '@/utils/cx';
-import type {
-  MenuBarProps,
-  MenuBarMenuProps,
-  MenuBarItemProps,
-  MenuBarSubProps,
-  MenuBarSeparatorProps,
-  MenuBarContextValue,
-} from './MenuBar.types';
+
 import {
   menuBarRoot,
   menuContainer,
@@ -32,6 +26,15 @@ import {
   subDropdown,
   subContainer,
 } from './MenuBar.css';
+
+import type {
+  MenuBarProps,
+  MenuBarMenuProps,
+  MenuBarItemProps,
+  MenuBarSubProps,
+  MenuBarSeparatorProps,
+  MenuBarContextValue,
+} from './MenuBar.types';
 
 // --- Context ---
 
@@ -132,7 +135,9 @@ const MenuBarSub: React.FC<MenuBarSubProps> = ({
   }, [disabled]);
 
   const handleLeave = useCallback(() => {
-    closeTimer.current = setTimeout(() => setOpen(false), SUBMENU_CLOSE_DELAY);
+    closeTimer.current = setTimeout(() => {
+      setOpen(false);
+    }, SUBMENU_CLOSE_DELAY);
   }, []);
 
   useEffect(() => {
@@ -226,7 +231,9 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
 
   useEffect(() => {
     registerMenu(menuId);
-    return () => unregisterMenu(menuId);
+    return () => {
+      unregisterMenu(menuId);
+    };
   }, [menuId, registerMenu, unregisterMenu]);
 
   const handleClick = useCallback(() => {
@@ -305,7 +312,9 @@ const MenuBarMenu: React.FC<MenuBarMenuProps> = ({
     };
 
     document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
   }, [isOpen, setOpenMenuId]);
 
   return (
@@ -373,8 +382,7 @@ const MenuBarRoot: React.FC<MenuBarProps> = ({
       if (typeof externalRef === 'function') {
         externalRef(node);
       } else if (externalRef && typeof externalRef === 'object') {
-        (externalRef as React.MutableRefObject<HTMLDivElement | null>).current =
-          node;
+        externalRef.current = node;
       }
     },
     [externalRef]

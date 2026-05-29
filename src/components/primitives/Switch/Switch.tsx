@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useCallback, useId, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback, useId, useState } from 'react';
+
 import { FormHelperText } from '@/components/form/FormHelperText';
-import type { Prettify } from '@/types/utilities';
-import type { Size } from '@/types/common';
 import { cx } from '@/utils/cx';
+
 import {
   switchContainerStyle,
   switchRowRecipe,
@@ -17,6 +17,9 @@ import {
   thumbTranslateVar,
   labelTextStyle,
 } from './Switch.css';
+
+import type { Size } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 // --- Types ---
 

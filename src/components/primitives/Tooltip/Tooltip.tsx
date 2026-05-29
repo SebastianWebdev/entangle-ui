@@ -4,9 +4,10 @@
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import React from 'react';
 
-import type { Prettify } from '@/types/utilities';
 import { cx } from '@/utils/cx';
 
+import { ArrowSvg, StyledTooltipArrow } from './Arrow';
+import { tooltipContentStyle, tooltipTriggerStyle } from './Tooltip.css';
 import {
   CollisionAvoidance,
   TooltipAnimation,
@@ -17,10 +18,9 @@ import {
   BaseTooltipPositionerProps,
   BaseTooltipRootProps,
 } from './types';
-
-import { ArrowSvg, StyledTooltipArrow } from './Arrow';
 import { parseCollisionStrategy, parsePlacement } from './utils';
-import { tooltipContentStyle, tooltipTriggerStyle } from './Tooltip.css';
+
+import type { Prettify } from '@/types/utilities';
 
 interface TooltipBaseProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -277,7 +277,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     if (typeof boundary === 'string') {
       const boundaryElement = document.querySelector(boundary);
       if (boundaryElement) {
-        finalPositionerProps.collisionBoundary = boundaryElement as HTMLElement;
+        finalPositionerProps.collisionBoundary = boundaryElement;
       }
     } else {
       finalPositionerProps.collisionBoundary = boundary;
@@ -339,7 +339,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                     ...props.style,
                   }}
                   ref={ref}
-                  {...(htmlProps as React.HTMLAttributes<HTMLDivElement>)}
+                  {...htmlProps}
                 >
                   {title}
                   {arrow && (

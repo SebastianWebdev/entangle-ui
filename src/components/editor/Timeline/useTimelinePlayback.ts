@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useEffectEvent, useRef } from 'react';
-import type { TimelineLoop } from './Timeline.types';
+
 import { resolveLoop } from './timelineCoords';
+
+import type { TimelineLoop } from './Timeline.types';
 
 export interface PlaybackRange {
   startFrame: number;
@@ -102,7 +104,9 @@ export function useTimelinePlayback(opts: UseTimelinePlaybackOptions): void {
       if (!ended) raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+    };
     // Only `playing` drives the rAF lifecycle; the rest reads through `tick`.
   }, [opts.playing]);
 }

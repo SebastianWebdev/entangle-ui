@@ -1,8 +1,9 @@
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
-import type { ViewportSize } from '@/components/primitives/viewport';
+import { frameToX, valueToY } from './timelineCoords';
+
 import type { TimelineKeyframeRef, TimelineView } from './Timeline.types';
 import type { TimelineRow } from './timelineLayout';
-import { frameToX, valueToY } from './timelineCoords';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type { ViewportSize } from '@/components/primitives/viewport';
 
 /** Axis-aligned rectangle in content-space (CSS-pixel) coordinates. */
 export interface TimelineScreenRect {

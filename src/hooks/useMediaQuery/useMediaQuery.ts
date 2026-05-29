@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+
 import type { UseMediaQueryOptions } from './useMediaQuery.types';
 
 function getInitialMatch(query: string, fallback: boolean): boolean {

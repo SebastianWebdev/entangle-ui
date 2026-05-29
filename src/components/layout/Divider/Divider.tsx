@@ -1,13 +1,16 @@
 'use client';
 
 import React from 'react';
+
 import { cx } from '@/utils/cx';
-import type { DividerProps, DividerSpacing } from './Divider.types';
+
 import {
   dividerLabelTextStyle,
   dividerRecipe,
   dividerWithLabelRecipe,
 } from './Divider.css';
+
+import type { DividerProps, DividerSpacing } from './Divider.types';
 
 const SPACING_MAP: Record<number, string> = {
   0: '0',

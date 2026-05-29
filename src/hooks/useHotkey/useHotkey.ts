@@ -1,8 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useRef, type RefObject } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+
 import { getPlatform, parseShortcut } from '@/utils/platform';
+
 import type { HotkeyTarget, UseHotkeyOptions } from './useHotkey.types';
+import type { RefObject } from 'react';
 
 function isRefObject(value: unknown): value is RefObject<EventTarget | null> {
   return (

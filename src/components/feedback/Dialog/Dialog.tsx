@@ -8,12 +8,15 @@ import React, {
   useRef,
 } from 'react';
 import { createPortal } from 'react-dom';
-import type { DialogContextValue, DialogProps } from './Dialog.types';
-import { overlayRecipe, dialogPanelRecipe } from './Dialog.css';
-import { useDialogAnimation } from './useDialogAnimation';
+
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
+
+import { overlayRecipe, dialogPanelRecipe } from './Dialog.css';
+import { useDialogAnimation } from './useDialogAnimation';
+
+import type { DialogContextValue, DialogProps } from './Dialog.types';
 
 // --- Context ---
 

@@ -1,17 +1,20 @@
 'use client';
 
-import type React from 'react';
 import { useCallback } from 'react';
-import type { CanvasThemeColors } from '@/components/primitives/canvas/canvas.types';
+
 import { resolveCanvasTheme } from '@/components/primitives/canvas/canvasTheme';
 import { useCanvasRenderer } from '@/components/primitives/canvas/useCanvasRenderer';
+
+import { projectAxes } from './gizmoMath';
+
 import type {
   GizmoOrientation,
   GizmoUpAxis,
   GizmoHitRegion,
   ViewportGizmoSize,
 } from './ViewportGizmo.types';
-import { projectAxes } from './gizmoMath';
+import type { CanvasThemeColors } from '@/components/primitives/canvas/canvas.types';
+import type React from 'react';
 
 // ─── Size Presets ───
 

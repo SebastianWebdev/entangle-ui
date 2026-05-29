@@ -1,15 +1,15 @@
 'use client';
 
 // src/components/controls/Slider/Slider.tsx
-import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import type { Prettify } from '@/types/utilities';
-import type { BaseComponent, Size } from '@/types/common';
-import { useKeyboardContext } from '@/context/KeyboardContext';
-import { FormLabel } from '@/components/form/FormLabel';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
+
 import { FormHelperText } from '@/components/form/FormHelperText';
+import { FormLabel } from '@/components/form/FormLabel';
 import { InputWrapper } from '@/components/form/InputWrapper';
+import { useKeyboardContext } from '@/context/KeyboardContext';
 import { cx } from '@/utils/cx';
+
 import {
   sliderContainerRecipe,
   sliderWrapperStyle,
@@ -23,6 +23,9 @@ import {
   tooltipRecipe,
   tooltipPercentageVar,
 } from './Slider.css';
+
+import type { BaseComponent, Size } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 /**
  * Props specific to Slider component

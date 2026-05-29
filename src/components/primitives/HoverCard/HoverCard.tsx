@@ -1,5 +1,16 @@
 'use client';
 
+import {
+  autoUpdate,
+  flip,
+  offset as offsetMiddleware,
+  safePolygon,
+  shift,
+  useFloating,
+  useFocus,
+  useHover,
+  useInteractions,
+} from '@floating-ui/react';
 import React, {
   createContext,
   useCallback,
@@ -11,20 +22,11 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  autoUpdate,
-  flip,
-  offset as offsetMiddleware,
-  safePolygon,
-  shift,
-  useFloating,
-  useFocus,
-  useHover,
-  useInteractions,
-  type Placement,
-} from '@floating-ui/react';
+
 import { cx } from '@/utils/cx';
+
 import { hoverCardContentRecipe } from './HoverCard.css';
+
 import type {
   HoverCardContentProps,
   HoverCardContextValue,
@@ -97,7 +99,7 @@ const HoverCardRoot: React.FC<HoverCardProps> = ({
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
     onOpenChange: handleOpenChange,
-    placement: placement as Placement,
+    placement: placement,
     middleware: [offsetMiddleware(offset), flip(), shift({ padding: 8 })],
     whileElementsMounted: autoUpdate,
   });
@@ -209,8 +211,7 @@ const HoverCardContent: React.FC<HoverCardContentProps> = ({
       if (typeof externalRef === 'function') {
         externalRef(node);
       } else if (externalRef && typeof externalRef === 'object') {
-        (externalRef as React.MutableRefObject<HTMLDivElement | null>).current =
-          node;
+        externalRef.current = node;
       }
     },
     [contentRef, floatingRefs, externalRef]

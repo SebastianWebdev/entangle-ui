@@ -1,11 +1,5 @@
-import type { CurveKeyframe, TangentMode } from '@/types/keyframe';
 import { evaluateCurve } from '@/components/controls/CurveEditor';
-import type {
-  TimelineKeyframeRef,
-  TimelineSelection,
-  TimelineTrack,
-} from './Timeline.types';
-import type { TrackGeometry } from './timelineLayout';
+
 import {
   autoValueRange,
   clamp,
@@ -14,6 +8,14 @@ import {
   yToValue,
 } from './timelineCoords';
 import { selectionKey, selectionKeySet } from './timelineSelection';
+
+import type {
+  TimelineKeyframeRef,
+  TimelineSelection,
+  TimelineTrack,
+} from './Timeline.types';
+import type { TrackGeometry } from './timelineLayout';
+import type { CurveKeyframe, TangentMode } from '@/types/keyframe';
 
 let idCounter = 0;
 

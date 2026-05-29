@@ -123,9 +123,7 @@ describe('useMediaQuery', () => {
       removeListener: (listener: (event: MediaQueryListEvent) => void) =>
         listeners.delete(listener),
     };
-    window.matchMedia = vi.fn(
-      () => list as unknown as MediaQueryList
-    ) as unknown as typeof window.matchMedia;
+    window.matchMedia = vi.fn(() => list as unknown as MediaQueryList);
 
     const { result } = renderHook(() => useMediaQuery('(min-width: 600px)'));
     expect(result.current).toBe(false);

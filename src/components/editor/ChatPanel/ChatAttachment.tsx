@@ -1,15 +1,8 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import type { ChatAttachmentChipProps } from './ChatPanel.types';
+
 import { cx } from '@/utils/cx';
-import {
-  attachmentChipStyle,
-  attachmentChipIconStyle,
-  attachmentChipNameStyle,
-  attachmentChipRemoveStyle,
-  attachmentThumbnailStyle,
-} from './ChatPanel.css';
 
 import {
   MiniCloseIcon,
@@ -18,6 +11,15 @@ import {
   MiniCodeIcon,
   MiniSelectionIcon,
 } from './ChatIcons';
+import {
+  attachmentChipStyle,
+  attachmentChipIconStyle,
+  attachmentChipNameStyle,
+  attachmentChipRemoveStyle,
+  attachmentThumbnailStyle,
+} from './ChatPanel.css';
+
+import type { ChatAttachmentChipProps } from './ChatPanel.types';
 
 const TYPE_ICONS: Record<string, React.FC> = {
   file: MiniFileIcon,

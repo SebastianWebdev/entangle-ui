@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useMemo } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useMemo } from 'react';
+
+import { Tooltip } from '@/components/primitives/Tooltip';
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
-import { Tooltip } from '@/components/primitives/Tooltip';
+
 import { Avatar } from './Avatar';
-import type { AvatarGroupProps, AvatarProps } from './Avatar.types';
 import {
   avatarBgVar,
   avatarGroupItemStyle,
@@ -14,6 +15,8 @@ import {
   avatarGroupSpacingVar,
   avatarRecipe,
 } from './Avatar.css';
+
+import type { AvatarGroupProps, AvatarProps } from './Avatar.types';
 
 const DEFAULT_MAX = 4;
 const DEFAULT_SPACING = -8;

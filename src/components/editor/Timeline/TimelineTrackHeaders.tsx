@@ -1,14 +1,9 @@
 'use client';
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+
 import { useMergedRef } from '@/hooks';
-import { reorderTracksByDrop } from './timelineEdits';
-import type {
-  TimelineSelection,
-  TimelineTrack,
-  TimelineTrackHeaderInfo,
-} from './Timeline.types';
-import type { TimelineRow, TimelineTrackRow } from './timelineLayout';
+
 import {
   timelineHeaderColumnStyle,
   timelineHeaderSpacerStyle,
@@ -20,6 +15,14 @@ import {
   timelineHeaderLabelStyle,
   timelineHeaderDropIndicatorStyle,
 } from './Timeline.css';
+import { reorderTracksByDrop } from './timelineEdits';
+
+import type {
+  TimelineSelection,
+  TimelineTrack,
+  TimelineTrackHeaderInfo,
+} from './Timeline.types';
+import type { TimelineRow, TimelineTrackRow } from './timelineLayout';
 
 const GROUP_INDENT = 14;
 
@@ -204,7 +207,9 @@ export function TimelineTrackHeaders({
                   key={`group:${row.group.id}`}
                   className={timelineHeaderGroupRowStyle}
                   style={{ top: row.top, height: row.height }}
-                  onClick={() => onToggleGroupCollapsed(row.group.id)}
+                  onClick={() => {
+                    onToggleGroupCollapsed(row.group.id);
+                  }}
                 >
                   <span
                     className={timelineHeaderToggleStyle}
@@ -243,7 +248,9 @@ export function TimelineTrackHeaders({
                 data-selected={hasSelection || undefined}
                 onPointerDown={
                   reorderable
-                    ? e => handleRowPointerDown(e, track.id)
+                    ? e => {
+                        handleRowPointerDown(e, track.id);
+                      }
                     : undefined
                 }
               >
@@ -258,7 +265,9 @@ export function TimelineTrackHeaders({
                       type="button"
                       className={timelineHeaderToggleStyle}
                       data-open={track.expanded ? true : undefined}
-                      onPointerDown={e => e.stopPropagation()}
+                      onPointerDown={e => {
+                        e.stopPropagation();
+                      }}
                       onClick={e => {
                         e.stopPropagation();
                         onToggleTrackExpanded(track.id);

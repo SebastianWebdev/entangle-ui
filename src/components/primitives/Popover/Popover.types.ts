@@ -1,7 +1,7 @@
-import type React from 'react';
-import type { UseFloatingReturn, FloatingContext } from '@floating-ui/react';
-import type { Prettify } from '@/types/utilities';
 import type { BaseComponent } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
+import type { UseFloatingReturn, FloatingContext } from '@floating-ui/react';
+import type React from 'react';
 
 export type PopoverPlacement =
   | 'top'

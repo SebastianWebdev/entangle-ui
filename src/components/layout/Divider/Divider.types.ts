@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type DividerOrientation = 'horizontal' | 'vertical';
 export type DividerVariant = 'solid' | 'dashed' | 'dotted';
@@ -19,7 +19,7 @@ export type DividerVariant = 'solid' | 'dashed' | 'dotted';
  */
 export type DividerSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
-export interface DividerBaseProps extends BaseComponent<HTMLDivElement> {
+export interface DividerBaseProps extends BaseComponent {
   /**
    * Divider axis.
    * @default "horizontal"

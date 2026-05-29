@@ -1,22 +1,25 @@
 'use client';
 
-import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
+
+import { CanvasContainer } from '@/components/primitives/canvas/CanvasContainer';
 import { cx } from '@/utils/cx';
 import { roundToPrecision } from '@/utils/mathUtils';
-import type {
-  Point2D,
-  CanvasViewport,
-} from '@/components/primitives/canvas/canvas.types';
-import { CanvasContainer } from '@/components/primitives/canvas/CanvasContainer';
-import type { CartesianPickerProps } from './CartesianPicker.types';
-import { useCartesianInteraction } from './useCartesianInteraction';
-import { useCartesianRenderer } from './useCartesianRenderer';
+
 import {
   cartesianPickerRecipe,
   pickerWidthVar,
   bottomBarStyle,
 } from './CartesianPicker.css';
+import { useCartesianInteraction } from './useCartesianInteraction';
+import { useCartesianRenderer } from './useCartesianRenderer';
+
+import type { CartesianPickerProps } from './CartesianPicker.types';
+import type {
+  Point2D,
+  CanvasViewport,
+} from '@/components/primitives/canvas/canvas.types';
 
 export const CartesianPicker: React.FC<CartesianPickerProps> = ({
   value,

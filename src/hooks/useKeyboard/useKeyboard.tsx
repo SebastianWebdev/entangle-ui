@@ -2,8 +2,10 @@
 
 // src/hooks/useKeyboard.ts
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import type { KeyboardState, KeyboardInnerState, AllKeys } from './types';
+
 import { updateState, mapInnerStateToState } from './utils';
+
+import type { KeyboardState, KeyboardInnerState, AllKeys } from './types';
 
 export type { ModifierKeys, KeyboardState, AllKeys } from './types';
 export { isKeyPressed, isModifierKey } from './utils';

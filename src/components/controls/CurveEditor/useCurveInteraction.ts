@@ -1,15 +1,9 @@
 'use client';
 
-import type React from 'react';
 import { useState, useCallback, useRef } from 'react';
+
 import { clamp, roundToPrecision } from '@/utils/mathUtils';
-import type {
-  CurveData,
-  CurveKeyframe,
-  CurveViewport,
-  CurveHitTest,
-  TangentMode,
-} from './CurveEditor.types';
+
 import {
   canvasToDomain,
   hitTest,
@@ -18,6 +12,15 @@ import {
   constrainTangent,
   computeAutoTangent,
 } from './curveUtils';
+
+import type {
+  CurveData,
+  CurveKeyframe,
+  CurveViewport,
+  CurveHitTest,
+  TangentMode,
+} from './CurveEditor.types';
+import type React from 'react';
 
 type DragState =
   | { type: 'idle' }
@@ -479,10 +482,7 @@ export function useCurveInteraction(
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      const { px, py } = getCanvasCoords(
-        e as unknown as React.PointerEvent,
-        canvas
-      );
+      const { px, py } = getCanvasCoords(e, canvas);
       const { w, h } = getCanvasSize();
       const hit = hitTest(px, py, curve, viewport, w, h);
 

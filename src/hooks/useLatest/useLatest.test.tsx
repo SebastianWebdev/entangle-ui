@@ -46,6 +46,9 @@ describe('useLatest', () => {
   it('handles null and undefined values', () => {
     const { result, rerender } = renderHook(
       ({ value }: { value: string | null | undefined }) => useLatest(value),
+      // The assertion widens the inferred initialProps type so the null/undefined
+      // rerenders below type-check; it is load-bearing despite the rule.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       { initialProps: { value: 'x' as string | null | undefined } }
     );
     expect(result.current.current).toBe('x');

@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React from 'react';
+
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
-import type { ProgressBarColor, ProgressBarProps } from './ProgressBar.types';
+
 import {
   progressColorVar,
   progressFillBaseStyle,
@@ -18,6 +19,8 @@ import {
   progressTrackRecipe,
 } from './ProgressBar.css';
 
+import type { ProgressBarColor, ProgressBarProps } from './ProgressBar.types';
+
 const NAMED_COLOR_MAP: Record<string, string> = {
   primary: vars.colors.accent.primary,
   success: vars.colors.accent.success,
@@ -26,7 +29,7 @@ const NAMED_COLOR_MAP: Record<string, string> = {
 };
 
 function resolveColor(color: ProgressBarColor): string {
-  return NAMED_COLOR_MAP[color as string] ?? color;
+  return NAMED_COLOR_MAP[color] ?? color;
 }
 
 function clampValue(value: number, min: number, max: number): number {

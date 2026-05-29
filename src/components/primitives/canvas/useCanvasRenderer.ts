@@ -31,6 +31,8 @@ export function useCanvasRenderer(options: UseCanvasRendererOptions): void {
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(stableDraw);
 
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+    };
   }, [stableDraw, paused]);
 }

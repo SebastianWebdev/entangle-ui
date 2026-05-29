@@ -1,5 +1,6 @@
 import { createVar, keyframes, style } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
+
 import { vars } from '@/theme/contract.css';
 
 /** Total height of the virtualized rows wrapper. */

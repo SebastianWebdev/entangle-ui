@@ -1,10 +1,13 @@
 'use client';
 
 import React from 'react';
-import { useTabsContext } from './Tabs';
-import type { TabPanelProps } from './Tabs.types';
+
 import { cx } from '@/utils/cx';
+
+import { useTabsContext } from './Tabs';
 import { tabPanelStyle } from './Tabs.css';
+
+import type { TabPanelProps } from './Tabs.types';
 
 // --- Component ---
 

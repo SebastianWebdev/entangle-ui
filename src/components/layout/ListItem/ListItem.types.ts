@@ -1,13 +1,10 @@
-import type React from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type ListItemDensity = 'compact' | 'comfortable';
 
-export interface ListItemBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'onClick'
-> {
+export interface ListItemBaseProps extends Omit<BaseComponent, 'onClick'> {
   /** Click handler — when set, the item becomes keyboard-activatable. */
   onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
   /** Leading content (icon, checkbox, avatar). */

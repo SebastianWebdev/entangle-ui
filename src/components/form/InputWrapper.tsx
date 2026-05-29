@@ -1,12 +1,15 @@
 'use client';
 
 import React from 'react';
-import type { BaseComponent, Size } from '@/types/common';
+
 import { Prettify } from '@/types/utilities';
 import { cx } from '@/utils/cx';
+
 import { inputWrapperRecipe } from './InputWrapper.css';
 
-export interface InputWrapperBaseProps extends BaseComponent<HTMLDivElement> {
+import type { BaseComponent, Size } from '@/types/common';
+
+export interface InputWrapperBaseProps extends BaseComponent {
   /**
    * Input wrapper content
    */

@@ -1,14 +1,7 @@
 'use client';
 
-import type React from 'react';
 import { useEffect, useRef, useCallback } from 'react';
-import type {
-  CurveData,
-  CurveViewport,
-  CurveHitTest,
-  CurveBackgroundInfo,
-} from './CurveEditor.types';
-import type { CanvasThemeColors } from '@/components/primitives/canvas/canvas.types';
+
 import {
   drawGrid as sharedDrawGrid,
   drawDomainBounds as sharedDrawDomainBounds,
@@ -18,7 +11,17 @@ import {
   resolveCanvasTheme,
   resolveVarValue,
 } from '@/components/primitives/canvas/canvasTheme';
+
 import { domainToCanvas, sampleCurve } from './curveUtils';
+
+import type {
+  CurveData,
+  CurveViewport,
+  CurveHitTest,
+  CurveBackgroundInfo,
+} from './CurveEditor.types';
+import type { CanvasThemeColors } from '@/components/primitives/canvas/canvas.types';
+import type React from 'react';
 
 interface UseCurveRendererOptions {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -203,7 +206,9 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
         rafRef.current = requestAnimationFrame(render);
       };
       rafRef.current = requestAnimationFrame(render);
-      return () => cancelAnimationFrame(rafRef.current);
+      return () => {
+        cancelAnimationFrame(rafRef.current);
+      };
     }
 
     draw();

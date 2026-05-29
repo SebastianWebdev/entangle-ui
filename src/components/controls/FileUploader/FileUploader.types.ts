@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { BaseComponent, Size } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type FileUploaderSize = Size;
 
@@ -36,7 +36,7 @@ export interface FileUploaderRenderItemState {
 }
 
 export interface FileUploaderBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent,
   'onChange' | 'children' | 'defaultValue'
 > {
   /** Controlled list of items */

@@ -1,12 +1,15 @@
 'use client';
 
 // src/components/layout/Flex/Flex.tsx
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React from 'react';
+
+import { cx } from '@/utils/cx';
+
+import { flexRecipe, gapVar, growVar, shrinkVar, basisVar } from './Flex.css';
+
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
-import { cx } from '@/utils/cx';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { flexRecipe, gapVar, growVar, shrinkVar, basisVar } from './Flex.css';
 
 /**
  * Flex direction options
@@ -55,7 +58,7 @@ export type FlexAlignContent =
  */
 export type FlexSpacing = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-export interface FlexBaseProps extends BaseComponent<HTMLDivElement> {
+export interface FlexBaseProps extends BaseComponent {
   /**
    * Flex content - any React elements
    */

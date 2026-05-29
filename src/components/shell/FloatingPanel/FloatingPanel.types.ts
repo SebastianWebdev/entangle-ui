@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type { ReactNode } from 'react';
 
 export interface Position {
   x: number;
@@ -13,7 +13,7 @@ export interface FloatingPanelSize {
 }
 
 export interface FloatingPanelBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent,
   'children'
 > {
   /** Panel title displayed in the header */

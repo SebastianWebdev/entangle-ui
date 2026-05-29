@@ -1,17 +1,19 @@
 'use client';
 
-import type React from 'react';
 import { useState, useCallback, useRef } from 'react';
-import { clamp, roundToPrecision } from '@/utils/mathUtils';
-import type {
-  Point2D,
-  CanvasViewport,
-} from '@/components/primitives/canvas/canvas.types';
+
 import {
   canvasToDomain,
   getCanvasPointerPosition,
   hitTestPoint,
 } from '@/components/primitives/canvas/canvasCoords';
+import { clamp, roundToPrecision } from '@/utils/mathUtils';
+
+import type {
+  Point2D,
+  CanvasViewport,
+} from '@/components/primitives/canvas/canvas.types';
+import type React from 'react';
 
 interface UseCartesianInteractionOptions {
   point: Point2D;

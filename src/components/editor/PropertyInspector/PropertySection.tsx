@@ -1,13 +1,11 @@
 'use client';
 
 import React, { useCallback, useId, useState } from 'react';
-import { cx } from '@/utils/cx';
+
 import { ChevronRightIcon } from '@/components/Icons';
+import { cx } from '@/utils/cx';
+
 import { usePropertyPanelContext } from './PropertyPanel';
-import type {
-  PropertyInspectorSize,
-  PropertySectionProps,
-} from './PropertyInspector.types';
 import {
   sectionRoot,
   sectionTrigger,
@@ -19,6 +17,11 @@ import {
   contentWrapper,
   contentInner,
 } from './PropertySection.css';
+
+import type {
+  PropertyInspectorSize,
+  PropertySectionProps,
+} from './PropertyInspector.types';
 
 // --- Size maps ---
 

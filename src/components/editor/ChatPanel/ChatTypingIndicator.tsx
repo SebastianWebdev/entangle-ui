@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import type { ChatTypingIndicatorProps } from './ChatPanel.types';
+
 import { cx } from '@/utils/cx';
+
 import {
   typingIndicatorStyle,
   typingDotsContainerStyle,
@@ -10,6 +11,8 @@ import {
   typingPulseStyle,
   typingLabelStyle,
 } from './ChatPanel.css';
+
+import type { ChatTypingIndicatorProps } from './ChatPanel.types';
 
 export const ChatTypingIndicator =
   /*#__PURE__*/ React.memo<ChatTypingIndicatorProps>(

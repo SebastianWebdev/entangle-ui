@@ -4,9 +4,10 @@ import React from 'react';
 
 // src/controls/NumberInput/useNumberInput.ts
 import { useState, useCallback, useRef, useEffect } from 'react';
+
 import { useKeyboardContext } from '@/context/KeyboardContext';
-import { parseNumericInput, isExpression } from '@/utils/mathExpression';
 import { devError } from '@/utils/devWarn';
+import { parseNumericInput, isExpression } from '@/utils/mathExpression';
 
 /**
  * Configuration options for NumberInput behavior

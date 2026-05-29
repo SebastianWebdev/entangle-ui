@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React from 'react';
+
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
-import type { SpinnerColor, SpinnerProps, SpinnerSize } from './Spinner.types';
+
 import {
   spinnerColorVar,
   spinnerDotRecipe,
@@ -16,6 +17,8 @@ import {
   spinnerSizeVar,
   visuallyHiddenStyle,
 } from './Spinner.css';
+
+import type { SpinnerColor, SpinnerProps, SpinnerSize } from './Spinner.types';
 
 const SIZE_MAP: Record<SpinnerSize, string> = {
   xs: '12px',
@@ -32,7 +35,7 @@ const NAMED_COLOR_MAP: Record<string, string> = {
 };
 
 function resolveColor(color: SpinnerColor): string {
-  return NAMED_COLOR_MAP[color as string] ?? color;
+  return NAMED_COLOR_MAP[color] ?? color;
 }
 
 /**

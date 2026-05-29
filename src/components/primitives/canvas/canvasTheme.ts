@@ -1,4 +1,5 @@
 import { vars } from '@/theme/contract.css';
+
 import type { CanvasThemeColors } from './canvas.types';
 
 /**

@@ -1,13 +1,7 @@
 'use client';
 
-import type React from 'react';
 import { useCallback } from 'react';
-import type {
-  Point2D,
-  CanvasViewport,
-  CanvasBackgroundInfo,
-  CanvasThemeColors,
-} from '@/components/primitives/canvas/canvas.types';
+
 import {
   drawGrid,
   drawDomainBounds,
@@ -18,6 +12,14 @@ import {
 } from '@/components/primitives/canvas/canvasDrawing';
 import { resolveCanvasTheme } from '@/components/primitives/canvas/canvasTheme';
 import { useCanvasRenderer } from '@/components/primitives/canvas/useCanvasRenderer';
+
+import type {
+  Point2D,
+  CanvasViewport,
+  CanvasBackgroundInfo,
+  CanvasThemeColors,
+} from '@/components/primitives/canvas/canvas.types';
+import type React from 'react';
 
 interface UseCartesianRendererOptions {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;

@@ -1,10 +1,13 @@
 'use client';
 
 import React from 'react';
-import type { BaseComponent } from '@/types/common';
+
 import { Prettify } from '@/types/utilities';
 import { cx } from '@/utils/cx';
+
 import { formLabelRecipe, requiredIndicatorStyle } from './FormLabel.css';
+
+import type { BaseComponent } from '@/types/common';
 
 export interface FormLabelBaseProps extends BaseComponent<HTMLLabelElement> {
   /**

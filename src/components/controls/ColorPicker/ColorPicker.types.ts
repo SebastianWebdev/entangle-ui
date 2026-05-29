@@ -1,7 +1,7 @@
-import type { Prettify } from '@/types/utilities';
-import type { BaseComponent, Size } from '@/types/common';
 import type { ColorFormat as ColorFormatBase } from './colorUtils';
 import type { Palette, PaletteColor } from './palettes';
+import type { BaseComponent, Size } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 export type ColorFormat = ColorFormatBase;
 

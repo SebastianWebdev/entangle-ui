@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useSyncExternalStore } from 'react';
+
 import type { MinimapContextValue } from './Minimap.types';
 import type {
   MinimapGeometryState,

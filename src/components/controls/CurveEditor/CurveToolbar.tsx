@@ -1,27 +1,30 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { IconButton } from '@/components/primitives/IconButton';
+import React from 'react';
+
 import { Select } from '@/components/controls/Select';
-import { Tooltip } from '@/components/primitives/Tooltip';
-import { TangentFreeIcon } from '@/components/Icons/TangentFreeIcon';
 import { TangentAlignedIcon } from '@/components/Icons/TangentAlignedIcon';
-import { TangentMirroredIcon } from '@/components/Icons/TangentMirroredIcon';
 import { TangentAutoIcon } from '@/components/Icons/TangentAutoIcon';
+import { TangentFreeIcon } from '@/components/Icons/TangentFreeIcon';
 import { TangentLinearIcon } from '@/components/Icons/TangentLinearIcon';
+import { TangentMirroredIcon } from '@/components/Icons/TangentMirroredIcon';
 import { TangentStepIcon } from '@/components/Icons/TangentStepIcon';
-import type {
-  CurveEditorSize,
-  CurvePreset,
-  TangentMode,
-} from './CurveEditor.types';
+import { IconButton } from '@/components/primitives/IconButton';
+import { Tooltip } from '@/components/primitives/Tooltip';
+
 import {
   toolbarStyle,
   toolbarSectionStyle,
   toolbarSeparatorStyle,
   toolbarHeightVar,
 } from './CurveEditor.css';
+
+import type {
+  CurveEditorSize,
+  CurvePreset,
+  TangentMode,
+} from './CurveEditor.types';
 
 interface CurveToolbarProps {
   selectedTangentMode: TangentMode | null;
@@ -147,7 +150,9 @@ export const CurveToolbar: React.FC<CurveToolbarProps> = ({
                   pressed={selectedTangentMode === mode}
                   disabled={disabled || selectedTangentMode === null}
                   aria-label={`${label} tangent mode`}
-                  onClick={() => onTangentModeChange(mode)}
+                  onClick={() => {
+                    onTangentModeChange(mode);
+                  }}
                 >
                   {icon}
                 </IconButton>

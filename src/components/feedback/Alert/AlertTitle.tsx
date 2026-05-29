@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
+
 import { cx } from '@/utils/cx';
-import type { AlertTitleProps } from './Alert.types';
+
 import { alertTitleStyle } from './Alert.css';
+
+import type { AlertTitleProps } from './Alert.types';
 
 /**
  * Title slot for an `Alert`. Renders a single line of emphasized text above

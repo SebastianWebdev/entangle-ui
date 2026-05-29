@@ -1,15 +1,18 @@
 'use client';
 
 import React, { useCallback } from 'react';
+
 import { Tooltip } from '@/components/primitives';
 import { cx } from '@/utils/cx';
-import type { BreadcrumbItemProps } from './Breadcrumbs.types';
+
 import {
   breadcrumbContentRecipe,
   breadcrumbIconStyle,
   breadcrumbItemStyle,
   breadcrumbLabelStyle,
 } from './Breadcrumbs.css';
+
+import type { BreadcrumbItemProps } from './Breadcrumbs.types';
 
 function getTruncatedLabel(children: React.ReactNode, maxLength?: number) {
   if (

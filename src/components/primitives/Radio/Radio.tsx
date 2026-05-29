@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useCallback, useContext, useId, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback, useContext, useId, useState } from 'react';
+
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { cx } from '@/utils/cx';
-import type { RadioProps, RadioSize } from './Radio.types';
-import { RadioGroupContext } from './RadioGroup';
+
 import {
   innerSizeVar,
   outerSizeVar,
@@ -16,6 +16,9 @@ import {
   radioOuterRecipe,
   visuallyHiddenInputStyle,
 } from './Radio.css';
+import { RadioGroupContext } from './RadioGroup';
+
+import type { RadioProps, RadioSize } from './Radio.types';
 
 const OUTER_SIZES: Record<RadioSize, number> = {
   sm: 12,

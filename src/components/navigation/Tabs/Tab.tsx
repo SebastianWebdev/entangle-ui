@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import { useTabsContext } from './Tabs';
-import type { TabProps, TabsSize } from './Tabs.types';
+
 import { CloseIcon } from '@/components/Icons/CloseIcon';
-import { cx } from '@/utils/cx';
 import { vars } from '@/theme/contract.css';
+import { cx } from '@/utils/cx';
+
+import { useTabsContext } from './Tabs';
 import {
   tabBaseStyle,
   tabRecipe,
@@ -25,6 +26,8 @@ import {
   tabIconStyle,
   tabCloseButtonStyle,
 } from './Tabs.css';
+
+import type { TabProps, TabsSize } from './Tabs.types';
 
 // --- Size maps ---
 

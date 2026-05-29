@@ -9,16 +9,18 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
+import { FormHelperText } from '@/components/form/FormHelperText';
+import { FormLabel } from '@/components/form/FormLabel';
 import { CheckIcon } from '@/components/Icons/CheckIcon';
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { CloseIcon } from '@/components/Icons/CloseIcon';
-import { FormHelperText } from '@/components/form/FormHelperText';
-import { FormLabel } from '@/components/form/FormLabel';
 import { ScrollArea } from '@/components/layout/ScrollArea';
 import { useControlledState } from '@/hooks/useControlledState';
 import { useListboxNav } from '@/hooks/useListboxNav';
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
+
 import {
   checkboxRecipe,
   chevronRecipe,
@@ -38,6 +40,7 @@ import {
   triggerContentStyle,
   triggerRecipe,
 } from './MultiSelect.css';
+
 import type {
   MultiSelectOption,
   MultiSelectOptionGroup,
@@ -420,7 +423,9 @@ export function MultiSelect<T extends string = string>({
         aria-invalid={error || undefined}
         aria-describedby={showHelperText ? helperId : undefined}
         disabled={disabled}
-        onClick={() => (isOpen ? close() : open())}
+        onClick={() => {
+          isOpen ? close() : open();
+        }}
         onKeyDown={handleTriggerKeyDown}
         className={triggerRecipe({
           size,
