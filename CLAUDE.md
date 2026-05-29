@@ -44,6 +44,8 @@ Entangle UI is a React component library for professional editor interfaces (3D 
 
 **Architectural rules: read `docs/component-patterns.md` before writing new components or refactoring existing ones.** It is the source of truth for: which existing hooks to reuse, when `useEffect` is wrong, callback identity stability with `useLatest`, store + `useSyncExternalStore` vs context, React 19 ref-as-prop + `useImperativeHandle`, Symbol-based slot markers, the canvas drawing template, and the review checklist.
 
+**NodeGraph performance: read `docs/nodegraph-performance.md` before touching the NodeGraph drag / draw / subscription hot paths.** It documents the cost model and the invariants that keep it interactive at scale (rAF-throttled store writes, `ReadonlySet` drag ids, per-node interaction channels, edge frustum culling) plus the GPU/CSS-containment anti-patterns that were measured and rejected.
+
 **All text must be in English** — comments, JSDoc, test descriptions, commit messages. No Polish text.
 
 **Path aliases are mandatory**: always use `@/` imports (e.g., `@/theme`, `@/types/utilities`), never relative paths for cross-directory imports.
