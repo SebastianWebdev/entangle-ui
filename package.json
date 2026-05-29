@@ -62,7 +62,16 @@
     "size": "size-limit",
     "docs:dev": "npm run --prefix docs-site dev",
     "docs:build": "npm run --prefix docs-site build",
-    "docs:preview": "npm run --prefix docs-site preview"
+    "docs:preview": "npm run --prefix docs-site preview",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx,js,jsx}": [
+      "eslint --fix"
+    ],
+    "*.{ts,tsx,js,jsx,json,md,mdx,css,html,yaml,yml}": [
+      "prettier --write --cache --ignore-unknown"
+    ]
   },
   "keywords": [
     "react",
@@ -129,7 +138,9 @@
     "eslint-plugin-testing-library": "^7.16.2",
     "eslint-plugin-unicorn": "^64.0.0",
     "globals": "^16.5.0",
+    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "lint-staged": "^17.0.5",
     "prettier": "^3.8.1",
     "react": "^19.2",
     "react-dom": "^19.2",

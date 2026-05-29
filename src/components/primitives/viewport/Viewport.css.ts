@@ -59,6 +59,13 @@ export const worldLayerStyle = style({
   width: 0,
   height: 0,
   transformOrigin: '0 0',
+  // NB: do NOT add `will-change: transform` here. This wrapper carries the
+  // viewport `scale()`; promoting it to a persistent compositor layer makes
+  // the browser rasterize its contents once at the base scale and then
+  // GPU-upscale the texture on zoom-in → blurry nodes/text until something
+  // forces a repaint. Re-rasterizing per paint (the default) keeps content
+  // crisp at every zoom level, which matters far more than pan-layer
+  // stability here.
   // Children opt in to pointer events; the wrapper itself never blocks input.
   pointerEvents: 'none',
 });

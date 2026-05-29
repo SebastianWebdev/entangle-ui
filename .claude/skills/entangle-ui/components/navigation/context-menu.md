@@ -190,6 +190,13 @@ The root. Owns open/close state for one trigger area.
 | `onOpenChange` | `(open: boolean) => void` | — | Called when the menu opens or closes. |
 | `disabled` | `boolean` | `false` | Disables opening the context menu. |
 | `gap` | `number` | `8` | Gap in px between submenu popups and their anchor, inherited by any Menu.SubContent inside the content. |
+<<<<<<< claude/build-nodegraph-GSTXx
+
+### ContextMenu.Trigger
+
+The right-click area. Renders with `display: contents` by default so it adds no
+extra box; override via `style`.
+=======
 | `ref` | `Ref` | — | Imperative handle. Call ref.current.close() to close the menu from app code. |
 
 ### ContextMenu.Trigger
@@ -197,11 +204,15 @@ The root. Owns open/close state for one trigger area.
 The right-click area. By default the children are wrapped in a `display:
 contents` element so the trigger adds no extra box. Pass `render` to make the
 trigger render _as_ your own element instead — no wrapper, fully stylable.
+>>>>>>> main
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `children` | `ReactNode` | — | The right-click target area. |
+<<<<<<< claude/build-nodegraph-GSTXx
+=======
 | `render` | `ReactElement` | — | Render the trigger as this element instead of wrapping the children in a display: contents element. The element carries its own children. |
+>>>>>>> main
 | `className` | `string` | — | Additional CSS class names. |
 | `style` | `CSSProperties` | — | Inline styles (merged over the default display: contents). |
 

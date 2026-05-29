@@ -44,6 +44,8 @@ Entangle UI is a React component library for professional editor interfaces (3D 
 
 **Architectural rules: read `docs/component-patterns.md` before writing new components or refactoring existing ones.** It is the source of truth for: which existing hooks to reuse, when `useEffect` is wrong, callback identity stability with `useLatest`, store + `useSyncExternalStore` vs context, React 19 ref-as-prop + `useImperativeHandle`, Symbol-based slot markers, the canvas drawing template, and the review checklist.
 
+**NodeGraph performance: read `docs/nodegraph-performance.md` before touching the NodeGraph drag / draw / subscription hot paths.** It documents the cost model and the invariants that keep it interactive at scale (rAF-throttled store writes, `ReadonlySet` drag ids, per-node interaction channels, edge frustum culling) plus the GPU/CSS-containment anti-patterns that were measured and rejected.
+
 **All text must be in English** — comments, JSDoc, test descriptions, commit messages. No Polish text.
 
 **Path aliases are mandatory**: always use `@/` imports (e.g., `@/theme`, `@/types/utilities`), never relative paths for cross-directory imports.
@@ -95,7 +97,15 @@ Documentation and live examples live in `docs-site/` (Astro Starlight) — every
 
 ## Documentation Site
 
-Official docs live in `docs-site/` (Astro 5 + Starlight). It renders live `entangle-ui` components inside MDX pages via `@astrojs/react` and auto-generates API reference from TypeScript types with `starlight-typedoc`. Every new component must ship with a docs page.
+Official docs live in `docs-site/` (Astro 5 + Starlight). It renders live `entangle-ui` components inside MDX pages via `@astrojs/react` and auto-generates API reference from TypeScript types with `starlight-typedoc`. Every new component must ship with a docs page **plus** a demo in `docs-site/src/components/demos/`.
+
+**Read `docs/demo-patterns.md` before writing or editing a demo.** It is the source of truth for: reaching for library compounds before writing JSX, using `<ContextMenu>` / `<Menu>` / `<Popover>` / other primitives for auxiliary UI, theme token names from `themeContractData.ts`, and the "demos drive pre-1.0 API" feedback loop.
+
+Demos serve three jobs at once:
+
+1. **Live examples** for the docs site.
+2. **Integration tests** — they're where component composition friction shows up. The recurring failure mode to avoid: agent rebuilds from scratch a thing the library already exports (`NodeGraph.NodeBody`, `<ContextMenu>`, etc.). If a demo needs to reinvent something, the library has a missing export — fix the library, not the demo.
+3. **Pre-1.0 API friction reports** — versions before 1.0 may break APIs to keep demos honest. Surface friction at PR time rather than baking workarounds into demos.
 
 ## Branch Rules
 

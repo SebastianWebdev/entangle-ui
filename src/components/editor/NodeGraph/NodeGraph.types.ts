@@ -1,0 +1,638 @@
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type {
+  ViewportPanConfig,
+  ViewportSize,
+  ViewportTransform,
+  ViewportZoomConfig,
+  WorldRect,
+} from '@/components/primitives/viewport';
+import type { BaseComponent } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
+import type React from 'react';
+
+// ─── Geometry primitives ───
+
+/** Side of a node a port is anchored to. */
+export type NodeGraphPortSide = 'left' | 'right' | 'top' | 'bottom';
+
+/** Reference to a single port on a node. */
+export interface NodeGraphPortRef {
+  /** Owning node id. */
+  node: string;
+  /** Port id within that node. */
+  port: string;
+}
+
+// ─── Data model ───
+
+export interface NodeGraphNode {
+  /** Stable identity. */
+  id: string;
+  /** Position in world coordinates (top-left corner of the node body). */
+  position: Point2D;
+  /**
+   * Override the auto-measured width of the node body. Use this when you
+   * need fixed-size nodes. When omitted, the library measures the rendered
+   * node DOM and uses that size for hit-testing, marquee selection, and
+   * minimap geometry.
+   */
+  width?: number;
+  /** Override the auto-measured height of the node body. See {@link width}. */
+  height?: number;
+  /** Arbitrary consumer payload passed to `renderNode`. */
+  data?: unknown;
+  /**
+   * When false, the node cannot be moved by drag. Selection still works.
+   * @default true
+   */
+  draggable?: boolean;
+  /**
+   * When false, the node cannot be selected (clicks pass through to the
+   * background). Drag is also disabled.
+   * @default true
+   */
+  selectable?: boolean;
+}
+
+export interface NodeGraphEdge {
+  /** Stable identity. */
+  id: string;
+  /** Edge source endpoint. */
+  source: NodeGraphPortRef;
+  /** Edge target endpoint. */
+  target: NodeGraphPortRef;
+  /** Arbitrary consumer payload (e.g. animation flags, weights). */
+  data?: unknown;
+  /**
+   * Optional HTML label rendered absolutely above the edge midpoint.
+   * Use `renderEdgeLabel` for full control, or pass a node here for the
+   * default centred placement.
+   */
+  label?: React.ReactNode;
+  /**
+   * Override the stroke colour of this edge in its default state.
+   * Selected / hovered edges still pick up the theme accents (so the
+   * interaction state stays visible), this colour is used only when
+   * neither state is active. Useful for type-coloured wires — assign
+   * the colour at edge-creation time based on the source pin's data
+   * type, the way UE5 paints exec / float / bool wires differently.
+   */
+  color?: string;
+}
+
+/**
+ * A visual backdrop rectangle drawn under nodes. Groups in v1 are purely
+ * decorative — nodes are not children of a group, they simply happen to
+ * overlap with it. Selection of a group through marquee/click can be
+ * wired up by the consumer via `onContextMenu` / future selection API.
+ */
+export interface NodeGraphGroup {
+  /** Stable identity. */
+  id: string;
+  /** Group rectangle in world coordinates. */
+  bounds: WorldRect;
+  /** Optional title shown above the group's top edge. */
+  label?: string;
+  /** Optional CSS colour string used for the group tint and label. */
+  color?: string;
+}
+
+export interface NodeGraphSelection {
+  /** Selected node ids. */
+  nodes: string[];
+  /** Selected edge ids. */
+  edges: string[];
+  /** Selected group ids. */
+  groups: string[];
+}
+
+// ─── Targets / events ───
+
+/** Discriminated union describing what was hit by a pointer event. */
+export type NodeGraphTarget =
+  | { kind: 'node'; id: string }
+  | { kind: 'edge'; id: string }
+  | { kind: 'port'; node: string; port: string }
+  | { kind: 'group'; id: string }
+  | { kind: 'empty'; worldPoint: Point2D };
+
+export interface NodeGraphContextMenuInfo {
+  target: NodeGraphTarget;
+  /** Screen-space (CSS-pixel) position of the pointer relative to viewport. */
+  screenPoint: Point2D;
+  /** World-space position of the pointer. */
+  worldPoint: Point2D;
+}
+
+export interface NodeGraphConnectStartInfo {
+  source: NodeGraphPortRef;
+  /** World-space position the drag started at (the source port). */
+  worldPoint: Point2D;
+}
+
+export interface NodeGraphConnectEndInfo {
+  source: NodeGraphPortRef;
+  /** Resolved drop target, or null when the drag ended on empty space. */
+  target: NodeGraphPortRef | null;
+  /** True when the drop was rejected (target invalid or empty). */
+  cancelled: boolean;
+  /**
+   * World-space position the drag was released at. With `cancelled` + a null
+   * `target` this is an empty-space drop — the hook for a "drag a wire onto
+   * the canvas → open a create-node menu here → connect the new node to
+   * `source`" flow. Place the spawned node at this point.
+   */
+  worldPoint: Point2D;
+  /**
+   * Screen-space (CSS-pixel, relative to the viewport top-left) release
+   * position — position your create-node menu / popover here.
+   */
+  screenPoint: Point2D;
+}
+
+export interface NodeGraphConnectionValidationInfo {
+  /** True when source and target reference the same node. */
+  sameNode: boolean;
+  /** Side combination shorthand, e.g. `'right->left'`. */
+  sideCombo: string;
+  /** `dataType` declared on the source `<NodeGraph.Port>`, if any. */
+  sourceDataType?: string;
+  /** `dataType` declared on the target `<NodeGraph.Port>`, if any. */
+  targetDataType?: string;
+}
+
+// ─── Rendering ───
+
+/** Context passed to `renderNode`. */
+export interface NodeGraphRenderCtx {
+  /** True when the node is part of the current selection. */
+  selected: boolean;
+  /** True when the node is being dragged (single or multi). */
+  dragging: boolean;
+  /** True when the pointer is hovering over the node body. */
+  hovered: boolean;
+  /** Current viewport zoom — useful for LOD rendering. */
+  zoom: number;
+}
+
+/** Resolved port metadata passed to the `edgeStyle` callback. */
+export interface NodeGraphEdgeStyleCtx {
+  /** True when the edge is in the current selection. */
+  selected: boolean;
+  /** True when the pointer is currently hovering over the edge. */
+  hovered: boolean;
+  /**
+   * The `side` and `dataType` declared on the source `<NodeGraph.Port>`,
+   * resolved from the store. `null` when the port hasn't been measured
+   * yet (e.g. first paint before `useLayoutEffect` has run).
+   */
+  sourcePort: { side: NodeGraphPortSide; dataType?: string } | null;
+  /** Same for the target endpoint. */
+  targetPort: { side: NodeGraphPortSide; dataType?: string } | null;
+}
+
+/**
+ * Style overrides for a single edge, returned by `edgeStyle`. Any field
+ * left undefined falls back to the default (theme + `edge.color`).
+ */
+export interface NodeGraphEdgeStyle {
+  /** Stroke colour. Overrides `edge.color`. */
+  color?: string;
+  /** Stroke width in screen pixels. */
+  width?: number;
+  /**
+   * Marching-ant dash pattern, in screen pixels.
+   * Example: `[8, 6]` draws 8 px dash + 6 px gap repeating.
+   * Pass `null` (or omit) for a solid stroke.
+   */
+  dash?: ReadonlyArray<number> | null;
+}
+
+/**
+ * Per-edge style hook. Called on every frame for every edge — keep it
+ * cheap (map lookup, ternary). The library memoizes nothing here; if
+ * the result is expensive, hoist into a `useMemo` keyed by inputs.
+ */
+export type NodeGraphEdgeStyleFn = (
+  edge: NodeGraphEdge,
+  ctx: NodeGraphEdgeStyleCtx
+) => NodeGraphEdgeStyle | undefined;
+
+// ─── Port slot ───
+
+/**
+ * Built-in port handle shapes. `circle` is the default data-pin look,
+ * `triangle` is the UE-style exec/flow arrow, `diamond` / `square` cover
+ * the other common node-editor conventions. Render any other visual by
+ * passing `children` to `<NodeGraph.Port>`.
+ */
+export type NodeGraphPortShape = 'circle' | 'triangle' | 'diamond' | 'square';
+
+/**
+ * Props for `<NodeGraph.Port>` — the compound child rendered inside
+ * `renderNode` to declare a connection endpoint.
+ *
+ * The library tracks the slot's DOM position and registers it as the
+ * anchor for any edge that references this port. Pointer events on the
+ * slot start a connection drag automatically — no manual wiring from the
+ * consumer.
+ *
+ * @example
+ * ```tsx
+ * <NodeGraph
+ *   renderNode={(node, ctx) => (
+ *     <MyNodeBody>
+ *       <Row>
+ *         <NodeGraph.Port id="exec-in" side="left" dataType="exec" />
+ *         Execute
+ *       </Row>
+ *     </MyNodeBody>
+ *   )}
+ * />
+ * ```
+ */
+export interface NodeGraphPortSlotProps {
+  /** Stable identity within the owning node — referenced by `NodeGraphEdge`. */
+  id: string;
+  /** Which side of the node the port anchors to. Determines Bézier tangent. */
+  side: NodeGraphPortSide;
+  /**
+   * Opaque type token forwarded to `isValidConnection` and exposed on
+   * `data-port-data-type` for CSS theming. Not interpreted by the library.
+   */
+  dataType?: string;
+  /**
+   * Built-in handle shape used when no `children` are supplied.
+   * @default 'circle'
+   */
+  shape?: NodeGraphPortShape;
+  /**
+   * Handle colour for the built-in visual (any CSS colour). When omitted,
+   * the port inherits the theme focus colour; the connection-drag states
+   * (source / candidate / invalid) still override it so interaction stays
+   * visible. Ignored when `children` are supplied.
+   */
+  color?: string;
+  /**
+   * Force the built-in visual filled (`true`) or hollow (`false`). When
+   * omitted, the port fills automatically while it is connected to at
+   * least one edge and stays hollow otherwise — the standard "wired vs
+   * unwired pin" convention. Ignored when `children` are supplied.
+   */
+  filled?: boolean;
+  /**
+   * Replace the built-in port visual entirely. When provided, no built-in
+   * chrome is rendered — the children fill the slot wrapper. State for
+   * theming (source / candidate / hover / invalid / connected) is exposed
+   * via `data-port-*` attributes on the wrapper.
+   */
+  children?: React.ReactNode;
+  /** Accessible label. Falls back to `${side} port ${id}`. */
+  label?: string;
+  /** Extra class applied to the slot wrapper. */
+  className?: string;
+  /** Inline style override on the slot wrapper. */
+  style?: React.CSSProperties;
+}
+
+// ─── Imperative handle ───
+
+export interface NodeGraphHandle {
+  /** Pan/zoom so all nodes fit inside the viewport with optional padding. */
+  fitToContent(padding?: number): void;
+  /** Pan/zoom so all *selected* nodes fit. No-op when selection is empty. */
+  fitToSelection(padding?: number): void;
+  /** Center the viewport on a specific node. */
+  focusNode(id: string): void;
+  /** Center on a world point, optionally setting zoom. */
+  centerOn(point: Point2D, zoom?: number): void;
+  /** Pan/zoom to fit a world rectangle. */
+  zoomToRect(rect: WorldRect, padding?: number): void;
+  /** Read the current transform. */
+  getTransform(): ViewportTransform;
+  /** Read the current viewport size in CSS pixels. */
+  getSize(): ViewportSize;
+  /** Convert a world point to a screen (CSS-pixel) point. */
+  worldToScreen(point: Point2D): Point2D;
+  /** Convert a screen (CSS-pixel) point to a world point. */
+  screenToWorld(point: Point2D): Point2D;
+  /**
+   * Force a redraw. With no `layerName`, all canvas layers redraw on the
+   * next frame; with a name (`'edges' | 'groups' | 'preview'`), only that
+   * layer redraws.
+   */
+  invalidate(layerName?: NodeGraphLayerName): void;
+}
+
+export type NodeGraphLayerName = 'groups' | 'edges' | 'preview';
+
+// ─── Slot markers ───
+
+/**
+ * Symbol attached to `<NodeGraph.Minimap>` and other slot subcomponents so
+ * the parent `<NodeGraph>` can identify them without relying on
+ * `displayName` (which gets clobbered by `React.memo` / minifiers).
+ */
+export const NODE_GRAPH_SLOT: unique symbol = Symbol.for('etui.nodegraph.slot');
+
+export type NodeGraphSlotKind =
+  | 'minimap'
+  | 'background'
+  | 'toolbar'
+  | 'spawn-palette';
+
+/**
+ * Template registered with `<NodeGraph.SpawnPalette>` — describes a
+ * spawn-able node + how to build it at a given world point. The
+ * library handles search / filtering / focus / selection of templates
+ * in the popover; this is the data slice consumer cares about.
+ */
+export interface NodeGraphTemplate {
+  /** Stable identifier (used for keys + the palette's recent list). */
+  id: string;
+  /** Human-readable title shown in the palette. */
+  title: string;
+  /** Optional secondary line. */
+  subtitle?: string;
+  /** Group label used to section the palette list. */
+  group?: string;
+  /** Extra strings the fuzzy matcher considers (synonyms, tags). */
+  keywords?: ReadonlyArray<string>;
+  /** Optional leading icon. */
+  icon?: React.ReactNode;
+  /**
+   * Build the node body from a world position. The library assigns
+   * the final `id` (so consumer doesn't have to roll their own
+   * uniqueness scheme) — return everything except `id`.
+   */
+  build: (worldPoint: Point2D) => Omit<NodeGraphNode, 'id'>;
+}
+
+export interface NodeGraphSpawnContext {
+  /** World point where the user invoked the palette. */
+  worldPoint: Point2D;
+  /** Screen-space point (CSS pixels relative to viewport top-left). */
+  screenPoint: Point2D;
+}
+
+export interface NodeGraphSpawnPaletteSlotProps {
+  /** All spawn-able templates. Filtering happens inside the library. */
+  templates: ReadonlyArray<NodeGraphTemplate>;
+  /**
+   * Called when the user picks a template. Library has already
+   * assigned an `id`; consumer typically appends to their nodes state.
+   */
+  onSpawn: (node: NodeGraphNode, ctx: NodeGraphSpawnContext) => void;
+  /** Placeholder for the search input. */
+  placeholder?: string;
+  /** localStorage key for the palette's recent list. */
+  recentKey?: string;
+  /** Popover width. @default 400 */
+  width?: number | string;
+  /** Popover max height. @default 360 */
+  maxHeight?: number;
+}
+
+export interface NodeGraphToolbarSlotProps {
+  /**
+   * Anchored corner inside the graph. Defaults to top-left.
+   */
+  placement?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  /** Distance from the edge, CSS px. @default 12 */
+  margin?: number;
+  /** Gap between toolbar buttons / children, CSS px. @default 4 */
+  gap?: number;
+  /** Optional className applied to the toolbar wrapper. */
+  className?: string;
+  /** Inline style override. */
+  style?: React.CSSProperties;
+  /** Toolbar contents — typically `<NodeGraph.FitContentButton>` etc. */
+  children?: React.ReactNode;
+}
+
+export interface NodeGraphSlotMarker {
+  [NODE_GRAPH_SLOT]: NodeGraphSlotKind;
+}
+
+// ─── Props ───
+
+export interface NodeGraphBaseProps extends Omit<
+  BaseComponent,
+  'onChange' | 'onContextMenu' | 'ref'
+> {
+  // ── Nodes (controlled / uncontrolled) ──
+  nodes?: NodeGraphNode[];
+  defaultNodes?: NodeGraphNode[];
+  onNodesChange?: (nodes: NodeGraphNode[]) => void;
+
+  // ── Edges (controlled / uncontrolled) ──
+  edges?: NodeGraphEdge[];
+  defaultEdges?: NodeGraphEdge[];
+  onEdgesChange?: (edges: NodeGraphEdge[]) => void;
+
+  // ── Groups (controlled / uncontrolled) ──
+  groups?: NodeGraphGroup[];
+  defaultGroups?: NodeGraphGroup[];
+  onGroupsChange?: (groups: NodeGraphGroup[]) => void;
+
+  // ── Selection (controlled / uncontrolled) ──
+  selection?: NodeGraphSelection;
+  defaultSelection?: NodeGraphSelection;
+  onSelectionChange?: (selection: NodeGraphSelection) => void;
+
+  // ── Rendering ──
+  /**
+   * Render the body of a node. The returned content sits inside a wrapper
+   * `<div>` positioned in world space — do not set position/transform
+   * yourself. Declare connection endpoints by placing `<NodeGraph.Port>`
+   * children anywhere inside the returned tree; the library tracks their
+   * DOM positions automatically and routes edges through them.
+   */
+  renderNode?: (
+    node: NodeGraphNode,
+    ctx: NodeGraphRenderCtx
+  ) => React.ReactNode;
+  /**
+   * Render a label above the midpoint of an edge. Receives the edge data.
+   * When omitted, `edge.label` is used as-is (if defined).
+   */
+  renderEdgeLabel?: (edge: NodeGraphEdge) => React.ReactNode;
+  /**
+   * Per-edge style hook called on every draw frame. The returned shape
+   * is shallow-merged into the default edge style; any field left
+   * undefined falls back to `edge.color` / theme defaults.
+   *
+   * The second argument carries resolved port metadata from the store
+   * so consumers don't need to maintain a parallel index just to colour
+   * wires by their source pin's `dataType`.
+   *
+   * @example
+   * ```tsx
+   * <NodeGraph
+   *   edgeStyle={(edge, ctx) => ({
+   *     color: TYPE_COLOR[ctx.sourcePort?.dataType ?? 'any'],
+   *     width: ctx.selected ? 3 : 1.5,
+   *   })}
+   * />
+   * ```
+   */
+  edgeStyle?: NodeGraphEdgeStyleFn;
+
+  // ── Interaction ──
+  /**
+   * Validate a connection between two ports. Return `false` to reject the
+   * drop; the preview edge is still drawn while the user is hovering, but
+   * styled as invalid.
+   */
+  isValidConnection?: (
+    source: NodeGraphPortRef,
+    target: NodeGraphPortRef,
+    info: NodeGraphConnectionValidationInfo
+  ) => boolean;
+  /**
+   * Snap node positions to a grid of `snapToGrid` world units. Pass `false`
+   * to disable snapping. Affects drag (mouse), not programmatic position
+   * updates.
+   * @default false
+   */
+  snapToGrid?: number | false;
+  /** Fired when a connection drag starts (pointer-down on a port). */
+  onConnectStart?: (info: NodeGraphConnectStartInfo) => void;
+  /** Fired when a connection drag ends (drop on a port or cancellation). */
+  onConnectEnd?: (info: NodeGraphConnectEndInfo) => void;
+  /**
+   * Fired on a context menu (right-click) over any part of the graph.
+   * Includes a discriminated target so the consumer can render contextual
+   * menus for nodes / edges / ports / groups / empty background.
+   */
+  onContextMenu?: (info: NodeGraphContextMenuInfo) => void;
+  /** Fired when Delete/Backspace is pressed with a non-empty selection. */
+  onDelete?: (selection: NodeGraphSelection) => void;
+  /** Fired when Enter is pressed with a single focused node. */
+  onActivate?: (node: NodeGraphNode) => void;
+
+  // ── Viewport pass-through ──
+  /**
+   * Pan gesture configuration, or `false` to disable. Defaults match
+   * `<Viewport>`: middle-mouse drag + space-key + left-drag.
+   */
+  pan?: ViewportPanConfig | false;
+  /** Zoom gesture configuration, or `false` to disable. */
+  zoom?: ViewportZoomConfig | false;
+  /** @default 0.1 */
+  minZoom?: number;
+  /** @default 4 */
+  maxZoom?: number;
+  /**
+   * Enable marquee selection rectangle. When true, dragging on empty
+   * background draws a marquee that selects intersecting nodes.
+   * @default true
+   */
+  selectionRect?: boolean;
+  /**
+   * Track parent size via `ResizeObserver`. Identical to `<Viewport>`'s
+   * `responsive`. @default false
+   */
+  responsive?: boolean;
+  /** Fixed height when not responsive. @default 480 */
+  height?: number;
+  /**
+   * Fallback size used when neither `node.width`/`height` nor the measured
+   * DOM size is yet available — for the brief window between mount and
+   * first ResizeObserver tick, and for the imperative `fitToContent` /
+   * minimap reads at first paint.
+   * @default { width: 180, height: 80 }
+   */
+  defaultNodeSize?: { width: number; height: number };
+  /**
+   * Disable all interaction and dim the surface.
+   * @default false
+   */
+  disabled?: boolean;
+
+  // ── Accessibility ──
+  /** @default 'Node graph' */
+  ariaLabel?: string;
+
+  /** Slot children: `<NodeGraph.Minimap>`, `<NodeGraph.Background>`. */
+  children?: React.ReactNode;
+
+  /** Imperative handle. */
+  ref?: React.Ref<NodeGraphHandle>;
+}
+
+export type NodeGraphProps = Prettify<NodeGraphBaseProps>;
+
+// ─── Subcomponent props ───
+
+/**
+ * Per-node colouring for the minimap. Return `{ color }` for a flat tinted
+ * rect, or add `headerColor` for a two-tone "header strip + body" mini-node
+ * that echoes the real node's look at a glance.
+ */
+export interface NodeGraphMinimapNodeStyle {
+  /** Body fill colour. Falls back to the minimap's default item colour. */
+  color?: string;
+  /** When set, a header strip is drawn on top in this colour (two-tone). */
+  headerColor?: string;
+}
+
+export interface NodeGraphMinimapSlotProps {
+  /**
+   * Anchored position inside the graph. Matches `ViewportMinimap`'s
+   * `placement` (string preset or custom anchor object).
+   * @default 'bottom-right'
+   */
+  placement?:
+    | 'top-left'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-right'
+    | {
+        top?: number | string;
+        right?: number | string;
+        bottom?: number | string;
+        left?: number | string;
+        width?: number | string;
+        height?: number | string;
+      };
+  /** Distance from the edge for preset placements (CSS px). @default 12 */
+  margin?: number;
+  /** Minimap width in CSS pixels. @default 200 */
+  width?: number;
+  /** Optional title (rendered as `<Minimap.Title>`). */
+  title?: React.ReactNode;
+  /** Optional className applied to the minimap wrapper. */
+  className?: string;
+  /**
+   * CSS colour used to highlight selected nodes inside the minimap. When
+   * omitted, selected nodes use the same colour as unselected ones.
+   */
+  selectedColor?: string;
+  /**
+   * Per-node colouring. Return `{ color }` to tint the rect, or
+   * `{ color, headerColor }` to draw a two-tone header/body mini-node that
+   * mirrors the real node. When omitted, every node uses the default colour
+   * (or `selectedColor` while selected).
+   */
+  nodeStyle?: (node: NodeGraphNode) => NodeGraphMinimapNodeStyle | undefined;
+}
+
+export interface NodeGraphBackgroundSlotProps {
+  /**
+   * Background style. `'dots'` and `'grid'` are built in; pass `'none'`
+   * for an opaque background only.
+   * @default 'dots'
+   */
+  variant?: 'dots' | 'grid' | 'none';
+  /**
+   * Grid spacing in world units. The pattern repeats at this interval
+   * regardless of zoom.
+   * @default 24
+   */
+  gap?: number;
+  /** Optional dot/line colour. Defaults to theme `border.default`. */
+  color?: string;
+  /** Optional background colour. Defaults to theme `background.primary`. */
+  background?: string;
+}
