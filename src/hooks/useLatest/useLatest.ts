@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useRef, type RefObject } from 'react';
+import { useEffect, useRef } from 'react';
+
+import type { RefObject } from 'react';
 
 /**
  * Keep a ref synced to the latest value of `value` after each render.

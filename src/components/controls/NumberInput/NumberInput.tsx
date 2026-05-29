@@ -2,12 +2,11 @@
 
 // src/controls/NumberInput/NumberInput.tsx
 import React, { useRef, useEffect } from 'react';
-import type { Prettify } from '@/types/utilities';
-import type { BaseComponent, Size } from '@/types/common';
+
 import { inputWrapperRecipe } from '@/components/form/InputWrapper.css';
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
-import { useNumberInput, type UseNumberInputOptions } from './useNumberInput';
 import { cx } from '@/utils/cx';
+
 import {
   numberInputContainerStyle,
   containerHoveredStyle,
@@ -21,6 +20,11 @@ import {
   unitLabelStyle,
   helperTextRecipe,
 } from './NumberInput.css';
+import { useNumberInput } from './useNumberInput';
+
+import type { UseNumberInputOptions } from './useNumberInput';
+import type { BaseComponent, Size } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 /**
  * Props specific to NumberInput component
@@ -265,9 +269,9 @@ export const NumberInput = ({
     ...(precisionStep !== undefined && { precisionStep }),
     ...(largeStep !== undefined && { largeStep }),
     ...(precision !== undefined && { precision }),
-    ...(allowExpressions !== undefined && { allowExpressions }),
+    allowExpressions,
     disabled: disabled || readOnly,
-    ...(dragSensitivity !== undefined && { dragSensitivity }),
+    dragSensitivity,
     ...(formatValue !== undefined && { formatValue }),
     ...(parseValue !== undefined && { parseValue }),
   });
@@ -417,6 +421,12 @@ export const NumberInput = ({
   const inputId = React.useId();
 
   return (
+    // The mouse handlers below implement a pointer-only drag-to-scrub
+    // enhancement on this presentational wrapper. Keyboard accessibility is
+    // provided by the inner native <input> (handleInputKeyDown) and the
+    // native step <button>s, so no role/keyboard handlers belong on the
+    // wrapper itself.
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
       ref={containerRef}
       className={cx(

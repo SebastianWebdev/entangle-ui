@@ -1,7 +1,9 @@
 'use client';
 
 import { useContext, useCallback, useRef } from 'react';
+
 import { ToastContext } from './ToastProvider';
+
 import type {
   ToastData,
   ToastInternalData,

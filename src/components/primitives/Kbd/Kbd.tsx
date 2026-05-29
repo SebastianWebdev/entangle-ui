@@ -1,11 +1,14 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { getKeyGlyph, getPlatform, parseShortcut } from '@/utils/platform';
-import type { Platform } from '@/utils/platform';
+
 import { cx } from '@/utils/cx';
+import { getKeyGlyph, getPlatform, parseShortcut } from '@/utils/platform';
+
 import { kbdRoot, keycapRecipe, separatorStyle } from './Kbd.css';
+
 import type { KbdProps } from './Kbd.types';
+import type { Platform } from '@/utils/platform';
 
 function getKeys(children: React.ReactNode): React.ReactNode[] {
   if (typeof children === 'string') {

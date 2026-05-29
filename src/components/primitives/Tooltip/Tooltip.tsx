@@ -4,9 +4,10 @@
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import React from 'react';
 
-import type { Prettify } from '@/types/utilities';
 import { cx } from '@/utils/cx';
 
+import { ArrowSvg, StyledTooltipArrow } from './Arrow';
+import { tooltipContentStyle, tooltipTriggerStyle } from './Tooltip.css';
 import {
   CollisionAvoidance,
   TooltipAnimation,
@@ -17,10 +18,9 @@ import {
   BaseTooltipPositionerProps,
   BaseTooltipRootProps,
 } from './types';
-
-import { ArrowSvg, StyledTooltipArrow } from './Arrow';
 import { parseCollisionStrategy, parsePlacement } from './utils';
-import { tooltipContentStyle, tooltipTriggerStyle } from './Tooltip.css';
+
+import type { Prettify } from '@/types/utilities';
 
 interface TooltipBaseProps extends Omit<
   React.HTMLAttributes<HTMLDivElement>,
@@ -277,16 +277,18 @@ export const Tooltip: React.FC<TooltipProps> = ({
     if (typeof boundary === 'string') {
       const boundaryElement = document.querySelector(boundary);
       if (boundaryElement) {
-        finalPositionerProps.collisionBoundary = boundaryElement as HTMLElement;
+        finalPositionerProps.collisionBoundary = boundaryElement;
       }
     } else {
       finalPositionerProps.collisionBoundary = boundary;
     }
   }
 
-  // Handle cursor tracking
+  // Handle cursor tracking. Copy into a local object instead of mutating the
+  // caller-owned `rootProps` prop.
+  const finalRootProps: Partial<BaseTooltipRootProps> = { ...rootProps };
   if (trackCursor) {
-    rootProps.trackCursorAxis = trackCursor;
+    finalRootProps.trackCursorAxis = trackCursor;
   }
 
   // Build animation transition style. Honors `prefers-reduced-motion: reduce`
@@ -296,9 +298,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
     typeof window !== 'undefined' &&
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const animated = animation?.animated !== false && !prefersReducedMotion;
-  const duration = animation?.duration ?? 200;
-  const easing = animation?.easing ?? 'ease-out';
+  const animated = animation.animated !== false && !prefersReducedMotion;
+  const duration = animation.duration ?? 200;
+  const easing = animation.easing ?? 'ease-out';
 
   const animationStyle: React.CSSProperties = animated
     ? {
@@ -307,7 +309,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
     : { transition: 'none' };
 
   return (
-    <BaseTooltip.Provider delay={delay} closeDelay={closeDelay} {...rootProps}>
+    <BaseTooltip.Provider
+      delay={delay}
+      closeDelay={closeDelay}
+      {...finalRootProps}
+    >
       <BaseTooltip.Root>
         <BaseTooltip.Trigger
           render={props => (
@@ -339,7 +345,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                     ...props.style,
                   }}
                   ref={ref}
-                  {...(htmlProps as React.HTMLAttributes<HTMLDivElement>)}
+                  {...htmlProps}
                 >
                   {title}
                   {arrow && (

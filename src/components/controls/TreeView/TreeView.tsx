@@ -1,16 +1,19 @@
 'use client';
 
-import React, { useCallback, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import type { TreeViewProps, TreeNodeData } from './TreeView.types';
-import { useTreeState } from './useTreeState';
-import { TreeNodeComponent } from './TreeNode';
+import React, { useCallback, useRef } from 'react';
+
 import { cx } from '@/utils/cx';
+
+import { TreeNodeComponent } from './TreeNode';
 import {
   treeContainerStyle,
   emptyStateStyle,
   maxHeightVar,
 } from './TreeView.css';
+import { useTreeState } from './useTreeState';
+
+import type { TreeViewProps, TreeNodeData } from './TreeView.types';
 
 /**
  * A hierarchical collapsible tree for displaying and managing nested data.

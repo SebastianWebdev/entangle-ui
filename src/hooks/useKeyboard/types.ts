@@ -12,6 +12,6 @@ export type KeyboardState = {
   modifiers: KeyboardModifierKeysState;
 };
 
-export type AllKeys = LiteralUnion<ModifierKeys, string>;
+export type AllKeys = LiteralUnion<ModifierKeys>;
 
 export type KeyboardInnerState = Set<AllKeys>;

@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React from 'react';
+
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
+
 import {
   statContentStyle,
   statDeltaColorVar,
@@ -15,6 +17,7 @@ import {
   statRoot,
   statValueRecipe,
 } from './Stat.css';
+
 import type {
   StatDelta,
   StatDeltaDirection,

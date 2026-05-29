@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { cx } from '@/utils/cx';
+import React from 'react';
+
 import { vars } from '@/theme/contract.css';
-import type { PropertyGroupProps } from './PropertyInspector.types';
+import { cx } from '@/utils/cx';
+
 import {
   groupRoot,
   groupDivider,
@@ -12,6 +13,8 @@ import {
   groupLine,
   indentVar,
 } from './PropertyGroup.css';
+
+import type { PropertyGroupProps } from './PropertyInspector.types';
 
 // --- Component ---
 

@@ -5,7 +5,13 @@ description: Application menu bar with dropdown menus, sub-menus, keyboard short
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import MenuBarDemo from '../../../../components/demos/shell/MenuBarDemo';
+import MenuBarDemo, {
+  MenuBarSizes,
+  MenuBarSubmenus,
+  MenuBarIcons,
+  MenuBarDisabled,
+  MenuBarOffset,
+} from '../../../../components/demos/shell/MenuBarDemo';
 
 Application menu bar component for editor interfaces. Provides dropdown menus with items, sub-menus, separators, and keyboard shortcut labels. Supports full keyboard navigation with arrow keys and automatic menu switching on hover when a menu is open.
 
@@ -74,6 +80,10 @@ MenuBar uses a compound component pattern with the following sub-components:
 
 The `size` prop controls the overall density of the menu bar.
 
+<ComponentPreview title="Sizes">
+  <MenuBarSizes client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <MenuBar size="sm">
   <MenuBar.Menu label="File">{/* ... */}</MenuBar.Menu>
@@ -93,6 +103,10 @@ The `size` prop controls the overall density of the menu bar.
 
 Use `MenuBar.Sub` to create nested menus. Sub-menus open on hover with a short delay to prevent accidental closing.
 
+<ComponentPreview title="Sub-menus">
+  <MenuBarSubmenus client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <MenuBar.Menu label="View">
   <MenuBar.Item onClick={handleZoomIn}>Zoom In</MenuBar.Item>
@@ -110,6 +124,10 @@ Use `MenuBar.Sub` to create nested menus. Sub-menus open on hover with a short d
 
 Items can display an icon before the label text.
 
+<ComponentPreview title="Menu Items with Icons">
+  <MenuBarIcons client:only="react" />
+</ComponentPreview>
+
 ```tsx
 import { SaveIcon, CopyIcon } from 'entangle-ui';
 
@@ -125,6 +143,10 @@ import { SaveIcon, CopyIcon } from 'entangle-ui';
 
 Both menus and individual items can be disabled.
 
+<ComponentPreview title="Disabled Items">
+  <MenuBarDisabled client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <MenuBar.Menu label="File">
   <MenuBar.Item onClick={handleSave} shortcut="Ctrl+S">Save</MenuBar.Item>
@@ -138,6 +160,10 @@ Both menus and individual items can be disabled.
 ## Menu Offset
 
 The `menuOffset` prop controls the vertical gap between the top-level trigger and the dropdown panel.
+
+<ComponentPreview title="Menu Offset">
+  <MenuBarOffset client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <MenuBar menuOffset={4}>

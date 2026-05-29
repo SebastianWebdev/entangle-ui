@@ -1,5 +1,6 @@
 'use client';
 
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, {
   createContext,
   useContext,
@@ -10,26 +11,22 @@ import React, {
   useId,
   useMemo,
 } from 'react';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { cx } from '@/utils/cx';
-import { useMergedRef } from '@/hooks/useMergedRef';
-import { ScrollArea } from '@/components/layout/ScrollArea';
-import { CloseIcon } from '@/components/Icons/CloseIcon';
-import { ChevronUpIcon } from '@/components/Icons/ChevronUpIcon';
+
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
-import type {
-  FloatingPanelProps,
-  FloatingManagerProps,
-  FloatingManagerContextValue,
-  Position,
-  FloatingPanelSize,
-} from './FloatingPanel.types';
+import { ChevronUpIcon } from '@/components/Icons/ChevronUpIcon';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
+import { ScrollArea } from '@/components/layout/ScrollArea';
+import { useLatest } from '@/hooks/useLatest';
+import { useMergedRef } from '@/hooks/useMergedRef';
+import { cx } from '@/utils/cx';
+
 import {
   posXVar,
   posYVar,
   panelWidthVar,
   panelHeightVar,
   panelZIndexVar,
+  managerRoot,
   panel,
   header,
   title,
@@ -39,6 +36,14 @@ import {
   collapsibleHidden,
   resizeHandle,
 } from './FloatingPanel.css';
+
+import type {
+  FloatingPanelProps,
+  FloatingManagerProps,
+  FloatingManagerContextValue,
+  Position,
+  FloatingPanelSize,
+} from './FloatingPanel.types';
 
 // --- FloatingManager Context ---
 
@@ -83,12 +88,16 @@ export const FloatingManager: React.FC<FloatingManagerProps> = ({
 
   const contextValue = useMemo<FloatingManagerContextValue>(
     () => ({ bringToFront, getZIndex, register, unregister }),
+    // `revision` is bumped whenever the panel stack changes; it intentionally
+    // busts this memo so consumers re-render and re-read z-indices from the
+    // (otherwise stable) getZIndex, even though it is not read in the factory.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [revision, bringToFront, getZIndex, register, unregister]
   );
 
   return (
     <FloatingManagerContext.Provider value={contextValue}>
-      {children}
+      <div className={managerRoot}>{children}</div>
     </FloatingManagerContext.Provider>
   );
 };
@@ -161,25 +170,52 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
     onCollapsedChange?.(next);
   }, [isCollapsed, controlledCollapsed, onCollapsedChange]);
 
-  // FloatingManager registration -- use stable id, run once
-  const managerRef = useRef(manager);
-  managerRef.current = manager;
+  const handleCollapseKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleCollapse();
+      }
+    },
+    [toggleCollapse]
+  );
+
+  const handleCloseKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClose?.();
+      }
+    },
+    [onClose]
+  );
+
+  // FloatingManager registration -- use stable id, run once. Latest manager via
+  // useLatest so the register/unregister effect and handlers read it without
+  // writing a ref during render.
+  const managerRef = useLatest(manager);
 
   useEffect(() => {
     managerRef.current?.register(id);
+    // Reading the latest manager from the ref at cleanup is intentional.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => managerRef.current?.unregister(id);
+    // Register/unregister exactly once per id. managerRef is a stable useLatest
+    // ref read at both register and unregister time; the manager is read via
+    // the ref because the manager context value changes on every panel
+    // registration and must not re-trigger this effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleBringToFront = useCallback(() => {
     managerRef.current?.bringToFront(id);
-  }, [id]);
+  }, [id, managerRef]);
 
   const zIndex = manager?.getZIndex(id) ?? 100;
 
   // --- Drag ---
   const panelRef = useRef<HTMLDivElement>(null);
   const setPanelRef = useMergedRef<HTMLDivElement>(panelRef, externalRef);
-  const dragOffsetRef = useRef<Position>({ x: 0, y: 0 });
 
   const handleDragStart = useCallback(
     (e: React.PointerEvent) => {
@@ -187,17 +223,28 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
       const target = e.currentTarget as HTMLElement;
       target.setPointerCapture(e.pointerId);
 
-      dragOffsetRef.current = {
-        x: e.clientX - pos.x,
-        y: e.clientY - pos.y,
-      };
+      // Track the pointer delta from the drag start, so positioning is
+      // independent of the coordinate space the panel lives in.
+      const startPointer = { x: e.clientX, y: e.clientY };
+      const startPos = { x: pos.x, y: pos.y };
+      const bounds = panelRef.current?.offsetParent?.getBoundingClientRect();
+      const panelRect = panelRef.current?.getBoundingClientRect();
 
       const handleDragMove = (me: PointerEvent) => {
-        const newX = me.clientX - dragOffsetRef.current.x;
-        const newY = me.clientY - dragOffsetRef.current.y;
-        const clampedX = Math.max(0, Math.min(newX, window.innerWidth - 50));
-        const clampedY = Math.max(0, Math.min(newY, window.innerHeight - 30));
-        setPos({ x: clampedX, y: clampedY });
+        const newX = startPos.x + (me.clientX - startPointer.x);
+        const newY = startPos.y + (me.clientY - startPointer.y);
+        // Clamp within the positioned container when one is available,
+        // keeping a small margin of the panel on-screen.
+        const maxX = bounds
+          ? Math.max(0, bounds.width - (panelRect?.width ?? 50))
+          : Number.POSITIVE_INFINITY;
+        const maxY = bounds
+          ? Math.max(0, bounds.height - 30)
+          : Number.POSITIVE_INFINITY;
+        setPos({
+          x: Math.max(0, Math.min(newX, maxX)),
+          y: Math.max(0, Math.min(newY, maxY)),
+        });
       };
 
       const handleDragEnd = () => {
@@ -279,6 +326,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
             role="button"
             tabIndex={0}
             onClick={toggleCollapse}
+            onKeyDown={handleCollapseKeyDown}
             aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
           >
             {isCollapsed ? (
@@ -293,6 +341,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
               role="button"
               tabIndex={0}
               onClick={onClose}
+              onKeyDown={handleCloseKeyDown}
               aria-label="Close panel"
             >
               <CloseIcon size="sm" color="secondary" decorative />

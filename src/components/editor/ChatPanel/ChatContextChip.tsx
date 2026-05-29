@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
-import type { ChatContextChipProps } from './ChatPanel.types';
+
 import { cx } from '@/utils/cx';
+
+import { MiniCloseIcon } from './ChatIcons';
 import {
   contextChipStyle,
   contextChipIconStyle,
@@ -10,7 +12,8 @@ import {
   contextChipItemsStyle,
   contextChipDismissStyle,
 } from './ChatPanel.css';
-import { MiniCloseIcon } from './ChatIcons';
+
+import type { ChatContextChipProps } from './ChatPanel.types';
 
 export const ChatContextChip = /*#__PURE__*/ React.memo<ChatContextChipProps>(
   ({

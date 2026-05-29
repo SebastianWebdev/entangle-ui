@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { useLatest, useResizeObserver } from '@/hooks';
+
 import { useViewportContext } from '@/components/primitives/viewport';
+import { useLatest, useResizeObserver } from '@/hooks';
+
 import { Minimap } from './Minimap';
+
 import type {
   MinimapHandle,
   MinimapNavigateInfo,

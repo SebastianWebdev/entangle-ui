@@ -1,6 +1,6 @@
 // src/tests/test-utils.tsx
-import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
+import React from 'react';
 import { expect } from 'vitest';
 
 // Import dark theme to register VE CSS custom properties on :root

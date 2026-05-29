@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import type { CanvasContainerProps } from './canvas.types';
+import React, { useRef } from 'react';
+
 import {
   canvasContainerRecipe,
   canvasContainerHeightVar,
   canvasRecipe,
   ariaLiveRegionStyle,
 } from './CanvasContainer.css';
+
+import type { CanvasContainerProps } from './canvas.types';
 
 /**
  * Styled container + canvas + a11y live region.

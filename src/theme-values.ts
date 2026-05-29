@@ -1,5 +1,6 @@
-import type { DarkThemeValues } from './theme/darkThemeValues';
 import { themeContractData } from './theme/themeContractData';
+
+import type { DarkThemeValues } from './theme/darkThemeValues';
 
 export { darkThemeValues } from './theme/darkThemeValues';
 export type { DarkThemeValues } from './theme/darkThemeValues';

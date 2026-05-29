@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useCallback } from 'react';
+
 import { ChevronLeftIcon } from '@/components/Icons/ChevronLeftIcon';
 import { ChevronRightIcon } from '@/components/Icons/ChevronRightIcon';
 import { FirstIcon } from '@/components/Icons/FirstIcon';
 import { LastIcon } from '@/components/Icons/LastIcon';
 import { useControlledState } from '@/hooks/useControlledState';
 import { cx } from '@/utils/cx';
+
 import {
   paginationButtonRecipe,
   paginationEllipsisRecipe,
@@ -15,6 +17,8 @@ import {
   paginationListRecipe,
   paginationRootStyle,
 } from './Pagination.css';
+import { usePaginationItems } from './usePagination';
+
 import type {
   PaginationItem,
   PaginationItemAriaLabelGetter,
@@ -22,7 +26,6 @@ import type {
   PaginationProps,
   PaginationSize,
 } from './Pagination.types';
-import { usePaginationItems } from './usePagination';
 
 const defaultGetItemAriaLabel: PaginationItemAriaLabelGetter = (
   type,

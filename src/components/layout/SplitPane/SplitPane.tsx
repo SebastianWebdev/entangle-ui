@@ -1,5 +1,6 @@
 'use client';
 
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, {
   useCallback,
   useEffect,
@@ -7,15 +8,18 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { cx } from '@/utils/cx';
+
+import { useLatest } from '@/hooks/useLatest';
 import { useResizeObserver } from '@/hooks/useResizeObserver';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-import type { PanelConfig, SplitPaneProps } from './SplitPane.types';
+import { cx } from '@/utils/cx';
+
 import {
   containerRecipe,
   dividerRecipe,
   dividerSizeVar,
 } from './SplitPane.css';
+
+import type { PanelConfig, SplitPaneProps } from './SplitPane.types';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -258,25 +262,21 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
   const isControlled = controlledSizes !== undefined;
   const sizes = isControlled ? controlledSizes : internalSizes;
 
-  // Stable reference to panelConfigs for use in effects/callbacks
+  // Stable reference to panelConfigs for use in effects/callbacks. The
+  // serialized key is the deliberate deep-equality dependency, so panelConfigs
+  // itself is intentionally absent from the array.
   const panelConfigsKey = JSON.stringify(panelConfigs);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const stablePanelConfigs = useMemo(() => panelConfigs, [panelConfigsKey]);
 
-  // Keep a ref so the ResizeObserver callback always reads latest values
-  const latestRef = useRef({
+  // Keep a ref so the ResizeObserver callback always reads latest values.
+  const latestRef = useLatest({
     panelCount,
     dividerSize,
     direction,
     isControlled,
     panelConfigs: stablePanelConfigs,
   });
-  latestRef.current = {
-    panelCount,
-    dividerSize,
-    direction,
-    isControlled,
-    panelConfigs: stablePanelConfigs,
-  };
 
   // -----------------------------------------------------------------------
   // Initial size calculation + ResizeObserver
@@ -331,7 +331,8 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
         );
       });
     }
-  }, []);
+    // latestRef is a stable useLatest ref; listed to satisfy the rule.
+  }, [latestRef]);
 
   const getAvailableSpace = useCallback((): number | null => {
     const container = containerRef.current;
@@ -508,7 +509,7 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
       (e.target as HTMLElement).releasePointerCapture(e.pointerId);
       setDraggingIndex(null);
 
-      if (isControlled && controlledSizes) {
+      if (isControlled) {
         onResizeEnd?.(controlledSizes);
       } else {
         onResizeEnd?.(internalSizes);
@@ -649,7 +650,7 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
       if (typeof ref === 'function') {
         ref(node);
       } else if (ref && typeof ref === 'object') {
-        (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        ref.current = node;
       }
     },
     [ref]
@@ -688,9 +689,14 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
       const leftCfg = panelConfigs[i];
 
       elements.push(
+        // Focusable window-splitter: a separator with aria-valuenow that the
+        // user can move with the keyboard is an interactive separator per the
+        // WAI-ARIA window splitter pattern, which jsx-a11y does not model.
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
         <div
           key={`divider-${i}`}
           role="separator"
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
           tabIndex={0}
           aria-orientation={
             direction === 'horizontal' ? 'vertical' : 'horizontal'
@@ -707,10 +713,18 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
           style={assignInlineVars({
             [dividerSizeVar]: `${dividerSize}px`,
           })}
-          onPointerDown={e => handlePointerDown(i, e)}
-          onPointerMove={e => handlePointerMove(i, e)}
-          onPointerUp={e => handlePointerUp(i, e)}
-          onKeyDown={e => handleKeyDown(i, e)}
+          onPointerDown={e => {
+            handlePointerDown(i, e);
+          }}
+          onPointerMove={e => {
+            handlePointerMove(i, e);
+          }}
+          onPointerUp={e => {
+            handlePointerUp(i, e);
+          }}
+          onKeyDown={e => {
+            handleKeyDown(i, e);
+          }}
         />
       );
     }

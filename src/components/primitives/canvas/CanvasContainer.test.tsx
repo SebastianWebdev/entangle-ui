@@ -14,8 +14,7 @@ class MockResizeObserver {
 }
 
 beforeEach(() => {
-  globalThis.ResizeObserver =
-    MockResizeObserver as unknown as typeof ResizeObserver;
+  globalThis.ResizeObserver = MockResizeObserver;
 
   HTMLCanvasElement.prototype.getContext = vi.fn(
     () => ({})

@@ -1,16 +1,17 @@
-import type {
-  ViewportSize,
-  ViewportTransform,
-  WorldRect,
-} from '@/components/primitives/viewport';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
-import type { MinimapContextValue, MinimapHandle } from './Minimap.types';
 import {
   computeMinimapOffset,
   computeMinimapScale,
   minimapToWorld as minimapToWorldFn,
   worldToMinimap as worldToMinimapFn,
 } from './minimapCoords';
+
+import type { MinimapContextValue, MinimapHandle } from './Minimap.types';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type {
+  ViewportSize,
+  ViewportTransform,
+  WorldRect,
+} from '@/components/primitives/viewport';
 
 const IDENTITY_TRANSFORM: ViewportTransform = { x: 0, y: 0, zoom: 1 };
 const ZERO_SIZE: ViewportSize = { width: 0, height: 0 };
@@ -113,8 +114,12 @@ export class MinimapStore {
     }
     this.geometry = next;
     this.snapshot = this.computeSnapshot();
-    this.geometryListeners.forEach(cb => cb());
-    this.allListeners.forEach(cb => cb());
+    this.geometryListeners.forEach(cb => {
+      cb();
+    });
+    this.allListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setHover(next: MinimapHoverState): void {
@@ -126,16 +131,24 @@ export class MinimapStore {
     }
     this.hover = next;
     this.snapshot = this.computeSnapshot();
-    this.hoverListeners.forEach(cb => cb());
-    this.allListeners.forEach(cb => cb());
+    this.hoverListeners.forEach(cb => {
+      cb();
+    });
+    this.allListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setIsDragging(next: boolean): void {
     if (next === this.isDragging) return;
     this.isDragging = next;
     this.snapshot = this.computeSnapshot();
-    this.dragListeners.forEach(cb => cb());
-    this.allListeners.forEach(cb => cb());
+    this.dragListeners.forEach(cb => {
+      cb();
+    });
+    this.allListeners.forEach(cb => {
+      cb();
+    });
   }
 
   // ── Imperative handle ──

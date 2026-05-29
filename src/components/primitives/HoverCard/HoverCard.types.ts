@@ -1,8 +1,8 @@
-import type React from 'react';
-import type { FloatingContext, UseFloatingReturn } from '@floating-ui/react';
+import type { PopoverPlacement } from '@/components/primitives/Popover';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
-import type { PopoverPlacement } from '@/components/primitives/Popover';
+import type { FloatingContext, UseFloatingReturn } from '@floating-ui/react';
+import type React from 'react';
 
 export interface HoverCardBaseProps {
   /** Open state (controlled). */
@@ -41,7 +41,7 @@ export interface HoverCardTriggerBaseProps {
 
 export type HoverCardTriggerProps = Prettify<HoverCardTriggerBaseProps>;
 
-export interface HoverCardContentBaseProps extends BaseComponent<HTMLDivElement> {
+export interface HoverCardContentBaseProps extends BaseComponent {
   /** Content rendered inside the floating panel. */
   children: React.ReactNode;
   /** Width of the content. */

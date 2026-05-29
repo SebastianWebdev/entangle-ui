@@ -1,9 +1,15 @@
 'use client';
 
-import React from 'react';
-import { createContext, useContext, memo, useEffect, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  memo,
+  useEffect,
+  useCallback,
+} from 'react';
 
 import { useKeyboard, isKeyPressed } from '@/hooks/useKeyboard';
+
 import type { KeyboardState, AllKeys } from '@/hooks/useKeyboard';
 
 const NEUTRAL_KEYBOARD_STATE: KeyboardState = {

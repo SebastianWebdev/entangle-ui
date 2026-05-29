@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
+
 import { CloseIcon } from '@/components/Icons/CloseIcon';
-import { useDialogContext } from './Dialog';
-import type { DialogHeaderProps } from './Dialog.types';
 import { cx } from '@/utils/cx';
+
+import { useDialogContext } from './Dialog';
 import {
   dialogHeaderStyle,
   dialogHeaderContentStyle,
@@ -12,6 +13,8 @@ import {
   dialogDescriptionStyle,
   dialogCloseButtonStyle,
 } from './Dialog.css';
+
+import type { DialogHeaderProps } from './Dialog.types';
 
 // --- Component ---
 

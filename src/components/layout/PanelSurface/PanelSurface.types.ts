@@ -1,13 +1,10 @@
-import type React from 'react';
-import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type PanelSurfaceSize = Size;
 
-export interface PanelSurfaceBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'children'
-> {
+export interface PanelSurfaceBaseProps extends Omit<BaseComponent, 'children'> {
   /**
    * Panel content. Typically PanelSurface.Header + PanelSurface.Body (+ optional Footer).
    */
@@ -34,7 +31,7 @@ export interface PanelSurfaceBaseProps extends Omit<
 
 export type PanelSurfaceProps = Prettify<PanelSurfaceBaseProps>;
 
-export interface PanelSurfaceHeaderBaseProps extends BaseComponent<HTMLDivElement> {
+export interface PanelSurfaceHeaderBaseProps extends BaseComponent {
   /**
    * Header content (title/label section).
    */
@@ -48,7 +45,7 @@ export interface PanelSurfaceHeaderBaseProps extends BaseComponent<HTMLDivElemen
 
 export type PanelSurfaceHeaderProps = Prettify<PanelSurfaceHeaderBaseProps>;
 
-export interface PanelSurfaceBodyBaseProps extends BaseComponent<HTMLDivElement> {
+export interface PanelSurfaceBodyBaseProps extends BaseComponent {
   /**
    * Main panel content.
    */
@@ -69,7 +66,7 @@ export interface PanelSurfaceBodyBaseProps extends BaseComponent<HTMLDivElement>
 
 export type PanelSurfaceBodyProps = Prettify<PanelSurfaceBodyBaseProps>;
 
-export interface PanelSurfaceFooterBaseProps extends BaseComponent<HTMLDivElement> {
+export interface PanelSurfaceFooterBaseProps extends BaseComponent {
   /**
    * Footer content.
    */

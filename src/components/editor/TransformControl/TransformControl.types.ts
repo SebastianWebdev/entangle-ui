@@ -1,5 +1,5 @@
-import type { Prettify, LiteralUnion } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
+import type { Prettify, LiteralUnion } from '@/types/utilities';
 
 /**
  * 3D vector with x/y/z components, used for position, rotation (Euler
@@ -88,7 +88,7 @@ export interface CoordinateSpaceOption {
 }
 
 export interface TransformControlBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent,
   'onChange' | 'defaultValue'
 > {
   /** Current transform value (controlled). */

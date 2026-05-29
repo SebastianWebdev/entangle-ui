@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import type { ChatCodeBlockProps } from './ChatPanel.types';
-import { cx } from '@/utils/cx';
+import React, { useState, useCallback } from 'react';
+
 import { CheckIcon, CopyIcon } from '@/components/Icons';
+import { cx } from '@/utils/cx';
+
 import {
   codeBlockContainerStyle,
   codeBlockHeaderStyle,
@@ -17,6 +18,8 @@ import {
   codeBlockPreStyle,
   codeBlockMaxHeightVar,
 } from './ChatPanel.css';
+
+import type { ChatCodeBlockProps } from './ChatPanel.types';
 
 export const ChatCodeBlock = /*#__PURE__*/ React.memo<ChatCodeBlockProps>(
   ({
@@ -39,7 +42,9 @@ export const ChatCodeBlock = /*#__PURE__*/ React.memo<ChatCodeBlockProps>(
         .writeText(code)
         .then(() => {
           setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
+          setTimeout(() => {
+            setCopied(false);
+          }, 2000);
         })
         .catch(() => {
           // Fallback: older browsers — no-op

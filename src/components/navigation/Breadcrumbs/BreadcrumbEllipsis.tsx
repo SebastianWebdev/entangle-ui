@@ -1,14 +1,17 @@
 'use client';
 
 import React from 'react';
+
 import { Tooltip } from '@/components/primitives';
 import { cx } from '@/utils/cx';
-import type { BreadcrumbEllipsisProps } from './Breadcrumbs.types';
+
 import {
   breadcrumbEllipsisButtonStyle,
   breadcrumbEllipsisStyle,
   breadcrumbEllipsisTextStyle,
 } from './Breadcrumbs.css';
+
+import type { BreadcrumbEllipsisProps } from './Breadcrumbs.types';
 
 /**
  * Ellipsis placeholder for collapsed breadcrumb segments.

@@ -3,10 +3,12 @@
 // src/primitives/IconButton/IconButton.tsx
 import React from 'react';
 
-import type { Prettify } from '@/types/utilities';
-import type { Size, Variant } from '@/types/common';
 import { cx } from '@/utils/cx';
+
 import { iconButtonRecipe, loadingSpinnerRecipe } from './IconButton.css';
+
+import type { Size, Variant } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 /**
  * Standard size variants for IconButton using library sizing.

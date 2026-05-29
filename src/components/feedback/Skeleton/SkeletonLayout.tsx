@@ -1,14 +1,11 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React from 'react';
+
 import { cx } from '@/utils/cx';
+
 import { Skeleton } from './Skeleton';
-import type {
-  SkeletonAnimation,
-  SkeletonLayoutProps,
-  SkeletonLayoutVariant,
-} from './Skeleton.types';
 import {
   cardBodyStyle,
   cardLayoutStyle,
@@ -24,6 +21,12 @@ import {
   tableHeaderCellStyle,
   tableLayoutStyle,
 } from './SkeletonLayout.css';
+
+import type {
+  SkeletonAnimation,
+  SkeletonLayoutProps,
+  SkeletonLayoutVariant,
+} from './Skeleton.types';
 
 const DEFAULT_COUNT: Record<SkeletonLayoutVariant, number> = {
   card: 1,

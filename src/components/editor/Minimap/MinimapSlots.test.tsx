@@ -73,20 +73,17 @@ beforeEach(() => {
     cb(0);
     return 0;
   });
-  HTMLDivElement.prototype.getBoundingClientRect = vi.fn(
-    () =>
-      ({
-        x: 0,
-        y: 0,
-        left: 0,
-        top: 0,
-        right: 200,
-        bottom: 100,
-        width: 200,
-        height: 100,
-        toJSON: () => ({}),
-      }) as DOMRect
-  );
+  HTMLDivElement.prototype.getBoundingClientRect = vi.fn(() => ({
+    x: 0,
+    y: 0,
+    left: 0,
+    top: 0,
+    right: 200,
+    bottom: 100,
+    width: 200,
+    height: 100,
+    toJSON: () => ({}),
+  }));
 });
 
 const baseProps = {
@@ -202,7 +199,7 @@ describe('useMinimapContext', () => {
         clientX: 20,
         clientY: 10,
         bubbles: true,
-      }) as unknown as PointerEvent
+      })
     );
 
     // (20, 10) on a 200×100 minimap maps to world (100, 50) for the
@@ -223,7 +220,7 @@ describe('useMinimapContext', () => {
       new MockPointerEvent('pointermove', {
         clientX: 20,
         clientY: 10,
-      }) as unknown as PointerEvent
+      })
     );
     expect(screen.getByTestId('hover-world').textContent).not.toBe('none');
 
@@ -329,7 +326,7 @@ describe('Slice subscription hooks', () => {
       new MockPointerEvent('pointermove', {
         clientX: 20,
         clientY: 10,
-      }) as unknown as PointerEvent
+      })
     );
     expect(screen.getByTestId('hover-probe').textContent).toBe('100,50:node-1');
   });
@@ -376,7 +373,7 @@ describe('Slice subscription hooks', () => {
         clientX: 50,
         clientY: 25,
         button: 0,
-      }) as unknown as PointerEvent
+      })
     );
     expect(screen.getByTestId('drag-probe').textContent).toBe('true');
     fireEvent(
@@ -385,7 +382,7 @@ describe('Slice subscription hooks', () => {
         clientX: 50,
         clientY: 25,
         button: 0,
-      }) as unknown as PointerEvent
+      })
     );
     expect(screen.getByTestId('drag-probe').textContent).toBe('false');
   });
@@ -507,16 +504,19 @@ describe('Theme color resolution', () => {
         fillStyleValues.push(v);
       },
     };
-    const ctxProxy = new Proxy({} as Record<string, unknown>, {
-      get(_t, p: string) {
-        if (p === 'fillStyle') return fillStyleCapture.fillStyle;
-        return baseCtx[p];
-      },
-      set(_t, p: string, v: unknown) {
-        if (p === 'fillStyle') fillStyleCapture.fillStyle = v as string;
-        return true;
-      },
-    });
+    const ctxProxy = new Proxy(
+      {},
+      {
+        get(_t, p: string) {
+          if (p === 'fillStyle') return fillStyleCapture.fillStyle;
+          return baseCtx[p];
+        },
+        set(_t, p: string, v: unknown) {
+          if (p === 'fillStyle') fillStyleCapture.fillStyle = v as string;
+          return true;
+        },
+      }
+    );
     HTMLCanvasElement.prototype.getContext = vi.fn(
       () => ctxProxy
     ) as unknown as typeof HTMLCanvasElement.prototype.getContext;

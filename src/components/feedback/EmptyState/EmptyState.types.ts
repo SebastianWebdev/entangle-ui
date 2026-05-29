@@ -1,13 +1,10 @@
-import type React from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type EmptyStateVariant = 'default' | 'compact';
 
-export interface EmptyStateBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'title'
-> {
+export interface EmptyStateBaseProps extends Omit<BaseComponent, 'title'> {
   /** Icon or illustration (typically 48–64px). */
   icon?: React.ReactNode;
   /** Main heading. */

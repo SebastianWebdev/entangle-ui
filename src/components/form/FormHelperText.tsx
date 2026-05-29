@@ -1,12 +1,15 @@
 'use client';
 
 import React from 'react';
-import type { BaseComponent } from '@/types/common';
+
 import { Prettify } from '@/types/utilities';
 import { cx } from '@/utils/cx';
+
 import { formHelperTextRecipe } from './FormHelperText.css';
 
-export interface FormHelperTextBaseProps extends BaseComponent<HTMLDivElement> {
+import type { BaseComponent } from '@/types/common';
+
+export interface FormHelperTextBaseProps extends BaseComponent {
   /**
    * Helper text content
    */

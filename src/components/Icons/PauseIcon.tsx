@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Icon } from '../primitives/Icon';
-import type { IconProps } from '../primitives/Icon';
+
+import { Icon } from '@/components/primitives/Icon';
+
+import type { IconProps } from '@/components/primitives/Icon';
 
 /**
  * Pause icon component for pausing playback and processes.
@@ -26,8 +28,7 @@ export const PauseIcon = /*#__PURE__*/ React.memo<Omit<IconProps, 'children'>>(
   props => {
     return (
       <Icon {...props}>
-        <rect x="6" y="4" width="4" height="16" rx="1" />
-        <rect x="14" y="4" width="4" height="16" rx="1" />
+        <path d="M9 4v16M15 4v16" />
       </Icon>
     );
   }

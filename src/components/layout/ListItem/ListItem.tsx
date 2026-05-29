@@ -1,14 +1,17 @@
 'use client';
 
 import React, { useCallback } from 'react';
+
 import { cx } from '@/utils/cx';
-import type { ListItemProps } from './ListItem.types';
+
 import {
   listItemContentStyle,
   listItemLeadingStyle,
   listItemRecipe,
   listItemTrailingStyle,
 } from './ListItem.css';
+
+import type { ListItemProps } from './ListItem.types';
 
 /**
  * Reusable list row with leading / trailing slots and hover/selected/active
@@ -50,9 +53,7 @@ export const ListItem = /*#__PURE__*/ React.memo<ListItemProps>(
         if (!clickable) return;
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          onClick?.(
-            event as unknown as React.MouseEvent<HTMLDivElement, MouseEvent>
-          );
+          onClick(event as unknown as React.MouseEvent<HTMLDivElement>);
         }
       },
       [clickable, onClick]

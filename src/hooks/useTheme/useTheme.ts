@@ -1,7 +1,9 @@
 'use client';
 
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+
 import { darkThemeValues, lightThemeClass, vars } from '@/theme';
+
 import type {
   ResolvedThemeValues,
   ThemeVariant,
@@ -65,7 +67,7 @@ function resolveValues<T>(template: T, root: Element, contract: unknown): T {
   }
   if (template !== null && typeof template === 'object') {
     const out: Record<string, unknown> = {};
-    for (const key of Object.keys(template as Record<string, unknown>)) {
+    for (const key of Object.keys(template)) {
       const childTemplate = (template as Record<string, unknown>)[key];
       const childContract = (contract as Record<string, unknown> | undefined)?.[
         key
@@ -118,7 +120,7 @@ interface ThemeSnapshot {
 
 const FALLBACK_SNAPSHOT: ThemeSnapshot = {
   variant: 'dark',
-  values: darkThemeValues as ResolvedThemeValues,
+  values: darkThemeValues,
 };
 
 /**
@@ -173,9 +175,12 @@ export function useTheme(): UseThemeReturn {
     const root = document.documentElement;
     const next: ThemeSnapshot = {
       variant: detectVariant(),
-      values: resolveValues(darkThemeValues, root, vars) as ResolvedThemeValues,
+      values: resolveValues(darkThemeValues, root, vars),
     };
     tokenCacheRef.current.clear();
+    // External-system sync: read resolved CSS custom properties from the DOM
+    // into state once mounted (they are unavailable during SSR/first render).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSnapshot(next);
   }, []);
 

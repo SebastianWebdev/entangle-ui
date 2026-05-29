@@ -1,18 +1,21 @@
 'use client';
 
 import React, { useImperativeHandle, useMemo } from 'react';
-import type {
-  ChatMessageListProps,
-  ChatMessageListScrollApi,
-} from './ChatPanel.types';
-import { useChatScroll } from './useChatScroll';
-import { ChatMessage } from './ChatMessage';
+
 import { ScrollArea } from '@/components/layout/ScrollArea';
 import { useMergedRef } from '@/hooks/useMergedRef';
+
+import { ChatMessage } from './ChatMessage';
 import {
   messageListContentStyle,
   newMessagesBannerStyle,
 } from './ChatPanel.css';
+import { useChatScroll } from './useChatScroll';
+
+import type {
+  ChatMessageListProps,
+  ChatMessageListScrollApi,
+} from './ChatPanel.types';
 
 export const ChatMessageList = /*#__PURE__*/ React.memo<ChatMessageListProps>(
   ({
@@ -112,7 +115,9 @@ export const ChatMessageList = /*#__PURE__*/ React.memo<ChatMessageListProps>(
           {hasNewMessages && (
             <button
               className={newMessagesBannerStyle}
-              onClick={() => scrollToBottom('smooth')}
+              onClick={() => {
+                scrollToBottom('smooth');
+              }}
               type="button"
             >
               New messages

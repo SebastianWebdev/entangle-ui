@@ -8,7 +8,17 @@ import React, {
   useMemo,
   KeyboardEvent,
 } from 'react';
+
 import { cx } from '@/utils/cx';
+
+import {
+  toolbarRoot,
+  toolbarButton,
+  toolbarGroup,
+  toolbarSeparator,
+  toolbarSpacer,
+} from './Toolbar.css';
+
 import type {
   ToolbarProps,
   ToolbarButtonProps,
@@ -18,13 +28,6 @@ import type {
   ToolbarSpacerProps,
   ToolbarContextValue,
 } from './Toolbar.types';
-import {
-  toolbarRoot,
-  toolbarButton,
-  toolbarGroup,
-  toolbarSeparator,
-  toolbarSpacer,
-} from './Toolbar.css';
 
 const ToolbarContext = /*#__PURE__*/ createContext<ToolbarContextValue>({
   orientation: 'horizontal',
@@ -107,7 +110,9 @@ const ToolbarToggle = /*#__PURE__*/ React.memo<ToolbarToggleProps>(
 
     return (
       <button
-        onClick={() => onPressedChange(!pressed)}
+        onClick={() => {
+          onPressedChange(!pressed);
+        }}
         disabled={disabled}
         className={cx(
           toolbarButton({ size, variant: 'default', active: pressed }),
@@ -210,8 +215,7 @@ const ToolbarRoot: React.FC<ToolbarProps> = ({
       if (typeof externalRef === 'function') {
         externalRef(node);
       } else if (externalRef && typeof externalRef === 'object') {
-        (externalRef as React.MutableRefObject<HTMLDivElement | null>).current =
-          node;
+        externalRef.current = node;
       }
     },
     [externalRef]

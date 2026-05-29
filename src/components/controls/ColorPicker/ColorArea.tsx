@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useCallback, useRef } from 'react';
-import { hsvToRgb, rgbToHex } from './colorUtils';
+
 import {
   colorAreaStyle,
   saturationGradientStyle,
   valueGradientStyle,
   colorAreaThumbStyle,
 } from './ColorPicker.css';
+import { hsvToRgb, rgbToHex } from './colorUtils';
 
 interface ColorAreaProps {
   hue: number;
@@ -103,6 +104,9 @@ export const ColorArea: React.FC<ColorAreaProps> = ({
       role="slider"
       tabIndex={0}
       aria-label="Color saturation and brightness"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={value}
       aria-valuetext={`Saturation ${saturation}%, Brightness ${value}%`}
       style={{ backgroundColor: hueColor }}
       onPointerDown={handlePointerDown}

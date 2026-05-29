@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useCallback, useContext, useId, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback, useContext, useId, useState } from 'react';
+
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { cx } from '@/utils/cx';
-import type { RadioProps, RadioSize } from './Radio.types';
-import { RadioGroupContext } from './RadioGroup';
+
 import {
   innerSizeVar,
   outerSizeVar,
@@ -16,6 +16,9 @@ import {
   radioOuterRecipe,
   visuallyHiddenInputStyle,
 } from './Radio.css';
+import { RadioGroupContext } from './RadioGroup';
+
+import type { RadioProps, RadioSize } from './Radio.types';
 
 const OUTER_SIZES: Record<RadioSize, number> = {
   sm: 12,
@@ -134,10 +137,13 @@ export const Radio = /*#__PURE__*/ React.memo<RadioProps>(
           disabled: disabled || undefined,
         })}
       >
+        {/* aria-invalid surfaces the error state to assistive tech and is part
+            of this component's documented/tested API; jsx-a11y's role support
+            table for the implicit radio role is overly strict here. */}
+        {/* eslint-disable-next-line jsx-a11y/role-supports-aria-props */}
         <input
           ref={ref}
           type="radio"
-          role="radio"
           id={radioId}
           name={name}
           value={value}

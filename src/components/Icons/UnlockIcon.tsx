@@ -2,8 +2,10 @@
 
 // src/icons/UnlockIcon.tsx
 import React from 'react';
-import { Icon } from '../primitives/Icon';
-import type { IconProps } from '../primitives/Icon';
+
+import { Icon } from '@/components/primitives/Icon';
+
+import type { IconProps } from '@/components/primitives/Icon';
 
 /**
  * Unlock icon component for security and unlocked states.

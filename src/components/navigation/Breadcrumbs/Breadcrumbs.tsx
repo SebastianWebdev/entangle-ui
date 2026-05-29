@@ -1,16 +1,19 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+
 import { ArrowRightIcon } from '@/components/Icons';
 import { cx } from '@/utils/cx';
-import type { BreadcrumbsProps } from './Breadcrumbs.types';
+
 import { BreadcrumbEllipsis } from './BreadcrumbEllipsis';
 import { BreadcrumbItem } from './BreadcrumbItem';
-import { BreadcrumbSeparator } from './BreadcrumbSeparator';
 import {
   breadcrumbsListRecipe,
   breadcrumbsRootRecipe,
 } from './Breadcrumbs.css';
+import { BreadcrumbSeparator } from './BreadcrumbSeparator';
+
+import type { BreadcrumbsProps } from './Breadcrumbs.types';
 
 function isComponentElement(
   child: React.ReactNode,
@@ -126,7 +129,13 @@ export const Breadcrumbs = /*#__PURE__*/ React.memo<BreadcrumbsProps>(
         ...visibleBefore,
         <BreadcrumbEllipsis
           key="breadcrumb-ellipsis"
-          onClick={expandable ? () => setExpanded(true) : undefined}
+          onClick={
+            expandable
+              ? () => {
+                  setExpanded(true);
+                }
+              : undefined
+          }
           tooltip={collapsedLabels || undefined}
         />,
         ...visibleAfter,

@@ -1,8 +1,11 @@
 'use client';
 
-import type React from 'react';
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
+
 import { clamp } from '@/utils/mathUtils';
+
+import { gizmoHitTest, axisToPresetView } from './gizmoMath';
+
 import type {
   GizmoOrientation,
   GizmoUpAxis,
@@ -10,7 +13,7 @@ import type {
   GizmoHitRegion,
   OrbitDelta,
 } from './ViewportGizmo.types';
-import { gizmoHitTest, axisToPresetView } from './gizmoMath';
+import type React from 'react';
 
 interface UseGizmoInteractionOptions {
   orientation: GizmoOrientation;
@@ -64,8 +67,10 @@ export function useGizmoInteraction(
   } = options;
 
   const [hoveredRegion, setHoveredRegion] = useState<GizmoHitRegion>(NONE_HIT);
+  // Ref drives synchronous reads inside the pointer handlers; the state mirror
+  // is the value exposed for rendering (kept in sync on drag start/end).
   const isDraggingRef = useRef(false);
-  const [, setForceUpdate] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const lastPointerRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const startPointerRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const hasDraggedRef = useRef(false);
@@ -76,7 +81,10 @@ export function useGizmoInteraction(
     interactionMode === 'full' || interactionMode === 'orbit-only';
 
   const armLength = (diameter / 2) * 0.65;
-  const center = { x: diameter / 2, y: diameter / 2 };
+  const center = useMemo(
+    () => ({ x: diameter / 2, y: diameter / 2 }),
+    [diameter]
+  );
 
   const getPointerPos = useCallback(
     (e: React.PointerEvent) => {
@@ -101,7 +109,7 @@ export function useGizmoInteraction(
       hasDraggedRef.current = false;
       lastPointerRef.current = { x: e.clientX, y: e.clientY };
       startPointerRef.current = { x: e.clientX, y: e.clientY };
-      setForceUpdate(n => n + 1);
+      setIsDragging(true);
       canvas.setPointerCapture(e.pointerId);
 
       // Store hit for click detection on pointer up
@@ -192,7 +200,7 @@ export function useGizmoInteraction(
 
       if (isDraggingRef.current) {
         isDraggingRef.current = false;
-        setForceUpdate(n => n + 1);
+        setIsDragging(false);
         canvas.releasePointerCapture(e.pointerId);
 
         if (hasDraggedRef.current) {
@@ -325,7 +333,7 @@ export function useGizmoInteraction(
   );
 
   return {
-    isDragging: isDraggingRef.current,
+    isDragging,
     hoveredRegion,
     handlers: {
       onPointerDown,

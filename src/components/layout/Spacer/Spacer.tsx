@@ -2,15 +2,15 @@
 
 // src/components/layout/Spacer/Spacer.tsx
 import React from 'react';
-import type { BaseComponent } from '@/types/common';
-import type { Prettify } from '@/types/utilities';
+
 import { cx } from '@/utils/cx';
+
 import { spacerBase, spacerFixed, spacerFlexible } from './Spacer.css';
 
-export interface SpacerBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'children'
-> {
+import type { BaseComponent } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
+
+export interface SpacerBaseProps extends Omit<BaseComponent, 'children'> {
   /**
    * Fixed size instead of auto-expanding.
    * When provided, spacer will have a fixed dimension instead of flexible growth.

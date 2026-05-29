@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+
 import { useResizeObserver } from '@/hooks/useResizeObserver';
+
 import type {
   UseChatScrollOptions,
   UseChatScrollReturn,
@@ -76,7 +78,9 @@ export function useChatScroll(
     };
 
     container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+    };
   }, [checkIfAtBottom]);
 
   // Seed the last-height baseline once the content node mounts so growth is
@@ -122,6 +126,9 @@ export function useChatScroll(
         scrollToBottom();
       });
     } else {
+      // Reacts to an incoming-message event (count grew while scrolled away) —
+      // event-driven, not derivable during render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHasNewMessages(true);
     }
   }, [messages.length, enabled, isAtBottom, scrollToBottom]);

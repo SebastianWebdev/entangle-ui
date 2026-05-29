@@ -5,7 +5,18 @@ description: 2D point picker for selecting coordinates on a cartesian grid with 
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import CartesianPickerDemo from '../../../../components/demos/controls/CartesianPickerDemo';
+import CartesianPickerDemo, {
+  CartesianPickerControlled,
+  CartesianPickerDomain,
+  CartesianPickerGrid,
+  CartesianPickerCrosshair,
+  CartesianPickerSnap,
+  CartesianPickerClamping,
+  CartesianPickerResponsive,
+  CartesianPickerBackground,
+  CartesianPickerBottomBar,
+  CartesianPickerChangeComplete,
+} from '../../../../components/demos/controls/CartesianPickerDemo';
 
 Interactive 2D point picker for selecting X/Y coordinates on a cartesian grid. Features a draggable marker, crosshair display, origin axes, grid lines with labels, snap-to-grid, and custom background rendering. Commonly used for panning controls, UV coordinate selection, and spatial parameter adjustment.
 
@@ -29,6 +40,10 @@ const [point, setPoint] = useState({ x: 0, y: 0 });
 
 ## Controlled vs Uncontrolled
 
+<ComponentPreview title="Controlled">
+  <CartesianPickerControlled client:only="react" />
+</ComponentPreview>
+
 ```tsx
 // Controlled
 <CartesianPicker value={point} onChange={setPoint} />
@@ -40,6 +55,10 @@ const [point, setPoint] = useState({ x: 0, y: 0 });
 ## Domain Range
 
 Set custom domain ranges for each axis. The default is -1 to 1 for both axes.
+
+<ComponentPreview title="Domain Range">
+  <CartesianPickerDomain client:only="react" />
+</ComponentPreview>
 
 ```tsx
 // Normalized 0-1 range
@@ -65,6 +84,10 @@ Set custom domain ranges for each axis. The default is -1 to 1 for both axes.
 
 ## Grid and Labels
 
+<ComponentPreview title="Grid and Labels">
+  <CartesianPickerGrid client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <CartesianPicker
   showGrid
@@ -82,6 +105,10 @@ Set custom domain ranges for each axis. The default is -1 to 1 for both axes.
 
 The crosshair shows lines from the marker to the edges. It can be solid or dashed, and can be disabled.
 
+<ComponentPreview title="Crosshair">
+  <CartesianPickerCrosshair client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <CartesianPicker
   showCrosshair
@@ -94,6 +121,10 @@ The crosshair shows lines from the marker to the edges. It can be solid or dashe
 ## Snap to Grid
 
 Enable grid snapping during drag. Hold Ctrl to toggle snapping behavior. You can also provide a discrete `step` for per-axis snapping.
+
+<ComponentPreview title="Snap to Grid">
+  <CartesianPickerSnap client:only="react" />
+</ComponentPreview>
 
 ```tsx
 // Snap to grid subdivisions
@@ -123,6 +154,10 @@ Enable grid snapping during drag. Hold Ctrl to toggle snapping behavior. You can
 
 By default, the point is clamped within domain bounds. Disable this to allow values outside the visible range.
 
+<ComponentPreview title="Clamping">
+  <CartesianPickerClamping client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <CartesianPicker clampToRange={false} value={point} onChange={setPoint} />
 ```
@@ -130,6 +165,10 @@ By default, the point is clamped within domain bounds. Disable this to allow val
 ## Responsive Mode
 
 When `responsive` is true, the picker fills its parent container using a ResizeObserver.
+
+<ComponentPreview title="Responsive Mode">
+  <CartesianPickerResponsive client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <div style={{ width: '100%' }}>
@@ -141,31 +180,32 @@ When `responsive` is true, the picker fills its parent container using a ResizeO
 
 Use `renderBackground` to draw behind the grid, such as a heatmap or gradient.
 
+<ComponentPreview title="Custom Background">
+  <CartesianPickerBackground client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <CartesianPicker
   value={point}
   onChange={setPoint}
   renderBackground={(ctx, info) => {
     // Draw a radial gradient
-    const cx = info.area.x + info.area.width / 2;
-    const cy = info.area.y + info.area.height / 2;
-    const grad = ctx.createRadialGradient(
-      cx,
-      cy,
-      0,
-      cx,
-      cy,
-      info.area.width / 2
-    );
+    const cx = info.width / 2;
+    const cy = info.height / 2;
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, info.width / 2);
     grad.addColorStop(0, 'rgba(0, 122, 204, 0.3)');
     grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = grad;
-    ctx.fillRect(info.area.x, info.area.y, info.area.width, info.area.height);
+    ctx.fillRect(0, 0, info.width, info.height);
   }}
 />
 ```
 
 ## Custom Bottom Bar
+
+<ComponentPreview title="Custom Bottom Bar">
+  <CartesianPickerBottomBar client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <CartesianPicker
@@ -183,6 +223,10 @@ Use `renderBackground` to draw behind the grid, such as a heatmap or gradient.
 ## Change Complete
 
 Use `onChangeComplete` for undo integration. It fires on pointer up after a drag.
+
+<ComponentPreview title="Change Complete">
+  <CartesianPickerChangeComplete client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <CartesianPicker

@@ -1,16 +1,23 @@
 'use client';
 
 import React, { useMemo } from 'react';
+
 import { Popover } from '@/components/primitives/Popover/Popover';
-import { PopoverTrigger } from '@/components/primitives/Popover/PopoverTrigger';
 import { PopoverContent } from '@/components/primitives/Popover/PopoverContent';
-import { ColorSwatch } from './ColorSwatch';
-import { ColorArea } from './ColorArea';
-import { HueSlider } from './HueSlider';
+import { PopoverTrigger } from '@/components/primitives/Popover/PopoverTrigger';
+
 import { AlphaSlider } from './AlphaSlider';
+import { ColorArea } from './ColorArea';
 import { ColorInputs } from './ColorInputs';
-import { ColorPresets } from './ColorPresets';
 import { ColorPalette } from './ColorPalette';
+import {
+  pickerBodyStyle,
+  triggerRowStyle,
+  labelStyle,
+} from './ColorPicker.css';
+import { ColorPresets } from './ColorPresets';
+import { ColorSwatch } from './ColorSwatch';
+import { HueSlider } from './HueSlider';
 import {
   MATERIAL_PALETTE,
   TAILWIND_PALETTE,
@@ -22,13 +29,9 @@ import {
   VINTAGE_PALETTE,
 } from './palettes';
 import { useColor } from './useColor';
+
 import type { ColorPickerProps } from './ColorPicker.types';
 import type { Palette, PaletteColor } from './palettes';
-import {
-  pickerBodyStyle,
-  triggerRowStyle,
-  labelStyle,
-} from './ColorPicker.css';
 
 // --- Constants ---
 

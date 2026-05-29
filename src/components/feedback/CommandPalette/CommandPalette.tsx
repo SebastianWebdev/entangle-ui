@@ -9,10 +9,12 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import { SearchIcon } from '@/components/Icons/SearchIcon';
 import { Kbd } from '@/components/primitives/Kbd';
 import { useDebouncedValue } from '@/hooks/useDebounced';
 import { cx } from '@/utils/cx';
+
 import {
   emptyStyle,
   groupHeaderStyle,
@@ -30,9 +32,10 @@ import {
   panelStyle,
   searchIconStyle,
 } from './CommandPalette.css';
-import type { CommandItem, CommandPaletteProps } from './CommandPalette.types';
 import { fuzzyFilter } from './fuzzySearch';
 import { useRecentItems } from './useRecentItems';
+
+import type { CommandItem, CommandPaletteProps } from './CommandPalette.types';
 
 const DEFAULT_GROUP = 'default';
 const RECENT_GROUP = '__recent__';
@@ -112,9 +115,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     maxRecent,
   });
 
-  // Reset state when the palette opens.
+  // Reset state on each open transition. This reacts to the `open` prop
+  // toggling rather than synchronizing continuous state, so the one-shot
+  // setState in the effect is intentional.
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setQuery('');
       setActiveIndex(0);
     }
@@ -199,14 +205,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     return { rows, selectableItems: flat };
   }, [items, debouncedQuery, recentIds, recentLabel]);
 
-  // Clamp activeIndex when the result list shrinks.
-  useEffect(() => {
-    setActiveIndex(prev => {
-      if (selectableItems.length === 0) return 0;
-      if (prev >= selectableItems.length) return selectableItems.length - 1;
-      return prev;
-    });
-  }, [selectableItems.length]);
+  // Clamp the active index during render when the result list shrinks. This is
+  // React's documented adjust-state-during-render pattern — it avoids an extra
+  // commit, and the guards make it self-terminating.
+  if (selectableItems.length === 0) {
+    if (activeIndex !== 0) setActiveIndex(0);
+  } else if (activeIndex >= selectableItems.length) {
+    setActiveIndex(selectableItems.length - 1);
+  }
 
   const moveActive = useCallback(
     (delta: number) => {
@@ -304,11 +310,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   const content = (
     <>
+      {/* Decorative backdrop: pointer users can click to dismiss, while
+          keyboard users dismiss via Escape handled on the dialog panel. */}
       <div
+        aria-hidden="true"
         className={overlayStyle}
         data-testid={testId ? `${testId}-overlay` : undefined}
         onClick={handleOverlayClick}
       />
+      {/* The dialog panel needs a keydown handler for Escape-to-close and
+          listbox navigation; this is required dialog behavior, not a static
+          element repurposed as interactive. */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         role="dialog"
         aria-modal="true"
@@ -376,6 +389,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               const isSelected = itemIndex === activeIndex;
               const itemDomId = `${listboxId}-item-${String(itemIndex)}`;
               return (
+                // Keyboard selection is handled centrally via the
+                // aria-activedescendant model on the dialog (Enter selects the
+                // active option); the click is a pointer-only convenience.
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events
                 <li
                   key={`${row.group}-${item.id}`}
                   id={itemDomId}

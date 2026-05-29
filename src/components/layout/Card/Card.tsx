@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback } from 'react';
+
 import { cx } from '@/utils/cx';
+
 import {
   cardBodyStyle,
   cardFooterStyle,
@@ -17,6 +19,7 @@ import {
   cardMediaStyle,
   cardRecipe,
 } from './Card.css';
+
 import type {
   CardBodyProps,
   CardFooterProps,
@@ -69,7 +72,7 @@ const CardRoot: React.FC<CardProps> = ({
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (!interactive || !onClick) return;
+      if (!interactive) return;
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         onClick(event as unknown as React.MouseEvent<HTMLDivElement>);

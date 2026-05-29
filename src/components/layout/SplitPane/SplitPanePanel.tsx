@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
-import type { SplitPanePanelProps } from './SplitPane.types';
+
 import { cx } from '@/utils/cx';
+
 import { panelStyle } from './SplitPane.css';
+
+import type { SplitPanePanelProps } from './SplitPane.types';
 
 /**
  * A panel within a SplitPane layout.

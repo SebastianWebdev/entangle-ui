@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
-import type { ChatInputToolbarProps } from './ChatPanel.types';
+
 import { cx } from '@/utils/cx';
+
 import { inputToolbarStyle } from './ChatPanel.css';
+
+import type { ChatInputToolbarProps } from './ChatPanel.types';
 
 export const ChatInputToolbar = /*#__PURE__*/ React.memo<ChatInputToolbarProps>(
   ({ children, className, style, testId, ref, ...rest }) => {

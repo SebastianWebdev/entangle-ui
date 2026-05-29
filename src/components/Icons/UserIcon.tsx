@@ -2,8 +2,10 @@
 
 // src/icons/UserIcon.tsx
 import React from 'react';
-import { Icon } from '../primitives/Icon';
-import type { IconProps } from '../primitives/Icon';
+
+import { Icon } from '@/components/primitives/Icon';
+
+import type { IconProps } from '@/components/primitives/Icon';
 
 /**
  * User icon component for user profiles and accounts.

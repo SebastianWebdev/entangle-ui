@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useSyncExternalStore } from 'react';
+
 import type { ViewportContextValue } from './Viewport.types';
 import type { ViewportStore } from './ViewportStore';
 

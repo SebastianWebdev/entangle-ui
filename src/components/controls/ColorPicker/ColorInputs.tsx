@@ -1,10 +1,7 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
-import { hsvToRgb, hsvToHsl, rgbToHex, rgbToHsv, hslToHsv } from './colorUtils';
-import { EyeDropper } from './EyeDropper';
-import type { ColorHSVA } from './colorUtils';
-import type { ColorInputMode } from './ColorPicker.types';
+
 import {
   inputsRowStyle,
   modeToggleStyle,
@@ -12,6 +9,11 @@ import {
   inputLabelStyle,
   inputColStyle,
 } from './ColorPicker.css';
+import { hsvToRgb, hsvToHsl, rgbToHex, rgbToHsv, hslToHsv } from './colorUtils';
+import { EyeDropper } from './EyeDropper';
+
+import type { ColorInputMode } from './ColorPicker.types';
+import type { ColorHSVA } from './colorUtils';
 
 interface ColorInputsProps {
   hsva: ColorHSVA;
@@ -140,7 +142,9 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 min={0}
                 max={255}
                 value={r}
-                onChange={e => handleRgbChange('r', e.target.value)}
+                onChange={e => {
+                  handleRgbChange('r', e.target.value);
+                }}
                 aria-label="Red"
               />
               <span className={inputLabelStyle}>R</span>
@@ -152,7 +156,9 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 min={0}
                 max={255}
                 value={g}
-                onChange={e => handleRgbChange('g', e.target.value)}
+                onChange={e => {
+                  handleRgbChange('g', e.target.value);
+                }}
                 aria-label="Green"
               />
               <span className={inputLabelStyle}>G</span>
@@ -164,7 +170,9 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 min={0}
                 max={255}
                 value={b}
-                onChange={e => handleRgbChange('b', e.target.value)}
+                onChange={e => {
+                  handleRgbChange('b', e.target.value);
+                }}
                 aria-label="Blue"
               />
               <span className={inputLabelStyle}>B</span>
@@ -181,7 +189,9 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 min={0}
                 max={360}
                 value={hsl.h}
-                onChange={e => handleHslChange('h', e.target.value)}
+                onChange={e => {
+                  handleHslChange('h', e.target.value);
+                }}
                 aria-label="Hue"
               />
               <span className={inputLabelStyle}>H</span>
@@ -193,7 +203,9 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 min={0}
                 max={100}
                 value={hsl.s}
-                onChange={e => handleHslChange('s', e.target.value)}
+                onChange={e => {
+                  handleHslChange('s', e.target.value);
+                }}
                 aria-label="Saturation"
               />
               <span className={inputLabelStyle}>S</span>
@@ -205,7 +217,9 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
                 min={0}
                 max={100}
                 value={hsl.l}
-                onChange={e => handleHslChange('l', e.target.value)}
+                onChange={e => {
+                  handleHslChange('l', e.target.value);
+                }}
                 aria-label="Lightness"
               />
               <span className={inputLabelStyle}>L</span>
@@ -221,7 +235,9 @@ export const ColorInputs: React.FC<ColorInputsProps> = ({
               min={0}
               max={100}
               value={Math.round(hsva.a * 100)}
-              onChange={e => handleAlphaChange(e.target.value)}
+              onChange={e => {
+                handleAlphaChange(e.target.value);
+              }}
               aria-label="Alpha"
             />
             <span className={inputLabelStyle}>A</span>

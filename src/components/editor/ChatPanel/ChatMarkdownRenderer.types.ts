@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export interface ChatMarkdownRendererBaseProps extends BaseComponent {
   /** Raw markdown content. */

@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useCallback } from 'react';
+
 import { cx } from '@/utils/cx';
-import type { ViewportOverlayProps } from './Viewport.types';
+
 import { overlayLayerStyle } from './Viewport.css';
+
+import type { ViewportOverlayProps } from './Viewport.types';
 
 /**
  * Container for HTML children positioned in **screen coordinates**, rendered

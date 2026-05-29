@@ -1,5 +1,5 @@
-import type { Prettify } from '@/types/utilities';
 import type { BaseComponent, Size } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 export type ViewportGizmoSize = Size;
 

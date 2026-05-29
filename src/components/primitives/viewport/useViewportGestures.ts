@@ -1,10 +1,13 @@
 'use client';
 
-import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+
 import { useDebouncedCallback, useLatest } from '@/hooks';
 import { clamp } from '@/utils/mathUtils';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+
+import { screenToWorld } from './viewportCoords';
+import { computeZoomTowardPivot, normalizeRect } from './viewportMath';
+
 import type {
   ScreenRect,
   ViewportMouseButton,
@@ -17,8 +20,8 @@ import type {
   WorldRect,
 } from './Viewport.types';
 import type { ViewportStore } from './ViewportStore';
-import { screenToWorld } from './viewportCoords';
-import { computeZoomTowardPivot, normalizeRect } from './viewportMath';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type React from 'react';
 
 interface GestureCallbacks {
   onPanStart?: () => void;
@@ -194,7 +197,7 @@ export function useViewportGestures(
   useEffect(() => {
     const el = viewportRef.current;
     if (!el || disabled) return;
-    if (zoomCfg.wheel === false && zoomCfg.pinch === false) return;
+    if (!zoomCfg.wheel && !zoomCfg.pinch) return;
 
     const handler = (e: WheelEvent): void => {
       const isPinch = e.ctrlKey;
@@ -225,7 +228,9 @@ export function useViewportGestures(
     };
 
     el.addEventListener('wheel', handler, { passive: false });
-    return () => el.removeEventListener('wheel', handler);
+    return () => {
+      el.removeEventListener('wheel', handler);
+    };
   }, [
     viewportRef,
     disabled,

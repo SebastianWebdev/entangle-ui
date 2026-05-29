@@ -1,5 +1,7 @@
 'use client';
 
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, {
   useCallback,
   useEffect,
@@ -7,14 +9,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { cx } from '@/utils/cx';
-import { useControlledState } from '@/hooks/useControlledState';
-import { Checkbox } from '@/components/primitives/Checkbox';
+
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { ChevronUpIcon } from '@/components/Icons/ChevronUpIcon';
 import { SortIcon } from '@/components/Icons/SortIcon';
+import { Checkbox } from '@/components/primitives/Checkbox';
+import { useControlledState } from '@/hooks/useControlledState';
+import { cx } from '@/utils/cx';
+
 import {
   bodyStyle,
   cellRecipe,
@@ -36,6 +38,7 @@ import {
   totalHeightVar,
   virtualBodyStyle,
 } from './DataTable.css';
+
 import type {
   DataTableColumn,
   DataTableDensity,
@@ -346,6 +349,10 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
 
   const rowHeightPx = estimatedRowHeight ?? DENSITY_ROW_HEIGHT[density];
 
+  // TanStack Virtual's useVirtualizer returns functions that cannot be safely
+  // memoized; the Compiler flags it as an incompatible library. Behavior is
+  // correct here because the virtualizer is read imperatively per render.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({
     count: shouldVirtualize ? sortedRows.length : 0,
     getScrollElement: () => scrollContainerRef.current,
@@ -644,12 +651,18 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
         {showSelectColumn && (
           <div
             role="gridcell"
+            tabIndex={-1}
             className={cellRecipe({ selectColumn: true, sticky: true })}
             onClickCapture={event => {
               selectionShiftKeyRef.current = event.shiftKey;
             }}
             onClick={event => {
               event.stopPropagation();
+            }}
+            onKeyDown={event => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.stopPropagation();
+              }
             }}
           >
             <Checkbox
@@ -685,6 +698,16 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
       onRowActivate?.(row, rowIdx);
     };
 
+    const handleRowKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        if (selectionMode === 'single') {
+          toggleRowSelection(k, row, rowIdx);
+        }
+        setActiveRowIndex(rowIdx);
+      }
+    };
+
     const rowContent = renderRow
       ? renderRow({ row, rowIndex: rowIdx, selected: isSelected }, cells)
       : cells;
@@ -712,7 +735,9 @@ function DataTableInner<R>(props: DataTableProps<R>): React.ReactElement {
         data-row-interactive={interactive ? 'true' : undefined}
         className={rowClassName}
         style={rowStyle}
+        tabIndex={interactive ? -1 : undefined}
         onClick={interactive ? handleRowClick : undefined}
+        onKeyDown={interactive ? handleRowKeyDown : undefined}
         onDoubleClick={onRowActivate ? handleRowDoubleClick : undefined}
       >
         {rowContent}

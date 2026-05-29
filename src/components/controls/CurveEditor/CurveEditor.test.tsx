@@ -70,8 +70,7 @@ beforeEach(() => {
     toJSON: vi.fn(),
   }));
 
-  globalThis.ResizeObserver =
-    MockResizeObserver as unknown as typeof ResizeObserver;
+  globalThis.ResizeObserver = MockResizeObserver;
 
   // Mock pointer capture methods (not available in jsdom)
   HTMLElement.prototype.setPointerCapture = vi.fn();

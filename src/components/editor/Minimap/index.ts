@@ -1,7 +1,7 @@
 import { Minimap as MinimapBase } from './Minimap';
-import { MinimapTitle } from './MinimapTitle';
-import { MinimapFooter } from './MinimapFooter';
 import { MinimapCorner } from './MinimapCorner';
+import { MinimapFooter } from './MinimapFooter';
+import { MinimapTitle } from './MinimapTitle';
 
 type MinimapCompound = typeof MinimapBase & {
   Title: typeof MinimapTitle;

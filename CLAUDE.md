@@ -109,7 +109,7 @@ Demos serve three jobs at once:
 
 ## Branch Rules
 
-**NEVER work directly on `main`.** When receiving a task while on `main`, always create a new branch first using the `rad-<ticket>-<task-name>` convention before making any changes.
+**NEVER work directly on `main`.** When receiving a task while on `main`, always create a new branch first before making any changes. Branch names start with a project-derived prefix, then the task name: `<prefix>-<task-name>`. For Entangle UI the prefix is `etui` (e.g. `etui-timeline`). Include a ticket id when one exists: `etui-<ticket>-<task-name>`.
 
 ## Task Completion Checklist
 

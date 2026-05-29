@@ -5,7 +5,19 @@ description: Collapsible sections component using a compound pattern for propert
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import AccordionDemo from '../../../../components/demos/layout/AccordionDemo';
+import AccordionDemo, {
+  AccordionWidth,
+  AccordionSingleMultiple,
+  AccordionCollapsible,
+  AccordionVariants,
+  AccordionSizes,
+  AccordionGap,
+  AccordionTriggerExtras,
+  AccordionCustomIndicator,
+  AccordionKeepMounted,
+  AccordionDisabledItem,
+  AccordionControlled,
+} from '../../../../components/demos/layout/AccordionDemo';
 
 Collapsible sections component for organizing content into expandable/collapsible groups. Uses a compound component pattern with `Accordion`, `AccordionItem`, `AccordionTrigger`, and `AccordionContent`. Designed for property inspectors, settings panels, and any UI that groups related content under toggleable headers.
 
@@ -48,9 +60,17 @@ The accordion defaults to `width: 100%`, filling its parent so the surface keeps
 <Accordion width="24rem">...</Accordion>
 ```
 
+<ComponentPreview title="Width">
+  <AccordionWidth client:only="react" />
+</ComponentPreview>
+
 ## Single vs Multiple
 
 By default, only one item can be expanded at a time. Opening a new item closes the previously open one. Set `multiple` to allow multiple items to be open simultaneously.
+
+<ComponentPreview title="Single vs Multiple">
+  <AccordionSingleMultiple client:only="react" />
+</ComponentPreview>
 
 ```tsx
 {
@@ -86,6 +106,10 @@ By default, only one item can be expanded at a time. Opening a new item closes t
 
 In single mode, by default one item must always remain open. Set `collapsible` to allow all items to be closed.
 
+<ComponentPreview title="Collapsible">
+  <AccordionCollapsible client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Accordion collapsible>
   <AccordionItem value="optional">
@@ -98,6 +122,10 @@ In single mode, by default one item must always remain open. Set `collapsible` t
 ## Variants
 
 The `variant` prop controls the visual style of accordion headers.
+
+<ComponentPreview title="Variants">
+  <AccordionVariants client:only="react" />
+</ComponentPreview>
 
 ```tsx
 {
@@ -141,6 +169,10 @@ The `variant` prop controls the visual style of accordion headers.
 
 The `size` prop controls the density of headers and content padding.
 
+<ComponentPreview title="Sizes">
+  <AccordionSizes client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Accordion size="sm">...</Accordion>
 <Accordion size="md">...</Accordion>
@@ -156,6 +188,10 @@ The `size` prop controls the density of headers and content padding.
 ## Gap
 
 Add spacing between accordion items using the `gap` prop (in pixels).
+
+<ComponentPreview title="Gap">
+  <AccordionGap client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Accordion gap={4}>
@@ -173,6 +209,10 @@ Add spacing between accordion items using the `gap` prop (in pixels).
 ## Trigger with Icon and Actions
 
 `AccordionTrigger` supports an `icon` slot for a leading icon and an `actions` slot for interactive elements on the right side. Clicking actions does not toggle the accordion.
+
+<ComponentPreview title="Trigger with Icon and Actions">
+  <AccordionTriggerExtras client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Accordion defaultValue="scene">
@@ -198,6 +238,10 @@ Add spacing between accordion items using the `gap` prop (in pixels).
 
 Replace the default chevron indicator or hide it entirely by passing `null`.
 
+<ComponentPreview title="Custom Indicator">
+  <AccordionCustomIndicator client:only="react" />
+</ComponentPreview>
+
 ```tsx
 {
   /* Custom indicator */
@@ -216,6 +260,10 @@ Replace the default chevron indicator or hide it entirely by passing `null`.
 
 By default, collapsed content is unmounted from the DOM. Set `keepMounted` to keep it rendered but hidden, preserving internal state.
 
+<ComponentPreview title="Keep Content Mounted">
+  <AccordionKeepMounted client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <AccordionContent keepMounted>
   <FormWithState />
@@ -225,6 +273,10 @@ By default, collapsed content is unmounted from the DOM. Set `keepMounted` to ke
 ## Disabled Items
 
 Disable individual accordion items to prevent expansion.
+
+<ComponentPreview title="Disabled Items">
+  <AccordionDisabledItem client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <AccordionItem value="locked" disabled>
@@ -236,6 +288,10 @@ Disable individual accordion items to prevent expansion.
 ## Controlled Mode
 
 Pass `value` and `onChange` to control the expanded state externally.
+
+<ComponentPreview title="Controlled Mode">
+  <AccordionControlled client:only="react" />
+</ComponentPreview>
 
 ```tsx
 const [expanded, setExpanded] = useState<string>('section-1');

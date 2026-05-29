@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useRef } from 'react';
+
 import {
   alphaTrackStyle,
   alphaGradientStyle,

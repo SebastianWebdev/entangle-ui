@@ -1,6 +1,9 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
+
+import { useLatest } from '@/hooks/useLatest';
+
 import type {
   ChatMessageData,
   UseChatMessagesOptions,
@@ -12,8 +15,8 @@ export function useChatMessages(
 ): UseChatMessagesReturn {
   const { initialMessages = [], maxMessages } = options;
   const [messages, setMessages] = useState<ChatMessageData[]>(initialMessages);
-  const messagesRef = useRef(messages);
-  messagesRef.current = messages;
+  // Latest messages for synchronous reads in getMessage() without stale closures.
+  const messagesRef = useLatest(messages);
 
   const trimToMax = useCallback(
     (msgs: ChatMessageData[]): ChatMessageData[] => {
@@ -58,9 +61,13 @@ export function useChatMessages(
     setMessages([]);
   }, []);
 
-  const getMessage = useCallback((id: string): ChatMessageData | undefined => {
-    return messagesRef.current.find(msg => msg.id === id);
-  }, []);
+  const getMessage = useCallback(
+    (id: string): ChatMessageData | undefined => {
+      return messagesRef.current.find(msg => msg.id === id);
+    },
+    // messagesRef is a stable useLatest ref; listed to satisfy the rule.
+    [messagesRef]
+  );
 
   return {
     messages,

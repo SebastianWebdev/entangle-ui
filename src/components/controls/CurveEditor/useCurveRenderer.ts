@@ -1,14 +1,7 @@
 'use client';
 
-import type React from 'react';
 import { useEffect, useRef, useCallback } from 'react';
-import type {
-  CurveData,
-  CurveViewport,
-  CurveHitTest,
-  CurveBackgroundInfo,
-} from './CurveEditor.types';
-import type { CanvasThemeColors } from '@/components/primitives/canvas/canvas.types';
+
 import {
   drawGrid as sharedDrawGrid,
   drawDomainBounds as sharedDrawDomainBounds,
@@ -18,7 +11,17 @@ import {
   resolveCanvasTheme,
   resolveVarValue,
 } from '@/components/primitives/canvas/canvasTheme';
+
 import { domainToCanvas, sampleCurve } from './curveUtils';
+
+import type {
+  CurveData,
+  CurveViewport,
+  CurveHitTest,
+  CurveBackgroundInfo,
+} from './CurveEditor.types';
+import type { CanvasThemeColors } from '@/components/primitives/canvas/canvas.types';
+import type React from 'react';
 
 interface UseCurveRendererOptions {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -69,8 +72,11 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
     const w = rect.width;
     const h = rect.height;
 
-    // Set canvas resolution for retina
+    // Set canvas resolution for retina. Writing the canvas backing-store size
+    // is a DOM side effect of drawing; the rule mistakes it for mutating the
+    // `options` argument because `canvas` is reached via options.canvasRef.
     if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+      // eslint-disable-next-line react-hooks/immutability
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       ctx.scale(dpr, dpr);
@@ -194,7 +200,10 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
     ctx.globalAlpha = 1;
   }, [options]);
 
-  // Redraw on state changes
+  // Redraw on state changes. The draw callback mutates the canvas DOM element
+  // (backing-store size), which the rule reports as modifying `options`; that
+  // is a benign DOM side effect, not a props mutation.
+  // eslint-disable-next-line react-hooks/immutability
   useEffect(() => {
     if (options.isDragging) {
       // Use rAF for smooth updates during drag
@@ -203,7 +212,9 @@ export function useCurveRenderer(options: UseCurveRendererOptions): void {
         rafRef.current = requestAnimationFrame(render);
       };
       rafRef.current = requestAnimationFrame(render);
-      return () => cancelAnimationFrame(rafRef.current);
+      return () => {
+        cancelAnimationFrame(rafRef.current);
+      };
     }
 
     draw();

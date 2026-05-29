@@ -1,5 +1,6 @@
 import { style, createVar } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
+
 import { vars } from '@/theme/contract.css';
 
 export const pickerWidthVar = createVar();

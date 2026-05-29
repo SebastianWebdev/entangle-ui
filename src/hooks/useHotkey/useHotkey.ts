@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, type RefObject } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+
+import { useLatest } from '@/hooks/useLatest';
 import { getPlatform, parseShortcut } from '@/utils/platform';
+
 import type { HotkeyTarget, UseHotkeyOptions } from './useHotkey.types';
+import type { RefObject } from 'react';
 
 function isRefObject(value: unknown): value is RefObject<EventTarget | null> {
   return (
@@ -161,25 +165,18 @@ export function useHotkey(
     target,
   } = options;
 
-  const handlerRef = useRef(handler);
-  handlerRef.current = handler;
-
-  const optionsRef = useRef({
+  // Latest handler / options / parsed combo, refreshed after each commit so
+  // the document listener reads live values without re-subscribing.
+  const handlerRef = useLatest(handler);
+  const optionsRef = useLatest({
     enabled,
     enableInInputs,
     preventDefault,
     stopPropagation,
   });
-  optionsRef.current = {
-    enabled,
-    enableInInputs,
-    preventDefault,
-    stopPropagation,
-  };
 
   const parsed = useMemo(() => parseCombo(combo), [combo]);
-  const parsedRef = useRef(parsed);
-  parsedRef.current = parsed;
+  const parsedRef = useLatest(parsed);
 
   const attachedTargetRef = useRef<EventTarget | null>(null);
   const listenerRef = useRef<((event: Event) => void) | null>(null);

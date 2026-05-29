@@ -1,12 +1,15 @@
 'use client';
 
+import { FloatingFocusManager } from '@floating-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { FloatingFocusManager } from '@floating-ui/react';
-import { usePopoverContext } from './Popover';
-import type { PopoverContentProps } from './Popover.types';
+
 import { cx } from '@/utils/cx';
+
+import { usePopoverContext } from './Popover';
 import { contentPanelRecipe } from './Popover.css';
+
+import type { PopoverContentProps } from './Popover.types';
 
 // --- Component ---
 
@@ -44,8 +47,7 @@ export const PopoverContent: React.FC<PopoverContentProps> = ({
       if (typeof externalRef === 'function') {
         externalRef(node);
       } else if (externalRef && typeof externalRef === 'object') {
-        (externalRef as React.MutableRefObject<HTMLDivElement | null>).current =
-          node;
+        externalRef.current = node;
       }
     },
     [contentRef, floatingRefs, externalRef]
@@ -58,6 +60,9 @@ export const PopoverContent: React.FC<PopoverContentProps> = ({
         setVisible(true);
       });
     } else {
+      // Reset enter-animation state on close; gated by the `isOpen` prop, so
+      // this is a one-shot transition rather than continuous state sync.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(false);
     }
   }, [isOpen]);

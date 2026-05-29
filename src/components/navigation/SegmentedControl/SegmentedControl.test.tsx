@@ -49,14 +49,14 @@ describe('SegmentedControl', () => {
   describe('Rendering', () => {
     it('renders a group with the default aria-label', () => {
       renderWithTheme(<Basic defaultValue="a" />);
-      const group = screen.getByRole('group', { name: 'Segmented control' });
+      const group = screen.getByRole('toolbar', { name: 'Segmented control' });
       expect(group).toBeInTheDocument();
     });
 
     it('uses custom aria-label when provided', () => {
       renderWithTheme(<Basic defaultValue="a" ariaLabel="View mode" />);
       expect(
-        screen.getByRole('group', { name: 'View mode' })
+        screen.getByRole('toolbar', { name: 'View mode' })
       ).toBeInTheDocument();
     });
 
@@ -77,7 +77,7 @@ describe('SegmentedControl', () => {
 
     it('reflects orientation via aria-orientation', () => {
       renderWithTheme(<Basic defaultValue="a" orientation="vertical" />);
-      const group = screen.getByRole('group');
+      const group = screen.getByRole('toolbar');
       expect(group).toHaveAttribute('aria-orientation', 'vertical');
     });
   });
@@ -132,7 +132,7 @@ describe('SegmentedControl', () => {
 
     it('marks the group with aria-disabled', () => {
       renderWithTheme(<Basic defaultValue="a" disabled />);
-      expect(screen.getByRole('group')).toHaveAttribute(
+      expect(screen.getByRole('toolbar')).toHaveAttribute(
         'aria-disabled',
         'true'
       );
@@ -291,18 +291,18 @@ describe('SegmentedControl', () => {
       'renders %s variant',
       variant => {
         renderWithTheme(<Basic defaultValue="a" variant={variant} />);
-        expect(screen.getByRole('group')).toBeInTheDocument();
+        expect(screen.getByRole('toolbar')).toBeInTheDocument();
       }
     );
 
     it.each(['sm', 'md', 'lg'] as const)('renders size %s', size => {
       renderWithTheme(<Basic defaultValue="a" size={size} />);
-      expect(screen.getByRole('group')).toBeInTheDocument();
+      expect(screen.getByRole('toolbar')).toBeInTheDocument();
     });
 
     it('fullWidth applies a flex layout to the root', () => {
       renderWithTheme(<Basic defaultValue="a" fullWidth />);
-      const group = screen.getByRole('group');
+      const group = screen.getByRole('toolbar');
       // recipe sets display: flex when fullWidth
       const styles = window.getComputedStyle(group);
       expect(['flex', 'inline-flex']).toContain(styles.display);
@@ -466,7 +466,7 @@ describe('SegmentedControlItem', () => {
           <SegmentedControlItem value="b">B</SegmentedControlItem>
         </SegmentedControl>
       );
-      const root = screen.getByRole('group');
+      const root = screen.getByRole('toolbar');
       const wrappers = root.querySelectorAll(
         ':scope > [data-segmented-item-wrapper="true"]'
       );

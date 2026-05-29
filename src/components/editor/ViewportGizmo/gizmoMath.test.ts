@@ -141,24 +141,37 @@ describe('projectAxes', () => {
     }
   });
 
-  it('Y-up and Z-up produce different axis orientations', () => {
-    const yUpArms = projectAxes(
-      { yaw: 0, pitch: 0 },
-      center,
-      armLength,
-      'y-up'
-    );
-    const zUpArms = projectAxes(
-      { yaw: 0, pitch: 0 },
-      center,
-      armLength,
-      'z-up'
-    );
+  it('Y-up and Z-up project the same axis to different screen positions', () => {
+    // Use a tilted orientation so the up axis is not projected onto the
+    // screen origin (which would hide the convention difference).
+    const orientation = { yaw: 30, pitch: -20 };
+    const yUpArms = projectAxes(orientation, center, armLength, 'y-up');
+    const zUpArms = projectAxes(orientation, center, armLength, 'z-up');
 
-    // Both use the same math since the axis vectors are the same,
-    // but the labeling convention differs — both return 6 arms
     expect(yUpArms).toHaveLength(6);
     expect(zUpArms).toHaveLength(6);
+
+    const posTip = (arms: typeof yUpArms, axis: 'x' | 'y' | 'z') =>
+      arms.find(a => a.axis === axis && a.positive);
+
+    // X is shared by both conventions and must project identically.
+    expect(posTip(zUpArms, 'x')?.screenX).toBeCloseTo(
+      posTip(yUpArms, 'x')?.screenX ?? NaN
+    );
+
+    // Y and Z swap roles between conventions, so their tips land in
+    // different screen positions.
+    const yUpY = posTip(yUpArms, 'y');
+    const zUpY = posTip(zUpArms, 'y');
+    expect(
+      Math.abs((yUpY?.screenX ?? 0) - (zUpY?.screenX ?? 0)) +
+        Math.abs((yUpY?.screenY ?? 0) - (zUpY?.screenY ?? 0))
+    ).toBeGreaterThan(1);
+
+    // In z-up the positive Z arm points visually up (smaller screenY than
+    // the origin), confirming Z is the up axis.
+    const zUpZ = posTip(zUpArms, 'z');
+    expect(zUpZ?.screenY ?? Infinity).toBeLessThan(center.y);
   });
 });
 

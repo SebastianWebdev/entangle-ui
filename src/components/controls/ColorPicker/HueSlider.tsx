@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useRef } from 'react';
+
 import { hueTrackStyle, hueThumbStyle } from './ColorPicker.css';
 
 interface HueSliderProps {

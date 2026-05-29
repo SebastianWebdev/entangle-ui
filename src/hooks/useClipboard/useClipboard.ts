@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 import type {
   ClipboardStatus,
   UseClipboardOptions,
@@ -35,6 +36,10 @@ function writeViaExecCommand(text: string): boolean {
 
   let succeeded = false;
   try {
+    // Legacy fallback used only when navigator.clipboard.writeText is
+    // unavailable (the modern primary path). execCommand has no modern
+    // synchronous equivalent for this fallback scenario.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     succeeded = document.execCommand('copy');
   } catch {
     succeeded = false;

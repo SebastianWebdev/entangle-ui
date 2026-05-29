@@ -1,6 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+
+import { useLatest } from '@/hooks/useLatest';
+
 import type {
   DebouncedCallback,
   UseDebouncedCallbackOptions,
@@ -30,8 +33,9 @@ export function useDebouncedCallback<Args extends unknown[]>(
 ): DebouncedCallback<Args> {
   const { leading = false, maxWait } = options;
 
-  const fnRef = useRef(fn);
-  fnRef.current = fn;
+  // Latest fn, refreshed after each commit so the stable debounced wrapper
+  // always invokes the current callback.
+  const fnRef = useLatest(fn);
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -55,11 +59,15 @@ export function useDebouncedCallback<Args extends unknown[]>(
     lastInvokeRef.current = Date.now();
     clearTimers();
     if (args) fnRef.current(...args);
-  }, [clearTimers]);
+    // fnRef is a stable useLatest ref; listed to satisfy the rule.
+  }, [clearTimers, fnRef]);
 
   const debounced = useMemo<DebouncedCallback<Args>>(() => {
     const wrapper = (...args: Args): void => {
       lastArgsRef.current = args;
+      // Date.now() runs only when the wrapper is invoked from an event/timer,
+      // never during render, so it is not a render-purity concern here.
+      // eslint-disable-next-line react-hooks/purity
       const now = Date.now();
       const isLeadingCall =
         leading && timerRef.current === null && maxTimerRef.current === null;
@@ -101,7 +109,7 @@ export function useDebouncedCallback<Args extends unknown[]>(
     };
 
     return wrapper;
-  }, [delay, leading, maxWait, invoke, clearTimers]);
+  }, [delay, leading, maxWait, invoke, clearTimers, fnRef]);
 
   // Cleanup on unmount.
   useEffect(() => clearTimers, [clearTimers]);

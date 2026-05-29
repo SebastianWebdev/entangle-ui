@@ -8,9 +8,12 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+
 import { cx } from '@/utils/cx';
-import type { TabsContextValue, TabsProps } from './Tabs.types';
+
 import { tabsRootRecipe } from './Tabs.css';
+
+import type { TabsContextValue, TabsProps } from './Tabs.types';
 
 // --- Context ---
 

@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useCallback, useId, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback, useId, useState } from 'react';
+
 import { ChevronRightIcon } from '@/components/Icons/ChevronRightIcon';
-import type { CollapsibleProps, CollapsibleSize } from './Collapsible.types';
+import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
+
 import {
   collapsibleRootStyle,
   triggerRecipe,
@@ -19,7 +21,8 @@ import {
   contentPaddingVVar,
   contentPaddingHVar,
 } from './Collapsible.css';
-import { vars } from '@/theme/contract.css';
+
+import type { CollapsibleProps, CollapsibleSize } from './Collapsible.types';
 
 // --- Size maps ---
 

@@ -1,14 +1,26 @@
 'use client';
 
+import { Menu as BaseMenu } from '@base-ui/react/menu';
 import React from 'react';
-import { Menu as BaseMenu, type MenuRootActions } from '@base-ui/react/menu';
 
 import { CheckIcon } from '@/components/Icons/CheckIcon';
-import { CircleIcon } from '@/components/Icons/CircleIcon';
 import { ChevronRightIcon } from '@/components/Icons/ChevronRightIcon';
+import { CircleIcon } from '@/components/Icons/CircleIcon';
 import { Button } from '@/components/primitives/Button';
 import { useLatest } from '@/hooks/useLatest';
 import { cx } from '@/utils/cx';
+
+import {
+  menuContentStyle,
+  menuItemStyle,
+  itemStartSlotStyle,
+  itemLabelStyle,
+  itemEndSlotStyle,
+  shortcutStyle,
+  groupLabelStyle,
+  separatorStyle,
+} from './Menu.css';
+import { MenuGapContext, DEFAULT_MENU_GAP } from './MenuGapContext';
 
 import type {
   MenuRootProps,
@@ -23,17 +35,7 @@ import type {
   MenuSubProps,
   MenuSubTriggerProps,
 } from './Menu.types';
-import {
-  menuContentStyle,
-  menuItemStyle,
-  itemStartSlotStyle,
-  itemLabelStyle,
-  itemEndSlotStyle,
-  shortcutStyle,
-  groupLabelStyle,
-  separatorStyle,
-} from './Menu.css';
-import { MenuGapContext, DEFAULT_MENU_GAP } from './MenuGapContext';
+import type { MenuRootActions } from '@base-ui/react/menu';
 
 /**
  * Internal three-slot row used by every interactive menu entry.

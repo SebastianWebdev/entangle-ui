@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useCallback, useId, useMemo, useRef, useState } from 'react';
-import { CloseIcon } from '@/components/Icons/CloseIcon';
+
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { FormLabel } from '@/components/form/FormLabel';
+import { CloseIcon } from '@/components/Icons/CloseIcon';
 import { useControlledState } from '@/hooks/useControlledState';
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
+
 import {
   containerStyle,
   inputStyle,
@@ -15,6 +17,7 @@ import {
   tagRemoveStyle,
   wrapperRecipe,
 } from './TagInput.css';
+
 import type {
   TagInputProps,
   TagInputRenderTagState,
@@ -234,7 +237,9 @@ export function TagInput({
   );
 
   const renderChip = (tag: string, index: number) => {
-    const remove = () => removeTagAt(index);
+    const remove = () => {
+      removeTagAt(index);
+    };
     if (renderTag) {
       const state: TagInputRenderTagState = {
         tag,
@@ -288,6 +293,13 @@ export function TagInput({
         </FormLabel>
       )}
 
+      {/*
+        The onMouseDown handler only forwards clicks on the wrapper padding to
+        focus the inner native <input>, which is the actual accessible control
+        (focusable, keyboard-driven). The wrapper is presentational, so no
+        widget role belongs on it.
+      */}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         ref={setWrapperRef}
         className={wrapperRecipe({

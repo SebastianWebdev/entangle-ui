@@ -1,17 +1,20 @@
 'use client';
 
-import React, { useRef, useMemo } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useRef, useMemo } from 'react';
+
 import { cx } from '@/utils/cx';
-import type { ViewportGizmoProps } from './ViewportGizmo.types';
-import { useGizmoRenderer, AXIS_COLORS } from './useGizmoRenderer';
+
 import { useGizmoInteraction } from './useGizmoInteraction';
+import { useGizmoRenderer, AXIS_COLORS } from './useGizmoRenderer';
 import {
   gizmoWrapperRecipe,
   gizmoCanvasStyle,
   gizmoDiameterVar,
   ariaLiveRegionStyle,
 } from './ViewportGizmo.css';
+
+import type { ViewportGizmoProps } from './ViewportGizmo.types';
 
 const DEFAULT_LABELS: Record<string, string> = { x: 'X', y: 'Y', z: 'Z' };
 const DEFAULT_VISIBLE: Record<string, boolean> = { x: true, y: true, z: true };
@@ -133,6 +136,10 @@ export const ViewportGizmo: React.FC<ViewportGizmoProps> = ({
       <canvas
         ref={canvasRef}
         className={gizmoCanvasStyle({ disabled })}
+        // The canvas is a self-contained interactive widget driven entirely by
+        // custom pointer/keyboard handlers, so it is exposed as an ARIA
+        // application rather than its implicit canvas role.
+        // eslint-disable-next-line jsx-a11y/no-interactive-element-to-noninteractive-role
         role="application"
         aria-label="Viewport orientation gizmo"
         aria-roledescription={ariaDescription}
