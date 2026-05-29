@@ -1,5 +1,5 @@
 ---
-'entangle-ui': major
+'entangle-ui': minor
 ---
 
 **Breaking:** redesign `NodeGraph` port API to slot-based composition.
