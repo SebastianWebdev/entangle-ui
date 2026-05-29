@@ -51,7 +51,11 @@ export function DialogSizes() {
           </Button>
         ))}
       </Stack>
-      <Dialog open={size !== null} onClose={() => setSize(null)} size={size ?? 'md'}>
+      <Dialog
+        open={size !== null}
+        onClose={() => setSize(null)}
+        size={size ?? 'md'}
+      >
         <DialogHeader showClose>Size: {size}</DialogHeader>
         <DialogBody>
           <Text size="sm">

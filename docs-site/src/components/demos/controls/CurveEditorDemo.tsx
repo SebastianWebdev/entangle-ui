@@ -173,12 +173,7 @@ export function CurveEditorBackground() {
         width={WIDTH}
         height={HEIGHT}
         renderBackground={(ctx, info) => {
-          const grad = ctx.createLinearGradient(
-            0,
-            info.height,
-            0,
-            0
-          );
+          const grad = ctx.createLinearGradient(0, info.height, 0, 0);
           grad.addColorStop(0, 'rgba(0, 0, 0, 0.3)');
           grad.addColorStop(1, 'rgba(255, 255, 255, 0.1)');
           ctx.fillStyle = grad;

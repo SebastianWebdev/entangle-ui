@@ -103,7 +103,11 @@ export function ViewportGizmoOrientation() {
 export function ViewportGizmoUpAxis() {
   const yUp = useGizmoOrientation();
   const zUp = useGizmoOrientation();
-  const renderOne = (label: string, upAxis: GizmoUpAxis, state: ReturnType<typeof useGizmoOrientation>) => (
+  const renderOne = (
+    label: string,
+    upAxis: GizmoUpAxis,
+    state: ReturnType<typeof useGizmoOrientation>
+  ) => (
     <Stack gap={2} align="center">
       <Text size="xs" color="secondary">
         {label}
@@ -230,13 +234,14 @@ export function ViewportGizmoVisualOptions() {
   const [showOrbitRing, setShowOrbitRing] = useState(true);
   const [showOriginHandle, setShowOriginHandle] = useState(true);
 
-  const toggle = (
-    label: string,
-    value: boolean,
-    set: (v: boolean) => void
-  ) => (
+  const toggle = (label: string, value: boolean, set: (v: boolean) => void) => (
     <label
-      style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        cursor: 'pointer',
+      }}
     >
       <input
         type="checkbox"

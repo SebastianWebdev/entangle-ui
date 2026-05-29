@@ -114,8 +114,15 @@ export function CheckboxHelperError() {
   return (
     <DemoWrapper>
       <Stack spacing={3}>
-        <Checkbox label="Accept terms" helperText="You must accept to continue" />
-        <Checkbox label="Accept terms" error errorMessage="This field is required" />
+        <Checkbox
+          label="Accept terms"
+          helperText="You must accept to continue"
+        />
+        <Checkbox
+          label="Accept terms"
+          error
+          errorMessage="This field is required"
+        />
       </Stack>
     </DemoWrapper>
   );
@@ -151,7 +158,11 @@ export function CheckboxFormSubmission() {
         helperText={`Selected: ${selected.join(', ') || 'none'}`}
       >
         <Checkbox name="features" value="shadows" label="Enable shadows" />
-        <Checkbox name="features" value="reflections" label="Enable reflections" />
+        <Checkbox
+          name="features"
+          value="reflections"
+          label="Enable reflections"
+        />
         <Checkbox name="features" value="ao" label="Ambient occlusion" />
       </CheckboxGroup>
     </DemoWrapper>

@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import DemoWrapper from '../DemoWrapper';
 import { Select } from '@/components/controls';
-import type { SelectOptionItem, SelectOptionGroup } from '@/components/controls';
+import type {
+  SelectOptionItem,
+  SelectOptionGroup,
+} from '@/components/controls';
 import { Stack } from '@/components/layout';
 import { Text } from '@/components/primitives';
 import { GridIcon, StarIcon, EyeIcon } from '@/components/Icons';
