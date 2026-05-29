@@ -1,10 +1,12 @@
 'use client';
 
-import type React from 'react';
 import { useCallback } from 'react';
+
 import { useLatest } from '@/hooks';
+
 import type { NodeGraphNode, NodeGraphSelection } from './NodeGraph.types';
 import type { NodeGraphStore } from './NodeGraphStore';
+import type React from 'react';
 
 interface UseNodeGraphKeyboardOptions {
   store: NodeGraphStore;

@@ -1,10 +1,11 @@
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import { generateNodeId } from './nodeGraphIds';
+
 import type {
   NodeGraphEdge,
   NodeGraphNode,
   NodeGraphPortRef,
 } from './NodeGraph.types';
-import { generateNodeId } from './nodeGraphIds';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 
 /**
  * Ids of every edge with an endpoint on the given port — i.e. all wires

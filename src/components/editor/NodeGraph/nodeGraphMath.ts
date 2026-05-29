@@ -1,5 +1,3 @@
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
-import type { WorldRect } from '@/components/primitives/viewport';
 import type {
   NodeGraphEdge,
   NodeGraphNode,
@@ -10,6 +8,8 @@ import type {
   NodeGraphMeasuredSize,
   NodeGraphPortPosition,
 } from './NodeGraphStore';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type { WorldRect } from '@/components/primitives/viewport';
 
 /**
  * Fallback size used when a node has no measured DOM size yet (first paint

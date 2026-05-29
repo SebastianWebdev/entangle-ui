@@ -1,14 +1,16 @@
 'use client';
 
-import {
-  useCallback,
-  useMemo,
-  useState,
-  type Dispatch,
-  type SetStateAction,
-} from 'react';
+import { useCallback, useMemo, useState } from 'react';
+
 import { useLatest } from '@/hooks';
-import type { WorldRect } from '@/components/primitives/viewport';
+
+import {
+  duplicateNodes as duplicateNodesImpl,
+  edgesConnectedToPort,
+} from './nodeGraphActions';
+import { generateEdgeId, generateNodeId } from './nodeGraphIds';
+import { applyCascadeDelete } from './nodeGraphMath';
+
 import type {
   NodeGraphEdge,
   NodeGraphGroup,
@@ -16,13 +18,9 @@ import type {
   NodeGraphPortRef,
   NodeGraphSelection,
 } from './NodeGraph.types';
-import { applyCascadeDelete } from './nodeGraphMath';
-import {
-  duplicateNodes as duplicateNodesImpl,
-  edgesConnectedToPort,
-} from './nodeGraphActions';
 import type { DuplicateNodesOptions } from './nodeGraphActions';
-import { generateEdgeId, generateNodeId } from './nodeGraphIds';
+import type { WorldRect } from '@/components/primitives/viewport';
+import type { Dispatch, SetStateAction } from 'react';
 
 const EMPTY_SELECTION: NodeGraphSelection = {
   nodes: [],

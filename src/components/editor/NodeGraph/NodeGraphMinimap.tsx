@@ -1,15 +1,20 @@
 'use client';
 
 import React, { useMemo, useSyncExternalStore } from 'react';
-import { ViewportMinimap } from '@/components/editor/Minimap/ViewportMinimap';
+
 import { Minimap } from '@/components/editor/Minimap';
+import { ViewportMinimap } from '@/components/editor/Minimap/ViewportMinimap';
+import { cx } from '@/utils/cx';
+
+import { minimapSlotStyle } from './NodeGraph.css';
 import {
   useNodeGraphData,
   useNodeGraphSelection,
   useNodeGraphStore,
 } from './NodeGraphContext';
-import type { NodeGraphMinimapSlotProps } from './NodeGraph.types';
 import { computeNodesBounds, getNodeBox } from './nodeGraphMath';
+
+import type { NodeGraphMinimapSlotProps } from './NodeGraph.types';
 import type {
   MinimapCustomItem,
   MinimapDrawInfo,
@@ -17,8 +22,6 @@ import type {
   MinimapRectItem,
 } from '@/components/editor/Minimap';
 import type { WorldRect } from '@/components/primitives/viewport';
-import { minimapSlotStyle } from './NodeGraph.css';
-import { cx } from '@/utils/cx';
 
 /**
  * Live renderer for `<NodeGraph.Minimap>`. Mounted inside the `<Viewport>`
@@ -99,8 +102,9 @@ export function NodeGraphMinimapInner({
           id: node.id,
           type: 'custom',
           bounds: rect,
-          draw: (ctx, info) =>
-            drawMiniNode(ctx, info, rect, bodyColor, headerColor),
+          draw: (ctx, info) => {
+            drawMiniNode(ctx, info, rect, bodyColor, headerColor);
+          },
         };
         return item;
       }
@@ -116,6 +120,11 @@ export function NodeGraphMinimapInner({
       if (bodyColor) item.color = bodyColor;
       return item;
     });
+    // `measuredSizesVersion` is an intentional invalidation key: the body reads
+    // `store.getMeasuredSize(...)` — mutable state React can't track — so the
+    // memo must recompute whenever a node's measured size changes. The linter
+    // flags it as unused because it isn't referenced directly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     data.nodes,
     data.defaultNodeSize,
@@ -146,6 +155,9 @@ export function NodeGraphMinimapInner({
       width: bounds.width + padX * 2,
       height: bounds.height + padY * 2,
     };
+    // See note above: `measuredSizesVersion` keys the cache off mutable measured
+    // sizes that `computeNodesBounds` reads via `store.getMeasuredSize`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.nodes, data.defaultNodeSize, store, measuredSizesVersion]);
 
   return (

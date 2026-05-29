@@ -1,16 +1,19 @@
 'use client';
 
 import React, { useCallback } from 'react';
+
 import { Button } from '@/components/primitives/Button';
 import { useViewportStore } from '@/components/primitives/viewport/ViewportContext';
 import { cx } from '@/utils/cx';
+
 import {
   nodeGraphToolbarRecipe,
   nodeGraphToolbarSeparatorStyle,
 } from './NodeGraph.css';
 import { useNodeGraphStore } from './NodeGraphContext';
-import { useStoreSlice } from './useStoreSlice';
 import { computeNodesBounds } from './nodeGraphMath';
+import { useStoreSlice } from './useStoreSlice';
+
 import type { NodeGraphToolbarSlotProps } from './NodeGraph.types';
 
 /**
@@ -38,7 +41,9 @@ export function NodeGraphToolbarInner({
         gap,
         ...style,
       }}
-      onPointerDown={e => e.stopPropagation()}
+      onPointerDown={e => {
+        e.stopPropagation();
+      }}
     >
       {children}
     </div>
@@ -231,7 +236,9 @@ export function NodeGraphZoomInButton({
     <Button
       size={size}
       variant={variant}
-      onClick={() => applyZoomStep(vpStore, factor)}
+      onClick={() => {
+        applyZoomStep(vpStore, factor);
+      }}
       className={className}
       style={style}
       title={title}
@@ -258,7 +265,9 @@ export function NodeGraphZoomOutButton({
     <Button
       size={size}
       variant={variant}
-      onClick={() => applyZoomStep(vpStore, 1 / factor)}
+      onClick={() => {
+        applyZoomStep(vpStore, 1 / factor);
+      }}
       className={className}
       style={style}
       title={title}
@@ -285,7 +294,9 @@ export function NodeGraphResetZoomButton({
     <Button
       size={size}
       variant={variant}
-      onClick={() => vpStore.handle.centerOn({ x: 0, y: 0 }, 1)}
+      onClick={() => {
+        vpStore.handle.centerOn({ x: 0, y: 0 }, 1);
+      }}
       className={className}
       style={style}
       title={title}

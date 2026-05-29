@@ -1,13 +1,16 @@
 import React from 'react';
+
 import { devWarn } from '@/utils/devWarn';
+
+import { NODE_GRAPH_SLOT } from './NodeGraph.types';
 import {
   NodeGraphBackground,
   NodeGraphMinimap,
   NodeGraphSpawnPalette,
   NodeGraphToolbar,
 } from './NodeGraphSlots';
+
 import type { NodeGraphSlotKind, NodeGraphSlotMarker } from './NodeGraph.types';
-import { NODE_GRAPH_SLOT } from './NodeGraph.types';
 
 type NodeGraphBackgroundProps = React.ComponentProps<
   typeof NodeGraphBackground
@@ -36,10 +39,6 @@ function getSlotKind(el: React.ReactElement): NodeGraphSlotKind | null {
   return marker ?? null;
 }
 
-function readSlotProps<P>(el: React.ReactElement): P {
-  return el.props as P;
-}
-
 /**
  * Walk `<NodeGraph>` children, recognise the compound slot subcomponents
  * (`<NodeGraph.Background>`, `<NodeGraph.Minimap>`, `<NodeGraph.Toolbar>`,
@@ -48,9 +47,13 @@ function readSlotProps<P>(el: React.ReactElement): P {
  * children, only the recognised slots in the right places of its tree.
  */
 export function sortSlots(children: React.ReactNode): SortedSlots {
-  let backgroundProps: NodeGraphBackgroundProps | null = null;
-  let minimapProps: NodeGraphMinimapProps | null = null;
-  let spawnPaletteProps: NodeGraphSpawnPaletteProps | null = null;
+  // `null as T | null` (rather than `: T | null = null`) keeps the flow type a
+  // nullable union: these are only ever assigned inside the `forEach` callback
+  // below, and TypeScript can't see closure mutations, so a plain `= null`
+  // would narrow them to `null` and make the `!== null` checks below look dead.
+  let backgroundProps = null as NodeGraphBackgroundProps | null;
+  let minimapProps = null as NodeGraphMinimapProps | null;
+  let spawnPaletteProps = null as NodeGraphSpawnPaletteProps | null;
   const toolbars: NodeGraphToolbarProps[] = [];
   React.Children.forEach(children, child => {
     if (!React.isValidElement(child)) {
@@ -63,13 +66,13 @@ export function sortSlots(children: React.ReactNode): SortedSlots {
     }
     const kind = getSlotKind(child);
     if (kind === 'background') {
-      backgroundProps = readSlotProps<NodeGraphBackgroundProps>(child);
+      backgroundProps = child.props as NodeGraphBackgroundProps;
     } else if (kind === 'minimap') {
-      minimapProps = readSlotProps<NodeGraphMinimapProps>(child);
+      minimapProps = child.props as NodeGraphMinimapProps;
     } else if (kind === 'toolbar') {
-      toolbars.push(readSlotProps<NodeGraphToolbarProps>(child));
+      toolbars.push(child.props as NodeGraphToolbarProps);
     } else if (kind === 'spawn-palette') {
-      spawnPaletteProps = readSlotProps<NodeGraphSpawnPaletteProps>(child);
+      spawnPaletteProps = child.props as NodeGraphSpawnPaletteProps;
     } else {
       const dn = (child.type as { displayName?: string } | undefined)
         ?.displayName;

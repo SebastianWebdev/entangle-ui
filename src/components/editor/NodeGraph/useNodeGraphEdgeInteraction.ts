@@ -1,13 +1,16 @@
 'use client';
 
-import type React from 'react';
 import { useCallback, useEffect, useRef } from 'react';
-import { useLatest } from '@/hooks';
+
 import { worldToScreen as screenFromWorld } from '@/components/primitives/viewport';
-import type { ViewportTransform } from '@/components/primitives/viewport';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
-import type { NodeGraphStore } from './NodeGraphStore';
+import { useLatest } from '@/hooks';
+
 import { findEdgeAtPoint, resolveEdgeEndpoints } from './nodeGraphMath';
+
+import type { NodeGraphStore } from './NodeGraphStore';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type { ViewportTransform } from '@/components/primitives/viewport';
+import type React from 'react';
 
 /**
  * Pointer proximity (screen px) for hovering / clicking / right-clicking an

@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useCallback, useMemo } from 'react';
+
 import { useControlledState } from '@/hooks';
 import { cx } from '@/utils/cx';
+
 import {
   nodeSectionStyle,
   nodeSectionHeaderStyle,
@@ -10,10 +12,9 @@ import {
   nodeSectionTitleStyle,
   nodeSectionContentStyle,
 } from './NodeGraph.css';
-import {
-  NodeGraphNodeSectionContext,
-  type NodeGraphNodeSectionContextValue,
-} from './NodeGraphNodeSectionContext';
+import { NodeGraphNodeSectionContext } from './NodeGraphNodeSectionContext';
+
+import type { NodeGraphNodeSectionContextValue } from './NodeGraphNodeSectionContext';
 
 export interface NodeGraphNodeSectionProps {
   /** Header label shown next to the collapse toggle. */

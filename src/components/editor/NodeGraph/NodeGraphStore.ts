@@ -1,5 +1,3 @@
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
-import type { WorldRect } from '@/components/primitives/viewport';
 import type {
   NodeGraphEdge,
   NodeGraphNode,
@@ -8,6 +6,8 @@ import type {
   NodeGraphPortSide,
   NodeGraphSelection,
 } from './NodeGraph.types';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type { WorldRect } from '@/components/primitives/viewport';
 
 /** Snapshot of the data slice — the canonical graph contents. */
 export interface NodeGraphDataState {
@@ -384,7 +384,9 @@ export class NodeGraphStore {
   };
 
   requestSpawn(info: { worldPoint: Point2D; screenPoint: Point2D }): void {
-    this.spawnRequestListeners.forEach(cb => cb(info));
+    this.spawnRequestListeners.forEach(cb => {
+      cb(info);
+    });
   }
 
   // ── Mutators ──
@@ -422,7 +424,9 @@ export class NodeGraphStore {
       if (this.measuredSizes.delete(id)) didMutateMeasuredSizes = true;
     }
     this.data = next;
-    this.dataListeners.forEach(cb => cb());
+    this.dataListeners.forEach(cb => {
+      cb();
+    });
     // Recompute the connected-ports index when edges changed, and notify
     // its dedicated channel only if the membership actually differs — an
     // edges array that was replaced but carries the same endpoints (e.g.
@@ -431,23 +435,31 @@ export class NodeGraphStore {
       const nextConnected = computeConnectedPorts(next.edges);
       if (!connectedSetsEqual(nextConnected, this.connectedPorts)) {
         this.connectedPorts = nextConnected;
-        this.connectedPortsListeners.forEach(cb => cb());
+        this.connectedPortsListeners.forEach(cb => {
+          cb();
+        });
       }
     }
     if (didMutatePortPositions) {
       this.portPositionsVersion++;
-      this.portPositionListeners.forEach(cb => cb());
+      this.portPositionListeners.forEach(cb => {
+        cb();
+      });
     }
     if (didMutateMeasuredSizes) {
       this.measuredSizesVersion++;
-      this.measuredSizeListeners.forEach(cb => cb());
+      this.measuredSizeListeners.forEach(cb => {
+        cb();
+      });
     }
   }
 
   setSelection(next: NodeGraphSelection): void {
     if (selectionEqual(next, this.selection)) return;
     this.selection = next;
-    this.selectionListeners.forEach(cb => cb());
+    this.selectionListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setInteraction(next: NodeGraphInteractionState): void {
@@ -457,7 +469,9 @@ export class NodeGraphStore {
 
     // Global listeners: canvas layers, the main NodeGraph component (for
     // layer invalidation), and any consumer hook that wants every change.
-    this.interactionListeners.forEach(cb => cb());
+    this.interactionListeners.forEach(cb => {
+      cb();
+    });
 
     // Per-node listeners: notify ids that are in the next or the prev drag
     // set. A node that *leaves* the drag set needs to clear its local
@@ -468,19 +482,25 @@ export class NodeGraphStore {
     if (prevIds.size === 0 && nextIds.size === 0) return;
 
     for (const id of nextIds) {
-      this.nodeInteractionListeners.get(id)?.forEach(cb => cb());
+      this.nodeInteractionListeners.get(id)?.forEach(cb => {
+        cb();
+      });
     }
     for (const id of prevIds) {
       // Dedupe — already notified above when the node is in both sets.
       if (nextIds.has(id)) continue;
-      this.nodeInteractionListeners.get(id)?.forEach(cb => cb());
+      this.nodeInteractionListeners.get(id)?.forEach(cb => {
+        cb();
+      });
     }
   }
 
   setHover(next: NodeGraphHoverState): void {
     if (hoverEqual(next, this.hover)) return;
     this.hover = next;
-    this.hoverListeners.forEach(cb => cb());
+    this.hoverListeners.forEach(cb => {
+      cb();
+    });
   }
 
   /**
@@ -510,7 +530,9 @@ export class NodeGraphStore {
     }
     perNode.set(portId, next);
     this.portPositionsVersion++;
-    this.portPositionListeners.forEach(cb => cb());
+    this.portPositionListeners.forEach(cb => {
+      cb();
+    });
   }
 
   /** Remove a port registration. Called by `<NodeGraph.Port>` cleanup. */
@@ -520,7 +542,9 @@ export class NodeGraphStore {
     if (!perNode.delete(portId)) return;
     if (perNode.size === 0) this.portPositions.delete(nodeId);
     this.portPositionsVersion++;
-    this.portPositionListeners.forEach(cb => cb());
+    this.portPositionListeners.forEach(cb => {
+      cb();
+    });
   }
 
   /**
@@ -534,14 +558,18 @@ export class NodeGraphStore {
     }
     this.measuredSizes.set(nodeId, next);
     this.measuredSizesVersion++;
-    this.measuredSizeListeners.forEach(cb => cb());
+    this.measuredSizeListeners.forEach(cb => {
+      cb();
+    });
   }
 
   /** Clear the measured size of a node (called on unmount). */
   clearMeasuredSize(nodeId: string): void {
     if (!this.measuredSizes.delete(nodeId)) return;
     this.measuredSizesVersion++;
-    this.measuredSizeListeners.forEach(cb => cb());
+    this.measuredSizeListeners.forEach(cb => {
+      cb();
+    });
   }
 
   // ── Convenience selection helpers ──

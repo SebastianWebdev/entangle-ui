@@ -8,7 +8,7 @@ import React, {
   useRef,
   useTransition,
 } from 'react';
-import { useControlledState, useLatest } from '@/hooks';
+
 import {
   Viewport,
   ViewportLayer,
@@ -17,14 +17,69 @@ import {
   screenToWorld as worldFromScreen,
   worldToScreen as screenFromWorld,
 } from '@/components/primitives/viewport';
-import type {
-  ViewportHandle,
-  ViewportSelectionEvent,
-  ViewportTransform,
-  WorldRect,
-} from '@/components/primitives/viewport';
+import { useControlledState, useLatest } from '@/hooks';
 import { cx } from '@/utils/cx';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+
+import { nodeGraphRootStyle } from './NodeGraph.css';
+import { NodeGraphStoreContext } from './NodeGraphContext';
+import {
+  buildDrawTheme,
+  drawBackground,
+  drawConnectionPreview,
+  drawEdges,
+  drawGroups,
+} from './nodeGraphDrawing';
+import { EdgeLabelsLayer } from './NodeGraphEdgeLabels';
+import { NodeGraphGroupView } from './NodeGraphGroup';
+import {
+  computeNodesBounds,
+  findEdgeAtPoint,
+  getNodeBox,
+  isPointInNode,
+  isPointInRect,
+  rectsIntersect,
+  resolvePortRef,
+  toggleSelected,
+} from './nodeGraphMath';
+import { NodeGraphMinimapInner } from './NodeGraphMinimap';
+import { NodeGraphNodeView } from './NodeGraphNode';
+import {
+  NodeGraphNodeBody,
+  NodeGraphNodeHeader,
+  NodeGraphPinList,
+  NodeGraphPinRow,
+} from './NodeGraphNodeParts';
+import { NodeGraphNodeSection } from './NodeGraphNodeSection';
+import { NodeGraphPin } from './NodeGraphPin';
+import { NodeGraphPort } from './NodeGraphPort';
+import { NodeGraphPortVisual } from './NodeGraphPortVisual';
+import {
+  NodeGraphBackground,
+  NodeGraphMinimap,
+  NodeGraphSpawnPalette,
+  NodeGraphToolbar,
+} from './NodeGraphSlots';
+import { NodeGraphSpawnPaletteInner } from './NodeGraphSpawnPalette';
+import { NodeGraphStore } from './NodeGraphStore';
+import {
+  NodeGraphToolbarInner,
+  NodeGraphFitContentButton,
+  NodeGraphFitSelectionButton,
+  NodeGraphZoomInButton,
+  NodeGraphZoomOutButton,
+  NodeGraphResetZoomButton,
+  NodeGraphToolbarSeparator,
+} from './NodeGraphToolbar';
+import { sortSlots } from './sortSlots';
+import { useNodeGraphConnection } from './useNodeGraphConnection';
+import {
+  useNodeGraphEdgeInteraction,
+  EDGE_HIT_PX,
+} from './useNodeGraphEdgeInteraction';
+import { useNodeGraphGroupDrag } from './useNodeGraphGroupDrag';
+import { useNodeGraphKeyboard } from './useNodeGraphKeyboard';
+import { useNodeGraphNodeDrag } from './useNodeGraphNodeDrag';
+
 import type {
   NodeGraphContextMenuInfo,
   NodeGraphEdge,
@@ -37,65 +92,13 @@ import type {
   NodeGraphSelection,
   NodeGraphTarget,
 } from './NodeGraph.types';
-import { sortSlots } from './sortSlots';
-import { NodeGraphStore } from './NodeGraphStore';
-import { NodeGraphStoreContext } from './NodeGraphContext';
-import { NodeGraphNodeView } from './NodeGraphNode';
-import { NodeGraphGroupView } from './NodeGraphGroup';
-import { NodeGraphMinimapInner } from './NodeGraphMinimap';
-import {
-  NodeGraphBackground,
-  NodeGraphMinimap,
-  NodeGraphSpawnPalette,
-  NodeGraphToolbar,
-} from './NodeGraphSlots';
-import { NodeGraphSpawnPaletteInner } from './NodeGraphSpawnPalette';
-import {
-  NodeGraphToolbarInner,
-  NodeGraphFitContentButton,
-  NodeGraphFitSelectionButton,
-  NodeGraphZoomInButton,
-  NodeGraphZoomOutButton,
-  NodeGraphResetZoomButton,
-  NodeGraphToolbarSeparator,
-} from './NodeGraphToolbar';
-import { NodeGraphPort } from './NodeGraphPort';
-import { NodeGraphPortVisual } from './NodeGraphPortVisual';
-import { NodeGraphPin } from './NodeGraphPin';
-import { NodeGraphNodeSection } from './NodeGraphNodeSection';
-import { EdgeLabelsLayer } from './NodeGraphEdgeLabels';
-import {
-  NodeGraphNodeBody,
-  NodeGraphNodeHeader,
-  NodeGraphPinList,
-  NodeGraphPinRow,
-} from './NodeGraphNodeParts';
-import {
-  buildDrawTheme,
-  drawBackground,
-  drawConnectionPreview,
-  drawEdges,
-  drawGroups,
-} from './nodeGraphDrawing';
-import {
-  computeNodesBounds,
-  findEdgeAtPoint,
-  getNodeBox,
-  isPointInNode,
-  isPointInRect,
-  rectsIntersect,
-  resolvePortRef,
-  toggleSelected,
-} from './nodeGraphMath';
-import { useNodeGraphConnection } from './useNodeGraphConnection';
-import { useNodeGraphKeyboard } from './useNodeGraphKeyboard';
-import { useNodeGraphNodeDrag } from './useNodeGraphNodeDrag';
-import { useNodeGraphGroupDrag } from './useNodeGraphGroupDrag';
-import {
-  useNodeGraphEdgeInteraction,
-  EDGE_HIT_PX,
-} from './useNodeGraphEdgeInteraction';
-import { nodeGraphRootStyle } from './NodeGraph.css';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type {
+  ViewportHandle,
+  ViewportSelectionEvent,
+  ViewportTransform,
+  WorldRect,
+} from '@/components/primitives/viewport';
 
 const EMPTY_NODES: NodeGraphNode[] = [];
 const EMPTY_EDGES: NodeGraphEdge[] = [];
@@ -749,7 +752,9 @@ const NodeGraphImpl = ({
         invalidate('groups');
         invalidate('edges');
       }),
-      store.subscribeHover(() => invalidate('edges')),
+      store.subscribeHover(() => {
+        invalidate('edges');
+      }),
       // Interaction drives the in-flight drag delta — every canvas layer
       // that visualises something positional needs to redraw on each tick:
       // edges (connectors follow dragged nodes live, not snap on release),
@@ -761,7 +766,9 @@ const NodeGraphImpl = ({
       }),
       // Port positions (re)registered by `<NodeGraph.Port>` slots — edges
       // anchor at the registered point, so any change must redraw.
-      store.subscribePortPositions(() => invalidate('edges')),
+      store.subscribePortPositions(() => {
+        invalidate('edges');
+      }),
       // Measured node sizes feed the marquee / hit-test bounds — no canvas
       // redraw needed, but subscribe so React-side reads in renderers see
       // the updates if they depend on it.
@@ -842,6 +849,14 @@ const NodeGraphImpl = ({
 
   return (
     <NodeGraphStoreContext.Provider value={store}>
+      {/*
+        The root is an event-delegation wrapper for graph-wide keyboard
+        shortcuts and pointer capture; it is not itself focusable. The
+        focusable, labelled interactive surface is the inner <Viewport>
+        (ariaLabel + ariaRoledescription="node graph"), which jsx-a11y
+        cannot see through this wrapper.
+      */}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         ref={rootRef}
         id={id}

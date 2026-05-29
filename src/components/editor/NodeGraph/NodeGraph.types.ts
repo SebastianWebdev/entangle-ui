@@ -1,6 +1,4 @@
-import type React from 'react';
-import type { Prettify } from '@/types/utilities';
-import type { BaseComponent } from '@/types/common';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type {
   ViewportPanConfig,
   ViewportSize,
@@ -8,7 +6,9 @@ import type {
   ViewportZoomConfig,
   WorldRect,
 } from '@/components/primitives/viewport';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type { BaseComponent } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 // ─── Geometry primitives ───
 
@@ -417,7 +417,7 @@ export interface NodeGraphSlotMarker {
 // ─── Props ───
 
 export interface NodeGraphBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent,
   'onChange' | 'onContextMenu' | 'ref'
 > {
   // ── Nodes (controlled / uncontrolled) ──

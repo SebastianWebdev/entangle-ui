@@ -1,24 +1,25 @@
 'use client';
 
-import React, { useCallback, useDeferredValue, useMemo, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback, useDeferredValue, useMemo, useRef } from 'react';
+
+import { useViewportStore } from '@/components/primitives/viewport/ViewportContext';
 import { useResizeObserver } from '@/hooks';
 import { cx } from '@/utils/cx';
-import { useViewportStore } from '@/components/primitives/viewport/ViewportContext';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+
 import {
   defaultNodeBodyRecipe,
   nodeHeightVar,
   nodeWidthVar,
   nodeWrapperRecipe,
 } from './NodeGraph.css';
-import type { NodeGraphNode, NodeGraphRenderCtx } from './NodeGraph.types';
 import { useNodeGraphStore } from './NodeGraphContext';
-import {
-  NodeGraphNodeContext,
-  type NodeGraphNodeContextValue,
-} from './NodeGraphNodeContext';
+import { NodeGraphNodeContext } from './NodeGraphNodeContext';
 import { useStoreSlice } from './useStoreSlice';
+
+import type { NodeGraphNode, NodeGraphRenderCtx } from './NodeGraph.types';
+import type { NodeGraphNodeContextValue } from './NodeGraphNodeContext';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 
 interface NodeGraphNodeViewProps {
   node: NodeGraphNode;
@@ -240,8 +241,9 @@ function NodeGraphNodeViewImpl(
   const nodeContext = useMemo<NodeGraphNodeContextValue>(
     () => ({
       nodeId: node.id,
-      onPortPointerDown: (event, portId) =>
-        onPortPointerDown(event, node.id, portId),
+      onPortPointerDown: (event, portId) => {
+        onPortPointerDown(event, node.id, portId);
+      },
     }),
     [node.id, onPortPointerDown]
   );
@@ -262,11 +264,17 @@ function NodeGraphNodeViewImpl(
       data-hovered={hovered ? 'true' : undefined}
       data-selected={selected ? 'true' : undefined}
       data-dragging={dragging ? 'true' : undefined}
-      onPointerDown={e => onBodyPointerDown(e, node)}
-      onPointerUp={e => onBodyPointerUp(e, node)}
+      onPointerDown={e => {
+        onBodyPointerDown(e, node);
+      }}
+      onPointerUp={e => {
+        onBodyPointerUp(e, node);
+      }}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
-      onContextMenu={e => onBodyContextMenu(e, node)}
+      onContextMenu={e => {
+        onBodyContextMenu(e, node);
+      }}
     >
       <NodeGraphNodeContext.Provider value={nodeContext}>
         {body}

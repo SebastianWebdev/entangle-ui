@@ -1,3 +1,5 @@
+import { NODE_GRAPH_SLOT } from './NodeGraph.types';
+
 import type {
   NodeGraphBackgroundSlotProps,
   NodeGraphMinimapSlotProps,
@@ -5,7 +7,6 @@ import type {
   NodeGraphSpawnPaletteSlotProps,
   NodeGraphToolbarSlotProps,
 } from './NodeGraph.types';
-import { NODE_GRAPH_SLOT } from './NodeGraph.types';
 
 /**
  * Marker behind `<NodeGraph.Minimap>` — returns `null` and carries a Symbol

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+
 import type { NodeGraphPortShape } from './NodeGraph.types';
 
 export interface NodeGraphPortVisualProps {

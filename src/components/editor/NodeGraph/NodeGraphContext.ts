@@ -1,13 +1,14 @@
 'use client';
 
 import { createContext, useContext, useSyncExternalStore } from 'react';
+
+import type { NodeGraphSelection } from './NodeGraph.types';
 import type {
   NodeGraphDataState,
   NodeGraphHoverState,
   NodeGraphInteractionState,
   NodeGraphStore,
 } from './NodeGraphStore';
-import type { NodeGraphSelection } from './NodeGraph.types';
 
 export const NodeGraphStoreContext =
   /*#__PURE__*/ createContext<NodeGraphStore | null>(null);

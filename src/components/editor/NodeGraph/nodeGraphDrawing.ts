@@ -1,28 +1,29 @@
-import type {
-  CanvasThemeColors,
-  Point2D,
-} from '@/components/primitives/canvas/canvas.types';
-import type { ViewportLayerDrawInfo } from '@/components/primitives/viewport';
-import type {
-  BezierControlPoints,
-  NodeLookup,
-  PortPositionLookup,
-} from './nodeGraphMath';
 import {
   applyGroupResize,
   getBezierControlPoints,
   resolveEdgeEndpoints,
 } from './nodeGraphMath';
-import type {
-  NodeGraphDataState,
-  NodeGraphInteractionState,
-} from './NodeGraphStore';
+
 import type {
   NodeGraphEdgeStyleFn,
   NodeGraphPortRef,
   NodeGraphPortSide,
   NodeGraphSelection,
 } from './NodeGraph.types';
+import type {
+  BezierControlPoints,
+  NodeLookup,
+  PortPositionLookup,
+} from './nodeGraphMath';
+import type {
+  NodeGraphDataState,
+  NodeGraphInteractionState,
+} from './NodeGraphStore';
+import type {
+  CanvasThemeColors,
+  Point2D,
+} from '@/components/primitives/canvas/canvas.types';
+import type { ViewportLayerDrawInfo } from '@/components/primitives/viewport';
 
 export interface NodeGraphDrawTheme extends CanvasThemeColors {
   /** Colour of an unselected, non-hovered edge. */
@@ -599,10 +600,7 @@ function fillWithPattern(
   tx: number,
   ty: number
 ): void {
-  const pattern = ctx.createPattern(
-    tile as unknown as CanvasImageSource,
-    'repeat'
-  );
+  const pattern = ctx.createPattern(tile, 'repeat');
   if (!pattern) return;
   ctx.save();
   // Move the pattern origin so the first tile starts at (tx, ty) instead

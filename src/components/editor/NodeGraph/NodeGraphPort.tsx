@@ -7,16 +7,19 @@ import React, {
   useRef,
   useSyncExternalStore,
 } from 'react';
-import { useResizeObserver } from '@/hooks';
+
 import { useViewportStore } from '@/components/primitives/viewport/ViewportContext';
+import { useResizeObserver } from '@/hooks';
 import { cx } from '@/utils/cx';
+
 import { portSlotRecipe } from './NodeGraph.css';
-import type { NodeGraphPortSlotProps } from './NodeGraph.types';
 import { useNodeGraphStore } from './NodeGraphContext';
 import { useNodeGraphNodeContext } from './NodeGraphNodeContext';
 import { useNodeGraphNodeSection } from './NodeGraphNodeSectionContext';
-import { useStoreSlice } from './useStoreSlice';
 import { NodeGraphPortVisual } from './NodeGraphPortVisual';
+import { useStoreSlice } from './useStoreSlice';
+
+import type { NodeGraphPortSlotProps } from './NodeGraph.types';
 
 interface PortVisualState {
   isSource: boolean;
@@ -187,7 +190,9 @@ function NodeGraphPortImpl({
     measure();
   }, [measure, measuredSize]);
 
-  useResizeObserver(elementRef, () => measure());
+  useResizeObserver(elementRef, () => {
+    measure();
+  });
 
   // Unregister on unmount / id change.
   useLayoutEffect(() => {

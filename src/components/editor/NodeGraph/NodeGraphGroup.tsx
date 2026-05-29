@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { cx } from '@/utils/cx';
+
 import { ColorPicker } from '@/components/controls/ColorPicker/ColorPicker';
 import { Popover } from '@/components/primitives/Popover/Popover';
 import { PopoverContent } from '@/components/primitives/Popover/PopoverContent';
 import { PopoverTrigger } from '@/components/primitives/Popover/PopoverTrigger';
+import { cx } from '@/utils/cx';
+
 import {
   groupColorSwatchStyle,
   groupLabelBarStyle,
@@ -14,14 +16,15 @@ import {
   groupOverlayRecipe,
   groupResizeHandleStyle,
 } from './NodeGraph.css';
+import { useNodeGraphStore } from './NodeGraphContext';
+import { applyGroupResize } from './nodeGraphMath';
+import { useStoreSlice } from './useStoreSlice';
+
 import type { NodeGraphGroup } from './NodeGraph.types';
 import type {
   NodeGraphGroupResizeHandle,
   NodeGraphInteractionState,
 } from './NodeGraphStore';
-import { useNodeGraphStore } from './NodeGraphContext';
-import { applyGroupResize } from './nodeGraphMath';
-import { useStoreSlice } from './useStoreSlice';
 import type { WorldRect } from '@/components/primitives/viewport';
 
 interface NodeGraphGroupViewProps {
@@ -303,8 +306,12 @@ function NodeGraphGroupViewImpl({
       }}
       data-group-id={group.id}
       data-blocked={blocked || undefined}
-      onPointerDown={e => onBodyPointerDown(e, group)}
-      onPointerUp={e => onBodyPointerUp(e, group)}
+      onPointerDown={e => {
+        onBodyPointerDown(e, group);
+      }}
+      onPointerUp={e => {
+        onBodyPointerUp(e, group);
+      }}
       onContextMenu={onBodyContextMenu}
     >
       <div
@@ -312,7 +319,9 @@ function NodeGraphGroupViewImpl({
         // Don't let pointerdown on the label bar (label text, color swatch,
         // input) fall through to the body drag handler — the label bar is
         // an interactive control row, not a draggable handle.
-        onPointerDown={e => e.stopPropagation()}
+        onPointerDown={e => {
+          e.stopPropagation();
+        }}
       >
         {editing ? (
           <input
@@ -321,7 +330,9 @@ function NodeGraphGroupViewImpl({
             value={draft}
             placeholder="Group name"
             spellCheck={false}
-            onChange={e => setDraft(e.target.value)}
+            onChange={e => {
+              setDraft(e.target.value);
+            }}
             onBlur={commitLabel}
             onKeyDown={handleInputKeyDown}
           />
@@ -378,7 +389,9 @@ function NodeGraphGroupViewImpl({
               }}
               data-group-id={group.id}
               data-group-handle={handle}
-              onPointerDown={e => onHandlePointerDown(e, group, handle)}
+              onPointerDown={e => {
+                onHandlePointerDown(e, group, handle);
+              }}
             />
           ))
         : null}

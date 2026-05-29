@@ -1,16 +1,19 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { CommandPalette } from '@/components/feedback/CommandPalette/CommandPalette';
-import type { CommandItem } from '@/components/feedback/CommandPalette/CommandPalette.types';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+
 import { useNodeGraphStore } from './NodeGraphContext';
 import { generateNodeId } from './nodeGraphIds';
+
 import type {
   NodeGraphNode,
   NodeGraphSpawnContext,
   NodeGraphSpawnPaletteSlotProps,
 } from './NodeGraph.types';
+import type { CommandItem } from '@/components/feedback/CommandPalette/CommandPalette.types';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 
 /**
  * Live renderer for `<NodeGraph.SpawnPalette>`. Mounted by the parent

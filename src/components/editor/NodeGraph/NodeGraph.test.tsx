@@ -773,9 +773,7 @@ describe('NodeGraph — Connections', () => {
     // The connection drag uses document.elementFromPoint to find the drop
     // candidate — jsdom lacks it, so install a stub for the duration of the
     // test.
-    document.elementFromPoint = vi.fn(
-      () => targetPort
-    ) as unknown as typeof document.elementFromPoint;
+    document.elementFromPoint = vi.fn(() => targetPort);
 
     fireEvent(
       document,
@@ -830,9 +828,7 @@ describe('NodeGraph — Connections', () => {
       clientY: 120,
     });
 
-    document.elementFromPoint = vi.fn(
-      () => targetPort
-    ) as unknown as typeof document.elementFromPoint;
+    document.elementFromPoint = vi.fn(() => targetPort);
 
     fireEvent(
       document,
@@ -872,9 +868,7 @@ describe('NodeGraph — Connections', () => {
       clientY: 120,
     });
     // Drop on empty space — nothing under the pointer.
-    document.elementFromPoint = vi.fn(
-      () => null
-    ) as unknown as typeof document.elementFromPoint;
+    document.elementFromPoint = vi.fn(() => null);
     fireEvent(
       document,
       new MockPointerEvent('pointerup', {
@@ -1071,9 +1065,7 @@ describe('NodeGraph — Edge reconnect', () => {
     );
     grabTargetEndpoint();
     // Move past the drag threshold, then drop on empty (elementFromPoint null).
-    document.elementFromPoint = vi.fn(
-      () => null
-    ) as unknown as typeof document.elementFromPoint;
+    document.elementFromPoint = vi.fn(() => null);
     fireEvent(
       document,
       new MockPointerEvent('pointermove', {
@@ -1113,9 +1105,7 @@ describe('NodeGraph — Edge reconnect', () => {
     const newTarget = document.querySelector(
       '[data-node-id="n2"][data-port-id="out"]'
     ) as HTMLElement;
-    document.elementFromPoint = vi.fn(
-      () => newTarget
-    ) as unknown as typeof document.elementFromPoint;
+    document.elementFromPoint = vi.fn(() => newTarget);
     fireEvent(
       document,
       new MockPointerEvent('pointermove', {

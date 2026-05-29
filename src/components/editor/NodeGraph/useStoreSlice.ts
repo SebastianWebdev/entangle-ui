@@ -31,7 +31,13 @@ export function useStoreSlice<TSource, TSelected>(
   const cacheRef = useRef<SliceCache<TSource, TSelected> | null>(null);
   const selectorRef = useRef(selector);
   const isEqualRef = useRef(isEqual);
+  // Keep these refs pointed at the latest selector + equality fn so the
+  // snapshot getter below always uses current values without forcing a
+  // re-subscribe. This mirrors `use-sync-external-store/with-selector`, which
+  // deliberately writes these refs during render rather than in an effect.
+  // eslint-disable-next-line react-hooks/refs -- intentional with-selector latest refs
   selectorRef.current = selector;
+  // eslint-disable-next-line react-hooks/refs -- intentional with-selector latest refs
   isEqualRef.current = isEqual;
 
   const getSelectedSnapshot = useCallback((): TSelected => {

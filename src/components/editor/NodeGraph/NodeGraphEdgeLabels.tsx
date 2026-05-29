@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useCallback, useSyncExternalStore } from 'react';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
-import type { NodeGraphEdge } from './NodeGraph.types';
-import type { NodeGraphInteractionState } from './NodeGraphStore';
+
 import { useNodeGraphStore } from './NodeGraphContext';
 import { resolvePortRef } from './nodeGraphMath';
 import { useStoreSlice } from './useStoreSlice';
+
+import type { NodeGraphEdge } from './NodeGraph.types';
+import type { NodeGraphInteractionState } from './NodeGraphStore';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 
 interface RenderEdgeLabelRef {
   current: ((edge: NodeGraphEdge) => React.ReactNode) | undefined;
@@ -186,9 +188,13 @@ function EdgeLabel({
   const ty = tgt.position.y + (tgtDelta?.y ?? 0);
   const midX = (sx + tx) / 2;
   const midY = (sy + ty) / 2;
-  const content = renderEdgeLabelRef.current
-    ? renderEdgeLabelRef.current(edge)
-    : (edge.label ?? null);
+  // The render callback lives in a `useLatest` ref so swapping it doesn't
+  // re-render every edge label; reading the current value here is deliberate.
+  // Labels refresh on the next data / interaction tick, which is the only
+  // moment their content is consumed anyway.
+  // eslint-disable-next-line react-hooks/refs -- intentional latest-callback read
+  const render = renderEdgeLabelRef.current;
+  const content = render ? render(edge) : (edge.label ?? null);
   if (content == null || content === false) return null;
 
   return (

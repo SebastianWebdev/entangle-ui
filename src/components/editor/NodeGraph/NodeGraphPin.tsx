@@ -1,10 +1,13 @@
 'use client';
 
 import React from 'react';
+
 import { cx } from '@/utils/cx';
+
 import { pinLabelStyle } from './NodeGraph.css';
 import { NodeGraphPinRow } from './NodeGraphNodeParts';
 import { NodeGraphPort } from './NodeGraphPort';
+
 import type { NodeGraphPortShape, NodeGraphPortSide } from './NodeGraph.types';
 
 export interface NodeGraphPinProps {

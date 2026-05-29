@@ -1,11 +1,12 @@
 'use client';
 
-import type React from 'react';
 import { useCallback, useEffect, useRef } from 'react';
-import { useLatest } from '@/hooks';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+
 import { screenToWorld } from '@/components/primitives/viewport';
-import type { ViewportTransform } from '@/components/primitives/viewport';
+import { useLatest } from '@/hooks';
+
+import { generateEdgeId } from './nodeGraphIds';
+
 import type {
   NodeGraphEdge,
   NodeGraphPortRef,
@@ -15,7 +16,9 @@ import type {
   NodeGraphConnectionValidationInfo,
 } from './NodeGraph.types';
 import type { NodeGraphStore } from './NodeGraphStore';
-import { generateEdgeId } from './nodeGraphIds';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type { ViewportTransform } from '@/components/primitives/viewport';
+import type React from 'react';
 
 /** Pointer travel (screen px) before a reconnect grab counts as a drag. */
 const RECONNECT_DRAG_THRESHOLD_PX = 4;
@@ -398,6 +401,7 @@ export function useNodeGraphConnection(
     },
     [
       store,
+      viewportRef,
       screenPointToWorld,
       onConnectStartRef,
       onConnectEndRef,

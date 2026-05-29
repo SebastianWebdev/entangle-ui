@@ -1,7 +1,8 @@
 'use client';
 
-import type React from 'react';
 import { useCallback, useLayoutEffect, useRef } from 'react';
+
+import type React from 'react';
 
 interface ActiveGesture {
   pointerId: number;

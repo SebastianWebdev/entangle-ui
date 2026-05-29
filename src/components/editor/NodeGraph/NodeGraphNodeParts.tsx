@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
+
 import { cx } from '@/utils/cx';
+
 import {
   nodeBodyRecipe,
   nodeHeaderStyle,
@@ -16,6 +18,7 @@ import {
 import { useNodeGraphStore } from './NodeGraphContext';
 import { useNodeGraphNodeContext } from './NodeGraphNodeContext';
 import { useStoreSlice } from './useStoreSlice';
+
 import type { NodeGraphPortSide } from './NodeGraph.types';
 
 /**

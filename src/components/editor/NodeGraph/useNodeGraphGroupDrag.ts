@@ -1,14 +1,20 @@
 'use client';
 
-import type React from 'react';
 import { useCallback, useEffect, useRef } from 'react';
-import { useLatest } from '@/hooks';
+
 import { screenToWorld as worldFromScreen } from '@/components/primitives/viewport';
-import type {
-  ViewportTransform,
-  WorldRect,
-} from '@/components/primitives/viewport';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import { useLatest } from '@/hooks';
+
+import {
+  applyGroupResize,
+  getNodeBox,
+  rectContains,
+  rectsIntersect,
+  snapDelta,
+  toggleSelected,
+} from './nodeGraphMath';
+import { useDragGesture } from './useDragGesture';
+
 import type {
   NodeGraphGroup,
   NodeGraphNode,
@@ -19,15 +25,12 @@ import type {
   NodeGraphInteractionState,
   NodeGraphStore,
 } from './NodeGraphStore';
-import {
-  applyGroupResize,
-  getNodeBox,
-  rectContains,
-  rectsIntersect,
-  snapDelta,
-  toggleSelected,
-} from './nodeGraphMath';
-import { useDragGesture } from './useDragGesture';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type {
+  ViewportTransform,
+  WorldRect,
+} from '@/components/primitives/viewport';
+import type React from 'react';
 
 const DRAG_START_THRESHOLD_PX = 3;
 
@@ -257,11 +260,10 @@ export function useNodeGraphGroupDrag(
           delta: snapped,
           blocked,
         });
-      } else if (
-        session.kind === 'resize' &&
-        session.resizeStartBounds &&
-        session.handle
-      ) {
+      } else if (session.resizeStartBounds && session.handle) {
+        // `session.kind` is narrowed to 'resize' here (the `'drag'` branch
+        // above is the only other kind); we still guard the optional
+        // resize fields before using them.
         const nextBounds = applyGroupResize(
           session.resizeStartBounds,
           session.handle,
