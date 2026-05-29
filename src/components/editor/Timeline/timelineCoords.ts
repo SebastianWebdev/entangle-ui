@@ -1,4 +1,9 @@
+import { clamp } from '@/utils/mathUtils';
 import type { TimelineLoop, TimelineView } from './Timeline.types';
+
+// Re-exported so the Timeline modules keep importing their coord math from a
+// single place (`./timelineCoords`) while sharing the one `clamp` impl.
+export { clamp };
 
 /** Resolve a loop prop to a concrete `{ startFrame, endFrame }` region, or null. */
 export function resolveLoop(
@@ -38,11 +43,6 @@ export function snapFrame(frame: number, snap: boolean | number): number {
   return Math.round(frame / step) * step;
 }
 
-/** Clamp a value to `[min, max]`. */
-export function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
-
 /**
  * Format a frame number as `HH:MM:SS:FF` timecode at the given fps.
  * Negative frames clamp to zero; fps is rounded to whole frames-per-second.
@@ -62,7 +62,7 @@ export function framesToTimecode(frame: number, fps: number): string {
 // ─── Graph-mode value axis ───
 
 /** Vertical inset (CSS px) inside a graph row so curves don't touch the edges. */
-function valueInset(rowHeight: number): number {
+export function valueInset(rowHeight: number): number {
   return Math.min(8, rowHeight * 0.2);
 }
 

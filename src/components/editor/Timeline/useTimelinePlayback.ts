@@ -63,8 +63,11 @@ export function useTimelinePlayback(opts: UseTimelinePlaybackOptions): void {
   const accRef = useRef(opts.frame);
   const lastEmittedRef = useRef(opts.frame);
 
-  // `useEffectEvent` reads the latest props/state without re-triggering the
-  // effect — replaces a swarm of `useLatest` refs.
+  // Canonical `useEffectEvent` use case: `tick` is called *only* from inside
+  // the rAF loop below (never attached to JSX or passed out), so it may read
+  // the latest props/state without re-arming the loop. This is the React
+  // "timer with latest values" pattern — keep it here; do not convert it to a
+  // handler that escapes the effect.
   const tick = useEffectEvent((dt: number): boolean => {
     // External scrub during playback → resync the accumulator.
     if (opts.frame !== lastEmittedRef.current) {

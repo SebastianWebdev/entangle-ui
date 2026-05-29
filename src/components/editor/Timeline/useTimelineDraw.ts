@@ -1,13 +1,8 @@
 'use client';
 
 import type React from 'react';
-import {
-  useCallback,
-  useEffect,
-  useEffectEvent,
-  useLayoutEffect,
-  useRef,
-} from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import { useLatest } from '@/hooks';
 import { vars } from '@/theme/contract.css';
 import { resolveVarValue } from '@/components/primitives/canvas/canvasTheme';
 import type { ViewportSize } from '@/components/primitives/viewport';
@@ -55,21 +50,16 @@ export interface UseTimelineDrawOptions {
 /**
  * Schedules a canvas redraw via `requestAnimationFrame`, resolves theme
  * tokens per-frame so the live theme is respected, and re-runs on any
- * input change. `renderOverlay` / `formatTime` are read through
- * `useEffectEvent` so consumer inline functions don't invalidate the draw.
+ * input change. `renderOverlay` / `formatTime` are read through `useLatest`
+ * refs so consumer inline functions don't invalidate the draw schedule
+ * (component-patterns.md rule #3).
  */
 export function useTimelineDraw(opts: UseTimelineDrawOptions): void {
   const rafRef = useRef<number>(0);
 
   // Consumer callbacks — read live without invalidating `scheduleDraw`.
-  const callRenderOverlay = useEffectEvent(
-    (ctx: CanvasRenderingContext2D, info: TimelineDrawInfo): void => {
-      opts.renderOverlay?.(ctx, info);
-    }
-  );
-  const callFormatTime = useEffectEvent((f: number, fps: number): string =>
-    (opts.formatTime ?? framesToTimecode)(f, fps)
-  );
+  const renderOverlayRef = useLatest(opts.renderOverlay);
+  const formatTimeRef = useLatest(opts.formatTime);
 
   const scheduleDraw = useCallback((): void => {
     cancelAnimationFrame(rafRef.current);
@@ -133,7 +123,8 @@ export function useTimelineDraw(opts: UseTimelineDrawOptions): void {
         showPlayhead: opts.showPlayhead,
         colors,
         font: `${fontPx}px ${family}`,
-        formatTime: callFormatTime,
+        formatTime: (f: number, fps: number): string =>
+          (formatTimeRef.current ?? framesToTimecode)(f, fps),
         isSelected: (t, k) =>
           selKeys.has(selectionKey({ trackId: t, keyframeId: k })),
         isHovered: (t, k) =>
@@ -155,13 +146,16 @@ export function useTimelineDraw(opts: UseTimelineDrawOptions): void {
               },
             }
           : {}),
-        renderOverlay: callRenderOverlay,
+        renderOverlay: (
+          ctx: CanvasRenderingContext2D,
+          info: TimelineDrawInfo
+        ): void => renderOverlayRef.current?.(ctx, info),
         marquee: opts.marquee,
         loopRegion: opts.loopRegion,
         loopHover: opts.loopHover,
       });
     });
-    // `callRenderOverlay` and `callFormatTime` are stable `useEffectEvent`s.
+    // `renderOverlayRef` / `formatTimeRef` are stable refs from `useLatest`.
   }, [
     opts.canvasRef,
     opts.size,

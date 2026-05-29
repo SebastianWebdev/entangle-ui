@@ -6,7 +6,13 @@ import type {
   TimelineTrack,
 } from './Timeline.types';
 import type { TrackGeometry } from './timelineLayout';
-import { autoValueRange, clamp, snapFrame, yToValue } from './timelineCoords';
+import {
+  autoValueRange,
+  clamp,
+  snapFrame,
+  valueInset,
+  yToValue,
+} from './timelineCoords';
 import { selectionKey, selectionKeySet } from './timelineSelection';
 
 let idCounter = 0;
@@ -130,7 +136,7 @@ export function moveSelectedKeyframesGraph(
     const rowH =
       track.height ?? (track.expanded ? expandedHeight : trackHeight);
     const range = track.valueRange ?? autoValueRange(track.keyframes);
-    const inset = Math.min(8, rowH * 0.2);
+    const inset = valueInset(rowH);
     const usable = Math.max(1e-6, rowH - inset * 2);
     const valueDelta = -(deltaYPixels / usable) * (range[1] - range[0]);
     const keyframes = track.keyframes.map(kf => {

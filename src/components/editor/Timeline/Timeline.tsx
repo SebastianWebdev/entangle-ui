@@ -3,7 +3,6 @@
 import React, {
   useCallback,
   useEffect,
-  useEffectEvent,
   useImperativeHandle,
   useLayoutEffect,
   useMemo,
@@ -11,7 +10,7 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { useControlledState, useResizeObserver } from '@/hooks';
+import { useControlledState, useLatest, useResizeObserver } from '@/hooks';
 import { cx } from '@/utils/cx';
 import type { ViewportSize } from '@/components/primitives/viewport';
 import type {
@@ -336,17 +335,17 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     (f: number): void => setFrame(applyFrame(f)),
     [setFrame, applyFrame]
   );
-  const onFrameCompleteEvt = useEffectEvent((f: number): void => {
-    onFrameChangeComplete?.(f);
-  });
+  // Consumer callbacks live behind refs so the handlers that fire them keep a
+  // stable identity even when the parent passes a fresh inline function every
+  // render (component-patterns.md rules #3 / #11).
+  const onFrameCompleteRef = useLatest(onFrameChangeComplete);
   const seekCommit = useCallback(
     (f: number): void => {
       const v = applyFrame(f);
       setFrame(v);
-      onFrameCompleteEvt(v);
+      onFrameCompleteRef.current?.(v);
     },
-    // `onFrameCompleteEvt` is a stable `useEffectEvent`.
-    [setFrame, applyFrame]
+    [setFrame, applyFrame, onFrameCompleteRef]
   );
 
   // ── Playback (optional built-in rAF loop) ──
@@ -398,30 +397,39 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
 
   // ── Track-edit helpers ──
 
-  const setTracksLiveEvt = useEffectEvent((t: TimelineTrack[]): void => {
-    onTracksChange?.(t);
-  });
-  const commitTracksEvt = useEffectEvent((t: TimelineTrack[]): void => {
-    onTracksChangeComplete?.(t);
-  });
+  // Track-change callbacks behind refs (same rationale as `seekCommit`): the
+  // gesture hook + header handlers stay stable while the parent may pass fresh
+  // inline `onTracksChange` / `onTracksChangeComplete` each render.
+  const onTracksChangeRef = useLatest(onTracksChange);
+  const onTracksChangeCompleteRef = useLatest(onTracksChangeComplete);
+  const setTracksLive = useCallback(
+    (t: TimelineTrack[]): void => {
+      onTracksChangeRef.current?.(t);
+    },
+    [onTracksChangeRef]
+  );
+  const commitTracks = useCallback(
+    (t: TimelineTrack[]): void => {
+      onTracksChangeCompleteRef.current?.(t);
+    },
+    [onTracksChangeCompleteRef]
+  );
   const handleReorderTracks = useCallback(
     (next: TimelineTrack[]): void => {
-      setTracksLiveEvt(next);
-      commitTracksEvt(next);
+      setTracksLive(next);
+      commitTracks(next);
     },
-    // `setTracksLiveEvt` / `commitTracksEvt` are stable `useEffectEvent`s.
-    []
+    [setTracksLive, commitTracks]
   );
   const handleToggleTrackExpanded = useCallback(
     (trackId: string): void => {
       const next = tracks.map(t =>
         t.id === trackId ? { ...t, expanded: !t.expanded } : t
       );
-      setTracksLiveEvt(next);
-      commitTracksEvt(next);
+      setTracksLive(next);
+      commitTracks(next);
     },
-    // `setTracksLiveEvt` / `commitTracksEvt` are stable `useEffectEvent`s.
-    [tracks]
+    [tracks, setTracksLive, commitTracks]
   );
   const handleToggleGroupCollapsed = useCallback(
     (groupId: string): void => {
@@ -460,11 +468,15 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     [setView, clampView, startFrame, endFrame]
   );
 
-  const requestZoomToSelection = useEffectEvent((): void => {
-    const sel = selectionState;
+  // Live reads for the imperative `zoomToSelection`, kept in refs so the
+  // callback (wired into the store handle below) has a stable identity.
+  const selectionRef = useLatest(selectionState);
+  const tracksRef = useLatest(tracks);
+  const requestZoomToSelection = useCallback((): void => {
+    const sel = selectionRef.current;
     if (sel.length === 0) return;
     // O(|selection|) walk: index tracks once, look up the keyframe per ref.
-    const tracksById = new Map(tracks.map(t => [t.id, t]));
+    const tracksById = new Map(tracksRef.current.map(t => [t.id, t]));
     let min = Infinity;
     let max = -Infinity;
     for (const ref of sel) {
@@ -478,7 +490,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     if (!Number.isFinite(min) || !Number.isFinite(max)) return;
     const pad = Math.max(1, (max - min) * 0.1);
     setView(clampView({ startFrame: min - pad, endFrame: max + pad }));
-  });
+  }, [selectionRef, tracksRef, setView, clampView]);
 
   const requestSetView = useCallback(
     (v: TimelineView): void => {
@@ -497,8 +509,14 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
       zoomToFit: requestZoomToFit,
       zoomToSelection: requestZoomToSelection,
     });
-    // `requestZoomToSelection` is a stable `useEffectEvent`.
-  }, [store, seekCommit, setPlaying, requestSetView, requestZoomToFit]);
+  }, [
+    store,
+    seekCommit,
+    setPlaying,
+    requestSetView,
+    requestZoomToFit,
+    requestZoomToSelection,
+  ]);
 
   useImperativeHandle(ref, () => store.handle, [store]);
 
@@ -565,8 +583,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     seekLive,
     seekCommit,
     setSelection,
-    setTracks: setTracksLiveEvt,
-    commitTracks: commitTracksEvt,
+    setTracks: setTracksLive,
+    commitTracks: commitTracks,
     setView,
     setLoop,
     scrollBy,
@@ -576,7 +594,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
   // Native non-passive wheel listener (React onWheel is passive). Attach to
   // both the track body and the left header column so vertical scrolling works
   // when the cursor is over the track names too. `onWheel` is a stable
-  // `useEffectEvent` so this effect attaches once.
+  // `useCallback` (it reads live state through a ref), so this effect attaches
+  // once and never re-subscribes.
   useEffect(() => {
     const body = bodyRef.current;
     const header = headerColumnRef.current;
@@ -586,7 +605,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
       body?.removeEventListener('wheel', onWheel);
       header?.removeEventListener('wheel', onWheel);
     };
-  }, []);
+  }, [onWheel]);
 
   // ── Slots + draw ──
 

@@ -3,13 +3,13 @@
 import React, {
   useCallback,
   useEffect,
-  useEffectEvent,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 import { vars } from '@/theme/contract.css';
+import { cx } from '@/utils/cx';
 import { resolveVarValue } from '@/components/primitives/canvas/canvasTheme';
 import { useResizeObserver } from '@/hooks';
 import { useTimelineGeometry, useTimelinePlayhead } from './TimelineContext';
@@ -63,95 +63,91 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
   );
 
   // ── Render ──
+  // Canonical canvas template (component-patterns.md rule #7): the whole draw
+  // body lives inside `scheduleDraw`, closing over its reactive inputs and
+  // listing them in deps. Theme colors are resolved per-frame (never cached in
+  // state). The layout effect just depends on `scheduleDraw`.
   const rafRef = useRef<number>(0);
-  const drawNow = useEffectEvent((): void => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const renderCtx = canvas.getContext('2d');
-    if (!renderCtx) return;
-
-    const w = Math.max(1, width);
-    const h = Math.max(1, height);
-    const dpr =
-      typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-    const targetW = Math.max(1, Math.round(w * dpr));
-    const targetH = Math.max(1, Math.round(h * dpr));
-    if (canvas.width !== targetW || canvas.height !== targetH) {
-      canvas.width = targetW;
-      canvas.height = targetH;
-    }
-    renderCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    const bg = resolveVarValue(canvas, vars.colors.background.inset);
-    const border = resolveVarValue(canvas, vars.colors.border.default);
-    const marker =
-      markerColor ?? resolveVarValue(canvas, vars.colors.accent.secondary);
-    const accent =
-      viewportColor ?? resolveVarValue(canvas, vars.colors.accent.primary);
-
-    renderCtx.clearRect(0, 0, w, h);
-    renderCtx.fillStyle = bg;
-    renderCtx.fillRect(0, 0, w, h);
-
-    // Keyframe markers (small vertical ticks)
-    renderCtx.fillStyle = marker;
-    renderCtx.globalAlpha = 0.6;
-    for (const track of tracks) {
-      if (track.hidden) continue;
-      for (const kf of track.keyframes) {
-        const x = Math.round(((kf.x - geometry.startFrame) / range) * w);
-        renderCtx.fillRect(x, h * 0.25, 1, h * 0.5);
-      }
-    }
-    renderCtx.globalAlpha = 1;
-
-    // Viewport rectangle
-    const vx = ((geometry.view.startFrame - geometry.startFrame) / range) * w;
-    const vw =
-      ((geometry.view.endFrame - geometry.view.startFrame) / range) * w;
-    renderCtx.save();
-    renderCtx.fillStyle = accent;
-    renderCtx.globalAlpha = 0.16;
-    renderCtx.fillRect(vx, 0, vw, h);
-    renderCtx.globalAlpha = 1;
-    renderCtx.strokeStyle = accent;
-    renderCtx.lineWidth = 1;
-    renderCtx.strokeRect(vx + 0.5, 0.5, Math.max(0, vw - 1), h - 1);
-
-    // Edge "grippers" — small filled bars centred vertically on each edge
-    // hint that the viewport rectangle is resizable (zoom).
-    const gripH = Math.max(6, h * 0.4);
-    const gripY = (h - gripH) / 2;
-    renderCtx.fillRect(vx - 1, gripY, 2, gripH);
-    renderCtx.fillRect(vx + vw - 1, gripY, 2, gripH);
-    renderCtx.restore();
-
-    // Playhead
-    const px =
-      Math.round(((playhead.frame - geometry.startFrame) / range) * w) + 0.5;
-    renderCtx.strokeStyle = accent;
-    renderCtx.lineWidth = 1;
-    renderCtx.beginPath();
-    renderCtx.moveTo(px, 0);
-    renderCtx.lineTo(px, h);
-    renderCtx.stroke();
-
-    // Top + bottom borders
-    renderCtx.fillStyle = border;
-    renderCtx.fillRect(0, 0, w, 1);
-  });
 
   const scheduleDraw = useCallback((): void => {
     cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => drawNow());
-    // `drawNow` is a stable `useEffectEvent`.
-  }, []);
+    rafRef.current = requestAnimationFrame(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const renderCtx = canvas.getContext('2d');
+      if (!renderCtx) return;
 
-  useLayoutEffect(() => {
-    scheduleDraw();
-    return () => cancelAnimationFrame(rafRef.current);
+      const w = Math.max(1, width);
+      const h = Math.max(1, height);
+      const dpr =
+        typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+      const targetW = Math.max(1, Math.round(w * dpr));
+      const targetH = Math.max(1, Math.round(h * dpr));
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      renderCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const bg = resolveVarValue(canvas, vars.colors.background.inset);
+      const border = resolveVarValue(canvas, vars.colors.border.default);
+      const marker =
+        markerColor ?? resolveVarValue(canvas, vars.colors.accent.secondary);
+      const accent =
+        viewportColor ?? resolveVarValue(canvas, vars.colors.accent.primary);
+
+      renderCtx.clearRect(0, 0, w, h);
+      renderCtx.fillStyle = bg;
+      renderCtx.fillRect(0, 0, w, h);
+
+      // Keyframe markers (small vertical ticks)
+      renderCtx.fillStyle = marker;
+      renderCtx.globalAlpha = 0.6;
+      for (const track of tracks) {
+        if (track.hidden) continue;
+        for (const kf of track.keyframes) {
+          const x = Math.round(((kf.x - geometry.startFrame) / range) * w);
+          renderCtx.fillRect(x, h * 0.25, 1, h * 0.5);
+        }
+      }
+      renderCtx.globalAlpha = 1;
+
+      // Viewport rectangle
+      const vx = ((geometry.view.startFrame - geometry.startFrame) / range) * w;
+      const vw =
+        ((geometry.view.endFrame - geometry.view.startFrame) / range) * w;
+      renderCtx.save();
+      renderCtx.fillStyle = accent;
+      renderCtx.globalAlpha = 0.16;
+      renderCtx.fillRect(vx, 0, vw, h);
+      renderCtx.globalAlpha = 1;
+      renderCtx.strokeStyle = accent;
+      renderCtx.lineWidth = 1;
+      renderCtx.strokeRect(vx + 0.5, 0.5, Math.max(0, vw - 1), h - 1);
+
+      // Edge "grippers" — small filled bars centred vertically on each edge
+      // hint that the viewport rectangle is resizable (zoom).
+      const gripH = Math.max(6, h * 0.4);
+      const gripY = (h - gripH) / 2;
+      renderCtx.fillRect(vx - 1, gripY, 2, gripH);
+      renderCtx.fillRect(vx + vw - 1, gripY, 2, gripH);
+      renderCtx.restore();
+
+      // Playhead
+      const px =
+        Math.round(((playhead.frame - geometry.startFrame) / range) * w) + 0.5;
+      renderCtx.strokeStyle = accent;
+      renderCtx.lineWidth = 1;
+      renderCtx.beginPath();
+      renderCtx.moveTo(px, 0);
+      renderCtx.lineTo(px, h);
+      renderCtx.stroke();
+
+      // Top + bottom borders
+      renderCtx.fillStyle = border;
+      renderCtx.fillRect(0, 0, w, 1);
+    });
   }, [
-    scheduleDraw,
     width,
     height,
     range,
@@ -163,6 +159,11 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
     markerColor,
     viewportColor,
   ]);
+
+  useLayoutEffect(() => {
+    scheduleDraw();
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [scheduleDraw]);
 
   // ── Interactions: drag viewport, resize edges, click outside to center ──
 
@@ -202,7 +203,7 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
     [geometry.startFrame, range, width]
   );
 
-  const onPointerDown = useEffectEvent(
+  const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>): void => {
       if (e.button !== 0) return;
       const container = containerRef.current;
@@ -248,10 +249,18 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
         };
         setViewSpan(frame - span / 2);
       }
-    }
+    },
+    [
+      pxToFrame,
+      frameToPx,
+      geometry.view.startFrame,
+      geometry.view.endFrame,
+      setViewSpan,
+      span,
+    ]
   );
 
-  const onPointerMove = useEffectEvent(
+  const onPointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>): void => {
       const drag = dragRef.current;
       if (drag?.pointerId !== e.pointerId) return;
@@ -292,20 +301,28 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
           break;
         }
       }
-    }
+    },
+    [
+      pxToFrame,
+      setViewSpan,
+      setViewRaw,
+      span,
+      geometry.startFrame,
+      geometry.endFrame,
+      geometry.view.startFrame,
+      geometry.view.endFrame,
+    ]
   );
 
-  const endDrag = useEffectEvent(
-    (e: React.PointerEvent<HTMLDivElement>): void => {
-      const drag = dragRef.current;
-      if (drag?.pointerId !== e.pointerId) return;
-      const container = containerRef.current;
-      if (container?.hasPointerCapture(e.pointerId)) {
-        container.releasePointerCapture(e.pointerId);
-      }
-      dragRef.current = null;
+  const endDrag = useCallback((e: React.PointerEvent<HTMLDivElement>): void => {
+    const drag = dragRef.current;
+    if (drag?.pointerId !== e.pointerId) return;
+    const container = containerRef.current;
+    if (container?.hasPointerCapture(e.pointerId)) {
+      container.releasePointerCapture(e.pointerId);
     }
-  );
+    dragRef.current = null;
+  }, []);
 
   // Redraw when DPR changes
   useEffect(() => {
@@ -326,13 +343,13 @@ function TimelineMinimapImpl(props: InternalProps): React.ReactElement {
   return (
     <div
       ref={containerRef}
-      className={`${timelineMinimapStyle}${className ? ` ${className}` : ''}`}
+      className={cx(timelineMinimapStyle, className)}
       style={wrapperStyle}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
-      role="slider"
+      role="region"
       aria-label="Timeline overview"
     >
       <canvas

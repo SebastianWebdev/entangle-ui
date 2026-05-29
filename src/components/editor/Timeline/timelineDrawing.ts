@@ -7,7 +7,7 @@ import type {
   TimelineView,
 } from './Timeline.types';
 import type { TimelineRow } from './timelineLayout';
-import { frameToX, valueToY, xToFrame } from './timelineCoords';
+import { frameToX, valueInset, valueToY, xToFrame } from './timelineCoords';
 
 export interface TimelineDrawColors {
   background: string;
@@ -121,7 +121,7 @@ function drawGraphLane(
     const { position, format, showMidpoint, gridlines } = input.trackScale;
     const scaleColor = input.trackScale.color ?? colors.rulerText;
     const isStart = position === 'start';
-    const inset = Math.min(8, rowH * 0.2);
+    const inset = valueInset(rowH);
     const axisX = isStart ? 6 : size.width - 6;
     const lineX = Math.round(axisX) + 0.5;
     const yTop = top + inset;
