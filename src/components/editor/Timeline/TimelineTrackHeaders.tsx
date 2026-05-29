@@ -1,14 +1,9 @@
 'use client';
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+
 import { useMergedRef } from '@/hooks';
-import { reorderTracksByDrop } from './timelineEdits';
-import type {
-  TimelineSelection,
-  TimelineTrack,
-  TimelineTrackHeaderInfo,
-} from './Timeline.types';
-import type { TimelineRow, TimelineTrackRow } from './timelineLayout';
+
 import {
   timelineHeaderColumnStyle,
   timelineHeaderSpacerStyle,
@@ -20,6 +15,14 @@ import {
   timelineHeaderLabelStyle,
   timelineHeaderDropIndicatorStyle,
 } from './Timeline.css';
+import { reorderTracksByDrop } from './timelineEdits';
+
+import type {
+  TimelineSelection,
+  TimelineTrack,
+  TimelineTrackHeaderInfo,
+} from './Timeline.types';
+import type { TimelineRow, TimelineTrackRow } from './timelineLayout';
 
 const GROUP_INDENT = 14;
 
@@ -202,9 +205,20 @@ export function TimelineTrackHeaders({
               return (
                 <div
                   key={`group:${row.group.id}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={!collapsed}
                   className={timelineHeaderGroupRowStyle}
                   style={{ top: row.top, height: row.height }}
-                  onClick={() => onToggleGroupCollapsed(row.group.id)}
+                  onClick={() => {
+                    onToggleGroupCollapsed(row.group.id);
+                  }}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onToggleGroupCollapsed(row.group.id);
+                    }
+                  }}
                 >
                   <span
                     className={timelineHeaderToggleStyle}
@@ -243,7 +257,9 @@ export function TimelineTrackHeaders({
                 data-selected={hasSelection || undefined}
                 onPointerDown={
                   reorderable
-                    ? e => handleRowPointerDown(e, track.id)
+                    ? e => {
+                        handleRowPointerDown(e, track.id);
+                      }
                     : undefined
                 }
               >
@@ -258,7 +274,9 @@ export function TimelineTrackHeaders({
                       type="button"
                       className={timelineHeaderToggleStyle}
                       data-open={track.expanded ? true : undefined}
-                      onPointerDown={e => e.stopPropagation()}
+                      onPointerDown={e => {
+                        e.stopPropagation();
+                      }}
                       onClick={e => {
                         e.stopPropagation();
                         onToggleTrackExpanded(track.id);
@@ -289,7 +307,7 @@ export function TimelineTrackHeaders({
       {drag && dropTop !== null && (
         <div
           className={timelineHeaderDropIndicatorStyle}
-          style={{ top: rulerHeight + (dropTop ?? 0) - scrollTop }}
+          style={{ top: rulerHeight + dropTop - scrollTop }}
         />
       )}
     </div>

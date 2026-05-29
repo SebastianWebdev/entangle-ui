@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+
 import type { PaginationItem } from './Pagination.types';
 
 export interface UsePaginationOptions {

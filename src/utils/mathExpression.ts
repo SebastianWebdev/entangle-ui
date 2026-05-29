@@ -450,7 +450,7 @@ export function evaluateExpression(expression: string): EvaluationResult {
   const original = expression;
 
   try {
-    if (!expression?.trim()) {
+    if (!expression.trim()) {
       return {
         success: false,
         error: 'Expression cannot be empty',

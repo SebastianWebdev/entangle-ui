@@ -1,4 +1,5 @@
 import { clamp } from '@/utils/mathUtils';
+
 import type { TimelineLoop, TimelineView } from './Timeline.types';
 
 // Re-exported so the Timeline modules keep importing their coord math from a

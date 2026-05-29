@@ -1,11 +1,12 @@
 'use client';
 
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
-import type { ScrollAreaProps } from './ScrollArea.types';
-import { cx } from '@/utils/cx';
+
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { useResizeObserver } from '@/hooks/useResizeObserver';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
+import { cx } from '@/utils/cx';
+
 import {
   rootStyle,
   rootAutoFill,
@@ -29,6 +30,8 @@ import {
   scrollbarPaddingVar,
   fadeMaskSizeVar,
 } from './ScrollArea.css';
+
+import type { ScrollAreaProps } from './ScrollArea.types';
 
 // --- Component ---
 
@@ -65,6 +68,11 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
   const [hThumbOffset, setHThumbOffset] = useState(0);
   const [hasVOverflow, setHasVOverflow] = useState(false);
   const [hasHOverflow, setHasHOverflow] = useState(false);
+  // Scroll position as a 0–100 percentage, exposed via aria-valuenow. Kept in
+  // state (updated in recalculate) so it stays reactive instead of being read
+  // from the viewport ref during render.
+  const [vScrollPercent, setVScrollPercent] = useState(0);
+  const [hScrollPercent, setHScrollPercent] = useState(0);
 
   // Visibility state
   const [scrollbarVisibleState, setScrollbarVisibleState] = useState(
@@ -72,7 +80,12 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
   );
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  // Ref drives synchronous reads in the move handler; the state mirror is used
+  // for the thumb's dragging class during render.
   const dragAxisRef = useRef<'vertical' | 'horizontal' | null>(null);
+  const [dragAxis, setDragAxis] = useState<'vertical' | 'horizontal' | null>(
+    null
+  );
   const dragStartRef = useRef({ pointerPos: 0, scrollPos: 0 });
 
   // Fade mask state
@@ -93,12 +106,13 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
       const ratio = vp.clientHeight / vp.scrollHeight;
       const overflow = ratio < 1;
       setHasVOverflow(overflow);
+      const maxScroll = vp.scrollHeight - vp.clientHeight;
+      const scrollRatio = maxScroll > 0 ? vp.scrollTop / maxScroll : 0;
+      setVScrollPercent(Math.round(scrollRatio * 100));
       if (overflow) {
         const trackHeight = vp.clientHeight - scrollbarPadding * 2;
         const thumbH = Math.max(minThumbLength, ratio * trackHeight);
         setVThumbSize(thumbH);
-        const maxScroll = vp.scrollHeight - vp.clientHeight;
-        const scrollRatio = maxScroll > 0 ? vp.scrollTop / maxScroll : 0;
         setVThumbOffset(scrollRatio * (trackHeight - thumbH));
       }
     }
@@ -107,12 +121,13 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
       const ratio = vp.clientWidth / vp.scrollWidth;
       const overflow = ratio < 1;
       setHasHOverflow(overflow);
+      const maxScroll = vp.scrollWidth - vp.clientWidth;
+      const scrollRatio = maxScroll > 0 ? vp.scrollLeft / maxScroll : 0;
+      setHScrollPercent(Math.round(scrollRatio * 100));
       if (overflow) {
         const trackWidth = vp.clientWidth - scrollbarPadding * 2;
         const thumbW = Math.max(minThumbLength, ratio * trackWidth);
         setHThumbSize(thumbW);
-        const maxScroll = vp.scrollWidth - vp.clientWidth;
-        const scrollRatio = maxScroll > 0 ? vp.scrollLeft / maxScroll : 0;
         setHThumbOffset(scrollRatio * (trackWidth - thumbW));
       }
     }
@@ -194,6 +209,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
 
       setIsDragging(true);
       dragAxisRef.current = axis;
+      setDragAxis(axis);
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
 
       if (axis === 'vertical') {
@@ -239,6 +255,7 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
   const handleThumbPointerUp = useCallback(() => {
     setIsDragging(false);
     dragAxisRef.current = null;
+    setDragAxis(null);
   }, []);
 
   // Track click handler
@@ -262,6 +279,59 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
     []
   );
 
+  // Keyboard scrolling for the focusable scrollbar role, mirroring the native
+  // scrollbar interaction model (arrows step, PageUp/Down page, Home/End jump).
+  const handleTrackKeyDown = useCallback(
+    (axis: 'vertical' | 'horizontal', e: React.KeyboardEvent) => {
+      const vp = viewportRef.current;
+      if (!vp) return;
+
+      const step = 40;
+      const isVertical = axis === 'vertical';
+      const page = isVertical ? vp.clientHeight : vp.clientWidth;
+      const maxScroll = isVertical
+        ? vp.scrollHeight - vp.clientHeight
+        : vp.scrollWidth - vp.clientWidth;
+      const current = isVertical ? vp.scrollTop : vp.scrollLeft;
+
+      let next: number | undefined;
+      const decKey = isVertical ? 'ArrowUp' : 'ArrowLeft';
+      const incKey = isVertical ? 'ArrowDown' : 'ArrowRight';
+
+      switch (e.key) {
+        case decKey:
+          next = current - step;
+          break;
+        case incKey:
+          next = current + step;
+          break;
+        case 'PageUp':
+          next = current - page;
+          break;
+        case 'PageDown':
+          next = current + page;
+          break;
+        case 'Home':
+          next = 0;
+          break;
+        case 'End':
+          next = maxScroll;
+          break;
+        default:
+          return;
+      }
+
+      e.preventDefault();
+      const clamped = Math.max(0, Math.min(next, maxScroll));
+      if (isVertical) {
+        vp.scrollTop = clamped;
+      } else {
+        vp.scrollLeft = clamped;
+      }
+    },
+    []
+  );
+
   // Initial measurement once the viewport is mounted.
   useEffect(() => {
     if (viewportRef.current) recalculate();
@@ -278,9 +348,13 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
     const child = vp.firstElementChild;
     if (!child || typeof ResizeObserver === 'undefined') return;
 
-    const ro = new ResizeObserver(() => recalculate());
+    const ro = new ResizeObserver(() => {
+      recalculate();
+    });
     ro.observe(child);
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+    };
   }, [recalculate]);
 
   // Cleanup timer
@@ -330,6 +404,10 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
         ref={setViewportRef}
         id={viewportId}
         role="region"
+        // The scroll viewport is intentionally focusable so keyboard users can
+        // scroll overflowing content with the arrow/page keys (native behavior
+        // of a focused scroll container).
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
         tabIndex={0}
         className={viewportRecipe({ direction })}
         onScroll={handleScroll}
@@ -385,35 +463,33 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             isScrollbarShown ? scrollbarVisible : scrollbarHidden
           )}
           role="scrollbar"
+          tabIndex={0}
           aria-controls={viewportId}
           aria-orientation="vertical"
-          aria-valuenow={Math.round(
-            viewportRef.current
-              ? (viewportRef.current.scrollTop /
-                  Math.max(
-                    1,
-                    viewportRef.current.scrollHeight -
-                      viewportRef.current.clientHeight
-                  )) *
-                  100
-              : 0
-          )}
+          aria-valuenow={vScrollPercent}
           aria-valuemin={0}
           aria-valuemax={100}
           data-testid={testId ? `${testId}-scrollbar-v` : undefined}
-          onClick={e => handleTrackClick('vertical', e)}
+          onClick={e => {
+            handleTrackClick('vertical', e);
+          }}
+          onKeyDown={e => {
+            handleTrackKeyDown('vertical', e);
+          }}
         >
           <div
             className={cx(
               thumbBase,
               thumbVertical,
-              isDragging && dragAxisRef.current === 'vertical' && thumbDragging
+              isDragging && dragAxis === 'vertical' && thumbDragging
             )}
             style={{
               height: `${vThumbSize}px`,
               transform: `translateY(${vThumbOffset}px)`,
             }}
-            onPointerDown={e => handleThumbPointerDown('vertical', e)}
+            onPointerDown={e => {
+              handleThumbPointerDown('vertical', e);
+            }}
             onPointerMove={handleThumbPointerMove}
             onPointerUp={handleThumbPointerUp}
             data-testid={testId ? `${testId}-thumb-v` : undefined}
@@ -429,37 +505,33 @@ export const ScrollArea: React.FC<ScrollAreaProps> = ({
             isScrollbarShown ? scrollbarVisible : scrollbarHidden
           )}
           role="scrollbar"
+          tabIndex={0}
           aria-controls={viewportId}
           aria-orientation="horizontal"
-          aria-valuenow={Math.round(
-            viewportRef.current
-              ? (viewportRef.current.scrollLeft /
-                  Math.max(
-                    1,
-                    viewportRef.current.scrollWidth -
-                      viewportRef.current.clientWidth
-                  )) *
-                  100
-              : 0
-          )}
+          aria-valuenow={hScrollPercent}
           aria-valuemin={0}
           aria-valuemax={100}
           data-testid={testId ? `${testId}-scrollbar-h` : undefined}
-          onClick={e => handleTrackClick('horizontal', e)}
+          onClick={e => {
+            handleTrackClick('horizontal', e);
+          }}
+          onKeyDown={e => {
+            handleTrackKeyDown('horizontal', e);
+          }}
         >
           <div
             className={cx(
               thumbBase,
               thumbHorizontal,
-              isDragging &&
-                dragAxisRef.current === 'horizontal' &&
-                thumbDragging
+              isDragging && dragAxis === 'horizontal' && thumbDragging
             )}
             style={{
               width: `${hThumbSize}px`,
               transform: `translateX(${hThumbOffset}px)`,
             }}
-            onPointerDown={e => handleThumbPointerDown('horizontal', e)}
+            onPointerDown={e => {
+              handleThumbPointerDown('horizontal', e);
+            }}
             onPointerMove={handleThumbPointerMove}
             onPointerUp={handleThumbPointerUp}
             data-testid={testId ? `${testId}-thumb-h` : undefined}

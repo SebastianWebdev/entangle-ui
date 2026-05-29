@@ -1,5 +1,6 @@
 'use client';
 
+import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, {
   createContext,
   useCallback,
@@ -7,18 +8,20 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { assignInlineVars } from '@vanilla-extract/dynamic';
-import { FormLabel } from '@/components/form/FormLabel';
+
 import { FormHelperText } from '@/components/form/FormHelperText';
+import { FormLabel } from '@/components/form/FormLabel';
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
-import type { RadioGroupContextValue, RadioGroupProps } from './Radio.types';
+
 import {
   groupContainerStyle,
   groupItemsStyle,
   groupOrientationVar,
   groupSpacingVar,
 } from './Radio.css';
+
+import type { RadioGroupContextValue, RadioGroupProps } from './Radio.types';
 
 export const RadioGroupContext =
   /*#__PURE__*/ createContext<RadioGroupContextValue | null>(null);

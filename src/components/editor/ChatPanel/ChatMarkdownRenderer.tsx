@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { cx } from '@/utils/cx';
+
 import { Code } from '@/components/primitives/Code';
+import { cx } from '@/utils/cx';
+
 import { ChatCodeBlock } from './ChatCodeBlock';
-import type { ChatMarkdownRendererProps } from './ChatMarkdownRenderer.types';
 import {
   markdownBlockquoteStyle,
   markdownHeadingStyle,
@@ -18,6 +19,8 @@ import {
   markdownTdStyle,
   markdownThStyle,
 } from './ChatPanel.css';
+
+import type { ChatMarkdownRendererProps } from './ChatMarkdownRenderer.types';
 
 // ─────────────────────────────────────────────────────────────────
 // Minimal markdown → React renderer.

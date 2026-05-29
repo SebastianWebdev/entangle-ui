@@ -7,7 +7,9 @@ import {
   useMemo,
   useSyncExternalStore,
 } from 'react';
-import type { TangentMode } from '@/types/keyframe';
+
+import { selectedTangentMode, setSelectedTangentMode } from './timelineEdits';
+
 import type {
   TimelineContextValue,
   TimelineSelection,
@@ -18,7 +20,7 @@ import type {
   TimelinePlayheadState,
   TimelineStore,
 } from './TimelineStore';
-import { selectedTangentMode, setSelectedTangentMode } from './timelineEdits';
+import type { TangentMode } from '@/types/keyframe';
 
 export const TimelineStoreContext = createContext<TimelineStore | null>(null);
 

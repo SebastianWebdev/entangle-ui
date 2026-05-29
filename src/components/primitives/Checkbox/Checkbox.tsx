@@ -1,19 +1,22 @@
 'use client';
 
-import React, { useCallback, useId, useContext, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback, useId, useContext, useState } from 'react';
+
+import { FormHelperText } from '@/components/form/FormHelperText';
 import { CheckIcon } from '@/components/Icons/CheckIcon';
 import { MinusIcon } from '@/components/Icons/MinusIcon';
-import { FormHelperText } from '@/components/form/FormHelperText';
-import type { CheckboxProps, CheckboxSize } from './Checkbox.types';
-import { CheckboxGroupContext } from './CheckboxGroup';
 import { cx } from '@/utils/cx';
+
 import {
   checkboxContainerStyle,
   checkboxLabelRecipe,
   checkboxBoxRecipe,
   boxSizeVar,
 } from './Checkbox.css';
+import { CheckboxGroupContext } from './CheckboxGroup';
+
+import type { CheckboxProps, CheckboxSize } from './Checkbox.types';
 
 // --- Size maps ---
 
@@ -49,7 +52,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   indeterminate = false,
   label,
   labelPosition = 'right',
-  size: sizeProp = 'md',
+  size: sizeProp,
   variant = 'default',
   disabled: disabledProp = false,
   required = false,
@@ -76,6 +79,8 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 
   // Resolve group context
   const disabled = disabledProp || (groupContext?.disabled ?? false);
+  // Size resolves from the checkbox prop, then the group, then the default —
+  // mirroring how `disabled` above falls back to the group context.
   const size = sizeProp ?? groupContext?.size ?? 'md';
 
   // Determine checked state for group integration

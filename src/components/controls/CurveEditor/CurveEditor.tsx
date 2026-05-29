@@ -1,25 +1,28 @@
 'use client';
 
-import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
+
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
+
+import { CurveCanvas } from './CurveCanvas';
+import {
+  curveEditorRecipe,
+  editorWidthVar,
+  bottomBarStyle,
+} from './CurveEditor.css';
+import { CURVE_PRESETS } from './curvePresets';
+import { CurveToolbar } from './CurveToolbar';
+import { ensureKeyframeIds, evaluateCurve } from './curveUtils';
+import { useCurveInteraction } from './useCurveInteraction';
+
 import type {
   CurveEditorProps,
   CurveData,
   CurveViewport,
   TangentMode,
 } from './CurveEditor.types';
-import { ensureKeyframeIds, evaluateCurve } from './curveUtils';
-import { CURVE_PRESETS } from './curvePresets';
-import { CurveCanvas } from './CurveCanvas';
-import { CurveToolbar } from './CurveToolbar';
-import { useCurveInteraction } from './useCurveInteraction';
-import {
-  curveEditorRecipe,
-  editorWidthVar,
-  bottomBarStyle,
-} from './CurveEditor.css';
 
 export const CurveEditor: React.FC<CurveEditorProps> = ({
   value,

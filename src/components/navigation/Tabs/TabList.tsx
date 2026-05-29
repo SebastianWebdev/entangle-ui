@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useCallback, useRef } from 'react';
-import { useTabsContext } from './Tabs';
-import type { TabListProps } from './Tabs.types';
+
 import { cx } from '@/utils/cx';
+
+import { useTabsContext } from './Tabs';
 import { tabListRecipe } from './Tabs.css';
+
+import type { TabListProps } from './Tabs.types';
 
 // --- Component ---
 
@@ -25,7 +28,7 @@ export const TabList: React.FC<TabListProps> = ({
       if (typeof ref === 'function') {
         ref(node);
       } else if (ref) {
-        (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        ref.current = node;
       }
     },
     [ref]
@@ -80,6 +83,9 @@ export const TabList: React.FC<TabListProps> = ({
     <div
       ref={setListRef}
       role="tablist"
+      // Roving tabindex lives on the individual tabs; the list itself is only
+      // focusable programmatically while it manages arrow-key navigation.
+      tabIndex={-1}
       aria-orientation={orientation}
       className={cx(
         tabListRecipe({ orientation, variant, pillsFrame }),

@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 export type StatSize = 'sm' | 'md' | 'lg';
 export type StatDeltaDirection = 'up' | 'down' | 'neutral';
@@ -21,10 +21,7 @@ export interface StatDelta {
   semantics?: StatDeltaSemantics;
 }
 
-export interface StatBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
-  'title'
-> {
+export interface StatBaseProps extends Omit<BaseComponent, 'title'> {
   /** Label above the value. */
   label: React.ReactNode;
   /** Primary value (already formatted by the consumer). */

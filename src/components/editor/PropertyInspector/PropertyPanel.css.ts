@@ -1,4 +1,5 @@
 import { style, createVar } from '@vanilla-extract/css';
+
 import { vars } from '@/theme/contract.css';
 
 // --- Dynamic vars for content spacing ---

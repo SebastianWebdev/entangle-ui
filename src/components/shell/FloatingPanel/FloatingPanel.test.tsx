@@ -11,8 +11,7 @@ class MockResizeObserver {
 }
 
 beforeAll(() => {
-  globalThis.ResizeObserver =
-    MockResizeObserver as unknown as typeof ResizeObserver;
+  globalThis.ResizeObserver = MockResizeObserver;
 });
 
 describe('FloatingPanel', () => {

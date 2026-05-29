@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
-import type { ColorSwatchProps } from './ColorPicker.types';
+
 import { cx } from '@/utils/cx';
+
 import { swatchRecipe, swatchColorStyle } from './ColorPicker.css';
+
+import type { ColorSwatchProps } from './ColorPicker.types';
 
 export const ColorSwatch = /*#__PURE__*/ React.memo<ColorSwatchProps>(
   ({

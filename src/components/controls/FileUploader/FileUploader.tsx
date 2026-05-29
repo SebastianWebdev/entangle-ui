@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useCallback, useId, useMemo, useRef, useState } from 'react';
-import { CloudUploadIcon } from '@/components/Icons/CloudUploadIcon';
-import { TrashIcon } from '@/components/Icons/TrashIcon';
+
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { FormLabel } from '@/components/form/FormLabel';
+import { CloudUploadIcon } from '@/components/Icons/CloudUploadIcon';
+import { TrashIcon } from '@/components/Icons/TrashIcon';
 import { useControlledState } from '@/hooks/useControlledState';
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
+
 import {
   containerStyle,
   dropZoneHintStyle,
@@ -24,6 +26,7 @@ import {
   removeButtonStyle,
   statusBadgeRecipe,
 } from './FileUploader.css';
+
 import type {
   FileUploaderItem,
   FileUploaderProps,
@@ -260,7 +263,7 @@ export function FileUploader({
     (event: React.DragEvent<HTMLDivElement>) => {
       if (disabled) return;
       event.preventDefault();
-      if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+      event.dataTransfer.dropEffect = 'copy';
     },
     [disabled]
   );
@@ -282,7 +285,6 @@ export function FileUploader({
       dragCounterRef.current = 0;
       setDragging(false);
       const dt = event.dataTransfer;
-      if (!dt) return;
       const dropped: File[] = [];
       if (dt.files.length > 0) {
         dropped.push(...Array.from(dt.files));

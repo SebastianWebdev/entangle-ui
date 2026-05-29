@@ -1,15 +1,11 @@
 'use client';
 
-import React, { createContext, useContext, useMemo } from 'react';
-import { cx } from '@/utils/cx';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import type {
-  PanelSurfaceBodyProps,
-  PanelSurfaceContextValue,
-  PanelSurfaceFooterProps,
-  PanelSurfaceHeaderProps,
-  PanelSurfaceProps,
-} from './PanelSurface.types';
+import React, { createContext, useContext, useMemo } from 'react';
+
+import { vars } from '@/theme/contract.css';
+import { cx } from '@/utils/cx';
+
 import {
   rootStyle,
   rootBordered,
@@ -22,7 +18,14 @@ import {
   bodyHidden,
   footerRecipe,
 } from './PanelSurface.css';
-import { vars } from '@/theme/contract.css';
+
+import type {
+  PanelSurfaceBodyProps,
+  PanelSurfaceContextValue,
+  PanelSurfaceFooterProps,
+  PanelSurfaceHeaderProps,
+  PanelSurfaceProps,
+} from './PanelSurface.types';
 
 const PanelSurfaceContext =
   /*#__PURE__*/ createContext<PanelSurfaceContextValue>({
@@ -69,7 +72,7 @@ const PanelSurfaceBody: React.FC<PanelSurfaceBodyProps> = ({
   ...rest
 }) => {
   const resolvedPadding =
-    typeof padding === 'number' ? `${padding}px` : String(padding);
+    typeof padding === 'number' ? `${padding}px` : padding;
 
   const mergedStyle: React.CSSProperties = {
     padding: resolvedPadding,

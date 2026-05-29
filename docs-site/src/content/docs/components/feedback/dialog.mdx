@@ -5,7 +5,18 @@ description: Accessible modal dialog with overlay, focus trap, keyboard support,
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import DialogDemo from '../../../../components/demos/feedback/DialogDemo';
+import DialogDemo, {
+  DialogSizes,
+  DialogHeaderDemo,
+  DialogBodyDemo,
+  DialogFooterDemo,
+  DialogCloseDemo,
+  DialogOverlay,
+  DialogEscape,
+  DialogFocus,
+  DialogPortal,
+  DialogAria,
+} from '../../../../components/demos/feedback/DialogDemo';
 
 Modal dialog component for overlays in editor interfaces. Renders an accessible dialog with overlay backdrop, focus trap, animated enter/exit, and keyboard support. Uses a compound component pattern with `Dialog`, `DialogHeader`, `DialogBody`, `DialogFooter`, and `DialogClose`.
 
@@ -48,6 +59,10 @@ const [open, setOpen] = useState(false);
 
 The `size` prop controls the dialog width.
 
+<ComponentPreview title="Sizes">
+  <DialogSizes client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Dialog open={open} onClose={close} size="sm">...</Dialog>
 <Dialog open={open} onClose={close} size="md">...</Dialog>
@@ -68,6 +83,10 @@ The `size` prop controls the dialog width.
 
 The `DialogHeader` renders a title area with an optional close button and description.
 
+<ComponentPreview title="Dialog Header">
+  <DialogHeaderDemo client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <DialogHeader showClose description="This will affect all linked objects.">
   Delete Object
@@ -77,6 +96,10 @@ The `DialogHeader` renders a title area with an optional close button and descri
 ## Dialog Body
 
 The `DialogBody` contains the main content of the dialog.
+
+<ComponentPreview title="Dialog Body">
+  <DialogBodyDemo client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <DialogBody>
@@ -88,6 +111,10 @@ The `DialogBody` contains the main content of the dialog.
 ## Dialog Footer
 
 The `DialogFooter` contains action buttons. Use `align` to control button positioning.
+
+<ComponentPreview title="Dialog Footer">
+  <DialogFooterDemo client:only="react" />
+</ComponentPreview>
 
 ```tsx
 // Right-aligned (default for actions)
@@ -110,6 +137,10 @@ The `DialogFooter` contains action buttons. Use `align` to control button positi
 
 The `DialogClose` component renders a button that calls `onClose` when clicked. Useful for custom close triggers inside the dialog body.
 
+<ComponentPreview title="Dialog Close">
+  <DialogCloseDemo client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <DialogBody>
   <p>Operation completed successfully.</p>
@@ -122,6 +153,10 @@ The `DialogClose` component renders a button that calls `onClose` when clicked. 
 ## Overlay Behavior
 
 By default, clicking the overlay backdrop closes the dialog. Disable this for mandatory confirmations.
+
+<ComponentPreview title="Overlay Behavior">
+  <DialogOverlay client:only="react" />
+</ComponentPreview>
 
 ```tsx
 // Clicking overlay does not close
@@ -149,6 +184,10 @@ You can also hide the overlay entirely.
 
 By default, pressing Escape closes the dialog. Disable this behavior with `closeOnEscape={false}`.
 
+<ComponentPreview title="Escape Key">
+  <DialogEscape client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Dialog open={open} onClose={close} closeOnEscape={false}>
   ...
@@ -158,6 +197,10 @@ By default, pressing Escape closes the dialog. Disable this behavior with `close
 ## Focus Management
 
 The dialog traps focus by default. You can specify which element receives initial focus with `initialFocusRef`.
+
+<ComponentPreview title="Focus Management">
+  <DialogFocus client:only="react" />
+</ComponentPreview>
 
 ```tsx
 const inputRef = useRef(null);
@@ -175,6 +218,10 @@ Disable focus trapping with `trapFocus={false}`.
 
 By default, the dialog is rendered in a portal (`document.body`). Disable this to render it in place.
 
+<ComponentPreview title="Portal">
+  <DialogPortal client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Dialog open={open} onClose={close} portal={false}>
   ...
@@ -184,6 +231,10 @@ By default, the dialog is rendered in a portal (`document.body`). Disable this t
 ## ARIA Labels
 
 Use `title` and `description` props for screen-reader-friendly labels without visible header components.
+
+<ComponentPreview title="ARIA Labels">
+  <DialogAria client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Dialog

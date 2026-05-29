@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+
 import {
   formatColor,
   hsvToRgb,
@@ -8,6 +9,7 @@ import {
   parseColor,
   rgbToHex,
 } from './colorUtils';
+
 import type { ColorHSVA, ColorFormat } from './colorUtils';
 
 interface UseColorOptions {

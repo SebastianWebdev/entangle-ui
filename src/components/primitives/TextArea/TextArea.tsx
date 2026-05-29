@@ -1,16 +1,19 @@
 'use client';
 
 import React, { useCallback, useEffect, useId, useRef } from 'react';
-import { cx } from '@/utils/cx';
+
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { FormLabel } from '@/components/form/FormLabel';
-import type { TextAreaProps } from './TextArea.types';
+import { cx } from '@/utils/cx';
+
 import {
   textAreaContainerStyle,
   textAreaFooterStyle,
   textAreaRecipe,
   textAreaWrapperRecipe,
 } from './TextArea.css';
+
+import type { TextAreaProps } from './TextArea.types';
 
 /**
  * Multi-line text input with optional auto-resize.
@@ -79,9 +82,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
     (node: HTMLTextAreaElement | null) => {
       textareaRef.current = node;
       if (typeof ref === 'function') ref(node);
-      else if (ref)
-        (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current =
-          node;
+      else if (ref) ref.current = node;
     },
     [ref]
   );
@@ -124,7 +125,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
   };
 
   const effectiveHelper = error && errorMessage ? errorMessage : helperText;
-  const count = currentValue?.length ?? 0;
+  const count = currentValue.length;
 
   return (
     <div className={cx(textAreaContainerStyle, className)} style={style}>

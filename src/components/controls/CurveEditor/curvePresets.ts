@@ -1,5 +1,6 @@
-import type { CurvePreset, CurveKeyframe } from './CurveEditor.types';
 import { generateKeyframeId } from './curveUtils';
+
+import type { CurvePreset, CurveKeyframe } from './CurveEditor.types';
 
 function kf(
   x: number,

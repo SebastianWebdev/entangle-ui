@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useCallback } from 'react';
+
 import { usePopoverContext } from './Popover';
+
 import type { PopoverTriggerProps } from './Popover.types';
 
 /**

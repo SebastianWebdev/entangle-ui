@@ -2,12 +2,15 @@
 
 // src/primitives/Icon/Icon.tsx
 import React from 'react';
-import type { Prettify, LiteralUnion } from '@/types/utilities';
-import type { Size } from '@/types/common';
+
 import { cx } from '@/utils/cx';
+
 import { iconRecipe } from './Icon.css';
 
-export type IconSize = LiteralUnion<Size, string> | number;
+import type { Size } from '@/types/common';
+import type { Prettify, LiteralUnion } from '@/types/utilities';
+
+export type IconSize = LiteralUnion<Size> | number;
 export type IconColor = LiteralUnion<
   'primary' | 'secondary' | 'muted' | 'accent' | 'success' | 'warning' | 'error'
 >;
@@ -73,12 +76,11 @@ export const Icon = /*#__PURE__*/ React.memo<IconProps>(
     const isStandardColor = STANDARD_COLORS.has(color);
     const isStandardSize = typeof size === 'string' && STANDARD_SIZES.has(size);
 
-    const resolvedSize =
-      isStandardSize || size === undefined
-        ? undefined
-        : typeof size === 'number'
-          ? `${size}px`
-          : size;
+    const resolvedSize = isStandardSize
+      ? undefined
+      : typeof size === 'number'
+        ? `${size}px`
+        : size;
 
     const inlineStyle: React.CSSProperties = {};
     if (!isStandardColor) inlineStyle.color = color;

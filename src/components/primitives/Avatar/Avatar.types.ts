@@ -1,6 +1,6 @@
-import type React from 'react';
 import type { BaseComponent, Size } from '@/types/common';
 import type { LiteralUnion, Prettify } from '@/types/utilities';
+import type React from 'react';
 
 /**
  * Avatar size scale.
@@ -123,7 +123,7 @@ export interface AvatarBaseProps extends BaseComponent<HTMLSpanElement> {
 
 export type AvatarProps = Prettify<AvatarBaseProps>;
 
-export interface AvatarGroupBaseProps extends BaseComponent<HTMLDivElement> {
+export interface AvatarGroupBaseProps extends BaseComponent {
   /**
    * Maximum number of avatars to show before collapsing the rest into a
    * `+N` overflow indicator.

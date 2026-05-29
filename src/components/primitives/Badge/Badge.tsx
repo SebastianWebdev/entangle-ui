@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useCallback } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback } from 'react';
+
+import { CloseIcon } from '@/components/Icons';
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
-import { CloseIcon } from '@/components/Icons';
-import type { BadgeColor, BadgeProps } from './Badge.types';
+
 import {
   badgeColorVar,
   badgeContrastVar,
@@ -14,6 +15,8 @@ import {
   badgeRecipe,
   badgeRemoveButtonStyle,
 } from './Badge.css';
+
+import type { BadgeColor, BadgeProps } from './Badge.types';
 
 const NAMED_COLOR_MAP: Record<string, string> = {
   neutral: vars.colors.text.muted,
@@ -34,7 +37,7 @@ function resolveBadgeColor(color: BadgeColor): {
   color: string;
   contrast: string;
 } {
-  const named = NAMED_COLOR_MAP[color as string];
+  const named = NAMED_COLOR_MAP[color];
   if (named) {
     // For neutral we keep contrast as the text primary so solid reads well.
     const contrast =

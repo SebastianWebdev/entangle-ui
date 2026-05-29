@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, { useCallback, useState } from 'react';
+
+import { UserIcon } from '@/components/Icons';
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
-import { UserIcon } from '@/components/Icons';
-import type { AvatarColor, AvatarProps, AvatarStatus } from './Avatar.types';
+
 import {
   avatarBgVar,
   avatarFallbackStyle,
@@ -15,6 +16,8 @@ import {
   avatarStatusRecipe,
   avatarStatusVar,
 } from './Avatar.css';
+
+import type { AvatarColor, AvatarProps, AvatarStatus } from './Avatar.types';
 
 const NAMED_COLOR_MAP: Record<string, string> = {
   neutral: vars.colors.text.muted,
@@ -86,7 +89,7 @@ function resolveBackgroundColor(
     const index = hashString(name) % AUTO_PALETTE.length;
     return AUTO_PALETTE[index] ?? vars.colors.text.muted;
   }
-  const named = NAMED_COLOR_MAP[color as string];
+  const named = NAMED_COLOR_MAP[color];
   if (named) return named;
   return color;
 }
@@ -156,7 +159,7 @@ export const Avatar = /*#__PURE__*/ React.memo<AvatarProps>(
     );
 
     const resolvedInitials =
-      initials !== undefined && initials !== null && initials !== ''
+      initials !== undefined && initials !== ''
         ? initials.slice(0, 2).toUpperCase()
         : name
           ? getAvatarInitials(name)

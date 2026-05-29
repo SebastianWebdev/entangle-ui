@@ -1,15 +1,8 @@
 'use client';
 
 import React, { useCallback } from 'react';
-import type { ChatAttachmentChipProps } from './ChatPanel.types';
+
 import { cx } from '@/utils/cx';
-import {
-  attachmentChipStyle,
-  attachmentChipIconStyle,
-  attachmentChipNameStyle,
-  attachmentChipRemoveStyle,
-  attachmentThumbnailStyle,
-} from './ChatPanel.css';
 
 import {
   MiniCloseIcon,
@@ -18,6 +11,15 @@ import {
   MiniCodeIcon,
   MiniSelectionIcon,
 } from './ChatIcons';
+import {
+  attachmentChipStyle,
+  attachmentChipIconStyle,
+  attachmentChipNameStyle,
+  attachmentChipRemoveStyle,
+  attachmentThumbnailStyle,
+} from './ChatPanel.css';
+
+import type { ChatAttachmentChipProps } from './ChatPanel.types';
 
 const TYPE_ICONS: Record<string, React.FC> = {
   file: MiniFileIcon,
@@ -45,6 +47,16 @@ export const ChatAttachmentChip =
         onClick?.(attachment);
       }, [onClick, attachment]);
 
+      const handleKeyDown = useCallback(
+        (e: React.KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick?.(attachment);
+          }
+        },
+        [onClick, attachment]
+      );
+
       const handleRemove = useCallback(
         (e: React.MouseEvent) => {
           e.stopPropagation();
@@ -64,6 +76,7 @@ export const ChatAttachmentChip =
           data-testid={testId}
           data-clickable={isClickable || undefined}
           onClick={isClickable ? handleClick : undefined}
+          onKeyDown={isClickable ? handleKeyDown : undefined}
           role={isClickable ? 'button' : undefined}
           tabIndex={isClickable ? 0 : undefined}
           {...rest}

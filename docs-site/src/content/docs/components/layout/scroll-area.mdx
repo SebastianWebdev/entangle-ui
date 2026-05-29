@@ -5,7 +5,15 @@ description: Custom scrollable container with styled scrollbars, drag-to-scroll 
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import ScrollAreaDemo from '../../../../components/demos/layout/ScrollAreaDemo';
+import ScrollAreaDemo, {
+  ScrollAreaDirection,
+  ScrollAreaVisibility,
+  ScrollAreaHideDelay,
+  ScrollAreaFadeMask,
+  ScrollAreaCustomScrollbar,
+  ScrollAreaAutoFill,
+  ScrollAreaCallbacks,
+} from '../../../../components/demos/layout/ScrollAreaDemo';
 
 A custom scrollable container providing styled scrollbar overlays with drag-to-scroll support, configurable visibility behavior, and optional fade mask gradients at scroll boundaries. Designed for editor panels, sidebars, and content areas that need polished scrolling behavior beyond native scrollbars.
 
@@ -36,6 +44,10 @@ import { ScrollArea } from 'entangle-ui';
 
 Control which axes can scroll using the `direction` prop.
 
+<ComponentPreview title="Scroll Direction">
+  <ScrollAreaDirection client:only="react" />
+</ComponentPreview>
+
 ```tsx
 {
   /* Vertical only (default) */
@@ -62,6 +74,10 @@ Control which axes can scroll using the `direction` prop.
 ## Scrollbar Visibility
 
 The `scrollbarVisibility` prop controls when custom scrollbars appear.
+
+<ComponentPreview title="Scrollbar Visibility">
+  <ScrollAreaVisibility client:only="react" />
+</ComponentPreview>
 
 ```tsx
 {
@@ -104,6 +120,10 @@ The `scrollbarVisibility` prop controls when custom scrollbars appear.
 
 When using `scrollbarVisibility="auto"`, control the delay before scrollbars fade out.
 
+<ComponentPreview title="Auto-hide Delay">
+  <ScrollAreaHideDelay client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <ScrollArea scrollbarVisibility="auto" hideDelay={2000} maxHeight={200}>
   <Content />
@@ -113,6 +133,10 @@ When using `scrollbarVisibility="auto"`, control the delay before scrollbars fad
 ## Fade Masks
 
 Enable gradient fade masks at scroll boundaries to visually indicate more content is available.
+
+<ComponentPreview title="Fade Masks">
+  <ScrollAreaFadeMask client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <ScrollArea fadeMask maxHeight={200}>
@@ -133,6 +157,10 @@ Fade masks appear at the top/bottom for vertical scrolling and left/right for ho
 
 Fine-tune the scrollbar appearance with width, padding, and minimum thumb length.
 
+<ComponentPreview title="Scrollbar Customization">
+  <ScrollAreaCustomScrollbar client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <ScrollArea
   scrollbarWidth={8}
@@ -148,6 +176,10 @@ Fine-tune the scrollbar appearance with width, padding, and minimum thumb length
 
 When placed inside a flex or grid layout, use `autoFill` to make the scroll area fill its parent container.
 
+<ComponentPreview title="Auto Fill">
+  <ScrollAreaAutoFill client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Flex direction="column" fullHeight>
   <Header />
@@ -161,6 +193,10 @@ When placed inside a flex or grid layout, use `autoFill` to make the scroll area
 ## Scroll Callbacks
 
 React to scroll position changes and boundary events.
+
+<ComponentPreview title="Scroll Callbacks">
+  <ScrollAreaCallbacks client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <ScrollArea

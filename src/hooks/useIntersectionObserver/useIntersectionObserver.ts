@@ -1,11 +1,12 @@
 'use client';
 
-import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 import type {
   UseIntersectionObserverOptions,
   UseIntersectionObserverReturn,
 } from './useIntersectionObserver.types';
+import type React from 'react';
 
 /**
  * Observe whether an element intersects a root (defaults to the viewport).
@@ -72,6 +73,8 @@ export function useIntersectionObserver<T extends Element = Element>(
       observerRef.current.disconnect();
       observerRef.current = null;
     }
+    // Sync state to the external observer being torn down when disabled.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEntry(null);
   }, [enabled]);
 

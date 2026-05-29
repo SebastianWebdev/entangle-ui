@@ -1,12 +1,12 @@
-import type { ReactNode } from 'react';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
+import type { ReactNode } from 'react';
 
 export type ToolbarOrientation = 'horizontal' | 'vertical';
 export type ToolbarSize = 'sm' | 'md';
 export type ToolbarButtonVariant = 'default' | 'ghost' | 'filled';
 
-export interface ToolbarBaseProps extends BaseComponent<HTMLDivElement> {
+export interface ToolbarBaseProps extends BaseComponent {
   /** Orientation of the toolbar */
   orientation?: ToolbarOrientation;
   /** Size of toolbar items */
@@ -53,7 +53,7 @@ export interface ToolbarToggleBaseProps extends BaseComponent<HTMLButtonElement>
 }
 export type ToolbarToggleProps = Prettify<ToolbarToggleBaseProps>;
 
-export interface ToolbarGroupBaseProps extends BaseComponent<HTMLDivElement> {
+export interface ToolbarGroupBaseProps extends BaseComponent {
   /** Group label for accessibility */
   'aria-label'?: string;
   /** Children (Toolbar.Button, Toolbar.Toggle) */
@@ -61,9 +61,9 @@ export interface ToolbarGroupBaseProps extends BaseComponent<HTMLDivElement> {
 }
 export type ToolbarGroupProps = Prettify<ToolbarGroupBaseProps>;
 
-export type ToolbarSeparatorProps = Prettify<BaseComponent<HTMLDivElement>>;
+export type ToolbarSeparatorProps = Prettify<BaseComponent>;
 
-export type ToolbarSpacerProps = Prettify<BaseComponent<HTMLDivElement>>;
+export type ToolbarSpacerProps = Prettify<BaseComponent>;
 
 export interface ToolbarContextValue {
   orientation: ToolbarOrientation;

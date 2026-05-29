@@ -1,4 +1,5 @@
 import { style, globalStyle } from '@vanilla-extract/css';
+
 import { vars } from '@/theme/contract.css';
 
 /**

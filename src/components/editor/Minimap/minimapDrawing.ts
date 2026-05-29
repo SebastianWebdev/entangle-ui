@@ -1,14 +1,12 @@
+import { buildDrawInfo, getViewportRectOnMinimap } from './minimapCoords';
+
+import type { MinimapDrawInfo, MinimapItem } from './Minimap.types';
+import type { MinimapScreenRect } from './minimapCoords';
 import type {
   ViewportTransform,
   ViewportSize,
   WorldRect,
 } from '@/components/primitives/viewport';
-import type { MinimapDrawInfo, MinimapItem } from './Minimap.types';
-import {
-  buildDrawInfo,
-  getViewportRectOnMinimap,
-  type MinimapScreenRect,
-} from './minimapCoords';
 
 export interface MinimapDrawColors {
   background: string;

@@ -1,12 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 
-// src/controls/NumberInput/useNumberInput.ts
-import { useState, useCallback, useRef, useEffect } from 'react';
 import { useKeyboardContext } from '@/context/KeyboardContext';
-import { parseNumericInput, isExpression } from '@/utils/mathExpression';
 import { devError } from '@/utils/devWarn';
+import { parseNumericInput, isExpression } from '@/utils/mathExpression';
 
 /**
  * Configuration options for NumberInput behavior
@@ -291,6 +289,10 @@ export function useNumberInput({
       const formatted = formatValue
         ? formatValue(value)
         : defaultFormatValue(value, effectivePrecision);
+      // Sync the display string to the controlled `value` prop while the user
+      // is not actively editing/dragging — an external-value sync that the
+      // edit guard makes safe from cascading renders.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDisplayValue(formatted);
       setError(undefined);
     }
@@ -459,8 +461,8 @@ export function useNumberInput({
     setError(undefined);
     // Place cursor at end of input
     setTimeout(() => {
-      const input = document.activeElement as HTMLInputElement;
-      if (input) {
+      const input = document.activeElement;
+      if (input instanceof HTMLInputElement) {
         const len = input.value.length;
         input.setSelectionRange(len, len);
       }

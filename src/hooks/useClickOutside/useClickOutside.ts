@@ -1,6 +1,10 @@
 'use client';
 
-import { useEffect, useRef, type RefObject } from 'react';
+import { useEffect } from 'react';
+
+import { useLatest } from '@/hooks/useLatest';
+
+import type { RefObject } from 'react';
 
 export interface UseClickOutsideOptions {
   /**
@@ -55,14 +59,11 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
 ): void {
   const { enabled = true, event = 'mousedown' } = options;
 
-  const handlerRef = useRef(handler);
-  const refsRef = useRef<AnyHTMLRef[]>([]);
-
-  // Latest handler — invoked from the listener without re-subscribing.
-  handlerRef.current = handler;
-  // Latest ref(s) — refreshed every render so consumers may pass inline
-  // arrays without forcing a re-subscribe of the document listener.
-  refsRef.current = Array.isArray(ref) ? ref : [ref as AnyHTMLRef];
+  // Latest handler / ref(s), refreshed after each commit so the document
+  // listener reads live values without re-subscribing and consumers may pass
+  // inline arrays.
+  const handlerRef = useLatest(handler);
+  const refsRef = useLatest<AnyHTMLRef[]>(Array.isArray(ref) ? ref : [ref]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -78,5 +79,6 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
     return () => {
       document.removeEventListener(event, listener);
     };
-  }, [enabled, event]);
+    // handlerRef/refsRef are stable useLatest refs; listed to satisfy the rule.
+  }, [enabled, event, handlerRef, refsRef]);
 }

@@ -1,22 +1,10 @@
 'use client';
 
 import { useCallback, useMemo, useRef } from 'react';
-import type React from 'react';
+
 import { useLatest } from '@/hooks';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
-import type { ViewportSize } from '@/components/primitives/viewport';
-import type {
-  TimelineGroup,
-  TimelineKeyframeRef,
-  TimelineLoop,
-  TimelineSelection,
-  TimelineTrack,
-  TimelineView,
-} from './Timeline.types';
-import type { TimelineRow, TrackGeometry } from './timelineLayout';
-import type { TimelineStore } from './TimelineStore';
+
 import { clamp, snapFrame, xToFrame, yToValue } from './timelineCoords';
-import { hitTestTimeline, keyframesInRect } from './timelineHitTest';
 import {
   addKeyframe,
   copySelectedKeyframes,
@@ -28,8 +16,23 @@ import {
   setKeyframeTangent,
   valueAtPointer,
 } from './timelineEdits';
-import type { TimelineClipboard } from './timelineEdits';
+import { hitTestTimeline, keyframesInRect } from './timelineHitTest';
 import { sameRef } from './timelineSelection';
+
+import type {
+  TimelineGroup,
+  TimelineKeyframeRef,
+  TimelineLoop,
+  TimelineSelection,
+  TimelineTrack,
+  TimelineView,
+} from './Timeline.types';
+import type { TimelineClipboard } from './timelineEdits';
+import type { TimelineRow, TrackGeometry } from './timelineLayout';
+import type { TimelineStore } from './TimelineStore';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
+import type { ViewportSize } from '@/components/primitives/viewport';
+import type React from 'react';
 
 const CLICK_THRESHOLD_PX = 3;
 const KEYBOARD_LARGE_STEP = 10;
@@ -525,17 +528,16 @@ export function useTimelineGestures(
         o.setTracks(moveFromState(state, point));
         return;
       }
-      if (state.mode === 'marquee') {
-        o.store.setDrag({
-          kind: 'marquee',
-          marquee: {
-            x: Math.min(state.startX, point.x),
-            y: Math.min(state.startY, point.y),
-            width: Math.abs(point.x - state.startX),
-            height: Math.abs(point.y - state.startY),
-          },
-        });
-      }
+      // Only 'marquee' remains after the early returns above.
+      o.store.setDrag({
+        kind: 'marquee',
+        marquee: {
+          x: Math.min(state.startX, point.x),
+          y: Math.min(state.startY, point.y),
+          width: Math.abs(point.x - state.startX),
+          height: Math.abs(point.y - state.startY),
+        },
+      });
     },
     [optsRef, hitAt, tangentOffset, moveFromState]
   );
@@ -620,11 +622,15 @@ export function useTimelineGestures(
   );
 
   const onPointerUp = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>): void => endGesture(e, false),
+    (e: React.PointerEvent<HTMLDivElement>): void => {
+      endGesture(e, false);
+    },
     [endGesture]
   );
   const onPointerCancel = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>): void => endGesture(e, true),
+    (e: React.PointerEvent<HTMLDivElement>): void => {
+      endGesture(e, true);
+    },
     [endGesture]
   );
 

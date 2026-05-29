@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
+
 import { cx } from '@/utils/cx';
-import type { CodeProps } from './Code.types';
+
 import { codeRecipe } from './Code.css';
+
+import type { CodeProps } from './Code.types';
 
 /**
  * Small inline `<code>` primitive with theme-aware background and font.

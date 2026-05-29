@@ -2,9 +2,12 @@
 
 // src/components/primitives/Paper/Paper.tsx
 import React from 'react';
-import type { Prettify } from '@/types/utilities';
+
 import { cx } from '@/utils/cx';
+
 import { paperRecipe } from './Paper.css';
+
+import type { Prettify } from '@/types/utilities';
 
 /**
  * Paper elevation levels (shadow intensity)

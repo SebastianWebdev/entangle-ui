@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
 import { FOCUSABLE_SELECTOR } from '@/hooks/useFocusTrap';
+
 import { DIALOG_ANIMATION_MS } from './Dialog.css';
+
+import type { RefObject } from 'react';
 
 interface UseDialogAnimationOptions {
   open: boolean;
@@ -37,6 +41,10 @@ export function useDialogAnimation({
     if (open) {
       // Opening: capture previous focus, mount immediately
       previousFocusRef.current = document.activeElement as HTMLElement;
+      // Mount/closing state is driven by the `open` prop and gates a timed
+      // enter/exit animation (delayed unmount below), so it must live in an
+      // effect rather than be derived during render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setClosing(false);
       setMounted(true);
       wasOpenRef.current = true;
@@ -62,7 +70,9 @@ export function useDialogAnimation({
           previousFocusRef.current = null;
         }
       }, delay);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+      };
     }
     return undefined;
   }, [open]);
@@ -77,9 +87,8 @@ export function useDialogAnimation({
       } else {
         const panel = panelRef.current;
         if (panel) {
-          const firstFocusable = panel.querySelector(
-            FOCUSABLE_SELECTOR
-          ) as HTMLElement;
+          const firstFocusable =
+            panel.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
           if (firstFocusable) {
             firstFocusable.focus();
           } else {
@@ -88,7 +97,9 @@ export function useDialogAnimation({
         }
       }
     }, 0);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [open, mounted, initialFocusRef, panelRef]);
 
   return { mounted, closing };

@@ -10,9 +10,35 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
+
 import { useControlledState, useLatest, useResizeObserver } from '@/hooks';
 import { cx } from '@/utils/cx';
-import type { ViewportSize } from '@/components/primitives/viewport';
+
+import {
+  timelineShellStyle,
+  timelineBodyStyle,
+  timelineCanvasStyle,
+  timelineOverlayLayerStyle,
+  timelineMainRowStyle,
+  timelineToolbarStyle,
+  timelineFooterStyle,
+  ariaLiveRegionStyle,
+} from './Timeline.css';
+import { TIMELINE_SLOT } from './Timeline.types';
+import { TimelineStoreContext } from './TimelineContext';
+import {
+  clamp,
+  nextFollowView,
+  resolveLoop,
+  snapFrame,
+} from './timelineCoords';
+import { computeRows } from './timelineLayout';
+import { TimelineStore } from './TimelineStore';
+import { TimelineTrackHeaders } from './TimelineTrackHeaders';
+import { useTimelineDraw } from './useTimelineDraw';
+import { useTimelineGestures } from './useTimelineGestures';
+import { useTimelinePlayback } from './useTimelinePlayback';
+
 import type {
   TimelineGroup,
   TimelineLoop,
@@ -26,30 +52,7 @@ import type {
   TimelineTrackScaleProps,
   TimelineView,
 } from './Timeline.types';
-import { TIMELINE_SLOT } from './Timeline.types';
-import {
-  timelineShellStyle,
-  timelineBodyStyle,
-  timelineCanvasStyle,
-  timelineOverlayLayerStyle,
-  timelineMainRowStyle,
-  timelineToolbarStyle,
-  timelineFooterStyle,
-  ariaLiveRegionStyle,
-} from './Timeline.css';
-import { TimelineTrackHeaders } from './TimelineTrackHeaders';
-import { computeRows } from './timelineLayout';
-import {
-  clamp,
-  nextFollowView,
-  resolveLoop,
-  snapFrame,
-} from './timelineCoords';
-import { TimelineStore } from './TimelineStore';
-import { TimelineStoreContext } from './TimelineContext';
-import { useTimelineGestures } from './useTimelineGestures';
-import { useTimelinePlayback } from './useTimelinePlayback';
-import { useTimelineDraw } from './useTimelineDraw';
+import type { ViewportSize } from '@/components/primitives/viewport';
 
 const RULER_HEIGHT = 22;
 const LOOP_STRIP_HEIGHT = 12;
@@ -332,7 +335,9 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     [snap, startFrame, endFrame]
   );
   const seekLive = useCallback(
-    (f: number): void => setFrame(applyFrame(f)),
+    (f: number): void => {
+      setFrame(applyFrame(f));
+    },
     [setFrame, applyFrame]
   );
   // Consumer callbacks live behind refs so the handlers that fire them keep a
@@ -351,13 +356,14 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
   // ── Playback (optional built-in rAF loop) ──
 
   const setFrameRaw = useCallback(
-    (f: number): void => setFrame(clamp(f, startFrame, endFrame)),
+    (f: number): void => {
+      setFrame(clamp(f, startFrame, endFrame));
+    },
     [setFrame, startFrame, endFrame]
   );
-  const handlePlaybackEnd = useCallback(
-    (): void => setPlaying(false),
-    [setPlaying]
-  );
+  const handlePlaybackEnd = useCallback((): void => {
+    setPlaying(false);
+  }, [setPlaying]);
   useTimelinePlayback({
     playing: playingState,
     frame: frameState,
@@ -539,9 +545,13 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     layout.contentHeight - (size.height - chromeHeight)
   );
 
-  useLayoutEffect(() => {
-    setScrollTop(s => Math.min(s, maxScrollTop));
-  }, [maxScrollTop]);
+  // Clamp the scroll offset when the scrollable area shrinks (content removed
+  // or viewport grown). Adjusting state during render is React's documented
+  // alternative to a layout effect here — it avoids an extra commit, and the
+  // guard makes it self-terminating.
+  if (scrollTop > maxScrollTop) {
+    setScrollTop(maxScrollTop);
+  }
 
   const scrollBy = useCallback(
     (deltaPixels: number): void => {
@@ -677,6 +687,10 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             onToggleGroupCollapsed={handleToggleGroupCollapsed}
             onToggleTrackExpanded={handleToggleTrackExpanded}
           />
+          {/* The timeline body is a labelled group that doubles as an
+              interactive canvas surface (focusable, with pointer + key
+              handlers driving the gesture model). */}
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
           <div
             ref={bodyRef}
             className={timelineBodyStyle}
@@ -695,6 +709,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             role="group"
             aria-label={ariaLabel}
             aria-roledescription="Timeline"
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- focusable interactive canvas surface
             tabIndex={0}
             onPointerDown={handlers.onPointerDown}
             onPointerMove={handlers.onPointerMove}

@@ -1,7 +1,6 @@
-import type React from 'react';
-
-import type { Prettify } from '@/types/utilities';
 import type { BaseComponent } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 /** Side of the trigger the popup is placed against. */
 export type MenuSide = 'top' | 'right' | 'bottom' | 'left';
@@ -69,7 +68,7 @@ export type MenuTriggerProps = Prettify<MenuTriggerBaseProps>;
 /**
  * Styled popup surface. Place items or any custom node inside.
  */
-export interface MenuContentBaseProps extends BaseComponent<HTMLDivElement> {
+export interface MenuContentBaseProps extends BaseComponent {
   /** Items, groups, or custom panel content. */
   children?: React.ReactNode;
   /** Preferred side relative to the trigger. */
@@ -117,7 +116,7 @@ export type MenuItemProps = Prettify<MenuItemBaseProps>;
  * Wraps a set of radio items, owns the selected value.
  */
 export interface MenuRadioGroupBaseProps extends Omit<
-  BaseComponent<HTMLDivElement>,
+  BaseComponent,
   'onChange'
 > {
   /** Radio items. */
@@ -200,7 +199,7 @@ export type MenuCheckboxItemProps = Prettify<MenuCheckboxItemBaseProps>;
 /**
  * Visually separated group of items with an optional label.
  */
-export interface MenuGroupBaseProps extends BaseComponent<HTMLDivElement> {
+export interface MenuGroupBaseProps extends BaseComponent {
   /** Group items. */
   children?: React.ReactNode;
   /** Label rendered above the group. */
@@ -208,7 +207,7 @@ export interface MenuGroupBaseProps extends BaseComponent<HTMLDivElement> {
 }
 export type MenuGroupProps = Prettify<MenuGroupBaseProps>;
 
-export type MenuSeparatorProps = Prettify<BaseComponent<HTMLDivElement>>;
+export type MenuSeparatorProps = Prettify<BaseComponent>;
 
 /**
  * Groups a submenu trigger with its content.

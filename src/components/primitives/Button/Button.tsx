@@ -2,14 +2,17 @@
 
 // src/primitives/Button/Button.tsx
 import React from 'react';
-import type { Prettify } from '@/types/utilities';
-import type { Size, Variant } from '@/types/common';
+
 import { cx } from '@/utils/cx';
+
 import {
   buttonRecipe,
   loadingSpinnerStyle,
   iconWrapperStyle,
 } from './Button.css';
+
+import type { Size, Variant } from '@/types/common';
+import type { Prettify } from '@/types/utilities';
 
 /**
  * Button sizes optimized for editor interfaces

@@ -5,7 +5,18 @@ description: Interactive bezier curve editor for animation timing, color grading
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import CurveEditorDemo from '../../../../components/demos/controls/CurveEditorDemo';
+import CurveEditorDemo, {
+  CurveEditorControlled,
+  CurveEditorLockTangents,
+  CurveEditorPresets,
+  CurveEditorGrid,
+  CurveEditorSnap,
+  CurveEditorConstraints,
+  CurveEditorResponsive,
+  CurveEditorBackground,
+  CurveEditorBottomBar,
+  CurveEditorChangeComplete,
+} from '../../../../components/demos/controls/CurveEditorDemo';
 
 Interactive bezier curve editor for professional tools. Supports keyframe editing with multiple tangent modes, built-in and custom presets, grid and axis labels, snap-to-grid, and custom render props for backgrounds and bottom bars. Used for animation curves, color grading, easing functions, and value remapping.
 
@@ -30,6 +41,10 @@ const [curve, setCurve] = useState(undefined);
 The component defaults to an ease-in-out curve when no value is provided.
 
 ## Controlled vs Uncontrolled
+
+<ComponentPreview title="Controlled">
+  <CurveEditorControlled client:only="react" />
+</ComponentPreview>
 
 ```tsx
 // Controlled
@@ -63,9 +78,17 @@ Each keyframe has a tangent mode controlling how the curve passes through it.
 
 The toolbar provides buttons for switching tangent modes on selected keyframes.
 
+<ComponentPreview title="Tangent Modes">
+  <CurveEditorControlled client:only="react" />
+</ComponentPreview>
+
 ## Lock Tangents
 
 When `lockTangents` is true, tangent handle editing is hidden and disabled. The curve still renders normally using each keyframe's existing tangent mode.
+
+<ComponentPreview title="Lock Tangents">
+  <CurveEditorLockTangents client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <CurveEditor value={curve} onChange={setCurve} lockTangents />
@@ -74,6 +97,10 @@ When `lockTangents` is true, tangent handle editing is hidden and disabled. The 
 ## Presets
 
 Built-in presets include ease-in, ease-out, ease-in-out, linear, and more. You can add custom presets that appear alongside them in the toolbar.
+
+<ComponentPreview title="Presets">
+  <CurveEditorPresets client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <CurveEditor
@@ -92,6 +119,10 @@ Built-in presets include ease-in, ease-out, ease-in-out, linear, and more. You c
 
 ## Grid and Labels
 
+<ComponentPreview title="Grid and Labels">
+  <CurveEditorGrid client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <CurveEditor
   value={curve}
@@ -108,6 +139,10 @@ Built-in presets include ease-in, ease-out, ease-in-out, linear, and more. You c
 
 Hold Ctrl to toggle snapping, or enable it as the default.
 
+<ComponentPreview title="Snap to Grid">
+  <CurveEditorSnap client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <CurveEditor
   value={curve}
@@ -118,6 +153,10 @@ Hold Ctrl to toggle snapping, or enable it as the default.
 ```
 
 ## Constraints
+
+<ComponentPreview title="Constraints">
+  <CurveEditorConstraints client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <CurveEditor
@@ -134,6 +173,10 @@ Hold Ctrl to toggle snapping, or enable it as the default.
 
 When `responsive` is true, the editor fills its parent container using a ResizeObserver, ignoring the `width` prop.
 
+<ComponentPreview title="Responsive Mode">
+  <CurveEditorResponsive client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <div style={{ width: '100%' }}>
   <CurveEditor responsive height={200} value={curve} onChange={setCurve} />
@@ -144,22 +187,21 @@ When `responsive` is true, the editor fills its parent container using a ResizeO
 
 Use `renderBackground` to draw behind the curve, such as a histogram or gradient (like Photoshop/Lightroom curves).
 
+<ComponentPreview title="Custom Background">
+  <CurveEditorBackground client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <CurveEditor
   value={curve}
   onChange={setCurve}
   renderBackground={(ctx, info) => {
     // Draw a gradient behind the curve
-    const grad = ctx.createLinearGradient(
-      info.area.x,
-      info.area.y + info.area.height,
-      info.area.x,
-      info.area.y
-    );
+    const grad = ctx.createLinearGradient(0, info.height, 0, 0);
     grad.addColorStop(0, 'rgba(0, 0, 0, 0.3)');
     grad.addColorStop(1, 'rgba(255, 255, 255, 0.1)');
     ctx.fillStyle = grad;
-    ctx.fillRect(info.area.x, info.area.y, info.area.width, info.area.height);
+    ctx.fillRect(0, 0, info.width, info.height);
   }}
 />
 ```
@@ -167,6 +209,10 @@ Use `renderBackground` to draw behind the curve, such as a histogram or gradient
 ## Custom Bottom Bar
 
 Use `renderBottomBar` for custom content below the canvas, such as coordinate readouts or channel selectors.
+
+<ComponentPreview title="Custom Bottom Bar">
+  <CurveEditorBottomBar client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <CurveEditor
@@ -188,6 +234,10 @@ Use `renderBottomBar` for custom content below the canvas, such as coordinate re
 ## Change Complete
 
 Use `onChangeComplete` for undo system integration. It fires on drag end, keyframe add, and keyframe delete.
+
+<ComponentPreview title="Change Complete">
+  <CurveEditorChangeComplete client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <CurveEditor

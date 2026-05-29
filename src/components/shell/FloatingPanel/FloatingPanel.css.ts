@@ -1,4 +1,5 @@
 import { style, createVar } from '@vanilla-extract/css';
+
 import { vars } from '@/theme/contract.css';
 
 // --- Dynamic vars for position and size ---
@@ -8,8 +9,22 @@ export const panelWidthVar = createVar();
 export const panelHeightVar = createVar();
 export const panelZIndexVar = createVar();
 
+// Positioned, full-size wrapper so absolutely-positioned panels anchor to the
+// manager region instead of the viewport. Pointer events pass through the empty
+// area so it never blocks the content the panels float over.
+export const managerRoot = style({
+  position: 'relative',
+  width: '100%',
+  height: '100%',
+  pointerEvents: 'none',
+});
+
 export const panel = style({
-  position: 'fixed',
+  // Absolute so the panel is positioned within its nearest positioned
+  // ancestor (the FloatingManager container) rather than the viewport.
+  position: 'absolute',
+  // Re-enable pointer events disabled on the pass-through manager root.
+  pointerEvents: 'auto',
   display: 'flex',
   flexDirection: 'column',
   background: vars.colors.background.secondary,

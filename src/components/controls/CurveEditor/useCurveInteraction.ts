@@ -1,15 +1,9 @@
 'use client';
 
-import type React from 'react';
 import { useState, useCallback, useRef } from 'react';
+
 import { clamp, roundToPrecision } from '@/utils/mathUtils';
-import type {
-  CurveData,
-  CurveKeyframe,
-  CurveViewport,
-  CurveHitTest,
-  TangentMode,
-} from './CurveEditor.types';
+
 import {
   canvasToDomain,
   hitTest,
@@ -18,6 +12,15 @@ import {
   constrainTangent,
   computeAutoTangent,
 } from './curveUtils';
+
+import type {
+  CurveData,
+  CurveKeyframe,
+  CurveViewport,
+  CurveHitTest,
+  TangentMode,
+} from './CurveEditor.types';
+import type React from 'react';
 
 type DragState =
   | { type: 'idle' }
@@ -119,7 +122,9 @@ export function useCurveInteraction(
   const dragStateRef = useRef<DragState>({ type: 'idle' });
   const curveBeforeDragRef = useRef<CurveData | null>(null);
 
-  const isDragging = dragStateRef.current.type !== 'idle';
+  // Ref drives synchronous reads inside the pointer handlers; the state mirror
+  // is the value exposed for rendering (kept in sync on drag start/end).
+  const [isDragging, setIsDragging] = useState(false);
 
   const getCanvasSize = useCallback(() => {
     const canvas = canvasRef.current;
@@ -204,6 +209,7 @@ export function useCurveInteraction(
             startX: kf.x,
             startY: kf.y,
           };
+          setIsDragging(true);
           canvas.setPointerCapture(e.pointerId);
         }
         return;
@@ -225,6 +231,7 @@ export function useCurveInteraction(
           type: hit.type,
           keyframeIndex: hit.keyframeIndex,
         };
+        setIsDragging(true);
         canvas.setPointerCapture(e.pointerId);
         return;
       }
@@ -235,11 +242,13 @@ export function useCurveInteraction(
       }
 
       dragStateRef.current = { type: 'boxSelect', startPx: px, startPy: py };
+      setIsDragging(true);
       canvas.setPointerCapture(e.pointerId);
     },
     [
       disabled,
       readOnly,
+      lockTangents,
       canvasRef,
       curve,
       viewport,
@@ -344,7 +353,9 @@ export function useCurveInteraction(
         return;
       }
 
-      if (drag.type === 'handleIn' || drag.type === 'handleOut') {
+      // The only remaining drag types here are 'handleIn' and 'handleOut'
+      // (idle, boxSelect and keyframe are handled and returned above).
+      {
         const kf = curve.keyframes[drag.keyframeIndex];
         if (!kf) return;
 
@@ -387,12 +398,12 @@ export function useCurveInteraction(
       viewport,
       disabled,
       readOnly,
+      lockTangents,
       snapToGrid,
       lockEndpoints,
       clampY,
       minKeyframeDistance,
       precision,
-      gridSubdivisions,
       onChange,
       getCanvasSize,
       snapValue,
@@ -458,6 +469,7 @@ export function useCurveInteraction(
       }
 
       dragStateRef.current = { type: 'idle' };
+      setIsDragging(false);
       canvas.releasePointerCapture(e.pointerId);
     },
     [
@@ -479,10 +491,7 @@ export function useCurveInteraction(
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      const { px, py } = getCanvasCoords(
-        e as unknown as React.PointerEvent,
-        canvas
-      );
+      const { px, py } = getCanvasCoords(e, canvas);
       const { w, h } = getCanvasSize();
       const hit = hitTest(px, py, curve, viewport, w, h);
 
@@ -548,6 +557,7 @@ export function useCurveInteraction(
     [
       disabled,
       readOnly,
+      lockTangents,
       canvasRef,
       curve,
       viewport,
@@ -561,53 +571,6 @@ export function useCurveInteraction(
       getCanvasSize,
       applyAutoTangents,
     ]
-  );
-
-  // ─── Keyboard ───
-  const onKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (disabled) return;
-
-      switch (e.key) {
-        case 'Delete':
-        case 'Backspace': {
-          if (readOnly || !allowDelete) return;
-          e.preventDefault();
-          deleteSelectedFn();
-          break;
-        }
-        case 'a': {
-          if (e.ctrlKey || e.metaKey) {
-            e.preventDefault();
-            selectAllFn();
-          }
-          break;
-        }
-        case 'ArrowUp':
-        case 'ArrowDown':
-        case 'ArrowLeft':
-        case 'ArrowRight': {
-          if (readOnly || selectedIds.size === 0) return;
-          e.preventDefault();
-          nudgeSelected(e.key, e.shiftKey);
-          break;
-        }
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6': {
-          if (readOnly || lockTangents || selectedIds.size === 0) return;
-          e.preventDefault();
-          const modeIndex = parseInt(e.key) - 1;
-          const mode = TANGENT_CYCLE[modeIndex];
-          if (mode) setTangentModeFn(mode);
-          break;
-        }
-      }
-    },
-    [disabled, readOnly, lockTangents, allowDelete, selectedIds]
   );
 
   // ─── Actions ───
@@ -743,6 +706,65 @@ export function useCurveInteraction(
       onChange,
       onChangeComplete,
       applyAutoTangents,
+    ]
+  );
+
+  // ─── Keyboard ───
+  // Declared after the action callbacks it dispatches so they are referenced
+  // (and depended on) by value rather than via a forward closure.
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (disabled) return;
+
+      switch (e.key) {
+        case 'Delete':
+        case 'Backspace': {
+          if (readOnly || !allowDelete) return;
+          e.preventDefault();
+          deleteSelectedFn();
+          break;
+        }
+        case 'a': {
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            selectAllFn();
+          }
+          break;
+        }
+        case 'ArrowUp':
+        case 'ArrowDown':
+        case 'ArrowLeft':
+        case 'ArrowRight': {
+          if (readOnly || selectedIds.size === 0) return;
+          e.preventDefault();
+          nudgeSelected(e.key, e.shiftKey);
+          break;
+        }
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6': {
+          if (readOnly || lockTangents || selectedIds.size === 0) return;
+          e.preventDefault();
+          const modeIndex = parseInt(e.key) - 1;
+          const mode = TANGENT_CYCLE[modeIndex];
+          if (mode) setTangentModeFn(mode);
+          break;
+        }
+      }
+    },
+    [
+      disabled,
+      readOnly,
+      lockTangents,
+      allowDelete,
+      selectedIds,
+      deleteSelectedFn,
+      selectAllFn,
+      nudgeSelected,
+      setTangentModeFn,
     ]
   );
 

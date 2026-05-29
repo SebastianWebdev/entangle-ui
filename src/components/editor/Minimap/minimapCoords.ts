@@ -1,9 +1,9 @@
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import type {
   ViewportTransform,
   ViewportSize,
   WorldRect,
 } from '@/components/primitives/viewport';
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 
 /** Axis-aligned rectangle in minimap (CSS-pixel) coordinates. */
 export interface MinimapScreenRect {

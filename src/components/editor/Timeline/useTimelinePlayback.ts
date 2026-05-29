@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useEffectEvent, useRef } from 'react';
-import type { TimelineLoop } from './Timeline.types';
+
 import { resolveLoop } from './timelineCoords';
+
+import type { TimelineLoop } from './Timeline.types';
 
 export interface PlaybackRange {
   startFrame: number;
@@ -102,7 +104,12 @@ export function useTimelinePlayback(opts: UseTimelinePlaybackOptions): void {
       if (!ended) raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-    // Only `playing` drives the rAF lifecycle; the rest reads through `tick`.
+    return () => {
+      cancelAnimationFrame(raf);
+    };
+    // Only `playing` drives the rAF lifecycle. `opts.frame` is read solely to
+    // seed the accumulator at playback start; including it would restart the
+    // loop on every emitted frame, so it is intentionally excluded.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opts.playing]);
 }

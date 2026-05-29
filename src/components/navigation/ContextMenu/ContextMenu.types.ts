@@ -1,8 +1,7 @@
-import type React from 'react';
-
-import type { Prettify } from '@/types/utilities';
+import type { MenuHandle } from '@/components/navigation/Menu/Menu.types';
 import type { BaseComponent } from '@/types/common';
-import type { MenuHandle } from '../Menu/Menu.types';
+import type { Prettify } from '@/types/utilities';
+import type React from 'react';
 
 /**
  * Root of a context menu. Owns open/close state for one trigger area.
@@ -41,7 +40,7 @@ export type ContextMenuProps = Prettify<ContextMenuRootBaseProps>;
  * *as* your own element instead — no wrapper, and the element stays fully
  * stylable (positioning, margins, etc.).
  */
-export interface ContextMenuTriggerBaseProps extends BaseComponent<HTMLDivElement> {
+export interface ContextMenuTriggerBaseProps extends BaseComponent {
   /** The right-click target area. */
   children?: React.ReactNode;
   /**
@@ -60,7 +59,7 @@ export type ContextMenuTriggerProps = Prettify<ContextMenuTriggerBaseProps>;
  * context menu opens *at the pointer* (the cursor is the anchor), so there is
  * no trigger edge to align against. Submenus still honour the root `gap`.
  */
-export interface ContextMenuContentBaseProps extends BaseComponent<HTMLDivElement> {
+export interface ContextMenuContentBaseProps extends BaseComponent {
   /** Items, groups, or custom panel content. */
   children?: React.ReactNode;
 }

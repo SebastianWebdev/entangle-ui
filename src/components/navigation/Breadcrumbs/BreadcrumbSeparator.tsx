@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
+
 import { cx } from '@/utils/cx';
-import type { BreadcrumbSeparatorProps } from './Breadcrumbs.types';
+
 import { breadcrumbSeparatorStyle } from './Breadcrumbs.css';
+
+import type { BreadcrumbSeparatorProps } from './Breadcrumbs.types';
 
 /**
  * Decorative separator rendered between breadcrumb items.

@@ -712,6 +712,50 @@ Before opening a PR for a new component (or major refactor), verify:
 
 ---
 
+## 14. ESLint enforces these patterns
+
+Most of the rules above are now enforced by `eslint.config.js` and fail CI, so
+the review checklist is mechanically checked. The setup (src files):
+
+- **`eslint-plugin-react-hooks` v7, full `recommended`** (the Compiler-aware
+  rule set), all at `error`. The ones you will hit most:
+  - **`react-hooks/refs`** — never read or write `ref.current` during render.
+    A value you render must be **state**, not a ref. A value you only read
+    inside an event handler / effect / timer should be a `useLatest` ref (which
+    writes in an effect, never in render). The common smell this caught was a
+    `ref + setForceUpdate(n => n + 1)` pair masquerading as state — replace it
+    with real `useState`, keeping a ref only if a handler needs a synchronous
+    read.
+  - **`react-hooks/set-state-in-effect`** — prefer deriving during render, or
+    the _adjust-state-during-render_ pattern (a guarded `if (x > max)
+setX(max)` in the render body) over a layout/effect that calls `setState`.
+    Reserve `setState`-in-effect for genuine external-system sync
+    (`matchMedia`, `IntersectionObserver`, reading committed DOM, enter/exit
+    animation timing) and annotate it with a one-line
+    `// eslint-disable-next-line react-hooks/set-state-in-effect` reason.
+  - **`react-hooks/exhaustive-deps`** (also `error`) — stable `useLatest` refs
+    must still be listed in dep arrays. Intentional deep-compare keys
+    (`JSON.stringify` deps) or memo-busting counters get a justified disable.
+- **`typescript-eslint` `strict-type-checked`** — notably
+  `no-unnecessary-condition` (delete dead guards, but check first that an
+  "always true `x === x`" isn't a typo for a real comparison) and
+  `no-deprecated`. `restrict-template-expressions` is tuned with
+  `allowNumber: true` so `` `${size}px` `` style strings are fine; booleans,
+  nullish, and `any` in templates still fail.
+- **`eslint-plugin-import-x`** — `no-cycle` (keep the barrel exports
+  acyclic), `order`, `no-duplicates`, `consistent-type-specifier-style`.
+- **`@/` alias is enforced** — cross-directory relative imports (`../…`) are a
+  lint error; always import via `@/…`.
+- **`eslint-plugin-jsx-a11y`** — interactive elements (`onClick` on a
+  `div`/`span`, custom `role`) need keyboard handlers, focusability
+  (`tabIndex`), and valid ARIA. Mirror every `onClick` with an `onKeyDown`
+  (Enter/Space) rather than suppressing the rule.
+
+Test files keep the prior type-checked baseline (not `strict-type-checked`),
+and the src-only rules above are not applied to them.
+
+---
+
 ## Reference files (the "look at this" list)
 
 When implementing a new pattern, open these first:

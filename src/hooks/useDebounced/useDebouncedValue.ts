@@ -20,6 +20,9 @@ export function useDebouncedValue<T>(value: T, delay: number): T {
 
   useEffect(() => {
     if (delay <= 0) {
+      // Synchronous passthrough when debouncing is disabled; this hook's whole
+      // purpose is to mirror an external value into state.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDebounced(value);
       return;
     }

@@ -8,20 +8,12 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import { useLatest } from '@/hooks';
-import { cx } from '@/utils/cx';
-import { vars } from '@/theme/contract.css';
+
 import { resolveVarValue } from '@/components/primitives/canvas/canvasTheme';
-import type {
-  MinimapCornerSide,
-  MinimapFooterPlacement,
-  MinimapInteractionConfig,
-  MinimapProps,
-  MinimapSlotKind,
-  MinimapSlotMarker,
-  MinimapTitlePlacement,
-} from './Minimap.types';
-import { MINIMAP_SLOT } from './Minimap.types';
+import { useLatest } from '@/hooks';
+import { vars } from '@/theme/contract.css';
+import { cx } from '@/utils/cx';
+
 import {
   minimapShellStyle,
   minimapBodyStyle,
@@ -37,11 +29,23 @@ import {
   cornerBottomRightStyle,
   ariaLiveRegionStyle,
 } from './Minimap.css';
-import { computeMinimapHeight } from './minimapCoords';
-import { drawMinimap, type MinimapDrawColors } from './minimapDrawing';
-import { useMinimapGestures } from './useMinimapGestures';
-import { MinimapStore } from './MinimapStore';
+import { MINIMAP_SLOT } from './Minimap.types';
 import { MinimapStoreContext, useMinimapDragState } from './MinimapContext';
+import { computeMinimapHeight } from './minimapCoords';
+import { drawMinimap } from './minimapDrawing';
+import { MinimapStore } from './MinimapStore';
+import { useMinimapGestures } from './useMinimapGestures';
+
+import type {
+  MinimapCornerSide,
+  MinimapFooterPlacement,
+  MinimapInteractionConfig,
+  MinimapProps,
+  MinimapSlotKind,
+  MinimapSlotMarker,
+  MinimapTitlePlacement,
+} from './Minimap.types';
+import type { MinimapDrawColors } from './minimapDrawing';
 
 const DEFAULT_OUTSIDE_OVERLAY = 'rgba(0, 0, 0, 0.4)';
 
@@ -152,7 +156,8 @@ function categorizeChildren(children: React.ReactNode): CategorizedSlots {
       );
       if (placement === 'bottom-inside') slots.footerInside = node;
       else slots.footerBelow = node;
-    } else if (kind === 'corner') {
+    } else {
+      // kind is narrowed to 'corner' here (only remaining slot kind).
       const side: MinimapCornerSide = props.side ?? 'top-right';
       const cornerStyle =
         side === 'top-left'
@@ -202,6 +207,9 @@ function MinimapBody({
 }): React.ReactElement {
   const isDragging = useMinimapDragState();
   return (
+    // The minimap body is a labelled landmark region that doubles as an
+    // interactive pan/zoom surface (focusable, with pointer + key handlers).
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       ref={bodyRef}
       className={minimapBodyStyle}
@@ -392,7 +400,9 @@ export const Minimap = ({
 
   useLayoutEffect(() => {
     scheduleDraw();
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+    };
   }, [scheduleDraw]);
 
   // Redraw when DPR changes (e.g. dragging to a different display).
@@ -401,9 +411,13 @@ export const Minimap = ({
     const mq = window.matchMedia(
       `(resolution: ${window.devicePixelRatio}dppx)`
     );
-    const handler = (): void => scheduleDraw();
+    const handler = (): void => {
+      scheduleDraw();
+    };
     mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    return () => {
+      mq.removeEventListener('change', handler);
+    };
   }, [scheduleDraw]);
 
   // ── Slots ──

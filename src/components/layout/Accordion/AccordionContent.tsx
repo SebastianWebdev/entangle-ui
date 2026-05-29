@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useAccordionContext, useAccordionItemContext } from './Accordion';
-import type { AccordionContentProps } from './Accordion.types';
+
 import { cx } from '@/utils/cx';
+
+import { useAccordionContext, useAccordionItemContext } from './Accordion';
 import {
   contentWrapper,
   contentWrapperExpanded,
@@ -11,6 +12,8 @@ import {
   contentInner,
   contentBody,
 } from './Accordion.css';
+
+import type { AccordionContentProps } from './Accordion.types';
 
 // --- Component ---
 

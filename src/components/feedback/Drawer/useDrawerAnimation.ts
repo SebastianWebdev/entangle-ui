@@ -1,8 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
 import { FOCUSABLE_SELECTOR } from '@/hooks/useFocusTrap';
+
 import { DRAWER_ANIMATION_MS } from './Drawer.css';
+
+import type { RefObject } from 'react';
 
 interface UseDrawerAnimationOptions {
   open: boolean;
@@ -37,6 +41,10 @@ export function useDrawerAnimation({
   useEffect(() => {
     if (open) {
       previousFocusRef.current = document.activeElement as HTMLElement;
+      // Mount/closing state is driven by the `open` prop and gates a timed
+      // enter/exit animation (delayed unmount below), so it must live in an
+      // effect rather than be derived during render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setClosing(false);
       setMounted(true);
       wasOpenRef.current = true;

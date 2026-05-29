@@ -1,11 +1,14 @@
 'use client';
 
 import React, { useCallback } from 'react';
+
 import { CloseIcon } from '@/components/Icons/CloseIcon';
-import { usePopoverContext } from './Popover';
-import type { PopoverCloseProps } from './Popover.types';
 import { cx } from '@/utils/cx';
+
+import { usePopoverContext } from './Popover';
 import { closeButtonStyle } from './Popover.css';
+
+import type { PopoverCloseProps } from './Popover.types';
 
 // --- Component ---
 

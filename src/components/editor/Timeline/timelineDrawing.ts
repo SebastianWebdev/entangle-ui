@@ -1,13 +1,15 @@
-import type { ViewportSize } from '@/components/primitives/viewport';
 import { evaluateCurve } from '@/components/controls/CurveEditor';
-import type { CurveData } from '@/types/keyframe';
+
+import { frameToX, valueInset, valueToY, xToFrame } from './timelineCoords';
+
 import type {
   TimelineDrawInfo,
   TimelineTrack,
   TimelineView,
 } from './Timeline.types';
 import type { TimelineRow } from './timelineLayout';
-import { frameToX, valueInset, valueToY, xToFrame } from './timelineCoords';
+import type { ViewportSize } from '@/components/primitives/viewport';
+import type { CurveData } from '@/types/keyframe';
 
 export interface TimelineDrawColors {
   background: string;

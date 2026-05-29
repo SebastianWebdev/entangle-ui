@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
-import type { ChatPanelProps } from './ChatPanel.types';
+
 import { cx } from '@/utils/cx';
+
 import { chatPanelRecipe, messageMaxWidthVarName } from './ChatPanel.css';
+
+import type { ChatPanelProps } from './ChatPanel.types';
 
 function resolveMaxWidth(
   value: number | string | undefined

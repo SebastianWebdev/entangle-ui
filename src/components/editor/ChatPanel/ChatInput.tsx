@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useCallback, useId } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import type { ChatInputProps } from './ChatPanel.types';
-import { cx } from '@/utils/cx';
+import React, { useCallback, useId } from 'react';
+
 import { SendIcon, StopIcon } from '@/components/Icons';
-import { useChatInput } from './useChatInput';
+import { cx } from '@/utils/cx';
+
 import { ChatAttachmentChip } from './ChatAttachment';
 import {
   inputContainerStyle,
@@ -18,6 +18,9 @@ import {
   inputMaxHeightVar,
   inputBottomBarStyle,
 } from './ChatPanel.css';
+import { useChatInput } from './useChatInput';
+
+import type { ChatInputProps } from './ChatPanel.types';
 
 export const ChatInput = /*#__PURE__*/ React.memo<ChatInputProps>(
   ({

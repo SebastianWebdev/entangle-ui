@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React from 'react';
+
 import { ExternalLinkIcon } from '@/components/Icons/ExternalLinkIcon';
 import { vars } from '@/theme/contract.css';
 import { cx } from '@/utils/cx';
-import type { LinkColor, LinkProps, LinkVariant } from './Link.types';
+
 import {
   externalIconStyle,
   linkColorVar,
@@ -13,6 +14,8 @@ import {
   linkRecipe,
   srOnlyStyle,
 } from './Link.css';
+
+import type { LinkColor, LinkProps, LinkVariant } from './Link.types';
 
 const EXTERNAL_PROTOCOL_RE = /^https?:\/\//i;
 
@@ -48,7 +51,7 @@ const NAMED_COLOR_TOKENS: Record<string, { base: string; hover: string }> = {
 };
 
 function resolveLinkColor(color: LinkColor): { base: string; hover: string } {
-  const named = NAMED_COLOR_TOKENS[color as string];
+  const named = NAMED_COLOR_TOKENS[color];
   if (named) return named;
   return { base: color, hover: color };
 }
@@ -170,7 +173,7 @@ function LinkImpl<E extends React.ElementType = 'a'>(
   const Component: React.ElementType = isDisabled ? 'span' : (as ?? 'a');
 
   const cleanedRest = isDisabled
-    ? stripNavProps(rest as Record<string, unknown>)
+    ? stripNavProps(rest)
     : (rest as Record<string, unknown>);
 
   // Only set `href` when rendering a plain anchor and not disabled. For

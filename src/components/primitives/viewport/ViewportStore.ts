@@ -1,5 +1,5 @@
-import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 import { computeCenterTransform, computeFitTransform } from './viewportMath';
+
 import type {
   ScreenRect,
   ViewportHandle,
@@ -7,6 +7,7 @@ import type {
   ViewportTransform,
   WorldRect,
 } from './Viewport.types';
+import type { Point2D } from '@/components/primitives/canvas/canvas.types';
 
 /** Read-only snapshot of the viewport store state. */
 export interface ViewportStoreSnapshot {
@@ -120,8 +121,12 @@ export class ViewportStore {
     if (next === this.transform) return;
     this.transform = next;
     this.snapshot = this.computeSnapshot();
-    this.transformListeners.forEach(cb => cb());
-    this.allListeners.forEach(cb => cb());
+    this.transformListeners.forEach(cb => {
+      cb();
+    });
+    this.allListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setSize(next: ViewportSize): void {
@@ -130,24 +135,36 @@ export class ViewportStore {
     }
     this.size = next;
     this.snapshot = this.computeSnapshot();
-    this.sizeListeners.forEach(cb => cb());
-    this.allListeners.forEach(cb => cb());
+    this.sizeListeners.forEach(cb => {
+      cb();
+    });
+    this.allListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setIsPanning(next: boolean): void {
     if (next === this.isPanning) return;
     this.isPanning = next;
     this.snapshot = this.computeSnapshot();
-    this.isPanningListeners.forEach(cb => cb());
-    this.allListeners.forEach(cb => cb());
+    this.isPanningListeners.forEach(cb => {
+      cb();
+    });
+    this.allListeners.forEach(cb => {
+      cb();
+    });
   }
 
   setMarqueeRect(next: ScreenRect | null): void {
     if (next === this.marqueeRect) return;
     this.marqueeRect = next;
     this.snapshot = this.computeSnapshot();
-    this.marqueeListeners.forEach(cb => cb());
-    this.allListeners.forEach(cb => cb());
+    this.marqueeListeners.forEach(cb => {
+      cb();
+    });
+    this.allListeners.forEach(cb => {
+      cb();
+    });
   }
 
   /**
@@ -157,9 +174,15 @@ export class ViewportStore {
    */
   invalidate(layerName?: string): void {
     if (layerName === undefined) {
-      this.layerListeners.forEach(set => set.forEach(cb => cb()));
+      this.layerListeners.forEach(set => {
+        set.forEach(cb => {
+          cb();
+        });
+      });
     } else {
-      this.layerListeners.get(layerName)?.forEach(cb => cb());
+      this.layerListeners.get(layerName)?.forEach(cb => {
+        cb();
+      });
     }
   }
 

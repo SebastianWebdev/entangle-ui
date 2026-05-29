@@ -9,18 +9,21 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
+import { fuzzyScore } from '@/components/feedback/CommandPalette/fuzzySearch';
+import { Spinner } from '@/components/feedback/Spinner';
+import { FormHelperText } from '@/components/form/FormHelperText';
+import { FormLabel } from '@/components/form/FormLabel';
 import { CheckIcon } from '@/components/Icons/CheckIcon';
 import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { CloseIcon } from '@/components/Icons/CloseIcon';
-import { fuzzyScore } from '@/components/feedback/CommandPalette/fuzzySearch';
-import { FormHelperText } from '@/components/form/FormHelperText';
-import { FormLabel } from '@/components/form/FormLabel';
 import { ScrollArea } from '@/components/layout/ScrollArea';
-import { Spinner } from '@/components/feedback/Spinner';
 import { useControlledState } from '@/hooks/useControlledState';
+import { useLatest } from '@/hooks/useLatest';
 import { useListboxNav } from '@/hooks/useListboxNav';
 import { useMergedRef } from '@/hooks/useMergedRef';
 import { cx } from '@/utils/cx';
+
 import {
   checkmarkStyle,
   chevronButtonStyle,
@@ -37,6 +40,7 @@ import {
   optionLabelStyle,
   optionsListStyle,
 } from './Combobox.css';
+
 import type {
   ComboboxOption,
   ComboboxProps,
@@ -170,7 +174,7 @@ export function Combobox<T extends string = string>({
     (val: T | null): string => {
       if (val === null) return '';
       const found = options.find(o => o.value === val);
-      return found?.label ?? String(val);
+      return found?.label ?? val;
     },
     [options]
   );
@@ -179,7 +183,11 @@ export function Combobox<T extends string = string>({
   const [isOpen, setIsOpen] = useState(false);
   const [focused, setFocused] = useState(false);
   const [dropdownPos, setDropdownPos] = useState<React.CSSProperties>({});
-  const isEditingRef = useRef(false);
+  // Editing flag is reactive (drives the filter memo below). The latest-ref
+  // mirror lets the selected-sync effect read it without re-running when the
+  // flag toggles.
+  const [isEditing, setIsEditing] = useState(false);
+  const isEditingRef = useLatest(isEditing);
 
   // Sync the query with the selected label when it changes externally and the
   // user is not actively typing.
@@ -187,7 +195,7 @@ export function Combobox<T extends string = string>({
     if (!isEditingRef.current) {
       setQuery(labelOf(selected));
     }
-  }, [labelOf, selected]);
+  }, [labelOf, selected, isEditingRef]);
 
   const effectiveCreatable = creatable;
   const effectiveFreeSolo = freeSolo || creatable;
@@ -198,10 +206,10 @@ export function Combobox<T extends string = string>({
         options,
         // When the user hasn't typed yet (query equals the selected label) we
         // show the full list so the dropdown serves as a browseable menu.
-        isEditingRef.current ? query : '',
+        isEditing ? query : '',
         filterFn
       ),
-    [filterFn, options, query]
+    [filterFn, options, query, isEditing]
   );
 
   const hasExactMatch = useMemo(() => {
@@ -249,11 +257,9 @@ export function Combobox<T extends string = string>({
       } else {
         setSelected(opt.value);
       }
-      isEditingRef.current = false;
+      setIsEditing(false);
       setQuery(
-        opt.value === (CREATE_ROW_VALUE as T)
-          ? query
-          : (opt.label ?? String(opt.value))
+        opt.value === (CREATE_ROW_VALUE as T) ? query : (opt.label ?? opt.value)
       );
       close();
     },
@@ -318,7 +324,7 @@ export function Combobox<T extends string = string>({
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const next = event.target.value;
-      isEditingRef.current = true;
+      setIsEditing(true);
       setQuery(next);
       onInputChange?.(next);
       if (!isOpen) open();
@@ -352,7 +358,7 @@ export function Combobox<T extends string = string>({
           } else {
             setSelected(query as T);
           }
-          isEditingRef.current = false;
+          setIsEditing(false);
           close();
           return;
         }
@@ -393,7 +399,7 @@ export function Combobox<T extends string = string>({
 
   const handleBlur = useCallback(() => {
     setFocused(false);
-    isEditingRef.current = false;
+    setIsEditing(false);
     // Restore the last selected label unless freeSolo allowed the typed value.
     if (!effectiveFreeSolo) {
       setQuery(labelOf(selected));
@@ -406,7 +412,7 @@ export function Combobox<T extends string = string>({
       event.stopPropagation();
       setSelected(null);
       setQuery('');
-      isEditingRef.current = false;
+      setIsEditing(false);
       inputRef.current?.focus();
     },
     [setSelected]
@@ -445,6 +451,7 @@ export function Combobox<T extends string = string>({
           aria-selected={isSelected}
           aria-disabled={isDisabled || undefined}
           id={`${listboxId}-${String(idx)}`}
+          tabIndex={-1}
           className={cx(
             optionItemRecipe({
               active: isActive,
@@ -455,6 +462,12 @@ export function Combobox<T extends string = string>({
           )}
           onClick={() => {
             commitOption(opt);
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              commitOption(opt);
+            }
           }}
           onMouseEnter={() => {
             if (!isDisabled) listbox.setActiveIndex(idx);

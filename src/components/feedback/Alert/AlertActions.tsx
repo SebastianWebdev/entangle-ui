@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
+
 import { cx } from '@/utils/cx';
-import type { AlertActionsProps } from './Alert.types';
+
 import { alertActionsRecipe } from './Alert.css';
+
+import type { AlertActionsProps } from './Alert.types';
 
 /**
  * Action-button row for an `Alert`. Lays out children with a horizontal gap

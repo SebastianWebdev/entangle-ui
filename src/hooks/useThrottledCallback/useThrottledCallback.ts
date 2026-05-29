@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
+
+import { useLatest } from '@/hooks/useLatest';
+
 import type {
   ThrottledCallback,
   UseThrottledCallbackOptions,
@@ -31,8 +34,9 @@ export function useThrottledCallback<Args extends unknown[]>(
 ): ThrottledCallback<Args> {
   const { leading = true, trailing = true } = options;
 
-  const fnRef = useRef(fn);
-  fnRef.current = fn;
+  // Latest fn, refreshed after each commit so the stable throttled wrapper
+  // always invokes the current callback.
+  const fnRef = useLatest(fn);
 
   const lastCallRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -47,6 +51,9 @@ export function useThrottledCallback<Args extends unknown[]>(
     };
 
     const wrapper = (...args: Args): void => {
+      // Date.now() runs only when the wrapper is invoked from an event/timer,
+      // never during render, so it is not a render-purity concern here.
+      // eslint-disable-next-line react-hooks/purity
       const now = Date.now();
       if (lastCallRef.current === 0 && !leading) {
         // Skip the leading fire by anchoring the window to "now".
@@ -83,7 +90,7 @@ export function useThrottledCallback<Args extends unknown[]>(
     };
 
     return wrapper;
-  }, [delay, leading, trailing]);
+  }, [delay, leading, trailing, fnRef]);
 
   useEffect(
     () => () => {

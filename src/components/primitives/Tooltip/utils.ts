@@ -13,7 +13,7 @@ export const parsePlacement = (placement: TooltipPlacement) => {
     BaseTooltipPositionerProps['side'],
     BaseTooltipPositionerProps['align']?,
   ];
-  return { side, align: align || 'center' };
+  return { side, align };
 };
 
 /**

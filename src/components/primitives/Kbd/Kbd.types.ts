@@ -1,7 +1,7 @@
-import type React from 'react';
 import type { BaseComponent, Size } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
 import type { Platform } from '@/utils/platform';
+import type React from 'react';
 
 export type KbdSize = Size;
 

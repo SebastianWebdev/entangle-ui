@@ -1,4 +1,5 @@
 import { TIMELINE_SLOT } from './Timeline.types';
+
 import type { TimelineTrackScaleProps } from './Timeline.types';
 
 /**
