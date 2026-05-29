@@ -35,8 +35,10 @@ function useGizmoOrientation(
   initial: GizmoOrientation = { yaw: 30, pitch: -20 }
 ) {
   const [orientation, setOrientation] = useState<GizmoOrientation>(initial);
+  const [lastView, setLastView] = useState<GizmoPresetView | null>(null);
 
   const onOrbit = (delta: OrbitDelta) => {
+    setLastView(null);
     setOrientation(prev => ({
       yaw: prev.yaw + delta.deltaYaw,
       pitch: Math.max(-90, Math.min(90, prev.pitch + delta.deltaPitch)),
@@ -45,10 +47,13 @@ function useGizmoOrientation(
 
   const onSnapToView = (view: GizmoPresetView) => {
     const preset = PRESET_VIEWS[view];
-    if (preset) setOrientation(preset);
+    if (preset) {
+      setOrientation(preset);
+      setLastView(view);
+    }
   };
 
-  return { orientation, setOrientation, onOrbit, onSnapToView };
+  return { orientation, lastView, setOrientation, onOrbit, onSnapToView };
 }
 
 export default function ViewportGizmoDemo() {
@@ -169,59 +174,56 @@ export function ViewportGizmoAxisColors() {
   );
 }
 
+type GizmoMode = 'full' | 'snap-only' | 'orbit-only' | 'display-only';
+
+const MODE_HINTS: Record<GizmoMode, string> = {
+  full: 'Drag to orbit · click an axis to snap',
+  'snap-only': 'Click an axis to snap (no orbit)',
+  'orbit-only': 'Drag to orbit (axis click does not snap)',
+  'display-only': 'No interaction',
+};
+
 export function ViewportGizmoInteractionModes() {
   const full = useGizmoOrientation();
   const snap = useGizmoOrientation();
   const orbit = useGizmoOrientation();
   const display = useGizmoOrientation();
 
+  const renderOne = (
+    mode: GizmoMode,
+    state: ReturnType<typeof useGizmoOrientation>
+  ) => {
+    const orbitEnabled = mode === 'full' || mode === 'orbit-only';
+    const snapEnabled = mode === 'full' || mode === 'snap-only';
+    return (
+      <Stack gap={2} align="center" style={{ width: 150 }}>
+        <Text size="xs" color="secondary">
+          {mode}
+        </Text>
+        <ViewportGizmo
+          orientation={state.orientation}
+          onOrbit={orbitEnabled ? state.onOrbit : undefined}
+          onSnapToView={snapEnabled ? state.onSnapToView : undefined}
+          interactionMode={mode}
+          diameter={120}
+        />
+        <Text size="xs" color="muted" align="center">
+          {MODE_HINTS[mode]}
+        </Text>
+        <Text size="xs" align="center">
+          Snapped view: {state.lastView ?? '—'}
+        </Text>
+      </Stack>
+    );
+  };
+
   return (
     <DemoWrapper withKeyboard>
       <Flex gap={6} align="flex-start" style={{ flexWrap: 'wrap' }}>
-        <Stack gap={2} align="center">
-          <Text size="xs" color="secondary">
-            full
-          </Text>
-          <ViewportGizmo
-            orientation={full.orientation}
-            onOrbit={full.onOrbit}
-            onSnapToView={full.onSnapToView}
-            interactionMode="full"
-            diameter={120}
-          />
-        </Stack>
-        <Stack gap={2} align="center">
-          <Text size="xs" color="secondary">
-            snap-only
-          </Text>
-          <ViewportGizmo
-            orientation={snap.orientation}
-            onSnapToView={snap.onSnapToView}
-            interactionMode="snap-only"
-            diameter={120}
-          />
-        </Stack>
-        <Stack gap={2} align="center">
-          <Text size="xs" color="secondary">
-            orbit-only
-          </Text>
-          <ViewportGizmo
-            orientation={orbit.orientation}
-            onOrbit={orbit.onOrbit}
-            interactionMode="orbit-only"
-            diameter={120}
-          />
-        </Stack>
-        <Stack gap={2} align="center">
-          <Text size="xs" color="secondary">
-            display-only
-          </Text>
-          <ViewportGizmo
-            orientation={display.orientation}
-            interactionMode="display-only"
-            diameter={120}
-          />
-        </Stack>
+        {renderOne('full', full)}
+        {renderOne('snap-only', snap)}
+        {renderOne('orbit-only', orbit)}
+        {renderOne('display-only', display)}
       </Flex>
     </DemoWrapper>
   );

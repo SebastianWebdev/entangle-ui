@@ -26,6 +26,7 @@ import {
   panelWidthVar,
   panelHeightVar,
   panelZIndexVar,
+  managerRoot,
   panel,
   header,
   title,
@@ -96,7 +97,7 @@ export const FloatingManager: React.FC<FloatingManagerProps> = ({
 
   return (
     <FloatingManagerContext.Provider value={contextValue}>
-      {children}
+      <div className={managerRoot}>{children}</div>
     </FloatingManagerContext.Provider>
   );
 };
@@ -215,7 +216,6 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   // --- Drag ---
   const panelRef = useRef<HTMLDivElement>(null);
   const setPanelRef = useMergedRef<HTMLDivElement>(panelRef, externalRef);
-  const dragOffsetRef = useRef<Position>({ x: 0, y: 0 });
 
   const handleDragStart = useCallback(
     (e: React.PointerEvent) => {
@@ -223,17 +223,28 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
       const target = e.currentTarget as HTMLElement;
       target.setPointerCapture(e.pointerId);
 
-      dragOffsetRef.current = {
-        x: e.clientX - pos.x,
-        y: e.clientY - pos.y,
-      };
+      // Track the pointer delta from the drag start, so positioning is
+      // independent of the coordinate space the panel lives in.
+      const startPointer = { x: e.clientX, y: e.clientY };
+      const startPos = { x: pos.x, y: pos.y };
+      const bounds = panelRef.current?.offsetParent?.getBoundingClientRect();
+      const panelRect = panelRef.current?.getBoundingClientRect();
 
       const handleDragMove = (me: PointerEvent) => {
-        const newX = me.clientX - dragOffsetRef.current.x;
-        const newY = me.clientY - dragOffsetRef.current.y;
-        const clampedX = Math.max(0, Math.min(newX, window.innerWidth - 50));
-        const clampedY = Math.max(0, Math.min(newY, window.innerHeight - 30));
-        setPos({ x: clampedX, y: clampedY });
+        const newX = startPos.x + (me.clientX - startPointer.x);
+        const newY = startPos.y + (me.clientY - startPointer.y);
+        // Clamp within the positioned container when one is available,
+        // keeping a small margin of the panel on-screen.
+        const maxX = bounds
+          ? Math.max(0, bounds.width - (panelRect?.width ?? 50))
+          : Number.POSITIVE_INFINITY;
+        const maxY = bounds
+          ? Math.max(0, bounds.height - 30)
+          : Number.POSITIVE_INFINITY;
+        setPos({
+          x: Math.max(0, Math.min(newX, maxX)),
+          y: Math.max(0, Math.min(newY, maxY)),
+        });
       };
 
       const handleDragEnd = () => {

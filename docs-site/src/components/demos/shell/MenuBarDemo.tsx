@@ -12,7 +12,7 @@ import {
 
 export default function MenuBarDemo() {
   return (
-    <DemoWrapper padding="0">
+    <DemoWrapper padding="0" height="300px">
       <MenuBar>
         <MenuBar.Menu label="File">
           <MenuBar.Item shortcut="Ctrl+N">New File</MenuBar.Item>
@@ -39,7 +39,7 @@ export default function MenuBarDemo() {
 
 export function MenuBarSizes() {
   return (
-    <DemoWrapper padding="1rem" withKeyboard>
+    <DemoWrapper padding="1rem" height="320px" withKeyboard>
       <Stack gap={4}>
         <div>
           <Text size="xs" color="secondary" style={{ marginBottom: 4 }}>
@@ -78,7 +78,7 @@ export function MenuBarSizes() {
 
 export function MenuBarSubmenus() {
   return (
-    <DemoWrapper padding="0" withKeyboard>
+    <DemoWrapper padding="0" height="300px" withKeyboard>
       <MenuBar>
         <MenuBar.Menu label="View">
           <MenuBar.Item>Zoom In</MenuBar.Item>
@@ -102,7 +102,7 @@ export function MenuBarSubmenus() {
 
 export function MenuBarIcons() {
   return (
-    <DemoWrapper padding="0" withKeyboard>
+    <DemoWrapper padding="0" height="300px" withKeyboard>
       <MenuBar>
         <MenuBar.Menu label="File">
           <MenuBar.Item icon={<FolderOpenIcon />} shortcut="Ctrl+O">
@@ -130,7 +130,7 @@ export function MenuBarIcons() {
 
 export function MenuBarDisabled() {
   return (
-    <DemoWrapper padding="0" withKeyboard>
+    <DemoWrapper padding="0" height="300px" withKeyboard>
       <MenuBar>
         <MenuBar.Menu label="File">
           <MenuBar.Item icon={<SaveIcon />} shortcut="Ctrl+S">
@@ -148,7 +148,7 @@ export function MenuBarDisabled() {
 
 export function MenuBarOffset() {
   return (
-    <DemoWrapper padding="0" withKeyboard>
+    <DemoWrapper padding="0" height="300px" withKeyboard>
       <MenuBar menuOffset={10}>
         <MenuBar.Menu label="File">
           <MenuBar.Item shortcut="Ctrl+N">New File</MenuBar.Item>
