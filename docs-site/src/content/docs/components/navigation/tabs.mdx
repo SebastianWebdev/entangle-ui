@@ -5,7 +5,19 @@ description: Compound tab component for switching between views with underline, 
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import TabsDemo from '../../../../components/demos/navigation/TabsDemo';
+import TabsDemo, {
+  TabsControlled,
+  TabsUnderline,
+  TabsPills,
+  TabsEnclosed,
+  TabsSizes,
+  TabsFullWidth,
+  TabsVertical,
+  TabsIcons,
+  TabsClosable,
+  TabsDisabled,
+  TabsKeepMounted,
+} from '../../../../components/demos/navigation/TabsDemo';
 
 Tab component for switching between views within a panel. Uses a compound component pattern with `Tabs`, `TabList`, `Tab`, and `TabPanel`. Supports multiple visual variants, horizontal and vertical orientations, closable tabs, and full keyboard navigation.
 
@@ -36,6 +48,10 @@ import { Tabs, TabList, Tab, TabPanel } from 'entangle-ui';
 
 ## Controlled vs Uncontrolled
 
+<ComponentPreview title="Controlled">
+  <TabsControlled client:only="react" />
+</ComponentPreview>
+
 ```tsx
 // Controlled
 const [activeTab, setActiveTab] = useState('properties');
@@ -61,6 +77,10 @@ const [activeTab, setActiveTab] = useState('properties');
 
 Bottom border indicator, the default style similar to VS Code tabs.
 
+<ComponentPreview title="Underline">
+  <TabsUnderline client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Tabs variant="underline" defaultValue="scene">
   <TabList>
@@ -75,6 +95,10 @@ Bottom border indicator, the default style similar to VS Code tabs.
 ### Pills
 
 Filled background on the active tab.
+
+<ComponentPreview title="Pills">
+  <TabsPills client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Tabs variant="pills" defaultValue="edit">
@@ -101,6 +125,10 @@ Use `pillsFrame={false}` to remove the surrounding border/background from the pi
 
 Bordered active tab with a connected panel appearance.
 
+<ComponentPreview title="Enclosed">
+  <TabsEnclosed client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Tabs variant="enclosed" defaultValue="output">
   <TabList>
@@ -113,6 +141,10 @@ Bordered active tab with a connected panel appearance.
 ```
 
 ## Sizes
+
+<ComponentPreview title="Sizes">
+  <TabsSizes client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Tabs size="sm" defaultValue="a">...</Tabs>
@@ -130,6 +162,10 @@ Bordered active tab with a connected panel appearance.
 
 Make tabs fill the available width equally.
 
+<ComponentPreview title="Full Width">
+  <TabsFullWidth client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Tabs fullWidth defaultValue="a">
   <TabList>
@@ -142,6 +178,10 @@ Make tabs fill the available width equally.
 ```
 
 ## Vertical Orientation
+
+<ComponentPreview title="Vertical Orientation">
+  <TabsVertical client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Tabs orientation="vertical" defaultValue="general">
@@ -157,6 +197,10 @@ Make tabs fill the available width equally.
 ```
 
 ## Tabs with Icons
+
+<ComponentPreview title="Tabs with Icons">
+  <TabsIcons client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Tabs defaultValue="scene">
@@ -174,6 +218,10 @@ Make tabs fill the available width equally.
 
 ## Closable Tabs
 
+<ComponentPreview title="Closable Tabs">
+  <TabsClosable client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <Tabs defaultValue="file1">
   <TabList>
@@ -189,6 +237,10 @@ Make tabs fill the available width equally.
 ```
 
 ## Disabled Tabs
+
+<ComponentPreview title="Disabled Tabs">
+  <TabsDisabled client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <Tabs defaultValue="a">
@@ -206,6 +258,10 @@ Make tabs fill the available width equally.
 ## Keep Mounted
 
 By default, inactive panels are unmounted. Use `keepMounted` to preserve their state.
+
+<ComponentPreview title="Keep Mounted">
+  <TabsKeepMounted client:only="react" />
+</ComponentPreview>
 
 ### Per-panel
 

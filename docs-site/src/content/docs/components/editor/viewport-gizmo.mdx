@@ -5,7 +5,16 @@ description: 3D orientation gizmo for viewport navigation with orbit, snap-to-vi
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import ViewportGizmoDemo from '../../../../components/demos/editor/ViewportGizmoDemo';
+import ViewportGizmoDemo, {
+  ViewportGizmoOrientation,
+  ViewportGizmoUpAxis,
+  ViewportGizmoAxisColors,
+  ViewportGizmoInteractionModes,
+  ViewportGizmoVisualOptions,
+  ViewportGizmoOrbitConfig,
+  ViewportGizmoEvents,
+  ViewportGizmoSizes,
+} from '../../../../components/demos/editor/ViewportGizmoDemo';
 
 A canvas-based 3D orientation gizmo for viewport navigation in editor applications. Displays the current camera orientation with colored axis arms and supports orbit dragging, snap-to-view clicking, and axis clicking. Fully controlled -- the parent manages orientation state while the gizmo provides interaction callbacks. Supports configurable axis colors, up-axis conventions, and multiple interaction modes.
 
@@ -43,6 +52,10 @@ const [orientation, setOrientation] = useState({ yaw: 45, pitch: -30 });
 
 The gizmo always reflects the parent-provided orientation. It uses Euler angles in degrees with YXZ intrinsic rotation order (matching Three.js defaults).
 
+<ComponentPreview title="Orientation">
+  <ViewportGizmoOrientation client:only="react" />
+</ComponentPreview>
+
 ```tsx
 interface GizmoOrientation {
   yaw: number; // Y-axis rotation (heading) in degrees
@@ -54,6 +67,10 @@ interface GizmoOrientation {
 ## Up Axis Convention
 
 Configure which axis points up to match your 3D engine's coordinate system.
+
+<ComponentPreview title="Up Axis Convention">
+  <ViewportGizmoUpAxis client:only="react" />
+</ComponentPreview>
 
 ```tsx
 {
@@ -70,6 +87,10 @@ Configure which axis points up to match your 3D engine's coordinate system.
 ## Axis Colors
 
 Choose from built-in color presets or provide custom axis colors.
+
+<ComponentPreview title="Axis Colors">
+  <ViewportGizmoAxisColors client:only="react" />
+</ComponentPreview>
 
 ```tsx
 {
@@ -99,6 +120,10 @@ Choose from built-in color presets or provide custom axis colors.
 ## Interaction Modes
 
 Control which interactions are available to the user.
+
+<ComponentPreview title="Interaction Modes">
+  <ViewportGizmoInteractionModes client:only="react" />
+</ComponentPreview>
 
 ```tsx
 {
@@ -133,6 +158,10 @@ Control which interactions are available to the user.
 
 Toggle various visual elements of the gizmo.
 
+<ComponentPreview title="Visual Options">
+  <ViewportGizmoVisualOptions client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <ViewportGizmo
   orientation={orientation}
@@ -154,6 +183,10 @@ Toggle various visual elements of the gizmo.
 
 Fine-tune orbit behavior with speed and pitch constraint options.
 
+<ComponentPreview title="Orbit Configuration">
+  <ViewportGizmoOrbitConfig client:only="react" />
+</ComponentPreview>
+
 ```tsx
 <ViewportGizmo
   orientation={orientation}
@@ -169,6 +202,10 @@ Fine-tune orbit behavior with speed and pitch constraint options.
 ```
 
 ## Event Callbacks
+
+<ComponentPreview title="Event Callbacks">
+  <ViewportGizmoEvents client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <ViewportGizmo
@@ -198,6 +235,10 @@ Fine-tune orbit behavior with speed and pitch constraint options.
 ## Size and Diameter
 
 The `diameter` prop controls the pixel size of the canvas. The `size` prop affects label font size.
+
+<ComponentPreview title="Size and Diameter">
+  <ViewportGizmoSizes client:only="react" />
+</ComponentPreview>
 
 ```tsx
 <ViewportGizmo orientation={orientation} diameter={80} size="sm" />
