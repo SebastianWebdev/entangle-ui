@@ -7,7 +7,9 @@ import type { BezierControlPoints } from './nodeGraphMath';
 // [0, width] × [0, height]; the helper adds a small margin before culling.
 const VIEWPORT = { width: 800, height: 600 };
 
-function cp(points: [number, number][]): BezierControlPoints {
+type XY = readonly [number, number];
+
+function cp(points: readonly [XY, XY, XY, XY]): BezierControlPoints {
   const [p0, c1, c2, p3] = points;
   return {
     p0: { x: p0[0], y: p0[1] },
