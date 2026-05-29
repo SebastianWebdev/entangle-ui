@@ -62,6 +62,8 @@ export interface UseTimelineGesturesOptions extends TimelineGestureActions {
   trackHeight: number;
   scrollTop: number;
   rulerHeight: number;
+  loopStripHeight: number;
+  loopHandles: 'edges' | 'brackets';
   snap: boolean | number;
   editable: boolean;
   allowAddKeyframe: boolean;
@@ -164,6 +166,8 @@ export function useTimelineGestures(
       rows: opts.rows,
       scrollTop: opts.scrollTop,
       rulerHeight: opts.rulerHeight,
+      loopStripHeight: opts.loopStripHeight,
+      loopHandles: opts.loopHandles,
       frame: opts.frame,
       showPlayhead: opts.showPlayhead,
       loopRegion: opts.loopRegion,
@@ -214,7 +218,8 @@ export function useTimelineGestures(
       const track = tracks.find(t => t.id === ref.trackId);
       const kf = track?.keyframes.find(k => k.id === ref.keyframeId);
       if (!track || !kf) return null;
-      const screenTop = opts.rulerHeight + geom.top - opts.scrollTop;
+      const screenTop =
+        opts.rulerHeight + opts.loopStripHeight + geom.top - opts.scrollTop;
       const range = geom.range;
       return {
         x: xToFrame(point.x, opts.view, opts.size.width) - kf.x,
@@ -283,6 +288,25 @@ export function useTimelineGestures(
         point.y < opts.rulerHeight &&
         (hit.kind === 'ruler' || hit.kind === 'playhead')
       ) {
+        e.preventDefault();
+        container.setPointerCapture(e.pointerId);
+        const anchorFrame = xToFrame(point.x, view, width);
+        const anchor = clamp(anchorFrame, opts.startFrame, opts.endFrame);
+        stateRef.current = {
+          pointerId: e.pointerId,
+          mode: 'loop',
+          startX: point.x,
+          startY: point.y,
+          loopWhich: 'create',
+          startLoop: { startFrame: anchor, endFrame: anchor },
+        };
+        store.setDrag({ kind: 'scrub', marquee: null });
+        opts.setLoop({ startFrame: anchor, endFrame: anchor });
+        return;
+      }
+
+      // Plain drag on the dedicated loop strip = loop create (no Alt needed).
+      if (hit.kind === 'loop-strip') {
         e.preventDefault();
         container.setPointerCapture(e.pointerId);
         const anchorFrame = xToFrame(point.x, view, width);
@@ -548,7 +572,11 @@ export function useTimelineGestures(
             const found = keyframesInRect(
               {
                 x: rect.x,
-                y: rect.y - opts.rulerHeight + opts.scrollTop,
+                y:
+                  rect.y -
+                  opts.rulerHeight -
+                  opts.loopStripHeight +
+                  opts.scrollTop,
                 width: rect.width,
                 height: rect.height,
               },
@@ -596,7 +624,7 @@ export function useTimelineGestures(
         frame,
         track,
         geometry: opts.trackTops.get(track.id),
-        rulerHeight: opts.rulerHeight,
+        rulerHeight: opts.rulerHeight + opts.loopStripHeight,
         scrollTop: opts.scrollTop,
       });
       const next = addKeyframe(

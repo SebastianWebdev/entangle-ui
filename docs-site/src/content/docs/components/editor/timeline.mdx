@@ -254,6 +254,25 @@ the track area. Editing it (all controlled via `loop` / `defaultLoop` /
 Wire `onLoopChange` to persist these drags — without it the loop is fully
 controlled and any drag snaps back to the prop value.
 
+Two opt-in props tune the loop chrome:
+
+- **`loopStrip`** — adds a thin dedicated band directly under the ruler.
+  Plain drag on the strip creates the loop (no Alt needed); the ruler keeps
+  its scrub behaviour. Useful when Alt-as-modifier feels too hidden.
+- **`loopHandles`** — `'edges'` (default) draws full-height vertical bars on
+  each loop edge; `'brackets'` draws compact `[ ]` markers with serifs in the
+  chrome area instead, with a wider pick zone for easier grabbing.
+
+```tsx
+<Timeline
+  tracks={tracks}
+  loop={loop}
+  onLoopChange={setLoop}
+  loopStrip
+  loopHandles="brackets"
+/>
+```
+
 ## Selection & box-select
 
 Selection is a `TimelineSelection` (`{ trackId, keyframeId }[]`) — controlled
@@ -472,6 +491,7 @@ that height instead of collapsing into an unreadable blob. The deprecated
 | Drag a selected keyframe                  | Move keyframes (snapped, clamped to range)                               |
 | Drag a tangent handle (selected keyframe) | Edit the curve shape (graph / expanded lanes)                            |
 | Alt + drag on the ruler                   | Create / re-draw the loop region (Alt-click clears it)                   |
+| Drag on the loop strip (`loopStrip`)      | Create / re-draw the loop — no Alt needed                                |
 | Drag the loop edges or body               | Resize / move the loop region                                            |
 | Double-click empty space on a row         | Add a keyframe on that track                                             |
 | Delete / Backspace                        | Remove the selected keyframes                                            |

@@ -124,6 +124,50 @@ describe('hitTestTimeline', () => {
     ).toBe('group');
   });
 
+  it('returns loop-strip on the strip band (empty zone), ruler on the ruler band', () => {
+    // strip 10px tall directly below the 22px ruler → strip spans [22, 32)
+    // 1 px wide loop near px 40..160; an empty point on the strip at x 5 (no
+    // loop overlap) yields the new `loop-strip` kind; the ruler stays as-is.
+    expect(
+      hitTestTimeline({
+        ...base,
+        loopStripHeight: 10,
+        point: { x: 5, y: 25 },
+      }).kind
+    ).toBe('loop-strip');
+    expect(
+      hitTestTimeline({
+        ...base,
+        loopStripHeight: 10,
+        point: { x: 5, y: 5 },
+      }).kind
+    ).toBe('ruler');
+    // Track rows still hit from chromeHeight (32) downward.
+    expect(
+      hitTestTimeline({
+        ...base,
+        loopStripHeight: 10,
+        point: { x: 150, y: 42 }, // 42 - 32 = 10 = center of t1 (rowH 20)
+      })
+    ).toEqual({ kind: 'empty', trackId: 't1' });
+  });
+
+  it('uses a wider edge pick zone for bracket-style loop handles', () => {
+    const loopRegion = { startFrame: 20, endFrame: 80 }; // px 40..160
+    // 8 px from the edge: edges-style misses (pick 5), brackets-style hits (pick 9).
+    expect(
+      hitTestTimeline({ ...base, loopRegion, point: { x: 48, y: 5 } }).kind
+    ).toBe('loop-body');
+    expect(
+      hitTestTimeline({
+        ...base,
+        loopRegion,
+        loopHandles: 'brackets',
+        point: { x: 48, y: 5 },
+      }).kind
+    ).toBe('loop-start');
+  });
+
   it('grabs the playhead on the ruler even inside a loop region', () => {
     const loopRegion = { startFrame: 20, endFrame: 80 }; // px 40..160
     // On the ruler (y 5): playhead (px 100) beats the loop body...

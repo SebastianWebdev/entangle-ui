@@ -798,6 +798,8 @@ export default function AnimationEditorDemo(): JSX.Element {
                 defaultView={{ startFrame: 0, endFrame: 60 }}
                 loop={loop}
                 onLoopChange={setLoop}
+                loopStrip
+                loopHandles="brackets"
                 followMode={followMode}
                 trackHeaderWidth={180}
                 trackScale={{

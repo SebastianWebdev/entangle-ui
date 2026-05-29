@@ -239,6 +239,24 @@ export interface TimelineBaseProps extends Omit<
    */
   followMode?: 'smooth' | 'paged' | 'off';
 
+  /**
+   * Adds a thin dedicated **loop strip** directly under the time ruler. A
+   * plain drag on the strip creates / re-draws the loop region (no Alt
+   * needed); the strip also makes loop edges easier to grab. The main ruler
+   * keeps its scrub behaviour. @default false
+   */
+  loopStrip?: boolean;
+
+  /**
+   * Visual style for the loop region's edge markers.
+   * - `'edges'` — full-height vertical bars on each loop edge (default).
+   * - `'brackets'` — `[ ]` bracket markers in the chrome (ruler / loop
+   *   strip) with serifs at the top and bottom, no full-height bars. Bigger
+   *   pick targets, less visual noise across the track area.
+   * @default 'edges'
+   */
+  loopHandles?: 'edges' | 'brackets';
+
   /** Track groups (collapsible). Tracks join a group via `groupId`. */
   groups?: ReadonlyArray<TimelineGroup>;
   /** Fires when a group is collapsed / expanded via its header. */

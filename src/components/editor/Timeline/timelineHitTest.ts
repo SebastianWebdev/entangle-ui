@@ -14,6 +14,7 @@ export interface TimelineScreenRect {
 
 export type TimelineHit =
   | { kind: 'ruler' }
+  | { kind: 'loop-strip' }
   | { kind: 'playhead' }
   | { kind: 'loop-start' }
   | { kind: 'loop-end' }
@@ -38,6 +39,13 @@ export interface TimelineHitInput {
   rows: ReadonlyArray<TimelineRow>;
   scrollTop: number;
   rulerHeight: number;
+  /** Height of the dedicated loop strip directly below the ruler (0 = off). */
+  loopStripHeight?: number;
+  /**
+   * Bracket-style edges get a wider pick zone (looks like `[ ]`); the default
+   * is the thin vertical-bar style.
+   */
+  loopHandles?: 'edges' | 'brackets';
   frame: number;
   showPlayhead: boolean;
   /** Selection predicate — enables tangent-handle picking in graph mode. */
@@ -50,6 +58,7 @@ const KEYFRAME_PICK_X = 6;
 const PLAYHEAD_PICK_X = 4;
 const HANDLE_PICK_X = 6;
 const LOOP_EDGE_PICK_X = 5;
+const LOOP_BRACKET_PICK_X = 9;
 
 /**
  * Resolve what's under a pointer: ruler / loop handles, a group header, a
@@ -68,16 +77,23 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
   const nearPlayheadBody =
     playheadX !== null && Math.abs(point.x - playheadX) <= PLAYHEAD_PICK_X;
 
-  if (point.y < rulerHeight) {
+  const loopStripHeight = input.loopStripHeight ?? 0;
+  const chromeHeight = rulerHeight + loopStripHeight;
+  const edgePick =
+    input.loopHandles === 'brackets' ? LOOP_BRACKET_PICK_X : LOOP_EDGE_PICK_X;
+
+  // Chrome zone (ruler + optional loop strip): both bands share loop-edge /
+  // loop-body picking; the ruler band falls back to `ruler` (scrub), the
+  // strip band falls back to `loop-strip` (plain-drag loop create).
+  if (point.y < chromeHeight) {
+    const inRuler = point.y < rulerHeight;
     const loop = input.loopRegion;
     if (loop) {
       const lx = toX(loop.startFrame);
       const rx = toX(loop.endFrame);
       // Loop edges are deliberate small targets → they win over the playhead.
-      if (Math.abs(point.x - lx) <= LOOP_EDGE_PICK_X)
-        return { kind: 'loop-start' };
-      if (Math.abs(point.x - rx) <= LOOP_EDGE_PICK_X)
-        return { kind: 'loop-end' };
+      if (Math.abs(point.x - lx) <= edgePick) return { kind: 'loop-start' };
+      if (Math.abs(point.x - rx) <= edgePick) return { kind: 'loop-end' };
       // The playhead line beats the (wide) loop body so it stays grabbable
       // even when it sits inside the loop region.
       if (nearPlayheadHead) return { kind: 'playhead' };
@@ -85,10 +101,10 @@ export function hitTestTimeline(input: TimelineHitInput): TimelineHit {
     } else if (nearPlayheadHead) {
       return { kind: 'playhead' };
     }
-    return { kind: 'ruler' };
+    return inRuler ? { kind: 'ruler' } : { kind: 'loop-strip' };
   }
 
-  const contentY = point.y - rulerHeight + scrollTop;
+  const contentY = point.y - chromeHeight + scrollTop;
   const nearPlayhead = nearPlayheadBody;
 
   for (const row of rows) {

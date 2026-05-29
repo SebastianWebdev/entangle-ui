@@ -33,6 +33,8 @@ export interface UseTimelineDrawOptions {
   rows: ReadonlyArray<TimelineRow>;
   scrollTop: number;
   rulerHeight: number;
+  loopStripHeight: number;
+  loopHandles: 'edges' | 'brackets';
   showPlayhead: boolean;
   selection: TimelineSelection;
   hover: { trackId: string; keyframeId: string } | null;
@@ -126,6 +128,8 @@ export function useTimelineDraw(opts: UseTimelineDrawOptions): void {
         rows: opts.rows,
         scrollTop: opts.scrollTop,
         rulerHeight: opts.rulerHeight,
+        loopStripHeight: opts.loopStripHeight,
+        loopHandles: opts.loopHandles,
         showPlayhead: opts.showPlayhead,
         colors,
         font: `${fontPx}px ${family}`,
@@ -169,6 +173,8 @@ export function useTimelineDraw(opts: UseTimelineDrawOptions): void {
     opts.rows,
     opts.scrollTop,
     opts.rulerHeight,
+    opts.loopStripHeight,
+    opts.loopHandles,
     opts.showPlayhead,
     opts.selection,
     opts.hover,

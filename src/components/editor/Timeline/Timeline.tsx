@@ -53,6 +53,7 @@ import { useTimelinePlayback } from './useTimelinePlayback';
 import { useTimelineDraw } from './useTimelineDraw';
 
 const RULER_HEIGHT = 22;
+const LOOP_STRIP_HEIGHT = 12;
 
 interface CategorizedSlots {
   toolbar: React.ReactNode;
@@ -163,6 +164,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     defaultLoop,
     onLoopChange,
     followMode = 'smooth',
+    loopStrip = false,
+    loopHandles = 'edges',
     groups,
     onGroupsChange,
     trackHeight = 28,
@@ -511,9 +514,11 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
   // ── Vertical scroll ──
 
   const rulerHeight = showRuler ? RULER_HEIGHT : 0;
+  const loopStripHeight = loopStrip ? LOOP_STRIP_HEIGHT : 0;
+  const chromeHeight = rulerHeight + loopStripHeight;
   const maxScrollTop = Math.max(
     0,
-    layout.contentHeight - (size.height - rulerHeight)
+    layout.contentHeight - (size.height - chromeHeight)
   );
 
   useLayoutEffect(() => {
@@ -542,6 +547,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     trackHeight,
     scrollTop,
     rulerHeight,
+    loopStripHeight,
+    loopHandles,
     snap,
     editable,
     allowAddKeyframe,
@@ -598,6 +605,8 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
     rows: layout.rows,
     scrollTop,
     rulerHeight,
+    loopStripHeight,
+    loopHandles,
     showPlayhead,
     selection: selectionState,
     hover,
@@ -639,7 +648,7 @@ export const Timeline = (props: TimelineProps): React.ReactElement => {
             rows={layout.rows}
             contentHeight={layout.contentHeight}
             tracks={tracks}
-            rulerHeight={rulerHeight}
+            rulerHeight={chromeHeight}
             scrollTop={scrollTop}
             width={trackHeaderWidth}
             selection={selectionState}

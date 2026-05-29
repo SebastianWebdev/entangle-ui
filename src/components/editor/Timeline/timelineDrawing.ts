@@ -35,6 +35,10 @@ export interface TimelineDrawInput {
   scrollTop: number;
   /** Height of the top ruler band in CSS px (0 when hidden). */
   rulerHeight: number;
+  /** Height of the dedicated loop strip directly below the ruler (0 = off). */
+  loopStripHeight?: number;
+  /** Visual style for the loop region edges. @default 'edges' */
+  loopHandles?: 'edges' | 'brackets';
   showPlayhead: boolean;
   colors: TimelineDrawColors;
   /** Canvas font string for ruler labels, e.g. `10px Inter, sans-serif`. */
@@ -296,6 +300,8 @@ export function drawTimeline(input: TimelineDrawInput): void {
     scrollTop,
     rulerHeight,
     showPlayhead,
+    loopStripHeight = 0,
+    loopHandles = 'edges',
     colors,
     font,
     formatTime,
@@ -318,12 +324,14 @@ export function drawTimeline(input: TimelineDrawInput): void {
   const step = niceFrameStep(framesPerPixel * MIN_LABEL_PX);
   const firstTick = Math.ceil(view.startFrame / step) * step;
 
+  const chromeHeight = rulerHeight + loopStripHeight;
+
   ctx.lineWidth = 1;
   ctx.strokeStyle = colors.gridLine;
   ctx.beginPath();
   for (let f = firstTick; f <= view.endFrame; f += step) {
     const x = Math.round(toX(f)) + 0.5;
-    ctx.moveTo(x, rulerHeight);
+    ctx.moveTo(x, chromeHeight);
     ctx.lineTo(x, size.height);
   }
   ctx.stroke();
@@ -344,6 +352,18 @@ export function drawTimeline(input: TimelineDrawInput): void {
     ctx.fillRect(0, rulerHeight - 1, size.width, 1);
   }
 
+  // ── Loop strip background (when enabled) ──
+  if (loopStripHeight > 0) {
+    ctx.save();
+    ctx.fillStyle = colors.gridLine;
+    ctx.globalAlpha = 0.35;
+    ctx.fillRect(0, rulerHeight, size.width, loopStripHeight);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = colors.rowSeparator;
+    ctx.fillRect(0, chromeHeight - 1, size.width, 1);
+    ctx.restore();
+  }
+
   // ── Loop region ──
   if (loopRegion) {
     const lx = toX(loopRegion.startFrame);
@@ -354,15 +374,21 @@ export function drawTimeline(input: TimelineDrawInput): void {
     ctx.globalAlpha = loopHover === 'body' ? 0.12 : 0.06;
     ctx.fillRect(
       lx,
-      rulerHeight,
+      chromeHeight,
       rx - lx,
-      Math.max(0, size.height - rulerHeight)
+      Math.max(0, size.height - chromeHeight)
     );
     if (rulerHeight > 0) {
       ctx.globalAlpha = loopHover === 'body' ? 0.3 : 0.22;
       ctx.fillRect(lx, 0, rx - lx, rulerHeight);
     }
-    // Edges — thicker + glow on the hovered edge so it reads as grabbable.
+    if (loopStripHeight > 0) {
+      ctx.globalAlpha = loopHover === 'body' ? 0.45 : 0.32;
+      ctx.fillRect(lx, rulerHeight, rx - lx, loopStripHeight);
+    }
+    // Edges — `edges` style draws full-height bars; `brackets` style draws
+    // `[ ]` markers in the chrome with serifs at top and bottom, no
+    // full-height bars.
     ctx.globalAlpha = 1;
     const startW = loopHover === 'start' ? 4 : 2;
     const endW = loopHover === 'end' ? 4 : 2;
@@ -370,21 +396,39 @@ export function drawTimeline(input: TimelineDrawInput): void {
       ctx.shadowColor = colors.keyframeSelected;
       ctx.shadowBlur = 6;
     }
-    ctx.fillRect(lx, 0, startW, size.height);
-    ctx.fillRect(rx - endW, 0, endW, size.height);
+    if (loopHandles === 'brackets') {
+      const serif = 8;
+      const serifH = 2;
+      // start `[`
+      ctx.fillRect(lx, 0, startW, chromeHeight);
+      ctx.fillRect(lx, 0, serif, serifH);
+      ctx.fillRect(lx, chromeHeight - serifH, serif, serifH);
+      // end `]`
+      ctx.fillRect(rx - endW, 0, endW, chromeHeight);
+      ctx.fillRect(rx - serif, 0, serif, serifH);
+      ctx.fillRect(rx - serif, chromeHeight - serifH, serif, serifH);
+    } else {
+      ctx.fillRect(lx, 0, startW, size.height);
+      ctx.fillRect(rx - endW, 0, endW, size.height);
+    }
     ctx.restore();
   }
 
-  // ── Track rows + keyframes (clipped to the area below the ruler) ──
+  // ── Track rows + keyframes (clipped to the area below the chrome) ──
   ctx.save();
   ctx.beginPath();
-  ctx.rect(0, rulerHeight, size.width, Math.max(0, size.height - rulerHeight));
+  ctx.rect(
+    0,
+    chromeHeight,
+    size.width,
+    Math.max(0, size.height - chromeHeight)
+  );
   ctx.clip();
 
   for (const row of rows) {
-    const top = rulerHeight + row.top - scrollTop;
+    const top = chromeHeight + row.top - scrollTop;
     // Virtualize: skip rows scrolled out of the track area.
-    if (top + row.height < rulerHeight || top > size.height) continue;
+    if (top + row.height < chromeHeight || top > size.height) continue;
 
     if (row.kind === 'group') {
       ctx.fillStyle = colors.groupHeader;
