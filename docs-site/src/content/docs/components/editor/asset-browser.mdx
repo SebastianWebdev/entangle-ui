@@ -328,7 +328,10 @@ import { Menu } from 'entangle-ui';
       <Menu.Item onClick={() => open(selected)}>
         Open{selected.length > 1 ? ` ${selected.length} items` : ''}
       </Menu.Item>
-      <Menu.Item onClick={() => rename(selected[0])} disabled={selected.length !== 1}>
+      <Menu.Item
+        onClick={() => rename(selected[0])}
+        disabled={selected.length !== 1}
+      >
         Rename
       </Menu.Item>
       <Menu.Separator />
@@ -393,12 +396,12 @@ const columns: DataTableColumn<AssetItem>[] = [
 
 AssetBrowser resolves four mutually exclusive content states, in priority order:
 
-| State       | Trigger                              | Renders                                                                       |
-| ----------- | ------------------------------------ | ----------------------------------------------------------------------------- |
-| **Error**   | `error` is truthy                    | `error={true}` → built-in message (+ Retry when `onErrorRetry` is set); a node replaces it. |
-| **Loading** | `loading` is true                    | A skeleton grid of `loadingItemCount` cells (grid) or a spinner (list).       |
-| **Empty**   | `items.length === 0`                 | `emptyState`, or a default "This folder is empty." message.                   |
-| **Content** | otherwise                            | The grid or list view.                                                        |
+| State       | Trigger              | Renders                                                                                     |
+| ----------- | -------------------- | ------------------------------------------------------------------------------------------- |
+| **Error**   | `error` is truthy    | `error={true}` → built-in message (+ Retry when `onErrorRetry` is set); a node replaces it. |
+| **Loading** | `loading` is true    | A skeleton grid of `loadingItemCount` cells (grid) or a spinner (list).                     |
+| **Empty**   | `items.length === 0` | `emptyState`, or a default "This folder is empty." message.                                 |
+| **Content** | otherwise            | The grid or list view.                                                                      |
 
 `error` takes precedence over `loading`, which takes precedence over the empty state — so a failed refetch shows the error, not a stale spinner.
 
@@ -493,7 +496,12 @@ Every built-in string (search placeholder, sort/filter menus, view tooltips, emp
     sort: 'Sortuj',
     filter: 'Filtruj',
     empty: 'Ten folder jest pusty.',
-    sortFields: { name: 'Nazwa', type: 'Typ', size: 'Rozmiar', modified: 'Zmodyfikowano' },
+    sortFields: {
+      name: 'Nazwa',
+      type: 'Typ',
+      size: 'Rozmiar',
+      modified: 'Zmodyfikowano',
+    },
     itemCount: n => `${n} ${n === 1 ? 'element' : 'elementów'}`,
     selectedCount: n => `, zaznaczono ${n}`,
   }}
@@ -767,7 +775,7 @@ Wire `renderItemContextMenu` to your mutation handlers — see [Context menus](#
       type: 'boolean',
       default: 'true',
       description:
-        "Rubber-band marquee in empty grid space (multi-select only).",
+        'Rubber-band marquee in empty grid space (multi-select only).',
     },
     {
       name: 'columns',

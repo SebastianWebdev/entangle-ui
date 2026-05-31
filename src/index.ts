@@ -152,7 +152,10 @@ export {
   ToastProvider,
   useToast,
 } from '@/components/feedback';
-export { AssetBrowser, DEFAULT_ASSET_BROWSER_LABELS } from '@/components/editor';
+export {
+  AssetBrowser,
+  DEFAULT_ASSET_BROWSER_LABELS,
+} from '@/components/editor';
 export {
   PropertyGroup,
   PropertyPanel,
