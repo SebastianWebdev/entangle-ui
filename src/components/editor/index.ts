@@ -6,6 +6,7 @@ export type {
   AssetBrowserProps,
   AssetFilterState,
   AssetItem,
+  AssetItemActions,
   AssetItemState,
   AssetKind,
   AssetNavigationSource,

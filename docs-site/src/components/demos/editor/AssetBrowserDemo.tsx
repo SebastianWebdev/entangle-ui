@@ -1,8 +1,9 @@
-import React, { useMemo, useState, type CSSProperties } from 'react';
+import React, { useMemo, useRef, useState, type CSSProperties } from 'react';
 import DemoWrapper from '../DemoWrapper';
 import { AssetBrowser } from '@/components/editor';
 import type {
   AssetItem,
+  AssetBrowserHandle,
   AssetBrowserLabels,
   AssetPathSegment,
   AssetView,
@@ -1272,6 +1273,73 @@ export function AssetBrowserLocalized(): React.ReactElement {
           showStatusBar
           labels={PL_LABELS}
         />
+      </div>
+    </DemoWrapper>
+  );
+}
+
+// ── Mutations (rename / delete / duplicate / new folder) ─────────────────────
+
+let mutationUid = 0;
+const nextId = (prefix: string): string => `${prefix}-${(mutationUid += 1)}`;
+
+export function AssetBrowserMutations(): React.ReactElement {
+  const [items, setItems] = useState<AssetItem[]>(
+    () => CONTENTS.textures ?? []
+  );
+  const [log, setLog] = useState('Right-click, or use F2 / Delete / Ctrl+D.');
+  const ref = useRef<AssetBrowserHandle>(null);
+
+  return (
+    <DemoWrapper>
+      <div style={{ height: 380 }}>
+        <AssetBrowser
+          ref={ref}
+          items={items}
+          renderThumbnail={colorThumb}
+          defaultItemActions
+          onItemRename={(item, newName) => {
+            setItems(prev =>
+              prev.map(i => (i.id === item.id ? { ...i, name: newName } : i))
+            );
+            setLog(`Renamed “${item.name}” → “${newName}”`);
+          }}
+          onItemsDelete={deleted => {
+            const ids = new Set(deleted.map(i => i.id));
+            setItems(prev => prev.filter(i => !ids.has(i.id)));
+            setLog(`Deleted ${deleted.length} item(s)`);
+          }}
+          onItemsDuplicate={dupes => {
+            setItems(prev => [
+              ...prev,
+              ...dupes.map(d => ({
+                ...d,
+                id: nextId('copy'),
+                name: `${d.name} copy`,
+              })),
+            ]);
+            setLog(`Duplicated ${dupes.length} item(s)`);
+          }}
+          onCreateFolder={() => {
+            const id = nextId('folder');
+            setItems(prev => [
+              { id, name: 'New Folder', kind: 'folder' },
+              ...prev,
+            ]);
+            setLog('Created a folder — type a name and press Enter.');
+            // Drop straight into renaming the fresh folder.
+            requestAnimationFrame(() => ref.current?.beginRename(id));
+          }}
+        />
+      </div>
+      <div
+        style={{
+          marginTop: 8,
+          fontSize: 12,
+          color: 'var(--etui-color-text-muted)',
+        }}
+      >
+        {log}
       </div>
     </DemoWrapper>
   );

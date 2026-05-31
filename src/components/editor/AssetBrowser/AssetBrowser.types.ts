@@ -112,6 +112,42 @@ export interface AssetBrowserHandle {
   clearSelection: () => void;
   scrollToItem: (id: string) => void;
   getSelectedItems: () => AssetItem[];
+  /**
+   * Put the item into inline-rename mode (scrolls it into view + focuses the
+   * field). No-op when `onItemRename` isn't set. Use after inserting a new
+   * folder/file to immediately let the user name it.
+   */
+  beginRename: (id: string) => void;
+}
+
+/**
+ * Return value of `onItemRename`. Return / resolve `false` to reject the new
+ * name and keep the inline editor open; anything else — including returning
+ * nothing — accepts it. `void` is a member so the common "just apply it"
+ * handler needs no `return`; TS's void-assignability special case does not
+ * fire when a union also contains a `Promise`, so it must be explicit here.
+ */
+// prettier-ignore
+export type AssetRenameResult =
+  | boolean
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type -- `void` is required so a no-return rename handler stays assignable (the Promise member defeats TS's implicit void-return rule)
+  | void
+  | Promise<boolean | undefined>;
+
+/**
+ * Mutation actions handed to `renderItemContextMenu`, so a custom menu can wire
+ * the built-in flows without juggling a ref. Each is a no-op when its backing
+ * callback (`onItemRename` / `onItemsDelete` / `onItemsDuplicate`) is absent.
+ */
+export interface AssetItemActions {
+  /** The items the action applies to (the right-clicked selection). */
+  items: AssetItem[];
+  /** Enter inline-rename on the first item. */
+  rename: () => void;
+  /** Delete `items` via `onItemsDelete`. */
+  delete: () => void;
+  /** Duplicate `items` via `onItemsDuplicate`. */
+  duplicate: () => void;
 }
 
 export interface AssetBrowserBaseProps extends Omit<
@@ -200,6 +236,30 @@ export interface AssetBrowserBaseProps extends Omit<
   onItemDragStart?: (items: AssetItem[], event: React.DragEvent) => void;
   onItemDragEnd?: (items: AssetItem[], event: React.DragEvent) => void;
 
+  // ── Mutations ──────────────────────────────────────────────────────────────
+  /**
+   * Inline-rename commit. Fires when the user confirms a new name (Enter / blur
+   * with a changed, non-empty value). Presence enables the rename affordance
+   * (F2, double-click-to-rename, the `Rename` default action, and
+   * `handle.beginRename`). Return / resolve `false` to reject the name and keep
+   * the editor open (e.g. failed validation); `void` / `true` accepts it. Apply
+   * the rename to your data source — AssetBrowser only reports intent.
+   */
+  onItemRename?: (item: AssetItem, newName: string) => AssetRenameResult;
+  /** Delete intent for the acted-on items (the selection). Enables Delete key + default action. */
+  onItemsDelete?: (items: AssetItem[]) => void;
+  /** Create-folder intent in the current folder. Enables the empty-area `New folder` default action. */
+  onCreateFolder?: (parentFolderId: string | null) => void;
+  /** Duplicate intent for the acted-on items. Enables Ctrl/Cmd+D + default action. */
+  onItemsDuplicate?: (items: AssetItem[]) => void;
+  /**
+   * Auto-populate the item / empty-area context menus with Rename / Duplicate /
+   * Delete / New folder entries for whichever mutation callbacks are present.
+   * Ignored for a menu you supply yourself via `renderItemContextMenu` /
+   * `renderEmptyContextMenu`. @default false
+   */
+  defaultItemActions?: boolean;
+
   // ── States ───────────────────────────────────────────────────────────────
   loading?: boolean;
   /** Number of skeleton cells shown in grid view while `loading`. @default 12 */
@@ -223,8 +283,16 @@ export interface AssetBrowserBaseProps extends Omit<
   ) => React.ReactNode;
   /** Fully replace a grid cell's inner content (advanced). */
   renderItem?: (item: AssetItem, state: AssetItemState) => React.ReactNode;
-  /** Returns the body of the item context menu (Menu.* children). Receives the selected items. */
-  renderItemContextMenu?: (items: AssetItem[]) => React.ReactNode;
+  /**
+   * Returns the body of the item context menu (`Menu.*` children). Receives the
+   * acted-on items (the whole selection when right-clicking a selected item,
+   * else just that item) plus an `actions` object wiring the built-in
+   * rename / delete / duplicate flows.
+   */
+  renderItemContextMenu?: (
+    items: AssetItem[],
+    actions: AssetItemActions
+  ) => React.ReactNode;
   /** Returns the body of the empty-area context menu. */
   renderEmptyContextMenu?: () => React.ReactNode;
 

@@ -133,6 +133,7 @@ export function AssetBrowserGrid(): React.ReactElement {
     toggleSelectId: ctx.toggleSelectId,
     selectByKeyboard: ctx.selectByKeyboard,
     scrollIndexIntoView,
+    mutations: ctx.mutations,
   });
 
   const marquee = useAssetMarqueeGesture({

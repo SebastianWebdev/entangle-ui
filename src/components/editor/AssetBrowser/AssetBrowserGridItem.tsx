@@ -26,13 +26,20 @@ import {
 import {
   useAssetBrowserContext,
   useAssetDropTarget,
+  useAssetEditing,
   useAssetFocused,
   useAssetSelected,
   useAssetSelection,
 } from './AssetBrowserContext';
+import { DefaultItemMenu } from './AssetBrowserDefaultMenus';
 import { cellDomId, cellHeight, cellWidth } from './assetBrowserGeometry';
+import { AssetBrowserRenameField } from './AssetBrowserRenameField';
 
-import type { AssetItem, AssetType } from './AssetBrowser.types';
+import type {
+  AssetItem,
+  AssetItemActions,
+  AssetType,
+} from './AssetBrowser.types';
 
 export interface AssetBrowserGridItemProps {
   item: AssetItem;
@@ -126,8 +133,10 @@ function Thumbnail({
 /**
  * Body of the per-item right-click menu. Rendered only while the menu is open
  * (base-ui unmounts closed popups), so reading the whole selection set here
- * doesn't re-render closed cells. Passes the consumer the full selection when
- * the right-clicked item is part of it, otherwise just that item.
+ * doesn't re-render closed cells. Resolves the acted-on items (the full
+ * selection when the right-clicked item is part of it, otherwise just that
+ * item), builds the mutation `actions` bound to them, and renders either the
+ * consumer's `renderItemContextMenu` or the auto-generated default menu.
  */
 function ItemContextMenuContent({
   item,
@@ -139,7 +148,25 @@ function ItemContextMenuContent({
   const items = selection.has(item.id)
     ? ctx.displayedItems.filter(it => selection.has(it.id))
     : [item];
-  return <>{ctx.renderItemContextMenu?.(items)}</>;
+
+  const actions: AssetItemActions = {
+    items,
+    rename: () => {
+      const target = items[0];
+      if (target) ctx.mutations.beginRename(target.id);
+    },
+    delete: () => {
+      ctx.mutations.deleteItems(items);
+    },
+    duplicate: () => {
+      ctx.mutations.duplicateItems(items);
+    },
+  };
+
+  if (ctx.renderItemContextMenu) {
+    return <>{ctx.renderItemContextMenu(items, actions)}</>;
+  }
+  return <DefaultItemMenu actions={actions} />;
 }
 
 function GridItemImpl({
@@ -152,6 +179,7 @@ function GridItemImpl({
   const selected = useAssetSelected(item.id);
   const focused = useAssetFocused(item.id);
   const dropActive = useAssetDropTarget(item.id);
+  const editing = useAssetEditing(item.id);
 
   const isDropTarget = item.kind === 'folder' && dropActive;
   const thumbPx = ctx.thumbnailSizePx;
@@ -178,7 +206,11 @@ function GridItemImpl({
   ) : (
     <>
       <Thumbnail item={item} thumbPx={thumbPx} selected={selected} />
-      <span className={cellLabel}>{item.name}</span>
+      {editing ? (
+        <AssetBrowserRenameField item={item} />
+      ) : (
+        <span className={cellLabel}>{item.name}</span>
+      )}
     </>
   );
 
@@ -207,18 +239,28 @@ function GridItemImpl({
         [cellHeightVar]: `${cellHeight(thumbPx)}px`,
         [thumbSizeVar]: `${thumbPx}px`,
       })}
-      draggable={isDraggable}
-      onClick={e => {
-        ctx.handleItemClick(item, index, e);
-      }}
-      onDoubleClick={() => {
-        ctx.activateItem(item);
-      }}
+      // While renaming, the cell is non-interactive for selection/open/drag —
+      // clicks on the thumbnail above the field must not reselect or navigate.
+      draggable={isDraggable && !editing}
+      onClick={
+        editing
+          ? undefined
+          : e => {
+              ctx.handleItemClick(item, index, e);
+            }
+      }
+      onDoubleClick={
+        editing
+          ? undefined
+          : () => {
+              ctx.activateItem(item);
+            }
+      }
       onContextMenu={() => {
         ctx.contextMenuSelect(item);
       }}
       onDragStart={
-        isDraggable
+        isDraggable && !editing
           ? e => {
               ctx.dnd.onItemDragStart(item, e);
             }
@@ -257,11 +299,17 @@ function GridItemImpl({
     </div>
   );
 
-  // Per-item right-click menu is opt-in: only wrap when the consumer supplies
-  // `renderItemContextMenu`. base-ui's `render` prop makes the cell itself the
+  // Per-item right-click menu is opt-in: wrap when the consumer supplies
+  // `renderItemContextMenu`, or when `defaultItemActions` is on and at least one
+  // item-level mutation exists. base-ui's `render` prop makes the cell itself the
   // trigger (no extra wrapper, so the cell stays a direct grid child), and the
   // closed popup renders nothing — so unopened cells pay no menu-body cost.
-  if (!ctx.renderItemContextMenu) return cell;
+  const hasDefaultItemMenu =
+    ctx.defaultItemActions &&
+    (ctx.mutations.canRename ||
+      ctx.mutations.canDelete ||
+      ctx.mutations.canDuplicate);
+  if (!ctx.renderItemContextMenu && !hasDefaultItemMenu) return cell;
   return (
     <ContextMenu>
       <ContextMenu.Trigger render={cell} />

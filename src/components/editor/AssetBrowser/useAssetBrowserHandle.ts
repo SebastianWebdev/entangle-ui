@@ -25,6 +25,8 @@ export interface UseAssetBrowserHandleOptions {
   displayed: readonly AssetItem[];
   selectAll: () => void;
   clearSelection: () => void;
+  /** Stable mutation handler — enters inline rename for an id. */
+  beginRename: (id: string) => void;
 }
 
 /**
@@ -38,8 +40,16 @@ export interface UseAssetBrowserHandleOptions {
 export function useAssetBrowserHandle(
   options: UseAssetBrowserHandleOptions
 ): void {
-  const { ref, rootRef, store, items, displayed, selectAll, clearSelection } =
-    options;
+  const {
+    ref,
+    rootRef,
+    store,
+    items,
+    displayed,
+    selectAll,
+    clearSelection,
+    beginRename,
+  } = options;
 
   const itemsRef = useLatest(items);
   const displayedRef = useLatest(displayed);
@@ -72,6 +82,16 @@ export function useAssetBrowserHandle(
     [store, itemsRef]
   );
 
+  const beginRenameHandle = useCallback(
+    (id: string): void => {
+      // Bring the target into view first so the rename field is visible even
+      // when it was outside the virtualization window.
+      scrollToItem(id);
+      beginRename(id);
+    },
+    [scrollToItem, beginRename]
+  );
+
   useImperativeHandle(
     ref,
     (): AssetBrowserHandle => ({
@@ -81,6 +101,7 @@ export function useAssetBrowserHandle(
       clearSelection,
       scrollToItem,
       getSelectedItems,
+      beginRename: beginRenameHandle,
     }),
     [
       focus,
@@ -89,6 +110,7 @@ export function useAssetBrowserHandle(
       clearSelection,
       scrollToItem,
       getSelectedItems,
+      beginRenameHandle,
     ]
   );
 }

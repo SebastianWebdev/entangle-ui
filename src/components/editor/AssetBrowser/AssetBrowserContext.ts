@@ -5,6 +5,7 @@ import { createContext, useContext, useSyncExternalStore } from 'react';
 import type {
   AssetFilterState,
   AssetItem,
+  AssetItemActions,
   AssetItemState,
   AssetNavigationSource,
   AssetPathSegment,
@@ -18,6 +19,7 @@ import type {
   DragState,
   MarqueeState,
 } from './AssetBrowserStore';
+import type { AssetMutationsApi } from './useAssetMutations';
 import type { TreeNodeData } from '@/components/controls/TreeView';
 import type {
   DataTableColumn,
@@ -56,6 +58,19 @@ export function useAssetFocused(id: string): boolean {
   return useSyncExternalStore(
     store.subscribeFocus,
     () => store.getFocusedId() === id
+  );
+}
+
+/**
+ * Per-id rename slice: `true` only for the item whose label is being edited
+ * inline. Returns a boolean so entering/leaving rename re-renders only that
+ * cell.
+ */
+export function useAssetEditing(id: string): boolean {
+  const store = useAssetBrowserStore();
+  return useSyncExternalStore(
+    store.subscribeEditing,
+    () => store.getEditingId() === id
   );
 }
 
@@ -152,8 +167,16 @@ export interface AssetBrowserContextValue {
     ctx: { size: number; selected: boolean }
   ) => ReactNode;
   renderItem?: (item: AssetItem, state: AssetItemState) => ReactNode;
-  renderItemContextMenu?: (items: AssetItem[]) => ReactNode;
+  renderItemContextMenu?: (
+    items: AssetItem[],
+    actions: AssetItemActions
+  ) => ReactNode;
   renderEmptyContextMenu?: () => ReactNode;
+  /** Auto-build default Rename/Duplicate/Delete/New-folder menu entries. */
+  defaultItemActions: boolean;
+
+  // mutations (inline rename, delete, create-folder, duplicate)
+  mutations: AssetMutationsApi;
 
   // states
   loading: boolean;

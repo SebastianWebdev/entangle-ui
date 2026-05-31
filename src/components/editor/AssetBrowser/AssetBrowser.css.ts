@@ -247,6 +247,10 @@ export const cellLabel = style({
   wordBreak: 'break-word',
 });
 
+export const renameField = style({
+  width: '100%',
+});
+
 // ── Marquee + drop overlay ───────────────────────────────────────────────
 
 export const marquee = style({

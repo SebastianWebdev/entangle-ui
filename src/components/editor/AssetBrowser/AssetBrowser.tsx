@@ -22,6 +22,7 @@ import { getSlotKind, markSlot } from './slots';
 import { useAssetBrowserHandle } from './useAssetBrowserHandle';
 import { useAssetBrowserViewState } from './useAssetBrowserViewState';
 import { useAssetDnd } from './useAssetDnd';
+import { useAssetMutations } from './useAssetMutations';
 import { useAssetNavigation } from './useAssetNavigation';
 import { useAssetSelectionController } from './useAssetSelectionController';
 
@@ -88,6 +89,11 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     renderItem,
     renderItemContextMenu,
     renderEmptyContextMenu,
+    defaultItemActions = false,
+    onItemRename,
+    onItemsDelete,
+    onCreateFolder,
+    onItemsDuplicate,
     virtualized = 'auto',
     virtualizationThreshold = 200,
     overscanRows = 4,
@@ -217,6 +223,17 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     onFilesImport,
   });
 
+  const mutations = useAssetMutations({
+    store,
+    displayed,
+    selection: selectionSet,
+    currentFolderId,
+    onItemRename,
+    onItemsDelete,
+    onCreateFolder,
+    onItemsDuplicate,
+  });
+
   useAssetBrowserHandle({
     ref,
     rootRef,
@@ -225,6 +242,7 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     displayed,
     selectAll: handlers.selectAll,
     clearSelection: handlers.clearSelection,
+    beginRename: mutations.beginRename,
   });
 
   // Render-props are forwarded through the item context as-is. They are called
@@ -256,6 +274,8 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       renderItem,
       renderItemContextMenu,
       renderEmptyContextMenu,
+      defaultItemActions,
+      mutations,
       loading,
       loadingItemCount,
       emptyState,
@@ -284,6 +304,8 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       renderItem,
       renderItemContextMenu,
       renderEmptyContextMenu,
+      defaultItemActions,
+      mutations,
       loading,
       loadingItemCount,
       emptyState,

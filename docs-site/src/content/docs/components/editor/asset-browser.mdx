@@ -24,6 +24,7 @@ import AssetBrowserDemo, {
   AssetBrowserStates,
   AssetBrowserErrorState,
   AssetBrowserContextMenus,
+  AssetBrowserMutations,
   AssetBrowserHistory,
   AssetBrowserLocalized,
   AssetBrowserStatusBar,
@@ -323,19 +324,18 @@ import { Menu } from 'entangle-ui';
 
 <AssetBrowser
   items={items}
-  renderItemContextMenu={selected => (
+  // `actions` wires the built-in rename / delete / duplicate flows, so you
+  // don't need a ref to drive them.
+  renderItemContextMenu={(selected, actions) => (
     <>
       <Menu.Item onClick={() => open(selected)}>
         Open{selected.length > 1 ? ` ${selected.length} items` : ''}
       </Menu.Item>
-      <Menu.Item
-        onClick={() => rename(selected[0])}
-        disabled={selected.length !== 1}
-      >
+      <Menu.Item onClick={actions.rename} disabled={selected.length !== 1}>
         Rename
       </Menu.Item>
       <Menu.Separator />
-      <Menu.Item onClick={() => remove(selected)}>Delete</Menu.Item>
+      <Menu.Item onClick={actions.delete}>Delete</Menu.Item>
     </>
   )}
   renderEmptyContextMenu={() => (
@@ -343,6 +343,60 @@ import { Menu } from 'entangle-ui';
   )}
 />;
 ```
+
+## Mutations
+
+AssetBrowser stays controlled and presentational for mutations too: it provides the affordances (inline editor, keyboard shortcuts, menu actions) and reports **intent** through callbacks — you apply the change to your data and pass back fresh `items`. Each callback's presence enables its affordance; omit it and the affordance disappears.
+
+| Prop                          | Enables       | Triggers                                            |
+| ----------------------------- | ------------- | --------------------------------------------------- |
+| `onItemRename(item, newName)` | Inline rename | `F2`, the `Rename` action, `handle.beginRename(id)` |
+| `onItemsDelete(items)`        | Delete        | `Delete` (and `⌘⌫`), the `Delete` action            |
+| `onItemsDuplicate(items)`     | Duplicate     | `Ctrl/⌘ + D`, the `Duplicate` action                |
+| `onCreateFolder(parentId)`    | New folder    | the empty-area `New folder` action                  |
+
+<ComponentPreview title="Rename, duplicate, delete, new folder">
+  <AssetBrowserMutations client:only="react" />
+</ComponentPreview>
+
+Set `defaultItemActions` to auto-populate the context menus with `Rename` / `Duplicate` / `Delete` / `New folder` entries for whichever callbacks you pass — no `renderItemContextMenu` needed. The action labels come from the `labels` prop, so they localize with everything else.
+
+```tsx
+const [items, setItems] = useState(initialItems);
+
+<AssetBrowser
+  items={items}
+  defaultItemActions
+  onItemRename={(item, newName) => {
+    setItems(prev =>
+      prev.map(i => (i.id === item.id ? { ...i, name: newName } : i))
+    );
+  }}
+  onItemsDelete={deleted => {
+    const ids = new Set(deleted.map(i => i.id));
+    setItems(prev => prev.filter(i => !ids.has(i.id)));
+  }}
+  onItemsDuplicate={dupes => setItems(prev => [...prev, ...copy(dupes)])}
+  onCreateFolder={() => {
+    const id = crypto.randomUUID();
+    setItems(prev => [{ id, name: 'New Folder', kind: 'folder' }, ...prev]);
+    ref.current?.beginRename(id); // create + immediately rename
+  }}
+/>;
+```
+
+**Rename flow.** Inline editing swaps the cell label for a text field. Enter (or blur with a changed, non-empty value) commits via `onItemRename`; Escape — or an unchanged/empty value — cancels silently. To **reject** a name (failed validation), return / resolve `false` and the editor stays open for another try:
+
+```tsx
+onItemRename={(item, newName) => {
+  if (!isValid(newName)) return false; // keep editing
+  void persist(item.id, newName);
+}}
+```
+
+**New folder + rename** is the idiomatic create flow: insert a placeholder, then call `handle.beginRename(newId)` to drop the user straight into naming it (shown above).
+
+> Mutation affordances (inline rename, the `F2` / `Delete` / `Ctrl+D` shortcuts) are **grid-view** features. The list view keeps its `DataTable` behaviour; the context-menu actions work in both.
 
 ## Compound slots
 
@@ -616,16 +670,19 @@ Wire `renderItemContextMenu` to your mutation handlers — see [Context menus](#
 
 ### Keyboard reference
 
-| Key                          | Action                                                |
-| ---------------------------- | ----------------------------------------------------- |
-| Arrow keys                   | Move roving focus (2D in grid, vertical in list).     |
-| Home / End                   | Jump to the first / last item.                        |
-| PageUp / PageDown            | Move by one viewport's worth of rows.                 |
-| Enter                        | Activate — folder navigates, file emits `onItemOpen`. |
-| Space                        | Toggle selection of the focused item.                 |
-| Shift + arrows / Shift+click | Extend range selection from the anchor.               |
-| Ctrl/Cmd + A                 | Select every selectable displayed item.               |
-| Escape                       | Clear selection (and cancel a marquee in progress).   |
+| Key                          | Action                                                   |
+| ---------------------------- | -------------------------------------------------------- |
+| Arrow keys                   | Move roving focus (2D in grid, vertical in list).        |
+| Home / End                   | Jump to the first / last item.                           |
+| PageUp / PageDown            | Move by one viewport's worth of rows.                    |
+| Enter                        | Activate — folder navigates, file emits `onItemOpen`.    |
+| Space                        | Toggle selection of the focused item.                    |
+| Shift + arrows / Shift+click | Extend range selection from the anchor.                  |
+| Ctrl/Cmd + A                 | Select every selectable displayed item.                  |
+| Escape                       | Clear selection (cancel a marquee / rename in progress). |
+| F2                           | Inline-rename the focused item (needs `onItemRename`).   |
+| Delete (⌘⌫ on macOS)         | Delete the selection (needs `onItemsDelete`).            |
+| Ctrl/Cmd + D                 | Duplicate the selection (needs `onItemsDuplicate`).      |
 
 ## API Reference
 
@@ -815,13 +872,43 @@ Wire `renderItemContextMenu` to your mutation handlers — see [Context menus](#
     },
     {
       name: 'renderItemContextMenu',
-      type: '(items) => ReactNode',
-      description: 'Body of the item context menu.',
+      type: '(items, actions) => ReactNode',
+      description:
+        'Body of the item context menu. `actions` wires rename/delete/duplicate.',
     },
     {
       name: 'renderEmptyContextMenu',
       type: '() => ReactNode',
       description: 'Body of the empty-area context menu.',
+    },
+    {
+      name: 'defaultItemActions',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Auto-build Rename/Duplicate/Delete/New-folder menu entries from the mutation callbacks.',
+    },
+    {
+      name: 'onItemRename',
+      type: '(item, newName) => boolean | void | Promise<…>',
+      description:
+        'Inline-rename commit. Enables F2 / rename action. Return false to reject.',
+    },
+    {
+      name: 'onItemsDelete',
+      type: '(items) => void',
+      description: 'Delete intent. Enables the Delete key + default action.',
+    },
+    {
+      name: 'onItemsDuplicate',
+      type: '(items) => void',
+      description: 'Duplicate intent. Enables Ctrl/Cmd+D + default action.',
+    },
+    {
+      name: 'onCreateFolder',
+      type: '(parentFolderId) => void',
+      description:
+        'Create-folder intent. Enables the empty-area New-folder action.',
     },
     {
       name: 'loading',

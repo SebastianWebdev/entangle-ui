@@ -9,6 +9,7 @@ import { Icon } from '@/components/primitives/Icon';
 import { importOverlay, main } from './AssetBrowser.css';
 import { AssetBrowserContent } from './AssetBrowserContent';
 import { useAssetBrowserContext, useAssetDrag } from './AssetBrowserContext';
+import { DefaultEmptyMenu } from './AssetBrowserDefaultMenus';
 
 function ImportOverlay(): React.ReactElement | null {
   const drag = useAssetDrag();
@@ -32,16 +33,18 @@ export interface AssetBrowserSurfaceProps {
 
 /**
  * The scrollable content surface (grid/list/empty/loading/error) plus the
- * file-import overlay. When the consumer supplies `renderEmptyContextMenu`, the
- * surface becomes a right-click target for the empty-area menu; per-cell menus
- * stop at the cell, so a right-click on a cell opens the item menu instead.
+ * file-import overlay. Becomes a right-click target for the empty-area menu when
+ * the consumer supplies `renderEmptyContextMenu`, or when `defaultItemActions`
+ * is on and `onCreateFolder` is set. Per-cell menus stop at the cell, so a
+ * right-click on a cell opens the item menu instead.
  */
 export function AssetBrowserSurface({
   onDragOver,
   onDragLeave,
   onDrop,
 }: AssetBrowserSurfaceProps): React.ReactElement {
-  const { renderEmptyContextMenu } = useAssetBrowserContext();
+  const { renderEmptyContextMenu, defaultItemActions, mutations } =
+    useAssetBrowserContext();
 
   const surface = (
     <div
@@ -55,11 +58,18 @@ export function AssetBrowserSurface({
     </div>
   );
 
-  if (!renderEmptyContextMenu) return surface;
+  const hasDefaultEmptyMenu = defaultItemActions && mutations.canCreateFolder;
+  if (!renderEmptyContextMenu && !hasDefaultEmptyMenu) return surface;
   return (
     <ContextMenu>
       <ContextMenu.Trigger render={surface} />
-      <ContextMenu.Content>{renderEmptyContextMenu()}</ContextMenu.Content>
+      <ContextMenu.Content>
+        {renderEmptyContextMenu ? (
+          renderEmptyContextMenu()
+        ) : (
+          <DefaultEmptyMenu />
+        )}
+      </ContextMenu.Content>
     </ContextMenu>
   );
 }

@@ -72,11 +72,13 @@ function sameMarquee(a: MarqueeState, b: MarqueeState): boolean {
  */
 export class AssetBrowserStore {
   #focusedId: string | null = null;
+  #editingId: string | null = null;
   #marquee: MarqueeState = INITIAL_MARQUEE;
   #drag: DragState = INITIAL_DRAG;
   #selection: ReadonlySet<string> = EMPTY_SELECTION;
 
   #focusListeners = new Set<() => void>();
+  #editingListeners = new Set<() => void>();
   #marqueeListeners = new Set<() => void>();
   #dragListeners = new Set<() => void>();
   #selectionListeners = new Set<() => void>();
@@ -86,6 +88,7 @@ export class AssetBrowserStore {
 
   // ── Reads (arrow fns so they pass straight to useSyncExternalStore) ──
   getFocusedId = (): string | null => this.#focusedId;
+  getEditingId = (): string | null => this.#editingId;
   getMarquee = (): MarqueeState => this.#marquee;
   getDrag = (): DragState => this.#drag;
   getSelection = (): ReadonlySet<string> => this.#selection;
@@ -95,6 +98,12 @@ export class AssetBrowserStore {
     this.#focusListeners.add(cb);
     return () => {
       this.#focusListeners.delete(cb);
+    };
+  };
+  subscribeEditing = (cb: () => void): (() => void) => {
+    this.#editingListeners.add(cb);
+    return () => {
+      this.#editingListeners.delete(cb);
     };
   };
   subscribeSelection = (cb: () => void): (() => void) => {
@@ -121,6 +130,21 @@ export class AssetBrowserStore {
     if (next === this.#focusedId) return;
     this.#focusedId = next;
     this.#focusListeners.forEach(cb => {
+      cb();
+    });
+  }
+
+  /**
+   * Id of the item whose label is being renamed inline, or `null`. Lives here
+   * (not in React state) so rename can be triggered from outside the cell —
+   * the F2 keyboard handler, a context-menu action, or the imperative
+   * `beginRename` handle — and only the affected cell re-renders via its own
+   * `useAssetEditing(id)` slice.
+   */
+  setEditingId(next: string | null): void {
+    if (next === this.#editingId) return;
+    this.#editingId = next;
+    this.#editingListeners.forEach(cb => {
       cb();
     });
   }

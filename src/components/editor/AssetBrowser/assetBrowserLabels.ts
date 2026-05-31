@@ -49,6 +49,14 @@ export interface AssetBrowserLabels {
   importOverlay: string;
   /** List "Type" value for folders. @default "Folder" */
   folder: string;
+  /** Rename default-action label + rename-field accessible name. @default "Rename" */
+  rename: string;
+  /** Delete default-action label. @default "Delete" */
+  delete: string;
+  /** Duplicate default-action label. @default "Duplicate" */
+  duplicate: string;
+  /** New-folder default-action label. @default "New folder" */
+  newFolder: string;
   /** Per-sort-field labels (also the list column headers). */
   sortFields: Record<AssetSortField, string>;
   /** Live-region item count, e.g. `n => \`${n} items\``. */
@@ -77,6 +85,10 @@ export const DEFAULT_ASSET_BROWSER_LABELS: AssetBrowserLabels = {
   retry: 'Retry',
   importOverlay: 'Drop files to import',
   folder: 'Folder',
+  rename: 'Rename',
+  delete: 'Delete',
+  duplicate: 'Duplicate',
+  newFolder: 'New folder',
   sortFields: {
     name: 'Name',
     type: 'Type',

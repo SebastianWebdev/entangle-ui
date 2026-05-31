@@ -26,6 +26,31 @@ describe('AssetBrowserStore', () => {
     });
   });
 
+  describe('editing slice', () => {
+    it('notifies editing listeners only on change', () => {
+      const store = new AssetBrowserStore();
+      const listener = vi.fn();
+      store.subscribeEditing(listener);
+
+      store.setEditingId('a');
+      store.setEditingId('a'); // no-op
+      store.setEditingId(null);
+
+      expect(listener).toHaveBeenCalledTimes(2);
+      expect(store.getEditingId()).toBeNull();
+    });
+
+    it('is independent of the focus slice', () => {
+      const store = new AssetBrowserStore();
+      const focus = vi.fn();
+      store.subscribeFocus(focus);
+
+      store.setEditingId('a');
+      expect(focus).not.toHaveBeenCalled();
+      expect(store.getFocusedId()).toBeNull();
+    });
+  });
+
   describe('marquee slice', () => {
     it('skips notification for an equal rect', () => {
       const store = new AssetBrowserStore();
