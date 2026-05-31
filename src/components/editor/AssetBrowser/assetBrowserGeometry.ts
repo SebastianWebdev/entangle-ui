@@ -63,6 +63,16 @@ export function rectsIntersect(a: MarqueeRect, b: MarqueeRect): boolean {
   );
 }
 
+/**
+ * Stable DOM id for a grid cell, namespaced by the grid's `useId`. Used to
+ * wire the grid's `aria-activedescendant` to the roving-focus cell. CSS.escape
+ * is unnecessary — this is set on the element's `id`/attribute as a raw value,
+ * never used in a selector.
+ */
+export function cellDomId(gridId: string, assetId: string): string {
+  return `${gridId}-cell-${assetId}`;
+}
+
 /** Normalize two content-space points into a positive-size rectangle. */
 export function rectFromPoints(
   ax: number,

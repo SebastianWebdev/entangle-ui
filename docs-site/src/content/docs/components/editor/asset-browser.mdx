@@ -22,6 +22,10 @@ import AssetBrowserDemo, {
   AssetBrowserCustomSidebar,
   AssetBrowserCustomColumns,
   AssetBrowserStates,
+  AssetBrowserErrorState,
+  AssetBrowserContextMenus,
+  AssetBrowserHistory,
+  AssetBrowserLocalized,
   AssetBrowserStatusBar,
   AssetBrowserStyledViaTokens,
   AssetBrowserRealWorldExample,
@@ -205,6 +209,26 @@ Provide a `folderTree` (a `TreeNodeData[]`, the same shape used by `TreeView`) f
 
 Double-click / Enter on a folder fires `onNavigate(id, 'open')`. Clicking a breadcrumb fires `onNavigate(id, 'breadcrumb')`. Clicking a sidebar node fires `onNavigate(id, 'sidebar')`. The `source` argument lets you distinguish them for analytics or undo.
 
+### History (Back / Forward)
+
+Set `history` to add Back/Forward toolbar buttons plus a `Backspace` / `Alt+ArrowUp` "go to parent" shortcut. AssetBrowser keeps an internal back/forward stack and reports moves through `onNavigate` with `source` `'back'` / `'forward'`. The stack also tracks the controlled `currentFolderId`: if your app navigates the browser elsewhere (a deep link, a "reveal in browser" action) by changing `currentFolderId` directly, that destination is pushed onto the stack so Back returns to where the user was.
+
+<ComponentPreview title="Back / forward history">
+  <AssetBrowserHistory client:only="react" />
+</ComponentPreview>
+
+```tsx
+<AssetBrowser
+  items={contentsOf(folder)}
+  path={pathTo(folder)}
+  currentFolderId={folder}
+  history
+  onNavigate={(id, source) => {
+    setFolder(id); // 'back' / 'forward' come pre-resolved to the target id
+  }}
+/>
+```
+
 ## Selection
 
 `selectionMode` is `'multiple'` by default; `'single'` and `false` are also supported. Selection is controlled via `selection` (+ `onSelectionChange`) or uncontrolled via `defaultSelection`. The callback reports the new ids and a `reason` describing which gesture caused the change.
@@ -266,7 +290,7 @@ Folder cells highlight as drop targets while a compatible drag hovers them. When
 
 ## Render props
 
-`renderThumbnail` overrides just the image; `renderItem` replaces the entire grid cell content (you take over selected/focused styling). `renderItemContextMenu` / `renderEmptyContextMenu` let you populate a right-click menu with `Menu.*` items.
+`renderThumbnail` overrides just the image; `renderItem` replaces the entire grid cell content (you take over the inner layout — the cell still owns selection, focus, and drag wiring). The `state` argument carries `selected`, `focused`, `index`, `view`, and `dropTarget`.
 
 <ComponentPreview title="renderItem (full cell takeover)">
   <AssetBrowserCustomItem client:only="react" />
@@ -280,10 +304,41 @@ Folder cells highlight as drop targets while a compatible drag hovers them. When
       item={item}
       selected={state.selected}
       focused={state.focused}
-      onClick={state.onClick}
+      dropTarget={state.dropTarget}
     />
   )}
 />
+```
+
+## Context menus
+
+Pass `renderItemContextMenu` to populate a right-click menu over items, and `renderEmptyContextMenu` for the empty surface. Return `Menu.*` children — AssetBrowser wraps them in a `ContextMenu` positioned at the pointer. The item callback receives the **acted-on** items: the whole selection when you right-click a selected item, otherwise just the one under the cursor (right-clicking an unselected item also selects it first).
+
+<ComponentPreview title="Right-click menus (item + empty area)">
+  <AssetBrowserContextMenus client:only="react" />
+</ComponentPreview>
+
+```tsx
+import { Menu } from 'entangle-ui';
+
+<AssetBrowser
+  items={items}
+  renderItemContextMenu={selected => (
+    <>
+      <Menu.Item onClick={() => open(selected)}>
+        Open{selected.length > 1 ? ` ${selected.length} items` : ''}
+      </Menu.Item>
+      <Menu.Item onClick={() => rename(selected[0])} disabled={selected.length !== 1}>
+        Rename
+      </Menu.Item>
+      <Menu.Separator />
+      <Menu.Item onClick={() => remove(selected)}>Delete</Menu.Item>
+    </>
+  )}
+  renderEmptyContextMenu={() => (
+    <Menu.Item onClick={createFolder}>New folder</Menu.Item>
+  )}
+/>;
 ```
 
 ## Compound slots
@@ -336,11 +391,37 @@ const columns: DataTableColumn<AssetItem>[] = [
 
 ## States
 
-When `items.length === 0` and `loading` is false, a default empty state is shown — override with `emptyState`. When `loading` is true, a spinner placeholder takes over both views.
+AssetBrowser resolves four mutually exclusive content states, in priority order:
+
+| State       | Trigger                              | Renders                                                                       |
+| ----------- | ------------------------------------ | ----------------------------------------------------------------------------- |
+| **Error**   | `error` is truthy                    | `error={true}` → built-in message (+ Retry when `onErrorRetry` is set); a node replaces it. |
+| **Loading** | `loading` is true                    | A skeleton grid of `loadingItemCount` cells (grid) or a spinner (list).       |
+| **Empty**   | `items.length === 0`                 | `emptyState`, or a default "This folder is empty." message.                   |
+| **Content** | otherwise                            | The grid or list view.                                                        |
+
+`error` takes precedence over `loading`, which takes precedence over the empty state — so a failed refetch shows the error, not a stale spinner.
 
 <ComponentPreview title="Empty and loading">
   <AssetBrowserStates client:only="react" />
 </ComponentPreview>
+
+The loading skeleton mirrors the real grid geometry (a thumbnail block + a label line per cell, sized to the current thumbnail scale) instead of a lone spinner, so the layout doesn't jump when data arrives.
+
+<ComponentPreview title="Error state with Retry">
+  <AssetBrowserErrorState client:only="react" />
+</ComponentPreview>
+
+```tsx
+const { data, isLoading, error, refetch } = useFolder(folderId);
+
+<AssetBrowser
+  items={data ?? []}
+  loading={isLoading}
+  error={error ? true : false}
+  onErrorRetry={refetch}
+/>;
+```
 
 ## Status bar & list density
 
@@ -396,6 +477,31 @@ The tokens AssetBrowser reads most heavily:
 
 For a fully custom palette across the whole app, prefer `createCustomTheme(...)` from the public API — overriding `--etui-*` directly is the right pattern for a localized accent.
 
+## Internationalization
+
+Every built-in string (search placeholder, sort/filter menus, view tooltips, empty/loading/error messages, column headers, the live-region announcement) is overridable through the `labels` prop. It's a partial — anything you omit keeps its English default. The count strings are functions so you can handle pluralization per locale.
+
+<ComponentPreview title="Localized labels (Polish)">
+  <AssetBrowserLocalized client:only="react" />
+</ComponentPreview>
+
+```tsx
+<AssetBrowser
+  items={items}
+  labels={{
+    searchPlaceholder: 'Szukaj zasobów…',
+    sort: 'Sortuj',
+    filter: 'Filtruj',
+    empty: 'Ten folder jest pusty.',
+    sortFields: { name: 'Nazwa', type: 'Typ', size: 'Rozmiar', modified: 'Zmodyfikowano' },
+    itemCount: n => `${n} ${n === 1 ? 'element' : 'elementów'}`,
+    selectedCount: n => `, zaznaczono ${n}`,
+  }}
+/>
+```
+
+The default English set is exported as `DEFAULT_ASSET_BROWSER_LABELS` if you want to spread and tweak it, and the full key list is the `AssetBrowserLabels` type.
+
 ## Imperative handle
 
 Pass a `ref` to get a typed `AssetBrowserHandle` with `focus()`, `selectAll()`, `clearSelection()`, `scrollToItem(id)`, `getSelectedItems()`, and `getElement()`.
@@ -410,12 +516,94 @@ useEffect(() => {
 <AssetBrowser ref={ref} items={items} />;
 ```
 
+## Recipes
+
+### Load a folder from a backend
+
+AssetBrowser is presentational — own the data outside and swap `items` on navigation. Drive `loading` / `error` from your fetch state:
+
+```tsx
+function Browser() {
+  const [folder, setFolder] = useState('root');
+  const { data, isLoading, error, refetch } = useFolderContents(folder);
+
+  return (
+    <AssetBrowser
+      items={data?.items ?? []}
+      path={data?.path ?? []}
+      currentFolderId={folder}
+      history
+      loading={isLoading}
+      error={error ? true : false}
+      onErrorRetry={refetch}
+      onNavigate={setFolder}
+      onItemOpen={openAsset}
+    />
+  );
+}
+```
+
+### Server-side search, filter, and sort
+
+For large catalogs, delegate the heavy axes to the backend with `manual*` and feed pre-shaped `items` back. AssetBrowser keeps the controls wired and reports intent:
+
+```tsx
+<AssetBrowser
+  items={results}
+  manualSearch
+  manualFilter
+  manualSort
+  onSearchChange={setQuery}
+  onFiltersChange={setFilters}
+  onSortChange={setSort}
+/>
+```
+
+### Drag an asset into a 3D viewport
+
+Give the drag a payload your viewport understands and read it on drop:
+
+```tsx
+<AssetBrowser
+  items={items}
+  dragOutMimeType="application/x-myeditor-asset"
+  getDragData={items => ({
+    'application/x-myeditor-asset': JSON.stringify(items.map(i => i.id)),
+  })}
+/>;
+
+// viewport drop target
+<div
+  onDragOver={e => e.preventDefault()}
+  onDrop={e => {
+    const ids = JSON.parse(
+      e.dataTransfer.getData('application/x-myeditor-asset')
+    );
+    spawnInScene(ids);
+  }}
+/>;
+```
+
+### Right-click actions (open / rename / delete)
+
+Wire `renderItemContextMenu` to your mutation handlers — see [Context menus](#context-menus). The callback hands you exactly the items the action should apply to.
+
+## Tips & gotchas
+
+- **Give the wrapper a fixed height.** AssetBrowser fills its container (`height: 100%`); without a sized ancestor the grid collapses. Every demo here sets an explicit height.
+- **Keep `items` referentially stable** between renders (memoize derived lists). A new array each render re-runs the filter/sort pass and can churn the grid.
+- **Use stable `id`s.** Selection, focus, and the back/forward anchor are tracked by `id`, so they survive a re-sort or re-filter only if ids are stable.
+- **Virtualization auto-engages above `virtualizationThreshold` (200).** Force it with `virtualized` if you render a tall fixed grid below that count, or disable it for print/export.
+- **`history` is required for the parent-folder shortcut.** `Backspace` / `Alt+ArrowUp` only navigate up when `history` is set.
+
 ## Accessibility
 
-- The grid view is a `role="grid"` with `aria-multiselectable` (in multi-select mode); cells are `role="gridcell"` with `aria-selected` and roving `tabIndex`.
+- The grid view is a `role="grid"` with `aria-multiselectable` (in multi-select mode) and `aria-rowcount` / `aria-colcount` reflecting the **true** totals (not just the virtualization window); cells are `role="gridcell"` with `aria-selected`, 1-based `aria-rowindex` / `aria-colindex`, and roving `tabIndex`.
+- Arrow-key focus is announced via `aria-activedescendant` on the grid, so it works under windowing without moving DOM focus off the scroller.
 - The list view inherits DataTable's `role="grid"` semantics; the wrapper does not double-wrap.
 - The breadcrumb bar is a labelled `nav`; the current segment carries `aria-current="page"`.
-- A visually-hidden live region announces the item count and selection size.
+- A visually-hidden live region announces the item count and selection size (translatable via `labels`).
+- Thumbnails use empty `alt` (decorative) — the accessible name is on the gridcell — and fall back to a type icon if the image fails to load.
 - Animations honour `prefers-reduced-motion: reduce` via the same transition tokens used by the rest of the library.
 
 ### Keyboard reference
@@ -568,6 +756,20 @@ useEffect(() => {
       description: 'Fired when a file is activated (double-click / Enter).',
     },
     {
+      name: 'history',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Enable Back/Forward controls + Backspace/Alt+ArrowUp to parent.',
+    },
+    {
+      name: 'marquee',
+      type: 'boolean',
+      default: 'true',
+      description:
+        "Rubber-band marquee in empty grid space (multi-select only).",
+    },
+    {
       name: 'columns',
       type: 'DataTableColumn<AssetItem>[]',
       description: 'Override the default list columns.',
@@ -629,6 +831,23 @@ useEffect(() => {
       name: 'emptyState',
       type: 'ReactNode',
       description: 'Override the default empty view.',
+    },
+    {
+      name: 'error',
+      type: 'boolean | ReactNode',
+      description:
+        'true → built-in error message; a node replaces it. Takes precedence over loading/empty.',
+    },
+    {
+      name: 'onErrorRetry',
+      type: '() => void',
+      description: 'Adds a Retry button to the built-in error state.',
+    },
+    {
+      name: 'labels',
+      type: 'Partial<AssetBrowserLabels>',
+      description:
+        'Override any built-in UI string (i18n). Merged onto the English defaults.',
     },
     {
       name: 'virtualized',

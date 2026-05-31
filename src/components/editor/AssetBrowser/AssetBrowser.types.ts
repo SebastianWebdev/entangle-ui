@@ -1,3 +1,4 @@
+import type { AssetBrowserLabels } from './assetBrowserLabels';
 import type { TreeNodeData } from '@/components/controls/TreeView';
 import type {
   DataTableColumn,
@@ -201,8 +202,18 @@ export interface AssetBrowserBaseProps extends Omit<
 
   // ── States ───────────────────────────────────────────────────────────────
   loading?: boolean;
+  /** Number of skeleton cells shown in grid view while `loading`. @default 12 */
   loadingItemCount?: number;
   emptyState?: React.ReactNode;
+  /**
+   * Error state. `true` renders the built-in error message (with a Retry button
+   * when `onErrorRetry` is set); any other `ReactNode` fully replaces it;
+   * `false` / `undefined` means no error. Takes precedence over `loading` and
+   * the empty state. (Typed as `ReactNode`, which subsumes `boolean`.)
+   */
+  error?: React.ReactNode;
+  /** Retry handler shown as a button in the built-in error state (`error={true}`). */
+  onErrorRetry?: () => void;
 
   // ── Render props ──────────────────────────────────────────────────────────
   /** Custom thumbnail (e.g. canvas 3D preview). Falls back to thumbnailUrl → icon → type icon. */
@@ -224,6 +235,14 @@ export interface AssetBrowserBaseProps extends Omit<
 
   // ── A11y ──────────────────────────────────────────────────────────────────
   'aria-label'?: string;
+
+  // ── i18n ──────────────────────────────────────────────────────────────────
+  /**
+   * Override any of the built-in English UI strings (search placeholder, sort /
+   * filter menus, empty / loading / error messages, column headers, the live
+   * announcement, …). Merged onto the defaults, so you can translate a subset.
+   */
+  labels?: Partial<AssetBrowserLabels>;
 
   /** Compound slots only (`AssetBrowser.Toolbar`, `AssetBrowser.Sidebar`). */
   children?: React.ReactNode;

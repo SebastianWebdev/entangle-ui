@@ -1,24 +1,22 @@
 'use client';
 
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 
-import { CloudUploadIcon } from '@/components/Icons';
-import { Icon } from '@/components/primitives/Icon';
 import { cx } from '@/utils/cx';
 
-import { body, importOverlay, main, root } from './AssetBrowser.css';
+import { body, root } from './AssetBrowser.css';
 import { AssetBrowserAnnouncementLive } from './AssetBrowserAnnouncementLive';
 import { AssetBrowserBreadcrumbs } from './AssetBrowserBreadcrumbs';
-import { AssetBrowserContent } from './AssetBrowserContent';
 import {
   AssetBrowserChromeContext,
   AssetBrowserContext,
   AssetBrowserStoreContext,
-  useAssetDrag,
 } from './AssetBrowserContext';
+import { resolveLabels } from './assetBrowserLabels';
 import { AssetBrowserSidebar } from './AssetBrowserSidebar';
 import { AssetBrowserStatusBar } from './AssetBrowserStatusBar';
 import { AssetBrowserStore } from './AssetBrowserStore';
+import { AssetBrowserSurface } from './AssetBrowserSurface';
 import { AssetBrowserToolbar } from './AssetBrowserToolbar';
 import { getSlotKind, markSlot } from './slots';
 import { useAssetBrowserHandle } from './useAssetBrowserHandle';
@@ -35,19 +33,6 @@ import type {
 import type { ReactNode } from 'react';
 
 const DEFAULT_MIME = 'application/x-entangle-asset';
-
-function ImportOverlay(): React.ReactElement | null {
-  const drag = useAssetDrag();
-  if (!drag.externalOver) return null;
-  return (
-    <div className={importOverlay}>
-      <Icon size="lg" decorative>
-        <CloudUploadIcon />
-      </Icon>
-      <span>Drop files to import</span>
-    </div>
-  );
-}
 
 interface SlotProps {
   children?: ReactNode;
@@ -94,6 +79,8 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     loading = false,
     loadingItemCount = 12,
     emptyState,
+    error,
+    onErrorRetry,
     columns,
     marquee = true,
     history = false,
@@ -115,6 +102,7 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     testId,
     children,
     ref,
+    labels: labelsProp,
     'aria-label': ariaLabel = 'Asset browser',
     // Controlled-state props — destructured so they don't leak onto the DOM
     // root via `...rest`. Consumed by the view-state / selection / navigation
@@ -143,7 +131,13 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
   } = props;
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const store = useMemo(() => new AssetBrowserStore(), []);
+  // Lazy `useState` initializer (not `useMemo`) so the per-instance store
+  // identity is guaranteed stable for the component's lifetime — `useMemo` may
+  // legally drop its cache, which would orphan every slice subscription. Mirrors
+  // `useNavigationHistory`'s store-creation idiom.
+  const [store] = useState(() => new AssetBrowserStore());
+
+  const labels = useMemo(() => resolveLabels(labelsProp), [labelsProp]);
 
   const {
     view,
@@ -265,11 +259,14 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       loading,
       loadingItemCount,
       emptyState,
+      error,
+      onErrorRetry,
       columns,
       dnd,
       virtualized,
       virtualizationThreshold,
       overscanRows,
+      labels,
     }),
     [
       displayed,
@@ -290,11 +287,14 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       loading,
       loadingItemCount,
       emptyState,
+      error,
+      onErrorRetry,
       columns,
       dnd,
       virtualized,
       virtualizationThreshold,
       overscanRows,
+      labels,
     ]
   );
 
@@ -314,6 +314,7 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       canGoForward,
       goBack,
       goForward,
+      labels,
     }),
     [
       view,
@@ -330,6 +331,7 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       canGoForward,
       goBack,
       goForward,
+      labels,
     ]
   );
 
@@ -360,15 +362,11 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
             <AssetBrowserBreadcrumbs />
             <div className={body}>
               {sidebarSlot ?? <AssetBrowserSidebar />}
-              <div
-                className={main}
+              <AssetBrowserSurface
                 onDragOver={dnd.onSurfaceDragOver}
                 onDragLeave={dnd.onSurfaceDragLeave}
                 onDrop={dnd.onSurfaceDrop}
-              >
-                <AssetBrowserContent />
-                <ImportOverlay />
-              </div>
+              />
             </div>
             {showStatusBar && (
               <AssetBrowserStatusBar

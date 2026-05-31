@@ -101,6 +101,28 @@ export const emptyWrap = style({
   padding: vars.spacing.xxl,
 });
 
+// ── Loading skeleton grid ──────────────────────────────────────────────────
+
+export const loadingGrid = style({
+  flex: '1 1 auto',
+  minHeight: 0,
+  overflow: 'hidden',
+  padding: vars.spacing.md,
+  display: 'grid',
+  gridTemplateColumns: `repeat(auto-fill, ${cellWidthVar})`,
+  gap: vars.spacing.md,
+  justifyContent: 'start',
+  alignContent: 'start',
+});
+
+export const skeletonCell = style({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: vars.spacing.xs,
+  padding: vars.spacing.xs,
+});
+
 // ── Grid view ────────────────────────────────────────────────────────────
 
 export const gridScroller = style({

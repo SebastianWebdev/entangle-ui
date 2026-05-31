@@ -12,9 +12,9 @@ import {
  * subcomponent without lifting the value to the root.
  */
 export function useAssetBrowserAnnouncement(): string {
-  const { displayedItems } = useAssetBrowserContext();
+  const { displayedItems, labels } = useAssetBrowserContext();
   const selectionSet = useAssetSelection();
   const count = displayedItems.length;
   const selected = selectionSet.size;
-  return `${count} item${count === 1 ? '' : 's'}${selected > 0 ? `, ${selected} selected` : ''}`;
+  return `${labels.itemCount(count)}${selected > 0 ? labels.selectedCount(selected) : ''}`;
 }

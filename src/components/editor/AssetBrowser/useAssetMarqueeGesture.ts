@@ -33,6 +33,8 @@ export interface AssetMarqueeGestureHandlers {
   onPointerDown: (event: PointerEvent) => void;
   onPointerMove: (event: PointerEvent) => void;
   onPointerUp: (event: PointerEvent) => void;
+  /** Abort an in-flight marquee (system gesture cancel, touch interruption). */
+  onPointerCancel: (event: PointerEvent) => void;
 }
 
 interface MarqueeDrag {
@@ -157,6 +159,20 @@ export function useAssetMarqueeGesture(
     ]
   );
 
+  // Abort an in-flight marquee without committing a selection. Fires on a
+  // system/touch `pointercancel`, which would otherwise leave `dragRef` set and
+  // the marquee rect stuck active in the store until the next pointer-down.
+  const onPointerCancel = useCallback(
+    (event: PointerEvent): void => {
+      if (!dragRef.current) return;
+      cancelAnimationFrame(rafRef.current);
+      dragRef.current = null;
+      scrollerRef.current?.releasePointerCapture(event.pointerId);
+      store.clearMarquee();
+    },
+    [store, scrollerRef]
+  );
+
   // Cancel any in-flight RAF on unmount.
   useEffect(
     () => () => {
@@ -165,5 +181,5 @@ export function useAssetMarqueeGesture(
     []
   );
 
-  return { onPointerDown, onPointerMove, onPointerUp };
+  return { onPointerDown, onPointerMove, onPointerUp, onPointerCancel };
 }

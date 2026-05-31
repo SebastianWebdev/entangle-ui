@@ -1,10 +1,15 @@
 'use client';
 
 import { assignInlineVars } from '@vanilla-extract/dynamic';
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 
 import { useLatest } from '@/hooks';
-import { cx } from '@/utils/cx';
 
 import {
   columnsVar,
@@ -27,7 +32,7 @@ import {
   useAssetBrowserStore,
   useAssetMarquee,
 } from './AssetBrowserContext';
-import { GRID_GAP, cellWidth } from './assetBrowserGeometry';
+import { GRID_GAP, cellDomId, cellWidth } from './assetBrowserGeometry';
 import { AssetBrowserGridItem } from './AssetBrowserGridItem';
 import { useAssetGridKeyboardNav } from './useAssetGridKeyboardNav';
 import { useAssetGridVirtualizer } from './useAssetGridVirtualizer';
@@ -55,10 +60,29 @@ export function AssetBrowserGrid(): React.ReactElement {
   const ctx = useAssetBrowserContext();
   const store = useAssetBrowserStore();
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const gridId = useId();
 
   const items = ctx.displayedItems;
   const count = items.length;
   const thumbPx = ctx.thumbnailSizePx;
+
+  // Mirror the store's roving focus onto the grid's `aria-activedescendant`
+  // imperatively, so a screen reader announces the focused cell without us
+  // re-rendering the whole grid on every arrow-key (the per-id focus slices keep
+  // re-renders to the two affected cells). The matching cell `id` is built from
+  // the same `gridId` in AssetBrowserGridItem via `cellDomId`.
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const apply = (): void => {
+      const focusedId = store.getFocusedId();
+      if (focusedId === null) el.removeAttribute('aria-activedescendant');
+      else
+        el.setAttribute('aria-activedescendant', cellDomId(gridId, focusedId));
+    };
+    apply();
+    return store.subscribeFocus(apply);
+  }, [store, gridId]);
 
   const windowed =
     ctx.virtualized === true ||
@@ -130,7 +154,15 @@ export function AssetBrowserGrid(): React.ReactElement {
   for (let i = win.startIndex; i < win.endIndex; i += 1) {
     const item = items[i];
     if (!item) continue;
-    rendered.push(<AssetBrowserGridItem key={item.id} item={item} index={i} />);
+    rendered.push(
+      <AssetBrowserGridItem
+        key={item.id}
+        item={item}
+        index={i}
+        gridId={gridId}
+        columns={win.columns}
+      />
+    );
   }
 
   return (
@@ -138,13 +170,16 @@ export function AssetBrowserGrid(): React.ReactElement {
       ref={scrollerRef}
       className={gridScroller}
       role="grid"
-      aria-label="Assets"
+      aria-label={ctx.labels.gridAria}
       aria-multiselectable={ctx.selectionMode === 'multiple'}
+      aria-rowcount={win.totalRows}
+      aria-colcount={win.columns}
       tabIndex={0}
       onKeyDown={keyboard.onKeyDown}
       onPointerDown={marquee.onPointerDown}
       onPointerMove={marquee.onPointerMove}
       onPointerUp={marquee.onPointerUp}
+      onPointerCancel={marquee.onPointerCancel}
     >
       {windowed ? (
         <div
@@ -155,7 +190,7 @@ export function AssetBrowserGrid(): React.ReactElement {
         >
           <MarqueeLayer />
           <div
-            className={cx(gridWindow)}
+            className={gridWindow}
             style={{
               ...sharedVars,
               ...assignInlineVars({ [offsetYVar]: `${win.offsetY}px` }),

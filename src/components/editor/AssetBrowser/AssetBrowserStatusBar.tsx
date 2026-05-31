@@ -8,6 +8,7 @@ import {
 } from '@/components/navigation/SegmentedControl';
 
 import { statusBar, statusSpacer } from './AssetBrowser.css';
+import { useAssetBrowserContext } from './AssetBrowserContext';
 import { useAssetBrowserAnnouncement } from './useAssetBrowserAnnouncement';
 
 import type { AssetThumbnailSize, AssetView } from './AssetBrowser.types';
@@ -31,6 +32,7 @@ export function AssetBrowserStatusBar({
   setThumbnailSize,
 }: AssetBrowserStatusBarProps): React.ReactElement {
   const announcement = useAssetBrowserAnnouncement();
+  const { labels } = useAssetBrowserContext();
   return (
     <div className={statusBar}>
       <span>{announcement}</span>
@@ -42,7 +44,7 @@ export function AssetBrowserStatusBar({
             setThumbnailSize(value as AssetThumbnailSize);
           }}
           size="sm"
-          aria-label="Thumbnail size"
+          aria-label={labels.thumbnailSizeAria}
         >
           <SegmentedControlItem value="sm">S</SegmentedControlItem>
           <SegmentedControlItem value="md">M</SegmentedControlItem>

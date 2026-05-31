@@ -3,9 +3,11 @@ import DemoWrapper from '../DemoWrapper';
 import { AssetBrowser } from '@/components/editor';
 import type {
   AssetItem,
+  AssetBrowserLabels,
   AssetPathSegment,
   AssetView,
 } from '@/components/editor';
+import { Menu } from '@/components/navigation';
 import type { DataTableColumn, DataTableDensity } from '@/components/data';
 import type { TreeNodeData } from '@/components/controls';
 
@@ -1127,6 +1129,149 @@ export function AssetBrowserRealWorldExample(): React.ReactElement {
             </div>
           )}
         </aside>
+      </div>
+    </DemoWrapper>
+  );
+}
+
+// ── Context menus ───────────────────────────────────────────────────────────
+
+export function AssetBrowserContextMenus(): React.ReactElement {
+  const [log, setLog] = useState<string>('Right-click an item or empty space.');
+  return (
+    <DemoWrapper>
+      <div style={{ height: 360 }}>
+        <AssetBrowser
+          items={CONTENTS.textures ?? []}
+          renderThumbnail={colorThumb}
+          defaultSelection={['wood']}
+          renderItemContextMenu={selected => (
+            <>
+              <Menu.Item
+                onClick={() => {
+                  setLog(`Open ${selected.map(s => s.name).join(', ')}`);
+                }}
+              >
+                Open{selected.length > 1 ? ` ${selected.length} items` : ''}
+              </Menu.Item>
+              <Menu.Item
+                disabled={selected.length !== 1}
+                onClick={() => {
+                  setLog(`Rename ${selected[0]?.name ?? ''}`);
+                }}
+              >
+                Rename
+              </Menu.Item>
+              <Menu.Separator />
+              <Menu.Item
+                onClick={() => {
+                  setLog(`Delete ${selected.length} item(s)`);
+                }}
+              >
+                Delete
+              </Menu.Item>
+            </>
+          )}
+          renderEmptyContextMenu={() => (
+            <Menu.Item
+              onClick={() => {
+                setLog('New folder');
+              }}
+            >
+              New folder
+            </Menu.Item>
+          )}
+        />
+      </div>
+      <div
+        style={{
+          marginTop: 8,
+          fontSize: 12,
+          color: 'var(--etui-color-text-muted)',
+        }}
+      >
+        {log}
+      </div>
+    </DemoWrapper>
+  );
+}
+
+// ── Error state ─────────────────────────────────────────────────────────────
+
+export function AssetBrowserErrorState(): React.ReactElement {
+  const [failed, setFailed] = useState(true);
+  return (
+    <DemoWrapper>
+      <div style={{ height: 320 }}>
+        <AssetBrowser
+          items={failed ? [] : (CONTENTS.textures ?? [])}
+          renderThumbnail={colorThumb}
+          error={failed}
+          onErrorRetry={() => {
+            setFailed(false);
+          }}
+        />
+      </div>
+    </DemoWrapper>
+  );
+}
+
+// ── History (back / forward) ────────────────────────────────────────────────
+
+export function AssetBrowserHistory(): React.ReactElement {
+  const [folder, setFolder] = useState('root');
+  return (
+    <DemoWrapper>
+      <div style={{ height: 360 }}>
+        <AssetBrowser
+          items={CONTENTS[folder] ?? []}
+          path={PATHS[folder]}
+          folderTree={FOLDER_TREE}
+          currentFolderId={folder}
+          history
+          renderThumbnail={colorThumb}
+          onNavigate={id => setFolder(id)}
+        />
+      </div>
+    </DemoWrapper>
+  );
+}
+
+// ── Internationalization ────────────────────────────────────────────────────
+
+const PL_LABELS: Partial<AssetBrowserLabels> = {
+  searchPlaceholder: 'Szukaj zasobów…',
+  viewModeAria: 'Tryb widoku',
+  gridViewTooltip: 'Siatka',
+  listViewTooltip: 'Lista',
+  sort: 'Sortuj',
+  sortAscending: 'Rosnąco',
+  sortDescending: 'Malejąco',
+  filter: 'Filtruj',
+  empty: 'Ten folder jest pusty.',
+  loading: 'Ładowanie zasobów…',
+  folder: 'Folder',
+  sortFields: {
+    name: 'Nazwa',
+    type: 'Typ',
+    size: 'Rozmiar',
+    modified: 'Zmodyfikowano',
+  },
+  itemCount: n => `${n} ${n === 1 ? 'element' : 'elementów'}`,
+  selectedCount: n => `, zaznaczono ${n}`,
+};
+
+export function AssetBrowserLocalized(): React.ReactElement {
+  return (
+    <DemoWrapper>
+      <div style={{ height: 360 }}>
+        <AssetBrowser
+          items={CONTENTS.textures ?? []}
+          renderThumbnail={colorThumb}
+          defaultSelection={['wood']}
+          showStatusBar
+          labels={PL_LABELS}
+        />
       </div>
     </DemoWrapper>
   );

@@ -12,6 +12,7 @@ import type {
   AssetSortState,
   AssetView,
 } from './AssetBrowser.types';
+import type { AssetBrowserLabels } from './assetBrowserLabels';
 import type {
   AssetBrowserStore,
   DragState,
@@ -158,6 +159,8 @@ export interface AssetBrowserContextValue {
   loading: boolean;
   loadingItemCount: number;
   emptyState?: ReactNode;
+  error?: ReactNode;
+  onErrorRetry?: () => void;
   columns?: readonly DataTableColumn<AssetItem>[];
 
   // drag & drop
@@ -167,6 +170,9 @@ export interface AssetBrowserContextValue {
   virtualized: boolean | 'auto';
   virtualizationThreshold: number;
   overscanRows: number;
+
+  // i18n (resolved: defaults merged with the consumer's overrides)
+  labels: AssetBrowserLabels;
 }
 
 export const AssetBrowserContext =
@@ -204,6 +210,9 @@ export interface AssetBrowserChromeValue {
   canGoForward: boolean;
   goBack: () => void;
   goForward: () => void;
+
+  // i18n (resolved: defaults merged with the consumer's overrides)
+  labels: AssetBrowserLabels;
 }
 
 export const AssetBrowserChromeContext =

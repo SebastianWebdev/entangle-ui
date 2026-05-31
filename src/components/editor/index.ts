@@ -1,7 +1,8 @@
-export { AssetBrowser } from './AssetBrowser';
+export { AssetBrowser, DEFAULT_ASSET_BROWSER_LABELS } from './AssetBrowser';
 export type {
   AssetBrowserBaseProps,
   AssetBrowserHandle,
+  AssetBrowserLabels,
   AssetBrowserProps,
   AssetFilterState,
   AssetItem,

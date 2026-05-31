@@ -25,15 +25,11 @@ import { useAssetBrowserChrome } from './AssetBrowserContext';
 
 import type { AssetSortField, AssetView } from './AssetBrowser.types';
 
-const SORT_FIELDS: { value: AssetSortField; label: string }[] = [
-  { value: 'name', label: 'Name' },
-  { value: 'type', label: 'Type' },
-  { value: 'size', label: 'Size' },
-  { value: 'modified', label: 'Modified' },
-];
+const SORT_FIELDS: AssetSortField[] = ['name', 'type', 'size', 'modified'];
 
 export function AssetBrowserToolbar(): React.ReactElement {
   const chrome = useAssetBrowserChrome();
+  const { labels } = chrome;
 
   const toggleType = (type: string, checked: boolean): void => {
     const current = new Set(chrome.filters.types ?? []);
@@ -47,7 +43,7 @@ export function AssetBrowserToolbar(): React.ReactElement {
       {chrome.history && (
         <>
           <IconButton
-            aria-label="Back"
+            aria-label={labels.back}
             size="sm"
             disabled={!chrome.canGoBack}
             onClick={chrome.goBack}
@@ -55,7 +51,7 @@ export function AssetBrowserToolbar(): React.ReactElement {
             <ChevronLeftIcon size="sm" decorative />
           </IconButton>
           <IconButton
-            aria-label="Forward"
+            aria-label={labels.forward}
             size="sm"
             disabled={!chrome.canGoForward}
             onClick={chrome.goForward}
@@ -71,17 +67,17 @@ export function AssetBrowserToolbar(): React.ReactElement {
           chrome.setView(value as AssetView);
         }}
         size="sm"
-        aria-label="View mode"
+        aria-label={labels.viewModeAria}
       >
         <SegmentedControlItem
           value="grid"
           icon={<GridIcon />}
-          tooltip="Grid view"
+          tooltip={labels.gridViewTooltip}
         />
         <SegmentedControlItem
           value="list"
           icon={<ListIcon />}
-          tooltip="List view"
+          tooltip={labels.listViewTooltip}
         />
       </SegmentedControl>
 
@@ -89,7 +85,7 @@ export function AssetBrowserToolbar(): React.ReactElement {
         className={searchField}
         type="search"
         size="sm"
-        placeholder="Search assets…"
+        placeholder={labels.searchPlaceholder}
         value={chrome.search}
         onChange={value => {
           chrome.setSearch(value);
@@ -108,7 +104,7 @@ export function AssetBrowserToolbar(): React.ReactElement {
           <Icon size="sm" decorative>
             <SortIcon />
           </Icon>
-          Sort
+          {labels.sort}
         </Menu.Trigger>
         <Menu.Content>
           <Menu.RadioGroup
@@ -118,8 +114,8 @@ export function AssetBrowserToolbar(): React.ReactElement {
             }}
           >
             {SORT_FIELDS.map(field => (
-              <Menu.RadioItem key={field.value} value={field.value}>
-                {field.label}
+              <Menu.RadioItem key={field} value={field}>
+                {labels.sortFields[field]}
               </Menu.RadioItem>
             ))}
           </Menu.RadioGroup>
@@ -133,8 +129,10 @@ export function AssetBrowserToolbar(): React.ReactElement {
               });
             }}
           >
-            <Menu.RadioItem value="asc">Ascending</Menu.RadioItem>
-            <Menu.RadioItem value="desc">Descending</Menu.RadioItem>
+            <Menu.RadioItem value="asc">{labels.sortAscending}</Menu.RadioItem>
+            <Menu.RadioItem value="desc">
+              {labels.sortDescending}
+            </Menu.RadioItem>
           </Menu.RadioGroup>
         </Menu.Content>
       </Menu>
@@ -145,7 +143,7 @@ export function AssetBrowserToolbar(): React.ReactElement {
             <Icon size="sm" decorative>
               <FilterIcon />
             </Icon>
-            Filter
+            {labels.filter}
           </Menu.Trigger>
           <Menu.Content>
             {chrome.filterableTypes.map(type => (

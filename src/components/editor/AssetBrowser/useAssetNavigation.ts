@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useLatest, useNavigationHistory } from '@/hooks';
 
@@ -64,6 +64,21 @@ export function useAssetNavigation(
   const { push, canGoBack, canGoForward } = histApi;
   const histGoBack = histApi.goBack;
   const histGoForward = histApi.goForward;
+
+  // Keep the back/forward stack in sync with the controlled `currentFolderId`.
+  // `useNavigationHistory` only seeds `initial` once on mount, so an out-of-band
+  // change (deep link, "reveal in browser", or a parent that updates
+  // `currentFolderId` without routing through `navigate`) would otherwise leave
+  // the stack — and `canGoBack`/`canGoForward` — stale. `push` no-ops when the
+  // entry already equals the current one, so navigate/back/forward (which leave
+  // `current === currentFolderId`) don't double-push and the forward branch
+  // survives; only a genuine external change advances the stack. This is the
+  // "mirror React state into an external store" bridge that component-patterns.md
+  // §2 lists as a legitimate `useEffect` use.
+  useEffect(() => {
+    if (!history || currentFolderId === undefined) return;
+    push(currentFolderId);
+  }, [history, currentFolderId, push]);
 
   const onNavigateRef = useLatest(onNavigate);
   const onItemOpenRef = useLatest(onItemOpen);
