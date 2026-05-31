@@ -22,6 +22,7 @@ import { getSlotKind, markSlot } from './slots';
 import { useAssetBrowserHandle } from './useAssetBrowserHandle';
 import { useAssetBrowserViewState } from './useAssetBrowserViewState';
 import { useAssetDnd } from './useAssetDnd';
+import { useAssetMutationKeyboard } from './useAssetMutationKeyboard';
 import { useAssetMutations } from './useAssetMutations';
 import { useAssetNavigation } from './useAssetNavigation';
 import { useAssetSelectionController } from './useAssetSelectionController';
@@ -234,6 +235,12 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
     onItemsDuplicate,
   });
 
+  const mutationKeyboard = useAssetMutationKeyboard({
+    store,
+    mutations,
+    selection: selectionSet,
+  });
+
   useAssetBrowserHandle({
     ref,
     rootRef,
@@ -276,6 +283,7 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       renderEmptyContextMenu,
       defaultItemActions,
       mutations,
+      mutationKeyDown: mutationKeyboard.onKeyDown,
       loading,
       loadingItemCount,
       emptyState,
@@ -306,6 +314,7 @@ function AssetBrowserRoot(props: AssetBrowserProps): React.ReactElement {
       renderEmptyContextMenu,
       defaultItemActions,
       mutations,
+      mutationKeyboard.onKeyDown,
       loading,
       loadingItemCount,
       emptyState,

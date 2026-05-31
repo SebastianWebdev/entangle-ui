@@ -396,7 +396,7 @@ onItemRename={(item, newName) => {
 
 **New folder + rename** is the idiomatic create flow: insert a placeholder, then call `handle.beginRename(newId)` to drop the user straight into naming it (shown above).
 
-> Mutation affordances (inline rename, the `F2` / `Delete` / `Ctrl+D` shortcuts) are **grid-view** features. The list view keeps its `DataTable` behaviour; the context-menu actions work in both.
+> All mutation affordances work in **both** views: inline rename, the `F2` / `Delete` / `Ctrl+D` shortcuts, and the right-click menus behave identically in the grid and the list. (In the list, `F2` renames the sole selected row, since the list has no roving focus.)
 
 ## Compound slots
 

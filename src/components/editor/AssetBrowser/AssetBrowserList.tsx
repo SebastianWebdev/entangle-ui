@@ -10,9 +10,11 @@ import { listScroller, nameCell } from './AssetBrowser.css';
 import {
   useAssetBrowserChrome,
   useAssetBrowserContext,
+  useAssetEditing,
   useAssetSelection,
 } from './AssetBrowserContext';
 import { formatBytes, formatDate } from './assetBrowserFormat';
+import { AssetBrowserRenameField } from './AssetBrowserRenameField';
 
 import type { AssetItem } from './AssetBrowser.types';
 import type { AssetBrowserLabels } from './assetBrowserLabels';
@@ -20,6 +22,24 @@ import type {
   DataTableColumn,
   DataTableSortState,
 } from '@/components/data/DataTable';
+
+/**
+ * Name cell — swaps to the inline rename field when this row is the rename
+ * target. A component (not an inline `cell` fn) so the `useAssetEditing` hook is
+ * valid; this is the same shared rename mechanism the grid uses.
+ */
+function ListNameCell({ item }: { item: AssetItem }): React.ReactElement {
+  const editing = useAssetEditing(item.id);
+  if (editing) return <AssetBrowserRenameField item={item} />;
+  return (
+    <span className={nameCell}>
+      <Icon size="sm" color="muted" decorative>
+        {item.kind === 'folder' ? <FolderIcon /> : <FileTextIcon />}
+      </Icon>
+      <span>{item.name}</span>
+    </span>
+  );
+}
 
 /**
  * Default name/type/size/modified columns, built from the resolved labels so
@@ -36,14 +56,7 @@ function buildDefaultColumns(
       sortable: true,
       sticky: true,
       minWidth: 160,
-      cell: ({ row }) => (
-        <span className={nameCell}>
-          <Icon size="sm" color="muted" decorative>
-            {row.kind === 'folder' ? <FolderIcon /> : <FileTextIcon />}
-          </Icon>
-          <span>{row.name}</span>
-        </span>
-      ),
+      cell: ({ row }) => <ListNameCell item={row} />,
     },
     {
       id: 'type',
@@ -95,7 +108,11 @@ export function AssetBrowserList(): React.ReactElement {
   const selection = useMemo(() => Array.from(selectionSet), [selectionSet]);
 
   return (
-    <div className={listScroller}>
+    // The mutation shortcuts (F2 / Delete / Ctrl+D) attach to this wrapper;
+    // DataTable's own keydowns bubble up to it. F2 targets the sole selected row
+    // (the list has no store roving-focus). Static-element handler is intentional.
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div className={listScroller} onKeyDown={ctx.mutationKeyDown}>
       <DataTable<AssetItem>
         rows={ctx.displayedItems}
         columns={columns}

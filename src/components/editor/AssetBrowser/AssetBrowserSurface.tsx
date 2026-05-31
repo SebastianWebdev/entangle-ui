@@ -3,13 +3,12 @@
 import React from 'react';
 
 import { CloudUploadIcon } from '@/components/Icons';
-import { ContextMenu } from '@/components/navigation/ContextMenu';
 import { Icon } from '@/components/primitives/Icon';
 
 import { importOverlay, main } from './AssetBrowser.css';
 import { AssetBrowserContent } from './AssetBrowserContent';
 import { useAssetBrowserContext, useAssetDrag } from './AssetBrowserContext';
-import { DefaultEmptyMenu } from './AssetBrowserDefaultMenus';
+import { AssetBrowserContextMenuLayer } from './AssetBrowserContextMenu';
 
 function ImportOverlay(): React.ReactElement | null {
   const drag = useAssetDrag();
@@ -33,43 +32,26 @@ export interface AssetBrowserSurfaceProps {
 
 /**
  * The scrollable content surface (grid/list/empty/loading/error) plus the
- * file-import overlay. Becomes a right-click target for the empty-area menu when
- * the consumer supplies `renderEmptyContextMenu`, or when `defaultItemActions`
- * is on and `onCreateFolder` is set. Per-cell menus stop at the cell, so a
- * right-click on a cell opens the item menu instead.
+ * file-import overlay. Right-click menus (item + empty area) are handled by the
+ * single view-agnostic {@link AssetBrowserContextMenuLayer}, which detects the
+ * target from `data-asset-id` — so grid cells and list rows behave identically.
  */
 export function AssetBrowserSurface({
   onDragOver,
   onDragLeave,
   onDrop,
 }: AssetBrowserSurfaceProps): React.ReactElement {
-  const { renderEmptyContextMenu, defaultItemActions, mutations } =
-    useAssetBrowserContext();
-
-  const surface = (
-    <div
-      className={main}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
-    >
-      <AssetBrowserContent />
-      <ImportOverlay />
-    </div>
-  );
-
-  const hasDefaultEmptyMenu = defaultItemActions && mutations.canCreateFolder;
-  if (!renderEmptyContextMenu && !hasDefaultEmptyMenu) return surface;
   return (
-    <ContextMenu>
-      <ContextMenu.Trigger render={surface} />
-      <ContextMenu.Content>
-        {renderEmptyContextMenu ? (
-          renderEmptyContextMenu()
-        ) : (
-          <DefaultEmptyMenu />
-        )}
-      </ContextMenu.Content>
-    </ContextMenu>
+    <AssetBrowserContextMenuLayer>
+      <div
+        className={main}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+      >
+        <AssetBrowserContent />
+        <ImportOverlay />
+      </div>
+    </AssetBrowserContextMenuLayer>
   );
 }

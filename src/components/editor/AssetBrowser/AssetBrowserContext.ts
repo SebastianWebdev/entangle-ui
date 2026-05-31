@@ -177,6 +177,12 @@ export interface AssetBrowserContextValue {
 
   // mutations (inline rename, delete, create-folder, duplicate)
   mutations: AssetMutationsApi;
+  /**
+   * Mutation keyboard handler (F2 / Delete / Ctrl+D). Attached by each view to
+   * its own scroller so the shortcuts work in both grid and list without
+   * relying on event bubbling to the root.
+   */
+  mutationKeyDown: (event: React.KeyboardEvent) => void;
 
   // states
   loading: boolean;

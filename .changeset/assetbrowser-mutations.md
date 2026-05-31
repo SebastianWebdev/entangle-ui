@@ -39,11 +39,15 @@ API additions:
 
 Notes:
 
-- Mutation affordances (inline rename, the `F2` / `Delete` / `Ctrl+D` shortcuts)
-  are grid-view features; the context-menu actions work in both views.
+- All mutation affordances work in **both** the grid and list views: inline
+  rename, the `F2` / `Delete` / `Ctrl+D` shortcuts, and the right-click menus.
+  A single view-agnostic context-menu layer detects the target item from
+  `data-asset-id` (grid cells) / `data-row-key` (list rows), and the mutation
+  keyboard handler is shared by both scrollers — DataTable itself is unchanged.
 - The "is editing" flag lives in the store as a per-id slice
-  (`useAssetEditing`), so a rename re-renders only the affected cell and can be
-  started from the keyboard, a menu, or the imperative handle.
+  (`useAssetEditing`), so a rename re-renders only the affected cell/row and can
+  be started from the keyboard, a menu, or the imperative handle. In the list,
+  `F2` targets the sole selected row (the list has no roving focus).
 
 Docs: new Mutations section + a live demo (rename / duplicate / delete / new
 folder); the Context menus, Keyboard reference, and API tables are updated.

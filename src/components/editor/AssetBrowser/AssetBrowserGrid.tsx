@@ -133,7 +133,6 @@ export function AssetBrowserGrid(): React.ReactElement {
     toggleSelectId: ctx.toggleSelectId,
     selectByKeyboard: ctx.selectByKeyboard,
     scrollIndexIntoView,
-    mutations: ctx.mutations,
   });
 
   const marquee = useAssetMarqueeGesture({
@@ -150,6 +149,19 @@ export function AssetBrowserGrid(): React.ReactElement {
     [gridGapVar]: `${GRID_GAP}px`,
     [cellWidthVar]: `${cellWidth(thumbPx)}px`,
   });
+
+  // Grid keydown = 2D navigation + the shared mutation shortcuts (F2 / Delete /
+  // Ctrl+D). Both are attached here, on the element that receives the event, so
+  // the shortcuts fire without depending on bubbling to the root. The key sets
+  // are disjoint, so order doesn't matter.
+  const mutationKeyDown = ctx.mutationKeyDown;
+  const onGridKeyDown = useCallback(
+    (event: React.KeyboardEvent): void => {
+      keyboard.onKeyDown(event);
+      mutationKeyDown(event);
+    },
+    [keyboard, mutationKeyDown]
+  );
 
   const rendered: React.ReactNode[] = [];
   for (let i = win.startIndex; i < win.endIndex; i += 1) {
@@ -176,7 +188,7 @@ export function AssetBrowserGrid(): React.ReactElement {
       aria-rowcount={win.totalRows}
       aria-colcount={win.columns}
       tabIndex={0}
-      onKeyDown={keyboard.onKeyDown}
+      onKeyDown={onGridKeyDown}
       onPointerDown={marquee.onPointerDown}
       onPointerMove={marquee.onPointerMove}
       onPointerUp={marquee.onPointerUp}

@@ -225,3 +225,78 @@ describe('AssetBrowser — create folder (empty-area menu)', () => {
     expect(onCreateFolder).toHaveBeenCalledWith('root');
   });
 });
+
+describe('AssetBrowser — list view parity', () => {
+  it('F2 renames the selected row in list view', () => {
+    const onItemRename = vi.fn();
+    renderWithTheme(
+      <AssetBrowser
+        items={items}
+        view="list"
+        selection={['file1']}
+        onItemRename={onItemRename}
+      />
+    );
+    // No grid in list view.
+    expect(screen.queryByRole('grid')).toBeInTheDocument(); // DataTable is role=grid
+    const list = screen.getByRole('grid');
+    fireEvent.keyDown(list, { key: 'F2' });
+    const input = screen.getByRole('textbox', { name: /rename/i });
+    expect(input).toHaveValue('wood.png');
+    fireEvent.change(input, { target: { value: 'oak.png' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onItemRename).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'file1' }),
+      'oak.png'
+    );
+  });
+
+  it('Delete removes the selection in list view', () => {
+    const onItemsDelete = vi.fn();
+    renderWithTheme(
+      <AssetBrowser
+        items={items}
+        view="list"
+        selection={['file1', 'file2']}
+        onItemsDelete={onItemsDelete}
+      />
+    );
+    fireEvent.keyDown(screen.getByRole('grid'), { key: 'Delete' });
+    expect(onItemsDelete).toHaveBeenCalledTimes(1);
+    const arg = onItemsDelete.mock.lastCall?.[0] as AssetItem[];
+    expect(arg.map(i => i.id).sort()).toEqual(['file1', 'file2']);
+  });
+
+  it('right-click on a list row opens the item menu', () => {
+    renderWithTheme(
+      <AssetBrowser
+        items={items}
+        view="list"
+        defaultItemActions
+        onItemRename={vi.fn()}
+        onItemsDelete={vi.fn()}
+      />
+    );
+    // The row's name cell carries the text; right-click bubbles to the layer.
+    fireEvent.contextMenu(screen.getByText('wood.png'));
+    expect(screen.getByText('Rename')).toBeInTheDocument();
+    expect(screen.getByText('Delete')).toBeInTheDocument();
+  });
+
+  it('right-click empty list area opens the New folder menu', () => {
+    const onCreateFolder = vi.fn();
+    renderWithTheme(
+      <AssetBrowser
+        items={items}
+        view="list"
+        defaultItemActions
+        currentFolderId="root"
+        onCreateFolder={onCreateFolder}
+      />
+    );
+    // Right-click the grid container itself (not a row) → empty-area menu.
+    fireEvent.contextMenu(screen.getByRole('grid'));
+    fireEvent.click(screen.getByText('New folder'));
+    expect(onCreateFolder).toHaveBeenCalledWith('root');
+  });
+});

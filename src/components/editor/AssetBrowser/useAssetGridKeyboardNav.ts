@@ -7,7 +7,6 @@ import { nextGridIndex } from './assetBrowserKeyboard';
 import type { AssetItem } from './AssetBrowser.types';
 import type { AssetBrowserStore } from './AssetBrowserStore';
 import type { AssetGridWindow } from './useAssetGridVirtualizer';
-import type { AssetMutationsApi } from './useAssetMutations';
 import type { KeyboardEvent, RefObject } from 'react';
 
 export interface UseAssetGridKeyboardNavOptions {
@@ -25,8 +24,6 @@ export interface UseAssetGridKeyboardNavOptions {
   selectByKeyboard: (index: number, extend: boolean) => void;
   /** Bring the row containing the given item index into view. */
   scrollIndexIntoView: (index: number, w: AssetGridWindow) => void;
-  /** Mutation intents — F2 renames, Delete deletes, Ctrl/Cmd+D duplicates. */
-  mutations: AssetMutationsApi;
 }
 
 export interface AssetGridKeyboardNav {
@@ -58,7 +55,6 @@ export function useAssetGridKeyboardNav(
     toggleSelectId,
     selectByKeyboard,
     scrollIndexIntoView,
-    mutations,
   } = options;
 
   const indexById = useMemo(() => {
@@ -81,35 +77,6 @@ export function useAssetGridKeyboardNav(
       if ((event.ctrlKey || event.metaKey) && (key === 'a' || key === 'A')) {
         event.preventDefault();
         selectAll();
-        return;
-      }
-      // Ctrl/Cmd+D — duplicate the selection.
-      if (
-        (event.ctrlKey || event.metaKey) &&
-        (key === 'd' || key === 'D') &&
-        mutations.canDuplicate
-      ) {
-        event.preventDefault();
-        mutations.duplicateItems();
-        return;
-      }
-      // F2 — inline-rename the focused item.
-      if (key === 'F2' && mutations.canRename) {
-        const item = current >= 0 ? items[current] : undefined;
-        if (item) {
-          event.preventDefault();
-          mutations.beginRename(item.id);
-        }
-        return;
-      }
-      // Delete (and Cmd+Backspace on macOS) — delete the selection. Plain
-      // Backspace stays reserved for the root's "go to parent" shortcut.
-      if (
-        (key === 'Delete' || (event.metaKey && key === 'Backspace')) &&
-        mutations.canDelete
-      ) {
-        event.preventDefault();
-        mutations.deleteItems();
         return;
       }
       if (key === 'Escape') {
@@ -167,7 +134,6 @@ export function useAssetGridKeyboardNav(
       toggleSelectId,
       selectByKeyboard,
       scrollIndexIntoView,
-      mutations,
     ]
   );
 
