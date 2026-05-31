@@ -80,6 +80,17 @@ export const main = style({
   flexDirection: 'column',
 });
 
+// Wrapper hosting the shared right-click ContextMenu trigger around the content
+// surface. Must be a real layout box (not `display: contents`) so base-ui's
+// context-menu positioner has a valid anchor in both views; it passes the flex
+// sizing through to the `main` surface it contains.
+export const contextMenuTrigger = style({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: '1 1 auto',
+  minHeight: 0,
+});
+
 export const statusBar = style({
   display: 'flex',
   alignItems: 'center',
