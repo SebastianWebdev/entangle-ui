@@ -1,3 +1,24 @@
+export { AssetBrowser, DEFAULT_ASSET_BROWSER_LABELS } from './AssetBrowser';
+export type {
+  AssetBrowserBaseProps,
+  AssetBrowserHandle,
+  AssetBrowserLabels,
+  AssetBrowserProps,
+  AssetFilterState,
+  AssetItem,
+  AssetItemActions,
+  AssetItemState,
+  AssetKind,
+  AssetNavigationSource,
+  AssetPathSegment,
+  AssetSelectionReason,
+  AssetSortField,
+  AssetSortState,
+  AssetThumbnailSize,
+  AssetType,
+  AssetView,
+} from './AssetBrowser';
+
 export {
   PropertyPanel,
   PropertySection,

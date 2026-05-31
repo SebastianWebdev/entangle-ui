@@ -153,6 +153,10 @@ export {
   useToast,
 } from '@/components/feedback';
 export {
+  AssetBrowser,
+  DEFAULT_ASSET_BROWSER_LABELS,
+} from '@/components/editor';
+export {
   PropertyGroup,
   PropertyPanel,
   PropertyRow,
@@ -595,6 +599,23 @@ export type {
   UseToastReturn,
 } from '@/components/feedback';
 export type {
+  AssetBrowserBaseProps,
+  AssetBrowserHandle,
+  AssetBrowserLabels,
+  AssetBrowserProps,
+  AssetFilterState,
+  AssetItem,
+  AssetItemActions,
+  AssetItemState,
+  AssetKind,
+  AssetNavigationSource,
+  AssetPathSegment,
+  AssetSelectionReason,
+  AssetSortField,
+  AssetSortState,
+  AssetThumbnailSize,
+  AssetType,
+  AssetView,
   PropertyGroupProps,
   PropertyInspectorSize,
   PropertyPanelProps,

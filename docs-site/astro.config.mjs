@@ -239,6 +239,10 @@ export default defineConfig({
               collapsed: true,
               items: [
                 {
+                  label: 'AssetBrowser',
+                  slug: 'components/editor/asset-browser',
+                },
+                {
                   label: 'ChatPanel',
                   slug: 'components/editor/chat-panel',
                 },
