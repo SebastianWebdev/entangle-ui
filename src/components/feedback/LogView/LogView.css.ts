@@ -209,6 +209,7 @@ export const plainBodyStyle = style({
 export const rowRecipe = recipe({
   base: {
     boxSizing: 'border-box',
+    position: 'relative',
     display: 'flex',
     alignItems: 'flex-start',
     gap: vars.spacing.md,

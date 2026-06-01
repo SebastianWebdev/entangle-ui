@@ -10,7 +10,7 @@ import type {
 } from '@/components/feedback';
 import { Button } from '@/components/primitives';
 import { Stack } from '@/components/layout';
-import { Text } from '@/components/primitives';
+import { Badge, Text } from '@/components/primitives';
 
 const SAMPLE: LogEntry[] = [
   { id: '1', level: 'info', message: 'Renderer initialized', source: 'gpu' },
@@ -232,6 +232,77 @@ export function LogViewCustomLevels() {
         levelConfig={levelConfig}
         levelOrder={['trace', 'debug', 'info', 'warn', 'error']}
         height={220}
+      />
+    </DemoWrapper>
+  );
+}
+
+interface RequestMeta {
+  method?: string;
+  ok?: boolean;
+}
+
+/** Custom line rendering via `renderEntry` — here an HTTP access log. */
+export function LogViewCustomRender() {
+  const entries: LogEntry[] = [
+    {
+      id: 'h1',
+      level: 'info',
+      source: 'http',
+      message: '/api/users → 200 (12ms)',
+      meta: { method: 'GET', ok: true },
+    },
+    {
+      id: 'h2',
+      level: 'info',
+      source: 'http',
+      message: '/api/login → 201 (44ms)',
+      meta: { method: 'POST', ok: true },
+    },
+    {
+      id: 'h3',
+      level: 'warn',
+      source: 'http',
+      message: '/api/cart → 404 (8ms)',
+      meta: { method: 'GET', ok: false },
+    },
+    {
+      id: 'h4',
+      level: 'error',
+      source: 'http',
+      message: '/api/orders → 500 (120ms)',
+      meta: { method: 'DELETE', ok: false },
+    },
+  ];
+  return (
+    <DemoWrapper>
+      <LogView
+        entries={entries}
+        showTimestamps
+        height={220}
+        renderEntry={({ entry }) => {
+          const meta = entry.meta as RequestMeta | undefined;
+          return (
+            <span
+              style={{
+                display: 'inline-flex',
+                gap: 'var(--etui-spacing-sm)',
+                alignItems: 'center',
+              }}
+            >
+              {meta?.method ? (
+                <Badge
+                  size="xs"
+                  variant="outline"
+                  color={meta.ok ? 'success' : 'error'}
+                >
+                  {meta.method}
+                </Badge>
+              ) : null}
+              <span>{entry.message}</span>
+            </span>
+          );
+        }}
       />
     </DemoWrapper>
   );

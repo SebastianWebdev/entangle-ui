@@ -11,6 +11,7 @@ import LogViewDemo, {
   LogViewWrap,
   LogViewCompound,
   LogViewCustomLevels,
+  LogViewCustomRender,
 } from '../../../../components/demos/feedback/LogViewDemo';
 
 A virtualized console / log output panel for editor and IDE-style apps. Renders a large, append-only stream of entries efficiently (virtualized via `@tanstack/react-virtual`), with per-level coloring, level filtering, text search with match highlighting, follow-tail auto-scroll, per-line and bulk copy, optional timestamps, and source tags. It stays smooth at tens of thousands of lines.
@@ -166,6 +167,35 @@ LogView ships a default toolbar (search, level chips, copy, clear) that you can 
 
 <ComponentPreview title="Custom composition">
   <LogViewCompound client:only="react" />
+</ComponentPreview>
+
+## Custom rendering
+
+`renderEntry` replaces the default message body of a row while keeping the
+timestamp gutter, level glyph, and source tag. Use it to render structured
+lines — compose other library primitives (here `Badge`) and read your own
+`entry.meta`. The row still participates in virtualization, hover, selection,
+and copy.
+
+```tsx
+<LogView
+  entries={requests}
+  renderEntry={({ entry }) => {
+    const { method, ok } = entry.meta as { method: string; ok: boolean };
+    return (
+      <span style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+        <Badge size="xs" variant="outline" color={ok ? 'success' : 'error'}>
+          {method}
+        </Badge>
+        <span>{entry.message}</span>
+      </span>
+    );
+  }}
+/>
+```
+
+<ComponentPreview title="Custom line rendering (renderEntry)">
+  <LogViewCustomRender client:only="react" />
 </ComponentPreview>
 
 ## Virtualization
