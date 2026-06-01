@@ -115,58 +115,94 @@ a gradient, so it's safe to feed user input.
 ## Props
 
 <PropsTable
-  rows={[
-    ['value', 'GradientData', 'Gradient data (controlled).'],
-    [
-      'defaultValue',
-      'GradientData',
-      'Default gradient data (uncontrolled). Defaults to black→white linear.',
-    ],
-    ['width', 'number', 'Editor width in pixels. Default 280.'],
-    [
-      'types',
-      'GradientType[]',
-      "Gradient types offered in the toggle. Default ['linear', 'radial', 'conic'].",
-    ],
-    [
-      'colorEditor',
-      "'popover' | 'inline'",
-      "How the per-stop color editor is surfaced. Default 'popover'.",
-    ],
-    [
-      'showAlpha',
-      'boolean',
-      'Whether the ColorPicker exposes the alpha channel. Default true.',
-    ],
-    [
-      'showAngle',
-      'boolean',
-      'Show the angle control (linear/conic). Default true.',
-    ],
-    [
-      'showCssOutput',
-      'boolean',
-      'Show the read-only CSS row with copy button. Default true.',
-    ],
-    ['maxStops', 'number', 'Maximum number of stops. Default 16.'],
-    ['minStops', 'number', 'Minimum number of stops. Default 2.'],
-    ['size', "'sm' | 'md' | 'lg'", "Control density. Default 'md'."],
-    ['disabled', 'boolean', 'Whether the editor is disabled. Default false.'],
-    [
-      'onChange',
-      '(value: GradientData) => void',
-      'Fired continuously while editing.',
-    ],
-    [
-      'onChangeComplete',
-      '(value: GradientData) => void',
-      'Fired when an edit is committed (drag end, add, delete).',
-    ],
-    [
-      'onSelectionChange',
-      '(stopId: string | null) => void',
-      'Fired when the selected stop changes.',
-    ],
+  props={[
+    {
+      name: 'value',
+      type: 'GradientData',
+      description: 'Gradient data (controlled).',
+    },
+    {
+      name: 'defaultValue',
+      type: 'GradientData',
+      default: 'black→white linear',
+      description: 'Default gradient data (uncontrolled).',
+    },
+    {
+      name: 'width',
+      type: 'number',
+      default: '280',
+      description: 'Width of the editor in pixels.',
+    },
+    {
+      name: 'types',
+      type: 'GradientType[]',
+      default: "['linear', 'radial', 'conic']",
+      description: 'Gradient types offered in the toggle.',
+    },
+    {
+      name: 'colorEditor',
+      type: "'popover' | 'inline'",
+      default: "'popover'",
+      description: 'How the per-stop color editor is surfaced.',
+    },
+    {
+      name: 'showAlpha',
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether the ColorPicker exposes the alpha channel.',
+    },
+    {
+      name: 'showAngle',
+      type: 'boolean',
+      default: 'true',
+      description: 'Show the angle control (linear/conic).',
+    },
+    {
+      name: 'showCssOutput',
+      type: 'boolean',
+      default: 'true',
+      description: 'Show the read-only CSS row with copy button.',
+    },
+    {
+      name: 'maxStops',
+      type: 'number',
+      default: '16',
+      description: 'Maximum number of stops.',
+    },
+    {
+      name: 'minStops',
+      type: 'number',
+      default: '2',
+      description: 'Minimum number of stops.',
+    },
+    {
+      name: 'size',
+      type: "'sm' | 'md' | 'lg'",
+      default: "'md'",
+      description: 'Control density.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the editor is disabled.',
+    },
+    {
+      name: 'onChange',
+      type: '(value: GradientData) => void',
+      description: 'Fired continuously while editing.',
+    },
+    {
+      name: 'onChangeComplete',
+      type: '(value: GradientData) => void',
+      description:
+        'Fired when an edit is committed (drag end, add, delete, angle blur).',
+    },
+    {
+      name: 'onSelectionChange',
+      type: '(stopId: string | null) => void',
+      description: 'Fired when the selected stop changes.',
+    },
   ]}
 />
 
