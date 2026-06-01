@@ -11,7 +11,7 @@ import React, {
   useRef,
 } from 'react';
 
-import { ArrowDownIcon } from '@/components/Icons/ArrowDownIcon';
+import { ChevronDownIcon } from '@/components/Icons/ChevronDownIcon';
 import { CopyIcon } from '@/components/Icons/CopyIcon';
 import { Badge } from '@/components/primitives/Badge';
 import { Button } from '@/components/primitives/Button';
@@ -147,7 +147,7 @@ const LogRow = memo(function LogRow({
       )}
 
       <span className={rowGlyphStyle} aria-hidden="true">
-        {Icon ? <Icon size="sm" /> : null}
+        {Icon ? <Icon size="md" /> : null}
       </span>
 
       {showSource && entry.source != null && entry.source !== '' && (
@@ -180,7 +180,7 @@ const LogRow = memo(function LogRow({
             onCopyLine(entry);
           }}
         >
-          <CopyIcon size="sm" />
+          <CopyIcon size="md" />
         </IconButton>
       </span>
     </div>
@@ -392,7 +392,7 @@ export const LogViewBody = ({
         <Button
           size="sm"
           variant="default"
-          icon={<ArrowDownIcon size="sm" />}
+          icon={<ChevronDownIcon size="md" />}
           onClick={scrollToBottom}
           aria-label="Jump to bottom"
           tabIndex={isDetached ? 0 : -1}

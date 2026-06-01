@@ -56,7 +56,7 @@ LogViewToolbar.displayName = 'LogView.Toolbar';
 /** Search field bound to the LogView query state. */
 export const LogViewSearch = ({
   placeholder = 'Filter logs…',
-  size = 'sm',
+  size = 'md',
   className,
   style,
   testId,
@@ -78,7 +78,7 @@ export const LogViewSearch = ({
         value={query}
         onChange={setQuery}
         placeholder={placeholder}
-        startIcon={<SearchIcon size="sm" />}
+        startIcon={<SearchIcon size="md" />}
         aria-label="Filter logs"
       />
     </div>
@@ -135,7 +135,7 @@ export const LogViewLevelFilter = ({
           >
             {Icon ? (
               <span className={levelGlyphStyle} aria-hidden="true">
-                <Icon size="sm" />
+                <Icon size="md" />
               </span>
             ) : (
               <span className={levelDotStyle} aria-hidden="true" />
@@ -165,7 +165,7 @@ export const LogViewClear = ({
     <IconButton
       ref={ref}
       aria-label={ariaLabel}
-      size="sm"
+      size="md"
       variant="ghost"
       className={className}
       style={style}
@@ -175,7 +175,7 @@ export const LogViewClear = ({
       }}
       {...rest}
     >
-      {children ?? <TrashIcon size="sm" />}
+      {children ?? <TrashIcon size="md" />}
     </IconButton>
   );
 };
@@ -198,7 +198,7 @@ export const LogViewCopy = ({
     <IconButton
       ref={ref}
       aria-label={ariaLabel}
-      size="sm"
+      size="md"
       variant="ghost"
       className={className}
       style={style}
@@ -213,7 +213,7 @@ export const LogViewCopy = ({
       }}
       {...rest}
     >
-      {children ?? <CopyIcon size="sm" />}
+      {children ?? <CopyIcon size="md" />}
     </IconButton>
   );
 };

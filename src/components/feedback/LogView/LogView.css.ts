@@ -16,9 +16,9 @@ export const levelColorVar = createVar();
  * `estimateSize`.
  */
 export const DENSITY_ROW_HEIGHT = {
-  comfortable: 26,
-  compact: 22,
-  dense: 18,
+  comfortable: 30,
+  compact: 26,
+  dense: 22,
 } as const;
 
 export const rootRecipe = recipe({
@@ -55,8 +55,8 @@ export const rootRecipe = recipe({
 export const toolbarStyle = style({
   display: 'flex',
   alignItems: 'center',
-  gap: vars.spacing.sm,
-  padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
+  gap: vars.spacing.md,
+  padding: `${vars.spacing.sm} ${vars.spacing.md}`,
   borderBottom: `1px solid ${vars.colors.border.default}`,
   background: vars.colors.surface.default,
   flexShrink: 0,
@@ -74,7 +74,7 @@ export const searchWrapperStyle = style({
 export const levelFilterStyle = style({
   display: 'flex',
   alignItems: 'center',
-  gap: vars.spacing.xs,
+  gap: vars.spacing.sm,
   flexWrap: 'wrap',
 });
 
@@ -82,15 +82,15 @@ export const levelChipRecipe = recipe({
   base: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: vars.spacing.xs,
-    height: '20px',
-    padding: `0 ${vars.spacing.sm}`,
+    gap: vars.spacing.sm,
+    height: '26px',
+    padding: `0 ${vars.spacing.md}`,
     border: `1px solid ${vars.colors.border.default}`,
     borderRadius: vars.borderRadius.sm,
     background: 'transparent',
     color: vars.colors.text.secondary,
     fontFamily: vars.typography.fontFamily.sans,
-    fontSize: vars.typography.fontSize.xs,
+    fontSize: vars.typography.fontSize.sm,
     lineHeight: vars.typography.lineHeight.tight,
     cursor: 'pointer',
     userSelect: 'none',
@@ -149,7 +149,8 @@ export const levelDotStyle = style({
 export const chipCountStyle = style({
   fontVariantNumeric: 'tabular-nums',
   color: vars.colors.text.muted,
-  fontSize: vars.typography.fontSize.xxs,
+  fontSize: vars.typography.fontSize.xs,
+  paddingLeft: vars.spacing.xs,
 });
 
 // ── Body / scroll viewport ──
@@ -184,9 +185,9 @@ export const scrollViewportStyle = style({
 export const bodyDensityRecipe = recipe({
   variants: {
     density: {
-      comfortable: { fontSize: vars.typography.fontSize.sm },
-      compact: { fontSize: vars.typography.fontSize.xs },
-      dense: { fontSize: vars.typography.fontSize.xxs },
+      comfortable: { fontSize: vars.typography.fontSize.md },
+      compact: { fontSize: vars.typography.fontSize.sm },
+      dense: { fontSize: vars.typography.fontSize.xs },
     },
   },
   defaultVariants: { density: 'compact' },
@@ -210,13 +211,19 @@ export const rowRecipe = recipe({
     boxSizing: 'border-box',
     display: 'flex',
     alignItems: 'flex-start',
-    gap: vars.spacing.sm,
+    gap: vars.spacing.md,
     width: '100%',
     minHeight: rowHeightVar,
-    padding: `0 ${vars.spacing.sm}`,
+    padding: `0 ${vars.spacing.md}`,
     borderLeft: `2px solid transparent`,
     color: vars.colors.text.primary,
+    transition: `background ${vars.transitions.fast}`,
     vars: { [levelColorVar]: vars.colors.text.secondary },
+    selectors: {
+      // Always highlight the hovered row so it's clear which line the per-line
+      // copy affordance belongs to.
+      '&:hover': { background: vars.colors.surface.hover },
+    },
   },
   variants: {
     level: {
@@ -237,12 +244,7 @@ export const rowRecipe = recipe({
       true: { position: 'absolute', top: 0, left: 0, right: 0 },
     },
     interactive: {
-      true: {
-        cursor: 'pointer',
-        selectors: {
-          '&:hover': { background: vars.colors.surface.hover },
-        },
-      },
+      true: { cursor: 'pointer' },
     },
     align: {
       // `center` for single-line rows, `flex-start` for wrapped rows.
@@ -259,7 +261,6 @@ export const timestampStyle = style({
   whiteSpace: 'pre',
   flexShrink: 0,
   userSelect: 'none',
-  paddingTop: '1px',
 });
 
 export const rowGlyphStyle = style({
@@ -268,8 +269,7 @@ export const rowGlyphStyle = style({
   justifyContent: 'center',
   color: levelColorVar,
   flexShrink: 0,
-  width: '14px',
-  paddingTop: '1px',
+  width: '18px',
 });
 
 /** Layout-only tweaks layered on the shared `<Badge>` used for the source tag. */
