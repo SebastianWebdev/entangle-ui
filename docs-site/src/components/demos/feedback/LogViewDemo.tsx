@@ -80,11 +80,16 @@ function makeBulk(count: number): LogEntry[] {
   return Array.from({ length: count }, () => randomEntry());
 }
 
-/** Batteries-included console with the default toolbar. */
+/** Batteries-included console with the default toolbar and row selection. */
 export default function LogViewDemo() {
   return (
     <DemoWrapper>
-      <LogView entries={SAMPLE} showTimestamps height={280} />
+      <LogView
+        entries={SAMPLE}
+        showTimestamps
+        selectionMode="multiple"
+        height={280}
+      />
     </DemoWrapper>
   );
 }
@@ -155,12 +160,12 @@ export function LogViewStreaming() {
   );
 }
 
-/** Search + level filtering over a larger, virtualized dataset. */
+/** Search + level filtering over a larger, virtualized dataset, with selection. */
 export function LogViewFiltering() {
   const entries = useMemo(() => makeBulk(600), []);
   return (
     <DemoWrapper>
-      <LogView entries={entries} height={320} />
+      <LogView entries={entries} selectionMode="multiple" height={320} />
     </DemoWrapper>
   );
 }

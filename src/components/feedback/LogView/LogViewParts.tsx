@@ -187,11 +187,11 @@ export const LogViewCopy = ({
   className,
   style,
   testId,
-  'aria-label': ariaLabel = 'Copy all visible logs',
+  'aria-label': ariaLabel = 'Copy logs',
   ref,
   ...rest
 }: LogViewCopyProps): React.ReactElement => {
-  const { getVisibleEntries, showTimestamps, formatTimestamp, onCopy } =
+  const { getCopyEntries, showTimestamps, formatTimestamp, onCopy } =
     useLogViewContext();
   const { copy } = useClipboard();
   return (
@@ -204,7 +204,7 @@ export const LogViewCopy = ({
       style={style}
       data-testid={testId}
       onClick={() => {
-        const text = entriesToText(getVisibleEntries(), {
+        const text = entriesToText(getCopyEntries(), {
           showTimestamps,
           formatTimestamp,
         });

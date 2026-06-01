@@ -597,6 +597,7 @@ export type {
   LogViewLevelFilterProps,
   LogViewProps,
   LogViewSearchProps,
+  LogViewSelectionMode,
   LogViewToolbarProps,
   LogViewVirtualizationMode,
   ResolvedLogEntry,

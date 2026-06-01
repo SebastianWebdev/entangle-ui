@@ -246,6 +246,16 @@ export const rowRecipe = recipe({
     interactive: {
       true: { cursor: 'pointer' },
     },
+    selected: {
+      true: {
+        background: `color-mix(in srgb, ${vars.colors.accent.primary} 22%, transparent)`,
+        selectors: {
+          '&:hover': {
+            background: `color-mix(in srgb, ${vars.colors.accent.primary} 30%, transparent)`,
+          },
+        },
+      },
+    },
     align: {
       // `center` for single-line rows, `flex-start` for wrapped rows.
       center: { alignItems: 'center' },

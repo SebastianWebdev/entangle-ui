@@ -71,6 +71,10 @@ const LogViewRoot = ({
   virtualizationThreshold = 100,
   estimatedRowHeight,
   overscan = 12,
+  selectionMode = false,
+  selectedIds: selectedIdsProp,
+  defaultSelectedIds,
+  onSelectionChange,
   height = 320,
   maxHeight,
   renderEntry,
@@ -186,12 +190,30 @@ const LogViewRoot = ({
     fallback: true,
   });
 
+  // ── Selection ──
+  const [selection, setSelection] = useControlledState<readonly string[]>({
+    value: selectedIdsProp,
+    defaultValue: defaultSelectedIds,
+    onChange: onSelectionChange as
+      | ((value: readonly string[]) => void)
+      | undefined,
+    fallback: [],
+  });
+  const selectedIds = useMemo(() => new Set(selection), [selection]);
+  const setSelectedIds = useCallback(
+    (ids: ReadonlySet<string>) => {
+      setSelection([...ids]);
+    },
+    [setSelection]
+  );
+
   // ── Actions ──
   const onClearRef = useLatest(onClear);
   const clearLog = useCallback(() => {
     if (!isControlledRef.current) store.clear();
+    setSelection([]);
     onClearRef.current?.();
-  }, [store, isControlledRef, onClearRef]);
+  }, [store, isControlledRef, onClearRef, setSelection]);
 
   const getVisibleEntries = useCallback(
     (): ResolvedLogEntry[] =>
@@ -203,6 +225,15 @@ const LogViewRoot = ({
       }),
     [store, queryRef, caseSensitive, knownLevels, activeLevels]
   );
+
+  const selectedIdsRef = useLatest(selectedIds);
+  const getCopyEntries = useCallback((): ResolvedLogEntry[] => {
+    const ids = selectedIdsRef.current;
+    if (ids.size > 0) {
+      return store.getEntries().filter(entry => ids.has(entry.id));
+    }
+    return getVisibleEntries();
+  }, [store, selectedIdsRef, getVisibleEntries]);
 
   // ── Imperative handle ──
   useImperativeHandle(
@@ -264,6 +295,9 @@ const LogViewRoot = ({
       virtualizationThreshold,
       estimatedRowHeight,
       overscan,
+      selectionMode,
+      selectedIds,
+      setSelectedIds,
       renderEntry,
       emptyState,
       onEntryClick,
@@ -271,6 +305,7 @@ const LogViewRoot = ({
       clearLog,
       bodyId,
       getVisibleEntries,
+      getCopyEntries,
     }),
     [
       store,
@@ -294,6 +329,9 @@ const LogViewRoot = ({
       virtualizationThreshold,
       estimatedRowHeight,
       overscan,
+      selectionMode,
+      selectedIds,
+      setSelectedIds,
       renderEntry,
       emptyState,
       onEntryClick,
@@ -301,6 +339,7 @@ const LogViewRoot = ({
       clearLog,
       bodyId,
       getVisibleEntries,
+      getCopyEntries,
     ]
   );
 

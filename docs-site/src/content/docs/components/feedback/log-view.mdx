@@ -101,6 +101,25 @@ LogView filters internally. The level chips multi-toggle visibility, and the sea
   <LogViewFiltering client:only="react" />
 </ComponentPreview>
 
+## Selection & copy
+
+There are three ways to copy. Every row has a per-line copy button on hover, and the toolbar copy button copies everything visible (or just the selection, when there is one). Set `selectionMode="multiple"` to enable row selection:
+
+- **Click** a line to select it.
+- **Cmd/Ctrl+Click** toggles a line in or out of the selection.
+- **Shift+Click** extends a range from the last selected line.
+- With a row focused: **Cmd/Ctrl+A** selects all visible, **Cmd/Ctrl+C** copies the selection, **Escape** clears it.
+
+Selection is controllable via `selectedIds` / `defaultSelectedIds` / `onSelectionChange`. Native text selection (drag + Ctrl+C) keeps working and takes precedence over row selection.
+
+```tsx
+<LogView
+  entries={entries}
+  selectionMode="multiple"
+  onSelectionChange={setIds}
+/>
+```
+
 ## Levels
 
 The four built-in levels — `debug`, `info`, `warn`, `error` — are themed automatically (errors and warnings carry an accent color and a left bar; info and debug stay quiet). The set is extensible: pass `levelConfig` to add or recolor levels, and `levelOrder` to control which chips appear and in what order.
@@ -158,7 +177,7 @@ Virtualization auto-engages above `virtualizationThreshold` (default 100) and ca
 - The scroll viewport is a `role="log"` region.
 - Level chips are toggle buttons with `aria-pressed`.
 - The per-line copy control appears on row hover and on focus.
-- When `onEntryClick` is set, rows become `role="button"` and respond to Enter / Space.
+- When rows are selectable (or `onEntryClick` is set) they become `role="button"`, are keyboard-focusable, expose `aria-pressed` for their selected state, and respond to Enter / Space and the selection shortcuts.
 
 ## Props
 
@@ -320,6 +339,28 @@ Virtualization auto-engages above `virtualizationThreshold` (default 100) and ca
       type: 'number',
       default: '12',
       description: 'Off-screen rows kept mounted.',
+    },
+    {
+      name: 'selectionMode',
+      type: "false | 'single' | 'multiple'",
+      default: 'false',
+      description:
+        'Row selection. `multiple` enables click / Cmd+click / Shift+click selection, with Cmd+A / Cmd+C / Escape on a focused row.',
+    },
+    {
+      name: 'selectedIds',
+      type: 'readonly string[]',
+      description: 'Controlled set of selected entry ids.',
+    },
+    {
+      name: 'defaultSelectedIds',
+      type: 'readonly string[]',
+      description: 'Default selected entry ids (uncontrolled).',
+    },
+    {
+      name: 'onSelectionChange',
+      type: '(selectedIds: string[]) => void',
+      description: 'Called when the selection changes.',
     },
     {
       name: 'height',

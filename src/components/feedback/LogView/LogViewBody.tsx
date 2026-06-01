@@ -42,6 +42,7 @@ import {
 } from './LogView.css';
 import { useLogEntries, useLogViewContext } from './LogViewContext';
 import {
+  entriesToText,
   entryToText,
   filterEntries,
   getHighlightSegments,
@@ -55,6 +56,19 @@ import type {
 } from './LogView.types';
 import type { ResolvedLevelDefinition } from './logViewLevels';
 
+/** True when the user has an active (non-collapsed) text selection. */
+function hasTextSelection(): boolean {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.getSelection !== 'function'
+  )
+    return false;
+  const selection = window.getSelection();
+  return (
+    selection !== null && !selection.isCollapsed && selection.toString() !== ''
+  );
+}
+
 interface LogRowProps {
   entry: ResolvedLogEntry;
   index: number;
@@ -66,8 +80,19 @@ interface LogRowProps {
   formatTimestamp: (timestamp: number | Date) => string;
   showSource: boolean;
   interactive: boolean;
+  selectable: boolean;
+  selected: boolean;
   renderEntry: ((info: LogEntryRenderInfo) => React.ReactNode) | undefined;
-  onActivate: ((entry: ResolvedLogEntry, index: number) => void) | undefined;
+  onRowClick: (
+    entry: ResolvedLogEntry,
+    index: number,
+    event: React.MouseEvent | React.KeyboardEvent
+  ) => void;
+  onRowKeyDown: (
+    entry: ResolvedLogEntry,
+    index: number,
+    event: React.KeyboardEvent<HTMLDivElement>
+  ) => void;
   onCopyLine: (entry: ResolvedLogEntry) => void;
   virtualized: boolean;
   start: number;
@@ -86,8 +111,11 @@ const LogRow = memo(function LogRow({
   formatTimestamp,
   showSource,
   interactive,
+  selectable,
+  selected,
   renderEntry,
-  onActivate,
+  onRowClick,
+  onRowKeyDown,
   onCopyLine,
   virtualized,
   start,
@@ -106,14 +134,13 @@ const LogRow = memo(function LogRow({
   }
 
   const handleClick = interactive
-    ? () => onActivate?.(entry, index)
+    ? (event: React.MouseEvent<HTMLDivElement>) => {
+        onRowClick(entry, index, event);
+      }
     : undefined;
   const handleKeyDown = interactive
     ? (event: React.KeyboardEvent<HTMLDivElement>) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          onActivate?.(entry, index);
-        }
+        onRowKeyDown(entry, index, event);
       }
     : undefined;
 
@@ -126,13 +153,16 @@ const LogRow = memo(function LogRow({
       data-log-row
       data-log-copy-host
       data-level={entry.level}
+      data-selected={selected || undefined}
       role={interactive ? 'button' : undefined}
       tabIndex={interactive ? 0 : undefined}
+      aria-pressed={selectable ? selected : undefined}
       className={cx(
         rowRecipe({
           level: levelKind as 'debug' | 'info' | 'warn' | 'error' | 'custom',
           virtualized: virtualized || undefined,
           interactive: interactive || undefined,
+          selected: selected || undefined,
           align: wrap ? 'start' : 'center',
         })
       )}
@@ -219,6 +249,10 @@ export const LogViewBody = ({
     virtualizationThreshold,
     estimatedRowHeight,
     overscan,
+    selectionMode,
+    selectedIds,
+    setSelectedIds,
+    getCopyEntries,
     renderEntry,
     emptyState,
     onEntryClick,
@@ -319,7 +353,109 @@ export const LogViewBody = ({
     [copy, showTimestamps, formatTimestamp, onCopyRef]
   );
 
-  const interactive = onEntryClick !== undefined;
+  const selectable = selectionMode !== false;
+  const interactive = selectable || onEntryClick !== undefined;
+
+  const anchorRef = useRef<number | null>(null);
+  const filteredRef = useLatest(filtered);
+  const selectedIdsRef = useLatest(selectedIds);
+  const onEntryClickRef = useLatest(onEntryClick);
+
+  const handleRowClick = useCallback(
+    (
+      entry: ResolvedLogEntry,
+      index: number,
+      event: React.MouseEvent | React.KeyboardEvent
+    ) => {
+      // Don't treat a drag-to-select-text gesture as a row click.
+      if (hasTextSelection()) return;
+      onEntryClickRef.current?.(entry, index);
+      if (selectionMode === false) return;
+
+      const { id } = entry;
+      if (selectionMode === 'single') {
+        anchorRef.current = index;
+        setSelectedIds(new Set([id]));
+        return;
+      }
+
+      if (event.shiftKey && anchorRef.current !== null) {
+        const list = filteredRef.current;
+        const from = Math.min(anchorRef.current, index);
+        const to = Math.max(anchorRef.current, index);
+        const range = new Set<string>();
+        for (let i = from; i <= to; i += 1) {
+          const rangeEntry = list[i];
+          if (rangeEntry) range.add(rangeEntry.id);
+        }
+        setSelectedIds(range);
+      } else if (event.metaKey || event.ctrlKey) {
+        const next = new Set(selectedIdsRef.current);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        anchorRef.current = index;
+        setSelectedIds(next);
+      } else {
+        anchorRef.current = index;
+        setSelectedIds(new Set([id]));
+      }
+    },
+    [
+      selectionMode,
+      setSelectedIds,
+      filteredRef,
+      selectedIdsRef,
+      onEntryClickRef,
+    ]
+  );
+
+  const copySelectionOrVisible = useCallback(() => {
+    const entries = getCopyEntries();
+    if (entries.length === 0) return;
+    const text = entriesToText(entries, { showTimestamps, formatTimestamp });
+    void copy(text);
+    onCopyRef.current?.(text);
+  }, [getCopyEntries, showTimestamps, formatTimestamp, copy, onCopyRef]);
+
+  const handleRowKeyDown = useCallback(
+    (
+      entry: ResolvedLogEntry,
+      index: number,
+      event: React.KeyboardEvent<HTMLDivElement>
+    ) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        handleRowClick(entry, index, event);
+        return;
+      }
+      const meta = event.metaKey || event.ctrlKey;
+      if (meta && (event.key === 'c' || event.key === 'C')) {
+        // Let the browser copy an active text selection instead.
+        if (hasTextSelection() || selectedIdsRef.current.size === 0) return;
+        event.preventDefault();
+        copySelectionOrVisible();
+        return;
+      }
+      if (selectionMode === false) return;
+      if (meta && (event.key === 'a' || event.key === 'A')) {
+        event.preventDefault();
+        setSelectedIds(new Set(filteredRef.current.map(item => item.id)));
+        return;
+      }
+      if (event.key === 'Escape' && selectedIdsRef.current.size > 0) {
+        event.preventDefault();
+        setSelectedIds(new Set());
+      }
+    },
+    [
+      handleRowClick,
+      selectionMode,
+      copySelectionOrVisible,
+      filteredRef,
+      selectedIdsRef,
+      setSelectedIds,
+    ]
+  );
 
   const renderRow = (entry: ResolvedLogEntry, index: number, start: number) => (
     <LogRow
@@ -334,8 +470,11 @@ export const LogViewBody = ({
       formatTimestamp={formatTimestamp}
       showSource={showSource}
       interactive={interactive}
+      selectable={selectable}
+      selected={selectedIds.has(entry.id)}
       renderEntry={renderEntry}
-      onActivate={onEntryClick}
+      onRowClick={handleRowClick}
+      onRowKeyDown={handleRowKeyDown}
       onCopyLine={handleCopyLine}
       virtualized={shouldVirtualize}
       start={start}

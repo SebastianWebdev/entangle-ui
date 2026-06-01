@@ -161,7 +161,7 @@ describe('LogView', () => {
         screen.getByRole('button', { name: 'Clear logs' })
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'Copy all visible logs' })
+        screen.getByRole('button', { name: 'Copy logs' })
       ).toBeInTheDocument();
     });
 
@@ -332,9 +332,7 @@ describe('LogView', () => {
       renderWithTheme(
         <LogView entries={ENTRIES} virtualized={false} onCopy={onCopy} />
       );
-      fireEvent.click(
-        screen.getByRole('button', { name: 'Copy all visible logs' })
-      );
+      fireEvent.click(screen.getByRole('button', { name: 'Copy logs' }));
       expect(onCopy).toHaveBeenCalledTimes(1);
       const copied = onCopy.mock.calls[0]?.[0] as string;
       expect(copied).toContain('connection refused');
@@ -355,6 +353,111 @@ describe('LogView', () => {
       fireEvent.click(firstRow as HTMLElement);
       expect(onEntryClick).toHaveBeenCalledTimes(1);
       expect(onEntryClick.mock.calls[0]?.[0]).toMatchObject({ id: '1' });
+    });
+  });
+
+  describe('Selection', () => {
+    it('does not select on click by default (selectionMode false)', () => {
+      const { container } = renderWithTheme(
+        <LogView entries={ENTRIES} virtualized={false} />
+      );
+      fireEvent.click(rows(container)[0] as HTMLElement);
+      expect(
+        container.querySelector('[data-log-row][data-selected]')
+      ).toBeNull();
+    });
+
+    it('selects a single row on click in multiple mode', () => {
+      const { container } = renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          selectionMode="multiple"
+        />
+      );
+      fireEvent.click(rows(container)[1] as HTMLElement);
+      const selected = container.querySelectorAll('[data-selected]');
+      expect(selected).toHaveLength(1);
+      expect(rows(container)[1]).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('replaces selection on a plain second click', () => {
+      const { container } = renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          selectionMode="multiple"
+        />
+      );
+      fireEvent.click(rows(container)[0] as HTMLElement);
+      fireEvent.click(rows(container)[2] as HTMLElement);
+      const selected = container.querySelectorAll('[data-selected]');
+      expect(selected).toHaveLength(1);
+      expect(rows(container)[2]).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('toggles rows with Cmd/Ctrl+click', () => {
+      const { container } = renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          selectionMode="multiple"
+        />
+      );
+      fireEvent.click(rows(container)[0] as HTMLElement);
+      fireEvent.click(rows(container)[2] as HTMLElement, { ctrlKey: true });
+      expect(container.querySelectorAll('[data-selected]')).toHaveLength(2);
+      fireEvent.click(rows(container)[0] as HTMLElement, { ctrlKey: true });
+      expect(container.querySelectorAll('[data-selected]')).toHaveLength(1);
+    });
+
+    it('selects a range with Shift+click', () => {
+      const { container } = renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          selectionMode="multiple"
+        />
+      );
+      fireEvent.click(rows(container)[0] as HTMLElement);
+      fireEvent.click(rows(container)[2] as HTMLElement, { shiftKey: true });
+      expect(container.querySelectorAll('[data-selected]')).toHaveLength(3);
+    });
+
+    it('reports selection via onSelectionChange', () => {
+      const onSelectionChange = vi.fn();
+      const { container } = renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          selectionMode="multiple"
+          onSelectionChange={onSelectionChange}
+        />
+      );
+      fireEvent.click(rows(container)[3] as HTMLElement);
+      expect(onSelectionChange).toHaveBeenCalledWith(['4']);
+    });
+
+    it('copy button copies the selection when present, else all', () => {
+      const onCopy = vi.fn();
+      const { container } = renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          selectionMode="multiple"
+          onCopy={onCopy}
+        />
+      );
+      // No selection → copies all four lines.
+      fireEvent.click(screen.getByRole('button', { name: 'Copy logs' }));
+      expect((onCopy.mock.calls[0]?.[0] as string).split('\n')).toHaveLength(4);
+
+      // Select one row → copies just that line.
+      fireEvent.click(rows(container)[3] as HTMLElement);
+      fireEvent.click(screen.getByRole('button', { name: 'Copy logs' }));
+      const copied = onCopy.mock.calls[1]?.[0] as string;
+      expect(copied).toContain('connection refused');
+      expect(copied.split('\n')).toHaveLength(1);
     });
   });
 

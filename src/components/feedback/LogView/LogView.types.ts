@@ -24,6 +24,14 @@ export type LogViewDensity = 'comfortable' | 'compact' | 'dense';
 export type LogViewVirtualizationMode = boolean | 'auto';
 
 /**
+ * Row selection mode.
+ * - `false` — rows are not selectable (default).
+ * - `'single'` — one row at a time.
+ * - `'multiple'` — click selects, Cmd/Ctrl+click toggles, Shift+click extends a range.
+ */
+export type LogViewSelectionMode = false | 'single' | 'multiple';
+
+/**
  * A single log line.
  *
  * `id` is optional but recommended for stable virtualization keys; when
@@ -205,6 +213,21 @@ export interface LogViewBaseProps extends Omit<
   /** Off-screen rows kept mounted. @default 12 */
   overscan?: number;
 
+  // ── Selection ──
+  /**
+   * Row selection mode. With `'multiple'`, click selects a line, Cmd/Ctrl+click
+   * toggles it, and Shift+click extends a range. Selected lines highlight and
+   * can be copied (Cmd/Ctrl+C, or the toolbar copy button); Cmd/Ctrl+A selects
+   * all visible, Escape clears. @default false
+   */
+  selectionMode?: LogViewSelectionMode;
+  /** Controlled set of selected entry ids. */
+  selectedIds?: readonly string[];
+  /** Default selected entry ids (uncontrolled). */
+  defaultSelectedIds?: readonly string[];
+  /** Called when the selection changes. */
+  onSelectionChange?: (selectedIds: string[]) => void;
+
   // ── Sizing ──
   /** Body height (the scroll viewport). @default 320 */
   height?: number | string;
@@ -265,7 +288,7 @@ export interface LogViewCopyProps extends Omit<
 > {
   /** Override the button content (defaults to a copy icon). */
   children?: React.ReactNode;
-  /** Accessible label. @default "Copy all visible logs" */
+  /** Accessible label. @default "Copy logs" */
   'aria-label'?: string;
 }
 

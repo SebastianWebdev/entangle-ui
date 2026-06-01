@@ -8,7 +8,9 @@ efficiently via `@tanstack/react-virtual`, with per-level coloring (built-in
 `debug | info | warn | error` plus an extensible `levelConfig`), level filter
 chips with live counts, text search with `useDeferredValue` and match
 highlighting, follow-tail auto-scroll with a jump-to-bottom affordance,
-optional timestamps and source tags, and per-line / copy-all support.
+optional timestamps and source tags, and per-line / copy-all support. Optional
+row selection (`selectionMode="multiple"`) with click / Cmd-click / Shift-click,
+keyboard shortcuts (Cmd/Ctrl+A, Cmd/Ctrl+C, Escape), and selection-aware copy.
 
 Supports two data-flow models: a controlled `entries` prop, or an uncontrolled
 imperative handle (`ref.append` / `appendMany` / `clear`) whose writes are

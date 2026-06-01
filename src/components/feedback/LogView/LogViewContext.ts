@@ -6,6 +6,7 @@ import type {
   LogEntryRenderInfo,
   LogLevel,
   LogViewDensity,
+  LogViewSelectionMode,
   LogViewVirtualizationMode,
   ResolvedLogEntry,
 } from './LogView.types';
@@ -59,6 +60,11 @@ export interface LogViewContextValue {
   renderEntry: ((info: LogEntryRenderInfo) => React.ReactNode) | undefined;
   emptyState: React.ReactNode;
 
+  // Selection
+  selectionMode: LogViewSelectionMode;
+  selectedIds: ReadonlySet<string>;
+  setSelectedIds: (ids: ReadonlySet<string>) => void;
+
   // Events / actions
   onEntryClick: ((entry: ResolvedLogEntry, index: number) => void) | undefined;
   onCopy: ((text: string) => void) | undefined;
@@ -69,6 +75,8 @@ export interface LogViewContextValue {
 
   /** Compute the currently-visible (filtered) entries on demand (used by Copy). */
   getVisibleEntries: () => ResolvedLogEntry[];
+  /** Entries to copy: the current selection if non-empty, else all visible. */
+  getCopyEntries: () => ResolvedLogEntry[];
 }
 
 export const LogViewContext =
