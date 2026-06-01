@@ -49,6 +49,7 @@ export const BreadcrumbItem = /*#__PURE__*/ React.memo<BreadcrumbItemProps>(
     isCurrent = false,
     icon,
     maxLength,
+    endContent,
     children,
     className,
     style,
@@ -132,6 +133,7 @@ export const BreadcrumbItem = /*#__PURE__*/ React.memo<BreadcrumbItemProps>(
         ) : (
           inner
         )}
+        {endContent}
       </li>
     );
   }
