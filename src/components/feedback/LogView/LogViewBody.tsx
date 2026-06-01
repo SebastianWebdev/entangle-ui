@@ -1,0 +1,415 @@
+'use client';
+
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { assignInlineVars } from '@vanilla-extract/dynamic';
+import React, {
+  memo,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
+
+import { ArrowDownIcon } from '@/components/Icons/ArrowDownIcon';
+import { CopyIcon } from '@/components/Icons/CopyIcon';
+import { IconButton } from '@/components/primitives/IconButton';
+import { useClipboard } from '@/hooks/useClipboard';
+import { useLatest } from '@/hooks/useLatest';
+import { cx } from '@/utils/cx';
+
+import {
+  DENSITY_ROW_HEIGHT,
+  bodyDensityRecipe,
+  bodyStyle,
+  copyLineButtonStyle,
+  emptyStateStyle,
+  highlightStyle,
+  jumpBadgeStyle,
+  jumpButtonRecipe,
+  levelColorVar,
+  messageRecipe,
+  plainBodyStyle,
+  rowGlyphStyle,
+  rowRecipe,
+  scrollViewportStyle,
+  sourceTagStyle,
+  timestampStyle,
+  totalHeightVar,
+  virtualBodyStyle,
+} from './LogView.css';
+import { useLogEntries, useLogViewContext } from './LogViewContext';
+import {
+  entryToText,
+  filterEntries,
+  getHighlightSegments,
+} from './logViewUtils';
+import { useFollowTail } from './useFollowTail';
+
+import type {
+  LogEntryRenderInfo,
+  LogViewBodyProps,
+  ResolvedLogEntry,
+} from './LogView.types';
+import type { ResolvedLevelDefinition } from './logViewLevels';
+
+interface LogRowProps {
+  entry: ResolvedLogEntry;
+  index: number;
+  query: string;
+  caseSensitive: boolean;
+  levelDef: ResolvedLevelDefinition;
+  wrap: boolean;
+  showTimestamps: boolean;
+  formatTimestamp: (timestamp: number | Date) => string;
+  showSource: boolean;
+  interactive: boolean;
+  renderEntry: ((info: LogEntryRenderInfo) => React.ReactNode) | undefined;
+  onActivate: ((entry: ResolvedLogEntry, index: number) => void) | undefined;
+  onCopyLine: (entry: ResolvedLogEntry) => void;
+  virtualized: boolean;
+  start: number;
+  measureRef?: (node: Element | null) => void;
+}
+
+/** A single log line. Memoized so scrolling only renders newly-visible rows. */
+const LogRow = memo(function LogRow({
+  entry,
+  index,
+  query,
+  caseSensitive,
+  levelDef,
+  wrap,
+  showTimestamps,
+  formatTimestamp,
+  showSource,
+  interactive,
+  renderEntry,
+  onActivate,
+  onCopyLine,
+  virtualized,
+  start,
+  measureRef,
+}: LogRowProps): React.ReactElement {
+  const levelKind = levelDef.isBuiltIn ? entry.level : 'custom';
+  const Icon = levelDef.icon;
+
+  const rowStyle: React.CSSProperties = {};
+  if (virtualized) rowStyle.transform = `translateY(${start}px)`;
+  if (!levelDef.isBuiltIn && levelDef.color !== undefined) {
+    Object.assign(
+      rowStyle,
+      assignInlineVars({ [levelColorVar]: levelDef.color })
+    );
+  }
+
+  const handleClick = interactive
+    ? () => onActivate?.(entry, index)
+    : undefined;
+  const handleKeyDown = interactive
+    ? (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onActivate?.(entry, index);
+        }
+      }
+    : undefined;
+
+  const segments = getHighlightSegments(entry.message, query, caseSensitive);
+
+  return (
+    <div
+      ref={measureRef}
+      data-index={index}
+      data-log-row
+      data-log-copy-host
+      data-level={entry.level}
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      className={cx(
+        rowRecipe({
+          level: levelKind as 'debug' | 'info' | 'warn' | 'error' | 'custom',
+          virtualized: virtualized || undefined,
+          interactive: interactive || undefined,
+          align: wrap ? 'start' : 'center',
+        })
+      )}
+      style={rowStyle}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+    >
+      {showTimestamps && entry.timestamp != null && (
+        <span className={timestampStyle}>
+          {formatTimestamp(entry.timestamp)}
+        </span>
+      )}
+
+      <span className={rowGlyphStyle} aria-hidden="true">
+        {Icon ? <Icon size="sm" /> : null}
+      </span>
+
+      {showSource && entry.source != null && entry.source !== '' && (
+        <span className={sourceTagStyle}>{entry.source}</span>
+      )}
+
+      <span className={messageRecipe({ wrap })}>
+        {renderEntry
+          ? renderEntry({ entry, index, query })
+          : segments.map((segment, i) =>
+              segment.match ? (
+                <mark key={i} className={highlightStyle}>
+                  {segment.text}
+                </mark>
+              ) : (
+                <React.Fragment key={i}>{segment.text}</React.Fragment>
+              )
+            )}
+      </span>
+
+      <span className={copyLineButtonStyle} data-log-copy>
+        <IconButton
+          aria-label="Copy line"
+          size="sm"
+          variant="ghost"
+          onClick={event => {
+            event.stopPropagation();
+            onCopyLine(entry);
+          }}
+        >
+          <CopyIcon size="sm" />
+        </IconButton>
+      </span>
+    </div>
+  );
+});
+
+/**
+ * The virtualized log body. Reads the entry stream from the store, applies the
+ * deferred search + level filter, and renders only the visible window via
+ * `@tanstack/react-virtual` (mirroring `DataTable`). Owns follow-tail behavior
+ * and the floating jump-to-bottom button.
+ */
+export const LogViewBody = ({
+  className,
+  style,
+  testId,
+  ref,
+  ...rest
+}: LogViewBodyProps): React.ReactElement => {
+  const ctx = useLogViewContext();
+  const {
+    store,
+    query,
+    caseSensitive,
+    activeLevels,
+    knownLevels,
+    follow,
+    setFollow,
+    getLevelDefinition,
+    wrap,
+    density,
+    showTimestamps,
+    formatTimestamp,
+    showSource,
+    virtualized,
+    virtualizationThreshold,
+    estimatedRowHeight,
+    overscan,
+    height,
+    maxHeight,
+    renderEntry,
+    emptyState,
+    onEntryClick,
+    onCopy,
+    bodyId,
+  } = ctx;
+
+  const entries = useLogEntries(store);
+  const deferredQuery = useDeferredValue(query);
+
+  const allLevelsActive = useMemo(() => {
+    for (const level of knownLevels) {
+      if (!activeLevels.has(level)) return false;
+    }
+    return true;
+  }, [knownLevels, activeLevels]);
+
+  const filtered = useMemo<readonly ResolvedLogEntry[]>(() => {
+    if (deferredQuery.trim() === '' && allLevelsActive) return entries;
+    return filterEntries(entries, {
+      query: deferredQuery,
+      caseSensitive,
+      knownLevels,
+      activeLevels,
+    });
+  }, [
+    entries,
+    deferredQuery,
+    caseSensitive,
+    knownLevels,
+    activeLevels,
+    allLevelsActive,
+  ]);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const shouldVirtualize =
+    virtualized === true ||
+    (virtualized === 'auto' && filtered.length > virtualizationThreshold);
+
+  const rowHeightPx = estimatedRowHeight ?? DENSITY_ROW_HEIGHT[density];
+
+  // TanStack Virtual returns functions that can't be memoized; the Compiler
+  // flags it as an incompatible library. Reads are imperative per render.
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const virtualizer = useVirtualizer({
+    count: shouldVirtualize ? filtered.length : 0,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => rowHeightPx,
+    overscan,
+  });
+
+  const virtualItems = shouldVirtualize ? virtualizer.getVirtualItems() : [];
+  const totalSize = shouldVirtualize ? virtualizer.getTotalSize() : 0;
+
+  const { scrollToBottom, isDetached, newSinceDetach } = useFollowTail({
+    scrollRef,
+    follow,
+    setFollow,
+    entryCount: filtered.length,
+  });
+
+  // Let the imperative handle's scrollToBottom reach this body.
+  useEffect(
+    () => store.registerScroller(scrollToBottom),
+    [store, scrollToBottom]
+  );
+
+  // Let the imperative handle's scrollToIndex reach this body.
+  const scrollToIndex = useCallback(
+    (index: number) => {
+      if (shouldVirtualize) {
+        virtualizer.scrollToIndex(index, { align: 'auto' });
+        return;
+      }
+      const el = scrollRef.current?.querySelector<HTMLElement>(
+        `[data-index="${index}"]`
+      );
+      el?.scrollIntoView({ block: 'nearest' });
+    },
+    [shouldVirtualize, virtualizer]
+  );
+
+  useEffect(
+    () => store.registerScrollToIndex(scrollToIndex),
+    [store, scrollToIndex]
+  );
+
+  const { copy } = useClipboard();
+  const onCopyRef = useLatest(onCopy);
+
+  const handleCopyLine = useCallback(
+    (entry: ResolvedLogEntry) => {
+      const text = entryToText(entry, { showTimestamps, formatTimestamp });
+      void copy(text);
+      onCopyRef.current?.(text);
+    },
+    [copy, showTimestamps, formatTimestamp, onCopyRef]
+  );
+
+  const interactive = onEntryClick !== undefined;
+
+  const renderRow = (entry: ResolvedLogEntry, index: number, start: number) => (
+    <LogRow
+      key={entry.id}
+      entry={entry}
+      index={index}
+      query={deferredQuery}
+      caseSensitive={caseSensitive}
+      levelDef={getLevelDefinition(entry.level)}
+      wrap={wrap}
+      showTimestamps={showTimestamps}
+      formatTimestamp={formatTimestamp}
+      showSource={showSource}
+      interactive={interactive}
+      renderEntry={renderEntry}
+      onActivate={onEntryClick}
+      onCopyLine={handleCopyLine}
+      virtualized={shouldVirtualize}
+      start={start}
+      measureRef={
+        shouldVirtualize && wrap ? virtualizer.measureElement : undefined
+      }
+    />
+  );
+
+  const isEmpty = filtered.length === 0;
+
+  const viewportStyle: React.CSSProperties = {
+    height: typeof height === 'number' ? `${height}px` : height,
+    ...(maxHeight !== undefined
+      ? {
+          maxHeight:
+            typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
+        }
+      : {}),
+    ...style,
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={cx(bodyStyle, bodyDensityRecipe({ density }), className)}
+      style={viewportStyle}
+      data-testid={testId}
+      {...rest}
+    >
+      <div
+        ref={scrollRef}
+        id={bodyId}
+        role="log"
+        aria-label="Log output"
+        aria-live="off"
+        className={scrollViewportStyle}
+      >
+        {isEmpty ? (
+          <div className={emptyStateStyle}>
+            {emptyState ?? 'No log entries'}
+          </div>
+        ) : shouldVirtualize ? (
+          <div
+            className={virtualBodyStyle}
+            style={assignInlineVars({ [totalHeightVar]: `${totalSize}px` })}
+          >
+            {virtualItems.map(item => {
+              const entry = filtered[item.index];
+              if (entry === undefined) return null;
+              return renderRow(entry, item.index, item.start);
+            })}
+          </div>
+        ) : (
+          <div className={plainBodyStyle}>
+            {filtered.map((entry, index) => renderRow(entry, index, 0))}
+          </div>
+        )}
+      </div>
+
+      <button
+        type="button"
+        aria-label="Jump to bottom"
+        className={jumpButtonRecipe({ visible: isDetached || undefined })}
+        onClick={scrollToBottom}
+        tabIndex={isDetached ? 0 : -1}
+        aria-hidden={!isDetached}
+      >
+        <ArrowDownIcon size="sm" />
+        {newSinceDetach > 0 ? (
+          <span className={jumpBadgeStyle}>{newSinceDetach}</span>
+        ) : null}
+        <span>{newSinceDetach > 0 ? 'new' : 'Jump to bottom'}</span>
+      </button>
+    </div>
+  );
+};
+
+LogViewBody.displayName = 'LogView.Body';

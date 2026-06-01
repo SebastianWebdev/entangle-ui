@@ -1,0 +1,401 @@
+'use client';
+
+import React, {
+  useCallback,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
+
+import { useControlledState } from '@/hooks/useControlledState';
+import { useLatest } from '@/hooks/useLatest';
+import { useMergedRef } from '@/hooks/useMergedRef';
+import { cx } from '@/utils/cx';
+import { devWarn } from '@/utils/devWarn';
+
+import { rootRecipe, toolbarSpacerStyle } from './LogView.css';
+import { LogViewBody } from './LogViewBody';
+import { LogViewContext } from './LogViewContext';
+import { resolveLevelDefinition, resolveLevelOrder } from './logViewLevels';
+import {
+  LogViewClear,
+  LogViewCopy,
+  LogViewLevelFilter,
+  LogViewSearch,
+  LogViewToolbar,
+} from './LogViewParts';
+import { LogViewStore } from './LogViewStore';
+import { defaultFormatTimestamp, filterEntries } from './logViewUtils';
+
+import type {
+  LogEntry,
+  LogLevel,
+  LogViewHandle,
+  LogViewProps,
+  ResolvedLogEntry,
+} from './LogView.types';
+import type { LogViewContextValue } from './LogViewContext';
+import type { ResolvedLevelDefinition } from './logViewLevels';
+
+const LogViewRoot = ({
+  entries,
+  defaultEntries,
+  maxEntries,
+  getEntryId,
+  query: queryProp,
+  defaultQuery,
+  onQueryChange,
+  caseSensitive = false,
+  levels: levelsProp,
+  defaultLevels,
+  onLevelsChange,
+  levelConfig,
+  levelOrder: levelOrderProp,
+  follow: followProp,
+  defaultFollow = true,
+  onFollowChange,
+  wrap = false,
+  density = 'compact',
+  showTimestamps = false,
+  formatTimestamp = defaultFormatTimestamp,
+  showSource = true,
+  showToolbar = true,
+  showSearch = true,
+  showLevelFilter = true,
+  showClear = true,
+  showCopy = true,
+  virtualized = 'auto',
+  virtualizationThreshold = 100,
+  estimatedRowHeight,
+  overscan = 12,
+  height = 320,
+  maxHeight,
+  renderEntry,
+  emptyState,
+  onClear,
+  onEntryClick,
+  onCopy,
+  children,
+  className,
+  style,
+  testId,
+  ref,
+  'aria-label': ariaLabel = 'Log output',
+  ...rest
+}: LogViewProps): React.ReactElement => {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const setRootRef = useMergedRef<HTMLDivElement>(rootRef);
+  const bodyId = useId();
+
+  // One store per LogView instance. Created once; later prop changes flow
+  // through the effects below (the same per-instance store pattern as Viewport).
+  const store = useMemo(
+    () =>
+      new LogViewStore({
+        initial: entries ?? defaultEntries,
+        maxEntries,
+        getEntryId,
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- store is created once; prop updates are mirrored via effects.
+    []
+  );
+
+  const isControlled = entries !== undefined;
+  const isControlledRef = useLatest(isControlled);
+
+  // Mirror the controlled entries prop into the store.
+  useLayoutEffect(() => {
+    if (entries !== undefined) store.setEntries(entries);
+  }, [entries, store]);
+
+  useEffect(() => {
+    store.setMaxEntries(maxEntries);
+  }, [maxEntries, store]);
+
+  useEffect(() => {
+    store.setGetEntryId(getEntryId);
+  }, [getEntryId, store]);
+
+  useEffect(
+    () => () => {
+      store.dispose();
+    },
+    [store]
+  );
+
+  // ── Levels ──
+  const levelOrder = useMemo(
+    () => resolveLevelOrder(levelConfig, levelOrderProp),
+    [levelConfig, levelOrderProp]
+  );
+
+  const [levels, setLevels] = useControlledState<readonly LogLevel[]>({
+    value: levelsProp,
+    defaultValue: defaultLevels,
+    onChange: onLevelsChange as
+      | ((value: readonly LogLevel[]) => void)
+      | undefined,
+    fallback: levelOrder,
+  });
+
+  const knownLevels = useMemo(
+    () => new Set<LogLevel>(levelOrder),
+    [levelOrder]
+  );
+  const activeLevels = useMemo(() => new Set<LogLevel>(levels), [levels]);
+
+  const isLevelActive = useCallback(
+    (level: LogLevel) => activeLevels.has(level),
+    [activeLevels]
+  );
+
+  const toggleLevel = useCallback(
+    (level: LogLevel) => {
+      setLevels(prev => {
+        const set = new Set(prev);
+        if (set.has(level)) set.delete(level);
+        else set.add(level);
+        return [...set];
+      });
+    },
+    [setLevels]
+  );
+
+  const getLevelDefinition = useCallback(
+    (level: LogLevel): ResolvedLevelDefinition =>
+      resolveLevelDefinition(level, levelConfig),
+    [levelConfig]
+  );
+
+  // ── Filter / follow state ──
+  const [query, setQuery] = useControlledState<string>({
+    value: queryProp,
+    defaultValue: defaultQuery,
+    onChange: onQueryChange,
+    fallback: '',
+  });
+  const queryRef = useLatest(query);
+
+  const [follow, setFollow] = useControlledState<boolean>({
+    value: followProp,
+    defaultValue: defaultFollow,
+    onChange: onFollowChange,
+    fallback: true,
+  });
+
+  // ── Actions ──
+  const onClearRef = useLatest(onClear);
+  const clearLog = useCallback(() => {
+    if (!isControlledRef.current) store.clear();
+    onClearRef.current?.();
+  }, [store, isControlledRef, onClearRef]);
+
+  const getVisibleEntries = useCallback(
+    (): ResolvedLogEntry[] =>
+      filterEntries(store.getEntries(), {
+        query: queryRef.current,
+        caseSensitive,
+        knownLevels,
+        activeLevels,
+      }),
+    [store, queryRef, caseSensitive, knownLevels, activeLevels]
+  );
+
+  // ── Imperative handle ──
+  useImperativeHandle(
+    ref,
+    (): LogViewHandle => ({
+      append: (entry: LogEntry) => {
+        if (isControlledRef.current) {
+          devWarn(
+            '[LogView] handle.append() is a no-op while `entries` is controlled. ' +
+              'Append to your `entries` state instead, or drop the prop to go uncontrolled.'
+          );
+          return;
+        }
+        store.append(entry);
+      },
+      appendMany: (next: readonly LogEntry[]) => {
+        if (isControlledRef.current) {
+          devWarn(
+            '[LogView] handle.appendMany() is a no-op while `entries` is controlled.'
+          );
+          return;
+        }
+        store.appendMany(next);
+      },
+      clear: clearLog,
+      scrollToBottom: () => {
+        store.scrollToBottom();
+      },
+      scrollToIndex: (index: number) => {
+        store.scrollToIndex(index);
+      },
+      getEntries: () => store.getEntries(),
+      getElement: () => rootRef.current,
+    }),
+    [store, isControlledRef, clearLog]
+  );
+
+  // ── Context ──
+  const contextValue = useMemo<LogViewContextValue>(
+    () => ({
+      store,
+      query,
+      setQuery,
+      caseSensitive,
+      activeLevels,
+      knownLevels,
+      isLevelActive,
+      toggleLevel,
+      follow,
+      setFollow,
+      levelOrder,
+      getLevelDefinition,
+      wrap,
+      density,
+      showTimestamps,
+      formatTimestamp,
+      showSource,
+      virtualized,
+      virtualizationThreshold,
+      estimatedRowHeight,
+      overscan,
+      height,
+      maxHeight,
+      renderEntry,
+      emptyState,
+      onEntryClick,
+      onCopy,
+      clearLog,
+      bodyId,
+      getVisibleEntries,
+    }),
+    [
+      store,
+      query,
+      setQuery,
+      caseSensitive,
+      activeLevels,
+      knownLevels,
+      isLevelActive,
+      toggleLevel,
+      follow,
+      setFollow,
+      levelOrder,
+      getLevelDefinition,
+      wrap,
+      density,
+      showTimestamps,
+      formatTimestamp,
+      showSource,
+      virtualized,
+      virtualizationThreshold,
+      estimatedRowHeight,
+      overscan,
+      height,
+      maxHeight,
+      renderEntry,
+      emptyState,
+      onEntryClick,
+      onCopy,
+      clearLog,
+      bodyId,
+      getVisibleEntries,
+    ]
+  );
+
+  const defaultComposition = (
+    <>
+      {showToolbar && (
+        <LogViewToolbar>
+          {showSearch && <LogViewSearch />}
+          {showLevelFilter && <LogViewLevelFilter />}
+          <div className={toolbarSpacerStyle} />
+          {showCopy && <LogViewCopy />}
+          {showClear && <LogViewClear />}
+        </LogViewToolbar>
+      )}
+      <LogViewBody />
+    </>
+  );
+
+  return (
+    <LogViewContext.Provider value={contextValue}>
+      <div
+        ref={setRootRef}
+        className={cx(rootRecipe({ density }), className)}
+        style={style}
+        data-testid={testId}
+        aria-label={ariaLabel}
+        {...rest}
+      >
+        {children ?? defaultComposition}
+      </div>
+    </LogViewContext.Provider>
+  );
+};
+
+LogViewRoot.displayName = 'LogView';
+
+interface LogViewComponent {
+  (props: LogViewProps): React.ReactElement;
+  displayName?: string;
+  Toolbar: typeof LogViewToolbar;
+  Search: typeof LogViewSearch;
+  LevelFilter: typeof LogViewLevelFilter;
+  Clear: typeof LogViewClear;
+  Copy: typeof LogViewCopy;
+  Body: typeof LogViewBody;
+}
+
+/**
+ * A virtualized console / log output panel.
+ *
+ * Renders a large, append-only stream of {@link LogEntry} efficiently
+ * (virtualized via `@tanstack/react-virtual`), with level coloring, level
+ * filtering, text search with match highlighting, follow-tail auto-scroll, per
+ * line and bulk copy, timestamps, and source tags.
+ *
+ * **Data flow.** Pass a controlled `entries` array, or go uncontrolled and push
+ * via the imperative handle — `ref.append(entry)` / `appendMany` / `clear` are
+ * rAF-batched, so a high-frequency stream collapses to one render per frame.
+ *
+ * **Composition.** Use it batteries-included (default toolbar + body), or
+ * compose the slots yourself: `LogView.Toolbar`, `LogView.Search`,
+ * `LogView.LevelFilter`, `LogView.Copy`, `LogView.Clear`, `LogView.Body`.
+ *
+ * @example Uncontrolled streaming
+ * ```tsx
+ * const ref = useRef<LogViewHandle>(null);
+ * useEffect(() => {
+ *   const id = setInterval(() => {
+ *     ref.current?.append({ level: 'info', message: 'tick', timestamp: Date.now() });
+ *   }, 50);
+ *   return () => clearInterval(id);
+ * }, []);
+ * return <LogView ref={ref} showTimestamps height={360} />;
+ * ```
+ *
+ * @example Custom composition
+ * ```tsx
+ * <LogView entries={entries} wrap>
+ *   <LogView.Toolbar>
+ *     <LogView.LevelFilter />
+ *     <LogView.Search />
+ *   </LogView.Toolbar>
+ *   <LogView.Body />
+ * </LogView>
+ * ```
+ */
+export const LogView = LogViewRoot as LogViewComponent;
+
+LogView.Toolbar = LogViewToolbar;
+LogView.Search = LogViewSearch;
+LogView.LevelFilter = LogViewLevelFilter;
+LogView.Clear = LogViewClear;
+LogView.Copy = LogViewCopy;
+LogView.Body = LogViewBody;

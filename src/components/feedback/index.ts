@@ -54,6 +54,41 @@ export type {
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps, EmptyStateVariant } from './EmptyState';
 
+export {
+  LogView,
+  LogViewBody,
+  LogViewClear,
+  LogViewCopy,
+  LogViewLevelFilter,
+  LogViewSearch,
+  LogViewToolbar,
+  defaultFormatTimestamp,
+  entriesToText,
+  entryToText,
+  getHighlightSegments,
+} from './LogView';
+export type {
+  BuiltInLogLevel,
+  HighlightSegment,
+  LogEntry,
+  LogEntryRenderInfo,
+  LogLevel,
+  LogLevelConfig,
+  LogLevelDefinition,
+  LogViewBaseProps,
+  LogViewBodyProps,
+  LogViewClearProps,
+  LogViewCopyProps,
+  LogViewDensity,
+  LogViewHandle,
+  LogViewLevelFilterProps,
+  LogViewProps,
+  LogViewSearchProps,
+  LogViewToolbarProps,
+  LogViewVirtualizationMode,
+  ResolvedLogEntry,
+} from './LogView';
+
 export { ProgressBar, CircularProgress } from './ProgressBar';
 export type {
   CircularProgressProps,
