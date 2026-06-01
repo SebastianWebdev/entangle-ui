@@ -253,13 +253,15 @@ describe('GradientEditor', () => {
   });
 
   describe('Interactions', () => {
-    it('fires onChange and onChangeComplete when a stop is added', () => {
-      const onChange = vi.fn();
+    it('adds a stop when the track is clicked (onChange + onChangeComplete)', () => {
+      let latest: GradientData | null = null;
       const onChangeComplete = vi.fn();
       renderWithTheme(
         <GradientEditor
           defaultValue={linearGradient}
-          onChange={onChange}
+          onChange={next => {
+            latest = next;
+          }}
           onChangeComplete={onChangeComplete}
           testId="ge"
         />
@@ -270,8 +272,28 @@ describe('GradientEditor', () => {
       mockTrackRect(trackEl);
 
       fireEvent.pointerDown(trackEl, { clientX: 100, target: trackEl });
-      expect(onChange).toHaveBeenCalled();
+      if (!latest) throw new Error('onChange was not called');
+      const added: GradientData = latest;
+      expect(added.stops).toHaveLength(3);
+      expect(added.stops.some(stop => stop.position === 0.5)).toBe(true);
       expect(onChangeComplete).toHaveBeenCalled();
+      // Three stops now: the original two plus the added one.
+      expect(screen.getAllByRole('slider')).toHaveLength(3);
+    });
+
+    it('does not add a stop when the click lands on the fill overlay', () => {
+      // Regression guard: the gradient fill overlay must not intercept the
+      // pointer (pointerEvents: none), otherwise "click ramp to add" breaks.
+      const onChange = vi.fn();
+      renderWithTheme(
+        <GradientEditor defaultValue={linearGradient} onChange={onChange} />
+      );
+      const trackEl = getTrackElement();
+      const fill = trackEl.querySelector('div');
+      expect(fill).not.toBeNull();
+      // The fill is the first child div of the track; its computed style must
+      // opt out of pointer events so the event target resolves to the track.
+      expect(fill).toHaveStyle({ pointerEvents: 'none' });
     });
 
     it('changes gradient type via the segmented control', () => {

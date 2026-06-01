@@ -45,13 +45,13 @@ export const previewFillStyle = style({
 
 export const trackRowStyle = style({
   position: 'relative',
-  paddingTop: '10px',
+  padding: '6px 0',
 });
 
 export const trackStyle = style({
   position: 'relative',
   width: '100%',
-  height: '16px',
+  height: '10px',
   borderRadius: vars.borderRadius.sm,
   border: `1px solid ${vars.colors.border.default}`,
   cursor: 'copy',
@@ -64,6 +64,9 @@ export const trackFillStyle = style({
   position: 'absolute',
   inset: 0,
   borderRadius: 'inherit',
+  // Let clicks fall through to the track so "click empty ramp to add a stop"
+  // works — otherwise this overlay is always the pointer target.
+  pointerEvents: 'none',
 });
 
 // --- Stop handle ---
@@ -71,15 +74,15 @@ export const trackFillStyle = style({
 export const stopHandleRecipe = recipe({
   base: {
     position: 'absolute',
-    top: '-6px',
+    top: '50%',
     width: '14px',
-    height: '24px',
+    height: '14px',
     padding: 0,
     margin: 0,
-    transform: 'translateX(-50%)',
-    borderRadius: vars.borderRadius.sm,
+    transform: 'translate(-50%, -50%)',
+    borderRadius: '50%',
     border: `2px solid ${vars.colors.surface.default}`,
-    boxShadow: vars.shadows.sm,
+    boxShadow: vars.shadows.thumb,
     cursor: 'grab',
     outline: 'none',
     touchAction: 'none',
@@ -108,12 +111,12 @@ export const stopHandleRecipe = recipe({
   },
 });
 
-// Inner color chip of a stop handle (so the border stays theme-colored).
+// Inner color chip of a stop handle (round, fills the bordered circle).
 export const stopHandleColorStyle = style({
   display: 'block',
   width: '100%',
   height: '100%',
-  borderRadius: '1px',
+  borderRadius: '50%',
 });
 
 // --- Controls row (type toggle + angle) ---

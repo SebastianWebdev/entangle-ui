@@ -209,6 +209,24 @@ export const GradientEditor = ({
       data-testid={testId}
       {...rest}
     >
+      {/* Type toggle — top of the editor, above the preview */}
+      {types.length > 1 && (
+        <SegmentedControl
+          size={size}
+          value={gradient.type}
+          onChange={handleTypeChange}
+          disabled={disabled}
+          fullWidth
+          aria-label="Gradient type"
+        >
+          {types.map(type => (
+            <SegmentedControlItem key={type} value={type}>
+              {TYPE_LABELS[type]}
+            </SegmentedControlItem>
+          ))}
+        </SegmentedControl>
+      )}
+
       {/* Live preview */}
       <div className={previewStyle}>
         <div
@@ -232,25 +250,9 @@ export const GradientEditor = ({
         onCommit={handleCommitCurrent}
       />
 
-      {/* Type + angle controls */}
-      <div className={controlsRowStyle}>
-        {types.length > 1 && (
-          <SegmentedControl
-            size={size}
-            value={gradient.type}
-            onChange={handleTypeChange}
-            disabled={disabled}
-            aria-label="Gradient type"
-          >
-            {types.map(type => (
-              <SegmentedControlItem key={type} value={type}>
-                {TYPE_LABELS[type]}
-              </SegmentedControlItem>
-            ))}
-          </SegmentedControl>
-        )}
-
-        {showAngle && angleEnabled && (
+      {/* Angle control (linear / conic only) */}
+      {showAngle && angleEnabled && (
+        <div className={controlsRowStyle}>
           <div className={angleFieldStyle}>
             <span className={angleLabelStyle}>Angle</span>
             <NumberInput
@@ -267,8 +269,8 @@ export const GradientEditor = ({
               testId={testId ? `${testId}-angle` : undefined}
             />
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Selected-stop color editing */}
       {colorEditor === 'inline' ? (
