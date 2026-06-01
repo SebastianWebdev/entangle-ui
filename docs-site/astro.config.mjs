@@ -143,6 +143,10 @@ export default defineConfig({
                   slug: 'components/controls/curve-editor',
                 },
                 {
+                  label: 'FileTree',
+                  slug: 'components/controls/file-tree',
+                },
+                {
                   label: 'FileUploader',
                   slug: 'components/controls/file-uploader',
                 },

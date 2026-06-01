@@ -50,12 +50,16 @@ export const TreeView = ({
   renderNode,
   renderActions,
   emptyContent,
+  dropTargetId,
   onExpandedChange,
   onSelectionChange,
   onNodeClick,
   onNodeDoubleClick,
   onNodeContextMenu,
   onNodeRename,
+  onNodeDragOver,
+  onNodeDragLeave,
+  onNodeDrop,
   className,
   testId,
   ...rest
@@ -299,6 +303,7 @@ export const TreeView = ({
             showGuideLines={showGuideLines}
             renamable={renamable}
             nodeId={node.id}
+            isDropTarget={dropTargetId === node.id}
             renderNode={renderNode}
             renderActions={renderActions}
             onToggleExpand={toggleExpand}
@@ -306,6 +311,9 @@ export const TreeView = ({
             onDoubleClick={onNodeDoubleClick}
             onContextMenu={onNodeContextMenu}
             onRename={onNodeRename}
+            onDragOver={onNodeDragOver}
+            onDragLeave={onNodeDragLeave}
+            onDrop={onNodeDrop}
           />
         );
       })}
