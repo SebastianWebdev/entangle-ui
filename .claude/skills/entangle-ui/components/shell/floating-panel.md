@@ -24,6 +24,8 @@ import { FloatingPanel, FloatingManager } from 'entangle-ui';
 
 When using multiple floating panels, wrap them in a `FloatingManager` to get automatic z-index stacking. Clicking a panel brings it to the front.
 
+**FloatingManager**
+
 ```tsx
 <FloatingManager baseZIndex={100}>
   <FloatingPanel title="Inspector" defaultPosition={{ x: 50, y: 50 }}>
@@ -44,6 +46,8 @@ Panels are dragged by their header bar. Position is clamped to keep at least 50p
 
 Resize is handled via the bottom-right corner handle. The resize handle is only visible when `resizable` is `true` (the default) and the panel is not collapsed.
 
+**Drag and Resize**
+
 ```tsx
 <FloatingPanel
   title="Resizable Panel"
@@ -61,6 +65,8 @@ Resize is handled via the bottom-right corner handle. The resize handle is only 
 ## Controlled Mode
 
 For full control over position, size, and collapsed state, use the controlled props.
+
+**Controlled Mode**
 
 ```tsx
 const [position, setPosition] = useState({ x: 100, y: 100 });
@@ -84,6 +90,8 @@ const [collapsed, setCollapsed] = useState(false);
 
 For simpler use cases, use the `default*` props and let the component manage its own state.
 
+**Uncontrolled Mode**
+
 ```tsx
 <FloatingPanel
   title="Uncontrolled Panel"
@@ -98,6 +106,8 @@ For simpler use cases, use the `default*` props and let the component manage its
 ## Collapse and Close
 
 The header always shows a collapse/expand toggle. The close button only appears when both `closable` is `true` (the default) and an `onClose` handler is provided.
+
+**Collapse and Close**
 
 ```tsx
 const [visible, setVisible] = useState(true);
@@ -118,6 +128,8 @@ const [visible, setVisible] = useState(true);
 ## Scrollable Content
 
 Panel content is automatically wrapped in a `ScrollArea` that scrolls in both directions when content overflows.
+
+**Scrollable Content**
 
 ## Props
 

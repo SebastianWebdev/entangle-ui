@@ -36,6 +36,8 @@ const [orientation, setOrientation] = useState({ yaw: 45, pitch: -30 });
 
 The gizmo always reflects the parent-provided orientation. It uses Euler angles in degrees with YXZ intrinsic rotation order (matching Three.js defaults).
 
+**Orientation**
+
 ```tsx
 interface GizmoOrientation {
   yaw: number; // Y-axis rotation (heading) in degrees
@@ -47,6 +49,8 @@ interface GizmoOrientation {
 ## Up Axis Convention
 
 Configure which axis points up to match your 3D engine's coordinate system.
+
+**Up Axis Convention**
 
 ```tsx
 {
@@ -63,6 +67,8 @@ Configure which axis points up to match your 3D engine's coordinate system.
 ## Axis Colors
 
 Choose from built-in color presets or provide custom axis colors.
+
+**Axis Colors**
 
 ```tsx
 {
@@ -91,7 +97,12 @@ Choose from built-in color presets or provide custom axis colors.
 
 ## Interaction Modes
 
-Control which interactions are available to the user.
+Control which interactions are available to the user. In the preview, drag any
+gizmo to orbit and click an axis tip to snap — the "Snapped view" readout below
+each one makes the difference clear: `full` and `snap-only` respond to axis
+clicks, while `orbit-only` and `display-only` do not.
+
+**Interaction Modes**
 
 ```tsx
 {
@@ -126,6 +137,8 @@ Control which interactions are available to the user.
 
 Toggle various visual elements of the gizmo.
 
+**Visual Options**
+
 ```tsx
 <ViewportGizmo
   orientation={orientation}
@@ -147,6 +160,8 @@ Toggle various visual elements of the gizmo.
 
 Fine-tune orbit behavior with speed and pitch constraint options.
 
+**Orbit Configuration**
+
 ```tsx
 <ViewportGizmo
   orientation={orientation}
@@ -162,6 +177,8 @@ Fine-tune orbit behavior with speed and pitch constraint options.
 ```
 
 ## Event Callbacks
+
+**Event Callbacks**
 
 ```tsx
 <ViewportGizmo
@@ -191,6 +208,8 @@ Fine-tune orbit behavior with speed and pitch constraint options.
 ## Size and Diameter
 
 The `diameter` prop controls the pixel size of the canvas. The `size` prop affects label font size.
+
+**Size and Diameter**
 
 ```tsx
 <ViewportGizmo orientation={orientation} diameter={80} size="sm" />

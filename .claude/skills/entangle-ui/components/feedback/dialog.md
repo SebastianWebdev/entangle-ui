@@ -41,6 +41,8 @@ const [open, setOpen] = useState(false);
 
 The `size` prop controls the dialog width.
 
+**Sizes**
+
 ```tsx
 <Dialog open={open} onClose={close} size="sm">...</Dialog>
 <Dialog open={open} onClose={close} size="md">...</Dialog>
@@ -61,6 +63,8 @@ The `size` prop controls the dialog width.
 
 The `DialogHeader` renders a title area with an optional close button and description.
 
+**Dialog Header**
+
 ```tsx
 <DialogHeader showClose description="This will affect all linked objects.">
   Delete Object
@@ -70,6 +74,8 @@ The `DialogHeader` renders a title area with an optional close button and descri
 ## Dialog Body
 
 The `DialogBody` contains the main content of the dialog.
+
+**Dialog Body**
 
 ```tsx
 <DialogBody>
@@ -81,6 +87,8 @@ The `DialogBody` contains the main content of the dialog.
 ## Dialog Footer
 
 The `DialogFooter` contains action buttons. Use `align` to control button positioning.
+
+**Dialog Footer**
 
 ```tsx
 // Right-aligned (default for actions)
@@ -103,6 +111,8 @@ The `DialogFooter` contains action buttons. Use `align` to control button positi
 
 The `DialogClose` component renders a button that calls `onClose` when clicked. Useful for custom close triggers inside the dialog body.
 
+**Dialog Close**
+
 ```tsx
 <DialogBody>
   <p>Operation completed successfully.</p>
@@ -115,6 +125,8 @@ The `DialogClose` component renders a button that calls `onClose` when clicked. 
 ## Overlay Behavior
 
 By default, clicking the overlay backdrop closes the dialog. Disable this for mandatory confirmations.
+
+**Overlay Behavior**
 
 ```tsx
 // Clicking overlay does not close
@@ -142,6 +154,8 @@ You can also hide the overlay entirely.
 
 By default, pressing Escape closes the dialog. Disable this behavior with `closeOnEscape={false}`.
 
+**Escape Key**
+
 ```tsx
 <Dialog open={open} onClose={close} closeOnEscape={false}>
   ...
@@ -151,6 +165,8 @@ By default, pressing Escape closes the dialog. Disable this behavior with `close
 ## Focus Management
 
 The dialog traps focus by default. You can specify which element receives initial focus with `initialFocusRef`.
+
+**Focus Management**
 
 ```tsx
 const inputRef = useRef(null);
@@ -168,6 +184,8 @@ Disable focus trapping with `trapFocus={false}`.
 
 By default, the dialog is rendered in a portal (`document.body`). Disable this to render it in place.
 
+**Portal**
+
 ```tsx
 <Dialog open={open} onClose={close} portal={false}>
   ...
@@ -177,6 +195,8 @@ By default, the dialog is rendered in a portal (`document.body`). Disable this t
 ## ARIA Labels
 
 Use `title` and `description` props for screen-reader-friendly labels without visible header components.
+
+**ARIA Labels**
 
 ```tsx
 <Dialog

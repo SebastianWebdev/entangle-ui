@@ -22,6 +22,8 @@ const [point, setPoint] = useState({ x: 0, y: 0 });
 
 ## Controlled vs Uncontrolled
 
+**Controlled**
+
 ```tsx
 // Controlled
 <CartesianPicker value={point} onChange={setPoint} />
@@ -33,6 +35,8 @@ const [point, setPoint] = useState({ x: 0, y: 0 });
 ## Domain Range
 
 Set custom domain ranges for each axis. The default is -1 to 1 for both axes.
+
+**Domain Range**
 
 ```tsx
 // Normalized 0-1 range
@@ -58,6 +62,8 @@ Set custom domain ranges for each axis. The default is -1 to 1 for both axes.
 
 ## Grid and Labels
 
+**Grid and Labels**
+
 ```tsx
 <CartesianPicker
   showGrid
@@ -75,6 +81,8 @@ Set custom domain ranges for each axis. The default is -1 to 1 for both axes.
 
 The crosshair shows lines from the marker to the edges. It can be solid or dashed, and can be disabled.
 
+**Crosshair**
+
 ```tsx
 <CartesianPicker
   showCrosshair
@@ -87,6 +95,8 @@ The crosshair shows lines from the marker to the edges. It can be solid or dashe
 ## Snap to Grid
 
 Enable grid snapping during drag. Hold Ctrl to toggle snapping behavior. You can also provide a discrete `step` for per-axis snapping.
+
+**Snap to Grid**
 
 ```tsx
 // Snap to grid subdivisions
@@ -116,6 +126,8 @@ Enable grid snapping during drag. Hold Ctrl to toggle snapping behavior. You can
 
 By default, the point is clamped within domain bounds. Disable this to allow values outside the visible range.
 
+**Clamping**
+
 ```tsx
 <CartesianPicker clampToRange={false} value={point} onChange={setPoint} />
 ```
@@ -123,6 +135,8 @@ By default, the point is clamped within domain bounds. Disable this to allow val
 ## Responsive Mode
 
 When `responsive` is true, the picker fills its parent container using a ResizeObserver.
+
+**Responsive Mode**
 
 ```tsx
 <div style={{ width: '100%' }}>
@@ -134,31 +148,28 @@ When `responsive` is true, the picker fills its parent container using a ResizeO
 
 Use `renderBackground` to draw behind the grid, such as a heatmap or gradient.
 
+**Custom Background**
+
 ```tsx
 <CartesianPicker
   value={point}
   onChange={setPoint}
   renderBackground={(ctx, info) => {
     // Draw a radial gradient
-    const cx = info.area.x + info.area.width / 2;
-    const cy = info.area.y + info.area.height / 2;
-    const grad = ctx.createRadialGradient(
-      cx,
-      cy,
-      0,
-      cx,
-      cy,
-      info.area.width / 2
-    );
+    const cx = info.width / 2;
+    const cy = info.height / 2;
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, info.width / 2);
     grad.addColorStop(0, 'rgba(0, 122, 204, 0.3)');
     grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = grad;
-    ctx.fillRect(info.area.x, info.area.y, info.area.width, info.area.height);
+    ctx.fillRect(0, 0, info.width, info.height);
   }}
 />
 ```
 
 ## Custom Bottom Bar
+
+**Custom Bottom Bar**
 
 ```tsx
 <CartesianPicker
@@ -176,6 +187,8 @@ Use `renderBackground` to draw behind the grid, such as a heatmap or gradient.
 ## Change Complete
 
 Use `onChangeComplete` for undo integration. It fires on pointer up after a drag.
+
+**Change Complete**
 
 ```tsx
 <CartesianPicker

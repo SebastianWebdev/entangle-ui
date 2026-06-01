@@ -205,10 +205,7 @@ The root. Owns open/close state.
 | `modal` | `boolean` | `true` | Whether the menu traps interaction while open. |
 | `disabled` | `boolean` | `false` | Disables opening the menu. |
 | `gap` | `number` | `8` | Gap in px between every popup (the menu and its submenus) and its anchor. Set once for the whole menu. |
-<<<<<<< claude/build-nodegraph-GSTXx
-=======
 | `ref` | `Ref` | — | Imperative handle. Call ref.current.close() to close the menu from app code. |
->>>>>>> main
 
 ### Menu.Trigger
 
@@ -239,12 +236,8 @@ The positioned popup surface. Place items or any custom node inside.
 | `icon` | `ReactNode` | — | Icon rendered in the left slot. |
 | `shortcut` | `ReactNode` | — | Keyboard shortcut hint rendered on the right. |
 | `endContent` | `ReactNode` | — | Arbitrary node rendered on the right (badge, switch, etc.). |
-<<<<<<< claude/build-nodegraph-GSTXx
-| `onClick` | `(event: MouseEvent) => void` | — | Click handler. |
-=======
 | `onClick` | `(event: MouseEvent) => void` | — | Activation handler. Fires on pointer click and keyboard (Enter/Space). |
 | `onSelect` | `(event: MouseEvent) => void` | — | Alias of onClick with clearer intent. Fires on the same activation; both run if provided. |
->>>>>>> main
 | `disabled` | `boolean` | `false` | Disables the item. |
 | `closeOnClick` | `boolean` | `true` | Whether clicking the item closes the menu. |
 

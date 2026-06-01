@@ -28,7 +28,11 @@ const [checked, setChecked] = useState(false);
 <Checkbox checked={checked} onChange={setChecked} label="Auto-save" />;
 ```
 
+**Controlled**
+
 ## Sizes
+
+**Sizes**
 
 ```tsx
 <Checkbox size="sm" label="Small (14px)" />
@@ -44,6 +48,8 @@ const [checked, setChecked] = useState(false);
 
 ## Variants
 
+**Variants**
+
 ```tsx
 <Checkbox variant="default" label="Default variant" />
 <Checkbox variant="filled" label="Filled variant" />
@@ -58,6 +64,8 @@ const [checked, setChecked] = useState(false);
 
 The `indeterminate` prop shows a dash icon instead of a checkmark. Used for "select all" patterns when some items are checked. Takes visual precedence over the checked state.
 
+**Indeterminate**
+
 ```tsx
 <Checkbox indeterminate label="Select all" />
 ```
@@ -65,6 +73,8 @@ The `indeterminate` prop shows a dash icon instead of a checkmark. Used for "sel
 ## Label Position
 
 The label can be placed on either side of the checkbox.
+
+**Label Position**
 
 ```tsx
 <Checkbox label="Label on right" labelPosition="right" />
@@ -74,6 +84,8 @@ The label can be placed on either side of the checkbox.
 ## Helper Text and Error
 
 Display helper text below the checkbox, or an error message when validation fails.
+
+**Helper Text and Error**
 
 ```tsx
 <Checkbox
@@ -90,11 +102,15 @@ Display helper text below the checkbox, or an error message when validation fail
 
 ## Required
 
+**Required**
+
 ```tsx
 <Checkbox label="I agree to the terms" required />
 ```
 
 ## Disabled
+
+**Disabled**
 
 ```tsx
 <Checkbox disabled label="Disabled unchecked" />
@@ -105,12 +121,16 @@ Display helper text below the checkbox, or an error message when validation fail
 
 Use the `name` and `value` props for form integration. A hidden input is rendered with the appropriate value.
 
+**Form Submission**
+
 ```tsx
 <Checkbox name="features" value="shadows" label="Enable shadows" />
 <Checkbox name="features" value="reflections" label="Enable reflections" />
 ```
 
 ## Combining Props
+
+**Combining Props**
 
 ```tsx
 <Checkbox

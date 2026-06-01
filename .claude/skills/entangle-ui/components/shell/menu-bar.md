@@ -67,6 +67,8 @@ MenuBar uses a compound component pattern with the following sub-components:
 
 The `size` prop controls the overall density of the menu bar.
 
+**Sizes**
+
 ```tsx
 <MenuBar size="sm">
   <MenuBar.Menu label="File">{/* ... */}</MenuBar.Menu>
@@ -86,6 +88,8 @@ The `size` prop controls the overall density of the menu bar.
 
 Use `MenuBar.Sub` to create nested menus. Sub-menus open on hover with a short delay to prevent accidental closing.
 
+**Sub-menus**
+
 ```tsx
 <MenuBar.Menu label="View">
   <MenuBar.Item onClick={handleZoomIn}>Zoom In</MenuBar.Item>
@@ -103,6 +107,8 @@ Use `MenuBar.Sub` to create nested menus. Sub-menus open on hover with a short d
 
 Items can display an icon before the label text.
 
+**Menu Items with Icons**
+
 ```tsx
 import { SaveIcon, CopyIcon } from 'entangle-ui';
 
@@ -118,6 +124,8 @@ import { SaveIcon, CopyIcon } from 'entangle-ui';
 
 Both menus and individual items can be disabled.
 
+**Disabled Items**
+
 ```tsx
 <MenuBar.Menu label="File">
   <MenuBar.Item onClick={handleSave} shortcut="Ctrl+S">Save</MenuBar.Item>
@@ -131,6 +139,8 @@ Both menus and individual items can be disabled.
 ## Menu Offset
 
 The `menuOffset` prop controls the vertical gap between the top-level trigger and the dropdown panel.
+
+**Menu Offset**
 
 ```tsx
 <MenuBar menuOffset={4}>

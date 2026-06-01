@@ -203,6 +203,7 @@ Use Breadcrumbs for hierarchical paths: files, folders, nested categories, scene
 | `isCurrent` | `boolean` | `false` | Mark the segment as the current page. |
 | `icon` | `ReactNode` | — | Icon rendered before the label. |
 | `maxLength` | `number` | — | Maximum string length before truncating and showing Tooltip. |
+| `endContent` | `ReactNode` | — | Content rendered after the label, outside the navigable element (e.g. a dropdown trigger). Activating it does not trigger the item’s navigation. |
 | `className` | `string` | — | Additional CSS class names. |
 | `style` | `CSSProperties` | — | Inline styles. |
 | `testId` | `string` | — | Test identifier for automated testing. |
