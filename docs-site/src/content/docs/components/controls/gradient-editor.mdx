@@ -84,9 +84,10 @@ Restrict the offered types with the `types` prop:
 
 ## Continuous vs committed changes
 
-`onChange` fires continuously while dragging; `onChangeComplete` fires once when
-an edit is committed (drag end, add, delete, type/angle change). Use
-`onChangeComplete` for undo-system integration.
+`onChange` fires continuously while editing (dragging a stop, typing an angle);
+`onChangeComplete` fires once when an edit is committed (drag end, add, delete,
+type change, angle field blur). Use `onChangeComplete` for undo-system
+integration.
 
 <ComponentPreview title="Change complete">
   <GradientEditorChangeComplete client:only="react" />

@@ -299,6 +299,25 @@ describe('GradientEditor', () => {
       expect(onChange).toHaveBeenCalled();
     });
 
+    it('commits the angle on blur (VectorInput → NumberInput pattern)', () => {
+      const onChangeComplete = vi.fn();
+      renderWithTheme(
+        <GradientEditor
+          defaultValue={linearGradient}
+          onChangeComplete={onChangeComplete}
+          testId="ge"
+        />
+      );
+      const angleInput = screen
+        .getByTestId('ge-angle')
+        .querySelector('input') as HTMLInputElement;
+
+      // Blur is the commit boundary for the angle field, mirroring how
+      // VectorInput bridges NumberInput.onBlur to its own onChangeComplete.
+      fireEvent.blur(angleInput);
+      expect(onChangeComplete).toHaveBeenCalled();
+    });
+
     it('respects maxStops by not adding beyond the limit', () => {
       const onChangeComplete = vi.fn();
       renderWithTheme(

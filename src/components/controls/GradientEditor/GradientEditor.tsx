@@ -177,11 +177,9 @@ export const GradientEditor = ({
 
   const handleAngleChange = useCallback(
     (angle: number) => {
-      const next: GradientData = { ...gradient, angle };
-      setGradient(next);
-      commit(next);
+      setGradient(prev => ({ ...prev, angle }));
     },
-    [gradient, setGradient, commit]
+    [setGradient]
   );
 
   const cssString = useMemo(() => formatGradientCSS(gradient), [gradient]);
@@ -258,6 +256,7 @@ export const GradientEditor = ({
             <NumberInput
               value={gradient.angle}
               onChange={handleAngleChange}
+              onBlur={handleCommitCurrent}
               min={0}
               max={360}
               step={1}
