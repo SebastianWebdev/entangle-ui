@@ -83,6 +83,7 @@ export function App() {
 - `Combobox` → [components/controls/combobox.md](./components/controls/combobox.md) — Single-value select with an editable input, built-in fuzzy filtering, and optional free-solo or creatable modes.
 - `CurveEditor` → [components/controls/curve-editor.md](./components/controls/curve-editor.md) — Interactive bezier curve editor for animation timing, color grading, and value remapping with keyframes, tangent modes, and presets.
 - `FileUploader` → [components/controls/file-uploader.md](./components/controls/file-uploader.md) — Drag-and-drop file uploader with type and size validation, per-row status, and an animated progress bar.
+- `GradientEditor` → [components/controls/gradient-editor.md](./components/controls/gradient-editor.md) — Interactive gradient editor for linear, radial, and conic gradients with draggable color stops, per-stop color picking, and CSS import/export.
 - `MultiSelect` → [components/controls/multi-select.md](./components/controls/multi-select.md) — Multi-value select that renders chosen options as inline chips, with a "+N more" overflow badge and optional search.
 - `NumberInput` → [components/controls/number-input.md](./components/controls/number-input.md) — Blender-style numeric input with drag-to-scrub, step buttons, expression evaluation, and modifier key support.
 - `Select` → [components/controls/select.md](./components/controls/select.md) — Dropdown select component with searchable mode, grouped options, keyboard navigation, and clearable state.
