@@ -1,0 +1,194 @@
+---
+title: GradientEditor
+description: Interactive gradient editor for linear, radial, and conic gradients with draggable color stops, per-stop color picking, and CSS import/export.
+---
+
+import PropsTable from '../../../../components/PropsTable.astro';
+import ComponentPreview from '../../../../components/ComponentPreview.astro';
+import GradientEditorDemo, {
+  GradientEditorControlled,
+  GradientEditorInline,
+  GradientEditorRadialConic,
+  GradientEditorLinearOnly,
+  GradientEditorChangeComplete,
+} from '../../../../components/demos/controls/GradientEditorDemo';
+
+Interactive gradient editor for professional tools. Edit linear, radial, and conic gradients with draggable color stops, per-stop color picking (popover or inline), an angle control, and live CSS output you can copy. The value is a structured `GradientData` object — a CSS string is available on demand via `formatGradientCSS` and round-trips through `parseGradientCSS`.
+
+<ComponentPreview title="Live Preview">
+  <GradientEditorDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```tsx
+import { GradientEditor } from 'entangle-ui';
+import type { GradientData } from 'entangle-ui';
+```
+
+## Usage
+
+The value is structured `GradientData`, not a CSS string:
+
+```tsx
+const [gradient, setGradient] = useState<GradientData | undefined>(undefined);
+
+<GradientEditor value={gradient} onChange={setGradient} />;
+```
+
+<ComponentPreview title="Controlled">
+  <GradientEditorControlled client:only="react" />
+</ComponentPreview>
+
+## Editing stops
+
+- **Add a stop** — click anywhere on the gradient ramp.
+- **Move a stop** — drag its handle, or focus it and use the arrow keys
+  (hold <kbd>Shift</kbd> for larger steps).
+- **Delete a stop** — drag a handle vertically off the ramp, press
+  <kbd>Delete</kbd>/<kbd>Backspace</kbd> with it focused, or use the trash
+  button next to the color editor.
+- **Recolor a stop** — select it and use the color editor.
+
+## Color editor placement
+
+By default the selected stop's color opens in a popover `ColorPicker`. Set
+`colorEditor="inline"` to render the picker panel directly under the ramp.
+
+```tsx
+<GradientEditor value={gradient} onChange={setGradient} colorEditor="inline" />
+```
+
+<ComponentPreview title="Inline color editor">
+  <GradientEditorInline client:only="react" />
+</ComponentPreview>
+
+## Gradient types
+
+Linear, radial, and conic gradients are all supported. Linear and conic expose
+an angle control; radial uses a centered circle.
+
+<ComponentPreview title="Radial / Conic">
+  <GradientEditorRadialConic client:only="react" />
+</ComponentPreview>
+
+Restrict the offered types with the `types` prop:
+
+```tsx
+<GradientEditor types={['linear']} value={gradient} onChange={setGradient} />
+```
+
+<ComponentPreview title="Linear only">
+  <GradientEditorLinearOnly client:only="react" />
+</ComponentPreview>
+
+## Continuous vs committed changes
+
+`onChange` fires continuously while dragging; `onChangeComplete` fires once when
+an edit is committed (drag end, add, delete, type/angle change). Use
+`onChangeComplete` for undo-system integration.
+
+<ComponentPreview title="Change complete">
+  <GradientEditorChangeComplete client:only="react" />
+</ComponentPreview>
+
+## CSS import / export
+
+The component speaks structured data, but CSS is one call away:
+
+```tsx
+import { formatGradientCSS, parseGradientCSS } from 'entangle-ui';
+
+const css = formatGradientCSS(gradient);
+// "linear-gradient(90deg, #000000 0%, #ffffff 100%)"
+
+const parsed = parseGradientCSS('radial-gradient(circle, red 0%, blue 100%)');
+// GradientData | null
+```
+
+`parseGradientCSS` understands `linear-gradient`, `radial-gradient`, and
+`conic-gradient`, with an optional leading angle (`90deg`, `from 45deg`) or
+direction keyword (`to right`). It returns `null` for anything it can't read as
+a gradient, so it's safe to feed user input.
+
+## Props
+
+<PropsTable
+  rows={[
+    ['value', 'GradientData', 'Gradient data (controlled).'],
+    [
+      'defaultValue',
+      'GradientData',
+      'Default gradient data (uncontrolled). Defaults to black→white linear.',
+    ],
+    ['width', 'number', 'Editor width in pixels. Default 280.'],
+    [
+      'types',
+      'GradientType[]',
+      "Gradient types offered in the toggle. Default ['linear', 'radial', 'conic'].",
+    ],
+    [
+      'colorEditor',
+      "'popover' | 'inline'",
+      "How the per-stop color editor is surfaced. Default 'popover'.",
+    ],
+    [
+      'showAlpha',
+      'boolean',
+      'Whether the ColorPicker exposes the alpha channel. Default true.',
+    ],
+    [
+      'showAngle',
+      'boolean',
+      'Show the angle control (linear/conic). Default true.',
+    ],
+    [
+      'showCssOutput',
+      'boolean',
+      'Show the read-only CSS row with copy button. Default true.',
+    ],
+    ['maxStops', 'number', 'Maximum number of stops. Default 16.'],
+    ['minStops', 'number', 'Minimum number of stops. Default 2.'],
+    ['size', "'sm' | 'md' | 'lg'", "Control density. Default 'md'."],
+    ['disabled', 'boolean', 'Whether the editor is disabled. Default false.'],
+    [
+      'onChange',
+      '(value: GradientData) => void',
+      'Fired continuously while editing.',
+    ],
+    [
+      'onChangeComplete',
+      '(value: GradientData) => void',
+      'Fired when an edit is committed (drag end, add, delete).',
+    ],
+    [
+      'onSelectionChange',
+      '(stopId: string | null) => void',
+      'Fired when the selected stop changes.',
+    ],
+  ]}
+/>
+
+### GradientData
+
+| Property | Type                              | Description                             |
+| -------- | --------------------------------- | --------------------------------------- |
+| `type`   | `'linear' \| 'radial' \| 'conic'` | Gradient kind.                          |
+| `angle`  | `number`                          | Direction in degrees (linear / conic).  |
+| `stops`  | `GradientStop[]`                  | Color stops, ordered by position (≥ 2). |
+
+### GradientStop
+
+| Property   | Type     | Description                              |
+| ---------- | -------- | ---------------------------------------- |
+| `id`       | `string` | Unique ID (auto-generated if not given). |
+| `color`    | `string` | Any valid CSS color string.              |
+| `position` | `number` | Position along the ramp, 0–1.            |
+
+## Accessibility
+
+- Each stop is a `role="slider"` with `aria-valuenow` / `aria-valuetext`.
+- Arrow keys move the focused stop; <kbd>Delete</kbd>/<kbd>Backspace</kbd>
+  removes it (down to `minStops`).
+- The type toggle is a labelled segmented control; the copy button and color
+  editor trigger carry descriptive `aria-label`s.

@@ -147,6 +147,10 @@ export default defineConfig({
                   slug: 'components/controls/file-uploader',
                 },
                 {
+                  label: 'GradientEditor',
+                  slug: 'components/controls/gradient-editor',
+                },
+                {
                   label: 'MultiSelect',
                   slug: 'components/controls/multi-select',
                 },

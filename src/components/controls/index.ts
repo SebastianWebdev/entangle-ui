@@ -31,6 +31,16 @@ export {
   domainToCanvas,
 } from './CurveEditor';
 
+export {
+  GradientEditor,
+  createDefaultGradient,
+  formatGradientCSS,
+  parseGradientCSS,
+  normalizeGradient,
+  addStopAt,
+  generateStopId,
+} from './GradientEditor';
+
 export type {
   ColorFormat,
   ColorInputMode,
@@ -109,6 +119,15 @@ export type {
   CurveBackgroundInfo,
   CurveBottomBarInfo,
 } from './CurveEditor';
+
+export type {
+  GradientData,
+  GradientStop,
+  GradientType,
+  GradientEditorProps,
+  GradientEditorSize,
+  GradientColorEditorMode,
+} from './GradientEditor';
 
 export { CartesianPicker } from './CartesianPicker';
 
