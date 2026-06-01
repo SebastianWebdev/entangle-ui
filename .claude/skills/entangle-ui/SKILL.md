@@ -82,6 +82,7 @@ export function App() {
 - `ColorPicker` → [components/controls/color-picker.md](./components/controls/color-picker.md) — Full-featured color picker with saturation/value area, hue slider, alpha channel, input modes, presets, and built-in palettes.
 - `Combobox` → [components/controls/combobox.md](./components/controls/combobox.md) — Single-value select with an editable input, built-in fuzzy filtering, and optional free-solo or creatable modes.
 - `CurveEditor` → [components/controls/curve-editor.md](./components/controls/curve-editor.md) — Interactive bezier curve editor for animation timing, color grading, and value remapping with keyframes, tangent modes, and presets.
+- `FileTree` → [components/controls/file-tree.md](./components/controls/file-tree.md) — File-system-flavored TreeView specialization with automatic file-type icons and drag-and-drop import of OS files.
 - `FileUploader` → [components/controls/file-uploader.md](./components/controls/file-uploader.md) — Drag-and-drop file uploader with type and size validation, per-row status, and an animated progress bar.
 - `MultiSelect` → [components/controls/multi-select.md](./components/controls/multi-select.md) — Multi-value select that renders chosen options as inline chips, with a "+N more" overflow badge and optional search.
 - `NumberInput` → [components/controls/number-input.md](./components/controls/number-input.md) — Blender-style numeric input with drag-to-scrub, step buttons, expression evaluation, and modifier key support.
@@ -123,6 +124,7 @@ export function App() {
 
 ### Editor
 
+- `AssetBrowser` → [components/editor/asset-browser.md](./components/editor/asset-browser.md) — Controlled content browser for files and folders — grid/list views, thumbnails, folder navigation, search, filter, sort, selection, marquee, and drag-and-drop.
 - `ChatPanel` → [components/editor/chat-panel.md](./components/editor/chat-panel.md) — Complete chat interface system for AI assistant integration with messages, input, tool calls, code blocks, and attachments.
 - `Minimap` → [components/editor/minimap.md](./components/editor/minimap.md) — Shared navigation primitive that renders a miniature of editor content alongside a draggable rectangle mirroring the main viewport's visible region. Designed for NodeGraph, Timeline, and custom 2D editor surfaces.
 - `NodeGraph` → [components/editor/nodegraph.md](./components/editor/nodegraph.md) — Data-driven node editor surface — ports, Bézier edges, multi-select, drag, marquee, snap-to-grid, connection validation, keyboard nav, groups, a minimap slot, a toolbar slot, a spawn palette, and an imperative camera handle. Composes the Viewport primitive.
@@ -133,7 +135,6 @@ export function App() {
 
 ### components/data
 
-- `AssetBrowser` → [components/data/asset-browser.md](./components/data/asset-browser.md) — Controlled content browser for files and folders — grid/list views, thumbnails, folder navigation, search, filter, sort, selection, and drag-and-drop.
 - `DataTable` → [components/data/data-table.md](./components/data/data-table.md) — Data-driven table with sortable columns, row selection, sticky header, optional column resizing, and row virtualization for large datasets.
 
 ### Hooks

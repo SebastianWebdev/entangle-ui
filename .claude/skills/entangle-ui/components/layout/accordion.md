@@ -41,9 +41,13 @@ The accordion defaults to `width: 100%`, filling its parent so the surface keeps
 <Accordion width="24rem">...</Accordion>
 ```
 
+**Width**
+
 ## Single vs Multiple
 
 By default, only one item can be expanded at a time. Opening a new item closes the previously open one. Set `multiple` to allow multiple items to be open simultaneously.
+
+**Single vs Multiple**
 
 ```tsx
 {
@@ -79,6 +83,8 @@ By default, only one item can be expanded at a time. Opening a new item closes t
 
 In single mode, by default one item must always remain open. Set `collapsible` to allow all items to be closed.
 
+**Collapsible**
+
 ```tsx
 <Accordion collapsible>
   <AccordionItem value="optional">
@@ -91,6 +97,8 @@ In single mode, by default one item must always remain open. Set `collapsible` t
 ## Variants
 
 The `variant` prop controls the visual style of accordion headers.
+
+**Variants**
 
 ```tsx
 {
@@ -134,6 +142,8 @@ The `variant` prop controls the visual style of accordion headers.
 
 The `size` prop controls the density of headers and content padding.
 
+**Sizes**
+
 ```tsx
 <Accordion size="sm">...</Accordion>
 <Accordion size="md">...</Accordion>
@@ -149,6 +159,8 @@ The `size` prop controls the density of headers and content padding.
 ## Gap
 
 Add spacing between accordion items using the `gap` prop (in pixels).
+
+**Gap**
 
 ```tsx
 <Accordion gap={4}>
@@ -166,6 +178,8 @@ Add spacing between accordion items using the `gap` prop (in pixels).
 ## Trigger with Icon and Actions
 
 `AccordionTrigger` supports an `icon` slot for a leading icon and an `actions` slot for interactive elements on the right side. Clicking actions does not toggle the accordion.
+
+**Trigger with Icon and Actions**
 
 ```tsx
 <Accordion defaultValue="scene">
@@ -191,6 +205,8 @@ Add spacing between accordion items using the `gap` prop (in pixels).
 
 Replace the default chevron indicator or hide it entirely by passing `null`.
 
+**Custom Indicator**
+
 ```tsx
 {
   /* Custom indicator */
@@ -209,6 +225,8 @@ Replace the default chevron indicator or hide it entirely by passing `null`.
 
 By default, collapsed content is unmounted from the DOM. Set `keepMounted` to keep it rendered but hidden, preserving internal state.
 
+**Keep Content Mounted**
+
 ```tsx
 <AccordionContent keepMounted>
   <FormWithState />
@@ -218,6 +236,8 @@ By default, collapsed content is unmounted from the DOM. Set `keepMounted` to ke
 ## Disabled Items
 
 Disable individual accordion items to prevent expansion.
+
+**Disabled Items**
 
 ```tsx
 <AccordionItem value="locked" disabled>
@@ -229,6 +249,8 @@ Disable individual accordion items to prevent expansion.
 ## Controlled Mode
 
 Pass `value` and `onChange` to control the expanded state externally.
+
+**Controlled Mode**
 
 ```tsx
 const [expanded, setExpanded] = useState<string>('section-1');

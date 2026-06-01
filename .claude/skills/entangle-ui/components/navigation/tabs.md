@@ -29,6 +29,8 @@ import { Tabs, TabList, Tab, TabPanel } from 'entangle-ui';
 
 ## Controlled vs Uncontrolled
 
+**Controlled**
+
 ```tsx
 // Controlled
 const [activeTab, setActiveTab] = useState('properties');
@@ -54,6 +56,8 @@ const [activeTab, setActiveTab] = useState('properties');
 
 Bottom border indicator, the default style similar to VS Code tabs.
 
+**Underline**
+
 ```tsx
 <Tabs variant="underline" defaultValue="scene">
   <TabList>
@@ -68,6 +72,8 @@ Bottom border indicator, the default style similar to VS Code tabs.
 ### Pills
 
 Filled background on the active tab.
+
+**Pills**
 
 ```tsx
 <Tabs variant="pills" defaultValue="edit">
@@ -94,6 +100,8 @@ Use `pillsFrame={false}` to remove the surrounding border/background from the pi
 
 Bordered active tab with a connected panel appearance.
 
+**Enclosed**
+
 ```tsx
 <Tabs variant="enclosed" defaultValue="output">
   <TabList>
@@ -106,6 +114,8 @@ Bordered active tab with a connected panel appearance.
 ```
 
 ## Sizes
+
+**Sizes**
 
 ```tsx
 <Tabs size="sm" defaultValue="a">...</Tabs>
@@ -123,6 +133,8 @@ Bordered active tab with a connected panel appearance.
 
 Make tabs fill the available width equally.
 
+**Full Width**
+
 ```tsx
 <Tabs fullWidth defaultValue="a">
   <TabList>
@@ -135,6 +147,8 @@ Make tabs fill the available width equally.
 ```
 
 ## Vertical Orientation
+
+**Vertical Orientation**
 
 ```tsx
 <Tabs orientation="vertical" defaultValue="general">
@@ -150,6 +164,8 @@ Make tabs fill the available width equally.
 ```
 
 ## Tabs with Icons
+
+**Tabs with Icons**
 
 ```tsx
 <Tabs defaultValue="scene">
@@ -167,6 +183,8 @@ Make tabs fill the available width equally.
 
 ## Closable Tabs
 
+**Closable Tabs**
+
 ```tsx
 <Tabs defaultValue="file1">
   <TabList>
@@ -182,6 +200,8 @@ Make tabs fill the available width equally.
 ```
 
 ## Disabled Tabs
+
+**Disabled Tabs**
 
 ```tsx
 <Tabs defaultValue="a">
@@ -199,6 +219,8 @@ Make tabs fill the available width equally.
 ## Keep Mounted
 
 By default, inactive panels are unmounted. Use `keepMounted` to preserve their state.
+
+**Keep Mounted**
 
 ### Per-panel
 
