@@ -449,23 +449,28 @@ describe('LogView', () => {
       expect(warnChip).toHaveAttribute('aria-pressed', 'false');
     });
 
-    it('hides the jump-to-bottom button while following', () => {
+    it('hides the jump-to-bottom control while following', () => {
       const { container } = renderWithTheme(
         <LogView entries={ENTRIES} virtualized={false} />
       );
-      // aria-hidden removes the button from the a11y tree, so query by attribute.
-      const jump = container.querySelector(
-        'button[aria-label="Jump to bottom"]'
-      );
+      // The wrapper carries the visibility state; aria-hidden removes the
+      // inner Button from the a11y tree while attached.
+      const jump = container.querySelector('[data-log-jump]');
       expect(jump).toHaveAttribute('aria-hidden', 'true');
     });
 
-    it('shows the jump-to-bottom button when detached (follow=false)', () => {
-      renderWithTheme(
+    it('shows the jump-to-bottom control when detached (follow=false)', () => {
+      const { container } = renderWithTheme(
         <LogView entries={ENTRIES} virtualized={false} follow={false} />
       );
-      const jump = screen.getByRole('button', { name: /jump to bottom/i });
-      expect(jump).toHaveAttribute('aria-hidden', 'false');
+      expect(container.querySelector('[data-log-jump]')).toHaveAttribute(
+        'aria-hidden',
+        'false'
+      );
+      // The Button is reachable by its accessible name when visible.
+      expect(
+        screen.getByRole('button', { name: /jump to bottom/i })
+      ).toBeInTheDocument();
     });
   });
 });

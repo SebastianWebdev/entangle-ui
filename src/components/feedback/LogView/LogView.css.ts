@@ -272,21 +272,10 @@ export const rowGlyphStyle = style({
   paddingTop: '1px',
 });
 
+/** Layout-only tweaks layered on the shared `<Badge>` used for the source tag. */
 export const sourceTagStyle = style({
-  display: 'inline-flex',
-  alignItems: 'center',
-  padding: `0 ${vars.spacing.xs}`,
-  borderRadius: vars.borderRadius.sm,
-  background: vars.colors.surface.hover,
-  color: vars.colors.text.secondary,
-  fontFamily: vars.typography.fontFamily.sans,
-  fontSize: vars.typography.fontSize.xxs,
-  lineHeight: vars.typography.lineHeight.tight,
-  whiteSpace: 'nowrap',
   flexShrink: 0,
   maxWidth: '160px',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
 });
 
 export const messageRecipe = recipe({
@@ -307,7 +296,7 @@ export const messageRecipe = recipe({
 export const highlightStyle = style({
   background: `color-mix(in srgb, ${vars.colors.accent.warning} 40%, transparent)`,
   color: 'inherit',
-  borderRadius: '2px',
+  borderRadius: vars.borderRadius.sm,
 });
 
 // ── Per-line copy affordance ──
@@ -343,33 +332,21 @@ export const emptyStateStyle = style({
 
 // ── Jump-to-bottom ──
 
+/**
+ * Positioning + show/hide wrapper around the shared `<Button>`. Layout and
+ * visibility only — the button itself provides the chrome (border, hover,
+ * focus ring). Carries the elevation so the control reads as floating.
+ */
 export const jumpButtonRecipe = recipe({
   base: {
     position: 'absolute',
     bottom: vars.spacing.md,
     right: vars.spacing.md,
     display: 'inline-flex',
-    alignItems: 'center',
-    gap: vars.spacing.xs,
-    height: '26px',
-    padding: `0 ${vars.spacing.sm}`,
-    border: `1px solid ${vars.colors.border.default}`,
-    borderRadius: vars.borderRadius.lg,
-    background: vars.colors.background.elevated,
-    color: vars.colors.text.primary,
-    fontFamily: vars.typography.fontFamily.sans,
-    fontSize: vars.typography.fontSize.xs,
+    borderRadius: vars.borderRadius.md,
     boxShadow: vars.shadows.md,
-    cursor: 'pointer',
     transition: `opacity ${vars.transitions.fast}, transform ${vars.transitions.fast}`,
     zIndex: vars.zIndex.base,
-    selectors: {
-      '&:hover': { background: vars.colors.surface.hover },
-      '&:focus-visible': {
-        outline: `2px solid ${vars.colors.border.focus}`,
-        outlineOffset: '1px',
-      },
-    },
   },
   variants: {
     visible: {

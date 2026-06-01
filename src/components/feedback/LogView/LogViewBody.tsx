@@ -13,6 +13,8 @@ import React, {
 
 import { ArrowDownIcon } from '@/components/Icons/ArrowDownIcon';
 import { CopyIcon } from '@/components/Icons/CopyIcon';
+import { Badge } from '@/components/primitives/Badge';
+import { Button } from '@/components/primitives/Button';
 import { IconButton } from '@/components/primitives/IconButton';
 import { useClipboard } from '@/hooks/useClipboard';
 import { useLatest } from '@/hooks/useLatest';
@@ -149,7 +151,9 @@ const LogRow = memo(function LogRow({
       </span>
 
       {showSource && entry.source != null && entry.source !== '' && (
-        <span className={sourceTagStyle}>{entry.source}</span>
+        <Badge variant="subtle" size="xs" className={sourceTagStyle}>
+          {entry.source}
+        </Badge>
       )}
 
       <span className={messageRecipe({ wrap })}>
@@ -380,20 +384,28 @@ export const LogViewBody = ({
         )}
       </div>
 
-      <button
-        type="button"
-        aria-label="Jump to bottom"
+      <div
+        data-log-jump
         className={jumpButtonRecipe({ visible: isDetached || undefined })}
-        onClick={scrollToBottom}
-        tabIndex={isDetached ? 0 : -1}
         aria-hidden={!isDetached}
       >
-        <ArrowDownIcon size="sm" />
-        {newSinceDetach > 0 ? (
-          <span className={jumpBadgeStyle}>{newSinceDetach}</span>
-        ) : null}
-        <span>{newSinceDetach > 0 ? 'new' : 'Jump to bottom'}</span>
-      </button>
+        <Button
+          size="sm"
+          variant="default"
+          icon={<ArrowDownIcon size="sm" />}
+          onClick={scrollToBottom}
+          aria-label="Jump to bottom"
+          tabIndex={isDetached ? 0 : -1}
+        >
+          {newSinceDetach > 0 ? (
+            <>
+              <span className={jumpBadgeStyle}>{newSinceDetach}</span> new
+            </>
+          ) : (
+            'Jump to bottom'
+          )}
+        </Button>
+      </div>
     </div>
   );
 };
