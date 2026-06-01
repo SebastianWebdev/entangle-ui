@@ -37,7 +37,20 @@ export interface NumberInputBaseProps
   value: number;
 
   /**
-   * Callback when value changes
+   * Callback when the value changes. Fires continuously — on every drag step,
+   * arrow-key press, and when a typed/expression value is applied.
+   *
+   * Commit convention: unlike the other `controls` editors (ColorPicker,
+   * CartesianPicker, CurveEditor, VectorInput) which expose `onChangeComplete`
+   * for the "edit committed" boundary, NumberInput intentionally has **no
+   * `onChangeComplete`** — the commit boundary is `onBlur` (and Enter, which
+   * blurs editing mode). This keeps NumberInput a thin input primitive.
+   *
+   * If you compose NumberInput inside a higher-level control that needs an
+   * `onChangeComplete`, bridge it the way `VectorInput` does: pass `onChange`
+   * for live updates and `onBlur` for the commit. See
+   * `VectorInput.tsx` (`handleCommit` wired to each `NumberInput`'s `onBlur`).
+   * Do not add `onChangeComplete` here — that would duplicate `onBlur`.
    */
   onChange: (value: number) => void;
 
@@ -124,7 +137,9 @@ export interface NumberInputBaseProps
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
 
   /**
-   * Blur event handler
+   * Blur event handler. This is also NumberInput's **commit boundary** — there
+   * is deliberately no `onChangeComplete` prop (see `onChange` above). Wrap a
+   * commit/undo callback here, not in a new prop.
    */
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
 
