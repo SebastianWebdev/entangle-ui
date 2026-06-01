@@ -54,8 +54,6 @@ export interface LogViewContextValue {
   virtualizationThreshold: number;
   estimatedRowHeight: number | undefined;
   overscan: number;
-  height: number | string;
-  maxHeight: number | string | undefined;
 
   // Rendering
   renderEntry: ((info: LogEntryRenderInfo) => React.ReactNode) | undefined;

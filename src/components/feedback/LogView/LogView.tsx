@@ -264,8 +264,6 @@ const LogViewRoot = ({
       virtualizationThreshold,
       estimatedRowHeight,
       overscan,
-      height,
-      maxHeight,
       renderEntry,
       emptyState,
       onEntryClick,
@@ -296,8 +294,6 @@ const LogViewRoot = ({
       virtualizationThreshold,
       estimatedRowHeight,
       overscan,
-      height,
-      maxHeight,
       renderEntry,
       emptyState,
       onEntryClick,
@@ -307,6 +303,17 @@ const LogViewRoot = ({
       getVisibleEntries,
     ]
   );
+
+  const rootStyle: React.CSSProperties = {
+    height: typeof height === 'number' ? `${height}px` : height,
+    ...(maxHeight !== undefined
+      ? {
+          maxHeight:
+            typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
+        }
+      : {}),
+    ...style,
+  };
 
   const defaultComposition = (
     <>
@@ -328,7 +335,7 @@ const LogViewRoot = ({
       <div
         ref={setRootRef}
         className={cx(rootRecipe({ density }), className)}
-        style={style}
+        style={rootStyle}
         data-testid={testId}
         aria-label={ariaLabel}
         {...rest}

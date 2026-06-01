@@ -215,8 +215,6 @@ export const LogViewBody = ({
     virtualizationThreshold,
     estimatedRowHeight,
     overscan,
-    height,
-    maxHeight,
     renderEntry,
     emptyState,
     onEntryClick,
@@ -345,22 +343,11 @@ export const LogViewBody = ({
 
   const isEmpty = filtered.length === 0;
 
-  const viewportStyle: React.CSSProperties = {
-    height: typeof height === 'number' ? `${height}px` : height,
-    ...(maxHeight !== undefined
-      ? {
-          maxHeight:
-            typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight,
-        }
-      : {}),
-    ...style,
-  };
-
   return (
     <div
       ref={ref}
       className={cx(bodyStyle, bodyDensityRecipe({ density }), className)}
-      style={viewportStyle}
+      style={style}
       data-testid={testId}
       {...rest}
     >
@@ -368,7 +355,6 @@ export const LogViewBody = ({
         ref={scrollRef}
         id={bodyId}
         role="log"
-        aria-label="Log output"
         aria-live="off"
         className={scrollViewportStyle}
       >

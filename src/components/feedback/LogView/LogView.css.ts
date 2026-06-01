@@ -155,20 +155,27 @@ export const chipCountStyle = style({
 // ── Body / scroll viewport ──
 
 /**
- * Outer body wrapper. Positioned (so the absolute jump-to-bottom button anchors
- * to the corner) but does not scroll — only {@link scrollViewportStyle} does.
+ * Outer body wrapper. Fills the remaining root height (`flex: 1`), is positioned
+ * (so the absolute jump-to-bottom button anchors to the corner), and clips — the
+ * actual scrolling happens in {@link scrollViewportStyle}.
  */
 export const bodyStyle = style({
   position: 'relative',
   flex: 1,
   minHeight: 0,
+  overflow: 'hidden',
   background: vars.colors.background.primary,
   fontFamily: vars.typography.fontFamily.mono,
 });
 
-/** The actual scroll element (the virtualizer's `getScrollElement`). */
+/**
+ * The actual scroll element (the virtualizer's `getScrollElement`). Absolutely
+ * fills the wrapper via `inset: 0` so its height is definite regardless of how
+ * the wrapper was flex-sized.
+ */
 export const scrollViewportStyle = style({
-  height: '100%',
+  position: 'absolute',
+  inset: 0,
   overflow: 'auto',
   scrollbarColor: `${vars.colors.border.default} transparent`,
   scrollbarWidth: 'thin',

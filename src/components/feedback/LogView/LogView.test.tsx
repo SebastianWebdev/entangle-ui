@@ -135,6 +135,22 @@ describe('LogView', () => {
       expect(screen.getByText('connection refused')).toBeInTheDocument();
     });
 
+    it('applies height to the root so the body scrolls internally rather than growing the page', () => {
+      renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          height={300}
+          aria-label="Sized log"
+        />
+      );
+      // The height lands on the root container (a fixed-height flex column),
+      // not on each row — this is what keeps the scroll inside the component.
+      expect(screen.getByLabelText('Sized log')).toHaveStyle({
+        height: '300px',
+      });
+    });
+
     it('renders the default toolbar (search, level chips, copy, clear)', () => {
       renderWithTheme(<LogView entries={ENTRIES} virtualized={false} />);
       expect(screen.getByRole('searchbox')).toBeInTheDocument();
