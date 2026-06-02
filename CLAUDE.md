@@ -99,6 +99,8 @@ Documentation and live examples live in `docs-site/` (Astro Starlight) — every
 
 Official docs live in `docs-site/` (Astro 5 + Starlight). It renders live `entangle-ui` components inside MDX pages via `@astrojs/react` and auto-generates API reference from TypeScript types with `starlight-typedoc`. Every new component must ship with a docs page **plus** a demo in `docs-site/src/components/demos/`.
 
+**Every component docs page must include a `## Styling` section** that lists (1) the component's own overridable CSS custom properties with their defaults, and (2) the `--etui-*` theme tokens the component consumes — so re-skinning is discoverable without reading the source. Generate the token list from the component's `*.css.ts` (resolve `vars.*` paths against `themeContractData.ts` for the real `--etui-*` names); don't hand-transcribe. See `feedback/log-view.mdx` and `editor/asset-browser.mdx` for the format.
+
 **Read `docs/demo-patterns.md` before writing or editing a demo.** It is the source of truth for: reaching for library compounds before writing JSX, using `<ContextMenu>` / `<Menu>` / `<Popover>` / other primitives for auxiliary UI, theme token names from `themeContractData.ts`, and the "demos drive pre-1.0 API" feedback loop.
 
 Demos serve three jobs at once:

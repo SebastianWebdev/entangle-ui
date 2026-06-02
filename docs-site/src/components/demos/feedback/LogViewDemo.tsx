@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react';
 
 import DemoWrapper from '../DemoWrapper';
 import { LogView, useLogViewStats } from '@/components/feedback';
@@ -269,6 +275,28 @@ export function LogViewSlotProps() {
           clear: { 'aria-label': 'Discard log' },
         }}
       />
+    </DemoWrapper>
+  );
+}
+
+/** Re-skin LogView by overriding theme tokens (and a column-width var) on an ancestor. */
+export function LogViewStyled() {
+  const warm = {
+    '--etui-color-bg-primary': '#1f1612',
+    '--etui-color-surface-default': '#2a1d18',
+    '--etui-color-border-default': '#5a4423',
+    '--etui-color-text-primary': '#f5e6d3',
+    '--etui-color-text-secondary': '#d8c2a8',
+    '--etui-color-text-muted': '#b89a7c',
+    '--etui-color-accent-warning': '#f59e0b',
+    '--etui-color-accent-error': '#ef6f54',
+    '--etui-logview-source-col-width': '3.25rem',
+  } as CSSProperties;
+  return (
+    <DemoWrapper>
+      <div style={warm}>
+        <LogView entries={SAMPLE} showTimestamps height={280} />
+      </div>
     </DemoWrapper>
   );
 }

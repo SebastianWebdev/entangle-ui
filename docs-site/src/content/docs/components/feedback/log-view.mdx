@@ -11,6 +11,7 @@ import LogViewDemo, {
   LogViewWrap,
   LogViewCompound,
   LogViewSlotProps,
+  LogViewStyled,
   LogViewCustomLevels,
   LogViewCustomRender,
 } from '../../../../components/demos/feedback/LogViewDemo';
@@ -264,6 +265,59 @@ Virtualization auto-engages above `virtualizationThreshold` (default 100) and ca
 - Level chips are toggle buttons with `aria-pressed`.
 - The per-line copy control appears on row hover and on focus.
 - When rows are selectable (or `onEntryClick` is set) they become `role="button"`, are keyboard-focusable, expose `aria-pressed` for their selected state, and respond to Enter / Space and the selection shortcuts.
+
+## Styling
+
+LogView is themed entirely through CSS custom properties — no colors, spacings, or fonts are hard-coded. There are two layers you can override.
+
+### Component custom properties
+
+LogView-specific properties (each with a built-in fallback) that you set on the root, or any ancestor, to tune its layout:
+
+| Custom property                      | Default | Controls                                 |
+| ------------------------------------ | ------- | ---------------------------------------- |
+| `--etui-logview-timestamp-col-width` | `88px`  | Reserved width of the timestamp column.  |
+| `--etui-logview-source-col-width`    | `80px`  | Reserved width of the source-tag column. |
+
+```tsx
+<LogView
+  entries={entries}
+  showTimestamps
+  style={{ ['--etui-logview-source-col-width' as string]: '3.25rem' }}
+/>
+```
+
+### Theme tokens consumed
+
+Everything else reads from the `--etui-*` theme contract. Override these on any ancestor to re-skin LogView (or use `createCustomTheme(...)` from the public API for a whole-app palette). The complete set LogView reads:
+
+| Token                                                                              | Used for                                                               |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `--etui-color-bg-primary`                                                          | Root and body background.                                              |
+| `--etui-color-surface-default`                                                     | Toolbar and footer background.                                         |
+| `--etui-color-surface-hover`                                                       | Row and level-chip hover background.                                   |
+| `--etui-color-border-default`                                                      | Root border, toolbar/footer separators, chip borders, scrollbar thumb. |
+| `--etui-color-border-focus`                                                        | Level-chip focus ring.                                                 |
+| `--etui-color-text-primary`                                                        | Row message text.                                                      |
+| `--etui-color-text-secondary`                                                      | `info` level and footer text.                                          |
+| `--etui-color-text-muted`                                                          | `debug` level, timestamps, empty state.                                |
+| `--etui-color-accent-error`                                                        | `error` level — text, left bar, row tint.                              |
+| `--etui-color-accent-warning`                                                      | `warn` level and the search-match highlight.                           |
+| `--etui-color-accent-primary`                                                      | Selected-row tint and the "new lines" badge/count.                     |
+| `--etui-radius-sm`, `--etui-radius-md`, `--etui-radius-lg`                         | Match highlight; root + chips + jump button; level dot.                |
+| `--etui-shadow-md`                                                                 | Jump-to-bottom button elevation.                                       |
+| `--etui-spacing-xs`, `--etui-spacing-sm`, `--etui-spacing-md`, `--etui-spacing-xl` | Gutters, gaps, and padding throughout.                                 |
+| `--etui-font-family-sans`                                                          | Toolbar / chips / footer chrome.                                       |
+| `--etui-font-family-mono`                                                          | The log rows.                                                          |
+| `--etui-font-size-xs`, `--etui-font-size-sm`, `--etui-font-size-md`                | Density-scaled row and chrome text.                                    |
+| `--etui-font-weight-semibold`                                                      | The "new lines" count.                                                 |
+| `--etui-line-height-tight`                                                         | Level chips.                                                           |
+| `--etui-transition-fast`                                                           | Hover and show/hide transitions.                                       |
+| `--etui-z-base`                                                                    | Jump-to-bottom stacking context.                                       |
+
+<ComponentPreview title="Re-skinned via token overrides">
+  <LogViewStyled client:only="react" />
+</ComponentPreview>
 
 ## Props
 
