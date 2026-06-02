@@ -186,7 +186,7 @@ const LogRow = memo(function LogRow({
       onKeyDown={handleKeyDown}
     >
       {showTimestamps && (
-        <span className={timestampStyle}>
+        <span className={timestampStyle} data-log-time>
           {entry.timestamp != null ? formatTimestamp(entry.timestamp) : ''}
         </span>
       )}
@@ -310,6 +310,23 @@ export const LogViewBody = ({
     allLevelsActive,
   ]);
 
+  // A prefix column is only reserved when its field is actually present in the
+  // data. If nothing has a timestamp / source there is no column at all (the
+  // message sits right after the icon, as if columns didn't exist); once at
+  // least one entry uses the field, every row reserves it so they stay aligned.
+  // Keyed off the full entry set (not the filtered view) so filtering can't make
+  // a column appear/disappear and shift the layout.
+  const hasAnyTimestamp = useMemo(
+    () => showTimestamps && entries.some(entry => entry.timestamp != null),
+    [showTimestamps, entries]
+  );
+  const hasAnySource = useMemo(
+    () =>
+      showSource &&
+      entries.some(entry => entry.source != null && entry.source !== ''),
+    [showSource, entries]
+  );
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const shouldVirtualize =
@@ -428,9 +445,9 @@ export const LogViewBody = ({
       caseSensitive={caseSensitive}
       levelDef={resolveLevelDef(entry.level)}
       wrap={wrap}
-      showTimestamps={showTimestamps}
+      showTimestamps={hasAnyTimestamp}
       formatTimestamp={formatTimestamp}
-      showSource={showSource}
+      showSource={hasAnySource}
       interactive={interactive}
       selectable={selectable}
       selected={selectedIds.has(entry.id)}

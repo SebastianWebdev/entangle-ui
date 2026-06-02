@@ -202,11 +202,54 @@ describe('LogView', () => {
           virtualized={false}
         />
       );
-      // showSource defaults true, so every row renders a (possibly empty) source
-      // cell — that reservation is what keeps the message text aligned.
+      // At least one entry has a source, so every row renders a (possibly empty)
+      // source cell — that reservation is what keeps the message text aligned.
       expect(container.querySelectorAll('[data-log-source]')).toHaveLength(2);
       expect(screen.getByText('core')).toBeInTheDocument();
       expect(screen.getByText('no source')).toBeInTheDocument();
+    });
+
+    it('renders no source column when no entry has a source', () => {
+      const { container } = renderWithTheme(
+        <LogView
+          entries={[
+            { id: 'a', level: 'info', message: 'one' },
+            { id: 'b', level: 'warn', message: 'two' },
+          ]}
+          virtualized={false}
+        />
+      );
+      // showSource defaults true, but nothing has a source → no column at all,
+      // so the layout looks column-less (message right after the icon).
+      expect(container.querySelectorAll('[data-log-source]')).toHaveLength(0);
+    });
+
+    it('reserves the timestamp column when at least one entry has a timestamp', () => {
+      const { container } = renderWithTheme(
+        <LogView
+          entries={[
+            { id: 'a', level: 'info', message: 'a', timestamp: Date.now() },
+            { id: 'b', level: 'info', message: 'b' },
+          ]}
+          virtualized={false}
+          showTimestamps
+        />
+      );
+      expect(container.querySelectorAll('[data-log-time]')).toHaveLength(2);
+    });
+
+    it('renders no timestamp column when showTimestamps is on but no entry has one', () => {
+      const { container } = renderWithTheme(
+        <LogView
+          entries={[
+            { id: 'a', level: 'info', message: 'a' },
+            { id: 'b', level: 'info', message: 'b' },
+          ]}
+          virtualized={false}
+          showTimestamps
+        />
+      );
+      expect(container.querySelectorAll('[data-log-time]')).toHaveLength(0);
     });
 
     it('renders timestamps when enabled', () => {
