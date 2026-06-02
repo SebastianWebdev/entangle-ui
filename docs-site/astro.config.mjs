@@ -207,6 +207,7 @@ export default defineConfig({
                   label: 'EmptyState',
                   slug: 'components/feedback/empty-state',
                 },
+                { label: 'LogView', slug: 'components/feedback/log-view' },
                 {
                   label: 'ProgressBar',
                   slug: 'components/feedback/progress-bar',

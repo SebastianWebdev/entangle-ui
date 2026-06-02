@@ -108,6 +108,7 @@ export function App() {
 - `Dialog` → [components/feedback/dialog.md](./components/feedback/dialog.md) — Accessible modal dialog with overlay, focus trap, keyboard support, and compound sub-components for headers, bodies, and footers.
 - `Drawer` → [components/feedback/drawer.md](./components/feedback/drawer.md) — Anchored sliding panel for filters, navigation, or detail views. Four anchors, modal and non-modal modes, and a compound API.
 - `EmptyState` → [components/feedback/empty-state.md](./components/feedback/empty-state.md) — Generic empty / loading state surface with icon, title, description, and action slots.
+- `LogView` → [components/feedback/log-view.md](./components/feedback/log-view.md) — Virtualized console output panel with level coloring, filtering, text search, follow-tail auto-scroll, timestamps, and copy.
 - `ProgressBar` → [components/feedback/progress-bar.md](./components/feedback/progress-bar.md) — Linear and circular progress indicators with determinate, indeterminate, striped, and labeled variants.
 - `Skeleton` → [components/feedback/skeleton.md](./components/feedback/skeleton.md) — Loading-placeholder primitive with rect, circle, and line shapes plus pulse, wave, and static animations.
 - `Spinner` → [components/feedback/spinner.md](./components/feedback/spinner.md) — Loading and activity indicator with ring, dots, and pulse variants. Honors prefers-reduced-motion.
