@@ -477,6 +477,12 @@ Virtualization auto-engages above `virtualizationThreshold` (default 100) and ca
         'Footer content rendered in a thin bar below the body (default composition). Use useLogViewStats() inside it for live counts.',
     },
     {
+      name: 'slotProps',
+      type: 'LogViewSlotProps',
+      description:
+        'Per-slot props for the default composition (toolbar, search, levelFilter, copy, clear, body, footer). className/style merge with each slot’s styles; ignored when you pass your own children. Full breakdown in the slotProps reference below.',
+    },
+    {
       name: 'onClear',
       type: '() => void',
       description:
@@ -500,3 +506,21 @@ Virtualization auto-engages above `virtualizationThreshold` (default 100) and ca
     },
   ]}
 />
+
+### `slotProps` reference
+
+`slotProps` is an object keyed by slot. Each value is typed as that slot's own props, so everything below is fully type-checked. **Every slot** also accepts the shared `BaseComponent` props — `className`, `style`, `id`, `testId`, `ref` — where `className` and `style` are **merged** with the slot's built-in styles (additive, never replacing). The whole object is ignored when you provide your own `children`.
+
+| Slot key      | Props type                             | Slot-specific props (beyond the shared base)                                                                                       |
+| ------------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `toolbar`     | `Omit<LogViewToolbarProps,'children'>` | — (its children are the default search / filter / action buttons)                                                                  |
+| `search`      | `LogViewSearchProps`                   | `placeholder?: string` (default `"Filter logs…"`), `size?: 'sm' \| 'md' \| 'lg'` (default `"md"`)                                  |
+| `levelFilter` | `LogViewLevelFilterProps`              | —                                                                                                                                  |
+| `copy`        | `LogViewCopyProps`                     | `children?: React.ReactNode` (replace the icon), `aria-label?: string` (default `"Copy logs"`); `ref` is `Ref<HTMLButtonElement>`  |
+| `clear`       | `LogViewClearProps`                    | `children?: React.ReactNode` (replace the icon), `aria-label?: string` (default `"Clear logs"`); `ref` is `Ref<HTMLButtonElement>` |
+| `body`        | `LogViewBodyProps`                     | —                                                                                                                                  |
+| `footer`      | `Omit<LogViewFooterProps,'children'>`  | — (its content comes from the `footer` prop)                                                                                       |
+
+**Shared base props on every slot:** `className?: string` · `style?: React.CSSProperties` · `id?: string` · `testId?: string` · `ref?: React.Ref<…>` — a `<div>` for `toolbar` / `search` / `levelFilter` / `body` / `footer`, a `<button>` for `copy` / `clear`.
+
+To reorder, add, or remove slots, compose them as `children` instead. The timestamp / source **column widths** are separate, overridable CSS custom properties — see [Column alignment](#column-alignment).

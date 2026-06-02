@@ -245,6 +245,9 @@ export function LogViewSlotProps() {
         entries={SAMPLE}
         showTimestamps
         height={280}
+        // Narrow the source/badge column by overriding the column-width custom
+        // property on the root (default is 80px).
+        style={{ ['--etui-logview-source-col-width' as string]: '3.25rem' }}
         slotProps={{
           // Reconfigure the search input.
           search: { placeholder: 'Filter output…', size: 'lg' },
