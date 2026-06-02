@@ -109,6 +109,7 @@ interface LogRowProps {
     event: React.KeyboardEvent<HTMLDivElement>
   ) => void;
   onCopyLine: (entry: ResolvedLogEntry) => void;
+  copyLineLabel: string;
   virtualized: boolean;
   start: number;
   measureRef?: (node: Element | null) => void;
@@ -132,6 +133,7 @@ const LogRow = memo(function LogRow({
   onRowClick,
   onRowKeyDown,
   onCopyLine,
+  copyLineLabel,
   virtualized,
   start,
   measureRef,
@@ -225,7 +227,7 @@ const LogRow = memo(function LogRow({
 
       <span className={copyLineButtonStyle} data-log-copy>
         <IconButton
-          aria-label="Copy line"
+          aria-label={copyLineLabel}
           size="sm"
           variant="ghost"
           onClick={event => {
@@ -281,6 +283,7 @@ export const LogViewBody = ({
     onEntryClick,
     onCopy,
     bodyId,
+    labels,
   } = ctx;
 
   const entries = useLogEntries(store);
@@ -455,6 +458,7 @@ export const LogViewBody = ({
       onRowClick={handleRowClick}
       onRowKeyDown={handleRowKeyDown}
       onCopyLine={handleCopyLine}
+      copyLineLabel={labels.copyLineLabel}
       virtualized={shouldVirtualize}
       start={start}
       measureRef={
@@ -482,7 +486,7 @@ export const LogViewBody = ({
       >
         {isEmpty ? (
           <div className={emptyStateStyle}>
-            {emptyState ?? 'No log entries'}
+            {emptyState ?? labels.emptyLabel}
           </div>
         ) : shouldVirtualize ? (
           <div
@@ -512,15 +516,15 @@ export const LogViewBody = ({
           variant="default"
           icon={<ChevronDownIcon size="md" />}
           onClick={scrollToBottom}
-          aria-label="Jump to bottom"
+          aria-label={labels.jumpToBottomLabel}
           tabIndex={isDetached ? 0 : -1}
         >
           {newSinceDetach > 0 ? (
-            <>
-              <span className={jumpBadgeStyle}>{newSinceDetach}</span> new
-            </>
+            <span className={jumpBadgeStyle}>
+              {labels.newLinesLabel(newSinceDetach)}
+            </span>
           ) : (
-            'Jump to bottom'
+            labels.jumpToBottomLabel
           )}
         </Button>
       </div>

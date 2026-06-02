@@ -268,14 +268,56 @@ export interface LogViewBaseProps extends Omit<
    */
   slotProps?: LogViewSlotProps;
 
+  /**
+   * Override any of the component's built-in UI strings (search placeholder and
+   * labels, action-button labels, the jump-to-bottom button, the new-line
+   * counter, the empty state, the region label) for internationalization.
+   * Defaults are English — see {@link LogViewLabels}. Explicit per-slot props
+   * still win (a slot's `aria-label`, the search `placeholder`, `emptyState`,
+   * the root `aria-label`). Prefer a stable reference (module constant or
+   * `useMemo`).
+   */
+  labels?: Partial<LogViewLabels>;
+
   /** Children for compound composition. When omitted, the default layout renders. */
   children?: React.ReactNode;
 
-  /** Accessible label for the log region. */
+  /** Accessible label for the log region. Shorthand for `labels.regionLabel`. */
   'aria-label'?: string;
 }
 
 export type LogViewProps = Prettify<LogViewBaseProps>;
+
+/**
+ * Every user-facing string the component renders, for i18n. Pass a
+ * `Partial<LogViewLabels>` to `labels` to override any subset; the rest fall
+ * back to the English defaults (`DEFAULT_LOG_VIEW_LABELS`).
+ */
+export interface LogViewLabels {
+  /** Accessible label for the log region. @default "Log output" */
+  regionLabel: string;
+  /** Search field placeholder. @default "Filter logs…" */
+  searchPlaceholder: string;
+  /** Search field accessible label. @default "Filter logs" */
+  searchLabel: string;
+  /** Level-filter chip group accessible label. @default "Filter by level" */
+  levelFilterLabel: string;
+  /** Clear-all button accessible label. @default "Clear logs" */
+  clearLabel: string;
+  /** Copy-all button accessible label. @default "Copy logs" */
+  copyLabel: string;
+  /** Per-line copy button accessible label. @default "Copy line" */
+  copyLineLabel: string;
+  /** Jump-to-bottom button label (visible text + accessible name). @default "Jump to bottom" */
+  jumpToBottomLabel: string;
+  /**
+   * Renders the count of new lines on the jump-to-bottom button. A function so
+   * locales can handle pluralization and word order. @default (n) => `${n} new`
+   */
+  newLinesLabel: (count: number) => string;
+  /** Empty-state text, used when `emptyState` is not provided. @default "No log entries" */
+  emptyLabel: string;
+}
 
 // ── Slot prop types ──
 

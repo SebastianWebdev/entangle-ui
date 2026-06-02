@@ -6,6 +6,7 @@ import { renderWithTheme } from '@/tests/testUtils';
 
 import { LogView } from './LogView';
 import { useLogViewStats } from './LogViewContext';
+import { DEFAULT_LOG_VIEW_LABELS } from './logViewLabels';
 import { LogViewStore } from './LogViewStore';
 
 import type { LogEntry, LogViewHandle } from './LogView.types';
@@ -685,6 +686,102 @@ describe('LogView', () => {
         screen.queryByPlaceholderText('Should not apply')
       ).not.toBeInTheDocument();
       expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Labels (i18n)', () => {
+    it('overrides built-in UI strings', () => {
+      renderWithTheme(
+        <LogView
+          entries={[]}
+          virtualized={false}
+          follow={false}
+          labels={{
+            emptyLabel: 'Brak wpisów',
+            levelFilterLabel: 'Poziomy',
+            searchLabel: 'Szukaj',
+            clearLabel: 'Wyczyść',
+            copyLabel: 'Kopiuj',
+            jumpToBottomLabel: 'Na dół',
+          }}
+        />
+      );
+      expect(screen.getByText('Brak wpisów')).toBeInTheDocument();
+      expect(
+        screen.getByRole('group', { name: 'Poziomy' })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('searchbox', { name: 'Szukaj' })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Wyczyść' })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Kopiuj' })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Na dół' })
+      ).toBeInTheDocument();
+    });
+
+    it('localizes the per-line copy label', () => {
+      renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          labels={{ copyLineLabel: 'Kopiuj linię' }}
+        />
+      );
+      expect(screen.getAllByLabelText('Kopiuj linię').length).toBeGreaterThan(
+        0
+      );
+    });
+
+    it('uses the search placeholder from labels', () => {
+      renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          labels={{ searchPlaceholder: 'Filtruj…' }}
+        />
+      );
+      expect(screen.getByPlaceholderText('Filtruj…')).toBeInTheDocument();
+    });
+
+    it('falls back to English defaults for keys left unset', () => {
+      renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          labels={{ clearLabel: 'X' }}
+        />
+      );
+      expect(screen.getByRole('button', { name: 'X' })).toBeInTheDocument();
+      // copyLabel untouched → English default.
+      expect(
+        screen.getByRole('button', { name: 'Copy logs' })
+      ).toBeInTheDocument();
+    });
+
+    it('lets an explicit slot prop win over labels', () => {
+      renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          labels={{ clearLabel: 'FromLabels' }}
+          slotProps={{ clear: { 'aria-label': 'FromSlot' } }}
+        />
+      );
+      expect(
+        screen.getByRole('button', { name: 'FromSlot' })
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'FromLabels' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('formats the new-line counter via newLinesLabel', () => {
+      expect(DEFAULT_LOG_VIEW_LABELS.newLinesLabel(3)).toBe('3 new');
     });
   });
 

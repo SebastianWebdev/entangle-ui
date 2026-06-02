@@ -12,6 +12,7 @@ import LogViewDemo, {
   LogViewCompound,
   LogViewSlotProps,
   LogViewStyled,
+  LogViewLocalized,
   LogViewCustomLevels,
   LogViewCustomRender,
 } from '../../../../components/demos/feedback/LogViewDemo';
@@ -320,6 +321,44 @@ Everything else reads from the `--etui-*` theme contract. Override these on any 
   <LogViewStyled client:only="react" />
 </ComponentPreview>
 
+## Internationalization
+
+Every built-in string LogView renders is overridable through the `labels` prop — a `Partial<LogViewLabels>`, so anything you omit keeps its English default. The new-line counter is a function, so locales can handle pluralization and word order. Explicit per-slot props (a slot's `aria-label`, the search `placeholder`, `emptyState`, the root `aria-label`) still take precedence over `labels`.
+
+<ComponentPreview title="Localized labels (Polish)">
+  <LogViewLocalized client:only="react" />
+</ComponentPreview>
+
+```tsx
+<LogView
+  entries={entries}
+  labels={{
+    searchPlaceholder: 'Filtruj logi…',
+    levelFilterLabel: 'Filtruj po poziomie',
+    clearLabel: 'Wyczyść',
+    copyLineLabel: 'Kopiuj linię',
+    jumpToBottomLabel: 'Przewiń na dół',
+    newLinesLabel: n => `${n} ${n === 1 ? 'nowa' : 'nowych'}`,
+    emptyLabel: 'Brak wpisów',
+  }}
+/>
+```
+
+The full key list is the `LogViewLabels` type; the English defaults are exported as `DEFAULT_LOG_VIEW_LABELS` (spread and tweak it when you only need to change a couple).
+
+| Key                 | Type                        | Default               |
+| ------------------- | --------------------------- | --------------------- |
+| `regionLabel`       | `string`                    | `"Log output"`        |
+| `searchPlaceholder` | `string`                    | `"Filter logs…"`      |
+| `searchLabel`       | `string`                    | `"Filter logs"`       |
+| `levelFilterLabel`  | `string`                    | `"Filter by level"`   |
+| `clearLabel`        | `string`                    | `"Clear logs"`        |
+| `copyLabel`         | `string`                    | `"Copy logs"`         |
+| `copyLineLabel`     | `string`                    | `"Copy line"`         |
+| `jumpToBottomLabel` | `string`                    | `"Jump to bottom"`    |
+| `newLinesLabel`     | `(count: number) => string` | `` n => `${n} new` `` |
+| `emptyLabel`        | `string`                    | `"No log entries"`    |
+
 ## Props
 
 <PropsTable
@@ -536,6 +575,12 @@ Everything else reads from the `--etui-*` theme contract. Override these on any 
       type: 'LogViewSlotProps',
       description:
         'Per-slot props for the default composition (toolbar, search, levelFilter, copy, clear, body, footer). className/style merge with each slot’s styles; ignored when you pass your own children. Full breakdown in the slotProps reference below.',
+    },
+    {
+      name: 'labels',
+      type: 'Partial<LogViewLabels>',
+      description:
+        'Override built-in UI strings for i18n (search placeholder/label, level-filter label, clear/copy/copy-line labels, jump-to-bottom, new-line counter, empty state, region label). Omitted keys keep their English default. See Internationalization.',
     },
     {
       name: 'onClear',

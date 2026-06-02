@@ -6,6 +6,7 @@ import type {
   LogEntryRenderInfo,
   LogLevel,
   LogViewDensity,
+  LogViewLabels,
   LogViewSelectionMode,
   LogViewVirtualizationMode,
   ResolvedLogEntry,
@@ -59,6 +60,9 @@ export interface LogViewContextValue {
   // Rendering
   renderEntry: ((info: LogEntryRenderInfo) => React.ReactNode) | undefined;
   emptyState: React.ReactNode;
+
+  // i18n — resolved UI strings (defaults merged with the `labels` prop)
+  labels: LogViewLabels;
 
   // Selection
   selectionMode: LogViewSelectionMode;

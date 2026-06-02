@@ -20,6 +20,7 @@ import { devWarn } from '@/utils/devWarn';
 import { rootRecipe, toolbarSpacerStyle } from './LogView.css';
 import { LogViewBody } from './LogViewBody';
 import { LogViewContext } from './LogViewContext';
+import { resolveLogViewLabels } from './logViewLabels';
 import { resolveLevelDefinition, resolveLevelOrder } from './logViewLevels';
 import {
   LogViewClear,
@@ -85,18 +86,22 @@ const LogViewRoot = ({
   onClear,
   onEntryClick,
   onCopy,
+  labels: labelsProp,
   slotProps,
   children,
   className,
   style,
   testId,
   ref,
-  'aria-label': ariaLabel = 'Log output',
+  'aria-label': ariaLabel,
   ...rest
 }: LogViewProps): React.ReactElement => {
   const rootRef = useRef<HTMLDivElement>(null);
   const setRootRef = useMergedRef<HTMLDivElement>(rootRef);
   const bodyId = useId();
+
+  // Resolved i18n strings: English defaults merged with the `labels` override.
+  const labels = useMemo(() => resolveLogViewLabels(labelsProp), [labelsProp]);
 
   // One store per LogView instance. Created once; later prop changes flow
   // through the effects below (the same per-instance store pattern as Viewport).
@@ -327,6 +332,7 @@ const LogViewRoot = ({
       setSelectedIds,
       renderEntry,
       emptyState,
+      labels,
       onEntryClick,
       onCopy,
       clearLog,
@@ -361,6 +367,7 @@ const LogViewRoot = ({
       setSelectedIds,
       renderEntry,
       emptyState,
+      labels,
       onEntryClick,
       onCopy,
       clearLog,
@@ -408,7 +415,7 @@ const LogViewRoot = ({
         className={cx(rootRecipe({ density }), className)}
         style={rootStyle}
         data-testid={testId}
-        aria-label={ariaLabel}
+        aria-label={ariaLabel ?? labels.regionLabel}
         {...rest}
       >
         {children ?? defaultComposition}

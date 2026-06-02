@@ -9,6 +9,7 @@ export {
   LogViewToolbar,
 } from './LogViewParts';
 export { useLogViewStats } from './LogViewContext';
+export { DEFAULT_LOG_VIEW_LABELS } from './logViewLabels';
 export {
   defaultFormatTimestamp,
   entriesToText,
@@ -31,6 +32,7 @@ export type {
   LogViewDensity,
   LogViewFooterProps,
   LogViewHandle,
+  LogViewLabels,
   LogViewLevelFilterProps,
   LogViewProps,
   LogViewSearchProps,

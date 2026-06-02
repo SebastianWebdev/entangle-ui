@@ -79,7 +79,7 @@ LogViewFooter.displayName = 'LogView.Footer';
 
 /** Search field bound to the LogView query state. */
 export const LogViewSearch = ({
-  placeholder = 'Filter logs…',
+  placeholder,
   size = 'md',
   className,
   style,
@@ -87,7 +87,7 @@ export const LogViewSearch = ({
   ref,
   ...rest
 }: LogViewSearchProps): React.ReactElement => {
-  const { query, setQuery } = useLogViewContext();
+  const { query, setQuery, labels } = useLogViewContext();
   return (
     <div
       ref={ref}
@@ -101,9 +101,9 @@ export const LogViewSearch = ({
         size={size}
         value={query}
         onChange={setQuery}
-        placeholder={placeholder}
+        placeholder={placeholder ?? labels.searchPlaceholder}
         startIcon={<SearchIcon size="md" />}
-        aria-label="Filter logs"
+        aria-label={labels.searchLabel}
       />
     </div>
   );
@@ -118,15 +118,21 @@ export const LogViewLevelFilter = ({
   ref,
   ...rest
 }: LogViewLevelFilterProps): React.ReactElement => {
-  const { store, levelOrder, getLevelDefinition, isLevelActive, toggleLevel } =
-    useLogViewContext();
+  const {
+    store,
+    levelOrder,
+    getLevelDefinition,
+    isLevelActive,
+    toggleLevel,
+    labels,
+  } = useLogViewContext();
   const counts = useLogCounts(store);
 
   return (
     <div
       ref={ref}
       role="group"
-      aria-label="Filter by level"
+      aria-label={labels.levelFilterLabel}
       className={cx(levelFilterStyle, className)}
       style={style}
       data-testid={testId}
@@ -178,15 +184,15 @@ export const LogViewClear = ({
   className,
   style,
   testId,
-  'aria-label': ariaLabel = 'Clear logs',
+  'aria-label': ariaLabel,
   ref,
   ...rest
 }: LogViewClearProps): React.ReactElement => {
-  const { clearLog } = useLogViewContext();
+  const { clearLog, labels } = useLogViewContext();
   return (
     <IconButton
       ref={ref}
-      aria-label={ariaLabel}
+      aria-label={ariaLabel ?? labels.clearLabel}
       size="md"
       variant="ghost"
       className={className}
@@ -209,17 +215,17 @@ export const LogViewCopy = ({
   className,
   style,
   testId,
-  'aria-label': ariaLabel = 'Copy logs',
+  'aria-label': ariaLabel,
   ref,
   ...rest
 }: LogViewCopyProps): React.ReactElement => {
-  const { getCopyEntries, showTimestamps, formatTimestamp, onCopy } =
+  const { getCopyEntries, showTimestamps, formatTimestamp, onCopy, labels } =
     useLogViewContext();
   const { copy } = useClipboard();
   return (
     <IconButton
       ref={ref}
-      aria-label={ariaLabel}
+      aria-label={ariaLabel ?? labels.copyLabel}
       size="md"
       variant="ghost"
       className={className}

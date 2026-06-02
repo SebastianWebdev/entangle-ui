@@ -297,6 +297,31 @@ export function LogViewStyled() {
   );
 }
 
+/** Localized UI strings (Polish) via the `labels` prop. */
+export function LogViewLocalized() {
+  return (
+    <DemoWrapper>
+      <LogView
+        entries={SAMPLE}
+        showTimestamps
+        height={280}
+        labels={{
+          regionLabel: 'Dziennik',
+          searchPlaceholder: 'Filtruj logi…',
+          searchLabel: 'Filtruj logi',
+          levelFilterLabel: 'Filtruj po poziomie',
+          clearLabel: 'Wyczyść',
+          copyLabel: 'Kopiuj',
+          copyLineLabel: 'Kopiuj linię',
+          jumpToBottomLabel: 'Przewiń na dół',
+          newLinesLabel: n => `${n} ${n === 1 ? 'nowa' : 'nowych'}`,
+          emptyLabel: 'Brak wpisów',
+        }}
+      />
+    </DemoWrapper>
+  );
+}
+
 /** Extensible levels: a custom "trace" level with its own color and label. */
 export function LogViewCustomLevels() {
   const levelConfig: LogLevelConfig = {
