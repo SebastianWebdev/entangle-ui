@@ -23,6 +23,7 @@ import {
   toolbarStyle,
 } from './LogView.css';
 import { useLogCounts, useLogViewContext } from './LogViewContext';
+import { levelVariant } from './logViewLevels';
 import { entriesToText } from './logViewUtils';
 
 import type {
@@ -146,9 +147,7 @@ export const LogViewLevelFilter = ({
             type="button"
             aria-pressed={active}
             className={levelChipRecipe({
-              level: def.isBuiltIn
-                ? (level as 'debug' | 'info' | 'warn' | 'error')
-                : 'custom',
+              level: levelVariant(def),
               active,
             })}
             style={chipStyle}

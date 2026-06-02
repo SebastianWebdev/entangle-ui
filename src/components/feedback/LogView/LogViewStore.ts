@@ -30,7 +30,14 @@ export class LogViewStore {
   #entries: ResolvedLogEntry[] = [];
   #counts: Record<string, number> = {};
   #countsSnapshot: LogLevelCounts = {};
-  #seq = 0;
+  #autoIdSeq = 0;
+  /**
+   * Auto-assigned ids, cached per entry *object*. A controlled re-mirror
+   * (`setEntries` with the same entry objects) reuses the cached id instead of
+   * minting a fresh one, so React/virtualization keys stay stable across
+   * updates for id-less entries.
+   */
+  #idCache = new WeakMap<LogEntry, string>();
   #maxEntries: number | undefined;
   #getEntryId: ((entry: LogEntry, index: number) => string) | undefined;
 
@@ -191,18 +198,31 @@ export class LogViewStore {
   // ── Internals ──
 
   #normalize(entry: LogEntry, index: number): ResolvedLogEntry {
-    const seq = this.#seq++;
-    const id = entry.id ?? this.#getEntryId?.(entry, index) ?? `__log_${seq}__`;
     const level: LogLevel = entry.level ?? 'info';
     return {
-      id,
+      id: this.#resolveId(entry, index),
       level,
       message: entry.message,
       timestamp: entry.timestamp,
       source: entry.source,
       meta: entry.meta,
-      seq,
     };
+  }
+
+  /**
+   * Resolve a stable id. An explicit `entry.id` or a `getEntryId` result wins;
+   * otherwise an auto id is minted once per entry object and cached so the same
+   * logical line keeps its key across controlled re-mirrors.
+   */
+  #resolveId(entry: LogEntry, index: number): string {
+    if (entry.id !== undefined) return entry.id;
+    const derived = this.#getEntryId?.(entry, index);
+    if (derived !== undefined) return derived;
+    const cached = this.#idCache.get(entry);
+    if (cached !== undefined) return cached;
+    const id = `__log_${this.#autoIdSeq++}__`;
+    this.#idCache.set(entry, id);
+    return id;
   }
 
   /** Drop oldest entries past the cap, decrementing counts. Returns true if trimmed. */

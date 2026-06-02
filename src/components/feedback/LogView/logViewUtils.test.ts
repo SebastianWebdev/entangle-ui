@@ -145,7 +145,6 @@ describe('entryToText / entriesToText', () => {
     id: '1',
     level: 'error',
     message: 'disk full',
-    seq: 1,
   };
 
   it('renders level and message', () => {
@@ -172,8 +171,8 @@ describe('entryToText / entriesToText', () => {
 
   it('joins multiple entries with newlines', () => {
     const entries: ResolvedLogEntry[] = [
-      { id: '1', level: 'info', message: 'a', seq: 1 },
-      { id: '2', level: 'warn', message: 'b', seq: 2 },
+      { id: '1', level: 'info', message: 'a' },
+      { id: '2', level: 'warn', message: 'b' },
     ];
     expect(entriesToText(entries)).toBe('[INFO] a\n[WARN] b');
   });
@@ -181,11 +180,11 @@ describe('entryToText / entriesToText', () => {
 
 describe('filterEntries', () => {
   const entries: ResolvedLogEntry[] = [
-    { id: '1', level: 'debug', message: 'starting up', seq: 1 },
-    { id: '2', level: 'info', message: 'ready', source: 'core', seq: 2 },
-    { id: '3', level: 'warn', message: 'retrying', seq: 3 },
-    { id: '4', level: 'error', message: 'boom', seq: 4 },
-    { id: '5', level: 'trace', message: 'verbose detail', seq: 5 },
+    { id: '1', level: 'debug', message: 'starting up' },
+    { id: '2', level: 'info', message: 'ready', source: 'core' },
+    { id: '3', level: 'warn', message: 'retrying' },
+    { id: '4', level: 'error', message: 'boom' },
+    { id: '5', level: 'trace', message: 'verbose detail' },
   ];
   const knownLevels = new Set(['debug', 'info', 'warn', 'error']);
 

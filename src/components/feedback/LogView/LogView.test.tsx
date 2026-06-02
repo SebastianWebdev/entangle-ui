@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { createRef } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -119,6 +119,20 @@ describe('LogViewStore', () => {
     store.flush();
     expect(listener).toHaveBeenCalled();
     unsubscribe();
+  });
+
+  it('keeps stable ids for reused entry objects across setEntries', () => {
+    // Controlled re-mirror: the consumer passes a new array each update but
+    // reuses the prior entry objects. Id-less entries must keep their key so
+    // rows are not remounted and selection-by-id survives.
+    const store = new LogViewStore();
+    const a: LogEntry = { message: 'a' };
+    const b: LogEntry = { message: 'b' };
+    store.setEntries([a, b]);
+    const ids1 = store.getEntries().map(entry => entry.id);
+    store.setEntries([a, b, { message: 'c' }]);
+    const ids2 = store.getEntries().map(entry => entry.id);
+    expect(ids2.slice(0, 2)).toEqual(ids1);
   });
 });
 
@@ -474,17 +488,26 @@ describe('LogView', () => {
   });
 
   describe('Imperative handle (uncontrolled)', () => {
-    it('appends entries through the ref', async () => {
+    it('appends entries through the ref', () => {
+      // Drive the store's rAF flush synchronously so the commit happens inside
+      // act() rather than on a later frame.
+      const raf = vi
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation(cb => {
+          cb(0);
+          return 0;
+        });
       const ref = createRef<LogViewHandle>();
       const { container } = renderWithTheme(
         <LogView ref={ref} virtualized={false} />
       );
-      ref.current?.append({ level: 'info', message: 'streamed line' });
-      await waitFor(() => {
-        expect(screen.getByText('streamed line')).toBeInTheDocument();
+      act(() => {
+        ref.current?.append({ level: 'info', message: 'streamed line' });
       });
+      expect(screen.getByText('streamed line')).toBeInTheDocument();
       expect(rows(container)).toHaveLength(1);
       expect(ref.current?.getEntries()).toHaveLength(1);
+      raf.mockRestore();
     });
 
     it('append is a no-op while entries is controlled', () => {
@@ -498,22 +521,29 @@ describe('LogView', () => {
       warn.mockRestore();
     });
 
-    it('clear empties an uncontrolled log', async () => {
+    it('clear empties an uncontrolled log', () => {
+      const raf = vi
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation(cb => {
+          cb(0);
+          return 0;
+        });
       const ref = createRef<LogViewHandle>();
       const { container } = renderWithTheme(
         <LogView ref={ref} virtualized={false} />
       );
-      ref.current?.appendMany([
-        { level: 'info', message: 'a' },
-        { level: 'info', message: 'b' },
-      ]);
-      await waitFor(() => {
-        expect(rows(container)).toHaveLength(2);
+      act(() => {
+        ref.current?.appendMany([
+          { level: 'info', message: 'a' },
+          { level: 'info', message: 'b' },
+        ]);
       });
-      ref.current?.clear();
-      await waitFor(() => {
-        expect(rows(container)).toHaveLength(0);
+      expect(rows(container)).toHaveLength(2);
+      act(() => {
+        ref.current?.clear();
       });
+      expect(rows(container)).toHaveLength(0);
+      raf.mockRestore();
     });
   });
 

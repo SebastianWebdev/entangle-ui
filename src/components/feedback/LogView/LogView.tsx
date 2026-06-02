@@ -8,6 +8,7 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 
 import { useControlledState } from '@/hooks/useControlledState';
@@ -138,36 +139,57 @@ const LogViewRoot = ({
     [levelConfig, levelOrderProp]
   );
 
-  const [levels, setLevels] = useControlledState<readonly LogLevel[]>({
-    value: levelsProp,
-    defaultValue: defaultLevels,
-    onChange: onLevelsChange as
-      | ((value: readonly LogLevel[]) => void)
-      | undefined,
-    fallback: levelOrder,
-  });
-
   const knownLevels = useMemo(
     () => new Set<LogLevel>(levelOrder),
     [levelOrder]
   );
-  const activeLevels = useMemo(() => new Set<LogLevel>(levels), [levels]);
+
+  // Visibility is tracked as the set of *hidden* levels (uncontrolled) so the
+  // active set can be derived as "known minus hidden". A level introduced later
+  // via `levelConfig` is therefore visible by default, while an explicit
+  // toggle-off survives changes to `levelOrder`. In controlled mode the
+  // `levels` prop is the source of truth and this state is unused.
+  const isLevelsControlled = levelsProp !== undefined;
+  const [hiddenLevels, setHiddenLevels] = useState<ReadonlySet<LogLevel>>(() =>
+    defaultLevels === undefined
+      ? new Set<LogLevel>()
+      : new Set(levelOrder.filter(level => !defaultLevels.includes(level)))
+  );
+
+  const activeLevels = useMemo<ReadonlySet<LogLevel>>(() => {
+    if (isLevelsControlled) return new Set(levelsProp);
+    return new Set(levelOrder.filter(level => !hiddenLevels.has(level)));
+  }, [isLevelsControlled, levelsProp, levelOrder, hiddenLevels]);
 
   const isLevelActive = useCallback(
     (level: LogLevel) => activeLevels.has(level),
     [activeLevels]
   );
 
+  // Read live values through refs so the toggle handler stays identity-stable.
+  const onLevelsChangeRef = useLatest(onLevelsChange);
+  const activeLevelsRef = useLatest(activeLevels);
+  const levelOrderRef = useLatest(levelOrder);
+  const isLevelsControlledRef = useLatest(isLevelsControlled);
+
   const toggleLevel = useCallback(
     (level: LogLevel) => {
-      setLevels(prev => {
-        const set = new Set(prev);
-        if (set.has(level)) set.delete(level);
-        else set.add(level);
-        return [...set];
-      });
+      const willHide = activeLevelsRef.current.has(level);
+      if (!isLevelsControlledRef.current) {
+        setHiddenLevels(prev => {
+          const next = new Set(prev);
+          if (willHide) next.add(level);
+          else next.delete(level);
+          return next;
+        });
+      }
+      // Emit the next visible set, ordered by `levelOrder`, in both modes.
+      const visible = levelOrderRef.current.filter(other =>
+        other === level ? !willHide : activeLevelsRef.current.has(other)
+      );
+      onLevelsChangeRef.current?.(visible);
     },
-    [setLevels]
+    [activeLevelsRef, isLevelsControlledRef, levelOrderRef, onLevelsChangeRef]
   );
 
   const getLevelDefinition = useCallback(
@@ -217,6 +239,8 @@ const LogViewRoot = ({
     onClearRef.current?.();
   }, [store, isControlledRef, onClearRef, setSelection]);
 
+  // Uses the live query (via ref), not the body's deferred query: this powers
+  // Copy, an explicit user action, so it should reflect exactly what is typed.
   const getVisibleEntries = useCallback(
     (): ResolvedLogEntry[] =>
       filterEntries(store.getEntries(), {

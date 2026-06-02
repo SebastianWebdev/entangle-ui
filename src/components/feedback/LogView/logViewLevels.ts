@@ -104,3 +104,14 @@ export function resolveLevelDefinition(
     isBuiltIn: builtIn,
   };
 }
+
+/** Recipe `level` variant shared by the row and the filter chip. */
+export type LevelVariant = BuiltInLogLevel | 'custom';
+
+/**
+ * Map a resolved definition to the CSS recipe `level` variant: the concrete
+ * built-in name (themed via CSS), or `'custom'` (colored via inline var).
+ */
+export function levelVariant(def: ResolvedLevelDefinition): LevelVariant {
+  return def.isBuiltIn ? (def.level as BuiltInLogLevel) : 'custom';
+}

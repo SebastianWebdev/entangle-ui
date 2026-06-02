@@ -108,10 +108,10 @@ function StreamFooter() {
         }}
       >
         <span>{counts['info'] ?? 0} info</span>
-        <span style={{ color: 'var(--etui-color-accent-warning, #d98a00)' }}>
+        <span style={{ color: 'var(--etui-color-accent-warning)' }}>
           {counts['warn'] ?? 0} warnings
         </span>
-        <span style={{ color: 'var(--etui-color-accent-error, #e5484d)' }}>
+        <span style={{ color: 'var(--etui-color-accent-error)' }}>
           {counts['error'] ?? 0} errors
         </span>
       </span>
@@ -242,7 +242,7 @@ export function LogViewCustomLevels() {
   const levelConfig: LogLevelConfig = {
     trace: {
       label: 'Trace',
-      color: 'var(--etui-color-accent-primary, #ff6600)',
+      color: 'var(--etui-color-accent-primary)',
     },
   };
   const entries: LogEntry[] = [

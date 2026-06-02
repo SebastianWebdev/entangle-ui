@@ -55,8 +55,8 @@ export interface LogEntry {
 
 /**
  * Internal, fully-resolved entry. Every entry the store holds has a guaranteed
- * string `id`, a `level`, and a monotonically increasing `seq` (insertion
- * order, used for stable sorting and "new since detach" accounting).
+ * string `id` and a `level`; the other fields are passed through from the
+ * source {@link LogEntry}.
  */
 export interface ResolvedLogEntry {
   id: string;
@@ -65,8 +65,6 @@ export interface ResolvedLogEntry {
   timestamp?: number | Date;
   source?: string;
   meta?: Record<string, unknown>;
-  /** Monotonic insertion sequence. */
-  seq: number;
 }
 
 /** Visual definition for a level — drives the filter chip and row accent. */
@@ -163,11 +161,16 @@ export interface LogViewBaseProps extends Omit<
   onLevelsChange?: (levels: LogLevel[]) => void;
 
   // ── Levels config ──
-  /** Visual definitions for levels (labels, colors, icons, order). */
+  /**
+   * Visual definitions for levels (labels, colors, icons, order). Prefer a
+   * stable reference (module constant or `useMemo`) — an inline object is
+   * re-read on every render and busts the internal filter memoization.
+   */
   levelConfig?: LogLevelConfig;
   /**
    * Explicit ordered list of levels to show as filter chips. Defaults to the
    * four built-ins plus any keys present in `levelConfig`, ordered by `order`.
+   * Prefer a stable reference for the same reason as `levelConfig`.
    */
   levelOrder?: readonly LogLevel[];
 
