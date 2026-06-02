@@ -635,6 +635,59 @@ describe('LogView', () => {
     });
   });
 
+  describe('slotProps (default composition)', () => {
+    it('forwards props to the default-composition slots', () => {
+      renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          slotProps={{
+            search: { placeholder: 'Find…' },
+            body: { testId: 'log-body' },
+            clear: { 'aria-label': 'Wipe it' },
+          }}
+        />
+      );
+      expect(screen.getByPlaceholderText('Find…')).toBeInTheDocument();
+      expect(screen.getByTestId('log-body')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Wipe it' })
+      ).toBeInTheDocument();
+    });
+
+    it('merges a slot className onto the slot base styles', () => {
+      const { container } = renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          slotProps={{ body: { className: 'custom-body' } }}
+        />
+      );
+      // The custom class is added alongside the body's own (hashed) base class.
+      const body = container.querySelector('.custom-body');
+      expect(body).toBeInTheDocument();
+      expect(body?.className.split(' ').length).toBeGreaterThan(1);
+    });
+
+    it('is ignored when children (manual composition) are provided', () => {
+      renderWithTheme(
+        <LogView
+          entries={ENTRIES}
+          virtualized={false}
+          slotProps={{ search: { placeholder: 'Should not apply' } }}
+        >
+          <LogView.Body />
+        </LogView>
+      );
+      // Manual composition renders no default toolbar/search, so the slotProps
+      // never reach the DOM.
+      expect(
+        screen.queryByPlaceholderText('Should not apply')
+      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
+    });
+  });
+
   describe('Accessibility', () => {
     it('exposes the log region role and a labelled level group', () => {
       renderWithTheme(<LogView entries={ENTRIES} virtualized={false} />);

@@ -35,6 +35,7 @@ export type {
   LogViewProps,
   LogViewSearchProps,
   LogViewSelectionMode,
+  LogViewSlotProps,
   LogViewToolbarProps,
   LogViewVirtualizationMode,
   ResolvedLogEntry,

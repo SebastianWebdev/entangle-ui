@@ -257,6 +257,17 @@ export interface LogViewBaseProps extends Omit<
   /** Fired after a copy (per-line or copy-all) with the copied text. */
   onCopy?: (text: string) => void;
 
+  /**
+   * Props forwarded to the slots of the **default** composition (`toolbar`,
+   * `search`, `levelFilter`, `copy`, `clear`, `body`, `footer`). Each entry is
+   * spread onto its slot, so `className` / `style` merge with the slot's own
+   * styles. Use it to tweak the batteries-included layout without rebuilding it.
+   *
+   * Ignored when you provide your own `children` — then you compose the slots
+   * and pass props directly.
+   */
+  slotProps?: LogViewSlotProps;
+
   /** Children for compound composition. When omitted, the default layout renders. */
   children?: React.ReactNode;
 
@@ -306,3 +317,29 @@ export interface LogViewCopyProps extends Omit<
 }
 
 export type LogViewBodyProps = Omit<BaseComponent, 'children'>;
+
+/**
+ * Per-slot props for the default composition (see {@link LogViewBaseProps.slotProps}).
+ *
+ * Each key maps to a slot of the batteries-included layout and is typed as that
+ * slot's own props. `children` is omitted for slots whose content `LogView`
+ * owns — the `toolbar` (its children are the search / filter / action buttons)
+ * and the `footer` (its content comes from the `footer` prop). `clear` and
+ * `copy` keep `children` so you can swap their icon while keeping the layout.
+ */
+export interface LogViewSlotProps {
+  /** The toolbar container that wraps search, level chips, and the actions. */
+  toolbar?: Omit<LogViewToolbarProps, 'children'>;
+  /** The search input. */
+  search?: LogViewSearchProps;
+  /** The level-filter chip group. */
+  levelFilter?: LogViewLevelFilterProps;
+  /** The copy-all action button (pass `children` to swap its icon). */
+  copy?: LogViewCopyProps;
+  /** The clear action button (pass `children` to swap its icon). */
+  clear?: LogViewClearProps;
+  /** The scrollable log body. */
+  body?: LogViewBodyProps;
+  /** The footer bar (its content still comes from the `footer` prop). */
+  footer?: Omit<LogViewFooterProps, 'children'>;
+}

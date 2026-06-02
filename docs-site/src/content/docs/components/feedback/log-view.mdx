@@ -204,6 +204,22 @@ LogView ships a default toolbar (search, level chips, copy, clear) that you can 
   <LogViewCompound client:only="react" />
 </ComponentPreview>
 
+### Tweaking the default layout with `slotProps`
+
+When you want the batteries-included layout but need to restyle or reconfigure a single slot, reach for `slotProps` instead of rebuilding it from `children`. Each key maps to a slot of the default composition (`toolbar`, `search`, `levelFilter`, `copy`, `clear`, `body`, `footer`) and is typed as that slot's props; `className` / `style` merge with the slot's own styles. `slotProps` is ignored when you pass your own `children`.
+
+```tsx
+<LogView
+  entries={entries}
+  slotProps={{
+    search: { placeholder: 'Filter output…', size: 'lg' },
+    body: { className: 'my-dense-body', style: { fontSize: 12 } },
+    clear: { 'aria-label': 'Discard log' },
+    copy: { children: <ClipboardIcon /> },
+  }}
+/>
+```
+
 ## Custom rendering
 
 `renderEntry` replaces the default message body of a row while keeping the

@@ -85,6 +85,7 @@ const LogViewRoot = ({
   onClear,
   onEntryClick,
   onCopy,
+  slotProps,
   children,
   className,
   style,
@@ -383,16 +384,20 @@ const LogViewRoot = ({
   const defaultComposition = (
     <>
       {showToolbar && (
-        <LogViewToolbar>
-          {showSearch && <LogViewSearch />}
-          {showLevelFilter && <LogViewLevelFilter />}
+        <LogViewToolbar {...slotProps?.toolbar}>
+          {showSearch && <LogViewSearch {...slotProps?.search} />}
+          {showLevelFilter && (
+            <LogViewLevelFilter {...slotProps?.levelFilter} />
+          )}
           <div className={toolbarSpacerStyle} />
-          {showCopy && <LogViewCopy />}
-          {showClear && <LogViewClear />}
+          {showCopy && <LogViewCopy {...slotProps?.copy} />}
+          {showClear && <LogViewClear {...slotProps?.clear} />}
         </LogViewToolbar>
       )}
-      <LogViewBody />
-      {footer != null && <LogViewFooter>{footer}</LogViewFooter>}
+      <LogViewBody {...slotProps?.body} />
+      {footer != null && (
+        <LogViewFooter {...slotProps?.footer}>{footer}</LogViewFooter>
+      )}
     </>
   );
 
