@@ -46,16 +46,21 @@ export const TreeView = ({
   showChevrons = true,
   showGuideLines = false,
   expandOnSelect = false,
+  expandOnClick = false,
   maxHeight,
   renderNode,
   renderActions,
   emptyContent,
+  dropTargetId,
   onExpandedChange,
   onSelectionChange,
   onNodeClick,
   onNodeDoubleClick,
   onNodeContextMenu,
   onNodeRename,
+  onNodeDragOver,
+  onNodeDragLeave,
+  onNodeDrop,
   className,
   testId,
   ...rest
@@ -100,9 +105,22 @@ export const TreeView = ({
         }
       }
 
+      // Toggle a parent node's expansion when its whole row is clicked. The
+      // chevron stops propagation, so it never double-toggles.
+      if (expandOnClick && node.children && node.children.length > 0) {
+        toggleExpand(node.id);
+      }
+
       onNodeClick?.(node, event);
     },
-    [selectionMode, select, setFocused, onNodeClick]
+    [
+      selectionMode,
+      select,
+      setFocused,
+      onNodeClick,
+      expandOnClick,
+      toggleExpand,
+    ]
   );
 
   // Keyboard navigation
@@ -299,6 +317,7 @@ export const TreeView = ({
             showGuideLines={showGuideLines}
             renamable={renamable}
             nodeId={node.id}
+            isDropTarget={dropTargetId === node.id}
             renderNode={renderNode}
             renderActions={renderActions}
             onToggleExpand={toggleExpand}
@@ -306,6 +325,9 @@ export const TreeView = ({
             onDoubleClick={onNodeDoubleClick}
             onContextMenu={onNodeContextMenu}
             onRename={onNodeRename}
+            onDragOver={onNodeDragOver}
+            onDragLeave={onNodeDragLeave}
+            onDrop={onNodeDrop}
           />
         );
       })}

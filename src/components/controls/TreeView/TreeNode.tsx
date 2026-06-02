@@ -4,6 +4,7 @@ import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, { useState, useRef, useCallback } from 'react';
 
 import { ChevronRightIcon } from '@/components/Icons';
+import { cx } from '@/utils/cx';
 
 import {
   rowRecipe,
@@ -13,6 +14,7 @@ import {
   actionsStyle,
   renameInputRecipe,
   guideLineStyle,
+  dropTargetStyle,
   paddingLeftVar,
   guideLineLeftVar,
 } from './TreeNode.css';
@@ -80,6 +82,7 @@ export interface TreeNodeComponentProps {
   showGuideLines: boolean;
   renamable: boolean;
   nodeId: string;
+  isDropTarget: boolean;
   renderNode?: (node: TreeNodeData, state: TreeNodeState) => React.ReactNode;
   renderActions?: (node: TreeNodeData, state: TreeNodeState) => React.ReactNode;
   onToggleExpand: (id: string) => void;
@@ -87,6 +90,9 @@ export interface TreeNodeComponentProps {
   onDoubleClick?: (node: TreeNodeData, event: React.MouseEvent) => void;
   onContextMenu?: (node: TreeNodeData, event: React.MouseEvent) => void;
   onRename?: (nodeId: string, newLabel: string) => void;
+  onDragOver?: (node: TreeNodeData, event: React.DragEvent) => void;
+  onDragLeave?: (node: TreeNodeData, event: React.DragEvent) => void;
+  onDrop?: (node: TreeNodeData, event: React.DragEvent) => void;
 }
 
 export const TreeNodeComponent = ({
@@ -103,6 +109,7 @@ export const TreeNodeComponent = ({
   showGuideLines,
   renamable,
   nodeId,
+  isDropTarget,
   renderNode,
   renderActions,
   onToggleExpand,
@@ -110,6 +117,9 @@ export const TreeNodeComponent = ({
   onDoubleClick,
   onContextMenu,
   onRename,
+  onDragOver,
+  onDragLeave,
+  onDrop,
 }: TreeNodeComponentProps) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(node.label);
@@ -173,6 +183,27 @@ export const TreeNodeComponent = ({
     [node, onContextMenu]
   );
 
+  const handleDragOver = useCallback(
+    (e: React.DragEvent) => {
+      onDragOver?.(node, e);
+    },
+    [node, onDragOver]
+  );
+
+  const handleDragLeave = useCallback(
+    (e: React.DragEvent) => {
+      onDragLeave?.(node, e);
+    },
+    [node, onDragLeave]
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      onDrop?.(node, e);
+    },
+    [node, onDrop]
+  );
+
   const confirmRename = useCallback(() => {
     if (renameValue.trim() && renameValue !== node.label) {
       onRename?.(node.id, renameValue.trim());
@@ -223,18 +254,25 @@ export const TreeNodeComponent = ({
       aria-selected={isSelected}
       aria-disabled={node.disabled ?? undefined}
       aria-level={depth + 1}
-      className={rowRecipe({
-        size,
-        selected: isSelected,
-        focused: isFocused,
-        disabled: node.disabled ?? false,
-      })}
+      data-drop-target={isDropTarget ? 'true' : undefined}
+      className={cx(
+        rowRecipe({
+          size,
+          selected: isSelected,
+          focused: isFocused,
+          disabled: node.disabled ?? false,
+        }),
+        dropTargetStyle
+      )}
       style={assignInlineVars({
         [paddingLeftVar]: `${depth * indent}px`,
       })}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       onContextMenu={handleContextMenu}
+      onDragOver={onDragOver ? handleDragOver : undefined}
+      onDragLeave={onDragLeave ? handleDragLeave : undefined}
+      onDrop={onDrop ? handleDrop : undefined}
       tabIndex={-1}
     >
       {guideLines}

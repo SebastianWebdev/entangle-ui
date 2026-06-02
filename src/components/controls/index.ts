@@ -14,6 +14,13 @@ export {
   PROFESSIONAL_PALETTES,
 } from './ColorPicker';
 export { Combobox } from './Combobox';
+export {
+  FileTree,
+  getFileIconKind,
+  getFileExtension,
+  classifyExtension,
+  DEFAULT_FILE_TREE_LABELS,
+} from './FileTree';
 export { FileUploader } from './FileUploader';
 export { MultiSelect } from './MultiSelect';
 export { NumberInput } from './NumberInput';
@@ -51,6 +58,15 @@ export type {
   ComboboxSize,
   ComboboxVariant,
 } from './Combobox';
+export type {
+  FileTreeProps,
+  FileTreeNode,
+  FileTreeNodeKind,
+  FileTreeNodeState,
+  FileTreeImportPayload,
+  FileTreeLabels,
+  FileIconKind,
+} from './FileTree';
 export type {
   FileUploaderBaseProps,
   FileUploaderItem,

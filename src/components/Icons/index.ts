@@ -29,6 +29,7 @@ export { GridIcon } from './GridIcon';
 export { HeartIcon } from './HeartIcon';
 export { HelpIcon } from './HelpIcon';
 export { HomeIcon } from './HomeIcon';
+export { ImageIcon } from './ImageIcon';
 export { InfoIcon } from './InfoIcon';
 export { LastIcon } from './LastIcon';
 export { LinkIcon } from './LinkIcon';

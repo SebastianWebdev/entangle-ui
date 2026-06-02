@@ -30,6 +30,8 @@ import { Select } from 'entangle-ui';
 
 The Select component supports both controlled and uncontrolled patterns.
 
+**Controlled**
+
 ```tsx
 // Controlled
 const [value, setValue] = useState<string | null>('normal');
@@ -42,6 +44,8 @@ const [value, setValue] = useState<string | null>('normal');
 ## Grouped Options
 
 Options can be organized into groups with non-selectable headers.
+
+**Grouped Options**
 
 ```tsx
 <Select
@@ -72,6 +76,8 @@ Options can be organized into groups with non-selectable headers.
 
 Enable the `searchable` prop to show a filter input inside the dropdown. A custom filter function can be provided with `filterFn`.
 
+**Searchable**
+
 ```tsx
 <Select
   searchable
@@ -98,6 +104,8 @@ Enable the `searchable` prop to show a filter input inside the dropdown. A custo
 
 When `clearable` is enabled, a clear button appears when a value is selected.
 
+**Clearable**
+
 ```tsx
 <Select
   clearable
@@ -111,6 +119,8 @@ When `clearable` is enabled, a clear button appears when a value is selected.
 ## Options with Icons
 
 Each option can include an icon rendered before its label.
+
+**Options with Icons**
 
 ```tsx
 <Select
@@ -128,6 +138,8 @@ Each option can include an icon rendered before its label.
 
 The `variant` prop controls the trigger button style.
 
+**Variants**
+
 ```tsx
 <Select variant="default" options={opts} value={v} onChange={setV} />
 <Select variant="ghost" options={opts} value={v} onChange={setV} />
@@ -135,6 +147,8 @@ The `variant` prop controls the trigger button style.
 ```
 
 ## Sizes
+
+**Sizes**
 
 ```tsx
 <Select size="sm" options={opts} value={v} onChange={setV} />
@@ -150,6 +164,8 @@ The `variant` prop controls the trigger button style.
 
 ## Labels and Helper Text
 
+**Labels and Helper Text**
+
 ```tsx
 <Select
   label="Render Engine"
@@ -162,6 +178,8 @@ The `variant` prop controls the trigger button style.
 ```
 
 ## Error State
+
+**Error State**
 
 ```tsx
 <Select
