@@ -224,6 +224,7 @@ Customize the content shown when the tree is empty.
 | `showChevrons` | `boolean` | `true` | Whether to show expand/collapse chevrons for parent nodes. |
 | `showGuideLines` | `boolean` | `false` | Whether to show connecting guide lines. |
 | `expandOnSelect` | `boolean` | `false` | Whether to expand parent nodes when selected. |
+| `expandOnClick` | `boolean` | `false` | Toggle a parent node open/closed when its whole row is clicked (not just the chevron). |
 | `maxHeight` | `number \| string` | — | Maximum height before scrolling. |
 | `renderNode` | `(node: TreeNodeData, state: TreeNodeState) => ReactNode` | — | Custom render function for node content. |
 | `renderActions` | `(node: TreeNodeData, state: TreeNodeState) => ReactNode` | — | Custom render function for trailing actions (right side). |

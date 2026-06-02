@@ -36,6 +36,20 @@ const nodes: FileTreeNode[] = [
 <FileTree nodes={nodes} defaultExpandedIds={['src']} />;
 ```
 
+## Expanding folders
+
+Clicking anywhere on a folder row toggles it open/closed — not just the chevron
+(`expandOnClick`, on by default). Files are unaffected. Set
+`expandOnClick={false}` to require a chevron click instead.
+
+```tsx
+// Whole-row toggle (default)
+<FileTree nodes={nodes} />
+
+// Require the chevron
+<FileTree nodes={nodes} expandOnClick={false} />
+```
+
 ## Drag-and-drop import
 
 Provide `onImport` to enable the import drop zone. Dropping OS files onto a
@@ -75,6 +89,33 @@ open/closed folder glyphs. Pass `resolveIcon` to override per node — return
 
 The `classifyExtension` / `getFileIconKind` helpers used internally are also
 exported, in case you want to drive your own UI from the same mapping.
+
+### Coloring icons
+
+Built-in icons follow the theme (folders use `text.secondary`, files
+`text.muted`), so a theme change re-colors them. For per-type or per-node
+colors, return a colored icon from `resolveIcon` — every library icon takes a
+`color` prop (a theme key like `accent` / `success` / `warning`, or any CSS
+color).
+
+**Colored icons by type**
+
+```tsx
+<FileTree
+  nodes={nodes}
+  resolveIcon={(node, { expanded }) => {
+    if (node.kind === 'folder') {
+      return expanded ? (
+        <FolderOpenIcon color="accent" />
+      ) : (
+        <FolderIcon color="accent" />
+      );
+    }
+    if (node.name.endsWith('.png')) return <ImageIcon color="success" />;
+    return undefined; // fall back to the built-in icon
+  }}
+/>
+```
 
 ## Selection
 
@@ -116,6 +157,90 @@ props (`dropTargetId`, `onNodeDragOver` / `onNodeDragLeave` / `onNodeDrop`),
 which are available for building your own drop interactions on a plain
 `TreeView` as well.
 
+## Styling
+
+FileTree is themed entirely through the `--etui-*` theme contract — no colors,
+spacings, or fonts are hard-coded. There are three ways to restyle it.
+
+### Render & content overrides
+
+- `className` / `style` are applied to the **root container** (`style` is also
+  the place to set `--etui-*` overrides — they cascade to every row).
+- `resolveIcon` swaps a node's icon; `renderNode` replaces a row's whole inner
+  content (icon + label); `renderActions` adds trailing controls.
+
+### Targeting hooks
+
+The internal class names are compiled (hashed) by Vanilla Extract, so target
+the stable structural hooks instead:
+
+| Selector                                     | Matches                                              |
+| -------------------------------------------- | ---------------------------------------------------- |
+| `[role="tree"]`                              | The tree region.                                     |
+| `[role="treeitem"]`                          | Every row.                                           |
+| `[role="treeitem"][aria-selected="true"]`    | Selected rows.                                       |
+| `[role="treeitem"][data-drop-target="true"]` | The folder currently highlighted as a drop target.   |
+| `[data-root-active="true"]`                  | The container while files are dragged over the root. |
+| `#treenode-<id>`                             | A specific row by node id.                           |
+
+### Theme tokens consumed
+
+Override these on any ancestor to re-skin FileTree (or use
+`createCustomTheme(...)` for a whole-app palette):
+
+| Token                                        | Used for                                                             |
+| -------------------------------------------- | -------------------------------------------------------------------- |
+| `--etui-color-accent-primary`                | Selected-row tint and the active drop-target highlight (row + root). |
+| `--etui-color-surface-hover`                 | Row hover background.                                                |
+| `--etui-color-border-focus`                  | Focused-row ring.                                                    |
+| `--etui-color-border-default`                | Guide lines.                                                         |
+| `--etui-color-text-primary`                  | File / folder names; chevron hover.                                  |
+| `--etui-color-text-secondary`                | Folder icons.                                                        |
+| `--etui-color-text-muted`                    | File icons, chevrons, and empty-state text.                          |
+| `--etui-radius-sm`                           | Container corner rounding.                                           |
+| `--etui-spacing-xs`, `--etui-spacing-md`     | Icon gap / row padding; empty-state padding.                         |
+| `--etui-font-size-md`, `--etui-font-size-lg` | Size-scaled label text.                                              |
+| `--etui-line-height-normal`                  | Label line height.                                                   |
+| `--etui-transition-fast`                     | Chevron rotation and hover transitions.                              |
+
+**Re-skinned via token overrides**
+
+```tsx
+<FileTree
+  nodes={nodes}
+  style={{
+    ['--etui-color-accent-primary' as string]: '#d946ef',
+    ['--etui-color-text-secondary' as string]: '#d946ef',
+  }}
+/>
+```
+
+## Internationalization
+
+FileTree renders no copy of its own — file and folder names come from your
+data, and the file-type icons are decorative. The only built-in strings are the
+tree's accessible name and the empty-state text, both overridable through the
+`labels` prop (a `Partial<FileTreeLabels>`, so anything you omit keeps its
+English default). An explicit `aria-label` / `emptyContent` still wins over the
+matching label.
+
+**Localized labels (Polish)**
+
+```tsx
+<FileTree
+  nodes={nodes}
+  labels={{ treeLabel: 'Drzewo plików', emptyLabel: 'Brak plików' }}
+/>
+```
+
+The English defaults are exported as `DEFAULT_FILE_TREE_LABELS` (spread and
+tweak it when you only need to change one key).
+
+| Key          | Type     | Default       |
+| ------------ | -------- | ------------- |
+| `treeLabel`  | `string` | `"File tree"` |
+| `emptyLabel` | `string` | `"No files"`  |
+
 ## Props
 
 | Prop | Type | Default | Description |
@@ -132,6 +257,7 @@ which are available for building your own drop interactions on a plain
 | `indent` | `number` | `16` | Indentation per depth level in pixels. |
 | `showChevrons` | `boolean` | `true` | Whether to show expand/collapse chevrons for folders. |
 | `showGuideLines` | `boolean` | `false` | Whether to show connecting guide lines. |
+| `expandOnClick` | `boolean` | `true` | Toggle a folder open/closed when its whole row is clicked (not just the chevron). |
 | `maxHeight` | `number \| string` | — | Maximum height before the tree scrolls. |
 | `resolveIcon` | `(node: FileTreeNode, state: { expanded: boolean }) => ReactNode` | — | Override a node icon. Return undefined to fall back to the built-in extension map. |
 | `renderNode` | `(node: FileTreeNode, state: FileTreeNodeState) => ReactNode` | — | Fully replace a node's inner content (icon + label). |
@@ -141,21 +267,23 @@ which are available for building your own drop interactions on a plain
 | `onNodeClick` | `(node: FileTreeNode, event: MouseEvent) => void` | — | Fired when a node is clicked. |
 | `onNodeDoubleClick` | `(node: FileTreeNode, event: MouseEvent) => void` | — | Fired when a node is double-clicked. |
 | `onNodeContextMenu` | `(node: FileTreeNode, event: MouseEvent) => void` | — | Fired when a node is right-clicked. |
-| `className` | `string` | — | Additional CSS class names. |
+| `labels` | `Partial` | — | Override built-in strings (tree accessible name, empty-state text). Merged onto the defaults. |
+| `aria-label` | `string` | — | Accessible name for the tree. Wins over labels.treeLabel; lands on the role="tree" element. |
+| `className` | `string` | — | Additional CSS class names (on the root container). |
 | `testId` | `string` | — | Test identifier for automated testing. |
 
 ### FileTreeNode
 
-| Property   | Type                      | Description                                          |
-| ---------- | ------------------------- | ---------------------------------------------------- |
-| `id`       | `string`                  | Stable unique id within the tree.                    |
-| `name`     | `string`                  | Display name, e.g. `"Button.tsx"`.                   |
-| `kind`     | `'file' \| 'folder'`      | File vs. folder. Folders accept dropped files.       |
-| `ext`      | `string`                  | Extension override (no dot). Inferred from `name`.   |
-| `path`     | `string`                  | Optional path (informational; surfaced unchanged).   |
-| `children` | `FileTreeNode[]`          | Child entries (folders).                             |
-| `disabled` | `boolean`                 | Dim + non-interactive.                               |
-| `data`     | `Record<string, unknown>` | Arbitrary consumer payload.                          |
+| Property   | Type                      | Description                                        |
+| ---------- | ------------------------- | -------------------------------------------------- |
+| `id`       | `string`                  | Stable unique id within the tree.                  |
+| `name`     | `string`                  | Display name, e.g. `"Button.tsx"`.                 |
+| `kind`     | `'file' \| 'folder'`      | File vs. folder. Folders accept dropped files.     |
+| `ext`      | `string`                  | Extension override (no dot). Inferred from `name`. |
+| `path`     | `string`                  | Optional path (informational; surfaced unchanged). |
+| `children` | `FileTreeNode[]`          | Child entries (folders).                           |
+| `disabled` | `boolean`                 | Dim + non-interactive.                             |
+| `data`     | `Record<string, unknown>` | Arbitrary consumer payload.                        |
 
 ## Accessibility
 
