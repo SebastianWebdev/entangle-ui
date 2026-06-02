@@ -86,9 +86,9 @@ export const levelChipRecipe = recipe({
     height: '26px',
     padding: `0 ${vars.spacing.md}`,
     border: `1px solid ${vars.colors.border.default}`,
-    borderRadius: vars.borderRadius.sm,
+    borderRadius: vars.borderRadius.md,
     background: 'transparent',
-    color: vars.colors.text.secondary,
+    color: levelColorVar,
     fontFamily: vars.typography.fontFamily.sans,
     fontSize: vars.typography.fontSize.sm,
     lineHeight: vars.typography.lineHeight.tight,
@@ -117,7 +117,6 @@ export const levelChipRecipe = recipe({
     active: {
       true: {
         borderColor: levelColorVar,
-        color: vars.colors.text.primary,
         background: `color-mix(in srgb, ${levelColorVar} 14%, transparent)`,
       },
       false: {
@@ -148,7 +147,8 @@ export const levelDotStyle = style({
 
 export const chipCountStyle = style({
   fontVariantNumeric: 'tabular-nums',
-  color: vars.colors.text.muted,
+  color: 'inherit',
+  opacity: 0.75,
   fontSize: vars.typography.fontSize.xs,
   paddingLeft: vars.spacing.xs,
 });

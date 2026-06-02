@@ -135,7 +135,7 @@ export const LogViewLevelFilter = ({
           >
             {Icon ? (
               <span className={levelGlyphStyle} aria-hidden="true">
-                <Icon size="md" />
+                <Icon size="md" color="currentColor" />
               </span>
             ) : (
               <span className={levelDotStyle} aria-hidden="true" />

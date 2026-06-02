@@ -177,7 +177,7 @@ const LogRow = memo(function LogRow({
       )}
 
       <span className={rowGlyphStyle} aria-hidden="true">
-        {Icon ? <Icon size="md" /> : null}
+        {Icon ? <Icon size="md" color="currentColor" /> : null}
       </span>
 
       {showSource && entry.source != null && entry.source !== '' && (
