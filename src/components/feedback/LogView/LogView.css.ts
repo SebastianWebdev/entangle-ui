@@ -17,7 +17,7 @@ export const levelColorVar = createVar();
  * LogView root to widen/narrow a column for longer timestamps or source tags.
  */
 const TIMESTAMP_COL_WIDTH = 'var(--etui-logview-timestamp-col-width, 88px)';
-const SOURCE_COL_WIDTH = 'var(--etui-logview-source-col-width, 80px)';
+const SOURCE_COL_WIDTH = 'var(--etui-logview-source-col-width, 52px)';
 
 /**
  * Fixed row heights per density (px). Keep in sync with the `density` variant

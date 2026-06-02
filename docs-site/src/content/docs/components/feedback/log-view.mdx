@@ -167,7 +167,7 @@ By default LogView sticks to the bottom as new entries arrive. Scrolling up deta
 
 ## Column alignment
 
-The timestamp, level icon, and source tag render as fixed-width columns, so the message text starts at the same x on every row regardless of source length. A column is only reserved when its field is actually present — if nothing in the log has a timestamp or source there is no column at all (the message sits right after the icon); once at least one entry uses the field, every row reserves it, including the rows that omit it, so they stay aligned. The reserved widths default to `88px` (timestamp) and `80px` (source) and are tunable per instance by overriding the CSS custom properties on the root:
+The timestamp, level icon, and source tag render as fixed-width columns, so the message text starts at the same x on every row regardless of source length. A column is only reserved when its field is actually present — if nothing in the log has a timestamp or source there is no column at all (the message sits right after the icon); once at least one entry uses the field, every row reserves it, including the rows that omit it, so they stay aligned. The reserved widths default to `88px` (timestamp) and `52px` (source) and are tunable per instance by overriding the CSS custom properties on the root:
 
 ```tsx
 <LogView
@@ -277,13 +277,14 @@ LogView-specific properties (each with a built-in fallback) that you set on the 
 | Custom property                      | Default | Controls                                 |
 | ------------------------------------ | ------- | ---------------------------------------- |
 | `--etui-logview-timestamp-col-width` | `88px`  | Reserved width of the timestamp column.  |
-| `--etui-logview-source-col-width`    | `80px`  | Reserved width of the source-tag column. |
+| `--etui-logview-source-col-width`    | `52px`  | Reserved width of the source-tag column. |
 
 ```tsx
 <LogView
   entries={entries}
   showTimestamps
-  style={{ ['--etui-logview-source-col-width' as string]: '3.25rem' }}
+  // e.g. widen the source column for longer subsystem tags (default 52px)
+  style={{ ['--etui-logview-source-col-width' as string]: '7rem' }}
 />
 ```
 
