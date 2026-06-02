@@ -172,6 +172,75 @@ describe('FileTree', () => {
       expect(onExpandedChange).toHaveBeenCalledWith(['src']);
       expect(screen.getByText('Button.tsx')).toBeInTheDocument();
     });
+
+    it('toggles a folder when its whole row is clicked (default)', () => {
+      renderWithTheme(<FileTree nodes={nodes} />);
+      expect(screen.queryByText('Button.tsx')).not.toBeInTheDocument();
+      // Click the label (not the chevron) — the row toggles expansion.
+      fireEvent.click(screen.getByText('src'));
+      expect(screen.getByText('Button.tsx')).toBeInTheDocument();
+      fireEvent.click(screen.getByText('src'));
+      expect(screen.queryByText('Button.tsx')).not.toBeInTheDocument();
+    });
+
+    it('does not toggle on row click when expandOnClick is false', () => {
+      renderWithTheme(<FileTree nodes={nodes} expandOnClick={false} />);
+      fireEvent.click(screen.getByText('src'));
+      expect(screen.queryByText('Button.tsx')).not.toBeInTheDocument();
+    });
+
+    it('does not expand when a file row is clicked', () => {
+      const onExpandedChange = vi.fn();
+      renderWithTheme(
+        <FileTree nodes={nodes} onExpandedChange={onExpandedChange} />
+      );
+      fireEvent.click(screen.getByText('README.md'));
+      expect(onExpandedChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Internationalization', () => {
+    it('uses labels.treeLabel as the tree accessible name', () => {
+      renderWithTheme(
+        <FileTree nodes={nodes} labels={{ treeLabel: 'Drzewo plików' }} />
+      );
+      expect(screen.getByRole('tree')).toHaveAttribute(
+        'aria-label',
+        'Drzewo plików'
+      );
+    });
+
+    it('lets an explicit aria-label win over labels.treeLabel', () => {
+      renderWithTheme(
+        <FileTree
+          nodes={nodes}
+          aria-label="Explorer"
+          labels={{ treeLabel: 'ignored' }}
+        />
+      );
+      expect(screen.getByRole('tree')).toHaveAttribute(
+        'aria-label',
+        'Explorer'
+      );
+    });
+
+    it('uses labels.emptyLabel for the empty state', () => {
+      renderWithTheme(
+        <FileTree nodes={[]} labels={{ emptyLabel: 'Brak plików' }} />
+      );
+      expect(screen.getByText('Brak plików')).toBeInTheDocument();
+    });
+
+    it('lets emptyContent win over labels.emptyLabel', () => {
+      renderWithTheme(
+        <FileTree
+          nodes={[]}
+          emptyContent="Custom empty"
+          labels={{ emptyLabel: 'Brak plików' }}
+        />
+      );
+      expect(screen.getByText('Custom empty')).toBeInTheDocument();
+    });
   });
 
   describe('Drag and drop import', () => {

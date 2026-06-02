@@ -118,6 +118,13 @@ export interface TreeViewBaseProps extends Omit<BaseComponent, 'onChange'> {
   expandOnSelect?: boolean;
 
   /**
+   * Whether clicking anywhere on a parent node's row toggles its expansion
+   * (not just the chevron). Leaf nodes are unaffected.
+   * @default false
+   */
+  expandOnClick?: boolean;
+
+  /**
    * Maximum height before scrolling.
    */
   maxHeight?: number | string;

@@ -4,7 +4,13 @@ import { FileTree } from '@/components/controls';
 import type { FileTreeNode } from '@/components/controls';
 import { Stack } from '@/components/layout';
 import { Text } from '@/components/primitives';
-import { StarIcon } from '@/components/Icons';
+import {
+  CodeIcon,
+  FolderIcon,
+  FolderOpenIcon,
+  ImageIcon,
+  StarIcon,
+} from '@/components/Icons';
 
 const PROJECT: FileTreeNode[] = [
   {
@@ -152,6 +158,80 @@ export function FileTreeSizes() {
             />
           </Stack>
         ))}
+      </Stack>
+    </DemoWrapper>
+  );
+}
+
+export function FileTreeColoredIcons() {
+  return (
+    <DemoWrapper withKeyboard>
+      <Stack gap={2} style={{ maxWidth: 320 }}>
+        <Text size="sm" color="muted">
+          <code>resolveIcon</code> returns any icon with any color — here, by
+          type.
+        </Text>
+        <FileTree
+          nodes={PROJECT}
+          defaultExpandedIds={['src', 'components', 'assets', 'public']}
+          resolveIcon={(node, { expanded }) => {
+            if (node.kind === 'folder') {
+              return expanded ? (
+                <FolderOpenIcon size={14} color="accent" decorative />
+              ) : (
+                <FolderIcon size={14} color="accent" decorative />
+              );
+            }
+            const ext = node.name.split('.').pop();
+            if (ext === 'png' || ext === 'svg' || ext === 'jpg') {
+              return <ImageIcon size={14} color="success" decorative />;
+            }
+            if (ext && ['ts', 'tsx', 'js', 'css'].includes(ext)) {
+              return <CodeIcon size={14} color="warning" decorative />;
+            }
+            return undefined;
+          }}
+        />
+      </Stack>
+    </DemoWrapper>
+  );
+}
+
+export function FileTreeLocalized() {
+  return (
+    <DemoWrapper withKeyboard>
+      <Stack gap={2} style={{ maxWidth: 320 }}>
+        <Text size="sm" color="muted">
+          Accessible name + empty state localized to Polish via{' '}
+          <code>labels</code>.
+        </Text>
+        <FileTree
+          nodes={PROJECT}
+          defaultExpandedIds={['src']}
+          labels={{ treeLabel: 'Drzewo plików', emptyLabel: 'Brak plików' }}
+        />
+        <FileTree nodes={[]} labels={{ emptyLabel: 'Brak plików' }} />
+      </Stack>
+    </DemoWrapper>
+  );
+}
+
+export function FileTreeStyled() {
+  return (
+    <DemoWrapper withKeyboard>
+      <Stack gap={2} style={{ maxWidth: 320 }}>
+        <Text size="sm" color="muted">
+          Re-skinned by overriding <code>--etui-*</code> tokens on the root.
+        </Text>
+        <FileTree
+          nodes={PROJECT}
+          defaultExpandedIds={['src', 'components']}
+          defaultSelectedIds={['button']}
+          style={{
+            ['--etui-color-accent-primary' as string]: '#d946ef',
+            ['--etui-color-text-secondary' as string]: '#d946ef',
+          }}
+        />
       </Stack>
     </DemoWrapper>
   );

@@ -19,6 +19,7 @@ export {
   getFileIconKind,
   getFileExtension,
   classifyExtension,
+  DEFAULT_FILE_TREE_LABELS,
 } from './FileTree';
 export { FileUploader } from './FileUploader';
 export { MultiSelect } from './MultiSelect';
@@ -63,6 +64,7 @@ export type {
   FileTreeNodeKind,
   FileTreeNodeState,
   FileTreeImportPayload,
+  FileTreeLabels,
   FileIconKind,
 } from './FileTree';
 export type {

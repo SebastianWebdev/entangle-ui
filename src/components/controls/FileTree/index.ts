@@ -8,6 +8,9 @@ export {
 
 export type { FileIconKind } from './fileTreeIcons';
 
+export { DEFAULT_FILE_TREE_LABELS } from './fileTreeLabels';
+export type { FileTreeLabels } from './fileTreeLabels';
+
 export type {
   FileTreeProps,
   FileTreeNode,

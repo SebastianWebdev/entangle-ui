@@ -17,6 +17,7 @@ import { cx } from '@/utils/cx';
 
 import { containerStyle, iconStyle, labelStyle } from './FileTree.css';
 import { getFileIconKind } from './fileTreeIcons';
+import { DEFAULT_FILE_TREE_LABELS } from './fileTreeLabels';
 import { useFileTreeDrop } from './useFileTreeDrop';
 
 import type {
@@ -107,6 +108,7 @@ export const FileTree = ({
   indent,
   showChevrons,
   showGuideLines,
+  expandOnClick = true,
   maxHeight,
   resolveIcon,
   renderNode,
@@ -116,10 +118,13 @@ export const FileTree = ({
   onNodeClick,
   onNodeDoubleClick,
   onNodeContextMenu,
+  labels: labelsProp,
   className,
   style,
   testId,
   ref,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledby,
   ...rest
 }: FileTreeProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -146,6 +151,11 @@ export const FileTree = ({
   }, [nodes]);
 
   const dnd = useFileTreeDrop({ onImport, nodeById, parentFolderById });
+
+  const labels = useMemo(
+    () => ({ ...DEFAULT_FILE_TREE_LABELS, ...labelsProp }),
+    [labelsProp]
+  );
 
   const iconPx = ICON_PX[size];
 
@@ -236,10 +246,13 @@ export const FileTree = ({
         indent={indent}
         showChevrons={showChevrons}
         showGuideLines={showGuideLines}
+        expandOnClick={expandOnClick}
         maxHeight={maxHeight}
         renderNode={renderTreeNode}
         renderActions={renderTreeActions}
-        emptyContent={emptyContent}
+        emptyContent={emptyContent ?? labels.emptyLabel}
+        aria-label={ariaLabel ?? labels.treeLabel}
+        aria-labelledby={ariaLabelledby}
         dropTargetId={dnd.enabled ? dnd.dropTargetId : undefined}
         onNodeClick={handleNodeClick}
         onNodeDoubleClick={handleNodeDoubleClick}

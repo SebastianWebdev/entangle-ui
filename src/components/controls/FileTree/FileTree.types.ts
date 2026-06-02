@@ -1,3 +1,4 @@
+import type { FileTreeLabels } from './fileTreeLabels';
 import type {
   TreeNodeState,
   TreeSelectionMode,
@@ -100,6 +101,12 @@ export interface FileTreeBaseProps extends Omit<BaseComponent, 'onChange'> {
    * @default false
    */
   showGuideLines?: boolean;
+  /**
+   * Whether clicking anywhere on a folder row toggles it open/closed (not just
+   * the chevron). Files are unaffected.
+   * @default true
+   */
+  expandOnClick?: boolean;
   /** Maximum height before the tree scrolls. */
   maxHeight?: number | string;
 
@@ -143,6 +150,14 @@ export interface FileTreeBaseProps extends Omit<BaseComponent, 'onChange'> {
   onNodeDoubleClick?: (node: FileTreeNode, event: React.MouseEvent) => void;
   /** Fired when a node is right-clicked. */
   onNodeContextMenu?: (node: FileTreeNode, event: React.MouseEvent) => void;
+
+  // ── i18n ──
+  /**
+   * Override the built-in English strings (the tree's accessible name and the
+   * empty-state text). Merged onto the defaults, so you can localize a subset.
+   * @see DEFAULT_FILE_TREE_LABELS
+   */
+  labels?: Partial<FileTreeLabels>;
 }
 
 export type FileTreeProps = Prettify<FileTreeBaseProps>;
