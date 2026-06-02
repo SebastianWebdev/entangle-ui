@@ -48,7 +48,9 @@ finally wire up the long-declared-but-unused `droppable` field on
 usable on a plain `TreeView`, not just `FileTree`.
 
 Icons: add `ImageIcon` (no image glyph existed; `AssetBrowser` relied on
-thumbnails, but a tree has none).
+thumbnails, but a tree has none). Fix `FolderOpenIcon` geometry — it occupied a
+smaller area of the 24×24 viewBox than `FolderIcon`, so the open folder rendered
+visibly smaller than the closed one; it now shares the closed folder's footprint.
 
 Docs: new FileTree page with live demos (project tree, drag-and-drop import,
 icon resolution, colored icons, selection, sizes, token re-skin, localized
