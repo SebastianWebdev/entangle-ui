@@ -10,6 +10,7 @@ import LogViewDemo, {
   LogViewFiltering,
   LogViewWrap,
   LogViewCompound,
+  LogViewSlotProps,
   LogViewCustomLevels,
   LogViewCustomRender,
 } from '../../../../components/demos/feedback/LogViewDemo';
@@ -219,6 +220,10 @@ When you want the batteries-included layout but need to restyle or reconfigure a
   }}
 />
 ```
+
+<ComponentPreview title="Restyling slots with slotProps">
+  <LogViewSlotProps client:only="react" />
+</ComponentPreview>
 
 ## Custom rendering
 

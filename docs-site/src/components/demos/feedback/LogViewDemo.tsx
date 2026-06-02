@@ -237,6 +237,39 @@ export function LogViewCompound() {
   );
 }
 
+/** Tweak single slots of the default layout via `slotProps` (no rebuild). */
+export function LogViewSlotProps() {
+  return (
+    <DemoWrapper>
+      <LogView
+        entries={SAMPLE}
+        showTimestamps
+        height={280}
+        slotProps={{
+          // Reconfigure the search input.
+          search: { placeholder: 'Filter output…', size: 'lg' },
+          // Restyle the toolbar and body containers (className/style merge with
+          // each slot's own styles).
+          toolbar: {
+            style: {
+              background:
+                'color-mix(in srgb, var(--etui-color-accent-primary) 8%, transparent)',
+            },
+          },
+          body: {
+            style: {
+              background:
+                'color-mix(in srgb, var(--etui-color-accent-primary) 4%, transparent)',
+            },
+          },
+          // Relabel an action button.
+          clear: { 'aria-label': 'Discard log' },
+        }}
+      />
+    </DemoWrapper>
+  );
+}
+
 /** Extensible levels: a custom "trace" level with its own color and label. */
 export function LogViewCustomLevels() {
   const levelConfig: LogLevelConfig = {
