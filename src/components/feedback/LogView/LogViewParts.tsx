@@ -13,6 +13,7 @@ import { cx } from '@/utils/cx';
 
 import {
   chipCountStyle,
+  footerStyle,
   levelChipRecipe,
   levelColorVar,
   levelDotStyle,
@@ -27,6 +28,7 @@ import { entriesToText } from './logViewUtils';
 import type {
   LogViewClearProps,
   LogViewCopyProps,
+  LogViewFooterProps,
   LogViewLevelFilterProps,
   LogViewSearchProps,
   LogViewToolbarProps,
@@ -52,6 +54,27 @@ export const LogViewToolbar = ({
   </div>
 );
 LogViewToolbar.displayName = 'LogView.Toolbar';
+
+/** Footer container. A thin bar below the body for status / summary content. */
+export const LogViewFooter = ({
+  children,
+  className,
+  style,
+  testId,
+  ref,
+  ...rest
+}: LogViewFooterProps): React.ReactElement => (
+  <div
+    ref={ref}
+    className={cx(footerStyle, className)}
+    style={style}
+    data-testid={testId}
+    {...rest}
+  >
+    {children}
+  </div>
+);
+LogViewFooter.displayName = 'LogView.Footer';
 
 /** Search field bound to the LogView query state. */
 export const LogViewSearch = ({

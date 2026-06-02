@@ -112,3 +112,11 @@ export function useLogCounts(store: LogViewStore): LogLevelCounts {
     store.getCounts
   );
 }
+
+/** Live stats for the current LogView. Call inside `<LogView>` (e.g. in a footer). */
+export function useLogViewStats(): { total: number; counts: LogLevelCounts } {
+  const { store } = useLogViewContext();
+  const entries = useLogEntries(store);
+  const counts = useLogCounts(store);
+  return { total: entries.length, counts };
+}

@@ -64,6 +64,22 @@ export const toolbarStyle = style({
 
 export const toolbarSpacerStyle = style({ flex: 1, minWidth: vars.spacing.sm });
 
+// ── Footer ──
+
+export const footerStyle = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.spacing.md,
+  padding: `${vars.spacing.xs} ${vars.spacing.md}`,
+  minHeight: '24px',
+  borderTop: `1px solid ${vars.colors.border.default}`,
+  background: vars.colors.surface.default,
+  color: vars.colors.text.secondary,
+  fontFamily: vars.typography.fontFamily.sans,
+  fontSize: vars.typography.fontSize.xs,
+  flexShrink: 0,
+});
+
 export const searchWrapperStyle = style({
   flex: '0 1 240px',
   minWidth: '120px',
@@ -352,7 +368,8 @@ export const jumpButtonRecipe = recipe({
   base: {
     position: 'absolute',
     bottom: vars.spacing.md,
-    right: vars.spacing.md,
+    // Keep clear of the scrollbar so it stays easy to scroll past the button.
+    right: vars.spacing.xl,
     display: 'inline-flex',
     borderRadius: vars.borderRadius.md,
     boxShadow: vars.shadows.md,

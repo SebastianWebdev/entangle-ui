@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import DemoWrapper from '../DemoWrapper';
-import { LogView } from '@/components/feedback';
+import { LogView, useLogViewStats } from '@/components/feedback';
 import type {
   LogEntry,
   LogLevel,
@@ -94,6 +94,31 @@ export default function LogViewDemo() {
   );
 }
 
+/** Footer content: "Streaming · N entries" on the left, a per-level breakdown on the right. */
+function StreamFooter() {
+  const { total, counts } = useLogViewStats();
+  return (
+    <>
+      <span>Streaming · {total} entries</span>
+      <span
+        style={{
+          marginLeft: 'auto',
+          display: 'inline-flex',
+          gap: 'var(--etui-spacing-lg)',
+        }}
+      >
+        <span>{counts['info'] ?? 0} info</span>
+        <span style={{ color: 'var(--etui-color-accent-warning, #d98a00)' }}>
+          {counts['warn'] ?? 0} warnings
+        </span>
+        <span style={{ color: 'var(--etui-color-accent-error, #e5484d)' }}>
+          {counts['error'] ?? 0} errors
+        </span>
+      </span>
+    </>
+  );
+}
+
 /** Streaming append via the imperative handle — high-frequency, rAF-batched. */
 export function LogViewStreaming() {
   const ref = useRef<LogViewHandle>(null);
@@ -149,6 +174,7 @@ export function LogViewStreaming() {
           maxEntries={5000}
           height={300}
           aria-label="Streaming log"
+          footer={<StreamFooter />}
         />
         <Text size="sm" color="muted">
           Scroll up to detach from the tail — a “jump to bottom” button appears

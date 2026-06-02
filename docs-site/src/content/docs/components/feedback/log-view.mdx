@@ -121,6 +121,26 @@ Selection is controllable via `selectedIds` / `defaultSelectedIds` / `onSelectio
 />
 ```
 
+## Footer
+
+Pass `footer` to render a thin status bar below the body (or compose `LogView.Footer` directly). Inside it, `useLogViewStats()` returns the live `{ total, counts }` so you can show a running summary — total on the left, a per-level breakdown on the right. The streaming demo above uses exactly this.
+
+```tsx
+function Footer() {
+  const { total, counts } = useLogViewStats();
+  return (
+    <>
+      <span>Streaming · {total} entries</span>
+      <span style={{ marginLeft: 'auto' }}>
+        {counts.warn ?? 0} warnings · {counts.error ?? 0} errors
+      </span>
+    </>
+  );
+}
+
+<LogView ref={ref} footer={<Footer />} />;
+```
+
 ## Levels
 
 The four built-in levels — `debug`, `info`, `warn`, `error` — are themed automatically (errors and warnings carry an accent color and a left bar; info and debug stay quiet). The set is extensible: pass `levelConfig` to add or recolor levels, and `levelOrder` to control which chips appear and in what order.
@@ -153,7 +173,7 @@ Rows are single-line by default (long lines scroll horizontally), which keeps vi
 
 ## Composition
 
-LogView ships a default toolbar (search, level chips, copy, clear) that you can toggle with `showSearch` / `showLevelFilter` / `showCopy` / `showClear` / `showToolbar`. For full control, compose the slots yourself — `LogView.Toolbar`, `LogView.Search`, `LogView.LevelFilter`, `LogView.Copy`, `LogView.Clear`, `LogView.Body`. When you pass children, the default toolbar is replaced by your composition.
+LogView ships a default toolbar (search, level chips, copy, clear) that you can toggle with `showSearch` / `showLevelFilter` / `showCopy` / `showClear` / `showToolbar`. For full control, compose the slots yourself — `LogView.Toolbar`, `LogView.Search`, `LogView.LevelFilter`, `LogView.Copy`, `LogView.Clear`, `LogView.Body`, `LogView.Footer`. When you pass children, the default toolbar is replaced by your composition.
 
 ```tsx
 <LogView entries={entries}>
@@ -413,6 +433,12 @@ Virtualization auto-engages above `virtualizationThreshold` (default 100) and ca
       type: 'React.ReactNode',
       description:
         'Content shown when there are no entries (or none match the filter).',
+    },
+    {
+      name: 'footer',
+      type: 'React.ReactNode',
+      description:
+        'Footer content rendered in a thin bar below the body (default composition). Use useLogViewStats() inside it for live counts.',
     },
     {
       name: 'onClear',

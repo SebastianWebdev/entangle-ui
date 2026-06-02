@@ -23,6 +23,7 @@ import { resolveLevelDefinition, resolveLevelOrder } from './logViewLevels';
 import {
   LogViewClear,
   LogViewCopy,
+  LogViewFooter,
   LogViewLevelFilter,
   LogViewSearch,
   LogViewToolbar,
@@ -79,6 +80,7 @@ const LogViewRoot = ({
   maxHeight,
   renderEntry,
   emptyState,
+  footer,
   onClear,
   onEntryClick,
   onCopy,
@@ -366,6 +368,7 @@ const LogViewRoot = ({
         </LogViewToolbar>
       )}
       <LogViewBody />
+      {footer != null && <LogViewFooter>{footer}</LogViewFooter>}
     </>
   );
 
@@ -391,6 +394,7 @@ interface LogViewComponent {
   (props: LogViewProps): React.ReactElement;
   displayName?: string;
   Toolbar: typeof LogViewToolbar;
+  Footer: typeof LogViewFooter;
   Search: typeof LogViewSearch;
   LevelFilter: typeof LogViewLevelFilter;
   Clear: typeof LogViewClear;
@@ -440,6 +444,7 @@ interface LogViewComponent {
 export const LogView = LogViewRoot as LogViewComponent;
 
 LogView.Toolbar = LogViewToolbar;
+LogView.Footer = LogViewFooter;
 LogView.Search = LogViewSearch;
 LogView.LevelFilter = LogViewLevelFilter;
 LogView.Clear = LogViewClear;

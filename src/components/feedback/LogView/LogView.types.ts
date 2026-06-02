@@ -239,6 +239,12 @@ export interface LogViewBaseProps extends Omit<
   renderEntry?: (info: LogEntryRenderInfo) => React.ReactNode;
   /** Content shown when there are no entries (or none match the filter). */
   emptyState?: React.ReactNode;
+  /**
+   * Footer content rendered in a thin bar below the body (default composition
+   * only; with custom `children`, compose `LogView.Footer` instead). Use
+   * `useLogViewStats()` inside it for live entry / per-level counts.
+   */
+  footer?: React.ReactNode;
 
   // ── Events ──
   /** Fired when the log is cleared (toolbar Clear or `handle.clear`). */
@@ -260,6 +266,10 @@ export type LogViewProps = Prettify<LogViewBaseProps>;
 // ── Slot prop types ──
 
 export interface LogViewToolbarProps extends BaseComponent {
+  children?: React.ReactNode;
+}
+
+export interface LogViewFooterProps extends BaseComponent {
   children?: React.ReactNode;
 }
 

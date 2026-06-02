@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { renderWithTheme } from '@/tests/testUtils';
 
 import { LogView } from './LogView';
+import { useLogViewStats } from './LogViewContext';
 import { LogViewStore } from './LogViewStore';
 
 import type { LogEntry, LogViewHandle } from './LogView.types';
@@ -200,6 +201,17 @@ describe('LogView', () => {
         <LogView entries={[]} virtualized={false} emptyState="Nothing here" />
       );
       expect(screen.getByText('Nothing here')).toBeInTheDocument();
+    });
+
+    it('renders a footer whose content can read live stats', () => {
+      function Footer() {
+        const { total, counts } = useLogViewStats();
+        return <span>{`total=${total} err=${counts['error'] ?? 0}`}</span>;
+      }
+      renderWithTheme(
+        <LogView entries={ENTRIES} virtualized={false} footer={<Footer />} />
+      );
+      expect(screen.getByText('total=4 err=1')).toBeInTheDocument();
     });
 
     it('supports a custom renderEntry', () => {

@@ -3,10 +3,12 @@ export { LogViewBody } from './LogViewBody';
 export {
   LogViewClear,
   LogViewCopy,
+  LogViewFooter,
   LogViewLevelFilter,
   LogViewSearch,
   LogViewToolbar,
 } from './LogViewParts';
+export { useLogViewStats } from './LogViewContext';
 export {
   defaultFormatTimestamp,
   entriesToText,
@@ -27,6 +29,7 @@ export type {
   LogViewClearProps,
   LogViewCopyProps,
   LogViewDensity,
+  LogViewFooterProps,
   LogViewHandle,
   LogViewLevelFilterProps,
   LogViewProps,
