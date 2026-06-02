@@ -756,6 +756,153 @@ and the src-only rules above are not applied to them.
 
 ---
 
+## 15. `slotProps` for batteries-included compositions
+
+A compound component that ships **both** a default ("batteries-included")
+composition and a manual slot composition must expose a `slotProps` object, so a
+consumer can tweak an individual slot of the _default_ layout without rebuilding
+it from slots. It is the ergonomic middle ground between toggle booleans
+(`showSearch`, `showClear`) and rewriting the whole thing as `children` — reach
+for it whenever someone "just wants to restyle the default a little".
+
+### The rule
+
+- The prop is `slotProps?: ComponentSlotProps`, an object keyed by slot name.
+- Each value is typed as **that slot's own props** (reuse the slot component's
+  prop type — never a fresh ad-hoc shape). `Omit` `children` for any slot whose
+  children the parent owns (a toolbar whose children are the default actions; a
+  footer whose content comes from a `footer` prop). _Keep_ `children` where
+  overriding it is useful (an action button's icon).
+- Spread each entry onto its slot in the default composition:
+  `<Slot {...slotProps?.slotName} />`.
+- `slotProps` applies to the **default composition only**. When the consumer
+  passes `children` (manual composition) it is ignored — they already hold each
+  slot and pass props directly.
+- This only works because slots **merge** their incoming `className` with their
+  base styles (`cx(baseStyle, className)`) and apply `style`. A slot that
+  overwrote `className` would make `slotProps.x.className` destructive — so keep
+  every slot's `className` additive (rule #6 territory).
+
+### Shape
+
+```ts
+export interface LogViewSlotProps {
+  toolbar?: Omit<LogViewToolbarProps, 'children'>; // children = the actions
+  search?: LogViewSearchProps;
+  levelFilter?: LogViewLevelFilterProps;
+  copy?: LogViewCopyProps; // keeps children → swap the icon
+  clear?: LogViewClearProps; // keeps children → swap the icon
+  body?: LogViewBodyProps;
+  footer?: Omit<LogViewFooterProps, 'children'>; // content = the `footer` prop
+}
+```
+
+```tsx
+// Default composition spreads each slot's props; ignored when `children` given.
+{
+  showSearch && <LogViewSearch {...slotProps?.search} />;
+}
+<LogViewBody {...slotProps?.body} />;
+```
+
+```tsx
+// Consumer: tweak one slot of the default layout, keep everything else.
+<LogView
+  entries={entries}
+  slotProps={{
+    search: { placeholder: 'Filter output…', size: 'lg' },
+    body: { className: styles.denseBody },
+    clear: { children: <BroomIcon /> },
+  }}
+/>
+```
+
+### Don't
+
+- Don't add a `root` key — the root is the component's own element; pass
+  `className` / `style` / `ref` to the component directly.
+- Don't use `slotProps` to restructure the layout (reorder, add, or remove
+  slots). That is what manual `children` composition is for.
+
+**Reference:** `src/components/feedback/LogView/` — `LogViewSlotProps` in
+`LogView.types.ts`, spread in `LogView.tsx` (`defaultComposition`).
+
+---
+
+## 16. Internationalization: every user-facing string goes through `labels`
+
+Every component must support i18n. No component may hard-code a string the user
+can see or that a screen reader announces — placeholders, button text,
+`aria-label`s, empty/loading/error messages, tooltips, counters, the region
+label. Route them all through a single `labels` prop so the whole component can
+be localized in one place.
+
+### The rule
+
+- Add `labels?: Partial<ComponentLabels>` and a `ComponentLabels` interface with
+  **one key per string**. Resolve it once (`{ ...DEFAULTS, ...labels }`) and read
+  the resolved object everywhere (through context for compound parts).
+- Ship the English defaults as an exported constant `DEFAULT_<COMPONENT>_LABELS`
+  so consumers can spread-and-tweak. Each key's JSDoc states its default.
+- **Counts/quantities are functions, not concatenation** — `newLinesLabel:
+(count: number) => string`. `` `${n} new` `` is English-only; a function lets a
+  locale handle pluralization and word order.
+- An explicit per-element prop still wins: resolve as `explicitProp ??
+labels.x` (a slot's `aria-label`, the search `placeholder`, `emptyState`, the
+  root `aria-label`, …).
+- `labels` is low-frequency config: merge it in a `useMemo` and tell consumers to
+  pass a stable reference (same note as `levelConfig` / `slotProps`).
+
+### Anti-example
+
+```tsx
+// ❌ Hard-coded, unlocalizable, English-only concatenated count.
+<button aria-label="Jump to bottom">{count} new</button>;
+<div>No log entries</div>;
+```
+
+### Correct
+
+```ts
+export interface LogViewLabels {
+  searchPlaceholder: string;
+  jumpToBottomLabel: string;
+  newLinesLabel: (count: number) => string; // pluralization-safe
+  emptyLabel: string;
+  // …one key per visible string
+}
+export const DEFAULT_LOG_VIEW_LABELS: LogViewLabels = {
+  searchPlaceholder: 'Filter logs…',
+  jumpToBottomLabel: 'Jump to bottom',
+  newLinesLabel: n => `${n} new`,
+  emptyLabel: 'No log entries',
+};
+```
+
+```tsx
+const labels = useMemo(
+  () => ({ ...DEFAULT_LOG_VIEW_LABELS, ...labelsProp }),
+  [labelsProp]
+);
+// …
+<button aria-label={labels.jumpToBottomLabel}>
+  {labels.newLinesLabel(count)}
+</button>;
+{
+  emptyState ?? labels.emptyLabel;
+}
+```
+
+Every component's docs page must carry an `## Internationalization` section: a
+`labels` key/type/default table plus a localized live demo (see rule in
+`CLAUDE.md`).
+
+**Reference:** `src/components/feedback/LogView/` (`LogViewLabels` +
+`DEFAULT_LOG_VIEW_LABELS` in `logViewLabels.ts`) and
+`src/components/editor/AssetBrowser/` (`AssetBrowserLabels`).
+
+---
+
 ## Reference files (the "look at this" list)
 
 When implementing a new pattern, open these first:
@@ -770,5 +917,7 @@ When implementing a new pattern, open these first:
 | Resize observation via the hook                                   | `src/components/primitives/viewport/Viewport.tsx:171`       |
 | Ref-to-DOM compound (lightweight)                                 | `src/components/layout/Card/Card.tsx`                       |
 | Controlled/uncontrolled state bridge                              | `src/hooks/useControlledState/useControlledState.ts`        |
+| `slotProps` for a default composition                             | `src/components/feedback/LogView/LogView.tsx`               |
+| `labels` prop for i18n (string overrides)                         | `src/components/feedback/LogView/logViewLabels.ts`          |
 
 If the pattern you need isn't in this table, ask before inventing one.
