@@ -192,6 +192,23 @@ describe('LogView', () => {
       expect(screen.getByText('core')).toBeInTheDocument();
     });
 
+    it('reserves the source column on rows without a source (table alignment)', () => {
+      const { container } = renderWithTheme(
+        <LogView
+          entries={[
+            { id: 'a', level: 'info', message: 'with source', source: 'core' },
+            { id: 'b', level: 'info', message: 'no source' },
+          ]}
+          virtualized={false}
+        />
+      );
+      // showSource defaults true, so every row renders a (possibly empty) source
+      // cell — that reservation is what keeps the message text aligned.
+      expect(container.querySelectorAll('[data-log-source]')).toHaveLength(2);
+      expect(screen.getByText('core')).toBeInTheDocument();
+      expect(screen.getByText('no source')).toBeInTheDocument();
+    });
+
     it('renders timestamps when enabled', () => {
       renderWithTheme(
         <LogView

@@ -11,6 +11,15 @@ export const rowHeightVar = createVar();
 export const levelColorVar = createVar();
 
 /**
+ * Reserved prefix-column widths, so the message text starts at the same x on
+ * every row (the timestamp / source read as table columns). Exposed as public,
+ * overridable CSS custom properties with built-in fallbacks — set them on the
+ * LogView root to widen/narrow a column for longer timestamps or source tags.
+ */
+const TIMESTAMP_COL_WIDTH = 'var(--etui-logview-timestamp-col-width, 88px)';
+const SOURCE_COL_WIDTH = 'var(--etui-logview-source-col-width, 80px)';
+
+/**
  * Fixed row heights per density (px). Keep in sync with the `density` variant
  * of {@link rowRecipe}; the body reads these for the virtualizer's
  * `estimateSize`.
@@ -287,6 +296,8 @@ export const timestampStyle = style({
   fontVariantNumeric: 'tabular-nums',
   whiteSpace: 'pre',
   flexShrink: 0,
+  // Reserve the column even on rows without a timestamp so messages stay aligned.
+  minWidth: TIMESTAMP_COL_WIDTH,
   userSelect: 'none',
 });
 
@@ -299,10 +310,27 @@ export const rowGlyphStyle = style({
   width: '18px',
 });
 
-/** Layout-only tweaks layered on the shared `<Badge>` used for the source tag. */
-export const sourceTagStyle = style({
+/**
+ * Fixed-width column that wraps the source tag. Always rendered (even empty)
+ * when `showSource` is on, so the message text starts at the same x on every
+ * row — i.e. the source reads as a table column rather than a variable-width
+ * inline tag. `overflow: hidden` clips an over-long tag to the column.
+ */
+export const sourceCellStyle = style({
+  display: 'flex',
+  alignItems: 'center',
   flexShrink: 0,
-  maxWidth: '160px',
+  width: SOURCE_COL_WIDTH,
+  overflow: 'hidden',
+});
+
+/** The shared `<Badge>` used for the source tag — kept within its column. */
+export const sourceTagStyle = style({
+  flexShrink: 1,
+  minWidth: 0,
+  maxWidth: '100%',
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
 });
 
 export const messageRecipe = recipe({

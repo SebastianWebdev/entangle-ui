@@ -35,6 +35,7 @@ import {
   rowGlyphStyle,
   rowRecipe,
   scrollViewportStyle,
+  sourceCellStyle,
   sourceTagStyle,
   timestampStyle,
   totalHeightVar,
@@ -136,6 +137,7 @@ const LogRow = memo(function LogRow({
   measureRef,
 }: LogRowProps): React.ReactElement {
   const Icon = levelDef.icon;
+  const hasSource = entry.source != null && entry.source !== '';
 
   const rowStyle: React.CSSProperties = {};
   if (virtualized) rowStyle.transform = `translateY(${start}px)`;
@@ -183,9 +185,9 @@ const LogRow = memo(function LogRow({
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
-      {showTimestamps && entry.timestamp != null && (
+      {showTimestamps && (
         <span className={timestampStyle}>
-          {formatTimestamp(entry.timestamp)}
+          {entry.timestamp != null ? formatTimestamp(entry.timestamp) : ''}
         </span>
       )}
 
@@ -193,10 +195,18 @@ const LogRow = memo(function LogRow({
         {Icon ? <Icon size="md" color="currentColor" /> : null}
       </span>
 
-      {showSource && entry.source != null && entry.source !== '' && (
-        <Badge variant="subtle" size="xs" className={sourceTagStyle}>
-          {entry.source}
-        </Badge>
+      {showSource && (
+        <span
+          className={sourceCellStyle}
+          data-log-source
+          title={hasSource ? entry.source : undefined}
+        >
+          {hasSource ? (
+            <Badge variant="subtle" size="xs" className={sourceTagStyle}>
+              {entry.source}
+            </Badge>
+          ) : null}
+        </span>
       )}
 
       <span className={messageRecipe({ wrap })}>

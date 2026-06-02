@@ -163,6 +163,21 @@ The four built-in levels — `debug`, `info`, `warn`, `error` — are themed aut
 
 By default LogView sticks to the bottom as new entries arrive. Scrolling up detaches; a floating **jump to bottom** button (showing the number of new lines) re-attaches when clicked, as does scrolling back to the bottom. "At bottom" is read from live scroll metrics. `follow` is controllable via `follow` / `defaultFollow` / `onFollowChange`.
 
+## Column alignment
+
+The timestamp, level icon, and source tag render as fixed-width columns, so the message text starts at the same x on every row regardless of source length (and on rows that omit a timestamp or source). The two reserved widths default to `88px` (timestamp) and `80px` (source) and are tunable per instance by overriding the CSS custom properties on the root:
+
+```tsx
+<LogView
+  entries={entries}
+  showTimestamps
+  style={{
+    // widen the source column for longer subsystem tags
+    ['--etui-logview-source-col-width' as string]: '8rem',
+  }}
+/>
+```
+
 ## Wrapping
 
 Rows are single-line by default (long lines scroll horizontally), which keeps virtualization on the fast fixed-height path. Set `wrap` to soft-wrap long lines; rows then become variable-height and are measured automatically.
