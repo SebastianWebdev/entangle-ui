@@ -16,9 +16,13 @@ export default defineConfig({
       components: {
         Hero: './src/components/overrides/Hero.astro',
       },
-      social: {
-        github: 'https://github.com/SebastianWebdev/entangle-ui',
-      },
+      social: [
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/SebastianWebdev/entangle-ui',
+        },
+      ],
       customCss: ['./src/styles/custom.css'],
       plugins: [
         starlightTypeDoc({
