@@ -1,13 +1,22 @@
 name: Deploy Docs
 
+# Docs are NOT deployed on every push to main — main only accumulates
+# changesets between releases. The site is published either manually
+# (workflow_dispatch) or by the Release workflow once a real release has
+# been published to npm (workflow_call). See .github/workflows/release.yml.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   deploy-docs:
     runs-on: ubuntu-latest
+
+    # Serialize deployments so a manual run and a release-triggered run can't
+    # race each other onto GitHub Pages.
+    concurrency:
+      group: deploy-docs
+      cancel-in-progress: false
 
     permissions:
       contents: read
