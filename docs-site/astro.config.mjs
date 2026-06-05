@@ -348,21 +348,26 @@ export default defineConfig({
     // these packages races the plugin and triggers "No CSS for file" errors
     // when navigating to component pages in dev mode.
     //
-    // `cssesc` is a CommonJS-only transitive dep of `@vanilla-extract/css`
-    // (used by its browser `transformCss` bundle). Excluding the parent
-    // packages above stops Vite from pre-bundling them, but the browser
-    // build still tries to `import cssesc from 'cssesc'` — that's a default
-    // import against a CJS module with no default export, which Vite only
-    // wires up via its CJS→ESM interop when the dep IS pre-bundled. Force
-    // cssesc into optimizeDeps so the interop kicks in and `default`
-    // resolves to `module.exports`.
+    // `cssesc` and `deepmerge` are CommonJS-only transitive deps of
+    // `@vanilla-extract/css`, default-imported by its browser ESM bundle
+    // (`vanilla-extract-css.browser.esm.js`). Excluding the parent packages
+    // above stops Vite from pre-bundling them, but the browser build still
+    // does `import cssesc from 'cssesc'` / `import deepmerge from 'deepmerge'`
+    // — default imports against CJS modules that expose no `default`
+    // (`module.exports = fn`). Vite only synthesizes that `default` via its
+    // CJS→ESM interop when the dep IS pre-bundled, so force both into
+    // optimizeDeps. The bundle's other default-imported deps (`@emotion/hash`,
+    // `modern-ahocorasick`, `dedent`) ship real ESM entry points, and
+    // `picocolors` is auto-discovered through another path, so none of those
+    // need forcing. Symptom when a dep is missing here: hydration fails with
+    // "does not provide an export named 'default'" on a component demo page.
     optimizeDeps: {
       exclude: [
         '@vanilla-extract/css',
         '@vanilla-extract/recipes',
         '@vanilla-extract/dynamic',
       ],
-      include: ['cssesc'],
+      include: ['cssesc', 'deepmerge'],
     },
     ssr: {
       noExternal: [
