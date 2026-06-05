@@ -62,16 +62,25 @@ export interface AngleInputBaseProps extends Omit<
   readOnly?: boolean;
 
   /**
-   * Show the numeric input next to the dial.
+   * Show the editable numeric input next to the dial.
    * @default true
    */
   showInput?: boolean;
 
   /**
-   * Where the numeric input sits relative to the dial.
+   * Show a small read-only value readout next to the dial. Only takes effect
+   * when `showInput` is false (the input already displays the value) — handy
+   * for a compact dial-plus-readout with no editing.
+   * @default false
+   */
+  showValue?: boolean;
+
+  /**
+   * Where the companion (numeric input or value readout) sits relative to the
+   * dial.
    * @default 'right'
    */
-  inputPlacement?: AngleInputPlacement;
+  placement?: AngleInputPlacement;
 
   /**
    * Step in degrees for arrow keys and the numeric input. Hold <kbd>Shift</kbd>
@@ -88,11 +97,20 @@ export interface AngleInputBaseProps extends Omit<
   largeStep?: number;
 
   /**
-   * Snap increment in degrees applied while <kbd>Shift</kbd> is held during a
-   * drag. `0` disables snapping.
+   * Snap increment in degrees. By default it applies only while <kbd>Shift</kbd>
+   * is held during a drag; with `discrete` it applies to every interaction.
+   * `0` disables snapping.
    * @default 15
    */
   snap?: number;
+
+  /**
+   * Discrete (stepped) mode: every interaction snaps the value to `snap`
+   * increments. Arrow keys move one `snap` step, and holding <kbd>Shift</kbd>
+   * during a drag temporarily bypasses snapping for fine control.
+   * @default false
+   */
+  discrete?: boolean;
 
   /**
    * Minimum allowed angle in degrees.

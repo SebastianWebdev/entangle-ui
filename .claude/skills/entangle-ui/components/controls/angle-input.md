@@ -38,15 +38,23 @@ const [angle, setAngle] = useState(45);
 - <kbd>Home</kbd> / <kbd>End</kbd> jump to `min` / `max`.
 - **Type** an exact value (or a math expression) into the numeric input.
 
-## Numeric input placement
+## Companion placement
 
-The numeric input shows by default; place it on any side with `inputPlacement`
-(`top` · `right` · `bottom` · `left`), or hide it entirely with
+The numeric input shows by default; place it (or the value readout) on any side
+with `placement` (`top` · `right` · `bottom` · `left`), or hide the input with
 `showInput={false}`.
 
 **Placement**
 
+### Read-only value readout
+
+With `showInput={false}` the dial stands alone. Add `showValue` for a compact,
+read-only readout of the current angle in the companion slot — handy as a small
+caption under the dial (`placement="bottom"`).
+
 **Dial only**
+
+**Value readout (no input)**
 
 ## Sizes
 
@@ -54,6 +62,19 @@ The numeric input shows by default; place it on any side with `inputPlacement`
 Override the dial diameter alone with `diameter`.
 
 **Sizes**
+
+## Snapping & discrete mode
+
+By default a drag is freeform and `Shift`-dragging snaps to the `snap` increment
+(15° by default). Set `discrete` to make **every** interaction snap to `snap` — a
+stepped dial where arrow keys move one increment and a `Shift`-drag temporarily
+restores fine, unsnapped control.
+
+```tsx
+<AngleInput value={angle} onChange={setAngle} discrete snap={45} />
+```
+
+**Discrete 45° dial**
 
 ## Continuous vs committed changes
 
@@ -81,11 +102,13 @@ continues from 0°); any other range **clamps** to the bounds. Set, for example,
 | `onChangeComplete` | `(angle: number) => void` | — | Fired once on commit (drag end, input blur, dial blur). For undo. |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Dial + input size. |
 | `diameter` | `number` | — | Explicit dial diameter in px (overrides size). |
-| `showInput` | `boolean` | `true` | Show the numeric input beside the dial. |
-| `inputPlacement` | `'top' \| 'right' \| 'bottom' \| 'left'` | `'right'` | Where the numeric input sits relative to the dial. |
+| `showInput` | `boolean` | `true` | Show the editable numeric input beside the dial. |
+| `showValue` | `boolean` | `false` | Show a read-only value readout (only when showInput is false). |
+| `placement` | `'top' \| 'right' \| 'bottom' \| 'left'` | `'right'` | Where the input / value readout sits relative to the dial. |
 | `step` | `number` | `1` | Degrees per arrow key / input step. |
 | `largeStep` | `number` | `15` | Degrees for PageUp/PageDown and Shift+arrow. |
-| `snap` | `number` | `15` | Snap increment (deg) while Shift is held during a drag. 0 disables. |
+| `snap` | `number` | `15` | Snap increment (deg). Shift-drag in normal mode; every interaction in discrete mode. 0 disables. |
+| `discrete` | `boolean` | `false` | Stepped mode: snap every interaction to snap; Shift-drag for fine control. |
 | `min` | `number` | `0` | Minimum angle in degrees. |
 | `max` | `number` | `360` | Maximum angle in degrees. A full-turn range wraps. |
 | `disabled` | `boolean` | `false` | Disable the control. |

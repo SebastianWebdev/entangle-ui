@@ -116,6 +116,10 @@ export const stepButtonIconRightStyle = style({
 export const inputRecipe = recipe({
   base: {
     flex: 1,
+    // Let the field shrink to its container in narrow wrappers (AngleInput,
+    // VectorInput axes) — without this the native input keeps its intrinsic
+    // size-attribute width and the value overflows on edit.
+    minWidth: 0,
     border: 'none',
     outline: 'none',
     background: 'transparent',

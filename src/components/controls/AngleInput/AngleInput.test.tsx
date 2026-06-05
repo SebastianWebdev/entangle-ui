@@ -129,14 +129,22 @@ describe('AngleInput', () => {
       expect(screen.getByText('Rotation')).toBeInTheDocument();
     });
 
-    it('places the numeric input before the dial for left/top placement', () => {
-      renderWithTheme(<AngleInput defaultValue={0} inputPlacement="left" />);
+    it('places the companion before the dial for left/top placement', () => {
+      renderWithTheme(<AngleInput defaultValue={0} placement="left" />);
       const input = screen.getByLabelText('Angle value');
       const dial = getDial();
       // input precedes dial in document order → Node.DOCUMENT_POSITION_FOLLOWING
       expect(
         input.compareDocumentPosition(dial) & Node.DOCUMENT_POSITION_FOLLOWING
       ).toBeTruthy();
+    });
+
+    it('renders a read-only value readout when showValue and no input', () => {
+      renderWithTheme(
+        <AngleInput defaultValue={90} showInput={false} showValue />
+      );
+      expect(screen.getByText('90°')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Angle value')).not.toBeInTheDocument();
     });
   });
 
@@ -168,6 +176,29 @@ describe('AngleInput', () => {
       expect(onChange).toHaveBeenLastCalledWith(30);
       fireEvent.keyDown(getDial(), { key: 'PageDown' });
       expect(onChange).toHaveBeenLastCalledWith(15);
+    });
+
+    it('discrete mode advances by the snap increment on arrow keys', () => {
+      const onChange = vi.fn();
+      renderWithTheme(
+        <AngleInput defaultValue={0} discrete snap={30} onChange={onChange} />
+      );
+      fireEvent.keyDown(getDial(), { key: 'ArrowRight' });
+      expect(onChange).toHaveBeenLastCalledWith(30);
+      fireEvent.keyDown(getDial(), { key: 'ArrowRight' });
+      expect(onChange).toHaveBeenLastCalledWith(60);
+    });
+
+    it('discrete mode snaps a drag to the snap grid', () => {
+      const onChange = vi.fn();
+      renderWithTheme(
+        <AngleInput defaultValue={0} discrete snap={30} onChange={onChange} />
+      );
+      const dial = getDial();
+      mockDialRect(dial);
+      // Pointer at ~61° → snapped to 60° on a 30° grid.
+      fireEvent.pointerDown(dial, { clientX: 44, clientY: 10, button: 0 });
+      expect(onChange).toHaveBeenLastCalledWith(60);
     });
 
     it('jumps to bounds with Home / End', () => {

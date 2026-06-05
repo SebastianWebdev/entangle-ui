@@ -10,6 +10,8 @@ import AngleInputDemo, {
   AngleInputPlacements,
   AngleInputSizes,
   AngleInputDialOnly,
+  AngleInputValueReadout,
+  AngleInputDiscrete,
   AngleInputChangeComplete,
   AngleInputLocalized,
 } from '../../../../components/demos/controls/AngleInputDemo';
@@ -54,18 +56,28 @@ const [angle, setAngle] = useState(45);
 - <kbd>Home</kbd> / <kbd>End</kbd> jump to `min` / `max`.
 - **Type** an exact value (or a math expression) into the numeric input.
 
-## Numeric input placement
+## Companion placement
 
-The numeric input shows by default; place it on any side with `inputPlacement`
-(`top` · `right` · `bottom` · `left`), or hide it entirely with
+The numeric input shows by default; place it (or the value readout) on any side
+with `placement` (`top` · `right` · `bottom` · `left`), or hide the input with
 `showInput={false}`.
 
 <ComponentPreview title="Placement">
   <AngleInputPlacements client:only="react" />
 </ComponentPreview>
 
+### Read-only value readout
+
+With `showInput={false}` the dial stands alone. Add `showValue` for a compact,
+read-only readout of the current angle in the companion slot — handy as a small
+caption under the dial (`placement="bottom"`).
+
 <ComponentPreview title="Dial only">
   <AngleInputDialOnly client:only="react" />
+</ComponentPreview>
+
+<ComponentPreview title="Value readout (no input)">
+  <AngleInputValueReadout client:only="react" />
 </ComponentPreview>
 
 ## Sizes
@@ -75,6 +87,21 @@ Override the dial diameter alone with `diameter`.
 
 <ComponentPreview title="Sizes">
   <AngleInputSizes client:only="react" />
+</ComponentPreview>
+
+## Snapping & discrete mode
+
+By default a drag is freeform and `Shift`-dragging snaps to the `snap` increment
+(15° by default). Set `discrete` to make **every** interaction snap to `snap` — a
+stepped dial where arrow keys move one increment and a `Shift`-drag temporarily
+restores fine, unsnapped control.
+
+```tsx
+<AngleInput value={angle} onChange={setAngle} discrete snap={45} />
+```
+
+<ComponentPreview title="Discrete 45° dial">
+  <AngleInputDiscrete client:only="react" />
 </ComponentPreview>
 
 ## Continuous vs committed changes
@@ -136,13 +163,20 @@ continues from 0°); any other range **clamps** to the bounds. Set, for example,
       name: 'showInput',
       type: 'boolean',
       default: 'true',
-      description: 'Show the numeric input beside the dial.',
+      description: 'Show the editable numeric input beside the dial.',
     },
     {
-      name: 'inputPlacement',
+      name: 'showValue',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Show a read-only value readout (only when showInput is false).',
+    },
+    {
+      name: 'placement',
       type: "'top' | 'right' | 'bottom' | 'left'",
       default: "'right'",
-      description: 'Where the numeric input sits relative to the dial.',
+      description: 'Where the input / value readout sits relative to the dial.',
     },
     {
       name: 'step',
@@ -161,7 +195,14 @@ continues from 0°); any other range **clamps** to the bounds. Set, for example,
       type: 'number',
       default: '15',
       description:
-        'Snap increment (deg) while Shift is held during a drag. 0 disables.',
+        'Snap increment (deg). Shift-drag in normal mode; every interaction in discrete mode. 0 disables.',
+    },
+    {
+      name: 'discrete',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Stepped mode: snap every interaction to snap; Shift-drag for fine control.',
     },
     {
       name: 'min',

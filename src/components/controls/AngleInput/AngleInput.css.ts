@@ -79,11 +79,12 @@ export const rotorStyle = style({
   pointerEvents: 'none',
 });
 
-// Needle from the dial center up to the handle. `top` (the rim inset) is set
-// inline; `bottom: 50%` anchors the lower end at the center.
+// Needle from the dial center up to the rim. `top: 0` reaches the rim,
+// `bottom: 50%` anchors the lower end at the center.
 export const needleStyle = style({
   position: 'absolute',
   left: '50%',
+  top: 0,
   bottom: '50%',
   width: '2px',
   transform: 'translateX(-50%)',
@@ -91,10 +92,12 @@ export const needleStyle = style({
   borderRadius: '1px',
 });
 
-// Handle dot on the rim. `top` / `width` / `height` are set inline.
+// Handle dot centered on the rim so it straddles the dial border. `width` /
+// `height` are set inline.
 export const handleStyle = style({
   position: 'absolute',
   left: '50%',
+  top: 0,
   transform: 'translate(-50%, -50%)',
   borderRadius: '50%',
   background: HANDLE_COLOR,
@@ -119,4 +122,13 @@ export const centerStyle = style({
 // `width` is set inline from `size`.
 export const inputWrapperStyle = style({
   flexShrink: 0,
+});
+
+// Read-only value readout shown in place of the numeric input.
+export const valueTextStyle = style({
+  flexShrink: 0,
+  fontSize: vars.typography.fontSize.xs,
+  fontVariantNumeric: 'tabular-nums',
+  color: vars.colors.text.secondary,
+  userSelect: 'none',
 });

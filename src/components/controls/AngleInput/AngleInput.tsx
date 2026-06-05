@@ -18,6 +18,7 @@ import {
   handleStyle,
   centerStyle,
   inputWrapperStyle,
+  valueTextStyle,
 } from './AngleInput.css';
 import { DEFAULT_ANGLE_INPUT_LABELS } from './angleInputLabels';
 import { angleFromPointer, clampOrWrap, snapAngle } from './angleMath';
@@ -30,16 +31,17 @@ import type {
 
 // Dial diameter per size preset (px). Overridable via the `diameter` prop.
 const DIAL_DIAMETER: Record<AngleInputSize, number> = {
-  sm: 36,
-  md: 44,
-  lg: 56,
+  sm: 22,
+  md: 28,
+  lg: 36,
 };
 
-// Rim handle diameter per size (px).
+// Rim handle diameter per size (px). The handle is centered on the rim, so it
+// straddles the dial border.
 const HANDLE_SIZE: Record<AngleInputSize, number> = {
-  sm: 8,
-  md: 10,
-  lg: 12,
+  sm: 6,
+  md: 8,
+  lg: 10,
 };
 
 // Width of the companion numeric input per size (px) — wide enough for "360°".
@@ -53,19 +55,20 @@ function isVerticalPlacement(placement: AngleInputPlacement): boolean {
   return placement === 'top' || placement === 'bottom';
 }
 
-function isInputFirst(placement: AngleInputPlacement): boolean {
+function isLeadingPlacement(placement: AngleInputPlacement): boolean {
   return placement === 'top' || placement === 'left';
 }
 
 /**
- * A circular dial for choosing an angle, with an optional compact numeric
- * input beside it.
+ * A circular dial for choosing an angle, with an optional compact numeric input
+ * (or a read-only value readout) beside it.
  *
  * The dial follows the CSS gradient convention: 0° points up and the angle
  * increases clockwise (90° = right), so the value maps straight onto
- * `linear-gradient(<angle>, …)`. Drag the dial, focus it and use the arrow keys
- * (<kbd>Shift</kbd> for larger steps, hold <kbd>Shift</kbd> while dragging to
- * snap), or type into the numeric input.
+ * `linear-gradient(<angle>, …)`. Drag the dial, focus it and use the arrow
+ * keys, or type into the numeric input. With `discrete` the value snaps to
+ * `snap` increments on every interaction; otherwise holding <kbd>Shift</kbd>
+ * while dragging snaps.
  *
  * `onChange` fires continuously; `onChangeComplete` fires on commit boundaries
  * (drag end, input blur, focus leaving the dial) for undo integration.
@@ -74,12 +77,15 @@ function isInputFirst(placement: AngleInputPlacement): boolean {
  * ```tsx
  * <AngleInput value={angle} onChange={setAngle} />
  *
- * // Dial only, numeric input below, large control
+ * // Discrete 15° dial with a read-only readout below, no editable input
  * <AngleInput
  *   value={angle}
  *   onChange={setAngle}
- *   size="lg"
- *   inputPlacement="bottom"
+ *   discrete
+ *   snap={15}
+ *   showInput={false}
+ *   showValue
+ *   placement="bottom"
  * />
  * ```
  */
@@ -93,10 +99,12 @@ export const AngleInput = ({
   disabled = false,
   readOnly = false,
   showInput = true,
-  inputPlacement = 'right',
+  showValue = false,
+  placement = 'right',
   step = 1,
   largeStep = 15,
   snap = 15,
+  discrete = false,
   min = 0,
   max = 360,
   label,
@@ -136,14 +144,22 @@ export const AngleInput = ({
     step,
     largeStep,
     snap,
+    discrete,
     disabled,
     readOnly,
   });
 
+  // Resolve a value into range, optionally snapping to the `snap` grid, push it
+  // to state, and return the resolved value (used to commit on drag end).
   const setAngle = useCallback(
-    (next: number) => {
-      const { min: lo, max: hi } = cfgRef.current;
-      setStateRef.current(clampOrWrap(next, lo, hi));
+    (next: number, shouldSnap = false): number => {
+      const { min: lo, max: hi, snap: inc } = cfgRef.current;
+      let resolved = clampOrWrap(next, lo, hi);
+      if (shouldSnap && inc > 0) {
+        resolved = clampOrWrap(snapAngle(resolved, inc), lo, hi);
+      }
+      setStateRef.current(resolved);
+      return resolved;
     },
     [setStateRef, cfgRef]
   );
@@ -155,19 +171,25 @@ export const AngleInput = ({
     [onChangeCompleteRef, angleRef]
   );
 
+  // Geometry only — the caller decides whether to snap.
   const angleAtPointer = useCallback(
-    (clientX: number, clientY: number, shiftKey: boolean): number | null => {
+    (clientX: number, clientY: number): number | null => {
       const el = dialRef.current;
       if (!el) return null;
       const rect = el.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      let next = angleFromPointer(clientX - centerX, clientY - centerY);
-      const { snap: snapInc } = cfgRef.current;
-      if (shiftKey && snapInc > 0) {
-        next = snapAngle(next, snapInc);
-      }
-      return next;
+      return angleFromPointer(clientX - centerX, clientY - centerY);
+    },
+    []
+  );
+
+  // Discrete snaps a drag unless Shift (fine); continuous snaps only on Shift.
+  const dragShouldSnap = useCallback(
+    (shiftKey: boolean): boolean => {
+      const { discrete: isDiscrete, snap: inc } = cfgRef.current;
+      if (inc <= 0) return false;
+      return isDiscrete ? !shiftKey : shiftKey;
     },
     [cfgRef]
   );
@@ -180,19 +202,19 @@ export const AngleInput = ({
       dialRef.current?.focus();
       event.currentTarget.setPointerCapture(event.pointerId);
       draggingRef.current = true;
-      const next = angleAtPointer(event.clientX, event.clientY, event.shiftKey);
-      if (next !== null) setAngle(next);
+      const next = angleAtPointer(event.clientX, event.clientY);
+      if (next !== null) setAngle(next, dragShouldSnap(event.shiftKey));
     },
-    [cfgRef, angleAtPointer, setAngle]
+    [cfgRef, angleAtPointer, setAngle, dragShouldSnap]
   );
 
   const handlePointerMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
       if (!draggingRef.current) return;
-      const next = angleAtPointer(event.clientX, event.clientY, event.shiftKey);
-      if (next !== null) setAngle(next);
+      const next = angleAtPointer(event.clientX, event.clientY);
+      if (next !== null) setAngle(next, dragShouldSnap(event.shiftKey));
     },
-    [angleAtPointer, setAngle]
+    [angleAtPointer, setAngle, dragShouldSnap]
   );
 
   const handlePointerUp = useCallback(
@@ -202,15 +224,15 @@ export const AngleInput = ({
       if (event.currentTarget.hasPointerCapture(event.pointerId)) {
         event.currentTarget.releasePointerCapture(event.pointerId);
       }
-      const next = angleAtPointer(event.clientX, event.clientY, event.shiftKey);
+      const next = angleAtPointer(event.clientX, event.clientY);
       if (next !== null) {
-        setAngle(next);
-        commit(next);
+        const resolved = setAngle(next, dragShouldSnap(event.shiftKey));
+        commit(resolved);
       } else {
         commit();
       }
     },
-    [angleAtPointer, setAngle, commit]
+    [angleAtPointer, setAngle, dragShouldSnap, commit]
   );
 
   const handleKeyDown = useCallback(
@@ -220,21 +242,24 @@ export const AngleInput = ({
         readOnly: isReadOnly,
         step: s,
         largeStep: ls,
+        snap: inc,
+        discrete: isDiscrete,
         min: lo,
         max: hi,
       } = cfgRef.current;
       if (isDisabled || isReadOnly) return;
       const current = angleRef.current;
-      const delta = event.shiftKey ? ls : s;
+      // In discrete mode a plain arrow advances one snap increment.
+      const stepUnit = isDiscrete ? inc : s;
       let next: number;
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowUp':
-          next = current + delta;
+          next = current + (event.shiftKey ? ls : stepUnit);
           break;
         case 'ArrowLeft':
         case 'ArrowDown':
-          next = current - delta;
+          next = current - (event.shiftKey ? ls : stepUnit);
           break;
         case 'PageUp':
           next = current + ls;
@@ -252,7 +277,7 @@ export const AngleInput = ({
           return;
       }
       event.preventDefault();
-      setAngle(next);
+      setAngle(next, isDiscrete);
     },
     [cfgRef, angleRef, setAngle]
   );
@@ -265,11 +290,10 @@ export const AngleInput = ({
 
   const dialDiameter = diameter ?? DIAL_DIAMETER[size];
   const handleSize = HANDLE_SIZE[size];
-  const rimInset = handleSize / 2 + 2;
   const inputWidth = INPUT_WIDTH[size];
 
-  const verticalLayout = isVerticalPlacement(inputPlacement);
-  const inputFirst = isInputFirst(inputPlacement);
+  const verticalLayout = isVerticalPlacement(placement);
+  const leading = isLeadingPlacement(placement);
 
   const dialNode = (
     <div
@@ -294,38 +318,55 @@ export const AngleInput = ({
       data-testid={testId ? `${testId}-dial` : undefined}
     >
       <div className={rotorStyle} style={{ transform: `rotate(${angle}deg)` }}>
-        <div className={needleStyle} style={{ top: rimInset }} />
+        <div className={needleStyle} />
         <div
           className={handleStyle}
-          style={{ top: rimInset, width: handleSize, height: handleSize }}
+          style={{ width: handleSize, height: handleSize }}
         />
       </div>
       <div className={centerStyle} />
     </div>
   );
 
-  const inputNode = showInput ? (
-    <div className={inputWrapperStyle} style={{ width: inputWidth }}>
-      <NumberInput
-        value={angle}
-        onChange={setAngle}
-        onBlur={() => {
-          commit();
-        }}
-        min={min}
-        max={max}
-        step={step}
-        precision={0}
-        unit="°"
-        size={size}
-        disabled={disabled}
-        readOnly={readOnly}
-        showStepButtons={false}
-        aria-label={ariaLabel ? `${ariaLabel} value` : labels.inputAriaLabel}
-        testId={testId ? `${testId}-input` : undefined}
-      />
-    </div>
-  ) : null;
+  // The companion next to the dial is the editable input, or — when the input
+  // is hidden — an optional read-only value readout.
+  let companion: React.ReactNode = null;
+  if (showInput) {
+    companion = (
+      <div className={inputWrapperStyle} style={{ width: inputWidth }}>
+        <NumberInput
+          value={angle}
+          onChange={next => {
+            setAngle(next, discrete);
+          }}
+          onBlur={() => {
+            commit();
+          }}
+          min={min}
+          max={max}
+          step={discrete ? snap : step}
+          precision={0}
+          unit="°"
+          size={size}
+          disabled={disabled}
+          readOnly={readOnly}
+          showStepButtons={false}
+          aria-label={ariaLabel ? `${ariaLabel} value` : labels.inputAriaLabel}
+          testId={testId ? `${testId}-input` : undefined}
+        />
+      </div>
+    );
+  } else if (showValue) {
+    companion = (
+      <span
+        className={valueTextStyle}
+        aria-hidden="true"
+        data-testid={testId ? `${testId}-value` : undefined}
+      >
+        {labels.valueText(angle)}
+      </span>
+    );
+  }
 
   return (
     <div
@@ -341,9 +382,9 @@ export const AngleInput = ({
         className={controlStyle}
         style={{ flexDirection: verticalLayout ? 'column' : 'row' }}
       >
-        {inputFirst ? inputNode : null}
+        {leading ? companion : null}
         {dialNode}
-        {inputFirst ? null : inputNode}
+        {leading ? null : companion}
       </div>
     </div>
   );

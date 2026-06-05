@@ -34,7 +34,7 @@ export function AngleInputPlacements() {
       <Flex gap={6} wrap="wrap" align="center">
         {placements.map(placement => (
           <Stack key={placement} gap={1} align="center">
-            <AngleInput defaultValue={45} inputPlacement={placement} />
+            <AngleInput defaultValue={45} placement={placement} />
             <Text size="xs" color="muted">
               {placement}
             </Text>
@@ -61,6 +61,35 @@ export function AngleInputDialOnly() {
   return (
     <DemoWrapper withKeyboard>
       <AngleInput defaultValue={45} showInput={false} />
+    </DemoWrapper>
+  );
+}
+
+export function AngleInputValueReadout() {
+  const [angle, setAngle] = useState(45);
+  return (
+    <DemoWrapper withKeyboard>
+      <AngleInput
+        value={angle}
+        onChange={setAngle}
+        showInput={false}
+        showValue
+        placement="bottom"
+      />
+    </DemoWrapper>
+  );
+}
+
+export function AngleInputDiscrete() {
+  const [angle, setAngle] = useState(45);
+  return (
+    <DemoWrapper withKeyboard>
+      <Stack gap={2}>
+        <AngleInput value={angle} onChange={setAngle} discrete snap={45} />
+        <Text size="sm" color="muted">
+          Snaps to 45° · {Math.round(angle)}°
+        </Text>
+      </Stack>
     </DemoWrapper>
   );
 }
