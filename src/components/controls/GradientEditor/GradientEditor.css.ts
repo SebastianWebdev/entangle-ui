@@ -125,7 +125,7 @@ export const stopHandleColorStyle = style({
 export const stopsRowStyle = style({
   display: 'flex',
   alignItems: 'center',
-  gap: vars.spacing.sm,
+  gap: vars.spacing.lg,
 });
 
 // The ramp takes the remaining width; min-width:0 lets it shrink next to the

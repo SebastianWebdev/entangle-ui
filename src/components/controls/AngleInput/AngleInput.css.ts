@@ -124,11 +124,14 @@ export const inputWrapperStyle = style({
   flexShrink: 0,
 });
 
-// Read-only value readout shown in place of the numeric input.
+// Read-only value readout shown in place of the numeric input. `min-width` is
+// set inline (sized for the range) so the control's width doesn't shift as the
+// value's digit count changes.
 export const valueTextStyle = style({
   flexShrink: 0,
   fontSize: vars.typography.fontSize.xs,
   fontVariantNumeric: 'tabular-nums',
+  textAlign: 'center',
   color: vars.colors.text.secondary,
   userSelect: 'none',
 });

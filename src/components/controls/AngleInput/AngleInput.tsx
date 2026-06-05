@@ -292,6 +292,14 @@ export const AngleInput = ({
   const handleSize = HANDLE_SIZE[size];
   const inputWidth = INPUT_WIDTH[size];
 
+  // Reserve a stable width for the value readout (sized for the widest value in
+  // range) so the control's width doesn't shift as the value's digit count
+  // changes.
+  const valueReadoutWidth = `${Math.max(
+    labels.valueText(min).length,
+    labels.valueText(max).length
+  )}ch`;
+
   const verticalLayout = isVerticalPlacement(placement);
   const leading = isLeadingPlacement(placement);
 
@@ -360,6 +368,7 @@ export const AngleInput = ({
     companion = (
       <span
         className={valueTextStyle}
+        style={{ minWidth: valueReadoutWidth }}
         aria-hidden="true"
         data-testid={testId ? `${testId}-value` : undefined}
       >
