@@ -119,25 +119,20 @@ export const stopHandleColorStyle = style({
   borderRadius: '50%',
 });
 
-// --- Controls row (type toggle + angle) ---
+// --- Stops ramp + angle row ---
 
-export const controlsRowStyle = style({
+// The ramp and the angle dial share one row, angle on the right.
+export const stopsRowStyle = style({
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: vars.spacing.md,
-  flexWrap: 'wrap',
+  gap: vars.spacing.sm,
 });
 
-export const angleFieldStyle = style({
-  display: 'flex',
-  alignItems: 'center',
-  gap: vars.spacing.xs,
-});
-
-export const angleLabelStyle = style({
-  fontSize: vars.typography.fontSize.xs,
-  color: vars.colors.text.secondary,
+// The ramp takes the remaining width; min-width:0 lets it shrink next to the
+// angle dial.
+export const stopsFillStyle = style({
+  flex: 1,
+  minWidth: 0,
 });
 
 // --- Selected-stop action row ---

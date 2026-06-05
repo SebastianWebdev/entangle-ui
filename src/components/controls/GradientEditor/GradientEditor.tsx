@@ -20,9 +20,8 @@ import {
   rootDisabledStyle,
   previewStyle,
   previewFillStyle,
-  controlsRowStyle,
-  angleFieldStyle,
-  angleLabelStyle,
+  stopsRowStyle,
+  stopsFillStyle,
   stopActionsRowStyle,
   cssOutputRowStyle,
   cssOutputCodeStyle,
@@ -236,39 +235,38 @@ export const GradientEditor = ({
         />
       </div>
 
-      {/* Stops track */}
-      <GradientStops
-        stops={gradient.stops}
-        selectedId={selectedStop?.id ?? null}
-        disabled={disabled}
-        canAdd={gradient.stops.length < maxStops}
-        canDelete={gradient.stops.length > minStops}
-        onMoveStop={handleMoveStop}
-        onAddStop={handleAddStop}
-        onDeleteStop={handleDeleteStop}
-        onSelectStop={selectStop}
-        onCommit={handleCommitCurrent}
-      />
-
-      {/* Angle control (linear / conic only) */}
-      {showAngle && angleEnabled && (
-        <div className={controlsRowStyle}>
-          <div className={angleFieldStyle}>
-            <span className={angleLabelStyle}>Angle</span>
-            <AngleInput
-              value={gradient.angle}
-              onChange={handleAngleChange}
-              onChangeComplete={handleCommitCurrent}
-              size={size}
-              disabled={disabled}
-              showInput={false}
-              showValue
-              aria-label="Gradient angle"
-              testId={testId ? `${testId}-angle` : undefined}
-            />
-          </div>
+      {/* Stops ramp + angle dial — one row, angle on the right */}
+      <div className={stopsRowStyle}>
+        <div className={stopsFillStyle}>
+          <GradientStops
+            stops={gradient.stops}
+            selectedId={selectedStop?.id ?? null}
+            disabled={disabled}
+            canAdd={gradient.stops.length < maxStops}
+            canDelete={gradient.stops.length > minStops}
+            onMoveStop={handleMoveStop}
+            onAddStop={handleAddStop}
+            onDeleteStop={handleDeleteStop}
+            onSelectStop={selectStop}
+            onCommit={handleCommitCurrent}
+          />
         </div>
-      )}
+
+        {/* Angle (linear / conic only) */}
+        {showAngle && angleEnabled && (
+          <AngleInput
+            value={gradient.angle}
+            onChange={handleAngleChange}
+            onChangeComplete={handleCommitCurrent}
+            size={size}
+            disabled={disabled}
+            showInput={false}
+            showValue
+            aria-label="Gradient angle"
+            testId={testId ? `${testId}-angle` : undefined}
+          />
+        )}
+      </div>
 
       {/* Selected-stop color editing */}
       {colorEditor === 'inline' ? (
