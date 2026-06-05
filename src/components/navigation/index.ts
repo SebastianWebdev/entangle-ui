@@ -7,6 +7,7 @@ export {
 export { ContextMenu } from './ContextMenu';
 export { Menu } from './Menu';
 export { Pagination } from './Pagination';
+export { PathBar } from './PathBar';
 export { SegmentedControl, SegmentedControlItem } from './SegmentedControl';
 export { Tab, TabList, TabPanel, Tabs } from './Tabs';
 
@@ -46,6 +47,12 @@ export type {
   PaginationProps,
   PaginationSize,
 } from './Pagination';
+export type {
+  PathBarProps,
+  PathBarSize,
+  PathInput,
+  PathSegment,
+} from './PathBar';
 export type {
   SegmentedControlProps,
   SegmentedControlItemProps,

@@ -186,6 +186,10 @@ export default defineConfig({
                   slug: 'components/navigation/pagination',
                 },
                 {
+                  label: 'PathBar',
+                  slug: 'components/navigation/path-bar',
+                },
+                {
                   label: 'SegmentedControl',
                   slug: 'components/navigation/segmented-control',
                 },
