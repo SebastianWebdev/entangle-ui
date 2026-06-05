@@ -352,26 +352,30 @@ export default defineConfig({
     // these packages races the plugin and triggers "No CSS for file" errors
     // when navigating to component pages in dev mode.
     //
-    // `cssesc` and `deepmerge` are CommonJS-only transitive deps of
-    // `@vanilla-extract/css`, default-imported by its browser ESM bundle
-    // (`vanilla-extract-css.browser.esm.js`). Excluding the parent packages
-    // above stops Vite from pre-bundling them, but the browser build still
-    // does `import cssesc from 'cssesc'` / `import deepmerge from 'deepmerge'`
-    // — default imports against CJS modules that expose no `default`
-    // (`module.exports = fn`). Vite only synthesizes that `default` via its
-    // CJS→ESM interop when the dep IS pre-bundled, so force both into
-    // optimizeDeps. The bundle's other default-imported deps (`@emotion/hash`,
-    // `modern-ahocorasick`, `dedent`) ship real ESM entry points, and
-    // `picocolors` is auto-discovered through another path, so none of those
-    // need forcing. Symptom when a dep is missing here: hydration fails with
-    // "does not provide an export named 'default'" on a component demo page.
+    // `vanilla-extract-css.browser.esm.js` (pulled into the client graph at
+    // runtime) default-imports six leaf deps of `@vanilla-extract/css`. In the
+    // browser resolution condition three of them land on CommonJS files that
+    // expose no `default` (`module.exports = …`): `cssesc` (cssesc.js),
+    // `deepmerge` (dist/cjs.js) and `picocolors` (picocolors.browser.js, via
+    // its `browser` field). The other three (`@emotion/hash`,
+    // `modern-ahocorasick`, `dedent`) ship real ESM with a `default`.
+    //
+    // Because the parent packages are excluded above, Vite never crawls into
+    // them to auto-discover these leaves, so it never applies its CJS→ESM
+    // interop. The browser's native ESM loader then can't synthesize a
+    // `default`, and hydration dies with "does not provide an export named
+    // 'default'" the first time a demo evaluates the bundle. Force the three
+    // CJS leaves into the optimizer so the interop runs and `default` resolves
+    // to `module.exports`. NOTE: after changing this list, delete
+    // `node_modules/.vite` so the optimizer re-bundles — a stale cache keeps
+    // the old, broken resolution.
     optimizeDeps: {
       exclude: [
         '@vanilla-extract/css',
         '@vanilla-extract/recipes',
         '@vanilla-extract/dynamic',
       ],
-      include: ['cssesc', 'deepmerge'],
+      include: ['cssesc', 'deepmerge', 'picocolors'],
     },
     ssr: {
       noExternal: [
