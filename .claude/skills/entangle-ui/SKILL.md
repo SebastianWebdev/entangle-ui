@@ -78,6 +78,7 @@ export function App() {
 
 ### Controls
 
+- `AngleInput` → [components/controls/angle-input.md](./components/controls/angle-input.md) — Circular dial for choosing an angle, with an optional compact numeric input. Uses the CSS gradient convention (0° up, clockwise).
 - `CartesianPicker` → [components/controls/cartesian-picker.md](./components/controls/cartesian-picker.md) — 2D point picker for selecting coordinates on a cartesian grid with crosshair, snap-to-grid, and custom rendering.
 - `ColorPicker` → [components/controls/color-picker.md](./components/controls/color-picker.md) — Full-featured color picker with saturation/value area, hue slider, alpha channel, input modes, presets, and built-in palettes.
 - `Combobox` → [components/controls/combobox.md](./components/controls/combobox.md) — Single-value select with an editable input, built-in fuzzy filtering, and optional free-solo or creatable modes.

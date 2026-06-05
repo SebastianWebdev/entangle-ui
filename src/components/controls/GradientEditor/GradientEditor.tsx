@@ -2,8 +2,8 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 
+import { AngleInput } from '@/components/controls/AngleInput/AngleInput';
 import { ColorPicker } from '@/components/controls/ColorPicker/ColorPicker';
-import { NumberInput } from '@/components/controls/NumberInput/NumberInput';
 import { CopyIcon } from '@/components/Icons/CopyIcon';
 import { TrashIcon } from '@/components/Icons/TrashIcon';
 import { SegmentedControl } from '@/components/navigation/SegmentedControl/SegmentedControl';
@@ -255,17 +255,13 @@ export const GradientEditor = ({
         <div className={controlsRowStyle}>
           <div className={angleFieldStyle}>
             <span className={angleLabelStyle}>Angle</span>
-            <NumberInput
+            <AngleInput
               value={gradient.angle}
               onChange={handleAngleChange}
-              onBlur={handleCommitCurrent}
-              min={0}
-              max={360}
-              step={1}
-              precision={0}
-              unit="°"
+              onChangeComplete={handleCommitCurrent}
               size={size}
               disabled={disabled}
+              aria-label="Gradient angle"
               testId={testId ? `${testId}-angle` : undefined}
             />
           </div>

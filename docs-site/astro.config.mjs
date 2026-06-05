@@ -134,6 +134,10 @@ export default defineConfig({
               collapsed: false,
               items: [
                 {
+                  label: 'AngleInput',
+                  slug: 'components/controls/angle-input',
+                },
+                {
                   label: 'CartesianPicker',
                   slug: 'components/controls/cartesian-picker',
                 },

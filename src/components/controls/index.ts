@@ -13,6 +13,7 @@ export {
   VINTAGE_PALETTE,
   PROFESSIONAL_PALETTES,
 } from './ColorPicker';
+export { AngleInput, DEFAULT_ANGLE_INPUT_LABELS } from './AngleInput';
 export { Combobox } from './Combobox';
 export {
   FileTree,
@@ -48,6 +49,13 @@ export {
   generateStopId,
 } from './GradientEditor';
 
+export type {
+  AngleInputProps,
+  AngleInputBaseProps,
+  AngleInputSize,
+  AngleInputPlacement,
+  AngleInputLabels,
+} from './AngleInput';
 export type {
   ColorFormat,
   ColorInputMode,

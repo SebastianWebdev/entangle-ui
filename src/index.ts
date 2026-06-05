@@ -82,6 +82,8 @@ export {
   VisuallyHidden,
 } from '@/components/primitives';
 export {
+  AngleInput,
+  DEFAULT_ANGLE_INPUT_LABELS,
   ColorPicker,
   ColorSwatch,
   EyeDropper,
@@ -441,6 +443,11 @@ export type {
   VisuallyHiddenProps,
 } from '@/components/primitives';
 export type {
+  AngleInputProps,
+  AngleInputBaseProps,
+  AngleInputSize,
+  AngleInputPlacement,
+  AngleInputLabels,
   ColorFormat,
   ColorInputMode,
   ColorPickerProps,

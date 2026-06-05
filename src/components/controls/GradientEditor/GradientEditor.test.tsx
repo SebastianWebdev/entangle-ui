@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, within } from '@testing-library/react';
 
 import { renderWithTheme } from '@/tests/testUtils';
 
@@ -222,7 +222,8 @@ describe('GradientEditor', () => {
 
     it('renders one slider handle per stop', () => {
       renderWithTheme(<GradientEditor defaultValue={linearGradient} />);
-      expect(screen.getAllByRole('slider')).toHaveLength(2);
+      // Scope to the stops track — the angle control is also a slider (dial).
+      expect(within(getTrackElement()).getAllByRole('slider')).toHaveLength(2);
     });
 
     it('renders the angle control for linear/conic but not radial', () => {
@@ -277,8 +278,9 @@ describe('GradientEditor', () => {
       expect(added.stops).toHaveLength(3);
       expect(added.stops.some(stop => stop.position === 0.5)).toBe(true);
       expect(onChangeComplete).toHaveBeenCalled();
-      // Three stops now: the original two plus the added one.
-      expect(screen.getAllByRole('slider')).toHaveLength(3);
+      // Three stops now: the original two plus the added one. Scope to the
+      // track — the angle control is also a slider (dial).
+      expect(within(getTrackElement()).getAllByRole('slider')).toHaveLength(3);
     });
 
     it('does not add a stop when the click lands on the fill overlay', () => {
