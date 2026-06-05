@@ -80,6 +80,14 @@ export interface BreadcrumbItemBaseProps extends BaseComponent<HTMLElement> {
   maxLength?: number;
 
   /**
+   * Optional content rendered after the label, as a sibling of (not inside)
+   * the navigable link/button. Use it for a trailing affordance such as a
+   * dropdown trigger: because it sits outside the interactive element,
+   * activating it does not trigger the item's `onClick`/navigation.
+   */
+  endContent?: React.ReactNode;
+
+  /**
    * Breadcrumb label.
    */
   children: React.ReactNode;

@@ -41,6 +41,8 @@ const nodes = [
 
 The `selectionMode` prop controls how nodes can be selected.
 
+**Selection Modes**
+
 ```tsx
 // Single selection (default)
 <TreeView nodes={nodes} selectionMode="single" />
@@ -55,6 +57,8 @@ The `selectionMode` prop controls how nodes can be selected.
 ## Controlled vs Uncontrolled
 
 Both expanded and selected states can be controlled or uncontrolled.
+
+**Controlled**
 
 ```tsx
 // Controlled
@@ -78,6 +82,8 @@ Both expanded and selected states can be controlled or uncontrolled.
 
 Enable double-click-to-rename with the `renamable` prop. Per-node renaming can also be controlled via the node's `renamable` property.
 
+**Inline Renaming**
+
 ```tsx
 <TreeView
   nodes={nodes}
@@ -92,6 +98,8 @@ Enable double-click-to-rename with the `renamable` prop. Per-node renaming can a
 
 Each node can include an icon rendered before its label.
 
+**Node Icons**
+
 ```tsx
 const nodes = [
   { id: 'mesh', label: 'Mesh', icon: <MeshIcon /> },
@@ -105,6 +113,8 @@ const nodes = [
 ## Custom Node Rendering
 
 Use `renderNode` to completely customize how each node is displayed. Use `renderActions` to add trailing action buttons.
+
+**Custom Node Rendering**
 
 ```tsx
 <TreeView
@@ -127,6 +137,8 @@ The `state` object provides: `selected`, `expanded`, `focused`, `depth`, `isLeaf
 
 Show connecting guide lines between parent and child nodes.
 
+**Guide Lines**
+
 ```tsx
 <TreeView nodes={nodes} showGuideLines />
 ```
@@ -134,6 +146,8 @@ Show connecting guide lines between parent and child nodes.
 ## Indentation
 
 Control the indentation per depth level. Default is 16px.
+
+**Indentation**
 
 ```tsx
 <TreeView nodes={nodes} indent={24} />
@@ -143,6 +157,8 @@ Control the indentation per depth level. Default is 16px.
 
 Automatically expand parent nodes when they are selected.
 
+**Expand on Select**
+
 ```tsx
 <TreeView nodes={nodes} expandOnSelect />
 ```
@@ -150,6 +166,8 @@ Automatically expand parent nodes when they are selected.
 ## Max Height
 
 Set a maximum height before the tree scrolls.
+
+**Max Height**
 
 ```tsx
 <TreeView nodes={nodes} maxHeight={300} />
@@ -159,11 +177,15 @@ Set a maximum height before the tree scrolls.
 
 Customize the content shown when the tree is empty.
 
+**Empty State**
+
 ```tsx
 <TreeView nodes={[]} emptyContent={<div>No items in scene</div>} />
 ```
 
 ## Sizes
+
+**Sizes**
 
 ```tsx
 <TreeView nodes={nodes} size="sm" />
@@ -172,6 +194,8 @@ Customize the content shown when the tree is empty.
 ```
 
 ## Event Handlers
+
+**Event Handlers**
 
 ```tsx
 <TreeView
@@ -200,6 +224,7 @@ Customize the content shown when the tree is empty.
 | `showChevrons` | `boolean` | `true` | Whether to show expand/collapse chevrons for parent nodes. |
 | `showGuideLines` | `boolean` | `false` | Whether to show connecting guide lines. |
 | `expandOnSelect` | `boolean` | `false` | Whether to expand parent nodes when selected. |
+| `expandOnClick` | `boolean` | `false` | Toggle a parent node open/closed when its whole row is clicked (not just the chevron). |
 | `maxHeight` | `number \| string` | — | Maximum height before scrolling. |
 | `renderNode` | `(node: TreeNodeData, state: TreeNodeState) => ReactNode` | — | Custom render function for node content. |
 | `renderActions` | `(node: TreeNodeData, state: TreeNodeState) => ReactNode` | — | Custom render function for trailing actions (right side). |

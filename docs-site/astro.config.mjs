@@ -143,6 +143,10 @@ export default defineConfig({
                   slug: 'components/controls/curve-editor',
                 },
                 {
+                  label: 'FileTree',
+                  slug: 'components/controls/file-tree',
+                },
+                {
                   label: 'FileUploader',
                   slug: 'components/controls/file-uploader',
                 },
@@ -186,6 +190,10 @@ export default defineConfig({
                   slug: 'components/navigation/pagination',
                 },
                 {
+                  label: 'PathBar',
+                  slug: 'components/navigation/path-bar',
+                },
+                {
                   label: 'SegmentedControl',
                   slug: 'components/navigation/segmented-control',
                 },
@@ -207,6 +215,7 @@ export default defineConfig({
                   label: 'EmptyState',
                   slug: 'components/feedback/empty-state',
                 },
+                { label: 'LogView', slug: 'components/feedback/log-view' },
                 {
                   label: 'ProgressBar',
                   slug: 'components/feedback/progress-bar',

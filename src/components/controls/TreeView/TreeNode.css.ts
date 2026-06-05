@@ -79,6 +79,22 @@ export const rowRecipe = recipe({
   },
 });
 
+// --- Drop target highlight ---
+// Applied to every row; the `data-drop-target` attribute toggles it on. The
+// attribute selectors out-specify the row recipe's hover/selected rules so the
+// active drop target reads clearly regardless of selection or pointer state.
+export const dropTargetStyle = style({
+  selectors: {
+    '&[data-drop-target="true"]': {
+      background: `color-mix(in srgb, ${vars.colors.accent.primary} 22%, transparent)`,
+      boxShadow: `inset 0 0 0 1px ${vars.colors.accent.primary}`,
+    },
+    '&[data-drop-target="true"]:hover': {
+      background: `color-mix(in srgb, ${vars.colors.accent.primary} 28%, transparent)`,
+    },
+  },
+});
+
 // --- Chevron ---
 export const chevronRecipe = recipe({
   base: {

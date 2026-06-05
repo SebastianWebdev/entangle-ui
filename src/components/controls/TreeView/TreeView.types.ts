@@ -118,6 +118,13 @@ export interface TreeViewBaseProps extends Omit<BaseComponent, 'onChange'> {
   expandOnSelect?: boolean;
 
   /**
+   * Whether clicking anywhere on a parent node's row toggles its expansion
+   * (not just the chevron). Leaf nodes are unaffected.
+   * @default false
+   */
+  expandOnClick?: boolean;
+
+  /**
    * Maximum height before scrolling.
    */
   maxHeight?: number | string;
@@ -154,6 +161,26 @@ export interface TreeViewBaseProps extends Omit<BaseComponent, 'onChange'> {
 
   /** Fired when a node is renamed. */
   onNodeRename?: (nodeId: string, newLabel: string) => void;
+
+  /**
+   * Id of the node currently highlighted as an active drop target. The matching
+   * row gets a `data-drop-target="true"` attribute and an accent highlight. Pair
+   * with the `onNodeDrag*` / `onNodeDrop` callbacks to build drag-and-drop on top
+   * of the tree (see `FileTree`). `null`/`undefined` means no active target.
+   */
+  dropTargetId?: string | null;
+
+  /**
+   * Fired on `dragover` over a node row. Call `event.preventDefault()` to mark
+   * the row as a valid drop target (so a subsequent `drop` fires).
+   */
+  onNodeDragOver?: (node: TreeNodeData, event: React.DragEvent) => void;
+
+  /** Fired on `dragleave` from a node row. */
+  onNodeDragLeave?: (node: TreeNodeData, event: React.DragEvent) => void;
+
+  /** Fired on `drop` onto a node row. */
+  onNodeDrop?: (node: TreeNodeData, event: React.DragEvent) => void;
 }
 
 export type TreeViewProps = Prettify<TreeViewBaseProps>;

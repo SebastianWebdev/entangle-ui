@@ -82,6 +82,7 @@ export function App() {
 - `ColorPicker` → [components/controls/color-picker.md](./components/controls/color-picker.md) — Full-featured color picker with saturation/value area, hue slider, alpha channel, input modes, presets, and built-in palettes.
 - `Combobox` → [components/controls/combobox.md](./components/controls/combobox.md) — Single-value select with an editable input, built-in fuzzy filtering, and optional free-solo or creatable modes.
 - `CurveEditor` → [components/controls/curve-editor.md](./components/controls/curve-editor.md) — Interactive bezier curve editor for animation timing, color grading, and value remapping with keyframes, tangent modes, and presets.
+- `FileTree` → [components/controls/file-tree.md](./components/controls/file-tree.md) — File-system-flavored TreeView specialization with automatic file-type icons and drag-and-drop import of OS files.
 - `FileUploader` → [components/controls/file-uploader.md](./components/controls/file-uploader.md) — Drag-and-drop file uploader with type and size validation, per-row status, and an animated progress bar.
 - `GradientEditor` → [components/controls/gradient-editor.md](./components/controls/gradient-editor.md) — Interactive gradient editor for linear, radial, and conic gradients with draggable color stops, per-stop color picking, and CSS import/export.
 - `MultiSelect` → [components/controls/multi-select.md](./components/controls/multi-select.md) — Multi-value select that renders chosen options as inline chips, with a "+N more" overflow badge and optional search.
@@ -98,6 +99,7 @@ export function App() {
 - `ContextMenu` → [components/navigation/context-menu.md](./components/navigation/context-menu.md) — Composable right-click context menu. Scope menus per area, reuse the shared Menu item primitives, or drop in a fully custom panel.
 - `Menu` → [components/navigation/menu.md](./components/navigation/menu.md) — Composable menu with icon/label/shortcut items, radio and checkbox selection, grouped items, nested submenus, and keyboard navigation.
 - `Pagination` → [components/navigation/pagination.md](./components/navigation/pagination.md) — Page navigator with sibling/boundary ellipsis logic, controlled and uncontrolled modes, three sizes, and optional first/last jump buttons.
+- `PathBar` → [components/navigation/path-bar.md](./components/navigation/path-bar.md) — File-path breadcrumbs like the VS Code editor bar — clickable segments, sibling dropdowns, and overflow collapsing.
 - `SegmentedControl` → [components/navigation/segmented-control.md](./components/navigation/segmented-control.md) — Toolbar-density mutually exclusive selector for view modes, layout toggles, and other small option groups.
 - `Tabs` → [components/navigation/tabs.md](./components/navigation/tabs.md) — Compound tab component for switching between views with underline, pills, and enclosed variants.
 
@@ -108,6 +110,7 @@ export function App() {
 - `Dialog` → [components/feedback/dialog.md](./components/feedback/dialog.md) — Accessible modal dialog with overlay, focus trap, keyboard support, and compound sub-components for headers, bodies, and footers.
 - `Drawer` → [components/feedback/drawer.md](./components/feedback/drawer.md) — Anchored sliding panel for filters, navigation, or detail views. Four anchors, modal and non-modal modes, and a compound API.
 - `EmptyState` → [components/feedback/empty-state.md](./components/feedback/empty-state.md) — Generic empty / loading state surface with icon, title, description, and action slots.
+- `LogView` → [components/feedback/log-view.md](./components/feedback/log-view.md) — Virtualized console output panel with level coloring, filtering, text search, follow-tail auto-scroll, timestamps, and copy.
 - `ProgressBar` → [components/feedback/progress-bar.md](./components/feedback/progress-bar.md) — Linear and circular progress indicators with determinate, indeterminate, striped, and labeled variants.
 - `Skeleton` → [components/feedback/skeleton.md](./components/feedback/skeleton.md) — Loading-placeholder primitive with rect, circle, and line shapes plus pulse, wave, and static animations.
 - `Spinner` → [components/feedback/spinner.md](./components/feedback/spinner.md) — Loading and activity indicator with ring, dots, and pulse variants. Honors prefers-reduced-motion.
@@ -124,6 +127,7 @@ export function App() {
 
 ### Editor
 
+- `AssetBrowser` → [components/editor/asset-browser.md](./components/editor/asset-browser.md) — Controlled content browser for files and folders — grid/list views, thumbnails, folder navigation, search, filter, sort, selection, marquee, and drag-and-drop.
 - `ChatPanel` → [components/editor/chat-panel.md](./components/editor/chat-panel.md) — Complete chat interface system for AI assistant integration with messages, input, tool calls, code blocks, and attachments.
 - `Minimap` → [components/editor/minimap.md](./components/editor/minimap.md) — Shared navigation primitive that renders a miniature of editor content alongside a draggable rectangle mirroring the main viewport's visible region. Designed for NodeGraph, Timeline, and custom 2D editor surfaces.
 - `NodeGraph` → [components/editor/nodegraph.md](./components/editor/nodegraph.md) — Data-driven node editor surface — ports, Bézier edges, multi-select, drag, marquee, snap-to-grid, connection validation, keyboard nav, groups, a minimap slot, a toolbar slot, a spawn palette, and an imperative camera handle. Composes the Viewport primitive.
@@ -134,7 +138,6 @@ export function App() {
 
 ### components/data
 
-- `AssetBrowser` → [components/data/asset-browser.md](./components/data/asset-browser.md) — Controlled content browser for files and folders — grid/list views, thumbnails, folder navigation, search, filter, sort, selection, and drag-and-drop.
 - `DataTable` → [components/data/data-table.md](./components/data/data-table.md) — Data-driven table with sortable columns, row selection, sticky header, optional column resizing, and row virtualization for large datasets.
 
 ### Hooks

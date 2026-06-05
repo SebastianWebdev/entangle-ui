@@ -29,6 +29,8 @@ import { ScrollArea } from 'entangle-ui';
 
 Control which axes can scroll using the `direction` prop.
 
+**Scroll Direction**
+
 ```tsx
 {
   /* Vertical only (default) */
@@ -55,6 +57,8 @@ Control which axes can scroll using the `direction` prop.
 ## Scrollbar Visibility
 
 The `scrollbarVisibility` prop controls when custom scrollbars appear.
+
+**Scrollbar Visibility**
 
 ```tsx
 {
@@ -97,6 +101,8 @@ The `scrollbarVisibility` prop controls when custom scrollbars appear.
 
 When using `scrollbarVisibility="auto"`, control the delay before scrollbars fade out.
 
+**Auto-hide Delay**
+
 ```tsx
 <ScrollArea scrollbarVisibility="auto" hideDelay={2000} maxHeight={200}>
   <Content />
@@ -106,6 +112,8 @@ When using `scrollbarVisibility="auto"`, control the delay before scrollbars fad
 ## Fade Masks
 
 Enable gradient fade masks at scroll boundaries to visually indicate more content is available.
+
+**Fade Masks**
 
 ```tsx
 <ScrollArea fadeMask maxHeight={200}>
@@ -126,6 +134,8 @@ Fade masks appear at the top/bottom for vertical scrolling and left/right for ho
 
 Fine-tune the scrollbar appearance with width, padding, and minimum thumb length.
 
+**Scrollbar Customization**
+
 ```tsx
 <ScrollArea
   scrollbarWidth={8}
@@ -141,6 +151,8 @@ Fine-tune the scrollbar appearance with width, padding, and minimum thumb length
 
 When placed inside a flex or grid layout, use `autoFill` to make the scroll area fill its parent container.
 
+**Auto Fill**
+
 ```tsx
 <Flex direction="column" fullHeight>
   <Header />
@@ -154,6 +166,8 @@ When placed inside a flex or grid layout, use `autoFill` to make the scroll area
 ## Scroll Callbacks
 
 React to scroll position changes and boundary events.
+
+**Scroll Callbacks**
 
 ```tsx
 <ScrollArea

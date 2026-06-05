@@ -254,6 +254,28 @@ describe('BreadcrumbItem', () => {
     expect(screen.queryByText('Very long label')).toBeNull();
   });
 
+  it('renders endContent after the label, outside the navigation target', () => {
+    const handleClick = vi.fn();
+    renderWithTheme(
+      <Breadcrumbs>
+        <BreadcrumbItem
+          onClick={handleClick}
+          endContent={<button type="button">menu</button>}
+        >
+          src
+        </BreadcrumbItem>
+      </Breadcrumbs>
+    );
+
+    // The trailing affordance renders…
+    const trailing = screen.getByRole('button', { name: 'menu' });
+    expect(trailing).toBeInTheDocument();
+
+    // …and clicking it does not trigger the crumb's own navigation.
+    fireEvent.click(trailing);
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+
   it('renders disabled text when neither href, onClick, nor isCurrent is provided', () => {
     renderWithTheme(
       <Breadcrumbs>
