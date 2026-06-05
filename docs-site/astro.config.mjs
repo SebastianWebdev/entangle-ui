@@ -5,10 +5,17 @@ import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import { resolve } from 'path';
 import { fileURLToPath } from 'node:url';
+import remarkGfm from 'remark-gfm';
 
 const rootDir = fileURLToPath(new URL('..', import.meta.url));
 
 export default defineConfig({
+  // Astro's default GFM doesn't reach the MDX pipeline here (Astro 6 /
+  // Starlight 0.39), so markdown tables render as raw text. Apply remark-gfm
+  // explicitly so tables/strikethrough/etc. work in .mdx docs.
+  markdown: {
+    remarkPlugins: [remarkGfm],
+  },
   integrations: [
     starlight({
       title: 'Entangle UI',

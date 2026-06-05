@@ -323,7 +323,7 @@ describe('GradientEditor', () => {
       expect(onChange).toHaveBeenCalled();
     });
 
-    it('commits the angle on blur (VectorInput → NumberInput pattern)', () => {
+    it('commits the angle on dial blur', () => {
       const onChangeComplete = vi.fn();
       renderWithTheme(
         <GradientEditor
@@ -332,13 +332,11 @@ describe('GradientEditor', () => {
           testId="ge"
         />
       );
-      const angleInput = screen
-        .getByTestId('ge-angle')
-        .querySelector('input') as HTMLInputElement;
-
-      // Blur is the commit boundary for the angle field, mirroring how
-      // VectorInput bridges NumberInput.onBlur to its own onChangeComplete.
-      fireEvent.blur(angleInput);
+      // The angle control is an AngleInput dial (no numeric input); it commits
+      // when focus leaves the dial after a keyboard edit.
+      const dial = screen.getByTestId('ge-angle-dial');
+      fireEvent.keyDown(dial, { key: 'ArrowRight' });
+      fireEvent.blur(dial);
       expect(onChangeComplete).toHaveBeenCalled();
     });
 

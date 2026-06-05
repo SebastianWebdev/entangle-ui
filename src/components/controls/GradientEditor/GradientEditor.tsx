@@ -261,6 +261,8 @@ export const GradientEditor = ({
               onChangeComplete={handleCommitCurrent}
               size={size}
               disabled={disabled}
+              showInput={false}
+              showValue
               aria-label="Gradient angle"
               testId={testId ? `${testId}-angle` : undefined}
             />
