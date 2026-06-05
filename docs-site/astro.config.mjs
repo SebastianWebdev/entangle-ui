@@ -5,10 +5,23 @@ import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import { resolve } from 'path';
 import { fileURLToPath } from 'node:url';
+import rehypeBaseInternalLinks from './scripts/rehype-base-internal-links.mjs';
 
 const rootDir = fileURLToPath(new URL('..', import.meta.url));
 
+// When building an archived version snapshot, DOCS_BASE is set to e.g. "/v0.9"
+// so every asset and internal link resolves under that sub-path on GitHub
+// Pages. The "latest" build leaves it unset and is served from the site root.
+const base = process.env.DOCS_BASE || undefined;
+
 export default defineConfig({
+  site: 'https://www.entangle-ui.dev',
+  base,
+  // Versioned snapshot builds (DOCS_BASE set) need root-absolute Markdown links
+  // rewritten to live under the base; the root "latest" build skips this.
+  markdown: {
+    rehypePlugins: base ? [[rehypeBaseInternalLinks, { base }]] : [],
+  },
   integrations: [
     starlight({
       title: 'Entangle UI',

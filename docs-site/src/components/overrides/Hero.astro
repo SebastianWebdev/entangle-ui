@@ -4,6 +4,18 @@ import HeroDecoration from '../demos/HeroDecoration';
 const PAGE_TITLE_ID = '_top';
 const { data } = Astro.locals.starlightRoute.entry;
 const { title = data.title, tagline, actions = [] } = data.hero || {};
+
+// Hero action links live in frontmatter, so the rehype base-prefixer that
+// handles Markdown content doesn't see them. Prefix root-absolute internal
+// links with Astro's base so a versioned snapshot (e.g. /v0.9/) keeps them
+// inside that version instead of jumping back to the site root.
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+const withBase = href => {
+  if (typeof href !== 'string' || !href.startsWith('/') || href.startsWith('//'))
+    return href;
+  if (href === baseUrl || href.startsWith(`${baseUrl}/`)) return href;
+  return baseUrl + href;
+};
 ---
 
 <div class="hero">
@@ -16,7 +28,10 @@ const { title = data.title, tagline, actions = [] } = data.hero || {};
       actions.length > 0 && (
         <div class="sl-flex actions">
           {actions.map(({ icon, link: href, text, variant }) => (
-            <a href={href} class:list={['sl-link-button', variant || 'primary']}>
+            <a
+              href={withBase(href)}
+              class:list={['sl-link-button', variant || 'primary']}
+            >
               {text}
               {icon?.html && <Fragment set:html={icon.html} />}
             </a>
