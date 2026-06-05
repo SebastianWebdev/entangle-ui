@@ -31,14 +31,26 @@ const [gradient, setGradient] = useState<GradientData | undefined>(undefined);
 - **Move a stop** — drag its handle, or focus it and use the arrow keys
   (hold <kbd>Shift</kbd> for larger steps).
 - **Delete a stop** — drag a handle vertically off the ramp, press
-  <kbd>Delete</kbd>/<kbd>Backspace</kbd> with it focused, or use the trash
-  button next to the color editor.
-- **Recolor a stop** — select it and use the color editor.
+  <kbd>Delete</kbd>/<kbd>Backspace</kbd> with it focused, or click the trash
+  button on the stop's card in the grid below the ramp.
+- **Recolor a stop** — edit it from its card in the stops grid (see below).
+
+## Stops grid
+
+Below the ramp every stop is summarized as a card: the color swatch, its value
+(in `swatchFormat`, hex by default), the ramp position, and a delete button. Set
+`swatchFormat` to show the value as `hex`, `hex8`, `rgb`, `rgba`, `hsl`, or
+`hsla`.
+
+```tsx
+<GradientEditor value={gradient} onChange={setGradient} swatchFormat="rgba" />
+```
 
 ## Color editor placement
 
-By default the selected stop's color opens in a popover `ColorPicker`. Set
-`colorEditor="inline"` to render the picker panel directly under the ramp.
+By default (`colorEditor="popover"`) clicking a card's swatch opens its color in
+a popover `ColorPicker`. Set `colorEditor="inline"` to instead select the card
+and edit it in a single `ColorPicker` panel rendered below the grid.
 
 ```tsx
 <GradientEditor value={gradient} onChange={setGradient} colorEditor="inline" />
@@ -97,7 +109,8 @@ a gradient, so it's safe to feed user input.
 | `defaultValue` | `GradientData` | `black→white linear` | Default gradient data (uncontrolled). |
 | `width` | `number` | `280` | Width of the editor in pixels. |
 | `types` | `GradientType[]` | `['linear', 'radial', 'conic']` | Gradient types offered in the toggle. |
-| `colorEditor` | `'popover' \| 'inline'` | `'popover'` | How the per-stop color editor is surfaced. |
+| `colorEditor` | `'popover' \| 'inline'` | `'popover'` | How a stop is edited from its card: popover per card, or a shared inline picker below the grid. |
+| `swatchFormat` | `'hex' \| 'hex8' \| 'rgb' \| 'rgba' \| 'hsl' \| 'hsla'` | `'hex'` | Color format shown on each stop card's value label. |
 | `showAlpha` | `boolean` | `true` | Whether the ColorPicker exposes the alpha channel. |
 | `showAngle` | `boolean` | `true` | Show the angle control (linear/conic). |
 | `showCssOutput` | `boolean` | `true` | Show the read-only CSS row with copy button. |

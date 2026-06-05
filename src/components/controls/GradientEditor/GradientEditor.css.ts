@@ -135,12 +135,80 @@ export const stopsFillStyle = style({
   minWidth: 0,
 });
 
-// --- Selected-stop action row ---
+// --- Stops grid (color cards) ---
 
-export const stopActionsRowStyle = style({
+export const stopsGridStyle = style({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fill, minmax(68px, 1fr))',
+  gap: vars.spacing.sm,
+});
+
+export const stopCardRecipe = recipe({
+  base: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '3px',
+    padding: '4px',
+    borderRadius: vars.borderRadius.sm,
+    border: `1px solid ${vars.colors.border.default}`,
+    background: vars.colors.surface.default,
+  },
+  variants: {
+    selected: {
+      true: { borderColor: vars.colors.accent.primary },
+      false: {},
+    },
+  },
+  defaultVariants: { selected: false },
+});
+
+// Top row of a card: swatch (fills) + trash.
+export const stopCardTopStyle = style({
   display: 'flex',
   alignItems: 'center',
-  gap: vars.spacing.sm,
+  gap: '2px',
+});
+
+// Color swatch button — checkerboard behind so alpha reads correctly.
+export const stopCardSwatchStyle = style({
+  position: 'relative',
+  flex: 1,
+  minWidth: 0,
+  height: '28px',
+  padding: 0,
+  border: `1px solid ${vars.colors.border.default}`,
+  borderRadius: vars.borderRadius.sm,
+  cursor: 'pointer',
+  overflow: 'hidden',
+  outline: 'none',
+  ...checkerboard,
+  selectors: {
+    '&:focus-visible': { boxShadow: vars.shadows.focus },
+    '&:disabled': { cursor: 'not-allowed' },
+  },
+});
+
+// Inner fill of the swatch — `background-color` (the stop color) is set inline.
+export const stopCardSwatchFillStyle = style({
+  position: 'absolute',
+  inset: 0,
+});
+
+export const stopCardValueStyle = style({
+  fontFamily: vars.typography.fontFamily.mono,
+  fontSize: vars.typography.fontSize.xs,
+  lineHeight: vars.typography.lineHeight.tight,
+  color: vars.colors.text.secondary,
+  textAlign: 'center',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
+export const stopCardPositionStyle = style({
+  fontSize: vars.typography.fontSize.xxs,
+  color: vars.colors.text.muted,
+  textAlign: 'center',
 });
 
 // --- CSS output row ---

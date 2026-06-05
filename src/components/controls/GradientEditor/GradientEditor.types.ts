@@ -1,3 +1,4 @@
+import type { ColorFormat } from '@/components/controls/ColorPicker';
 import type { BaseComponent, Size } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
 
@@ -46,10 +47,11 @@ export interface GradientData {
 }
 
 /**
- * How the per-stop color editor is surfaced.
- * - `popover`: clicking a stop opens a ColorPicker in a popover anchored to it
- * - `inline`: a ColorPicker panel is always rendered below the ramp, editing
- *   the selected stop
+ * How a stop's color is edited from its card in the stops grid.
+ * - `popover`: clicking a card's swatch opens a ColorPicker in a popover
+ *   anchored to it
+ * - `inline`: clicking a card selects it and a single ColorPicker panel is
+ *   rendered below the grid, editing the selected stop
  * @default "popover"
  */
 export type GradientColorEditorMode = 'popover' | 'inline';
@@ -83,10 +85,17 @@ export interface GradientEditorBaseProps extends Omit<
   types?: GradientType[];
 
   /**
-   * How the per-stop color editor is surfaced.
+   * How a stop's color is edited from its card (popover per card, or a shared
+   * inline picker below the grid).
    * @default "popover"
    */
   colorEditor?: GradientColorEditorMode;
+
+  /**
+   * Color format shown on each stop card's value label.
+   * @default "hex"
+   */
+  swatchFormat?: ColorFormat;
 
   /**
    * Whether the ColorPicker exposes the alpha channel.

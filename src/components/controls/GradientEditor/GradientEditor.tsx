@@ -5,13 +5,9 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { AngleInput } from '@/components/controls/AngleInput/AngleInput';
 import { ColorPicker } from '@/components/controls/ColorPicker/ColorPicker';
 import { CopyIcon } from '@/components/Icons/CopyIcon';
-import { TrashIcon } from '@/components/Icons/TrashIcon';
 import { SegmentedControl } from '@/components/navigation/SegmentedControl/SegmentedControl';
 import { SegmentedControlItem } from '@/components/navigation/SegmentedControl/SegmentedControlItem';
 import { IconButton } from '@/components/primitives/IconButton/IconButton';
-import { Popover } from '@/components/primitives/Popover/Popover';
-import { PopoverContent } from '@/components/primitives/Popover/PopoverContent';
-import { PopoverTrigger } from '@/components/primitives/Popover/PopoverTrigger';
 import { useClipboard, useControlledState, useLatest } from '@/hooks';
 import { cx } from '@/utils/cx';
 
@@ -22,11 +18,11 @@ import {
   previewFillStyle,
   stopsRowStyle,
   stopsFillStyle,
-  stopActionsRowStyle,
   cssOutputRowStyle,
   cssOutputCodeStyle,
   inlineColorEditorStyle,
 } from './GradientEditor.css';
+import { GradientStopGrid } from './GradientStopGrid';
 import { GradientStops } from './GradientStops';
 import {
   addStopAt,
@@ -39,6 +35,7 @@ import {
 import type {
   GradientData,
   GradientEditorProps,
+  GradientStop,
   GradientType,
 } from './GradientEditor.types';
 
@@ -54,6 +51,7 @@ export const GradientEditor = ({
   width = 280,
   types = ['linear', 'radial', 'conic'],
   colorEditor = 'popover',
+  swatchFormat = 'hex',
   showAlpha = true,
   showAngle = true,
   showCssOutput = true,
@@ -185,21 +183,26 @@ export const GradientEditor = ({
 
   const angleEnabled = gradient.type === 'linear' || gradient.type === 'conic';
 
-  const colorPicker = selectedStop ? (
-    <ColorPicker
-      inline
-      value={selectedStop.color}
-      format="rgba"
-      showAlpha={showAlpha}
-      disabled={disabled}
-      pickerWidth={width - 24}
-      onChange={color => {
-        handleColorChange(selectedStop.id, color);
-      }}
-      onChangeComplete={handleCommitCurrent}
-      testId={testId ? `${testId}-color-picker` : undefined}
-    />
-  ) : null;
+  // Builds a ColorPicker bound to a specific stop — reused by the inline editor
+  // (selected stop) and by each card's popover in the stops grid.
+  const renderColorPickerFor = useCallback(
+    (stop: GradientStop) => (
+      <ColorPicker
+        inline
+        value={stop.color}
+        format="rgba"
+        showAlpha={showAlpha}
+        disabled={disabled}
+        pickerWidth={width - 24}
+        onChange={color => {
+          handleColorChange(stop.id, color);
+        }}
+        onChangeComplete={handleCommitCurrent}
+        testId={testId ? `${testId}-color-picker` : undefined}
+      />
+    ),
+    [showAlpha, disabled, width, handleColorChange, handleCommitCurrent, testId]
+  );
 
   return (
     <div
@@ -268,50 +271,26 @@ export const GradientEditor = ({
         )}
       </div>
 
-      {/* Selected-stop color editing */}
-      {colorEditor === 'inline' ? (
-        <div className={inlineColorEditorStyle}>{colorPicker}</div>
-      ) : (
-        selectedStop && (
-          <div className={stopActionsRowStyle}>
-            <Popover>
-              <PopoverTrigger>
-                <IconButton
-                  size={size}
-                  variant="default"
-                  aria-label="Edit stop color"
-                  disabled={disabled}
-                  testId={testId ? `${testId}-edit-color` : undefined}
-                >
-                  <span
-                    style={{
-                      display: 'block',
-                      width: '60%',
-                      height: '60%',
-                      borderRadius: 2,
-                      backgroundColor: selectedStop.color,
-                    }}
-                  />
-                </IconButton>
-              </PopoverTrigger>
-              <PopoverContent width={width} padding="md">
-                {colorPicker}
-              </PopoverContent>
-            </Popover>
-            <IconButton
-              size={size}
-              variant="ghost"
-              aria-label="Delete stop"
-              disabled={disabled || gradient.stops.length <= minStops}
-              onClick={() => {
-                handleDeleteStop(selectedStop.id);
-              }}
-              testId={testId ? `${testId}-delete` : undefined}
-            >
-              <TrashIcon />
-            </IconButton>
-          </div>
-        )
+      {/* All stops as a grid of color cards (swatch + value + position + delete) */}
+      <GradientStopGrid
+        stops={gradient.stops}
+        selectedId={selectedStop?.id ?? null}
+        colorEditor={colorEditor}
+        swatchFormat={swatchFormat}
+        disabled={disabled}
+        canDelete={gradient.stops.length > minStops}
+        width={width}
+        renderColorEditor={renderColorPickerFor}
+        onDeleteStop={handleDeleteStop}
+        onSelectStop={selectStop}
+        testId={testId}
+      />
+
+      {/* Shared inline color editor for the selected stop */}
+      {colorEditor === 'inline' && selectedStop && (
+        <div className={inlineColorEditorStyle}>
+          {renderColorPickerFor(selectedStop)}
+        </div>
       )}
 
       {/* CSS output */}

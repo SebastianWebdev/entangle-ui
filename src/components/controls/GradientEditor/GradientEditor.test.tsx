@@ -251,9 +251,54 @@ describe('GradientEditor', () => {
       );
       expect(screen.getByTestId('ge-color-picker')).toBeInTheDocument();
     });
+
+    it('renders a stops grid with a card and value per stop', () => {
+      renderWithTheme(
+        <GradientEditor defaultValue={linearGradient} testId="ge" />
+      );
+      expect(screen.getByTestId('ge-stops-grid')).toBeInTheDocument();
+      expect(screen.getByTestId('ge-stop-a')).toBeInTheDocument();
+      expect(screen.getByTestId('ge-stop-b')).toBeInTheDocument();
+      expect(screen.getByText('#000000')).toBeInTheDocument();
+      expect(screen.getByText('#ffffff')).toBeInTheDocument();
+    });
+
+    it('formats stop card values per swatchFormat', () => {
+      renderWithTheme(
+        <GradientEditor
+          defaultValue={linearGradient}
+          swatchFormat="rgb"
+          testId="ge"
+        />
+      );
+      expect(screen.queryByText('#000000')).not.toBeInTheDocument();
+      expect(screen.getAllByText(/^rgb\(/)).toHaveLength(2);
+    });
   });
 
   describe('Interactions', () => {
+    it('deletes a stop via its card trash button', () => {
+      const threeStops: GradientData = {
+        type: 'linear',
+        angle: 90,
+        stops: [
+          { id: 'a', color: '#000000', position: 0 },
+          { id: 'b', color: '#808080', position: 0.5 },
+          { id: 'c', color: '#ffffff', position: 1 },
+        ],
+      };
+      const onChangeComplete = vi.fn();
+      renderWithTheme(
+        <GradientEditor
+          defaultValue={threeStops}
+          onChangeComplete={onChangeComplete}
+          testId="ge"
+        />
+      );
+      fireEvent.click(screen.getByTestId('ge-delete-b'));
+      expect(onChangeComplete).toHaveBeenCalled();
+      expect(screen.queryByTestId('ge-stop-b')).not.toBeInTheDocument();
+    });
     it('adds a stop when the track is clicked (onChange + onChangeComplete)', () => {
       let latest: GradientData | null = null;
       const onChangeComplete = vi.fn();
