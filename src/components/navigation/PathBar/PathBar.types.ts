@@ -1,4 +1,7 @@
-import type { BreadcrumbsSize } from '@/components/navigation/Breadcrumbs';
+import type {
+  BreadcrumbsProps,
+  BreadcrumbsSize,
+} from '@/components/navigation/Breadcrumbs';
 import type { BaseComponent } from '@/types/common';
 import type { Prettify } from '@/types/utilities';
 import type React from 'react';
@@ -30,10 +33,15 @@ export interface PathSegment {
  */
 export type PathInput = string | ReadonlyArray<string | PathSegment>;
 
-export interface PathBarBaseProps extends Omit<
-  BaseComponent<HTMLElement>,
-  'onChange' | 'defaultValue'
-> {
+export interface PathBarBaseProps
+  extends
+    Omit<BaseComponent<HTMLElement>, 'onChange' | 'defaultValue'>,
+    // Overflow-collapse behavior is delegated verbatim to Breadcrumbs, so the
+    // props (and their docs) are sourced from there rather than duplicated.
+    Pick<
+      BreadcrumbsProps,
+      'maxItems' | 'itemsBeforeCollapse' | 'itemsAfterCollapse' | 'expandable'
+    > {
   /**
    * Controlled current path. When provided, PathBar renders exactly this path
    * and never mutates it — drive changes from `onNavigate`.
@@ -79,38 +87,15 @@ export interface PathBarBaseProps extends Omit<
   rootIcon?: React.ReactNode;
 
   /**
-   * Separator inserted between segments.
-   * @default <ChevronRightIcon size="sm" decorative />
+   * Separator inserted between segments. The default chevron scales with
+   * `size`.
+   * @default <ChevronRightIcon size={size} decorative />
    */
   separator?: React.ReactNode;
 
   /**
-   * Maximum number of segments to show before collapsing the middle into an
-   * ellipsis. `0` never collapses.
-   * @default 0
-   */
-  maxItems?: number;
-
-  /**
-   * Segments to keep visible at the start when collapsing.
-   * @default 1
-   */
-  itemsBeforeCollapse?: number;
-
-  /**
-   * Segments to keep visible at the end when collapsing.
-   * @default 2
-   */
-  itemsAfterCollapse?: number;
-
-  /**
-   * Render the ellipsis as a button that expands the collapsed segments.
-   * @default true
-   */
-  expandable?: boolean;
-
-  /**
-   * Typography and spacing scale.
+   * Typography and spacing scale. Also scales the default separator and the
+   * sibling-dropdown caret.
    * @default "sm"
    */
   size?: PathBarSize;

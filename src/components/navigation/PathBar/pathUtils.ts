@@ -60,6 +60,13 @@ export function joinPath(
  * segmentPrefix({ label: 'src', value: '/src' })       // '/'
  * segmentPrefix({ label: 'b', value: 'a/b' })           // 'a/'
  * segmentPrefix({ label: 'src', value: 'src' })         // ''
+ *
+ * @remarks
+ * Assumes `value` ends with `label` — always true for parsed paths and for
+ * cumulative array values. If a consumer supplies a structured segment whose
+ * `value` is unrelated to its `label`, the derived prefix is meaningless; in
+ * that case provide explicit `value`s on that segment's siblings too so they
+ * don't fall back to this prefix.
  */
 export function segmentPrefix(segment: ResolvedPathSegment): string {
   return segment.value.slice(0, segment.value.length - segment.label.length);
@@ -117,6 +124,30 @@ export function normalizePath(
     return {
       ...segment,
       value: segment.value ?? joinPath(labels, index, delimiter),
+    };
+  });
+}
+
+/**
+ * Resolve a `getSiblings` result into segments with concrete navigation
+ * values. A sibling lives in the same parent as `anchor`, so it inherits that
+ * segment's prefix (see {@link segmentPrefix}) and only swaps the trailing
+ * label. Entries that already carry an explicit `value` keep it.
+ *
+ * @param anchor  The resolved segment the siblings sit beside.
+ * @param entries Raw sibling entries — plain labels or structured segments.
+ */
+export function resolveSiblings(
+  anchor: ResolvedPathSegment,
+  entries: ReadonlyArray<string | PathSegment>
+): ResolvedPathSegment[] {
+  const prefix = segmentPrefix(anchor);
+  return entries.map(entry => {
+    const segment: PathSegment =
+      typeof entry === 'string' ? { label: entry } : entry;
+    return {
+      ...segment,
+      value: segment.value ?? prefix + segment.label,
     };
   });
 }

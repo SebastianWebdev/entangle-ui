@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { joinPath, normalizePath, parsePath, segmentPrefix } from './pathUtils';
+import {
+  joinPath,
+  normalizePath,
+  parsePath,
+  resolveSiblings,
+  segmentPrefix,
+} from './pathUtils';
 
 import type { ResolvedPathSegment } from './pathUtils';
 
@@ -114,5 +120,45 @@ describe('normalizePath', () => {
       { label: 'example', value: 'com.example' },
       { label: 'app', value: 'com.example.app' },
     ]);
+  });
+});
+
+describe('resolveSiblings', () => {
+  it('derives sibling values from the anchor prefix', () => {
+    const anchor: ResolvedPathSegment = {
+      label: 'Button.tsx',
+      value: 'src/components/Button.tsx',
+    };
+    expect(resolveSiblings(anchor, ['Input.tsx', 'Card.tsx'])).toEqual([
+      { label: 'Input.tsx', value: 'src/components/Input.tsx' },
+      { label: 'Card.tsx', value: 'src/components/Card.tsx' },
+    ]);
+  });
+
+  it('keeps the leading delimiter for absolute anchors', () => {
+    const anchor: ResolvedPathSegment = { label: 'local', value: '/usr/local' };
+    expect(resolveSiblings(anchor, ['bin'])).toEqual([
+      { label: 'bin', value: '/usr/bin' },
+    ]);
+  });
+
+  it('resolves siblings of a relative root against an empty prefix', () => {
+    const anchor: ResolvedPathSegment = { label: 'src', value: 'src' };
+    expect(resolveSiblings(anchor, ['public'])).toEqual([
+      { label: 'public', value: 'public' },
+    ]);
+  });
+
+  it('preserves an explicit value and icon on a structured sibling', () => {
+    const anchor: ResolvedPathSegment = { label: 'b', value: 'a/b' };
+    const icon = 'icon';
+    expect(
+      resolveSiblings(anchor, [{ label: 'c', value: 'custom', icon }])
+    ).toEqual([{ label: 'c', value: 'custom', icon }]);
+  });
+
+  it('returns an empty array when there are no entries', () => {
+    const anchor: ResolvedPathSegment = { label: 'src', value: 'src' };
+    expect(resolveSiblings(anchor, [])).toEqual([]);
   });
 });

@@ -1,48 +1,23 @@
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
-import { ChevronDownIcon, ChevronRightIcon } from '@/components/Icons';
+import { ChevronRightIcon } from '@/components/Icons';
 import {
   Breadcrumbs,
   BreadcrumbItem,
 } from '@/components/navigation/Breadcrumbs';
-import { Menu } from '@/components/navigation/Menu';
-import { IconButton } from '@/components/primitives';
 import { useControlledState, useLatest } from '@/hooks';
 
-import { pathBarSiblingTriggerStyle } from './PathBar.css';
-import { normalizePath, segmentPrefix } from './pathUtils';
+import { PathBarSiblingMenu } from './PathBarSiblingMenu';
+import { normalizePath } from './pathUtils';
 
-import type { PathBarProps, PathSegment } from './PathBar.types';
+import type { PathBarProps } from './PathBar.types';
 import type { ResolvedPathSegment } from './pathUtils';
 
-const EMPTY_SEGMENTS: ResolvedPathSegment[] = [];
-
-/**
- * Resolve a `getSiblings` result into segments with concrete navigation
- * values. A sibling lives in the same parent as `segments[index]`, so it
- * inherits that segment's prefix and only swaps the trailing label.
- */
-function resolveSiblings(
-  segments: readonly ResolvedPathSegment[],
-  index: number,
-  entries: ReadonlyArray<string | PathSegment>
-): ResolvedPathSegment[] {
-  const anchor = segments[index];
-  if (!anchor) {
-    return EMPTY_SEGMENTS;
-  }
-  const prefix = segmentPrefix(anchor);
-  return entries.map(entry => {
-    const segment: PathSegment =
-      typeof entry === 'string' ? { label: entry } : entry;
-    return {
-      ...segment,
-      value: segment.value ?? prefix + segment.label,
-    };
-  });
-}
+// Frozen so the shared fallback can never be mutated in place; every write path
+// builds a fresh array via slice/spread.
+const EMPTY_SEGMENTS: readonly ResolvedPathSegment[] = Object.freeze([]);
 
 /**
  * File-path breadcrumbs, like the VS Code editor breadcrumb bar.
@@ -85,6 +60,8 @@ export const PathBar = ({
   ref,
   ...rest
 }: PathBarProps): React.ReactElement => {
+  // Wrap the consumer callback so navigation handlers don't depend on its
+  // (typically inline, render-fresh) identity.
   const onNavigateRef = useLatest(onNavigate);
 
   const controlledSegments = useMemo(
@@ -99,76 +76,38 @@ export const PathBar = ({
     [defaultValue, delimiter]
   );
 
-  const [segments, setSegments] = useControlledState<ResolvedPathSegment[]>({
+  const [segments, setSegments] = useControlledState<
+    readonly ResolvedPathSegment[]
+  >({
     value: controlledSegments,
     defaultValue: defaultSegments,
     fallback: EMPTY_SEGMENTS,
   });
 
-  // Read the live trail from a ref so the handlers stay identity-stable and
-  // never go stale, even though the rendered crumbs change every navigation.
-  const segmentsRef = useLatest(segments);
+  // Handlers are invoked only from the crumb-mapping below (recreated every
+  // render anyway), so they close over the current-render `segments` directly —
+  // no ref indirection needed, and the value is always live at click time.
+  const navigateToIndex = (index: number): void => {
+    const target = segments[index];
+    if (!target) {
+      return;
+    }
+    // Navigating to an ancestor drops everything below it (uncontrolled mode;
+    // a controlled `value` is left untouched and driven by the consumer).
+    setSegments(segments.slice(0, index + 1));
+    onNavigateRef.current?.(target.value, target, index);
+  };
 
-  const navigateToIndex = useCallback(
-    (index: number) => {
-      const target = segmentsRef.current[index];
-      if (!target) {
-        return;
-      }
-      // Navigating to an ancestor drops everything below it (uncontrolled mode;
-      // a controlled `value` is left untouched and driven by the consumer).
-      setSegments(segmentsRef.current.slice(0, index + 1));
-      onNavigateRef.current?.(target.value, target, index);
-    },
-    [segmentsRef, setSegments, onNavigateRef]
-  );
-
-  const selectSibling = useCallback(
-    (index: number, sibling: ResolvedPathSegment) => {
-      // A lateral move: keep the ancestors, swap this segment, drop anything
-      // deeper since the old subtree no longer applies.
-      setSegments([...segmentsRef.current.slice(0, index), sibling]);
-      onNavigateRef.current?.(sibling.value, sibling, index);
-    },
-    [segmentsRef, setSegments, onNavigateRef]
-  );
+  const selectSibling = (index: number, sibling: ResolvedPathSegment): void => {
+    // A lateral move: keep the ancestors, swap this segment, drop anything
+    // deeper since the old subtree no longer applies.
+    setSegments([...segments.slice(0, index), sibling]);
+    onNavigateRef.current?.(sibling.value, sibling, index);
+  };
 
   const items = segments.map((segment, index) => {
     const isLast = index === segments.length - 1;
     const icon = segment.icon ?? (index === 0 ? rootIcon : undefined);
-
-    const rawSiblings = getSiblings?.(segment, index) ?? [];
-    const siblings = resolveSiblings(segments, index, rawSiblings);
-    const endContent =
-      siblings.length > 0 ? (
-        <Menu>
-          <Menu.Trigger
-            render={
-              <IconButton
-                aria-label={`Browse ${segment.label} siblings`}
-                size="sm"
-                radius="sm"
-                className={pathBarSiblingTriggerStyle}
-              >
-                <ChevronDownIcon size="sm" decorative />
-              </IconButton>
-            }
-          />
-          <Menu.Content>
-            {siblings.map((sibling, siblingIndex) => (
-              <Menu.Item
-                key={`${sibling.value}-${siblingIndex}`}
-                icon={sibling.icon}
-                onSelect={() => {
-                  selectSibling(index, sibling);
-                }}
-              >
-                {sibling.label}
-              </Menu.Item>
-            ))}
-          </Menu.Content>
-        </Menu>
-      ) : undefined;
 
     return (
       <BreadcrumbItem
@@ -182,7 +121,17 @@ export const PathBar = ({
                 navigateToIndex(index);
               }
         }
-        endContent={endContent}
+        endContent={
+          getSiblings ? (
+            <PathBarSiblingMenu
+              segment={segment}
+              index={index}
+              getSiblings={getSiblings}
+              onSelect={selectSibling}
+              size={size}
+            />
+          ) : undefined
+        }
       >
         {segment.label}
       </BreadcrumbItem>
@@ -192,7 +141,7 @@ export const PathBar = ({
   return (
     <Breadcrumbs
       ref={ref}
-      separator={separator ?? <ChevronRightIcon size="sm" decorative />}
+      separator={separator ?? <ChevronRightIcon size={size} decorative />}
       maxItems={maxItems}
       itemsBeforeCollapse={itemsBeforeCollapse}
       itemsAfterCollapse={itemsAfterCollapse}

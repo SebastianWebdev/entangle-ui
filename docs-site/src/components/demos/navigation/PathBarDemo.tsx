@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import type React from 'react';
 import DemoWrapper from '../DemoWrapper';
 import { Stack } from '@/components/layout';
@@ -133,6 +133,42 @@ export function PathBarInteractive() {
         />
         <Status>current path: {path}</Status>
         <Caption>Click any folder crumb to navigate up the tree.</Caption>
+      </Stack>
+    </DemoWrapper>
+  );
+}
+
+// A localized accent palette applied purely by overriding the theme contract's
+// `--etui-*` custom properties on an ancestor — no PathBar props involved.
+const ACCENT_TOKENS: CSSProperties = {
+  ['--etui-color-text-secondary' as string]: '#7dd3fc',
+  ['--etui-color-text-primary' as string]: '#f0f9ff',
+  ['--etui-color-text-muted' as string]: '#38bdf8',
+  ['--etui-radius-sm' as string]: '6px',
+};
+
+/**
+ * Re-skinning PathBar through theme tokens: both bars are the same component
+ * with identical props — only the inherited `--etui-*` values differ.
+ */
+export function PathBarStyledViaTokens() {
+  const path = 'src/components/Button/Button.tsx';
+  return (
+    <DemoWrapper>
+      <Stack spacing={3}>
+        <Stack spacing={1}>
+          <PathBar value={path} rootIcon={<HomeIcon size="sm" decorative />} />
+          <Caption>Default theme tokens</Caption>
+        </Stack>
+        <Stack spacing={1}>
+          <div style={ACCENT_TOKENS}>
+            <PathBar
+              value={path}
+              rootIcon={<HomeIcon size="sm" decorative />}
+            />
+          </div>
+          <Caption>Custom --etui-* overrides on an ancestor</Caption>
+        </Stack>
       </Stack>
     </DemoWrapper>
   );
