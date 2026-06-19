@@ -105,7 +105,7 @@ jobs:
     needs: release
     if: needs.release.outputs.published == 'true'
     permissions:
-      contents: read
+      contents: write # docs deploy archives version snapshots to a branch
       pages: write
       id-token: write
     uses: ./.github/workflows/docs.yaml

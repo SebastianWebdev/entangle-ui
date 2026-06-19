@@ -4,6 +4,14 @@ name: Deploy Docs
 # changesets between releases. The site is published either manually
 # (workflow_dispatch) or by the Release workflow once a real release has
 # been published to npm (workflow_call). See .github/workflows/release.yml.
+#
+# Each deploy publishes two things into a single GitHub Pages artifact:
+#   • the "latest" docs at the site root (/)
+#   • an immutable snapshot of this release under /vMAJOR.MINOR/
+# Snapshots are accumulated on the `docs-versions` branch (a durable store,
+# since Pages/Actions artifacts expire) and re-assembled on every deploy, so
+# previously released versions stay available. A runtime /versions.json drives
+# the in-header version switcher.
 on:
   workflow_dispatch:
   workflow_call:
@@ -13,19 +21,22 @@ jobs:
     runs-on: ubuntu-latest
 
     # Serialize deployments so a manual run and a release-triggered run can't
-    # race each other onto GitHub Pages.
+    # race each other onto GitHub Pages or the version-archive branch.
     concurrency:
       group: deploy-docs
       cancel-in-progress: false
 
     permissions:
-      contents: read
+      contents: write # push version snapshots to the docs-versions branch
       pages: write
       id-token: write
 
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
+    env:
+      VERSIONS_BRANCH: docs-versions
 
     steps:
       - name: Checkout code
@@ -43,8 +54,67 @@ jobs:
       - name: Install docs dependencies
         run: cd docs-site && npm install
 
-      - name: Build docs site
-        run: cd docs-site && npm run build
+      - name: Determine version slug
+        id: version
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          SLUG="v$(echo "$VERSION" | cut -d. -f1-2)"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
+          echo "Building docs for $VERSION (snapshot slug: $SLUG)"
+
+      - name: Build latest docs (site root)
+        run: |
+          ( cd docs-site && npm run build )
+          rm -rf site
+          mv docs-site/dist site
+
+      - name: Build versioned snapshot
+        run: ( cd docs-site && DOCS_BASE="/${{ steps.version.outputs.slug }}" npm run build )
+
+      - name: Archive snapshot on the docs-versions branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SLUG: ${{ steps.version.outputs.slug }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          AUTH_REPO="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          rm -rf storage
+          if git clone --quiet --depth 1 --branch "$VERSIONS_BRANCH" "$AUTH_REPO" storage 2>/dev/null; then
+            echo "Cloned existing $VERSIONS_BRANCH branch"
+          else
+            echo "Branch $VERSIONS_BRANCH not found — creating it"
+            rm -rf storage && mkdir storage
+            git -C storage init --quiet
+            git -C storage checkout --quiet --orphan "$VERSIONS_BRANCH"
+            git -C storage remote add origin "$AUTH_REPO"
+          fi
+          rm -rf "storage/$SLUG"
+          mkdir -p "storage/$SLUG"
+          cp -a docs-site/dist/. "storage/$SLUG/"
+          git -C storage add -A
+          git -C storage \
+            -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit --quiet -m "docs: snapshot $SLUG ($VERSION)" \
+            || echo "No documentation changes to archive for $SLUG"
+          git -C storage push --quiet origin "HEAD:$VERSIONS_BRANCH"
+
+      - name: Assemble multi-version site
+        run: |
+          set -euo pipefail
+          # `site/` already holds the latest build at the root. Layer every
+          # archived snapshot under its /vMAJOR.MINOR/ sub-path.
+          for dir in storage/v*/; do
+            [ -d "$dir" ] || continue
+            dir="${dir%/}"
+            slug="$(basename "$dir")"
+            rm -rf "site/$slug"
+            cp -a "$dir" "site/$slug"
+          done
+          node docs-site/scripts/generate-versions-json.mjs \
+            storage site/versions.json "${{ steps.version.outputs.slug }}"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -52,7 +122,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './docs-site/dist'
+          path: ./site
 
       - name: Deploy to GitHub Pages
         id: deployment
