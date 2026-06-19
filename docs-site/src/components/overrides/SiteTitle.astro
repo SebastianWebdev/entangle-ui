@@ -1,0 +1,47 @@
+---
+// Renders Starlight's default site title and appends a version badge so the
+// docs always advertise the package version they were built from. The version
+// is read from the library's root package.json at build time, which the
+// Release workflow has already bumped by the time the docs are deployed.
+import Default from '@astrojs/starlight/components/SiteTitle.astro';
+import pkg from '../../../../package.json';
+
+const version = `v${pkg.version}`;
+const releasesHref = 'https://github.com/SebastianWebdev/entangle-ui/releases';
+---
+
+<Default {...Astro.props} />
+
+<a
+  class="version-badge"
+  href={releasesHref}
+  target="_blank"
+  rel="noopener noreferrer"
+  title={`Entangle UI ${version} — view releases on GitHub`}
+>
+  {version}
+</a>
+
+<style>
+  .version-badge {
+    align-self: center;
+    flex-shrink: 0;
+    margin-inline-start: 0.5rem;
+    padding: 0.05rem 0.4rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999rem;
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-gray-2);
+    font-family: var(--sl-font-system-mono);
+    font-size: var(--sl-text-xs);
+    line-height: 1.5;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .version-badge:hover {
+    color: var(--sl-color-text-accent);
+    border-color: var(--sl-color-text-accent);
+  }
+</style>

@@ -53,6 +53,9 @@ jobs:
       contents: write
       pull-requests: write
       id-token: write
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+      published-packages: ${{ steps.changesets.outputs.publishedPackages }}
 
     steps:
       - name: Checkout
@@ -93,3 +96,16 @@ jobs:
         run: |
           echo "## Packages Released" >> $GITHUB_STEP_SUMMARY
           echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -r '.[] | "- **\(.name)** @ `\(.version)`"' >> $GITHUB_STEP_SUMMARY
+
+  # Publish the documentation site, but only after an actual npm release.
+  # Plain pushes to main just update the pending "Version Packages" PR
+  # (published == 'false'), so they must not trigger a docs deployment.
+  deploy-docs:
+    name: Deploy Docs
+    needs: release
+    if: needs.release.outputs.published == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/docs.yaml

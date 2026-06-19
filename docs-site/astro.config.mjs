@@ -15,6 +15,7 @@ export default defineConfig({
       description: 'React component library for professional editor interfaces',
       components: {
         Hero: './src/components/overrides/Hero.astro',
+        SiteTitle: './src/components/overrides/SiteTitle.astro',
       },
       social: [
         {
