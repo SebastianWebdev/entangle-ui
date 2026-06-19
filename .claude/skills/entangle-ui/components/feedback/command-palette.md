@@ -89,7 +89,7 @@ Typing in the input fuzzy-matches against each item's `label`, `description`, an
 />
 ```
 
-Tune the responsiveness with the `debounceMs` prop. Set it to `0` for snappy lists, raise it for very large item sets where filtering is expensive in the consumer's `onSelect` chain.
+The filter is wrapped in React's `useDeferredValue`, so the input stays responsive while large command lists re-filter on each keystroke.
 
 ## Groups
 
@@ -206,7 +206,6 @@ Use `disabled: true` on an item to render it but skip it during keyboard navigat
 | `recentKey` | `string` | — | `localStorage` key for tracking recently selected items. Recent tracking is off when omitted. |
 | `recentLabel` | `string` | `'Recent'` | Localised label for the recent items group header. |
 | `maxRecent` | `number` | `5` | Maximum number of recent items to track. |
-| `debounceMs` | `number` | `150` | Debounce applied to the search query, in ms. |
 | `renderItem` | `(item: CommandItem, state: { selected: boolean; query: string }) => ReactNode` | — | Custom renderer for each item — replaces the default row layout. |
 | `portal` | `boolean` | `true` | Render in a portal on `document.body`. |
 | `maxHeight` | `number` | `400` | Maximum height of the results list, in px. |

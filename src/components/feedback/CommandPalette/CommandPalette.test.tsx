@@ -1,6 +1,6 @@
 import React from 'react';
-import { act, fireEvent, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithTheme } from '@/tests/testUtils';
 import { CommandPalette } from './CommandPalette';
 import type { CommandItem } from './CommandPalette.types';
@@ -25,7 +25,6 @@ function renderCmd(
         onClose={onClose}
         onSelect={onSelect}
         items={items}
-        debounceMs={0}
         testId="cmd"
         {...props}
       />
@@ -40,10 +39,6 @@ beforeEach(() => {
   if (typeof window !== 'undefined') {
     window.localStorage.clear();
   }
-});
-
-afterEach(() => {
-  vi.useRealTimers();
 });
 
 describe('CommandPalette', () => {
@@ -222,7 +217,6 @@ describe('CommandPalette', () => {
           onClose={vi.fn()}
           onSelect={onSelect}
           items={items}
-          debounceMs={0}
           recentKey="test:recent"
           testId="cmd"
         />
@@ -236,7 +230,6 @@ describe('CommandPalette', () => {
           onClose={vi.fn()}
           onSelect={onSelect}
           items={items}
-          debounceMs={0}
           recentKey="test:recent"
           testId="cmd"
         />
@@ -278,32 +271,6 @@ describe('CommandPalette', () => {
       fireEvent.keyDown(dialog, { key: 'ArrowDown' });
       const second = screen.getByTestId('cmd-item-save');
       expect(input).toHaveAttribute('aria-activedescendant', second.id);
-    });
-  });
-
-  describe('Debouncing', () => {
-    it('respects debounceMs by deferring the search', () => {
-      vi.useFakeTimers({ shouldAdvanceTime: true });
-      const onClose = vi.fn();
-      renderWithTheme(
-        <CommandPalette
-          open
-          onClose={onClose}
-          items={items}
-          debounceMs={150}
-          testId="cmd"
-        />
-      );
-      const input = screen.getByRole('combobox');
-      fireEvent.change(input, { target: { value: 'open' } });
-      // Before debounce: full list still rendered.
-      expect(screen.getByText('Save')).toBeInTheDocument();
-      act(() => {
-        vi.advanceTimersByTime(160);
-      });
-      // After debounce: filtered.
-      expect(screen.queryByText('Save')).not.toBeInTheDocument();
-      expect(screen.getByText('Open File')).toBeInTheDocument();
     });
   });
 });

@@ -2,6 +2,7 @@
 
 import React, {
   useCallback,
+  useDeferredValue,
   useEffect,
   useId,
   useMemo,
@@ -200,16 +201,21 @@ export function Combobox<T extends string = string>({
   const effectiveCreatable = creatable;
   const effectiveFreeSolo = freeSolo || creatable;
 
+  // Defer the query that drives filtering so the input stays responsive while
+  // a large option list re-filters. The immediate `query` still drives the
+  // input value and the create-row label below.
+  const deferredQuery = useDeferredValue(query);
+
   const filteredOptions = useMemo(
     () =>
       applyFilter(
         options,
         // When the user hasn't typed yet (query equals the selected label) we
         // show the full list so the dropdown serves as a browseable menu.
-        isEditing ? query : '',
+        isEditing ? deferredQuery : '',
         filterFn
       ),
-    [filterFn, options, query, isEditing]
+    [filterFn, options, deferredQuery, isEditing]
   );
 
   const hasExactMatch = useMemo(() => {

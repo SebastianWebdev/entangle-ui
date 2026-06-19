@@ -2,6 +2,7 @@
 
 import React, {
   useCallback,
+  useDeferredValue,
   useEffect,
   useId,
   useMemo,
@@ -162,11 +163,16 @@ export function MultiSelect<T extends string = string>({
 
   const allOptions = useMemo(() => flattenOptions(options), [options]);
 
+  // Defer the query that drives filtering so the search input stays
+  // responsive while a large option list re-filters. The immediate
+  // `searchQuery` still drives the input value.
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+
   const filter = filterFn ?? defaultFilter;
   const filteredOptions = useMemo(() => {
-    if (!searchable || !searchQuery) return allOptions;
-    return allOptions.filter(opt => filter(opt, searchQuery));
-  }, [allOptions, searchable, searchQuery, filter]);
+    if (!searchable || !deferredSearchQuery) return allOptions;
+    return allOptions.filter(opt => filter(opt, deferredSearchQuery));
+  }, [allOptions, searchable, deferredSearchQuery, filter]);
 
   const selectedSet = useMemo(() => new Set(selected), [selected]);
 
@@ -324,7 +330,9 @@ export function MultiSelect<T extends string = string>({
     }
 
     const hasGroups = options.some(isOptionGroup);
-    if (hasGroups && !searchQuery) {
+    // Mirror the deferred query used by `filteredOptions` so the grouped /
+    // flat switch stays consistent with the list being rendered.
+    if (hasGroups && !deferredSearchQuery) {
       let flatIndex = 0;
       return options.map((item, groupIdx) => {
         if (isOptionGroup(item)) {

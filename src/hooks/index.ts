@@ -16,6 +16,10 @@ export { useMergedRef } from './useMergedRef';
 
 export { useLatest } from './useLatest';
 
+export { useEventCallback } from './useEventCallback';
+
+export { useIsMounted } from './useIsMounted';
+
 export { useResizeObserver } from './useResizeObserver';
 export type { UseResizeObserverOptions } from './useResizeObserver';
 
