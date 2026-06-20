@@ -1,5 +1,699 @@
 # entangle-ui
 
+## 0.10.0
+
+### Minor Changes
+
+- [#85](https://github.com/SebastianWebdev/entangle-ui/pull/85) [`9eabab7`](https://github.com/SebastianWebdev/entangle-ui/commit/9eabab77e2a1dc95a6c4a66cbf556a68b1365ff1) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add the `AssetBrowser` flagship component — a controlled content browser for
+  files and folders. Toggle between a virtualized thumbnail grid and a
+  `DataTable`-backed list, navigate folders via a breadcrumb bar and a `TreeView`
+  sidebar, and search, filter, sort, and select assets. Supports single/multiple
+  selection with marquee and keyboard navigation, drag-to-folder move, external
+  file import, and drag-out payloads, plus `renderThumbnail` / `renderItem` /
+  context-menu render props.
+
+- [#85](https://github.com/SebastianWebdev/entangle-ui/pull/85) [`9eabab7`](https://github.com/SebastianWebdev/entangle-ui/commit/9eabab77e2a1dc95a6c4a66cbf556a68b1365ff1) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Tighten the React peer dependency to `>=19.2.0` so the library can use the
+  now-stable `useEffectEvent` and `<Activity>` APIs. Internal AssetBrowser
+  refactor lands on top:
+  - Replace `useLatest + useCallback` pairs in `useAssetNavigation`,
+    `useAssetSelectionController`, `useAssetDnd`, `useAssetMarqueeGesture`, and
+    `useAssetBrowserHandle` with `useEffectEvent`. Handlers keep stable
+    identity but always see the latest closures, with significantly less code.
+  - Stabilize `renderThumbnail` / `renderItem` / `renderItemContextMenu` /
+    `renderEmptyContextMenu` through a new internal `useStableRenderFn`
+    helper, so a consumer passing an inline render-prop no longer busts the
+    item context (which would re-render every grid cell).
+  - Extract grid keyboard navigation into a new `useAssetGridKeyboardNav`
+    hook (mirrors the gesture / virtualizer hooks).
+  - `AssetBrowserStatusBar` now takes `view` as a prop instead of reading the
+    chrome context, and an `AssetBrowserAnnouncementLive` subcomponent reads
+    the polite-live announcement directly via a new
+    `useAssetBrowserAnnouncement` slice hook — the root no longer computes
+    it.
+  - Memoize the `useAssetBrowserViewState` return so callers that capture it
+    whole keep a stable identity across renders.
+
+- [#85](https://github.com/SebastianWebdev/entangle-ui/pull/85) [`9eabab7`](https://github.com/SebastianWebdev/entangle-ui/commit/9eabab77e2a1dc95a6c4a66cbf556a68b1365ff1) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - AssetBrowser: add mutation operations — inline rename, delete, create-folder,
+  and duplicate.
+
+  AssetBrowser stays controlled and presentational: each operation provides the
+  affordance (inline editor, keyboard shortcut, menu action) and reports **intent**
+  through a callback — you apply the change and pass back fresh `items`. Presence
+  of a callback enables its affordance.
+
+  New props:
+  - `onItemRename(item, newName)` — inline rename. Enables an inline label editor
+    (swap the cell label for a text field), the `F2` shortcut, the `Rename`
+    default action, and `handle.beginRename(id)`. Commits on Enter / blur with a
+    changed, non-empty value; cancels on Escape. Return / resolve `false` to
+    reject the name and keep the editor open (e.g. failed validation).
+  - `onItemsDelete(items)` — delete the acted-on items. Enables the `Delete` key
+    (and `⌘⌫` on macOS; plain `Backspace` stays reserved for parent-nav) and the
+    `Delete` action. Roving focus moves to a survivor before deletion.
+  - `onCreateFolder(parentFolderId)` — enables the empty-area `New folder` action.
+    Pair with `handle.beginRename(newId)` for the create-then-rename flow.
+  - `onItemsDuplicate(items)` — enables `Ctrl/⌘ + D` and the `Duplicate` action.
+  - `defaultItemActions` — auto-populate the item / empty-area context menus with
+    Rename / Duplicate / Delete / New-folder entries for whichever callbacks are
+    present (labels come from the `labels` prop, so they localize).
+
+  API additions:
+  - `renderItemContextMenu(items, actions)` now receives an `actions` object
+    (`rename` / `delete` / `duplicate`, bound to the acted-on items) so a custom
+    menu can wire the built-in flows without a ref.
+  - `AssetBrowserHandle.beginRename(id)` enters inline-rename imperatively
+    (scrolls the item into view first).
+  - New exported types `AssetItemActions` and `AssetRenameResult`; new `labels`
+    keys `rename` / `delete` / `duplicate` / `newFolder`.
+
+  Notes:
+  - All mutation affordances work in **both** the grid and list views: inline
+    rename, the `F2` / `Delete` / `Ctrl+D` shortcuts, and the right-click menus.
+    A single view-agnostic context-menu layer detects the target item from
+    `data-asset-id` (grid cells) / `data-row-key` (list rows), and the mutation
+    keyboard handler is shared by both scrollers — DataTable itself is unchanged.
+  - The "is editing" flag lives in the store as a per-id slice
+    (`useAssetEditing`), so a rename re-renders only the affected cell/row and can
+    be started from the keyboard, a menu, or the imperative handle. In the list,
+    `F2` targets the sole selected row (the list has no roving focus).
+
+  Docs: new Mutations section + a live demo (rename / duplicate / delete / new
+  folder); the Context menus, Keyboard reference, and API tables are updated.
+
+- [#85](https://github.com/SebastianWebdev/entangle-ui/pull/85) [`9eabab7`](https://github.com/SebastianWebdev/entangle-ui/commit/9eabab77e2a1dc95a6c4a66cbf556a68b1365ff1) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - AssetBrowser: production hardening — wire up dead APIs, add error/i18n/a11y, fix
+  controlled-history and store identity.
+
+  New features:
+  - **Context menus now work.** `renderItemContextMenu` / `renderEmptyContextMenu`
+    were typed, documented, and demoed but never rendered — right-click only
+    updated selection. Cells (and the empty surface) are now real `ContextMenu`
+    triggers. The item callback receives the whole selection when you right-click
+    a selected item, otherwise just the item under the cursor. Opt-in, so unused
+    menus add zero cost.
+  - **Loading skeletons.** `loadingItemCount` is no longer dead: grid-view loading
+    renders that many skeleton cells (sized to the current thumbnail) instead of a
+    lone spinner.
+  - **Error state.** New `error` (`true` → built-in message, or a custom node) and
+    `onErrorRetry` (adds a Retry button) props. Takes precedence over loading/empty.
+  - **Internationalization.** New `labels` prop overrides every built-in UI string
+    (search, sort/filter menus, view tooltips, empty/loading/error, list headers,
+    the live announcement). Merged onto English defaults, exported as
+    `DEFAULT_ASSET_BROWSER_LABELS` / `AssetBrowserLabels`.
+  - **Type-aware fallback icons** for files without a thumbnail (material/audio/
+    video/scene/text), and a **broken-image fallback** — a failed `thumbnailUrl`
+    now shows the type icon instead of the browser's broken-image glyph.
+
+  Fixes:
+  - **Controlled `currentFolderId` now stays in sync with the back/forward stack.**
+    An out-of-band change (deep link, "reveal in browser") is pushed onto history,
+    so `canGoBack`/Back resolve correctly instead of going stale.
+  - **Store identity** is created with `useState(() => …)` instead of `useMemo`,
+    guaranteeing stable slice subscriptions for the component's lifetime.
+  - **Marquee** gains an `onPointerCancel` handler so an interrupted/touch-cancelled
+    drag no longer leaves the rubber-band rect stuck active.
+
+  Accessibility:
+  - The virtualized grid now exposes true `aria-rowcount`/`aria-colcount` and
+    per-cell 1-based `aria-rowindex`/`aria-colindex`, and announces roving focus
+    via `aria-activedescendant` (works under windowing without moving DOM focus).
+
+  Docs: new Context menus, History, Internationalization, Error-state, Recipes, and
+  Tips & gotchas sections, plus four new live demos.
+
+- [#100](https://github.com/SebastianWebdev/entangle-ui/pull/100) [`3ff903f`](https://github.com/SebastianWebdev/entangle-ui/commit/3ff903f5e8603e6bc763daac73c789945afa383a) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add two public hooks, move filter-heavy components to `useDeferredValue`, and
+  deprecate `useDebouncedValue`.
+  - **New hook `useEventCallback`** — a stable callback identity for the
+    component lifetime that always invokes the most recently rendered version
+    (the `useEffectEvent` pattern). Backed by `useInsertionEffect`, so the
+    freshness guarantee holds even for consumers that read it during the same
+    commit — a child's `useLayoutEffect`, a synchronous store subscription, an
+    imperative handle. Now used internally by `useResizeObserver`,
+    `useDebouncedCallback`, `useThrottledCallback`, and `useListboxNav`.
+  - **New hook `useIsMounted`** — a stable getter reporting whether the
+    component is still mounted, for guarding state writes inside async
+    continuations that may resolve after unmount.
+  - **`useDeferredValue` pass** on the filter-heavy components: `CommandPalette`,
+    `Combobox`, `MultiSelect`, and `PropertyPanel` defer the query that drives
+    filtering, so the inputs stay controlled and responsive while large lists
+    re-filter.
+  - **`Combobox` fix:** the "create" row and exact-match detection now run off
+    the same deferred query as the filtered list, so editing toward an exact
+    match no longer briefly flashes a stray create row or skews the keyboard
+    navigation / `aria-activedescendant` indices.
+
+  **Breaking:** `CommandPalette` no longer accepts the `debounceMs` prop. Query
+  filtering is deferred through React's `useDeferredValue` instead of a fixed
+  debounce window — better interactivity on large command lists, with no tuning
+  needed. Remove any `debounceMs={…}` from `<CommandPalette>` usages.
+
+  **Deprecated:** `useDebouncedValue` is deprecated in favour of
+  `useDeferredValue` for keeping an input responsive while an expensive
+  derivation (filtering, search) lags behind it. It remains exported; use
+  `useDebouncedCallback` to debounce a _side effect_ rather than a rendered value.
+
+- [#90](https://github.com/SebastianWebdev/entangle-ui/pull/90) [`1cdce9c`](https://github.com/SebastianWebdev/entangle-ui/commit/1cdce9c92cb3bf6aa3705d814178045bf14951d4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - FileTree: a file-system-flavored specialization of `TreeView` with automatic
+  file-type icons and drag-and-drop import of OS files.
+
+  `FileTree` renders a `TreeView` internally and feeds it derived nodes — it does
+  **not** reimplement expansion, selection, or keyboard navigation. It takes a
+  nested `FileTreeNode[]` (`{ id, name, kind: 'file' | 'folder', ext?, path?,
+children?, … }`), auto-assigns file-type icons by extension (image / media /
+  code / archive / text) plus open/closed folder glyphs, and exposes the same
+  controlled/uncontrolled expansion + selection model as `TreeView`.
+
+  New component + API:
+  - `<FileTree nodes={…} />` — `expandedIds` / `defaultExpandedIds` /
+    `onExpandedChange`, `selectedIds` / `defaultSelectedIds` / `selectionMode` /
+    `onSelectionChange`, `size`, `indent`, `showChevrons`, `showGuideLines`,
+    `maxHeight`, `emptyContent`, and `onNodeClick` / `onNodeDoubleClick` /
+    `onNodeContextMenu` (all mapped to `FileTreeNode`).
+  - `onImport({ files, targetFolder })` — fired when OS files are dropped onto a
+    folder (or the root, `targetFolder: null`). Presence enables the import drop
+    zone; the active target folder is highlighted while dragging. `FileTree`
+    reports intent only — apply the change and pass back fresh `nodes`.
+  - `resolveIcon(node, { expanded })` — per-node icon override; return `undefined`
+    to fall back to the built-in extension map. `renderNode` / `renderActions`
+    give full content control. Built-in icons follow the theme, and any icon takes
+    a `color` prop, so icons are fully colorable.
+  - `expandOnClick` (default `true`) — clicking anywhere on a folder row toggles
+    it open/closed, not just the chevron. Set `false` to require the chevron.
+  - `labels` (`Partial<FileTreeLabels>`) + exported `DEFAULT_FILE_TREE_LABELS` —
+    full i18n for the two built-in strings (`treeLabel` → the `role="tree"`
+    accessible name; `emptyLabel` → empty-state text). An explicit `aria-label` /
+    `emptyContent` still wins. `aria-label` / `aria-labelledby` are forwarded to
+    the tree element.
+  - Exported helpers `getFileIconKind` / `classifyExtension` / `getFileExtension`
+    and types `FileTreeNode`, `FileTreeNodeKind`, `FileTreeNodeState`,
+    `FileTreeImportPayload`, `FileTreeLabels`, `FileIconKind`.
+
+  Internal move / reorder is intentionally deferred for v1 (external import only);
+  the heavyweight internal-move case is covered by `AssetBrowser`.
+
+  TreeView (additive, backwards-compatible): new generic drop-target props
+  `dropTargetId` and `onNodeDragOver` / `onNodeDragLeave` / `onNodeDrop` (these
+  finally wire up the long-declared-but-unused `droppable` field on
+  `TreeNodeData`), plus `expandOnClick` (toggle a parent node on row click). All
+  usable on a plain `TreeView`, not just `FileTree`.
+
+  Icons: add `ImageIcon` (no image glyph existed; `AssetBrowser` relied on
+  thumbnails, but a tree has none). Fix `FolderOpenIcon` geometry — it occupied a
+  smaller area of the 24×24 viewBox than `FolderIcon`, so the open folder rendered
+  visibly smaller than the closed one; it now shares the closed folder's footprint.
+
+  Docs: new FileTree page with live demos (project tree, drag-and-drop import,
+  icon resolution, colored icons, selection, sizes, token re-skin, localized
+  labels) plus `## Styling` (theme-token + targeting-hook tables) and
+  `## Internationalization` sections.
+
+- [#92](https://github.com/SebastianWebdev/entangle-ui/pull/92) [`98cbbfd`](https://github.com/SebastianWebdev/entangle-ui/commit/98cbbfdb9fa2658568822ef8a49a0f409ccb40f4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add the `LogView` flagship component — a virtualized console / log output panel
+  for editor and IDE-style apps. Renders a large, append-only entry stream
+  efficiently via `@tanstack/react-virtual`, with per-level coloring (built-in
+  `debug | info | warn | error` plus an extensible `levelConfig`), level filter
+  chips with live counts, text search with `useDeferredValue` and match
+  highlighting, follow-tail auto-scroll with a jump-to-bottom affordance,
+  optional timestamps and source tags, and per-line / copy-all support. Optional
+  row selection (`selectionMode="multiple"`) with click / Cmd-click / Shift-click,
+  keyboard shortcuts (Cmd/Ctrl+A, Cmd/Ctrl+C, Escape), and selection-aware copy.
+
+  Supports two data-flow models: a controlled `entries` prop, or an uncontrolled
+  imperative handle (`ref.append` / `appendMany` / `clear`) whose writes are
+  rAF-batched so high-frequency streaming collapses to one render per frame.
+  Use it batteries-included with the default toolbar, or compose the slots
+  (`LogView.Toolbar`, `LogView.Search`, `LogView.LevelFilter`, `LogView.Copy`,
+  `LogView.Clear`, `LogView.Body`). Single-line rows by default with an opt-in
+  `wrap` mode for measured variable-height lines.
+
+- [#92](https://github.com/SebastianWebdev/entangle-ui/pull/92) [`98cbbfd`](https://github.com/SebastianWebdev/entangle-ui/commit/98cbbfdb9fa2658568822ef8a49a0f409ccb40f4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - LogView: add a `labels` prop for internationalization. Every built-in UI string
+  — the search placeholder and label, the level-filter group label, the clear /
+  copy / per-line copy labels, the jump-to-bottom button, the new-line counter,
+  the empty state, and the region label — is now overridable via `labels`, a
+  `Partial<LogViewLabels>`, so omitted keys keep their English default. The
+  new-line counter is a function (`(count) => string`) for per-locale
+  pluralization and word order. Explicit per-slot props (a slot's `aria-label`,
+  the search `placeholder`, `emptyState`, the root `aria-label`) still take
+  precedence. The English defaults are exported as `DEFAULT_LOG_VIEW_LABELS`.
+
+- [#92](https://github.com/SebastianWebdev/entangle-ui/pull/92) [`98cbbfd`](https://github.com/SebastianWebdev/entangle-ui/commit/98cbbfdb9fa2658568822ef8a49a0f409ccb40f4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - LogView: add `slotProps` for the default composition. Pass per-slot props
+  (`toolbar`, `search`, `levelFilter`, `copy`, `clear`, `body`, `footer`) to
+  restyle or reconfigure a single slot of the batteries-included layout without
+  rebuilding it from `children` — each entry is typed as that slot's props and its
+  `className` / `style` merge with the slot's own styles. Ignored when you provide
+  your own `children`. Establishes the library-wide `slotProps` convention
+  documented in `docs/component-patterns.md` (§15).
+
+- [#81](https://github.com/SebastianWebdev/entangle-ui/pull/81) [`36b7f72`](https://github.com/SebastianWebdev/entangle-ui/commit/36b7f72968049aff57189f093bd7d892368fa7f1) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Migrate `Menu` and `ContextMenu` from a configuration object to a composition API.
+
+  **Breaking change.** The `config`, `selectedItems`, `onChange`, `checkboxIcon`, `radioIcon` props (and the `useMenu` / `useContextMenuTarget` hooks, plus the `MenuConfig` / `MenuItem` / `MenuSelection` / `ContextMenuConfig` / `ContextMenuTargetDetails` types) are removed. Menus are now built by composing child components.
+  - **Menu** — `Menu.Trigger`, `Menu.Content`, `Menu.Item`, `Menu.Group`, `Menu.Separator`, `Menu.RadioGroup`, `Menu.RadioItem`, `Menu.CheckboxItem`, `Menu.Sub`, `Menu.SubTrigger`, `Menu.SubContent`.
+  - **Menu.Item** lays out as icon (left) · label (center) · `shortcut` / `endContent` (right), like MUI's `MenuItem`.
+  - **ContextMenu** — `ContextMenu`, `ContextMenu.Trigger`, `ContextMenu.Content`. The dynamic `config(context)` resolver and `payload` are gone: scope menus by giving each area its own `ContextMenu`, and pass any custom node (tabs, search, custom panels) into `ContextMenu.Content`. Items reuse the shared `Menu.*` primitives.
+
+  ```tsx
+  <Menu>
+    <Menu.Trigger>Options</Menu.Trigger>
+    <Menu.Content>
+      <Menu.Item icon={<CopyIcon />} shortcut="⌘C" onClick={copy}>
+        Copy
+      </Menu.Item>
+    </Menu.Content>
+  </Menu>
+
+  <ContextMenu>
+    <ContextMenu.Trigger>
+      <Canvas />
+    </ContextMenu.Trigger>
+    <ContextMenu.Content>
+      <Menu.Item onClick={addNode}>Add Node</Menu.Item>
+    </ContextMenu.Content>
+  </ContextMenu>
+  ```
+
+- [#82](https://github.com/SebastianWebdev/entangle-ui/pull/82) [`d5c1c65`](https://github.com/SebastianWebdev/entangle-ui/commit/d5c1c651c159e07fe2d0d90f536c702743478404) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Polish `Menu` and `ContextMenu` after code review.
+  - Pass `onOpenChange`, `onValueChange` and `onCheckedChange` straight through to Base UI instead of wrapping them in inline arrows, so Base UI can keep its subscribers memoized (the `value as string` cast was pure overhead — Base UI already provides the value).
+  - Type the item components against `HTMLElement` and drop the four `ref as React.Ref<HTMLElement>` casts, restoring ref type-safety.
+  - Enforce `closeOnClick` defaults (`Menu.Item` `true`, `Menu.RadioItem` / `Menu.CheckboxItem` `false`) in the components so the documented defaults are authoritative rather than inherited.
+  - Add an `onSelect` activation alias to `Menu.Item`, `Menu.RadioItem` and `Menu.CheckboxItem` (runs alongside `onClick` via one stable handler).
+  - Expose an imperative `ref` handle (`MenuHandle`) on the `Menu` / `ContextMenu` root with a `close()` method.
+  - Add a `render` prop to `ContextMenu.Trigger` so the trigger can render as your own element instead of a `display: contents` wrapper.
+  - Animate the popup on open/close (opacity + scale via Base UI's `data-starting-style` / `data-ending-style`).
+  - Render `Menu.Group` labels with typography on the label element itself, removing the extra `Text` wrapper.
+  - Wrap the row components (`Item`, `RadioItem`, `CheckboxItem`, `SubTrigger`, `Separator`) in `React.memo` to avoid re-rendering every row when the parent re-renders.
+  - Document why `ContextMenu.Content` exposes no `side` / `align` / `sideOffset` (it anchors to the pointer), and add integration tests that exercise the real Base UI primitives.
+
+- [#76](https://github.com/SebastianWebdev/entangle-ui/pull/76) [`676658b`](https://github.com/SebastianWebdev/entangle-ui/commit/676658b4e9b06a754ac24aff9ffdc446dc6b5b90) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `Minimap` component — shared navigation widget for editor viewports (NodeGraph, Timeline, custom 2D editor surfaces).
+
+  **Core primitive (`<Minimap>`)** — fully controlled:
+  - Controlled API: pass `items`, `worldBounds`, current `transform`, and `viewportSize` from your `<Viewport>`; translate `onNavigate.worldPoint` into a `viewport.centerOn(...)` call.
+  - Item shapes: `rect`, `circle`, `line`, plus `custom` for caller-drawn shapes (each with per-item color and hover hit-testing).
+  - Aspect-driven sizing: explicit `width`, height auto-derived from `worldBounds` aspect ratio and clamped — wide-thin bounds give a Timeline strip, square bounds give a NodeGraph box.
+  - Three pointer gestures (click, drag from empty, drag the rect) + tab-focusable keyboard navigation with arrow keys (Shift × 5 step). Each gesture independently toggleable.
+  - Single `onNavigate` callback with phase metadata (`'click' | 'drag-start' | 'drag' | 'drag-end'`) — enough to drive undo groups, smooth-follow, or analytics without multiple handlers.
+  - `renderOverlay(ctx, info)` escape hatch for global canvas annotations (playheads, selection regions, debug markers) drawn after items and before the viewport-rect shroud.
+
+  **Slot subcomponents** for chrome around the canvas body:
+  - `<Minimap.Title>` — `'top-outside'` or `'top-inside'` placement.
+  - `<Minimap.Footer>` — `'bottom-outside'` or `'bottom-inside'` placement.
+  - `<Minimap.Corner side="…">` — anchored in any of the four corners.
+
+  Non-marker children render as a free-form absolute overlay above the canvas. All children have access to live state via `useMinimapContext()` — exposes hover world point, hovered item id, transform, drag state — enabling coordinate readouts, zoom chips, tooltips with built-in hit-testing.
+
+  **Compound `<ViewportMinimap>`** — drop-in inside a `<Viewport>`:
+  - Reads live `transform` / `size` from `useViewportContext()`.
+  - Default `onNavigate` wires to the viewport handle's `centerOn`.
+  - `placement` accepts four corner presets or a custom anchor object.
+  - `responsive` prop tracks wrapper width via `ResizeObserver`.
+  - Recognized by `<Viewport>` as an overlay slot — no explicit `<ViewportOverlay>` wrapper needed.
+
+  **Helpers exported**:
+  - `computeBoundsFromItems(items, padding?)` — tight bbox of an items array.
+  - `useMinimapContext()` — children of `<Minimap>` read live state without re-implementing hit-testing.
+
+  Plus a comprehensive docs page with interactive demo composing all of the above.
+
+- [#79](https://github.com/SebastianWebdev/entangle-ui/pull/79) [`64cc7a0`](https://github.com/SebastianWebdev/entangle-ui/commit/64cc7a06ddbb57b12d0ae9bc28677ada627c4f85) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `NodeGraph` component — flagship data-driven node editor surface for building visual programming, signal processing, shader, ML pipeline, and similar interactive graph UIs. Composes the `Viewport` primitive for pan/zoom plus perf-isolated canvas layers, and `Minimap` for the optional overview slot.
+
+  **Core component (`<NodeGraph>`)** — fully controlled or uncontrolled across four data dimensions:
+  - `nodes`, `edges`, `groups`, and `selection` each emit the full next array via dedicated `onXChange` callbacks — no patches, no reducers, plain-`useState` compatible.
+  - HTML node bodies positioned in world space via `renderNode(node, ctx)`. The render context exposes `selected`, `dragging`, `hovered`, and the current `zoom` for LOD swaps.
+  - Bézier edges drawn on a perf-isolated canvas layer with control points oriented by port side. Each port resolves its position evenly across its side when no explicit `offset` is set.
+  - Marquee selection on empty drag, click selects, Shift/Cmd/Ctrl + click toggles, marquee with the additive modifier unions.
+  - Drag-to-move (single + multi). The clicked node defines the drag set: if it's in the current selection, all selected nodes move together; otherwise just the clicked node. Optional `snapToGrid={N}` snaps drag deltas and keyboard nudges to a world-unit grid.
+  - Connection drag from a port: live preview Bézier follows the cursor, candidates highlight, `isValidConnection(source, target, info)` rejects invalid drops (preview goes dashed + red). Default policy refuses same-node connections when no validator is supplied.
+  - `onContextMenu(info)` emits a discriminated `target` (`node` / `edge` / `port` / `group` / `empty`) plus screen / world points — drop in any popover or Menu component as the consumer prefers.
+  - Visual `groups` rendered as backdrop rectangles with optional labels under nodes and edges.
+
+  **Keyboard** — tab-focusable surface with:
+
+  | Keys                   | Action                                               |
+  | ---------------------- | ---------------------------------------------------- |
+  | `←` `↑` `↓` `→`        | Nudge selected nodes by 1 grid step (or 1 unit)      |
+  | `Shift` + arrows       | Nudge by 10× step                                    |
+  | `Delete` / `Backspace` | Emit `onDelete(selection)`                           |
+  | `Enter`                | Emit `onActivate(node)` for a single selection       |
+  | `Cmd/Ctrl + A`         | Select all nodes                                     |
+  | `Esc`                  | Cancel an in-flight connection, else clear selection |
+
+  Focus inside editable descendants (`<input>`, `<textarea>`, `contentEditable`) bypasses the graph handler so typing in custom node bodies works as expected.
+
+  **Slot subcomponents** identified by a unique Symbol marker (`NODE_GRAPH_SLOT`) so they survive `React.memo`, HOCs, and minification:
+  - `<NodeGraph.Background variant="dots" | "grid" gap={...} />` — adaptive background canvas layer.
+  - `<NodeGraph.Minimap placement={...} width={...} title={...} />` — pre-wired overview, mirrors nodes into rect items, wires `centerOn` automatically.
+
+  **Imperative handle** (`NodeGraphHandle`):
+  - `fitToContent(padding?)`, `fitToSelection(padding?)`, `focusNode(id)`
+  - Viewport delegation: `centerOn`, `zoomToRect`, `getTransform`, `getSize`, `worldToScreen`, `screenToWorld`, `invalidate(layerName?)`
+
+  **Slice subscription hooks** for advanced consumers inside the `<NodeGraph>` subtree — `useNodeGraphData`, `useNodeGraphSelection`, `useNodeGraphInteraction`, `useNodeGraphHover`, and the raw `useNodeGraphStore` escape hatch. Hot-path state (drag deltas, connection preview, hover, marquee) lives in a class-based store consumed via `useSyncExternalStore` with shallow-equal no-op guards — each node body only re-renders when its own state changes, and canvas layers are invalidated independently per slice.
+
+  **Helpers exported**:
+  - `computeNodeGraphBounds`, `getNodeBox`, `getPortPosition`, `getBezierControlPoints`, `evaluateBezier`, `isPointNearBezier`, `resolvePortRef`, `resolveEdgeEndpoints`, `sideVector`, `snapDelta` — the same math used internally.
+
+  Ships with a comprehensive docs page including a multi-node signal-processing demo, the data model, connection validation recipes, slot integrations, keyboard shortcuts, and the full props table.
+
+- [#79](https://github.com/SebastianWebdev/entangle-ui/pull/79) [`64cc7a0`](https://github.com/SebastianWebdev/entangle-ui/commit/64cc7a06ddbb57b12d0ae9bc28677ada627c4f85) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add out-of-the-box defaults and ergonomics helpers for `NodeGraph`, so consumers stop re-implementing the same boilerplate the demo used to carry.
+
+  **Typed port handles + auto-connected state** — `<NodeGraph.Port>` now renders a built-in handle from `shape` (`'circle' | 'triangle' | 'diamond' | 'square'`) and `color` props when no `children` are supplied, so the common "coloured ring for data pins, exec arrow for flow pins" no longer needs a hand-rolled SVG. The handle fills automatically while the port is referenced by an edge (the library derives the connected set in the store and exposes it via `data-port-connected`), removing the consumer-side "which ports are wired" index. The shape is also exported standalone as `<NodeGraph.PortVisual>`.
+
+  **`<NodeGraph.Pin>`** — a one-liner for the ubiquitous "handle + label" row. Renders a `<NodeGraph.PinRow>` containing a `<NodeGraph.Port>` and a label, ordered so the handle hugs the node edge (port → label on the left, label → port on the right). `<NodeGraph.PinRow>` + `<NodeGraph.Port>` remain available for custom layouts.
+
+  **`useNodeGraph()`** — owns nodes / edges / groups / selection plus the mutations every editor re-implements: `addNode`, `connect` (de-duped), `removeNodes` / `removeSelection` (with edge cascade + selection pruning), `duplicateNodes`, `addGroup`, `removeGroups`, `clearSelection`. Spread the returned `bind` onto `<NodeGraph>` to wire all four controlled props at once. Uncontrolled by design; for external stores keep wiring the `onChange` props yourself. The pure helpers `duplicateNodes(nodes, ids)`, `generateNodeId`, and `generateEdgeId` are now exported too.
+
+  **`createTypeMatchValidator()`** — a factory for the common `isValidConnection` rule (match `dataType`, in an allowed direction, with a configurable `anyType` wildcard and `allowSameNode`). Override `match` for richer subtype rules.
+
+  The Blueprint demo now uses all four, dropping its hand-rolled pin visual, connected-ports `useMemo`, manual delete/duplicate handlers, and four `useState` calls.
+
+- [#79](https://github.com/SebastianWebdev/entangle-ui/pull/79) [`64cc7a0`](https://github.com/SebastianWebdev/entangle-ui/commit/64cc7a06ddbb57b12d0ae9bc28677ada627c4f85) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Round out `NodeGraph` interaction and node-authoring ergonomics, from a second pass over the demo's friction.
+
+  **Interactive edges** — edges are drawn on a canvas, so they used to be inert. They now hit-test against the pointer: hovering paints the hover accent (`useNodeGraphHover().hoveredEdgeId`), clicking selects the edge, and right-clicking reports a `{ kind: 'edge' }` target via `onContextMenu`. A selected edge is removed by Delete like any other selection. Adds the `findEdgeAtPoint` helper and a `removeEdges` action on `useNodeGraph`.
+
+  **Reconnect & detach** — grab an existing edge near one of its endpoints and drag it: drop on a valid port to move that endpoint, or drop on empty space to detach (delete) the edge. The fixed end stays anchored and the dragged end runs through `isValidConnection`; the edge being re-dragged is hidden from the edge layer so only the preview shows. A click on an endpoint (no drag) selects the edge instead, so a click never deletes a wire. Built in — no new props.
+
+  **Colourable minimap mini-nodes** — `<NodeGraph.Minimap>` gains a `nodeStyle` prop. Return `{ color }` to tint a node's rect, or `{ color, headerColor }` to draw a two-tone "header strip + body" mini-node that mirrors the real node at a glance. Selection tint still wins.
+
+  **Collapsible node sections** — `<NodeGraph.NodeSection>` is a collapsible section inside a node body for hiding advanced / overflow pins. The collapse is purely visual: children never unmount (state preserved, no remount cost), and `<NodeGraph.Port>` slots inside a collapsed section unregister their position so the pins' edges hide with them and snap back on expand — no dangling wires. Controlled or uncontrolled (`collapsed` / `defaultCollapsed` / `onCollapsedChange`); `collapsible={false}` gives a static labelled group.
+
+- [#79](https://github.com/SebastianWebdev/entangle-ui/pull/79) [`64cc7a0`](https://github.com/SebastianWebdev/entangle-ui/commit/64cc7a06ddbb57b12d0ae9bc28677ada627c4f85) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - **Breaking:** redesign `NodeGraph` port API to slot-based composition.
+
+  Connection endpoints are now declared inline inside the node body via a new
+  `<NodeGraph.Port>` compound, not as a data field on the node. The library
+  measures the slot's DOM position and registers it as the anchor for any
+  edge that references the port id — the same DOM element the user clicks
+  is the exact point edges connect to, eliminating the previous "fake label
+  dot + outer port handle" double rendering.
+
+  **New**
+  - `<NodeGraph.Port id side dataType>` — slot rendered anywhere inside
+    `renderNode`. Mounts an inline `<span>` (default UE-style 12 px circle
+    / exec triangle), measures its center on mount + every layout shift,
+    feeds the position to the store, and wires connection-drag pointer
+    events. Pass `children` to replace the default chrome — `data-port-*`
+    attributes carry the live state (`source` / `candidate` / `invalid` /
+    `hovered`) for consumer CSS.
+  - Hover state is now actually wired: `<NodeGraph.Port>` emits
+    `hoveredPort` on enter/leave; `NodeGraphNodeView` emits `hoveredNodeId`.
+    Previously these fields existed on `NodeGraphHoverState` but no code
+    dispatched them, so `ctx.hovered` / `ctx.isHovered` were always
+    `false`.
+  - Node auto-sizing: when `node.width`/`height` are omitted, the library
+    reads the rendered DOM size for hit-testing, marquee, fitToContent,
+    and minimap geometry. Override per-node by setting `width`/`height`
+    explicitly.
+  - `NodeGraphConnectionValidationInfo` now exposes `sourceDataType` and
+    `targetDataType` populated from the registered slot metadata — no
+    consumer-side port index needed for type-matched validation.
+  - `NodeGraphStore` adds two new slices with subscribe/get APIs:
+    `portPositions` (`getPortPosition`, `setPortPosition`,
+    `removePortPosition`, `subscribePortPositions`) and `measuredSizes`
+    (`getMeasuredSize`, `setMeasuredSize`, `clearMeasuredSize`,
+    `subscribeMeasuredSizes`). Both auto-GC on `setData` when the
+    corresponding node is removed.
+
+  **Removed**
+  - `NodeGraphNode.ports` field. Declare ports as `<NodeGraph.Port>`
+    children inside `renderNode` instead.
+  - `NodeGraphPort` type, `NodeGraphRenderPort`, `NodeGraphPortRenderCtx`,
+    and the `renderPort` prop. Replaced by the slot — `children` of
+    `<NodeGraph.Port>` are the consumer-supplied visual.
+  - `resolvePortOffsets` and the offset-based `getPortPosition` math
+    helpers. Port positions are now DOM-measured.
+
+  **Migration**
+
+  ```diff
+  - const nodes = [{
+  -   id: 'a', position: { x: 0, y: 0 },
+  -   ports: [
+  -     { id: 'in', side: 'left', dataType: 'exec', offset: 0.3 },
+  -     { id: 'out', side: 'right', dataType: 'float' },
+  -   ],
+  - }];
+
+  - <NodeGraph
+  -   nodes={nodes}
+  -   renderPort={(port, node, ctx) => <MyPin port={port} ctx={ctx} />}
+  - />
+
+  + const nodes = [{ id: 'a', position: { x: 0, y: 0 } }];
+
+  + <NodeGraph
+  +   nodes={nodes}
+  +   renderNode={(node, ctx) => (
+  +     <MyBody>
+  +       <Row>
+  +         <NodeGraph.Port id="in" side="left" dataType="exec" />
+  +         Execute
+  +       </Row>
+  +       <Row reverse>
+  +         Result
+  +         <NodeGraph.Port id="out" side="right" dataType="float" />
+  +       </Row>
+  +     </MyBody>
+  +   )}
+  + />
+  ```
+
+  `NodeGraphEdge` shape is unchanged (`{ id, source: { node, port }, target }`).
+
+- [#79](https://github.com/SebastianWebdev/entangle-ui/pull/79) [`64cc7a0`](https://github.com/SebastianWebdev/entangle-ui/commit/64cc7a06ddbb57b12d0ae9bc28677ada627c4f85) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - `NodeGraph` socket-level edge actions and a drop point on the connection event.
+
+  **Socket actions** — right-clicking a port already reported a `{ kind: 'port' }` context target; now there are batch helpers to act on a socket's wires: a pure `edgesConnectedToPort(edges, ref)` (ids of every edge on a socket) and a `disconnectPort(node, port)` action on `useNodeGraph` (detach them all, pruning the selection). The demo gives sockets a "Select connected edges" context menu.
+
+  **Drop point on `onConnectEnd`** — the event now carries `worldPoint` and `screenPoint` (the release position). A drop on empty space (`cancelled` + `target === null`) is the hook for the classic "drag a wire onto the canvas → open a create-node menu there → wire the new node straight up" flow; the consumer positions the menu at `screenPoint`, spawns at `worldPoint`, and `connect`s to `source`. The demo wires this end to end.
+
+- [#94](https://github.com/SebastianWebdev/entangle-ui/pull/94) [`eb35203`](https://github.com/SebastianWebdev/entangle-ui/commit/eb35203d7bb00a85ca0fb7d32b35339411250320) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add the `PathBar` flagship component — file-path breadcrumbs like the VS Code
+  editor bar. It specializes `Breadcrumbs`: pass a delimited string or a
+  structured `PathSegment[]` and it renders clickable segments, leaning on
+  Breadcrumbs for separators, overflow collapsing, and accessibility. Folder
+  crumbs navigate via `onNavigate(path, segment, index)` and the final segment is
+  the current location (`aria-current`). The current path is controllable
+  (`value` / `defaultValue`); uncontrolled, clicking an ancestor truncates the
+  trail. Provide `getSiblings` to add a VS-Code-style dropdown that swaps a
+  segment for one of its siblings, plus `rootIcon`, per-segment icons, and a
+  `delimiter` for non-`/` paths. Path splitting/joining lives in a pure,
+  unit-tested `pathUtils` module.
+
+  Extend `BreadcrumbItem` with an `endContent` slot — content rendered after the
+  label, outside the navigable link/button, so a trailing affordance (such as
+  PathBar's sibling-dropdown caret) can attach without breaking the crumb's
+  click target or the Breadcrumbs collapse logic.
+
+- [#84](https://github.com/SebastianWebdev/entangle-ui/pull/84) [`6683aa6`](https://github.com/SebastianWebdev/entangle-ui/commit/6683aa69850d269fad2af638a813f5c9049fc1a7) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add the `Timeline` flagship component — a horizontal, multi-track animation timeline / dope sheet for editor UIs.
+  - Frame-based time axis with an `fps`-driven `HH:MM:SS:FF` ruler and snap-to-frame. `frame` (playhead), `view` (zoom/pan window), `selection`, `mode`, and `playing` are each controlled or uncontrolled.
+  - Tracks hold keyframes using the shared `CurveKeyframe` model — promoted to `@/types/keyframe` and re-exported from `CurveEditor` unchanged — so Timeline and CurveEditor speak the same language.
+  - Canvas-rendered keyframes with DOM chrome, drawn from a per-slice `useSyncExternalStore` store with the theme resolved per frame.
+  - Interactions: scrub (ruler/playhead drag + click), wheel zoom-at-cursor, shift-wheel / middle-drag pan, click / shift-click / box-select, drag-move (snapped + clamped), double-click add, Delete remove, copy/paste (Ctrl/Cmd + C / V at the playhead), and arrow / Home / End keyboard scrubbing.
+  - Dope-sheet and graph (value-curve) modes; graph mode reuses CurveEditor's curve evaluation and edits keyframes in both time and value, with draggable bezier tangent handles. Individual tracks can expand to an in-place graph lane (`track.expanded`) without leaving the dope sheet.
+  - Collapsible track groups (a flat `groupId` on tracks + a controlled/uncontrolled `groups` prop), header-drag track reorder, vertical scrolling for overflowing tracks, and a draggable loop region (edges + body).
+  - Optional built-in playback loop (rAF advancing `frame` at `fps`, with `loop`), driven via the imperative handle (`seek` / `play` / `pause` / `toggle` / `zoomToFit` / `zoomToSelection` / `frameToX` / `xToFrame`).
+  - Data-driven track-header column with a `renderTrackHeader` override, `Timeline.Toolbar` / `Timeline.Footer` slots, a `renderOverlay` canvas pass, and an accessibility baseline (focusable `role="group"`, keyboard equivalents, polite live region).
+  - Also exports `framesToTimecode`, the `TimelineGroup` type, and the `useTimelineContext` / `useTimelineGeometry` / `useTimelinePlayhead` / `useTimelineSelection` hooks.
+
+- [#84](https://github.com/SebastianWebdev/entangle-ui/pull/84) [`6683aa6`](https://github.com/SebastianWebdev/entangle-ui/commit/6683aa69850d269fad2af638a813f5c9049fc1a7) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Refactor `Timeline` for React 19.2 — performance, dead-code cleanup, API tweaks.
+  - Bump peer `react` / `react-dom` to `>=19.2.0`. Internal `useLatest`-ref swarms in `useTimelineGestures`, `useTimelinePlayback`, `useTimelineDraw` (new) and `TimelineMinimap` are replaced with `useEffectEvent`. Handler identities are stable for the component's lifetime; the rAF playback loop now only re-runs when `playing` flips.
+  - `TimelineMinimap` subscribes to the geometry + playhead slices instead of the full `useTimelineContext()` snapshot, so it stops re-rendering on unrelated store changes (selection / hover / drag / mode).
+  - Consolidate keyframe-key helpers into one `timelineSelection` module (`selectionKey` / `selectionKeySet` / `sameRef`) — removes three near-duplicate implementations across `Timeline`, `timelineEdits`, and `TimelineStore`.
+  - Cache each track's resolved value range on `TrackGeometry` / `TimelineTrackRow` (`row.range`) so drawing, hit-testing and graph-mode edits stop recomputing `autoValueRange` per call.
+  - Extract `useTimelineDraw` from `Timeline.tsx` — encapsulates canvas DPR setup, theme-token resolution and the scheduled draw, and reads consumer `renderOverlay` / `formatTime` through `useEffectEvent` so inline functions no longer invalidate the schedule.
+  - Drop dead exports: `framesPerPixel`, `trackTop`, `yToTrackIndex` (`timelineCoords`), `rowIndexAtY` (`timelineLayout`), and the unimplemented `minKeyframeDistance` prop on `TimelineProps`.
+  - Replace `Math.hypot` in the hit-test hot path with squared-distance comparisons; replace `Math.min(...spread)` in copy with a reduce loop; rewrite `zoomToSelection` to walk the selection (O(|selection|)) instead of every keyframe in every track.
+  - New `trackScale` prop on `<Timeline>` — pass `{ position, format, showMidpoint, gridlines, color }` directly. The `<Timeline.TrackScale />` slot still works as a deprecated alias; the new prop wins when both are provided.
+
+- [#85](https://github.com/SebastianWebdev/entangle-ui/pull/85) [`9eabab7`](https://github.com/SebastianWebdev/entangle-ui/commit/9eabab77e2a1dc95a6c4a66cbf556a68b1365ff1) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `useNavigationHistory<T>` — a generic back/forward stack primitive backed
+  by `useSyncExternalStore`. Tracks a concurrent-safe cursor over an arbitrary
+  entry type, exposes `canGoBack` / `canGoForward` flags, mirrors browser
+  semantics (push truncates the forward branch), and supports an `enabled`
+  toggle for opt-in history UIs. `AssetBrowser`'s `history` feature is now
+  composed on top of it through an internal `useAssetNavigation` hook that
+  encapsulates the parent-folder keyboard shortcut and the `onNavigate` /
+  `onItemOpen` plumbing.
+
+- [#73](https://github.com/SebastianWebdev/entangle-ui/pull/73) [`9dd25ae`](https://github.com/SebastianWebdev/entangle-ui/commit/9dd25ae9821cd943025f90a9c1b9bc751cd7329c) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `Viewport` primitive — pan/zoom canvas + HTML container for editor-style surfaces (node graphs, timelines, 2D world editors).
+  - `Viewport` with controlled/uncontrolled transform (`{ x, y, zoom }`), configurable pan (button + space-key), wheel/pinch zoom-toward-cursor, and optional marquee selection.
+  - `ViewportLayer` — perf-isolated canvas layers with per-layer `invalidateOn` deps and `handle.invalidate(name)`.
+  - `ViewportWorld` — HTML children positioned in world coordinates (follow pan/zoom).
+  - `ViewportOverlay` — HTML children pinned to the viewport (toolbars, minimap slot).
+  - `useViewportContext()` for live `transform` / `size` / `handle` access from any child.
+  - Imperative `ViewportHandle` — `fitToContent`, `zoomToRect`, `centerOn`, `getTransform`, `getSize`, `invalidate`.
+  - Pure helpers: `worldToScreen`, `screenToWorld`, `getViewportPointerPosition`, `computeFitTransform`, `computeCenterTransform`, `computeZoomTowardPivot`, `normalizeRect`.
+  - Pan lifecycle events (`onPanStart`, `onPanEnd` with end velocity) and zoom lifecycle events for inertia/idle recipes.
+  - Docs include recipes for snap-to-zoom, minimap, and inertia on top of the v1 surface.
+
+### Patch Changes
+
+- [#85](https://github.com/SebastianWebdev/entangle-ui/pull/85) [`9eabab7`](https://github.com/SebastianWebdev/entangle-ui/commit/9eabab77e2a1dc95a6c4a66cbf556a68b1365ff1) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Refactor `AssetBrowser` internals into focused hooks and subcomponents. The
+  root file goes from ~470 → ~370 lines and the grid from ~300 → ~225, with no
+  public API changes:
+  - `useAssetMarqueeGesture` — pointer-down/move/up + RAF throttling + hit-test
+    for rubber-band selection (lifted out of `AssetBrowserGrid`).
+  - `useAssetBrowserViewState` — owns the five `useControlledState` pairs plus
+    derived `displayed` / `filterableTypes` / `thumbnailSizePx` / `marqueeEnabled`.
+  - `useAssetBrowserHandle` — wires `useImperativeHandle` and folds in the
+    `scrollToItem` fallback logic.
+  - `AssetBrowserContent` — loading / empty / grid / list switch.
+  - `AssetBrowserStatusBar` — the optional bottom bar with the thumbnail-size
+    control.
+  - `DEFAULT_LIST_COLUMNS` is now a module-level constant in `AssetBrowserList`
+    instead of a function rebuilt inside `useMemo`.
+
+- [#85](https://github.com/SebastianWebdev/entangle-ui/pull/85) [`9eabab7`](https://github.com/SebastianWebdev/entangle-ui/commit/9eabab77e2a1dc95a6c4a66cbf556a68b1365ff1) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Refine the `AssetBrowser` component. Live selection, roving focus, and
+  drop-target state now flow through per-id store slices, so selecting an item or
+  moving focus re-renders only the affected cells instead of the whole grid, and
+  search/sort/filter chrome no longer re-renders cells on every keystroke. Wire up
+  the previously inert `marquee` and `history` props (Back/Forward controls plus
+  `Backspace` / `Alt+ArrowUp` to navigate to the parent folder), keep grid cells
+  interactive when a custom `renderItem` is supplied, make `scrollToItem` work
+  under virtualization, track shift-range anchors by id so ranges survive a
+  re-sort, and honour `prefers-reduced-motion`.
+
+- [#85](https://github.com/SebastianWebdev/entangle-ui/pull/85) [`9eabab7`](https://github.com/SebastianWebdev/entangle-ui/commit/9eabab77e2a1dc95a6c4a66cbf556a68b1365ff1) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - AssetBrowser: conform to the hardened ESLint setup (react-hooks v7,
+  strict-type-checked, import-x, jsx-a11y) introduced in #87.
+  - The selection, navigation, drag-and-drop, marquee, grid-keyboard and
+    imperative-handle hooks built their stable handlers with `useEffectEvent`
+    and then returned them / listed them in dependency arrays — both forbidden
+    by the Compiler-aware rule set. They now read live props/state through
+    `useLatest` refs and expose genuinely stable `useCallback`s, matching
+    `component-patterns.md` rules #3/#11 and the Timeline migration.
+  - Removed the `useStableRenderFn` helper: its render-phase ref write violated
+    `react-hooks/refs`. Render-props are forwarded through the item context as-is
+    (memoize them, like `TreeView`, to avoid per-cell re-renders).
+  - The root carries `role="region"` and grid cells keep `role="gridcell"`;
+    keyboard interaction stays centralized at the grid level.
+
+  No public API or behavior change.
+
+- [#87](https://github.com/SebastianWebdev/entangle-ui/pull/87) [`9445dfc`](https://github.com/SebastianWebdev/entangle-ui/commit/9445dfc6689baceed1c552579cd0eebed0427619) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - ESLint hardening across the library and the correctness fixes it surfaced.
+
+  Tooling: enabled `eslint-plugin-react-hooks` v7 (full Compiler-aware
+  `recommended`), `typescript-eslint` `strict-type-checked`,
+  `eslint-plugin-import-x` (no-cycle, order, no-duplicates, type-specifier
+  style), `eslint-plugin-jsx-a11y`, and enforcement of the mandated `@/` import
+  alias. `restrict-template-expressions` is tuned with `allowNumber: true`. Rules
+  apply to `src` only; test files keep the prior type-checked baseline. See
+  `docs/component-patterns.md` §14.
+
+  Behavior-affecting fixes (no public API changes):
+  - Refs read during render are now reactive state, so values driven by them
+    update correctly: `ScrollArea` scrollbar `aria-valuenow` and thumb dragging
+    state, `CartesianPicker` / `ViewportGizmo` / `CurveEditor` `isDragging`,
+    `Combobox` filtering while editing, `MenuBar` registered-menu tracking, and
+    `useListboxNav` navigable indices.
+  - `Tooltip` no longer mutates the caller-provided `rootProps` object.
+  - Accessibility: interactive elements that had only pointer handlers now expose
+    keyboard handlers, focusability, and valid ARIA across controls, editor,
+    navigation, feedback, layout, and primitive components.
+  - Removed dead conditional branches and redundant optional chaining flagged by
+    `no-unnecessary-condition`, and replaced deprecated APIs.
+
+- [#87](https://github.com/SebastianWebdev/entangle-ui/pull/87) [`9445dfc`](https://github.com/SebastianWebdev/entangle-ui/commit/9445dfc6689baceed1c552579cd0eebed0427619) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Fix ViewportGizmo z-up rendering and FloatingPanel positioning.
+  - **ViewportGizmo `upAxis="z-up"`** now actually renders the z-up convention
+    (Blender/Unreal/CAD): the Z arm points up and Y points into the scene.
+    Previously `upAxis` only affected which preset view an axis click snapped to,
+    so `y-up` and `z-up` looked identical.
+  - **FloatingPanel** is now positioned `absolute` within its `FloatingManager`
+    region instead of `fixed` to the viewport. `FloatingManager` renders a
+    relative, full-size, pointer-events-pass-through container, and dragging is
+    delta-based and clamped to that container. This fixes panels from multiple
+    managers stacking at the same viewport coordinates and escaping their
+    container.
+
+- [#92](https://github.com/SebastianWebdev/entangle-ui/pull/92) [`98cbbfd`](https://github.com/SebastianWebdev/entangle-ui/commit/98cbbfdb9fa2658568822ef8a49a0f409ccb40f4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - LogView: align the message text into a fixed gutter. The timestamp, level
+  icon, and source tag render as fixed-width columns so the message starts at the
+  same x on every row instead of shifting with the source-tag width — it reads
+  like a table / terminal log.
+
+  A column is only reserved when its field is actually present in the data: if
+  nothing has a timestamp or source there is no column at all (the message sits
+  right after the icon, as before), but once at least one entry uses the field
+  every row reserves it — including rows that omit it — so they stay aligned. The
+  timestamp and source column widths default to `88px` and `52px` and are
+  overridable via the `--etui-logview-timestamp-col-width` /
+  `--etui-logview-source-col-width` CSS custom properties on the root.
+
+- [#92](https://github.com/SebastianWebdev/entangle-ui/pull/92) [`98cbbfd`](https://github.com/SebastianWebdev/entangle-ui/commit/98cbbfdb9fa2658568822ef8a49a0f409ccb40f4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - LogView code-review fixes:
+  - **Stable auto-assigned ids.** Id-less entries now keep their key across a
+    controlled `entries` re-mirror — the store caches an id per entry object
+    instead of minting a fresh monotonic id on every `setEntries`. Rows no longer
+    remount and id-based selection survives updates. Removed the unused `seq`
+    field from `ResolvedLogEntry`.
+  - **Levels added at runtime are visible by default.** Visibility is tracked as
+    the set of _hidden_ levels, so a level introduced later via `levelConfig`
+    shows up active, while an explicit toggle-off persists across `levelOrder`
+    changes.
+  - **Cheaper rows.** Per-level definitions are resolved through a memoized cache
+    so the memoized `LogRow` is no longer invalidated by a fresh definition object
+    each render.
+  - **Scoped text-selection guard.** A row click / copy shortcut is only
+    suppressed by a text selection inside the log body, not one elsewhere on the
+    page.
+  - **Internal cleanup.** Row selection + keyboard handling moved into a
+    `useLogSelection` hook; the shared recipe `level` variant is derived via a
+    single `levelVariant` helper.
+
+- [#79](https://github.com/SebastianWebdev/entangle-ui/pull/79) [`64cc7a0`](https://github.com/SebastianWebdev/entangle-ui/commit/64cc7a06ddbb57b12d0ae9bc28677ada627c4f85) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Fix `<NodeGraph.Minimap>` rendering off-screen. The slot applied `position: absolute` to the inner `<Minimap>`, but `ViewportMinimap` already pins it via its own absolutely-positioned wrapper. The duplicate positioning pulled the minimap out of the wrapper's flow, collapsing the wrapper to a zero-size box at the viewport's bottom-right corner and pushing the minimap off-screen. The slot class now only re-enables pointer events.
+
+- [#79](https://github.com/SebastianWebdev/entangle-ui/pull/79) [`64cc7a0`](https://github.com/SebastianWebdev/entangle-ui/commit/64cc7a06ddbb57b12d0ae9bc28677ada627c4f85) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - `NodeGraph` internal performance + refactor pass (no public API change).
+
+  **Performance**
+  - Edge labels now subscribe to the interaction slice through a per-edge selector + equality (the same pattern node bodies use), so a drag only re-renders the labels whose endpoints actually move instead of every label on every gesture tick.
+  - Edge / group canvas layers build a `Set` of the selected ids once per frame instead of a linear `selection.includes` per item — the per-frame selected check is now O(1).
+  - Edge hit-testing (`findEdgeAtPoint`) rejects edges with a control-point bounding-box test before the 24-sample Bézier distance test, so hover / click / right-click stay cheap on large graphs.
+  - The background dots/grid pattern tile is cached across frames (keyed by size + radius + colour, bounded with FIFO eviction), so a pan no longer rebuilds an off-screen canvas every frame.
+
+  **Refactor**
+  - Extracted a shared `useDragGesture` primitive (pointer capture, document listener attach/detach, per-pointer guard, unmount cleanup) used by both the node-drag and group-drag controllers, removing the duplicated gesture lifecycle.
+  - Extracted edge hover + endpoint-grab handling out of `NodeGraph` into `useNodeGraphEdgeInteraction`.
+  - De-duplicated the additive-selection toggle (`toggleSelected`) across the node / group / edge click paths and the connection accept/reject check across the hover + both drop paths.
+
+- [#84](https://github.com/SebastianWebdev/entangle-ui/pull/84) [`6683aa6`](https://github.com/SebastianWebdev/entangle-ui/commit/6683aa69850d269fad2af638a813f5c9049fc1a7) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Timeline: replace `useEffectEvent` misuse with the `useLatest` + `useCallback`
+  pattern. Effect Events are only valid when called from inside an Effect; the
+  Timeline was using them as DOM/JSX event handlers and store callbacks, relying
+  on a stable identity that `useEffectEvent` does not guarantee (its identity
+  intentionally changes every render). Gesture handlers, the minimap pointer/draw
+  handlers, and the `Timeline` track/seek/zoom callbacks now read live state
+  through `useLatest` refs and expose genuinely stable `useCallback`s, matching
+  `component-patterns.md` rules #3/#11 and the `useViewportGestures` reference.
+  The playback rAF loop keeps `useEffectEvent` — the one place it is correct
+  (called only from inside the effect's timer). Also reuse the shared `clamp` and
+  `valueInset` helpers instead of duplicated inline math, and align the minimap
+  wrapper with the library's `cx` + `role="region"` conventions. No public API
+  change.
+
+- [#84](https://github.com/SebastianWebdev/entangle-ui/pull/84) [`6683aa6`](https://github.com/SebastianWebdev/entangle-ui/commit/6683aa69850d269fad2af638a813f5c9049fc1a7) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - `Timeline`:
+  - The expand-track caret in the track-header column now shows in graph mode too. In dope-sheet mode it still expands the track into an in-place graph lane; in graph mode it just makes the lane taller (`expandedTrackHeight`), so you can spotlight one curve without leaving graph view.
+  - Alt + drag on the ruler creates / narrows the loop region (works even when looping was previously off — the drag turns it on). A bare Alt-click without dragging clears the loop. Existing loop-edge / body drags are unchanged.
+
+- [#84](https://github.com/SebastianWebdev/entangle-ui/pull/84) [`6683aa6`](https://github.com/SebastianWebdev/entangle-ui/commit/6683aa69850d269fad2af638a813f5c9049fc1a7) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - `Timeline` — loop / playhead / track-scale UX fixes:
+  - The **playhead line is now grabbable along its whole height**. Previously a
+    grab landed as `group` over a group-header row and was swallowed by the
+    `loop-body` region on the ruler; the hit-test now returns `playhead` on its
+    thin pick band over group rows and on the ruler (it beats the wide loop body,
+    while loop edges still win). The head also glows + shows an `ew-resize`
+    cursor on hover there.
+  - **Loop region edges and body highlight on hover** — the hovered edge thickens
+    with a glow (cursor `ew-resize`), the body brightens (cursor `grab`), so the
+    draggable affordances are discoverable. Backed by a new `hoverLoop` store
+    slice. Alt+drag on the ruler keeps creating / re-drawing the loop (now also
+    when the drag starts on the playhead line).
+  - `trackScale` gains **`minLaneHeight`** (default `48`): lanes shorter than this
+    skip the scale entirely, so a collapsed graph-mode track no longer renders
+    overlapping min/mid/max labels.
+
+- [#84](https://github.com/SebastianWebdev/entangle-ui/pull/84) [`6683aa6`](https://github.com/SebastianWebdev/entangle-ui/commit/6683aa69850d269fad2af638a813f5c9049fc1a7) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - `Timeline` — two new opt-in props that tune the loop region's chrome:
+  - **`loopStrip`** (default `false`) — adds a thin dedicated band directly
+    under the time ruler. A plain drag on the strip creates / re-draws the
+    loop region, no Alt needed. The main ruler keeps its scrub behaviour, so
+    scrub vs loop-create stop fighting on a single zone.
+  - **`loopHandles`** (default `'edges'`) — `'edges'` keeps the existing
+    full-height vertical bars on each loop edge; `'brackets'` draws compact
+    `[ ]` markers with serifs in the chrome (ruler + strip) area instead. No
+    full-height bars across the track area, and the edge pick zone widens so
+    the markers are easier to grab.
+
+  Both compose: the Animation Editor showcase enables them together. Drawing
+  and hit-test now resolve a unified `chromeHeight = rulerHeight +
+loopStripHeight` so screen↔content Y conversions stay correct for marquee
+  selection, double-click add, tangent drags and scrolling.
+
 ## 0.9.0
 
 ### Minor Changes
