@@ -50,8 +50,6 @@ export interface CommandPaletteBaseProps extends Omit<
   recentKey?: string;
   /** Maximum number of recent items to track. @default 5 */
   maxRecent?: number;
-  /** Debounce in ms applied to the search query. @default 150 */
-  debounceMs?: number;
   /** Custom renderer for each item — replaces the default row layout. */
   renderItem?: (
     item: CommandItem,

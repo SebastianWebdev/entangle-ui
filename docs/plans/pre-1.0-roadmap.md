@@ -59,7 +59,7 @@ Suggested order, based on dependencies and shared primitives:
 | 3   | NodeGraph      | Flagship   | Ports, bezier edges, zoom/pan, multi-selection, minimap slot, context menu, grouping, keyboard navigation. Composes ScrollArea + Popover + primitives + hooks + canvas/viewport.                                                                                                                           |
 | 4   | Timeline       | Flagship   | Horizontal, multi-track, keyframes, zoom/scrub, snap-to-frame, playhead. Composes Slider + ResizeObserver + CurveEditor patterns + canvas/viewport.                                                                                                                                                        |
 | 5   | AssetBrowser   | Flagship   | Grid + list toggle, thumbnails, drag-drop, search, filter, folder nav. Composes DataTable patterns + Card grid + TreeView for folders.                                                                                                                                                                     |
-| 6   | GradientEditor | Spec       | Linear + radial, draggable stops, CSS import/export. Composes ColorPicker + canvas.                                                                                                                                                                                                                        |
+| 6   | GradientEditor | Deferred   | Linear + radial, draggable stops, CSS import/export. Composes ColorPicker + canvas.                                                                                                                                                                                                                        |
 | 7   | FileTree       | Spec       | TreeView specialization with file-type icons, drag-drop import.                                                                                                                                                                                                                                            |
 | 8   | LogView        | Spec       | Console output with level coloring, filter, auto-scroll, search. Virtualized.                                                                                                                                                                                                                              |
 | 9   | PathBar        | Spec       | File-path breadcrumbs like VS Code. Specialization of Breadcrumbs.                                                                                                                                                                                                                                         |
@@ -68,14 +68,24 @@ Suggested order, based on dependencies and shared primitives:
 recommendation, not a contract — if a real-world need flips priorities, we
 re-sequence.
 
+> **GradientEditor deferred (2026-06).** The implementation (PR #97) is
+> parked as a draft: its visual design could not be reconciled with the rest
+> of the library's language. This is allowed under the v1.0 roadmap's
+> "Coverage" clause — a flagship may ship **or be explicitly deferred with a
+> documented rationale**. Revisit after the practical-validation phase. Until
+> then every other Stage 1 flagship is shipped, so Stage 1 is functionally
+> closed.
+
 ### Carry-over leftovers to fold in opportunistically
 
 Small items from v0.8 / v0.9 that were left on the floor and don't deserve
 their own PR — pick them up whenever a flagship PR naturally touches the
 same area:
 
-- `useEventCallback` hook (v0.8 plan, never landed)
-- `useIsMounted` hook (v0.8 plan, never landed)
+- ~~`useEventCallback` hook (v0.8 plan, never landed)~~ — **shipped**; public
+  hook built on `useLatest` (stable identity, always invokes the latest fn).
+- ~~`useIsMounted` hook (v0.8 plan, never landed)~~ — **shipped**; public hook
+  returning a stable mounted-state getter for guarding async state writes.
 
 ## Stage 2 — Style polish & token audit
 
@@ -114,13 +124,13 @@ Workflow:
 - **Re-render audit** on dense components (DataTable, NodeGraph, Timeline,
   PropertyInspector). React DevTools profiling, `React.memo` + selector
   patterns where they earn their keep.
-- **`useDeferredValue` pass on filter-heavy components.** From the Viewport
-  refactor code review (point 13): `CommandPalette` (replaces the existing
-  `useDebouncedValue` — `useDeferredValue` yields better interactivity for
-  large item lists), `Combobox`, `MultiSelect`, `PropertyPanel`. Each is a
-  one-line change (`useDeferredValue(query)`) plus a reference swap inside
-  the filtering `useMemo`. Ship as one small PR rather than four — same
-  pattern, same review surface.
+- **`useDeferredValue` pass on filter-heavy components.** ✅ **Done.** From the
+  Viewport refactor code review (point 13): `CommandPalette` (replaced the
+  existing `useDebouncedValue` — and dropped its now-redundant `debounceMs`
+  prop — for better interactivity on large item lists), `Combobox`,
+  `MultiSelect`, `PropertyPanel`. Each was a one-line change
+  (`useDeferredValue(query)`) plus a reference swap inside the filtering
+  `useMemo`, shipped as one small PR.
 - **Tree-shake verification.** Confirm `preserveModules` + `sideEffects: false`
   still hold after the flagship additions — a single accidental side-effect
   import can defeat the whole strategy.

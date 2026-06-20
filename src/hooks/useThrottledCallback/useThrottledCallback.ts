@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from 'react';
 
-import { useLatest } from '@/hooks/useLatest';
+import { useEventCallback } from '@/hooks/useEventCallback';
 
 import type {
   ThrottledCallback,
@@ -34,9 +34,9 @@ export function useThrottledCallback<Args extends unknown[]>(
 ): ThrottledCallback<Args> {
   const { leading = true, trailing = true } = options;
 
-  // Latest fn, refreshed after each commit so the stable throttled wrapper
-  // always invokes the current callback.
-  const fnRef = useLatest(fn);
+  // Stable wrapper that always invokes the current callback, refreshed via
+  // useInsertionEffect so the throttled wrapper never goes stale.
+  const stableFn = useEventCallback(fn);
 
   const lastCallRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -47,7 +47,7 @@ export function useThrottledCallback<Args extends unknown[]>(
       lastCallRef.current = now;
       const args = lastArgsRef.current;
       lastArgsRef.current = null;
-      if (args) fnRef.current(...args);
+      if (args) stableFn(...args);
     };
 
     const wrapper = (...args: Args): void => {
@@ -90,7 +90,7 @@ export function useThrottledCallback<Args extends unknown[]>(
     };
 
     return wrapper;
-  }, [delay, leading, trailing, fnRef]);
+  }, [delay, leading, trailing, stableFn]);
 
   useEffect(
     () => () => {

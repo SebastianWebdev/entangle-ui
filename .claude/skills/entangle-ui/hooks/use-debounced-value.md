@@ -2,7 +2,9 @@
 
 > Trailing-edge debounce for a reactive value — defer expensive work until input settles.
 
-`useDebouncedValue` returns a copy of a value that only updates after `delay` ms have elapsed without further changes. It is the standard pattern for "wait until the user stops typing" — search inputs, autosave drafts, expensive selector derivations.
+`useDebouncedValue` returns a copy of a value that only updates after `delay` ms have elapsed without further changes — "wait until the user stops typing" for search inputs, autosave drafts, and expensive selector derivations.
+
+> **Deprecated.** Prefer React's `useDeferredValue` for keeping an input responsive while an expensive derivation (filtering, search) lags behind it — no fixed delay, concurrent-rendering aware, and better on large lists. Use `useDebouncedCallback` to debounce a _side effect_ (a request, an analytics ping) rather than a rendered value. Still exported, but will not see further work.
 
 **Live preview**
 

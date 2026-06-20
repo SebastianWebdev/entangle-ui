@@ -2,6 +2,7 @@
 
 import React, {
   useCallback,
+  useDeferredValue,
   useEffect,
   useId,
   useMemo,
@@ -12,7 +13,6 @@ import { createPortal } from 'react-dom';
 
 import { SearchIcon } from '@/components/Icons/SearchIcon';
 import { Kbd } from '@/components/primitives/Kbd';
-import { useDebouncedValue } from '@/hooks/useDebounced';
 import { cx } from '@/utils/cx';
 
 import {
@@ -88,7 +88,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   recentLabel = 'Recent',
   recentKey,
   maxRecent = 5,
-  debounceMs = 150,
   renderItem,
   portal = true,
   maxHeight = 400,
@@ -108,7 +107,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
-  const debouncedQuery = useDebouncedValue(query, debounceMs);
+  // Defer the query that drives fuzzy filtering so the input stays responsive
+  // while a large command list re-filters and re-sorts. The immediate `query`
+  // still drives the input value.
+  const deferredQuery = useDeferredValue(query);
 
   const { recentIds, pushRecent } = useRecentItems({
     storageKey: recentKey,
@@ -144,7 +146,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     const groupOrder: string[] = [];
     const groupMap = new Map<string, CommandItem[]>();
 
-    if (debouncedQuery === '' && recentIds.length > 0) {
+    if (deferredQuery === '' && recentIds.length > 0) {
       const byId = new Map(items.map(it => [it.id, it]));
       const recent: CommandItem[] = [];
       for (const id of recentIds) {
@@ -157,7 +159,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       }
     }
 
-    const filtered = fuzzyFilter(debouncedQuery, items, getItemSearchStrings);
+    const filtered = fuzzyFilter(deferredQuery, items, getItemSearchStrings);
     const filteredItems = filtered.map(r => r.item);
 
     for (const item of filteredItems) {
@@ -203,7 +205,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     }
 
     return { rows, selectableItems: flat };
-  }, [items, debouncedQuery, recentIds, recentLabel]);
+  }, [items, deferredQuery, recentIds, recentLabel]);
 
   // Clamp the active index during render when the result list shrinks. This is
   // React's documented adjust-state-during-render pattern — it avoids an extra
@@ -361,7 +363,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             className={emptyStyle}
             data-testid={testId ? `${testId}-empty` : undefined}
           >
-            {emptyState ?? `No matches for "${debouncedQuery}"`}
+            {emptyState ?? `No matches for "${deferredQuery}"`}
           </div>
         ) : (
           <ul
@@ -413,7 +415,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   {renderItem ? (
                     renderItem(item, {
                       selected: isSelected,
-                      query: debouncedQuery,
+                      query: deferredQuery,
                     })
                   ) : (
                     <DefaultItemContent item={item} />

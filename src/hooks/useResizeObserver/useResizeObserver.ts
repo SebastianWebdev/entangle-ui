@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 
+import { useEventCallback } from '@/hooks/useEventCallback';
+
 import type { RefObject } from 'react';
 
 export interface UseResizeObserverOptions {
@@ -16,9 +18,9 @@ export interface UseResizeObserverOptions {
 /**
  * Observe size changes on an element. SSR-safe; cleans up on unmount.
  *
- * The callback is wrapped in a ref so consumers do not have to memoize it —
- * the underlying observer never re-subscribes when the callback identity
- * changes.
+ * The callback is wrapped with `useEventCallback` so consumers do not have
+ * to memoize it — the underlying observer never re-subscribes when the
+ * callback identity changes.
  *
  * The hook re-checks `ref.current` on every render so it picks up nodes that
  * mount later (e.g. through conditional rendering). When the observed node
@@ -41,13 +43,9 @@ export function useResizeObserver<T extends HTMLElement>(
 ): void {
   const { enabled = true } = options ?? {};
 
-  const callbackRef = useRef(callback);
+  const handleEntry = useEventCallback(callback);
   const observerRef = useRef<ResizeObserver | null>(null);
   const observedNodeRef = useRef<T | null>(null);
-
-  useEffect(() => {
-    callbackRef.current = callback;
-  }, [callback]);
 
   // Runs on every render so a node that mounts after the first render
   // (conditional rendering, lazy children, suspense fallback flips, ...) is
@@ -77,7 +75,7 @@ export function useResizeObserver<T extends HTMLElement>(
 
     const observer = new ResizeObserver(entries => {
       for (const entry of entries) {
-        callbackRef.current(entry);
+        handleEntry(entry);
       }
     });
     observer.observe(node);

@@ -5,6 +5,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useDeferredValue,
   useMemo,
   useState,
 } from 'react';
@@ -101,12 +102,17 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
     [onSearchChange]
   );
 
+  // Defer the query handed to descendants for filtering so the search input
+  // stays responsive while large property lists re-filter. The immediate
+  // `searchQuery` still drives the input value.
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+
   const contextValue = useMemo<PropertyPanelContextValue>(
     () => ({
       size,
-      searchQuery: searchQuery.toLowerCase(),
+      searchQuery: deferredSearchQuery.toLowerCase(),
     }),
-    [size, searchQuery]
+    [size, deferredSearchQuery]
   );
 
   const hasHeader = header != null || searchable;

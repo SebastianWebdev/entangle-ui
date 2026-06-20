@@ -16,6 +16,10 @@ export { useMergedRef } from './useMergedRef';
 
 export { useLatest } from './useLatest';
 
+export { useEventCallback } from './useEventCallback';
+
+export { useIsMounted } from './useIsMounted';
+
 export { useResizeObserver } from './useResizeObserver';
 export type { UseResizeObserverOptions } from './useResizeObserver';
 
@@ -44,6 +48,8 @@ export type { UseMediaQueryOptions } from './useMediaQuery';
 export { useBreakpoint } from './useBreakpoint';
 export type { BreakpointMap, UseBreakpointReturn } from './useBreakpoint';
 
+// useDebouncedValue is deprecated but still re-exported as public API.
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 export { useDebouncedValue, useDebouncedCallback } from './useDebounced';
 export type {
   DebouncedCallback,

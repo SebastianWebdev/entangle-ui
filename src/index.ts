@@ -860,9 +860,13 @@ export {
   useFocusTrap,
   useBreakpoint,
   useDebouncedCallback,
+  // useDebouncedValue is deprecated but still exported as public API.
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   useDebouncedValue,
+  useEventCallback,
   useHotkey,
   useIntersectionObserver,
+  useIsMounted,
   useKeyboard,
   useListboxNav,
   useMediaQuery,

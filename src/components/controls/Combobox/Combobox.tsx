@@ -2,6 +2,7 @@
 
 import React, {
   useCallback,
+  useDeferredValue,
   useEffect,
   useId,
   useMemo,
@@ -200,29 +201,45 @@ export function Combobox<T extends string = string>({
   const effectiveCreatable = creatable;
   const effectiveFreeSolo = freeSolo || creatable;
 
+  // Defer the query that drives filtering so the input stays responsive while
+  // a large option list re-filters. The immediate `query` still drives the
+  // input value and the create-row label below.
+  const deferredQuery = useDeferredValue(query);
+
   const filteredOptions = useMemo(
     () =>
       applyFilter(
         options,
         // When the user hasn't typed yet (query equals the selected label) we
         // show the full list so the dropdown serves as a browseable menu.
-        isEditing ? query : '',
+        isEditing ? deferredQuery : '',
         filterFn
       ),
-    [filterFn, options, query, isEditing]
+    [filterFn, options, deferredQuery, isEditing]
   );
 
+  // Detect exact matches against the deferred query so this stays in lockstep
+  // with `filteredOptions`. Using the immediate `query` here would desync
+  // which rows *exist* from which rows *render*: backspacing to an exact match
+  // flashes the create row / "No results" for a frame, and the navItems length
+  // mismatch skews the useListboxNav and aria-activedescendant indices.
   const hasExactMatch = useMemo(() => {
-    if (!query) return false;
-    const q = query.toLowerCase();
+    if (!deferredQuery) return false;
+    const q = deferredQuery.toLowerCase();
     return options.some(o => (o.label ?? o.value).toLowerCase() === q);
-  }, [options, query]);
+  }, [options, deferredQuery]);
 
   const showCreateRow =
-    effectiveCreatable && query.length > 0 && !hasExactMatch && !loading;
+    effectiveCreatable &&
+    deferredQuery.length > 0 &&
+    !hasExactMatch &&
+    !loading;
 
   // The list passed to useListboxNav. The "create" row is appended at the
-  // end as a synthetic option so the same navigation works.
+  // end as a synthetic option so the same navigation works. Its existence is
+  // gated by the deferred-query generation above, so navItems matches the
+  // rendered rows exactly; only its label tracks the immediate `query` — that
+  // is the literal text `commitOption` will create.
   const navItems = useMemo<ComboboxOption<T>[]>(() => {
     const list = [...filteredOptions];
     if (showCreateRow) {

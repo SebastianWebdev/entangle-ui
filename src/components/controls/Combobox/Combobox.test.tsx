@@ -190,6 +190,23 @@ describe('Combobox', () => {
       fireEvent.change(input, { target: { value: 'Apple' } });
       expect(screen.queryByText(/Create.*"Apple"/)).not.toBeInTheDocument();
     });
+
+    it('keeps the create row consistent with the filtered list when editing toward an exact match', () => {
+      // Regression: the create row is gated on the same deferred query that
+      // drives `filteredOptions`. Editing a non-matching query into an exact
+      // match must drop the create row in lockstep with the list — never leave
+      // a stray "Create" row beside the matched option.
+      renderWithTheme(<Combobox testId="cmb" options={FRUITS} creatable />);
+      const input = getInput();
+      fireEvent.focus(input);
+
+      fireEvent.change(input, { target: { value: 'Appl' } });
+      expect(screen.getByText(/Create.*"Appl"/)).toBeInTheDocument();
+
+      fireEvent.change(input, { target: { value: 'Apple' } });
+      expect(screen.queryByText(/Create.*"Apple"/)).not.toBeInTheDocument();
+      expect(screen.getByText('Apple')).toBeInTheDocument();
+    });
   });
 
   describe('Accessibility', () => {

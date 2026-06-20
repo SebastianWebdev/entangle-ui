@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { useLatest } from '@/hooks/useLatest';
+import { useEventCallback } from '@/hooks/useEventCallback';
 
 import type {
   DebouncedCallback,
@@ -33,9 +33,9 @@ export function useDebouncedCallback<Args extends unknown[]>(
 ): DebouncedCallback<Args> {
   const { leading = false, maxWait } = options;
 
-  // Latest fn, refreshed after each commit so the stable debounced wrapper
-  // always invokes the current callback.
-  const fnRef = useLatest(fn);
+  // Stable wrapper that always invokes the current callback, refreshed via
+  // useInsertionEffect so the debounced wrapper never goes stale.
+  const stableFn = useEventCallback(fn);
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -58,9 +58,8 @@ export function useDebouncedCallback<Args extends unknown[]>(
     lastArgsRef.current = null;
     lastInvokeRef.current = Date.now();
     clearTimers();
-    if (args) fnRef.current(...args);
-    // fnRef is a stable useLatest ref; listed to satisfy the rule.
-  }, [clearTimers, fnRef]);
+    if (args) stableFn(...args);
+  }, [clearTimers, stableFn]);
 
   const debounced = useMemo<DebouncedCallback<Args>>(() => {
     const wrapper = (...args: Args): void => {
@@ -78,7 +77,7 @@ export function useDebouncedCallback<Args extends unknown[]>(
         // pick them up.
         lastArgsRef.current = null;
         lastInvokeRef.current = now;
-        fnRef.current(...args);
+        stableFn(...args);
       }
 
       if (timerRef.current !== null) clearTimeout(timerRef.current);
@@ -109,7 +108,7 @@ export function useDebouncedCallback<Args extends unknown[]>(
     };
 
     return wrapper;
-  }, [delay, leading, maxWait, invoke, clearTimers, fnRef]);
+  }, [delay, leading, maxWait, invoke, clearTimers, stableFn]);
 
   // Cleanup on unmount.
   useEffect(() => clearTimers, [clearTimers]);
