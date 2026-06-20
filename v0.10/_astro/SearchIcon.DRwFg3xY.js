@@ -1,0 +1,1 @@
+import{j as r}from"./jsx-runtime.u17CrQMm.js";import{R as c}from"./index.y-DWsWaV.js";import{I as s}from"./Icon.AS9sikgX.js";const a=c.memo(o=>r.jsxs(s,{...o,children:[r.jsx("circle",{cx:"11",cy:"11",r:"8"}),r.jsx("path",{d:"M21 21l-4.35-4.35"})]}));a.displayName="SearchIcon";export{a as S};

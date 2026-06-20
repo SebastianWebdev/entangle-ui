@@ -1,0 +1,1 @@
+import{j as o}from"./jsx-runtime.u17CrQMm.js";import{R as r}from"./index.y-DWsWaV.js";import{I as m}from"./Icon.AS9sikgX.js";const n=r.memo(s=>o.jsx(m,{...s,children:o.jsx("line",{x1:"5",y1:"12",x2:"19",y2:"12"})}));n.displayName="MinusIcon";export{n as M};

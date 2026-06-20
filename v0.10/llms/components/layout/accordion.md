@@ -1,0 +1,347 @@
+# Accordion
+> Collapsible sections component using a compound pattern for property inspectors, settings panels, and grouped content.
+
+Collapsible sections component for organizing content into expandable/collapsible groups. Uses a compound component pattern with `Accordion`, `AccordionItem`, `AccordionTrigger`, and `AccordionContent`. Designed for property inspectors, settings panels, and any UI that groups related content under toggleable headers.
+
+**Live Preview**
+
+## Import
+
+```tsx
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from 'entangle-ui';
+```
+
+## Usage
+
+```tsx
+<Accordion defaultValue="transform">
+  <AccordionItem value="transform">
+    <AccordionTrigger>Transform</AccordionTrigger>
+    <AccordionContent>Position, rotation, and scale fields...</AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="material">
+    <AccordionTrigger>Material</AccordionTrigger>
+    <AccordionContent>Color, texture, and shader settings...</AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+## Width
+
+The accordion defaults to `width: 100%`, filling its parent so the surface keeps a stable width regardless of which item is expanded. Override with the `width` prop when you need a fixed footprint — pass a number for pixels or any CSS length as a string.
+
+```tsx
+<Accordion width={320}>...</Accordion>
+<Accordion width="24rem">...</Accordion>
+```
+
+**Width**
+
+## Single vs Multiple
+
+By default, only one item can be expanded at a time. Opening a new item closes the previously open one. Set `multiple` to allow multiple items to be open simultaneously.
+
+**Single vs Multiple**
+
+```tsx
+{
+  /* Single mode (default) -- one item open at a time */
+}
+<Accordion defaultValue="section-1">
+  <AccordionItem value="section-1">
+    <AccordionTrigger>Section 1</AccordionTrigger>
+    <AccordionContent>Content 1</AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="section-2">
+    <AccordionTrigger>Section 2</AccordionTrigger>
+    <AccordionContent>Content 2</AccordionContent>
+  </AccordionItem>
+</Accordion>;
+
+{
+  /* Multiple mode -- any number of items open */
+}
+<Accordion multiple defaultValue={['section-1', 'section-2']}>
+  <AccordionItem value="section-1">
+    <AccordionTrigger>Section 1</AccordionTrigger>
+    <AccordionContent>Content 1</AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="section-2">
+    <AccordionTrigger>Section 2</AccordionTrigger>
+    <AccordionContent>Content 2</AccordionContent>
+  </AccordionItem>
+</Accordion>;
+```
+
+## Collapsible
+
+In single mode, by default one item must always remain open. Set `collapsible` to allow all items to be closed.
+
+**Collapsible**
+
+```tsx
+<Accordion collapsible>
+  <AccordionItem value="optional">
+    <AccordionTrigger>Optional Section</AccordionTrigger>
+    <AccordionContent>Can be fully closed</AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+## Variants
+
+The `variant` prop controls the visual style of accordion headers.
+
+**Variants**
+
+```tsx
+{
+  /* Default: subtle background on header with clean separator lines */
+}
+<Accordion variant="default">
+  <AccordionItem value="item">
+    <AccordionTrigger>Default Variant</AccordionTrigger>
+    <AccordionContent>Content</AccordionContent>
+  </AccordionItem>
+</Accordion>;
+
+{
+  /* Ghost: no background, minimal separators */
+}
+<Accordion variant="ghost">
+  <AccordionItem value="item">
+    <AccordionTrigger>Ghost Variant</AccordionTrigger>
+    <AccordionContent>Content</AccordionContent>
+  </AccordionItem>
+</Accordion>;
+
+{
+  /* Filled: darker background on header area */
+}
+<Accordion variant="filled">
+  <AccordionItem value="item">
+    <AccordionTrigger>Filled Variant</AccordionTrigger>
+    <AccordionContent>Content</AccordionContent>
+  </AccordionItem>
+</Accordion>;
+```
+
+| Variant   | Description                                  |
+| --------- | -------------------------------------------- |
+| `default` | Subtle background with clean separator lines |
+| `ghost`   | No background, minimal separators            |
+| `filled`  | Darker background on the header area         |
+
+## Sizes
+
+The `size` prop controls the density of headers and content padding.
+
+**Sizes**
+
+```tsx
+<Accordion size="sm">...</Accordion>
+<Accordion size="md">...</Accordion>
+<Accordion size="lg">...</Accordion>
+```
+
+| Size | Use case                  |
+| ---- | ------------------------- |
+| `sm` | Compact property panels   |
+| `md` | Standard panels (default) |
+| `lg` | Spacious settings pages   |
+
+## Gap
+
+Add spacing between accordion items using the `gap` prop (in pixels).
+
+**Gap**
+
+```tsx
+<Accordion gap={4}>
+  <AccordionItem value="a">
+    <AccordionTrigger>Section A</AccordionTrigger>
+    <AccordionContent>Content A</AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="b">
+    <AccordionTrigger>Section B</AccordionTrigger>
+    <AccordionContent>Content B</AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+## Trigger with Icon and Actions
+
+`AccordionTrigger` supports an `icon` slot for a leading icon and an `actions` slot for interactive elements on the right side. Clicking actions does not toggle the accordion.
+
+**Trigger with Icon and Actions**
+
+```tsx
+<Accordion defaultValue="scene">
+  <AccordionItem value="scene">
+    <AccordionTrigger
+      icon={<SceneIcon />}
+      actions={
+        <IconButton
+          icon={<SettingsIcon />}
+          size="sm"
+          onClick={() => openSettings()}
+        />
+      }
+    >
+      Scene
+    </AccordionTrigger>
+    <AccordionContent>Scene properties...</AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+## Custom Indicator
+
+Replace the default chevron indicator or hide it entirely by passing `null`.
+
+**Custom Indicator**
+
+```tsx
+{
+  /* Custom indicator */
+}
+<AccordionTrigger indicator={<PlusMinusIcon />}>
+  Custom Indicator
+</AccordionTrigger>;
+
+{
+  /* No indicator */
+}
+<AccordionTrigger indicator={null}>No Chevron</AccordionTrigger>;
+```
+
+## Keep Content Mounted
+
+By default, collapsed content is unmounted from the DOM. Set `keepMounted` to keep it rendered but hidden, preserving internal state.
+
+**Keep Content Mounted**
+
+```tsx
+<AccordionContent keepMounted>
+  <FormWithState />
+</AccordionContent>
+```
+
+## Disabled Items
+
+Disable individual accordion items to prevent expansion.
+
+**Disabled Items**
+
+```tsx
+<AccordionItem value="locked" disabled>
+  <AccordionTrigger>Locked Section</AccordionTrigger>
+  <AccordionContent>This cannot be opened</AccordionContent>
+</AccordionItem>
+```
+
+## Controlled Mode
+
+Pass `value` and `onChange` to control the expanded state externally.
+
+**Controlled Mode**
+
+```tsx
+const [expanded, setExpanded] = useState<string>('section-1');
+
+<Accordion value={expanded} onChange={val => setExpanded(val as string)}>
+  <AccordionItem value="section-1">
+    <AccordionTrigger>Section 1</AccordionTrigger>
+    <AccordionContent>Content 1</AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="section-2">
+    <AccordionTrigger>Section 2</AccordionTrigger>
+    <AccordionContent>Content 2</AccordionContent>
+  </AccordionItem>
+</Accordion>;
+```
+
+For multiple mode, `value` and `onChange` work with string arrays.
+
+```tsx
+const [expanded, setExpanded] = useState<string[]>(['a', 'b']);
+
+<Accordion
+  multiple
+  value={expanded}
+  onChange={val => setExpanded(val as string[])}
+>
+  ...
+</Accordion>;
+```
+
+## Props
+
+### Accordion
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | AccordionItem children. Required. |
+| `value` | `string \| string[]` | — | Controlled expanded item(s). String for single mode, string array for multiple mode. |
+| `defaultValue` | `string \| string[]` | — | Default expanded item(s) for uncontrolled mode. |
+| `multiple` | `boolean` | `false` | Whether multiple items can be expanded simultaneously. |
+| `collapsible` | `boolean` | `false` | Whether all items can be collapsed in single mode. When false, one item must remain open. |
+| `variant` | `'default' \| 'ghost' \| 'filled'` | `'default'` | Visual variant applied to all accordion headers. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Size controlling header and content density. |
+| `gap` | `number` | `0` | Gap between accordion items in pixels. |
+| `width` | `number \| string` | `'100%'` | Width of the accordion. Number → px, string → CSS value. Defaults to filling the parent so layout stays stable regardless of which item is expanded. |
+| `onChange` | `(value: string \| string[]) => void` | — | Callback when expanded items change. Returns a string in single mode, string array in multiple mode. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the root div element. |
+
+### AccordionItem
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `string` | — | Unique identifier for this item. Must match the value used in Accordion's value/defaultValue. Required. |
+| `disabled` | `boolean` | `false` | Whether this item is disabled (cannot be expanded or collapsed). |
+| `children` | `ReactNode` | — | AccordionTrigger and AccordionContent children. Required. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the item div element. |
+
+### AccordionTrigger
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Header content, typically a text label. Required. |
+| `icon` | `ReactNode` | — | Icon element displayed before the label. |
+| `actions` | `ReactNode` | — | Action elements rendered on the right side of the header. Clicks on actions do not toggle the accordion. |
+| `indicator` | `ReactNode \| null` | — | Custom chevron indicator element. Pass null to hide the indicator entirely. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the trigger button element. |
+
+### AccordionContent
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `ReactNode` | — | Collapsible content. Required. |
+| `keepMounted` | `boolean` | `false` | Whether to keep content in the DOM when collapsed. Useful for preserving form state. |
+| `className` | `string` | — | Additional CSS class names. |
+| `style` | `CSSProperties` | — | Inline styles. |
+| `testId` | `string` | — | Test identifier for automated testing. |
+| `ref` | `Ref` | — | Ref to the content body div element. |
+
+## Accessibility
+
+- Trigger renders as a native `<button>` element with `aria-expanded` and `aria-controls` attributes
+- Content region has `role="region"` and `aria-labelledby` linking back to its trigger
+- Disabled items set `aria-disabled` and the native `disabled` attribute on the trigger button
+- Collapsed content uses the `hidden` attribute when not expanded
+- Keyboard navigation: triggers are focusable and activate on Enter or Space
+- Each trigger/content pair shares generated ARIA IDs for correct association

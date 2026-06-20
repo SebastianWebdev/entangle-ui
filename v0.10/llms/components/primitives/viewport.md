@@ -1,0 +1,386 @@
+# Viewport
+> Pan/zoom canvas + HTML container for editor-style surfaces — node graphs, timelines, 2D world editors. Multi-layer rendering, world/screen overlays, marquee selection.
+
+`Viewport` is the foundation primitive for editor-style 2D surfaces. It combines pan/zoom transform, perf-isolated canvas layers, world-anchored HTML, screen-space overlays, and marquee selection into a single composable primitive. Built to be the base for `NodeGraph`, `Timeline`, and similar surfaces.
+
+**Live Preview**
+
+## Import
+
+```tsx
+import {
+  Viewport,
+  ViewportLayer,
+  ViewportWorld,
+  ViewportOverlay,
+  useViewportContext,
+  worldToScreen,
+  screenToWorld,
+} from 'entangle-ui';
+```
+
+## Quick start
+
+```tsx
+<Viewport responsive>
+  <ViewportLayer
+    name="grid"
+    draw={(ctx, { size, transform, theme }) => {
+      // canvas drawing — runs only when transform/size/invalidateOn change
+    }}
+  />
+  <ViewportWorld>
+    <div style={{ position: 'absolute', left: 100, top: 200 }}>
+      Node at world (100, 200)
+    </div>
+  </ViewportWorld>
+  <ViewportOverlay>
+    <Toolbar />
+  </ViewportOverlay>
+</Viewport>
+```
+
+## Transform model
+
+The viewport transform is a screen-space translation + uniform scale:
+
+```ts
+// screenPos = worldPos * zoom + (x, y)
+type ViewportTransform = { x: number; y: number; zoom: number };
+```
+
+Use `worldToScreen` / `screenToWorld` (re-exported pure functions) to convert between spaces in your own code.
+
+### Controlled vs uncontrolled
+
+```tsx
+// Controlled
+const [transform, setTransform] = useState({ x: 0, y: 0, zoom: 1 });
+<Viewport transform={transform} onTransformChange={setTransform} />
+
+// Uncontrolled
+<Viewport defaultTransform={{ x: 0, y: 0, zoom: 1 }} onTransformChange={log} />
+```
+
+Zoom is automatically clamped to `[minZoom, maxZoom]` (defaults `0.1`–`8`).
+
+## Gestures
+
+- **Pan** — middle-mouse drag by default. Hold **Space** + left-drag for laptop-friendly pan.
+- **Zoom** — wheel scroll (zooms toward cursor). Trackpad pinch is supported via the browser's `ctrl+wheel` convention.
+- **Marquee** — opt-in via `selectionRect={{ enabled: true }}`. Shift-drag for additive selection.
+
+```tsx
+<Viewport
+  pan={{ button: 'middle', spaceKey: true }}
+  zoom={{ wheel: true, pinch: true, speed: 0.0015 }}
+  selectionRect={{ enabled: true, button: 'left', additiveModifier: 'shift' }}
+  onSelectionChange={info => {
+    // info.rect is in world coordinates, normalized
+    // info.additive is true when the modifier was held
+    // info.inProgress is false on the final pointerup
+  }}
+/>
+```
+
+Set `pan={false}` or `zoom={false}` to disable a gesture family entirely.
+
+## Layers (perf isolation)
+
+Each `<ViewportLayer>` is an independent `<canvas>` with its own draw cycle. A layer redraws when:
+
+- The viewport transform or size changes,
+- Any value in its `invalidateOn` array changes, or
+- `handle.invalidate(layerName)` is called.
+
+Stack layers in JSX order — earlier = behind:
+
+```tsx
+<Viewport>
+  <ViewportLayer
+    name="grid"
+    draw={drawGrid}
+    invalidateOn={[gridStep]} // only redraws when gridStep changes (+ transform/size)
+  />
+  <ViewportLayer
+    name="content"
+    draw={drawNodes}
+    invalidateOn={[nodes]} // unaffected by gridStep changes
+  />
+</Viewport>
+```
+
+The `draw` callback receives:
+
+```ts
+draw(ctx, {
+  size, // { width, height } in CSS px
+  transform, // current transform
+  theme, // resolved theme colors (CanvasThemeColors)
+  worldToScreen, // helper bound to current transform
+  screenToWorld, // inverse helper
+});
+```
+
+DPR scaling is applied automatically — draw using CSS-pixel coordinates.
+
+## World vs Overlay
+
+- `<ViewportWorld>` — HTML children positioned in **world coordinates**. The container is transformed by `translate(x, y) scale(zoom)`, so children with `position: absolute` and world-space `left`/`top` follow pan/zoom for free.
+- `<ViewportOverlay>` — HTML children in **screen coordinates**, rendered above all canvas layers and world children. Use for toolbars, minimap, status text.
+
+Both wrappers default to `pointer-events: none`; child elements opt in with `pointerEvents: 'auto'` so the Viewport's pan/zoom/marquee gestures keep working on the background.
+
+## Imperative API
+
+`<Viewport>` accepts a ref to `ViewportHandle`:
+
+```tsx
+const ref = useRef<ViewportHandle>(null);
+ref.current?.fitToContent({ x: 0, y: 0, width: 400, height: 300 }, 32);
+ref.current?.zoomToRect({ x: 100, y: 100, width: 50, height: 50 });
+ref.current?.centerOn({ x: 200, y: 150 }, 2);
+ref.current?.invalidate('grid'); // force redraw of one layer
+ref.current?.getTransform();
+ref.current?.getSize();
+```
+
+## Reading state from children — `useViewportContext`
+
+Any child rendered inside `<Viewport>` can read live state:
+
+```tsx
+function CursorReadout() {
+  const { transform, size, isPanning } = useViewportContext();
+  return (
+    <span>
+      zoom: {transform.zoom.toFixed(2)}x · {size.width}×{size.height}
+      {isPanning ? ' · panning' : ''}
+    </span>
+  );
+}
+```
+
+Use this in custom Overlay components (minimap, HUD, etc.) instead of prop-drilling transform.
+
+---
+
+## Recipes — building features we intentionally left out of v1
+
+`Viewport` ships **mechanisms, not styles**. The following features were deliberately excluded from the v1 surface because they're either opinionated (inertia, snap) or scene-specific (minimap). Each can be implemented in user code with the primitives `Viewport` does provide.
+
+### Snap-to-zoom
+
+Snap the zoom level to discrete stops as the user scrolls. All you need is controlled `transform`:
+
+```tsx
+const ZOOM_STOPS = [0.25, 0.5, 1, 2, 4];
+
+function snapZoom(z: number) {
+  return ZOOM_STOPS.reduce((a, b) =>
+    Math.abs(b - z) < Math.abs(a - z) ? b : a
+  );
+}
+
+const [t, setT] = useState({ x: 0, y: 0, zoom: 1 });
+
+<Viewport
+  transform={t}
+  onTransformChange={next => setT({ ...next, zoom: snapZoom(next.zoom) })}
+/>;
+```
+
+The same shape works for snapping `x`/`y` translation to a grid step.
+
+### Minimap
+
+A minimap is just an `<ViewportOverlay>` child that subscribes to viewport state via `useViewportContext` and renders its own small `<canvas>`. `handle.centerOn` makes the minimap clickable:
+
+```tsx
+function Minimap({ worldBounds }: { worldBounds: WorldRect }) {
+  const { transform, size, handle } = useViewportContext();
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Scale world bounds into the minimap's box (e.g. 120x80)
+    const scale = Math.min(120 / worldBounds.width, 80 / worldBounds.height);
+    ctx.clearRect(0, 0, 120, 80);
+
+    // Draw your scene at this scale (e.g. nodes as rectangles)
+    // drawSceneScaled(ctx, scale)
+
+    // Draw current viewport rectangle
+    const viewportWorld = {
+      x: -transform.x / transform.zoom,
+      y: -transform.y / transform.zoom,
+      width: size.width / transform.zoom,
+      height: size.height / transform.zoom,
+    };
+    ctx.strokeStyle = 'cyan';
+    ctx.strokeRect(
+      (viewportWorld.x - worldBounds.x) * scale,
+      (viewportWorld.y - worldBounds.y) * scale,
+      viewportWorld.width * scale,
+      viewportWorld.height * scale
+    );
+  }, [transform, size, worldBounds]);
+
+  return (
+    <canvas
+      ref={ref}
+      width={120}
+      height={80}
+      style={{ pointerEvents: 'auto', cursor: 'crosshair' }}
+      onPointerDown={e => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const localX = e.clientX - rect.left;
+        const localY = e.clientY - rect.top;
+        const scale = Math.min(
+          120 / worldBounds.width,
+          80 / worldBounds.height
+        );
+        handle.centerOn({
+          x: worldBounds.x + localX / scale,
+          y: worldBounds.y + localY / scale,
+        });
+      }}
+    />
+  );
+}
+
+<Viewport>
+  {/* layers + world... */}
+  <ViewportOverlay>
+    <div
+      style={{
+        position: 'absolute',
+        bottom: 8,
+        right: 8,
+        pointerEvents: 'auto',
+      }}
+    >
+      <Minimap worldBounds={{ x: 0, y: 0, width: 1000, height: 800 }} />
+    </div>
+  </ViewportOverlay>
+</Viewport>;
+```
+
+### Inertia (momentum scrolling)
+
+`onPanEnd` reports the gesture's end velocity in screen px/ms. Animate a decaying translation on top of the controlled transform:
+
+```tsx
+function useInertia(handleRef: React.RefObject<ViewportHandle>) {
+  const rafRef = useRef(0);
+
+  const onPanStart = () => cancelAnimationFrame(rafRef.current);
+
+  const onPanEnd = ({ velocity }: ViewportPanEndInfo) => {
+    cancelAnimationFrame(rafRef.current);
+    let { x: vx, y: vy } = velocity;
+    let last = performance.now();
+    const step = (): void => {
+      const now = performance.now();
+      const dt = now - last;
+      last = now;
+      vx *= 0.92;
+      vy *= 0.92;
+      if (Math.hypot(vx, vy) < 0.01) return;
+      const t = handleRef.current?.getTransform();
+      if (!t) return;
+      handleRef.current!.centerOn(
+        {
+          x:
+            -(t.x + vx * dt) / t.zoom +
+            handleRef.current!.getSize().width / 2 / t.zoom,
+          y:
+            -(t.y + vy * dt) / t.zoom +
+            handleRef.current!.getSize().height / 2 / t.zoom,
+        },
+        t.zoom
+      );
+      rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+  };
+
+  return { onPanStart, onPanEnd };
+}
+
+const ref = useRef<ViewportHandle>(null);
+const inertia = useInertia(ref);
+<Viewport ref={ref} {...inertia} />;
+```
+
+Replace the `0.92` constant with whatever deceleration curve fits your editor feel.
+
+---
+
+## Why these aren't built in
+
+| Feature     | Why it lives in user code                                                                                                                                        |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Snap**    | Snap rules vary per editor (frame-rate stops in Timeline vs zoom presets in NodeGraph). One built-in rule would be opinionated; the recipe above is a few lines. |
+| **Minimap** | A minimap needs to know **what to draw at small scale** — that's scene-specific. The `Overlay` slot + `useViewportContext` give you everything else.             |
+| **Inertia** | Deceleration feel is a per-product decision (Figma vs Blender vs custom). `onPanEnd` exposes the velocity so any curve works.                                    |
+
+If you find yourself copy-pasting the same recipe across three components, that's the signal to ask for it as a first-class prop.
+
+## API reference
+
+### `<Viewport>` props
+
+```ts
+interface ViewportProps {
+  transform?: ViewportTransform;
+  defaultTransform?: ViewportTransform;
+  onTransformChange?: (t: ViewportTransform) => void;
+  minZoom?: number; // default 0.1
+  maxZoom?: number; // default 8
+  pan?: ViewportPanConfig | false;
+  zoom?: ViewportZoomConfig | false;
+  selectionRect?: ViewportSelectionConfig;
+  onSelectionChange?: (info: ViewportSelectionEvent) => void;
+  onPanStart?: () => void;
+  onPanEnd?: (info: ViewportPanEndInfo) => void;
+  onZoomStart?: () => void;
+  onZoomEnd?: () => void;
+  responsive?: boolean; // default false
+  height?: number; // default 300, ignored when responsive
+  disabled?: boolean;
+  role?: string;
+  ariaLabel?: string;
+  ariaRoledescription?: string;
+  ref?: React.Ref<ViewportHandle>;
+}
+```
+
+### `<ViewportLayer>` props
+
+```ts
+interface ViewportLayerProps {
+  name: string;
+  draw: (ctx: CanvasRenderingContext2D, info: ViewportLayerDrawInfo) => void;
+  invalidateOn?: ReadonlyArray<unknown>;
+  paused?: boolean;
+  className?: string;
+}
+```
+
+### `ViewportHandle`
+
+```ts
+interface ViewportHandle {
+  fitToContent(bounds: WorldRect, padding?: number): void;
+  zoomToRect(rect: WorldRect, padding?: number): void;
+  centerOn(point: Point2D, zoom?: number): void;
+  getTransform(): ViewportTransform;
+  getSize(): ViewportSize;
+  invalidate(layerName?: string): void;
+}
+```
