@@ -1,5 +1,6 @@
+import { useLayoutEffect } from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { render, renderHook, act } from '@testing-library/react';
 import { useEventCallback } from './useEventCallback';
 
 describe('useEventCallback', () => {
@@ -60,5 +61,32 @@ describe('useEventCallback', () => {
     });
 
     expect(spy).toHaveBeenCalledWith('x');
+  });
+
+  it('exposes the latest callback to a child layout effect in the same commit', () => {
+    // Backed by useInsertionEffect, the stored callback refreshes before any
+    // layout effect runs — so a child reading it in useLayoutEffect during the
+    // same commit observes the latest version. A passive (useEffect / useLatest)
+    // backing would still be one render stale here.
+    const seen: string[] = [];
+
+    function Child({ cb }: { cb: () => string }) {
+      // No dependency array: re-run on every commit. The `cb` identity is
+      // stable, so a [cb] dependency would never re-fire and defeat the test.
+      useLayoutEffect(() => {
+        seen.push(cb());
+      });
+      return null;
+    }
+
+    function Parent({ value }: { value: string }) {
+      const cb = useEventCallback(() => value);
+      return <Child cb={cb} />;
+    }
+
+    const { rerender } = render(<Parent value="first" />);
+    rerender(<Parent value="second" />);
+
+    expect(seen).toEqual(['first', 'second']);
   });
 });

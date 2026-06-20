@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { useEventCallback } from '@/hooks/useEventCallback';
+
 import type React from 'react';
 
 export interface UseListboxNavOptions<T> {
@@ -100,7 +102,6 @@ export function useListboxNav<T>(
   const itemsRef = useRef(items);
   const isItemDisabledRef = useRef(isItemDisabled);
   const onSelectRef = useRef(onSelect);
-  const onEscapeRef = useRef(onEscape);
   const loopRef = useRef(loop);
 
   useEffect(() => {
@@ -112,9 +113,6 @@ export function useListboxNav<T>(
   useEffect(() => {
     onSelectRef.current = onSelect;
   }, [onSelect]);
-  useEffect(() => {
-    onEscapeRef.current = onEscape;
-  }, [onEscape]);
   useEffect(() => {
     loopRef.current = loop;
   }, [loop]);
@@ -221,6 +219,18 @@ export function useListboxNav<T>(
     });
   }, []);
 
+  // Escape handling via useEventCallback: stable identity (so handleKeyDown
+  // does not churn when callers pass an inline onEscape) while always seeing
+  // the latest onEscape and reporting whether it actually handled the key.
+  const handleEscape = useEventCallback(
+    (event: KeyboardEvent | React.KeyboardEvent): boolean => {
+      if (!onEscape) return false;
+      event.preventDefault();
+      onEscape();
+      return true;
+    }
+  );
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent | React.KeyboardEvent): boolean => {
       switch (event.key) {
@@ -245,17 +255,12 @@ export function useListboxNav<T>(
           selectActive();
           return true;
         case 'Escape':
-          if (onEscapeRef.current) {
-            event.preventDefault();
-            onEscapeRef.current();
-            return true;
-          }
-          return false;
+          return handleEscape(event);
         default:
           return false;
       }
     },
-    [next, prev, first, last, selectActive]
+    [next, prev, first, last, selectActive, handleEscape]
   );
 
   return {

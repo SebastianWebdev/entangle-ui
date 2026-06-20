@@ -1,0 +1,52 @@
+---
+title: useIsMounted
+description: Stable getter that reports whether the component is still mounted.
+---
+
+import ComponentPreview from '../../../components/ComponentPreview.astro';
+import UseIsMountedDemo from '../../../components/demos/hooks/UseIsMountedDemo';
+
+`useIsMounted` returns a **stable getter** that reports whether the component is still mounted. Call it inside async continuations — promises, timers, fetches — before committing state, so a resolution that lands after unmount becomes a no-op instead of a "set state on an unmounted component" warning.
+
+<ComponentPreview title="Live preview">
+  <UseIsMountedDemo client:only="react" />
+</ComponentPreview>
+
+## Import
+
+```ts
+import { useIsMounted } from 'entangle-ui';
+```
+
+## Signature
+
+```ts
+function useIsMounted(): () => boolean;
+```
+
+## Usage
+
+```tsx
+function Profile({ id }: { id: string }) {
+  const isMounted = useIsMounted();
+  const [data, setData] = useState<User | null>(null);
+
+  useEffect(() => {
+    void fetchUser(id).then(user => {
+      if (isMounted()) setData(user);
+    });
+  }, [id, isMounted]);
+
+  // ...
+}
+```
+
+## Returns
+
+A getter with a **stable identity** for the component's lifetime. It reports `false` until the mount effect commits and `false` again after unmount — which also covers the double mount/unmount of React StrictMode. Because the identity never changes, it is safe to include in (or omit from) dependency arrays without churn.
+
+## Common pitfalls
+
+- **Prefer real cancellation when you can.** If the async source supports it (`AbortController` for `fetch`, `clearTimeout` for a timer, an effect cleanup return), cancel the work instead of letting it resolve and discarding the result. Reach for `useIsMounted` when the source genuinely cannot be cancelled — e.g. `navigator.clipboard.writeText()`.
+- **Do not read it during render.** It reflects committed lifecycle state through a ref; call it inside effects, timers, and async continuations, not in the render body.
+- **It guards, it does not abort.** The pending work still runs to completion; you are only skipping the state write afterwards.

@@ -74,7 +74,7 @@ useEffect(() => {
 
 ## Fuzzy filtering
 
-Typing in the input fuzzy-matches against each item's `label`, `description`, and `keywords`. The matcher scores subsequence hits and rewards matches that land on word boundaries — so "of" matches "**O**pen **F**ile" higher than "Pre**of**". The filter is debounced (150 ms by default) and re-sorts the list by score on every keystroke.
+Typing in the input fuzzy-matches against each item's `label`, `description`, and `keywords`. The matcher scores subsequence hits and rewards matches that land on word boundaries — so "of" matches "**O**pen **F**ile" higher than "Pre**of**". The filter re-sorts the list by score on every keystroke, and is wrapped in React's `useDeferredValue` so the input stays responsive while large command lists re-filter.
 
 ```tsx
 <CommandPalette
@@ -88,8 +88,6 @@ Typing in the input fuzzy-matches against each item's `label`, `description`, an
   ]}
 />
 ```
-
-The filter is wrapped in React's `useDeferredValue`, so the input stays responsive while large command lists re-filter on each keystroke.
 
 ## Groups
 

@@ -4,6 +4,7 @@ import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, { useState, useCallback } from 'react';
 
 import { CheckIcon, CopyIcon } from '@/components/Icons';
+import { useIsMounted } from '@/hooks/useIsMounted';
 import { cx } from '@/utils/cx';
 
 import {
@@ -36,20 +37,24 @@ export const ChatCodeBlock = /*#__PURE__*/ React.memo<ChatCodeBlockProps>(
     ...rest
   }) => {
     const [copied, setCopied] = useState(false);
+    const isMounted = useIsMounted();
 
     const handleCopy = useCallback(() => {
       navigator.clipboard
         .writeText(code)
         .then(() => {
+          // clipboard.writeText can't be cancelled, so guard the state writes:
+          // the block may unmount before it resolves, or within the 2s reset.
+          if (!isMounted()) return;
           setCopied(true);
           setTimeout(() => {
-            setCopied(false);
+            if (isMounted()) setCopied(false);
           }, 2000);
         })
         .catch(() => {
           // Fallback: older browsers — no-op
         });
-    }, [code]);
+    }, [code, isMounted]);
 
     const lines = code.split('\n');
     const showHeader = language != null || copyable || actions != null;

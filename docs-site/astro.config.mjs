@@ -322,12 +322,17 @@ export default defineConfig({
               slug: 'hooks/use-debounced-value',
             },
             { label: 'useDisclosure', slug: 'hooks/use-disclosure' },
+            {
+              label: 'useEventCallback',
+              slug: 'hooks/use-event-callback',
+            },
             { label: 'useFocusTrap', slug: 'hooks/use-focus-trap' },
             { label: 'useHotkey', slug: 'hooks/use-hotkey' },
             {
               label: 'useIntersectionObserver',
               slug: 'hooks/use-intersection-observer',
             },
+            { label: 'useIsMounted', slug: 'hooks/use-is-mounted' },
             { label: 'useKeyboard', slug: 'hooks/use-keyboard' },
             { label: 'useListboxNav', slug: 'hooks/use-listbox-nav' },
             { label: 'useMediaQuery', slug: 'hooks/use-media-query' },
