@@ -29,6 +29,9 @@ export default defineConfig({
       components: {
         Hero: './src/components/overrides/Hero.astro',
         SiteTitle: './src/components/overrides/SiteTitle.astro',
+        // Emits the Entangle UI component CSS globally. All demos hydrate with
+        // `client:only`, whose CSS Astro does not collect — see Head.astro.
+        Head: './src/components/overrides/Head.astro',
       },
       social: [
         {
