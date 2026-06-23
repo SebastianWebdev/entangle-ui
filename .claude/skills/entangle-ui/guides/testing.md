@@ -160,12 +160,12 @@ it('renders a slider', () => {
 
 ## Troubleshooting
 
-| Symptom                                                       | Cause                                  | Fix                                                              |
-| ------------------------------------------------------------ | -------------------------------------- | --------------------------------------------------------------- |
-| `Unknown file extension ".css"` / `Cannot find module './*.css'` | Package is externalized                | Add `server.deps.inline: ['entangle-ui']`                       |
-| `getPropertyValue('--etui-…')` returns `''`                   | Theme stylesheet not loaded            | `import 'entangle-ui/styles.css'` in the setup file             |
-| `ResizeObserver is not defined`                              | jsdom has no observers                 | Add the `ResizeObserver` stub above                             |
-| `window.matchMedia is not a function`                        | jsdom has no `matchMedia`              | Add the `matchMedia` stub above                                 |
+| Symptom                                                          | Cause                       | Fix                                                 |
+| ---------------------------------------------------------------- | --------------------------- | --------------------------------------------------- |
+| `Unknown file extension ".css"` / `Cannot find module './*.css'` | Package is externalized     | Add `server.deps.inline: ['entangle-ui']`           |
+| `getPropertyValue('--etui-…')` returns `''`                      | Theme stylesheet not loaded | `import 'entangle-ui/styles.css'` in the setup file |
+| `ResizeObserver is not defined`                                  | jsdom has no observers      | Add the `ResizeObserver` stub above                 |
+| `window.matchMedia is not a function`                            | jsdom has no `matchMedia`   | Add the `matchMedia` stub above                     |
 
 ## See also
 

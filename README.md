@@ -24,17 +24,19 @@ npm install entangle-ui
 
 Peer dependencies:
 
-- `react >= 19.1.0`
-- `react-dom >= 19.1.0`
+- `react >= 19.2.0`
+- `react-dom >= 19.2.0`
 - `@base-ui/react ^1.1.0`
 - `@floating-ui/react ^0.27.17`
+- `@tanstack/react-virtual ^3.13.0`
+- `@vanilla-extract/css ^1.18.0`
 - `@vanilla-extract/dynamic ^2.1.5`
 - `@vanilla-extract/recipes ^0.5.7`
 
 ## Quick Start
 
 ```tsx
-import 'entangle-ui/darkTheme.css'; // registers --etui-* CSS custom properties on :root
+import 'entangle-ui/styles.css'; // registers the dark theme (--etui-* custom properties) on :root
 
 import { AppShell, MenuBar, Toolbar, StatusBar } from 'entangle-ui';
 
@@ -79,10 +81,10 @@ Entangle UI uses [Vanilla Extract](https://vanilla-extract.style/) for zero-runt
 
 ### Default dark theme
 
-Import the dark theme CSS to register all `--etui-*` variables on `:root`:
+Import the bundled stylesheet once to register all `--etui-*` variables on `:root`:
 
 ```ts
-import 'entangle-ui/darkTheme.css';
+import 'entangle-ui/styles.css';
 ```
 
 ### Custom themes

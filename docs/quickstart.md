@@ -5,7 +5,7 @@ Get up and running with Entangle UI in under five minutes.
 ## Installation
 
 ```bash
-npm install entangle-ui@alpha
+npm install entangle-ui
 ```
 
 ### Peer Dependencies
@@ -13,15 +13,19 @@ npm install entangle-ui@alpha
 Entangle UI requires the following peer dependencies:
 
 ```bash
-npm install react react-dom @base-ui/react @floating-ui/react
+npm install react react-dom @base-ui/react @floating-ui/react @tanstack/react-virtual @vanilla-extract/css @vanilla-extract/dynamic @vanilla-extract/recipes
 ```
 
-| Package              | Version    |
-| -------------------- | ---------- |
-| `react`              | `>=19.1.0` |
-| `react-dom`          | `>=19.1.0` |
-| `@base-ui/react`     | `^1.1.0`   |
-| `@floating-ui/react` | `^0.27.17` |
+| Package                    | Version    |
+| -------------------------- | ---------- |
+| `react`                    | `>=19.2.0` |
+| `react-dom`                | `>=19.2.0` |
+| `@base-ui/react`           | `^1.1.0`   |
+| `@floating-ui/react`       | `^0.27.17` |
+| `@tanstack/react-virtual`  | `^3.13.0`  |
+| `@vanilla-extract/css`     | `^1.18.0`  |
+| `@vanilla-extract/dynamic` | `^2.1.5`   |
+| `@vanilla-extract/recipes` | `^0.5.7`   |
 
 > Entangle UI is ESM-only (`"type": "module"`). Make sure your bundler supports ES modules.
 
@@ -30,7 +34,7 @@ npm install react react-dom @base-ui/react @floating-ui/react
 Import the dark theme CSS to register all `--etui-*` CSS custom properties on `:root`. No wrapper component is needed for the default look:
 
 ```tsx
-import 'entangle-ui/darkTheme.css';
+import 'entangle-ui/styles.css';
 import { Button } from 'entangle-ui';
 
 function App() {
@@ -54,7 +58,7 @@ Override tokens with plain CSS on any selector:
 Or use `VanillaThemeProvider` for scoped overrides:
 
 ```tsx
-import 'entangle-ui/darkTheme.css';
+import 'entangle-ui/styles.css';
 import { VanillaThemeProvider } from 'entangle-ui';
 
 function App() {

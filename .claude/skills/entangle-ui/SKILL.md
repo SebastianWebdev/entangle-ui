@@ -19,19 +19,15 @@ Entangle UI is a React 19 component library for professional editor interfaces (
 ## Quick install
 
 ```bash
-npm install entangle-ui @base-ui/react @floating-ui/react
+npm install entangle-ui react react-dom @base-ui/react @floating-ui/react @tanstack/react-virtual @vanilla-extract/css @vanilla-extract/dynamic @vanilla-extract/recipes
 ```
 
 ```tsx
 import 'entangle-ui/styles.css';
-import { ThemeProvider, Button } from 'entangle-ui';
+import { Button } from 'entangle-ui';
 
 export function App() {
-  return (
-    <ThemeProvider>
-      <Button variant="filled">Hello</Button>
-    </ThemeProvider>
-  );
+  return <Button variant="filled">Hello</Button>;
 }
 ```
 
@@ -183,8 +179,8 @@ export function App() {
 
 ## Authoring rules
 
-- Always wrap the app once in `<ThemeProvider>` (defaults to dark theme).
-- Import the bundled stylesheet exactly once: `import 'entangle-ui/styles.css'`.
+- Import the bundled stylesheet exactly once at the app entry: `import 'entangle-ui/styles.css'` — this registers the default dark theme on `:root`; no `<ThemeProvider>` wrapper is required for it.
+- Wrap the app in `<ThemeProvider>` only when you need its runtime behaviors (keyboard context, opt-in `globalScrollbars`) or scoped theme overrides.
 - Prefer the typed component props documented per file. Do not invent props.
 - For custom styling, read `guides/styling.md` and `guides/theming.md` before adding new styles; theme tokens are exposed as `vars.*` from `@/theme/contract.css`.
 - Components are tree-shakeable; import directly from `entangle-ui`.
