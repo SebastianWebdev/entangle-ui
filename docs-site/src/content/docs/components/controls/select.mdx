@@ -15,6 +15,8 @@ import SelectDemo, {
   SelectSizes,
   SelectLabels,
   SelectError,
+  SelectFullWidth,
+  SelectContentSizedDropdown,
 } from '../../../../components/demos/controls/SelectDemo';
 
 Dropdown select component for choosing a single value from a list. Supports searchable filtering, grouped options, keyboard navigation, clearable selection, and multiple visual variants. Built for professional editor interfaces.
@@ -158,6 +160,53 @@ Each option can include an icon rendered before its label.
   ]}
   value={objectType}
   onChange={setObjectType}
+/>
+```
+
+## Full Width
+
+By default the select shrinks to the width of its content, which is convenient
+inside toolbars but means it collapses when placed in a flex row. Set
+`fullWidth` to stretch the trigger to fill its container — ideal for property
+panels and forms.
+
+<ComponentPreview title="Full Width">
+  <SelectFullWidth client:only="react" />
+</ComponentPreview>
+
+```tsx
+<Select
+  fullWidth
+  label="Framework"
+  options={frameworks}
+  value={v}
+  onChange={setV}
+/>
+```
+
+## Content-Sized Dropdown
+
+The open dropdown sizes itself to its widest option (clamped to the viewport),
+so long option labels are never clipped even when the trigger is narrow. Use
+`minDropdownWidth` to set a floor and `fullWidth` to also widen the trigger.
+
+<ComponentPreview title="Content-Sized Dropdown">
+  <SelectContentSizedDropdown client:only="react" />
+</ComponentPreview>
+
+```tsx
+// The trigger is 160px, but the dropdown grows to fit the longest label.
+<Select
+  label="Shading Model"
+  options={[
+    { value: 'std', label: 'Standard' },
+    {
+      value: 'pbr',
+      label: 'Physically Based Rendering (Metallic / Roughness)',
+    },
+  ]}
+  value={model}
+  onChange={setModel}
 />
 ```
 
@@ -343,7 +392,15 @@ Use the `name` prop for native form submission. A hidden `<input>` is rendered w
     {
       name: 'minDropdownWidth',
       type: 'number',
-      description: 'Minimum width of the dropdown in pixels.',
+      description:
+        'Minimum width of the dropdown in pixels. The dropdown still grows past this to fit its content.',
+    },
+    {
+      name: 'fullWidth',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether the select stretches to fill the width of its container.',
     },
     {
       name: 'name',

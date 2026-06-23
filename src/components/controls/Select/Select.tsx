@@ -120,6 +120,7 @@ export function Select<T extends string = string>({
   clearable = false,
   maxDropdownHeight = 240,
   minDropdownWidth,
+  fullWidth = false,
   name,
   onChange,
   onOpenChange,
@@ -178,14 +179,21 @@ export function Select<T extends string = string>({
     const openAbove =
       spaceBelow < maxDropdownHeight + 8 && rect.top > spaceBelow;
 
-    const dropdownW =
-      minDropdownWidth !== undefined
-        ? Math.max(rect.width, minDropdownWidth)
-        : rect.width;
+    // The dropdown sizes to its content (`width: max-content` in CSS). Anchor
+    // that growth between a minimum (at least the trigger, and `minDropdownWidth`
+    // when set) and a maximum that keeps it inside the viewport so long option
+    // labels are never clipped by a narrow trigger.
+    const VIEWPORT_MARGIN = 8;
+    const minWidth = Math.max(rect.width, minDropdownWidth ?? 0);
+    const maxWidth = Math.max(
+      minWidth,
+      window.innerWidth - rect.left - VIEWPORT_MARGIN
+    );
 
     setDropdownStyleState({
       left: rect.left,
-      width: dropdownW,
+      minWidth,
+      maxWidth,
       ...(openAbove
         ? {
             bottom: window.innerHeight - rect.top + 4,
@@ -477,7 +485,10 @@ export function Select<T extends string = string>({
   };
 
   return (
-    <div className={cx(selectContainerStyle, className)} style={style}>
+    <div
+      className={cx(selectContainerStyle, className)}
+      style={{ ...(fullWidth ? { width: '100%' } : null), ...style }}
+    >
       {label && (
         <FormLabel
           id={labelId}
@@ -517,6 +528,7 @@ export function Select<T extends string = string>({
           error,
           hasValue: currentValue !== null,
         })}
+        style={fullWidth ? { width: '100%' } : undefined}
         data-testid={testId}
         {...rest}
       >

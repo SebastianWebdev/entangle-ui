@@ -139,6 +139,14 @@ export interface SelectBaseProps<T extends string = string> extends Omit<
   minDropdownWidth?: number;
 
   /**
+   * Whether the select stretches to fill the width of its container.
+   * Useful inside flex rows or property panels where the select would
+   * otherwise shrink to the width of its selected label.
+   * @default false
+   */
+  fullWidth?: boolean;
+
+  /**
    * Name attribute for form submission
    */
   name?: string;
