@@ -83,6 +83,12 @@ import { GitBranchIcon } from '@/components/Icons/GitBranchIcon';
 import { BugIcon } from '@/components/Icons/BugIcon';
 import { MinusIcon } from '@/components/Icons/MinusIcon';
 import { PinIcon } from '@/components/Icons/PinIcon';
+import { OrbitIcon } from '@/components/Icons/OrbitIcon';
+import { RotateIcon } from '@/components/Icons/RotateIcon';
+import { SpinIcon } from '@/components/Icons/SpinIcon';
+import { CameraIcon } from '@/components/Icons/CameraIcon';
+import { CubeIcon } from '@/components/Icons/CubeIcon';
+import { ZoomFitIcon } from '@/components/Icons/ZoomFitIcon';
 
 interface IconEntry {
   name: string;
@@ -182,6 +188,13 @@ const ICONS: IconEntry[] = [
   // Zoom
   { name: 'ZoomIn', component: ZoomInIcon, category: 'Zoom' },
   { name: 'ZoomOut', component: ZoomOutIcon, category: 'Zoom' },
+  // Viewport & 3D
+  { name: 'Orbit', component: OrbitIcon, category: 'Viewport & 3D' },
+  { name: 'Rotate', component: RotateIcon, category: 'Viewport & 3D' },
+  { name: 'Spin', component: SpinIcon, category: 'Viewport & 3D' },
+  { name: 'Camera', component: CameraIcon, category: 'Viewport & 3D' },
+  { name: 'Cube', component: CubeIcon, category: 'Viewport & 3D' },
+  { name: 'ZoomFit', component: ZoomFitIcon, category: 'Viewport & 3D' },
   // Curves
   {
     name: 'TangentFree',
@@ -229,6 +242,7 @@ const CATEGORIES = [
   'Misc',
   'AI',
   'Zoom',
+  'Viewport & 3D',
   'Curves',
 ];
 
