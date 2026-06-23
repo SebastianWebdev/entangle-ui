@@ -3,6 +3,7 @@
 // src/components/controls/Slider/Slider.tsx
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 import React, { useRef, useCallback, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 import { FormHelperText } from '@/components/form/FormHelperText';
 import { FormLabel } from '@/components/form/FormLabel';
@@ -20,8 +21,7 @@ import {
   thumbPercentageVar,
   ticksStyle,
   tickStyle,
-  tooltipRecipe,
-  tooltipPercentageVar,
+  sliderTooltipRecipe,
 } from './Slider.css';
 
 import type { BaseComponent, Size } from '@/types/common';
@@ -141,6 +141,14 @@ export interface SliderBaseProps extends Omit<BaseComponent, 'onChange'> {
   showTooltip?: boolean;
 
   /**
+   * Placement of the value tooltip relative to the thumb. The tooltip is
+   * portaled to `document.body`, so it is never clipped by an ancestor's
+   * `overflow`.
+   * @default "top"
+   */
+  tooltipPlacement?: 'top' | 'bottom';
+
+  /**
    * Show tick marks along the track
    * @default false
    */
@@ -258,6 +266,7 @@ export const Slider: React.FC<SliderProps> = ({
   unit,
   formatValue,
   showTooltip = true,
+  tooltipPlacement = 'top',
   showTicks = false,
   tickCount = 5,
   className,
@@ -271,6 +280,12 @@ export const Slider: React.FC<SliderProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [showTooltipState, setShowTooltipState] = useState(false);
+  // Viewport coordinates of the portaled value tooltip (null until a drag
+  // starts). Updated only while dragging so the portal stays off the idle path.
+  const [tooltipPos, setTooltipPos] = useState<{
+    left: number;
+    top: number;
+  } | null>(null);
 
   const sliderRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -347,6 +362,25 @@ export const Slider: React.FC<SliderProps> = ({
   );
 
   /**
+   * Computes the portaled tooltip's viewport position for a (snapped) value,
+   * anchored to the thumb. Reads the same track rect the drag math already
+   * reads, so it adds no extra layout pass per frame.
+   */
+  const updateTooltipPos = useCallback(
+    (v: number): void => {
+      const track = trackRef.current;
+      if (!track) return;
+      const rect = track.getBoundingClientRect();
+      const pct = clamp((v - min) / (max - min), 0, 1);
+      setTooltipPos({
+        left: rect.left + pct * rect.width,
+        top: tooltipPlacement === 'bottom' ? rect.bottom : rect.top,
+      });
+    },
+    [min, max, tooltipPlacement]
+  );
+
+  /**
    * Handle mouse down on track or thumb
    */
   const handleMouseDown = useCallback(
@@ -360,13 +394,21 @@ export const Slider: React.FC<SliderProps> = ({
       // Use the current step size (depends on keyboard modifiers)
       const newValue = positionToValue(event.clientX);
       applyValue(newValue);
+      if (showTooltip) updateTooltipPos(newValue);
 
       dragStartRef.current = {
         startX: event.clientX,
         startValue: newValue,
       };
     },
-    [disabled, readOnly, positionToValue, applyValue, showTooltip]
+    [
+      disabled,
+      readOnly,
+      positionToValue,
+      applyValue,
+      showTooltip,
+      updateTooltipPos,
+    ]
   );
 
   /**
@@ -380,9 +422,10 @@ export const Slider: React.FC<SliderProps> = ({
         // Use the current step size (depends on keyboard modifiers)
         const newValue = positionToValue(event.clientX);
         applyValue(newValue);
+        if (showTooltip) updateTooltipPos(newValue);
       });
     },
-    [isDragging, positionToValue, applyValue]
+    [isDragging, positionToValue, applyValue, showTooltip, updateTooltipPos]
   );
 
   /**
@@ -552,16 +595,21 @@ export const Slider: React.FC<SliderProps> = ({
             </div>
           )}
 
-          {showTooltip && (
-            <div
-              className={tooltipRecipe({ visible: showTooltipState })}
-              style={assignInlineVars({
-                [tooltipPercentageVar]: `${percentage}%`,
-              })}
-            >
-              {displayValue}
-            </div>
-          )}
+          {showTooltip &&
+            showTooltipState &&
+            tooltipPos &&
+            typeof document !== 'undefined' &&
+            createPortal(
+              <div
+                className={sliderTooltipRecipe({ placement: tooltipPlacement })}
+                style={{ left: tooltipPos.left, top: tooltipPos.top }}
+                role="presentation"
+                data-testid={testId ? `${testId}-tooltip` : undefined}
+              >
+                {displayValue}
+              </div>,
+              document.body
+            )}
         </div>
       </InputWrapper>
 

@@ -91,6 +91,34 @@ describe('Slider', () => {
     });
   });
 
+  describe('Value tooltip', () => {
+    it('portals the value tooltip to document.body so an overflow ancestor cannot clip it', () => {
+      renderWithTheme(
+        <KeyboardContextProvider>
+          <div data-testid="clip" style={{ overflow: 'hidden' }}>
+            <Slider value={50} onChange={vi.fn()} testId="vol" />
+          </div>
+        </KeyboardContextProvider>
+      );
+
+      // Drag-only: the tooltip is not in the tree at rest.
+      expect(screen.queryByTestId('vol-tooltip')).not.toBeInTheDocument();
+
+      fireEvent.mouseDown(screen.getByRole('slider'), { clientX: 10 });
+
+      const tip = screen.getByTestId('vol-tooltip');
+      // Rendered under <body>, escaping the overflow:hidden ancestor.
+      expect(document.body).toContainElement(tip);
+      expect(screen.getByTestId('clip')).not.toContainElement(tip);
+    });
+
+    it('does not render a tooltip when showTooltip is false', () => {
+      renderSlider({ showTooltip: false, testId: 'vol' });
+      fireEvent.mouseDown(screen.getByRole('slider'), { clientX: 10 });
+      expect(screen.queryByTestId('vol-tooltip')).not.toBeInTheDocument();
+    });
+  });
+
   describe('ARIA Attributes', () => {
     it('has role="slider"', () => {
       renderSlider();

@@ -6,7 +6,6 @@ import { vars } from '@/theme/contract.css';
 // --- Dynamic vars for runtime values ---
 export const fillPercentageVar = createVar();
 export const thumbPercentageVar = createVar();
-export const tooltipPercentageVar = createVar();
 
 // --- Container ---
 export const sliderContainerRecipe = recipe({
@@ -214,12 +213,13 @@ export const tickStyle = style({
 });
 
 // --- Tooltip ---
-export const tooltipRecipe = recipe({
+// Rendered in a portal to `document.body` and positioned with fixed viewport
+// coordinates, so it can never be clipped by an ancestor `overflow` (e.g. a
+// PropertySection header). The thumb anchor (left/top) is supplied inline; the
+// recipe only carries appearance + the placement-dependent transform/arrow.
+export const sliderTooltipRecipe = recipe({
   base: {
-    position: 'absolute',
-    bottom: 'calc(100% + 8px)',
-    left: tooltipPercentageVar,
-    transform: 'translateX(-50%)',
+    position: 'fixed',
     background: vars.colors.background.elevated,
     color: vars.colors.text.primary,
     border: `1px solid ${vars.colors.border.default}`,
@@ -230,39 +230,42 @@ export const tooltipRecipe = recipe({
     whiteSpace: 'nowrap',
     pointerEvents: 'none',
     zIndex: vars.zIndex.tooltip,
-    transition: `all ${vars.transitions.fast}`,
-
-    '@media': {
-      '(prefers-reduced-motion: reduce)': {
-        transition: 'none',
-      },
-    },
-    '::after': {
-      content: '""',
-      position: 'absolute',
-      top: '100%',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: 0,
-      height: 0,
-      borderLeft: '4px solid transparent',
-      borderRight: '4px solid transparent',
-      borderTop: `4px solid ${vars.colors.border.default}`,
-    },
   },
   variants: {
-    visible: {
-      true: {
-        opacity: 1,
-        transform: 'translateX(-50%) translateY(0)',
+    placement: {
+      top: {
+        transform: 'translate(-50%, calc(-100% - 8px))',
+        '::after': {
+          content: '""',
+          position: 'absolute',
+          top: '100%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 0,
+          height: 0,
+          borderLeft: '4px solid transparent',
+          borderRight: '4px solid transparent',
+          borderTop: `4px solid ${vars.colors.border.default}`,
+        },
       },
-      false: {
-        opacity: 0,
-        transform: 'translateX(-50%) translateY(4px)',
+      bottom: {
+        transform: 'translate(-50%, 8px)',
+        '::after': {
+          content: '""',
+          position: 'absolute',
+          bottom: '100%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 0,
+          height: 0,
+          borderLeft: '4px solid transparent',
+          borderRight: '4px solid transparent',
+          borderBottom: `4px solid ${vars.colors.border.default}`,
+        },
       },
     },
   },
   defaultVariants: {
-    visible: false,
+    placement: 'top',
   },
 });

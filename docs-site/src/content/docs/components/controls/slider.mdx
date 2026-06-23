@@ -248,7 +248,14 @@ Hold modifier keys while dragging or using arrow keys for different step sizes:
       name: 'showTooltip',
       type: 'boolean',
       default: 'true',
-      description: 'Show value tooltip while dragging.',
+      description:
+        'Show value tooltip while dragging. The tooltip is portaled to document.body, so it is never clipped by an ancestor with overflow (e.g. a panel/section header).',
+    },
+    {
+      name: 'tooltipPlacement',
+      type: "'top' | 'bottom'",
+      default: "'top'",
+      description: 'Placement of the value tooltip relative to the thumb.',
     },
     {
       name: 'showTicks',
