@@ -21,6 +21,12 @@ const EXTERNAL_PACKAGES = [
   '@base-ui/react',
   '@floating-ui/react',
   '@tanstack/react-virtual',
+  // `@vanilla-extract/css` must stay external: its runtime pulls in the Node
+  // build of `picocolors` (`let p = process || {}` at module init) plus
+  // `lru-cache`, which white-screen browser consumers when inlined. Kept
+  // external, the consumer's bundler resolves it and honours each dep's
+  // `browser` field. Declared as a peerDependency. See scripts/check-browser-safe.ts.
+  '@vanilla-extract/css',
   '@vanilla-extract/dynamic',
   '@vanilla-extract/recipes',
 ];
