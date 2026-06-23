@@ -12,6 +12,8 @@ import React, {
   useMemo,
 } from 'react';
 
+import { CheckIcon } from '@/components/Icons/CheckIcon';
+import { CircleIcon } from '@/components/Icons/CircleIcon';
 import { cx } from '@/utils/cx';
 
 import {
@@ -25,6 +27,7 @@ import {
   subTrigger,
   subDropdown,
   subContainer,
+  indicatorSlot,
 } from './MenuBar.css';
 
 import type {
@@ -34,6 +37,10 @@ import type {
   MenuBarSubProps,
   MenuBarSeparatorProps,
   MenuBarContextValue,
+  MenuBarCheckboxItemProps,
+  MenuBarRadioGroupProps,
+  MenuBarRadioItemProps,
+  MenuBarRadioGroupContextValue,
 } from './MenuBar.types';
 
 // --- Context ---
@@ -52,7 +59,8 @@ const useMenuBar = () => useContext(MenuBarContext);
 
 const SUBMENU_CLOSE_DELAY = 150;
 
-const MENU_ITEM_SELECTOR = '[role="menuitem"]:not(:disabled)';
+const MENU_ITEM_SELECTOR =
+  '[role="menuitem"]:not(:disabled), [role="menuitemcheckbox"]:not(:disabled), [role="menuitemradio"]:not(:disabled)';
 
 const ChevronRight = () => (
   <span
@@ -110,6 +118,161 @@ const MenuBarItem: React.FC<MenuBarItemProps> = ({
 };
 
 MenuBarItem.displayName = 'MenuBar.Item';
+
+// --- Checkable items (checkbox / radio) ---
+
+const MenuBarRadioContext =
+  /*#__PURE__*/ createContext<MenuBarRadioGroupContextValue | null>(null);
+
+const MenuBarCheckboxItem: React.FC<MenuBarCheckboxItemProps> = ({
+  checked,
+  defaultChecked = false,
+  onCheckedChange,
+  shortcut: shortcutText,
+  indicator = <CheckIcon size="sm" />,
+  closeOnClick = false,
+  disabled = false,
+  children,
+
+  className,
+  style,
+  testId,
+  ref,
+  ...rest
+}) => {
+  const { setOpenMenuId } = useMenuBar();
+  const [internalChecked, setInternalChecked] = useState(defaultChecked);
+  const isControlled = checked !== undefined;
+  const isChecked = isControlled ? checked : internalChecked;
+
+  const handleClick = useCallback(() => {
+    const next = !isChecked;
+    if (!isControlled) setInternalChecked(next);
+    onCheckedChange?.(next);
+    if (closeOnClick) setOpenMenuId(null);
+  }, [isChecked, isControlled, onCheckedChange, closeOnClick, setOpenMenuId]);
+
+  return (
+    <button
+      role="menuitemcheckbox"
+      aria-checked={isChecked}
+      onClick={handleClick}
+      disabled={disabled}
+      className={cx(menuItem, className)}
+      style={style}
+      data-testid={testId}
+      ref={ref}
+      type="button"
+      tabIndex={-1}
+      {...rest}
+    >
+      <span className={indicatorSlot} aria-hidden="true">
+        {isChecked ? indicator : null}
+      </span>
+      <span>{children}</span>
+      {shortcutText && <span className={shortcut}>{shortcutText}</span>}
+    </button>
+  );
+};
+
+MenuBarCheckboxItem.displayName = 'MenuBar.CheckboxItem';
+
+const MenuBarRadioGroup: React.FC<MenuBarRadioGroupProps> = ({
+  value,
+  defaultValue,
+  onValueChange,
+  children,
+
+  className,
+  style,
+  testId,
+  ref,
+  ...rest
+}) => {
+  const [internalValue, setInternalValue] = useState<string | undefined>(
+    defaultValue
+  );
+  const isControlled = value !== undefined;
+  const selectedValue = isControlled ? value : internalValue;
+
+  const setValue = useCallback(
+    (next: string) => {
+      if (!isControlled) setInternalValue(next);
+      onValueChange?.(next);
+    },
+    [isControlled, onValueChange]
+  );
+
+  const contextValue = useMemo(
+    () => ({ value: selectedValue, setValue }),
+    [selectedValue, setValue]
+  );
+
+  return (
+    <MenuBarRadioContext.Provider value={contextValue}>
+      <div
+        role="group"
+        className={className}
+        style={style}
+        data-testid={testId}
+        ref={ref}
+        {...rest}
+      >
+        {children}
+      </div>
+    </MenuBarRadioContext.Provider>
+  );
+};
+
+MenuBarRadioGroup.displayName = 'MenuBar.RadioGroup';
+
+const MenuBarRadioItem: React.FC<MenuBarRadioItemProps> = ({
+  value,
+  shortcut: shortcutText,
+  indicator = <CircleIcon size="sm" />,
+  closeOnClick = false,
+  disabled = false,
+  children,
+
+  className,
+  style,
+  testId,
+  ref,
+  ...rest
+}) => {
+  const { setOpenMenuId } = useMenuBar();
+  const group = useContext(MenuBarRadioContext);
+  const isChecked = group?.value === value;
+
+  const handleClick = useCallback(() => {
+    group?.setValue(value);
+    if (closeOnClick) setOpenMenuId(null);
+  }, [group, value, closeOnClick, setOpenMenuId]);
+
+  return (
+    <button
+      role="menuitemradio"
+      aria-checked={isChecked}
+      onClick={handleClick}
+      disabled={disabled}
+      className={cx(menuItem, className)}
+      style={style}
+      data-testid={testId}
+      ref={ref}
+      type="button"
+      tabIndex={-1}
+      {...rest}
+    >
+      <span className={indicatorSlot} aria-hidden="true">
+        {isChecked ? indicator : null}
+      </span>
+      <span>{children}</span>
+      {shortcutText && <span className={shortcut}>{shortcutText}</span>}
+    </button>
+  );
+};
+
+MenuBarRadioItem.displayName = 'MenuBar.RadioItem';
 
 const MenuBarSub: React.FC<MenuBarSubProps> = ({
   label,
@@ -480,6 +643,9 @@ MenuBarRoot.displayName = 'MenuBar';
 export const MenuBar = /*#__PURE__*/ Object.assign(MenuBarRoot, {
   Menu: MenuBarMenu,
   Item: MenuBarItem,
+  CheckboxItem: MenuBarCheckboxItem,
+  RadioGroup: MenuBarRadioGroup,
+  RadioItem: MenuBarRadioItem,
   Sub: MenuBarSub,
   Separator: MenuBarSeparator,
 });

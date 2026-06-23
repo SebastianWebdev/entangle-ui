@@ -9,6 +9,7 @@ import MenuBarDemo, {
   MenuBarSizes,
   MenuBarSubmenus,
   MenuBarIcons,
+  MenuBarCheckable,
   MenuBarDisabled,
   MenuBarOffset,
 } from '../../../../components/demos/shell/MenuBarDemo';
@@ -69,12 +70,15 @@ import { MenuBar } from 'entangle-ui';
 
 MenuBar uses a compound component pattern with the following sub-components:
 
-| Component           | Purpose                                             |
-| ------------------- | --------------------------------------------------- |
-| `MenuBar.Menu`      | Top-level dropdown trigger and container            |
-| `MenuBar.Item`      | Clickable menu item with optional icon and shortcut |
-| `MenuBar.Sub`       | Nested sub-menu with hover-to-open behavior         |
-| `MenuBar.Separator` | Visual divider between menu items                   |
+| Component              | Purpose                                             |
+| ---------------------- | --------------------------------------------------- |
+| `MenuBar.Menu`         | Top-level dropdown trigger and container            |
+| `MenuBar.Item`         | Clickable menu item with optional icon and shortcut |
+| `MenuBar.CheckboxItem` | Toggleable item with a reserved check-mark gutter   |
+| `MenuBar.RadioGroup`   | Owns the selected value for a set of radio items    |
+| `MenuBar.RadioItem`    | Single-select item within a `RadioGroup`            |
+| `MenuBar.Sub`          | Nested sub-menu with hover-to-open behavior         |
+| `MenuBar.Separator`    | Visual divider between menu items                   |
 
 ## Sizes
 
@@ -137,6 +141,37 @@ import { SaveIcon, CopyIcon } from 'entangle-ui';
 <MenuBar.Item onClick={handleCopy} icon={<CopyIcon />} shortcut="Ctrl+C">
   Copy
 </MenuBar.Item>
+```
+
+## Checkable & Radio Items
+
+Use `MenuBar.CheckboxItem` for independent toggles and `MenuBar.RadioGroup` +
+`MenuBar.RadioItem` for single-select options. Both reserve a leading gutter so
+checked and unchecked rows stay aligned on their label. By default they keep the
+menu open on activation (`closeOnClick={false}`) so several options can be set in
+one pass; pass `closeOnClick` to close after a selection. Each supports both
+controlled (`checked` / `value`) and uncontrolled (`defaultChecked` /
+`defaultValue`) use, mirroring the navigation [`Menu`](../../navigation/menu/).
+
+<ComponentPreview title="Checkable & Radio Items">
+  <MenuBarCheckable client:only="react" />
+</ComponentPreview>
+
+```tsx
+const [showGrid, setShowGrid] = useState(true);
+const [shading, setShading] = useState('solid');
+
+<MenuBar.Menu label="View">
+  <MenuBar.CheckboxItem checked={showGrid} onCheckedChange={setShowGrid}>
+    Show Grid
+  </MenuBar.CheckboxItem>
+  <MenuBar.Separator />
+  <MenuBar.RadioGroup value={shading} onValueChange={setShading}>
+    <MenuBar.RadioItem value="solid">Solid</MenuBar.RadioItem>
+    <MenuBar.RadioItem value="wireframe">Wireframe</MenuBar.RadioItem>
+    <MenuBar.RadioItem value="rendered">Rendered</MenuBar.RadioItem>
+  </MenuBar.RadioGroup>
+</MenuBar.Menu>;
 ```
 
 ## Disabled Items
@@ -301,6 +336,117 @@ The `menuOffset` prop controls the vertical gap between the top-level trigger an
   ]}
 />
 
+### MenuBar.CheckboxItem
+
+<PropsTable
+  props={[
+    { name: 'children', type: 'ReactNode', description: 'Item label text.' },
+    {
+      name: 'checked',
+      type: 'boolean',
+      description: 'Controlled checked state.',
+    },
+    {
+      name: 'defaultChecked',
+      type: 'boolean',
+      default: 'false',
+      description: 'Uncontrolled initial checked state.',
+    },
+    {
+      name: 'onCheckedChange',
+      type: '(checked: boolean) => void',
+      description: 'Called when the checked state toggles.',
+    },
+    {
+      name: 'indicator',
+      type: 'ReactNode',
+      default: '<CheckIcon />',
+      description: 'Indicator shown in the leading gutter when checked.',
+    },
+    {
+      name: 'shortcut',
+      type: 'string',
+      description: 'Keyboard shortcut display text (visual only).',
+    },
+    {
+      name: 'closeOnClick',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether activating the item closes the menu.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the item is disabled.',
+    },
+  ]}
+/>
+
+### MenuBar.RadioGroup
+
+<PropsTable
+  props={[
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Controlled selected value.',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      description: 'Uncontrolled initial value.',
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'Called when the selected value changes.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'MenuBar.RadioItem elements.',
+    },
+  ]}
+/>
+
+### MenuBar.RadioItem
+
+<PropsTable
+  props={[
+    { name: 'children', type: 'ReactNode', description: 'Item label text.' },
+    {
+      name: 'value',
+      type: 'string',
+      required: true,
+      description: 'Value this item represents within its RadioGroup.',
+    },
+    {
+      name: 'indicator',
+      type: 'ReactNode',
+      default: '<CircleIcon />',
+      description: 'Indicator shown in the leading gutter when selected.',
+    },
+    {
+      name: 'shortcut',
+      type: 'string',
+      description: 'Keyboard shortcut display text (visual only).',
+    },
+    {
+      name: 'closeOnClick',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether activating the item closes the menu.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Whether the item is disabled.',
+    },
+  ]}
+/>
+
 ### MenuBar.Sub
 
 <PropsTable
@@ -367,9 +513,35 @@ The `menuOffset` prop controls the vertical gap between the top-level trigger an
 - Dropdown panels use `role="menu"` with `aria-label` set to the trigger label
 - Full keyboard navigation:
   - **ArrowLeft / ArrowRight** to move between top-level menus
-  - **ArrowDown / ArrowUp** to navigate items within a dropdown
+  - **ArrowDown / ArrowUp** to navigate items within a dropdown (including checkbox and radio items)
   - **Enter / Space** to open a menu or activate an item
   - **Escape** to close the current dropdown and return focus to the trigger
 - When a menu is open, hovering over another trigger automatically switches to that menu
 - Separators use `role="separator"`
 - Sub-menus use `aria-haspopup="true"` and `aria-expanded` on their trigger
+- `MenuBar.CheckboxItem` uses `role="menuitemcheckbox"` with `aria-checked`; `MenuBar.RadioItem` uses `role="menuitemradio"` with `aria-checked`, wrapped in a `MenuBar.RadioGroup` (`role="group"`)
+
+## Styling
+
+MenuBar defines no component-level CSS custom properties of its own; it is
+re-skinned entirely through the shared `--etui-*` theme tokens below.
+
+### Theme tokens consumed
+
+| Token                                   | Used for                          |
+| --------------------------------------- | --------------------------------- |
+| `--etui-shell-menubar-bg`               | Bar background                    |
+| `--etui-shell-menubar-text`             | Bar text color                    |
+| `--etui-shell-menubar-height`           | Bar height (`size="md"`)          |
+| `--etui-shell-menubar-hover-bg`         | Trigger hover fill                |
+| `--etui-shell-menubar-active-bg`        | Open-trigger fill                 |
+| `--etui-shell-menubar-shortcut-text`    | Shortcut label color              |
+| `--etui-color-bg-elevated`              | Dropdown / sub-menu surface       |
+| `--etui-color-border-default`           | Dropdown border, separators       |
+| `--etui-color-border-focus`             | Focus outline                     |
+| `--etui-color-surface-hover`            | Dropdown item hover/focus fill    |
+| `--etui-color-text-primary`             | Dropdown item text                |
+| `--etui-color-text-secondary`           | Checkbox / radio indicator gutter |
+| `--etui-radius-md` / `--etui-radius-sm` | Dropdown / trigger corner radius  |
+| `--etui-shadow-lg`                      | Dropdown elevation                |
+| `--etui-z-dropdown`                     | Dropdown stacking order           |

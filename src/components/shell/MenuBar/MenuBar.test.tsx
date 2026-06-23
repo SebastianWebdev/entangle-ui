@@ -168,6 +168,130 @@ describe('MenuBar', () => {
     });
   });
 
+  describe('Checkable items', () => {
+    it('renders a checkbox item with role and unchecked state', () => {
+      renderWithTheme(
+        <MenuBar>
+          <MenuBar.Menu label="View">
+            <MenuBar.CheckboxItem>Show Grid</MenuBar.CheckboxItem>
+          </MenuBar.Menu>
+        </MenuBar>
+      );
+      fireEvent.click(screen.getByText('View'));
+      const item = screen.getByRole('menuitemcheckbox', { name: 'Show Grid' });
+      expect(item).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('toggles aria-checked and fires onCheckedChange (uncontrolled)', () => {
+      const onCheckedChange = vi.fn();
+      renderWithTheme(
+        <MenuBar>
+          <MenuBar.Menu label="View">
+            <MenuBar.CheckboxItem onCheckedChange={onCheckedChange}>
+              Show Grid
+            </MenuBar.CheckboxItem>
+          </MenuBar.Menu>
+        </MenuBar>
+      );
+      fireEvent.click(screen.getByText('View'));
+      const item = screen.getByRole('menuitemcheckbox', { name: 'Show Grid' });
+      fireEvent.click(item);
+      expect(onCheckedChange).toHaveBeenCalledWith(true);
+      expect(item).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('keeps the menu open after toggling a checkbox by default', () => {
+      renderWithTheme(
+        <MenuBar>
+          <MenuBar.Menu label="View">
+            <MenuBar.CheckboxItem>Show Grid</MenuBar.CheckboxItem>
+          </MenuBar.Menu>
+        </MenuBar>
+      );
+      fireEvent.click(screen.getByText('View'));
+      fireEvent.click(
+        screen.getByRole('menuitemcheckbox', { name: 'Show Grid' })
+      );
+      expect(
+        screen.getByRole('menuitemcheckbox', { name: 'Show Grid' })
+      ).toBeInTheDocument();
+    });
+
+    it('respects controlled checked state', () => {
+      const onCheckedChange = vi.fn();
+      renderWithTheme(
+        <MenuBar>
+          <MenuBar.Menu label="View">
+            <MenuBar.CheckboxItem
+              checked={false}
+              onCheckedChange={onCheckedChange}
+            >
+              Show Grid
+            </MenuBar.CheckboxItem>
+          </MenuBar.Menu>
+        </MenuBar>
+      );
+      fireEvent.click(screen.getByText('View'));
+      const item = screen.getByRole('menuitemcheckbox', { name: 'Show Grid' });
+      expect(item).toHaveAttribute('aria-checked', 'false');
+      fireEvent.click(item);
+      expect(onCheckedChange).toHaveBeenCalledWith(true);
+      // Controlled: stays unchecked until the parent updates `checked`.
+      expect(item).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('radio group single-selects and fires onValueChange', () => {
+      const onValueChange = vi.fn();
+      renderWithTheme(
+        <MenuBar>
+          <MenuBar.Menu label="View">
+            <MenuBar.RadioGroup
+              defaultValue="solid"
+              onValueChange={onValueChange}
+            >
+              <MenuBar.RadioItem value="solid">Solid</MenuBar.RadioItem>
+              <MenuBar.RadioItem value="wireframe">Wireframe</MenuBar.RadioItem>
+            </MenuBar.RadioGroup>
+          </MenuBar.Menu>
+        </MenuBar>
+      );
+      fireEvent.click(screen.getByText('View'));
+      const solid = screen.getByRole('menuitemradio', { name: 'Solid' });
+      const wireframe = screen.getByRole('menuitemradio', {
+        name: 'Wireframe',
+      });
+      expect(solid).toHaveAttribute('aria-checked', 'true');
+      expect(wireframe).toHaveAttribute('aria-checked', 'false');
+
+      fireEvent.click(wireframe);
+      expect(onValueChange).toHaveBeenCalledWith('wireframe');
+      expect(wireframe).toHaveAttribute('aria-checked', 'true');
+      expect(solid).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('reserves a leading gutter so checkable items align', () => {
+      renderWithTheme(
+        <MenuBar>
+          <MenuBar.Menu label="View">
+            <MenuBar.CheckboxItem checked>Show Grid</MenuBar.CheckboxItem>
+            <MenuBar.CheckboxItem>Show Axes</MenuBar.CheckboxItem>
+          </MenuBar.Menu>
+        </MenuBar>
+      );
+      fireEvent.click(screen.getByText('View'));
+      // Both items carry the same number of leading slots (the reserved gutter
+      // is always rendered, checked or not).
+      const checked = screen.getByRole('menuitemcheckbox', {
+        name: 'Show Grid',
+      });
+      const unchecked = screen.getByRole('menuitemcheckbox', {
+        name: 'Show Axes',
+      });
+      expect(checked.firstElementChild).not.toBeNull();
+      expect(unchecked.firstElementChild).not.toBeNull();
+    });
+  });
+
   describe('Accessibility', () => {
     it('triggers have aria-haspopup and aria-expanded', () => {
       renderMenuBar();

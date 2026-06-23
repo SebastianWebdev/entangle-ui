@@ -14,6 +14,9 @@ export const menuBarRoot = recipe({
     padding: `0 ${vars.spacing.sm}`,
     userSelect: 'none',
     flexShrink: 0,
+    // Fill the host slot (e.g. AppShell.MenuBar) so the bar reads as one chrome
+    // strip rather than a content-width block on a darker background.
+    width: '100%',
   },
   variants: {
     size: {
@@ -32,6 +35,10 @@ export const menuBarRoot = recipe({
 
 export const menuContainer = style({
   position: 'relative',
+  // Center the trigger so its hover/active fill is inset from the chrome edges
+  // (the trigger is shorter than the full bar height).
+  display: 'flex',
+  alignItems: 'center',
   height: '100%',
 });
 
@@ -39,8 +46,11 @@ export const trigger = recipe({
   base: {
     display: 'inline-flex',
     alignItems: 'center',
-    height: '100%',
-    padding: `0 ${vars.spacing.md}`,
+    // Vertical padding (not full height) keeps the hover/active fill inset from
+    // the top/bottom chrome edges; the rounded corners make the fill read as a
+    // pill rather than a full-height block.
+    padding: `${vars.spacing.xs} ${vars.spacing.md}`,
+    borderRadius: vars.borderRadius.sm,
     border: 'none',
     color: 'inherit',
     font: 'inherit',
@@ -130,6 +140,20 @@ export const shortcut = style({
   marginLeft: 'auto',
   color: vars.shell.menuBar.shortcutText,
   fontSize: vars.typography.fontSize.xs,
+});
+
+/**
+ * Reserved leading gutter for checkable/radio items so checked and unchecked
+ * rows align on their label regardless of indicator visibility.
+ */
+export const indicatorSlot = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '16px',
+  height: '16px',
+  flexShrink: 0,
+  color: vars.colors.text.secondary,
 });
 
 export const separator = style({

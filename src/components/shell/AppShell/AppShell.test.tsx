@@ -2,6 +2,7 @@ import { screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { renderWithTheme } from '@/tests/testUtils';
 import { AppShell, useAppShell } from './AppShell';
+import { menuBarSlot } from './AppShell.css';
 import React from 'react';
 
 describe('AppShell', () => {
@@ -111,6 +112,20 @@ describe('AppShell', () => {
       const header = container.querySelector('header');
       expect(header).toBeInTheDocument();
       expect(header).toHaveTextContent('Menu');
+    });
+
+    it('paints the menu-bar chrome background on the menu bar slot', () => {
+      const { container } = renderWithTheme(
+        <AppShell>
+          <AppShell.MenuBar>Menu</AppShell.MenuBar>
+          <AppShell.Dock>Content</AppShell.Dock>
+        </AppShell>
+      );
+      // The chrome-bg class lands on the <header> slot so the top chrome reads
+      // as one strip (VE class styles aren't resolved in jsdom, so assert the
+      // class is applied rather than the computed color).
+      const header = container.querySelector('header');
+      expect(header?.className).toContain(menuBarSlot);
     });
 
     it('uses main for dock slot', () => {

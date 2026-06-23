@@ -5,6 +5,9 @@ export type {
   MenuBarSize,
   MenuBarMenuProps,
   MenuBarItemProps,
+  MenuBarCheckboxItemProps,
+  MenuBarRadioGroupProps,
+  MenuBarRadioItemProps,
   MenuBarSubProps,
   MenuBarSeparatorProps,
 } from './MenuBar.types';
