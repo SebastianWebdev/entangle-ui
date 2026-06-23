@@ -16,7 +16,7 @@
       "types": "./dist/types/index.d.ts",
       "default": "./dist/esm/index.js"
     },
-    "./styles.css": "./dist/esm/styles.js",
+    "./styles.css": "./dist/esm/styles.css.js",
     "./palettes": {
       "types": "./dist/types/palettes.d.ts",
       "default": "./dist/esm/palettes.js"

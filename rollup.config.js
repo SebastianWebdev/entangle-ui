@@ -56,9 +56,19 @@ export default [
       'theme/index': 'src/theme/index.ts',
       'theme-values': 'src/theme-values.ts',
       // Canonical stylesheet entry exposed as `entangle-ui/styles.css`. A
-      // side-effect-only module that registers the dark theme `:root` vars +
-      // global scrollbar rules so consumers can load the theme with one import.
-      styles: 'src/styles.ts',
+      // side-effect-only module (zero exports) that registers the dark theme
+      // `:root` vars + global scrollbar rules so consumers load the theme with
+      // a single import.
+      //
+      // The output is named `styles.css.js`, NOT `styles.js`. package.json
+      // `sideEffects` only whitelists `*.css`, `*.css.ts`, `*.css.js`; a bare
+      // `styles.js` matches none of them. Because this module exports nothing,
+      // a consumer's production bundler would then flag it side-effect-free and
+      // tree-shake the whole `import 'entangle-ui/styles.css'` away — dropping
+      // every `--etui-*` token (broken theme in prod builds; dev is unaffected
+      // because dev servers don't tree-shake). The `.css.js` suffix lands it in
+      // the same proven side-effect bucket as the component `*.css.js` modules.
+      'styles.css': 'src/styles.ts',
     },
     output: {
       dir: 'dist/esm',
