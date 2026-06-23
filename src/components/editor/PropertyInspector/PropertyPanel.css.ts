@@ -53,6 +53,12 @@ export const panelContent = style({
   boxSizing: 'border-box',
 });
 
+// In fill-height scroll mode the overlay scrollbar sits over the right edge, so
+// reserve a gutter to keep controls clear of it.
+export const panelContentScroll = style({
+  paddingRight: vars.spacing.lg,
+});
+
 export const panelFooter = style({
   flexShrink: 0,
   borderTop: `1px solid ${vars.colors.border.default}`,

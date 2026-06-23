@@ -252,6 +252,47 @@ export function SelectLabels() {
   );
 }
 
+export function SelectFullWidth() {
+  const [value, setValue] = useState<string | null>('react');
+  return (
+    <DemoWrapper withKeyboard>
+      <div style={{ width: '100%', maxWidth: 420 }}>
+        <Select
+          fullWidth
+          label="Framework"
+          options={FRAMEWORKS}
+          value={value}
+          onChange={setValue}
+        />
+      </div>
+    </DemoWrapper>
+  );
+}
+
+const LONG_OPTIONS: SelectOptionItem<string>[] = [
+  { value: 'std', label: 'Standard' },
+  { value: 'pbr', label: 'Physically Based Rendering (Metallic / Roughness)' },
+  { value: 'sss', label: 'Subsurface Scattering — Skin & Translucency' },
+  { value: 'toon', label: 'Toon / Cel Shading' },
+];
+
+export function SelectContentSizedDropdown() {
+  const [value, setValue] = useState<string | null>('std');
+  return (
+    <DemoWrapper withKeyboard>
+      <div style={{ width: 160 }}>
+        <Select
+          label="Shading Model"
+          placeholder="Pick a model..."
+          options={LONG_OPTIONS}
+          value={value}
+          onChange={setValue}
+        />
+      </div>
+    </DemoWrapper>
+  );
+}
+
 export function SelectError() {
   const [material, setMaterial] = useState<string | null>(null);
   return (

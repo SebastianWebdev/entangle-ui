@@ -1,6 +1,7 @@
 import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import { renderHook, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { renderWithTheme } from '@/tests/testUtils';
 import { PropertyPanel } from './PropertyPanel';
@@ -103,6 +104,65 @@ describe('PropertyPanel', () => {
     it('renders custom search placeholder', () => {
       renderWithTheme(<TestPanel searchable searchPlaceholder="Filter..." />);
       expect(screen.getByPlaceholderText('Filter...')).toBeInTheDocument();
+    });
+  });
+
+  describe('Fill height', () => {
+    it('wraps content in a scroll area when fillHeight (no maxHeight)', () => {
+      const { container } = renderWithTheme(<TestPanel fillHeight />);
+      expect(
+        container.querySelector('[id^="scrollarea-"]')
+      ).toBeInTheDocument();
+    });
+
+    it('does not wrap content in a scroll area by default', () => {
+      const { container } = renderWithTheme(<TestPanel />);
+      expect(
+        container.querySelector('[id^="scrollarea-"]')
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Density', () => {
+    it('applies compact density to rows', () => {
+      renderWithTheme(
+        <PropertyPanel density="compact">
+          <PropertyRow label="X" testId="density-row">
+            <span>v</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+      // md base (26px) - compact delta (4px)
+      expect(screen.getByTestId('density-row')).toHaveStyle({
+        minHeight: '22px',
+      });
+    });
+
+    it('applies spacious density to rows', () => {
+      renderWithTheme(
+        <PropertyPanel density="spacious">
+          <PropertyRow label="X" testId="density-row">
+            <span>v</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+      // md base (26px) + spacious delta (6px)
+      expect(screen.getByTestId('density-row')).toHaveStyle({
+        minHeight: '32px',
+      });
+    });
+
+    it('defaults to normal density', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertyRow label="X" testId="density-row">
+            <span>v</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+      expect(screen.getByTestId('density-row')).toHaveStyle({
+        minHeight: '26px',
+      });
     });
   });
 });
@@ -317,6 +377,143 @@ describe('PropertySection', () => {
     });
   });
 
+  describe('Checkable', () => {
+    it('renders an enable toggle when checkable', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.getByTestId('section-toggle')).toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: 'Fog' })).toBeInTheDocument();
+    });
+
+    it('does not render a toggle when not checkable', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog">
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.queryByTestId('section-toggle')).not.toBeInTheDocument();
+    });
+
+    it('fires onCheckedChange when toggled', () => {
+      const onCheckedChange = vi.fn();
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection
+            title="Fog"
+            checkable
+            onCheckedChange={onCheckedChange}
+          >
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      // Default checked is true, so toggling reports false.
+      fireEvent.click(screen.getByTestId('section-toggle'));
+      expect(onCheckedChange).toHaveBeenCalledWith(false);
+    });
+
+    it('dims but keeps the body mounted when off', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable defaultChecked={false}>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      const body = screen.getByText('Body');
+      expect(body).toBeInTheDocument();
+      expect(body.parentElement).toHaveStyle({
+        opacity: '0.5',
+        pointerEvents: 'none',
+      });
+    });
+
+    it('does not dim the body when on', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable defaultChecked>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.getByText('Body').parentElement).not.toHaveStyle({
+        opacity: '0.5',
+      });
+    });
+
+    it('respects controlled checked', () => {
+      const { rerender } = renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable checked={false}>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.getByRole('switch')).toHaveAttribute(
+        'aria-checked',
+        'false'
+      );
+
+      rerender(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable checked={true}>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.getByRole('switch')).toHaveAttribute(
+        'aria-checked',
+        'true'
+      );
+    });
+
+    it('toggling checked does not collapse the section', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.getByText('Body')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId('section-toggle'));
+
+      // Body stays mounted and the section stays expanded.
+      expect(screen.getByText('Body')).toBeInTheDocument();
+      const trigger = screen.getByText('Fog').closest('button') as HTMLElement;
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('renders the toggle and actions outside the collapse trigger button', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection
+            title="Fog"
+            checkable
+            actions={<button data-testid="sec-action">A</button>}
+          >
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      // The interactive header controls must be siblings of the trigger, not
+      // nested inside it (a <button> cannot contain another <button>).
+      const trigger = screen.getByText('Fog').closest('button') as HTMLElement;
+      expect(trigger).not.toContainElement(
+        screen.getByTestId('section-toggle')
+      );
+      expect(trigger).not.toContainElement(screen.getByTestId('sec-action'));
+    });
+  });
+
   describe('Accessibility', () => {
     it('trigger has aria-expanded', () => {
       renderWithTheme(
@@ -391,6 +588,17 @@ describe('PropertyRow', () => {
       );
       expect(screen.getByText('Position')).toBeInTheDocument();
       expect(screen.getByText('0, 0, 0')).toBeInTheDocument();
+    });
+
+    it('renders a ReactNode label', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertyRow label={<em data-testid="node-label">Position</em>}>
+            <span>0, 0, 0</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+      expect(screen.getByTestId('node-label')).toBeInTheDocument();
     });
 
     it('renders modified dot when modified', () => {
@@ -468,6 +676,38 @@ describe('PropertyRow', () => {
 
       fireEvent.click(screen.getByTestId('reset-button'));
       expect(onReset).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Label tooltip', () => {
+    it('gives the tooltip a real hover target (not display: contents)', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertyRow label="Opacity" tooltip="Object opacity (0-1)">
+            <span>Value</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+      // Regression guard: the previous wrapper used `display: contents`, which
+      // generated no box, so the tooltip never had a hover target.
+      const wrapper = screen.getByText('Opacity').parentElement as HTMLElement;
+      expect(wrapper).not.toHaveStyle({ display: 'contents' });
+    });
+
+    it('shows the tooltip when the label is hovered', async () => {
+      const user = userEvent.setup();
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertyRow label="Opacity" tooltip="Object opacity (0-1)">
+            <span>Value</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+
+      await user.hover(screen.getByText('Opacity'));
+      expect(
+        await screen.findByText('Object opacity (0-1)', {}, { timeout: 2000 })
+      ).toBeInTheDocument();
     });
   });
 });

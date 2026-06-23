@@ -3,17 +3,19 @@
 import React, { useCallback, useId, useState } from 'react';
 
 import { ChevronRightIcon } from '@/components/Icons';
+import { Switch } from '@/components/primitives/Switch';
 import { cx } from '@/utils/cx';
 
 import { usePropertyPanelContext } from './PropertyPanel';
 import {
   sectionRoot,
+  sectionHeader,
   sectionTrigger,
   chevron,
   chevronExpanded,
   iconArea,
   sectionLabel,
-  actionsArea,
+  headerControls,
   contentWrapper,
   contentInner,
 } from './PropertySection.css';
@@ -46,6 +48,11 @@ export const PropertySection: React.FC<PropertySectionProps> = ({
   onExpandedChange,
   keepMounted = false,
   disabled = false,
+  checkable = false,
+  checked: checkedProp,
+  defaultChecked = true,
+  onCheckedChange,
+  checkLabel,
   size: sizeProp,
   indicator,
   onContextMenu,
@@ -69,6 +76,12 @@ export const PropertySection: React.FC<PropertySectionProps> = ({
   const isControlled = expandedProp !== undefined;
   const resolvedExpanded = isControlled ? expandedProp : internalExpanded;
 
+  // Enable/disable toggle state (controlled or uncontrolled), mirroring the
+  // expanded-state bridge above. Independent of the collapse state.
+  const [internalChecked, setInternalChecked] = useState(defaultChecked);
+  const isCheckedControlled = checkedProp !== undefined;
+  const resolvedChecked = isCheckedControlled ? checkedProp : internalChecked;
+
   const handleToggle = useCallback(() => {
     if (disabled) return;
 
@@ -81,17 +94,19 @@ export const PropertySection: React.FC<PropertySectionProps> = ({
     onExpandedChange?.(nextExpanded);
   }, [disabled, resolvedExpanded, isControlled, onExpandedChange]);
 
-  const handleActionsClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-  }, []);
+  const handleCheckedChange = useCallback(
+    (next: boolean) => {
+      if (!isCheckedControlled) {
+        setInternalChecked(next);
+      }
+      onCheckedChange?.(next);
+    },
+    [isCheckedControlled, onCheckedChange]
+  );
 
-  // Prevent keyboard activation on nested action controls from bubbling up
-  // and toggling the section trigger.
-  const handleActionsKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.stopPropagation();
-    }
-  }, []);
+  // When the section is checkable and switched off, the body is dimmed and made
+  // non-interactive but stays mounted (so its state is preserved).
+  const isBodyDisabled = checkable && !resolvedChecked;
 
   const showIndicator = indicator !== null;
 
@@ -103,50 +118,56 @@ export const PropertySection: React.FC<PropertySectionProps> = ({
       data-testid={testId}
       {...rest}
     >
-      <button
-        type="button"
-        id={triggerId}
-        aria-expanded={resolvedExpanded}
-        aria-controls={contentId}
-        aria-disabled={disabled || undefined}
-        disabled={disabled}
-        onClick={handleToggle}
-        onContextMenu={onContextMenu}
-        className={sectionTrigger({
+      <div
+        className={sectionHeader({
           size,
           disabled,
           expanded: resolvedExpanded,
         })}
       >
-        {showIndicator && (
-          <span
-            className={cx(chevron, resolvedExpanded && chevronExpanded)}
-            style={{
-              width: `${sizeConfig.chevronSize}px`,
-              height: `${sizeConfig.chevronSize}px`,
-            }}
-          >
-            {indicator ?? (
-              <ChevronRightIcon size={sizeConfig.chevronSize} decorative />
+        <button
+          type="button"
+          id={triggerId}
+          aria-expanded={resolvedExpanded}
+          aria-controls={contentId}
+          aria-disabled={disabled || undefined}
+          disabled={disabled}
+          onClick={handleToggle}
+          onContextMenu={onContextMenu}
+          className={sectionTrigger({ size, disabled })}
+        >
+          {showIndicator && (
+            <span
+              className={cx(chevron, resolvedExpanded && chevronExpanded)}
+              style={{
+                width: `${sizeConfig.chevronSize}px`,
+                height: `${sizeConfig.chevronSize}px`,
+              }}
+            >
+              {indicator ?? (
+                <ChevronRightIcon size={sizeConfig.chevronSize} decorative />
+              )}
+            </span>
+          )}
+          {icon && <span className={iconArea}>{icon}</span>}
+          <span className={sectionLabel}>{title}</span>
+        </button>
+        {(checkable || actions) && (
+          <span className={headerControls}>
+            {checkable && (
+              <Switch
+                size={size}
+                checked={resolvedChecked}
+                onChange={handleCheckedChange}
+                disabled={disabled}
+                aria-label={checkLabel ?? title}
+                testId="section-toggle"
+              />
             )}
-          </span>
-        )}
-        {icon && <span className={iconArea}>{icon}</span>}
-        <span className={sectionLabel}>{title}</span>
-        {actions && (
-          // This wrapper is a non-semantic propagation boundary for the
-          // user-supplied action controls it hosts; it is not itself
-          // interactive, so it intentionally has no role.
-          // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-          <span
-            className={actionsArea}
-            onClick={handleActionsClick}
-            onKeyDown={handleActionsKeyDown}
-          >
             {actions}
           </span>
         )}
-      </button>
+      </div>
 
       {(resolvedExpanded || keepMounted) && (
         <div
@@ -156,7 +177,17 @@ export const PropertySection: React.FC<PropertySectionProps> = ({
           aria-labelledby={triggerId}
           hidden={!resolvedExpanded || undefined}
         >
-          <div className={contentInner}>{children}</div>
+          <div
+            className={contentInner}
+            style={
+              isBodyDisabled
+                ? { opacity: 0.5, pointerEvents: 'none' }
+                : undefined
+            }
+            aria-disabled={isBodyDisabled || undefined}
+          >
+            {children}
+          </div>
         </div>
       )}
     </div>

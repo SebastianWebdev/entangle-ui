@@ -6,6 +6,14 @@ import type React from 'react';
 
 export type PropertyInspectorSize = Size;
 
+/**
+ * Vertical spacing density applied to property rows.
+ * - `compact`: tighter rows for dense inspectors
+ * - `normal`: default spacing
+ * - `spacious`: roomier rows
+ */
+export type PropertyDensity = 'compact' | 'normal' | 'spacious';
+
 // --- PropertyPanel ---
 
 export interface PropertyPanelBaseProps extends BaseComponent {
@@ -36,6 +44,21 @@ export interface PropertyPanelBaseProps extends BaseComponent {
    * @default "100%"
    */
   maxHeight?: number | string;
+
+  /**
+   * Fill the available height of the parent and scroll the content when it
+   * overflows, without needing a fixed `maxHeight`. A scrollbar gutter is
+   * reserved so controls never sit under the scrollbar. Ignored when
+   * `maxHeight` is set.
+   * @default false
+   */
+  fillHeight?: boolean;
+
+  /**
+   * Vertical spacing density applied to all nested rows.
+   * @default "normal"
+   */
+  density?: PropertyDensity;
 
   /**
    * Whether to show a search/filter input in the header
@@ -134,6 +157,37 @@ export interface PropertySectionBaseProps extends Omit<
   disabled?: boolean;
 
   /**
+   * Whether this section renders a managed enable/disable toggle in its header.
+   * When the toggle is off, the section body is dimmed and made
+   * non-interactive (but stays mounted). The toggle is independent of the
+   * collapse state.
+   * @default false
+   */
+  checkable?: boolean;
+
+  /**
+   * Whether the section is enabled (controlled). Requires `checkable`.
+   */
+  checked?: boolean;
+
+  /**
+   * Whether the section starts enabled (uncontrolled). Requires `checkable`.
+   * @default true
+   */
+  defaultChecked?: boolean;
+
+  /**
+   * Callback when the enable toggle changes. Requires `checkable`.
+   */
+  onCheckedChange?: (checked: boolean) => void;
+
+  /**
+   * Accessible label for the enable toggle.
+   * @default the section `title`
+   */
+  checkLabel?: string;
+
+  /**
    * Size override for this section and its rows
    */
   size?: PropertyInspectorSize;
@@ -161,9 +215,9 @@ export type PropertySectionProps = Prettify<PropertySectionBaseProps>;
 
 export interface PropertyRowBaseProps extends BaseComponent {
   /**
-   * Property label text
+   * Property label. Accepts any renderable node (text, an icon + text, etc.).
    */
-  label: string;
+  label: React.ReactNode;
 
   /**
    * Tooltip text for the label (shown on hover)
@@ -264,6 +318,7 @@ export type PropertyGroupProps = Prettify<PropertyGroupBaseProps>;
 
 export interface PropertyPanelContextValue {
   size: PropertyInspectorSize;
+  density: PropertyDensity;
   searchQuery: string;
 }
 

@@ -19,6 +19,7 @@ import {
   searchWrapper,
   searchInputBase,
   panelContent,
+  panelContentScroll,
   panelFooter,
   contentTopSpacingVar,
   contentBottomSpacingVar,
@@ -79,6 +80,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
   footer,
   size = 'md',
   maxHeight,
+  fillHeight = false,
+  density = 'normal',
   searchable = false,
   searchPlaceholder = 'Search properties...',
   onSearchChange,
@@ -110,9 +113,10 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
   const contextValue = useMemo<PropertyPanelContextValue>(
     () => ({
       size,
+      density,
       searchQuery: deferredSearchQuery.toLowerCase(),
     }),
-    [size, deferredSearchQuery]
+    [size, density, deferredSearchQuery]
   );
 
   const hasHeader = header != null || searchable;
@@ -180,6 +184,20 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({
             fadeMask
           >
             {content}
+          </ScrollArea>
+        ) : fillHeight ? (
+          <ScrollArea
+            direction="vertical"
+            scrollbarVisibility="auto"
+            fadeMask
+            style={{ flex: 1, minHeight: 0 }}
+          >
+            <div
+              className={cx(panelContent, panelContentScroll)}
+              style={contentStyle}
+            >
+              {children}
+            </div>
           </ScrollArea>
         ) : (
           content

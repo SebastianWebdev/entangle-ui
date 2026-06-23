@@ -120,12 +120,6 @@ export interface SelectBaseProps<T extends string = string> extends Omit<
   required?: boolean;
 
   /**
-   * Whether a clear button appears when value is selected
-   * @default false
-   */
-  clearable?: boolean;
-
-  /**
    * Maximum height of the dropdown in pixels
    * @default 240
    */
@@ -139,14 +133,17 @@ export interface SelectBaseProps<T extends string = string> extends Omit<
   minDropdownWidth?: number;
 
   /**
+   * Whether the select stretches to fill the width of its container.
+   * Useful inside flex rows or property panels where the select would
+   * otherwise shrink to the width of its selected label.
+   * @default false
+   */
+  fullWidth?: boolean;
+
+  /**
    * Name attribute for form submission
    */
   name?: string;
-
-  /**
-   * Change event handler
-   */
-  onChange?: (value: T | null) => void;
 
   /**
    * Open state change handler
@@ -154,6 +151,46 @@ export interface SelectBaseProps<T extends string = string> extends Omit<
   onOpenChange?: (open: boolean) => void;
 }
 
-export type SelectProps<T extends string = string> = Prettify<
-  SelectBaseProps<T>
->;
+/**
+ * Clearable variant: a clear button is shown, so `onChange` can emit `null`
+ * when the selection is cleared.
+ */
+interface SelectClearableProps<T extends string = string> {
+  /**
+   * Whether a clear button appears when a value is selected.
+   */
+  clearable: true;
+
+  /**
+   * Change event handler. Receives `null` when the selection is cleared.
+   */
+  onChange?: (value: T | null) => void;
+}
+
+/**
+ * Non-clearable variant (default): there is no clear button, so `onChange`
+ * only ever emits a real value — never `null`.
+ */
+interface SelectNonClearableProps<T extends string = string> {
+  /**
+   * Whether a clear button appears when a value is selected.
+   * @default false
+   */
+  clearable?: false;
+
+  /**
+   * Change event handler.
+   */
+  onChange?: (value: T) => void;
+}
+
+/**
+ * Props for the `Select` component.
+ *
+ * `clearable` discriminates the `onChange` contract: a non-clearable select
+ * never emits `null`, so its `onChange` value is `T`; a `clearable` select can
+ * emit `null` from the clear button, so its `onChange` value is `T | null`.
+ */
+export type SelectProps<T extends string = string> =
+  | Prettify<SelectBaseProps<T> & SelectNonClearableProps<T>>
+  | Prettify<SelectBaseProps<T> & SelectClearableProps<T>>;

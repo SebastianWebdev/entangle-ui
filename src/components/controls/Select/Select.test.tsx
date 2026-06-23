@@ -4,7 +4,11 @@ import { vi, beforeEach } from 'vitest';
 import { vars } from '@/theme/contract.css';
 import { renderWithTheme } from '@/tests/testUtils';
 import { Select } from './Select';
-import type { SelectOptionItem, SelectOptionGroup } from './Select.types';
+import type {
+  SelectOptionItem,
+  SelectOptionGroup,
+  SelectProps,
+} from './Select.types';
 
 // Mock ResizeObserver (not available in jsdom, needed by ScrollArea)
 class MockResizeObserver {
@@ -288,6 +292,45 @@ describe('Select', () => {
     });
   });
 
+  describe('onChange typing', () => {
+    // Compile-time contract (C2): `clearable` discriminates the `onChange`
+    // value type. These aliases fail `tsc` if the narrowing ever regresses.
+    type Equal<X, Y> =
+      (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2
+        ? true
+        : false;
+    type ParamOf<F> = F extends (value: infer V) => void ? V : never;
+    type NonClearableVariant = Exclude<
+      SelectProps<string>,
+      { clearable: true }
+    >;
+    type ClearableVariant = Extract<SelectProps<string>, { clearable: true }>;
+    type NonClearableValue = ParamOf<
+      NonNullable<NonClearableVariant['onChange']>
+    >;
+    type ClearableValue = ParamOf<NonNullable<ClearableVariant['onChange']>>;
+
+    it('infers a non-null value when not clearable and nullable when clearable', () => {
+      const nonClearableIsT: Equal<NonClearableValue, string> = true;
+      const clearableIsNullable: Equal<ClearableValue, string | null> = true;
+      expect(nonClearableIsT && clearableIsNullable).toBe(true);
+    });
+
+    it('clearable select emits null from the clear button', () => {
+      const handleChange = vi.fn();
+      renderWithTheme(
+        <Select
+          clearable
+          value="normal"
+          options={basicOptions}
+          onChange={handleChange}
+        />
+      );
+      fireEvent.click(screen.getByLabelText('Clear selection'));
+      expect(handleChange).toHaveBeenCalledWith(null);
+    });
+  });
+
   describe('Disabled', () => {
     it('trigger is not clickable when disabled', () => {
       renderWithTheme(<Select options={basicOptions} disabled />);
@@ -430,6 +473,55 @@ describe('Select', () => {
         <Select options={basicOptions} helperText="Pick a blend mode" />
       );
       expect(screen.getByText('Pick a blend mode')).toBeInTheDocument();
+    });
+  });
+
+  describe('Full Width', () => {
+    it('stretches the container when fullWidth', () => {
+      renderWithTheme(
+        <Select options={basicOptions} fullWidth testId="fw-select" />
+      );
+      expect(screen.getByTestId('fw-select')).toHaveStyle({ width: '100%' });
+    });
+
+    it('stretches the trigger when fullWidth', () => {
+      renderWithTheme(<Select options={basicOptions} fullWidth />);
+      expect(screen.getByRole('combobox')).toHaveStyle({ width: '100%' });
+    });
+
+    it('does not stretch the container by default', () => {
+      renderWithTheme(
+        <Select options={basicOptions} testId="default-select" />
+      );
+      expect(screen.getByTestId('default-select')).not.toHaveStyle({
+        width: '100%',
+      });
+    });
+  });
+
+  describe('Dropdown Sizing', () => {
+    it('sizes the open dropdown to its content', () => {
+      renderWithTheme(<Select options={basicOptions} />);
+      fireEvent.click(screen.getByRole('combobox'));
+      // `width: max-content` lets the dropdown grow past a narrow trigger so
+      // long option labels are never clipped.
+      expect(screen.getByRole('listbox')).toHaveStyle({
+        width: 'max-content',
+      });
+    });
+
+    it('respects minDropdownWidth as a floor', () => {
+      renderWithTheme(<Select options={basicOptions} minDropdownWidth={300} />);
+      fireEvent.click(screen.getByRole('combobox'));
+      expect(screen.getByRole('listbox')).toHaveStyle({ minWidth: '300px' });
+    });
+
+    it('clamps the dropdown max width to the viewport', () => {
+      renderWithTheme(<Select options={basicOptions} />);
+      fireEvent.click(screen.getByRole('combobox'));
+      // jsdom reports innerWidth 1024 and a zeroed trigger rect, so the max
+      // width is the viewport minus the 8px margin.
+      expect(screen.getByRole('listbox')).toHaveStyle({ maxWidth: '1016px' });
     });
   });
 });

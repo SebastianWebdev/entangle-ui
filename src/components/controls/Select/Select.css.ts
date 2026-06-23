@@ -223,6 +223,11 @@ const selectDropdownIn = keyframes({
 export const dropdownStyle = style({
   position: 'fixed',
   zIndex: vars.zIndex.dropdown,
+  // Size to the widest option (`min-width`/`max-width` are supplied at runtime
+  // from the trigger rect + viewport) so long labels are never clipped by a
+  // narrow trigger.
+  width: 'max-content',
+  boxSizing: 'border-box',
   background: vars.colors.background.elevated,
   border: `1px solid ${vars.colors.border.default}`,
   borderRadius: vars.borderRadius.md,
@@ -269,6 +274,9 @@ export const optionItemRecipe = recipe({
     padding: `${vars.spacing.sm} ${vars.spacing.md}`,
     fontSize: vars.typography.fontSize.md,
     gap: vars.spacing.sm,
+    // Keep each option on a single line so the `max-content` dropdown grows to
+    // the longest label instead of wrapping it.
+    whiteSpace: 'nowrap',
     transition: `background ${vars.transitions.fast}`,
   },
   variants: {
