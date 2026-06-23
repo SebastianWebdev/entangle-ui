@@ -106,6 +106,65 @@ describe('PropertyPanel', () => {
       expect(screen.getByPlaceholderText('Filter...')).toBeInTheDocument();
     });
   });
+
+  describe('Fill height', () => {
+    it('wraps content in a scroll area when fillHeight (no maxHeight)', () => {
+      const { container } = renderWithTheme(<TestPanel fillHeight />);
+      expect(
+        container.querySelector('[id^="scrollarea-"]')
+      ).toBeInTheDocument();
+    });
+
+    it('does not wrap content in a scroll area by default', () => {
+      const { container } = renderWithTheme(<TestPanel />);
+      expect(
+        container.querySelector('[id^="scrollarea-"]')
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Density', () => {
+    it('applies compact density to rows', () => {
+      renderWithTheme(
+        <PropertyPanel density="compact">
+          <PropertyRow label="X" testId="density-row">
+            <span>v</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+      // md base (26px) - compact delta (4px)
+      expect(screen.getByTestId('density-row')).toHaveStyle({
+        minHeight: '22px',
+      });
+    });
+
+    it('applies spacious density to rows', () => {
+      renderWithTheme(
+        <PropertyPanel density="spacious">
+          <PropertyRow label="X" testId="density-row">
+            <span>v</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+      // md base (26px) + spacious delta (6px)
+      expect(screen.getByTestId('density-row')).toHaveStyle({
+        minHeight: '32px',
+      });
+    });
+
+    it('defaults to normal density', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertyRow label="X" testId="density-row">
+            <span>v</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+      expect(screen.getByTestId('density-row')).toHaveStyle({
+        minHeight: '26px',
+      });
+    });
+  });
 });
 
 // === PropertySection ===

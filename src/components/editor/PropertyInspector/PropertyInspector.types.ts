@@ -6,6 +6,14 @@ import type React from 'react';
 
 export type PropertyInspectorSize = Size;
 
+/**
+ * Vertical spacing density applied to property rows.
+ * - `compact`: tighter rows for dense inspectors
+ * - `normal`: default spacing
+ * - `spacious`: roomier rows
+ */
+export type PropertyDensity = 'compact' | 'normal' | 'spacious';
+
 // --- PropertyPanel ---
 
 export interface PropertyPanelBaseProps extends BaseComponent {
@@ -36,6 +44,21 @@ export interface PropertyPanelBaseProps extends BaseComponent {
    * @default "100%"
    */
   maxHeight?: number | string;
+
+  /**
+   * Fill the available height of the parent and scroll the content when it
+   * overflows, without needing a fixed `maxHeight`. A scrollbar gutter is
+   * reserved so controls never sit under the scrollbar. Ignored when
+   * `maxHeight` is set.
+   * @default false
+   */
+  fillHeight?: boolean;
+
+  /**
+   * Vertical spacing density applied to all nested rows.
+   * @default "normal"
+   */
+  density?: PropertyDensity;
 
   /**
    * Whether to show a search/filter input in the header
@@ -295,6 +318,7 @@ export type PropertyGroupProps = Prettify<PropertyGroupBaseProps>;
 
 export interface PropertyPanelContextValue {
   size: PropertyInspectorSize;
+  density: PropertyDensity;
   searchQuery: string;
 }
 

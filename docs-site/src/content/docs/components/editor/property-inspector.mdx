@@ -8,6 +8,7 @@ import ComponentPreview from '../../../../components/ComponentPreview.astro';
 import PropertyInspectorDemo, {
   PropertyRowLabelDemo,
   PropertySectionCheckableDemo,
+  PropertyPanelFillHeightDemo,
 } from '../../../../components/demos/editor/PropertyInspectorDemo';
 
 A property inspector system for editor interfaces, modeled after the property panels found in 3D tools (Blender, Unity, Unreal). Composed of four components -- `PropertyPanel`, `PropertySection`, `PropertyRow`, and `PropertyGroup` -- plus a `usePropertyUndo` hook for undo/redo support. The panel provides shared context for size and search filtering to all child components.
@@ -72,6 +73,27 @@ The root container that provides size context and optional search filtering to a
 >
   {/* PropertySection components */}
 </PropertyPanel>
+```
+
+#### Fill Height and Density
+
+For a panel that fills a dock and scrolls when its content overflows, set
+`fillHeight` instead of a fixed `maxHeight`. The panel fills its parent's height
+and reserves a scrollbar gutter so controls never sit under the scrollbar. Use
+`density` (`compact` / `normal` / `spacious`) to tune the vertical rhythm of all
+rows — handy for dense inspectors.
+
+<ComponentPreview title="Fill Height and Density">
+  <PropertyPanelFillHeightDemo client:only="react" />
+</ComponentPreview>
+
+```tsx
+// Fills the 240px-tall parent and scrolls; rows use the compact rhythm.
+<div style={{ height: 240 }}>
+  <PropertyPanel fillHeight density="compact">
+    <PropertySection title="Channels">{/* many rows */}</PropertySection>
+  </PropertyPanel>
+</div>
 ```
 
 ### PropertySection
@@ -321,6 +343,19 @@ function handleChange(newValue: number) {
       type: 'number | string',
       description:
         'Maximum height of the panel. Enables scrolling via ScrollArea when set.',
+    },
+    {
+      name: 'fillHeight',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Fill the parent height and scroll on overflow (reserves a scrollbar gutter) without a fixed maxHeight. Ignored when maxHeight is set.',
+    },
+    {
+      name: 'density',
+      type: "'compact' | 'normal' | 'spacious'",
+      default: "'normal'",
+      description: 'Vertical spacing density applied to all nested rows.',
     },
     {
       name: 'searchable',

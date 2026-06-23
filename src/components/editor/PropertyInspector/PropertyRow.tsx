@@ -23,6 +23,7 @@ import {
 } from './PropertyRow.css';
 
 import type {
+  PropertyDensity,
   PropertyInspectorSize,
   PropertyRowProps,
 } from './PropertyInspector.types';
@@ -53,6 +54,21 @@ const ROW_SIZE_MAP: Record<PropertyInspectorSize, RowSizeConfig> = {
   },
 };
 
+// --- Density maps ---
+
+interface DensityConfig {
+  /** Adjustment applied to the size-based min-height (px). */
+  minHeightDelta: number;
+  /** Vertical padding above/below the row content (px). */
+  paddingBlock: number;
+}
+
+const DENSITY_MAP: Record<PropertyDensity, DensityConfig> = {
+  compact: { minHeightDelta: -4, paddingBlock: 0 },
+  normal: { minHeightDelta: 0, paddingBlock: 2 },
+  spacious: { minHeightDelta: 6, paddingBlock: 5 },
+};
+
 // --- Component ---
 
 export const PropertyRow: React.FC<PropertyRowProps> = ({
@@ -78,6 +94,8 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
   const panelCtx = usePropertyPanelContext();
   const size = sizeProp ?? panelCtx?.size ?? 'md';
   const sizeConfig = ROW_SIZE_MAP[size];
+  const densityConfig = DENSITY_MAP[panelCtx?.density ?? 'normal'];
+  const rowMinHeight = sizeConfig.minHeight + densityConfig.minHeightDelta;
 
   const handleResetClick = useCallback(
     (e: React.MouseEvent) => {
@@ -126,7 +144,9 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
         display: visible ? 'flex' : 'none',
         flexDirection: fullWidth ? 'column' : 'row',
         alignItems: fullWidth ? 'stretch' : 'center',
-        minHeight: `${sizeConfig.minHeight}px`,
+        minHeight: `${rowMinHeight}px`,
+        paddingTop: `${densityConfig.paddingBlock}px`,
+        paddingBottom: `${densityConfig.paddingBlock}px`,
         opacity: disabled ? 0.5 : 1,
         pointerEvents: disabled ? 'none' : 'auto',
       }}

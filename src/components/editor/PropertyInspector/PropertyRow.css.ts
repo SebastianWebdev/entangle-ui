@@ -9,7 +9,8 @@ export const controlRatioVar = createVar();
 
 export const rowRoot = style({
   position: 'relative',
-  padding: '2px 8px',
+  // Horizontal padding only — vertical padding is applied inline per density.
+  padding: `0 ${vars.spacing.md}`,
   transition: `background ${vars.transitions.fast}`,
   selectors: {
     '&:hover': {
@@ -71,7 +72,8 @@ export const rowControl = style({
   display: 'flex',
   alignItems: 'center',
   minWidth: 0,
-  paddingRight: vars.spacing.xs,
+  // Keep the control clear of the row's right edge / scrollbar gutter.
+  paddingRight: vars.spacing.sm,
 });
 
 export const fullWidthControl = style({
@@ -80,7 +82,7 @@ export const fullWidthControl = style({
   width: '100%',
   flex: '1 1 auto',
   minWidth: 0,
-  paddingRight: vars.spacing.xs,
+  paddingRight: vars.spacing.sm,
 });
 
 export const resetButton = style({

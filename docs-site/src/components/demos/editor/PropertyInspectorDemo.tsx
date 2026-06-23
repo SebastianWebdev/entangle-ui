@@ -86,6 +86,32 @@ export function PropertyRowLabelDemo() {
   );
 }
 
+export function PropertyPanelFillHeightDemo() {
+  const rows = Array.from({ length: 14 }, (_, i) => i);
+
+  return (
+    <DemoWrapper withKeyboard padding="0">
+      <div
+        style={{
+          height: 240,
+          border: '1px solid var(--etui-color-border-default)',
+          borderRadius: 4,
+        }}
+      >
+        <PropertyPanel fillHeight density="compact">
+          <PropertySection title="Channels" defaultExpanded>
+            {rows.map(i => (
+              <PropertyRow key={i} label={`Channel ${i + 1}`}>
+                <NumberInput value={i} onChange={() => {}} />
+              </PropertyRow>
+            ))}
+          </PropertySection>
+        </PropertyPanel>
+      </div>
+    </DemoWrapper>
+  );
+}
+
 export function PropertySectionCheckableDemo() {
   const [fogEnabled, setFogEnabled] = useState(true);
   const [density, setDensity] = useState(0.3);
