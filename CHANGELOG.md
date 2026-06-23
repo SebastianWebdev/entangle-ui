@@ -1,5 +1,77 @@
 # entangle-ui
 
+## 0.11.0
+
+### Minor Changes
+
+- [#103](https://github.com/SebastianWebdev/entangle-ui/pull/103) [`9fd2dbd`](https://github.com/SebastianWebdev/entangle-ui/commit/9fd2dbdd86a24c776b5b188582eec3c7ceb584b9) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Fix browser white-screen caused by a Node build of `picocolors` being inlined into the shipped ESM.
+
+  `@vanilla-extract/css` was reachable from the runtime barrel (via `createCustomTheme`) but was **not** a Rollup external, so its entire runtime — including the Node build of `picocolors` (`let p = process || {}` at module init) and `lru-cache` — was inlined into `dist/esm`. Any `entangle-ui` import then crashed with `process is not defined` in the browser (most visibly in `vite dev`, where nothing is tree-shaken).
+
+  **What changed:**
+  - `@vanilla-extract/css` is now a Rollup external, so it is no longer inlined. The consumer's bundler resolves it and honours each dependency's `browser` field, so no Node-only globals reach the browser.
+  - A regression guard (`scripts/check-browser-safe.ts`, wired into `prepublishOnly` via `npm run check:browser-safe`) fails the publish if any `dist/esm/**/*.js` references a Node-only global (`process`, `require(`) outside the bundler-replaceable `process.env.NODE_ENV` guard.
+
+  **Action required (peer dependency):** `@vanilla-extract/css` (`^1.18.0`) is now declared as a `peerDependency`. It is already pulled in transitively by the existing required peers `@vanilla-extract/dynamic` and `@vanilla-extract/recipes`, so npm/yarn users are unaffected; pnpm users (strict resolution) should ensure it is installed.
+
+- [#105](https://github.com/SebastianWebdev/entangle-ui/pull/105) [`55b94aa`](https://github.com/SebastianWebdev/entangle-ui/commit/55b94aa3cf90690c5e32a6c61d88e2f3c55e6277) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add a canonical stylesheet entry and fix published sourcemaps.
+
+  **`entangle-ui/styles.css` (new, canonical theme import).** The documented CSS imports (`entangle-ui/styles.css`, `entangle-ui/darkTheme.css`) did not resolve, and the dark theme `:root` variables (`--etui-*`) were not reachable from a normal component import — so a fresh app rendered unstyled. There is now a single canonical entry:
+
+  ```ts
+  // once, at your app root
+  import 'entangle-ui/styles.css';
+  ```
+
+  It registers every `--etui-*` token on `:root` (default dark theme) plus the opt-in global-scrollbar rules, so components render correctly **without** a `ThemeProvider` wrapper. Component CSS still ships per component, so the entry stays tiny. A packaging test asserts the `:root` tokens are present.
+
+  **Package-relative sourcemaps.** Published `.js.map` files pointed `sources` at an unshipped `node_modules/entangle-ui/src/...` and shipped no `sourcesContent`, producing "source file outside its package" warnings in consumers. Sourcemaps now use package-relative `src/...` paths with embedded `sourcesContent` (`inlineSources` in `tsconfig.build.json` + a `sourcemapPathTransform` in `rollup.config.js`). A regression guard (`scripts/check-sourcemaps.ts`, wired into `prepublishOnly` via `npm run check:sourcemaps`) fails the publish if a sourcemap escapes the package or drops its source content.
+
+- [#107](https://github.com/SebastianWebdev/entangle-ui/pull/107) [`2c96ea1`](https://github.com/SebastianWebdev/entangle-ui/commit/2c96ea1e149b73c55d41f6ab1347d9cf8f6c60bf) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - `PropertyPanel`: add fill-height scrolling, row density, and a small control-padding fix.
+  - **`fillHeight` (new prop).** Fills the parent's height and scrolls the content on overflow without needing a fixed `maxHeight`, reserving a scrollbar gutter so controls don't sit under the overlay scrollbar. Ignored when `maxHeight` is set.
+  - **`density` (new prop).** `compact` / `normal` / `spacious` tunes the vertical rhythm (min-height + vertical padding) of all nested `PropertyRow`s via panel context. Default `normal` is unchanged from before.
+  - **Control right padding.** `PropertyRow`'s control column right padding was bumped from `xs` (2px) to `sm` (4px) so controls no longer sit flush against the row's right edge. This is a small default visual change.
+
+- [#107](https://github.com/SebastianWebdev/entangle-ui/pull/107) [`2c96ea1`](https://github.com/SebastianWebdev/entangle-ui/commit/2c96ea1e149b73c55d41f6ab1347d9cf8f6c60bf) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - `PropertyRow`: fix the label tooltip and allow a `ReactNode` label.
+  - **Tooltip fix.** The label tooltip never appeared because the tooltip trigger wrapped its content in a `display: contents` element, which generates no box and therefore no hover/focus target (the `Tooltip` primitive disables pointer events on the trigger and re-enables them only on its direct child). The wrapper is now a real `inline-flex` box, so hovering or focusing the label shows the tooltip.
+  - **`label: ReactNode`.** `PropertyRow.label` was typed `string` but already rendered any node. It is now typed `React.ReactNode`, so an icon + text (or any custom markup) can be used as a label without a cast. This is a widening, so existing string labels are unaffected.
+
+- [#107](https://github.com/SebastianWebdev/entangle-ui/pull/107) [`2c96ea1`](https://github.com/SebastianWebdev/entangle-ui/commit/2c96ea1e149b73c55d41f6ab1347d9cf8f6c60bf) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - `PropertySection`: add a first-class checkable section.
+
+  Set `checkable` to render a managed enable/disable toggle in the section header (built on the `Switch` primitive). When the toggle is off, the section body is dimmed and made non-interactive (`pointer-events: none`) but **stays mounted**, so its state is preserved. The toggle is independent of the collapse state and supports controlled and uncontrolled use via `checked` / `defaultChecked` / `onCheckedChange`. The toggle's accessible name defaults to the section `title` and can be overridden with `checkLabel`. All additive — sections without `checkable` are unchanged.
+
+- [#107](https://github.com/SebastianWebdev/entangle-ui/pull/107) [`2c96ea1`](https://github.com/SebastianWebdev/entangle-ui/commit/2c96ea1e149b73c55d41f6ab1347d9cf8f6c60bf) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - `Select`: add `fullWidth` and size the open dropdown to its content.
+  - **`fullWidth` (new prop).** When set, the select stretches the container and trigger to fill the available width instead of shrinking to the selected label. This fixes selects collapsing when placed inside a flex row or property panel. Default `false` preserves the previous content-width behavior.
+  - **Content-sized dropdown.** The open dropdown now sizes to its widest option (`width: max-content`), with a minimum of the trigger width (and `minDropdownWidth` when set) and a maximum clamped to the viewport. Long option labels are no longer clipped by a narrow trigger. `minDropdownWidth` continues to act as a floor.
+
+- [#107](https://github.com/SebastianWebdev/entangle-ui/pull/107) [`2c96ea1`](https://github.com/SebastianWebdev/entangle-ui/commit/2c96ea1e149b73c55d41f6ab1347d9cf8f6c60bf) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - `Select`: type `onChange` per `clearable` so the value is only nullable when it can actually be cleared.
+
+  `SelectProps` is now a discriminated union on `clearable`:
+  - Without `clearable`, `onChange` is `(value: T) => void` — it never receives `null`, so consumers no longer need a spurious null check.
+  - With `clearable`, `onChange` is `(value: T | null) => void` — `null` is emitted by the clear button.
+
+  Type-only change (runtime behavior is unchanged). This is stricter than before: an inline `onChange` handler on a non-clearable select now infers `T` instead of `T | null`. Handlers already written to accept `T | null` remain assignable, so most code is unaffected; a handler that explicitly compared the value to `null` on a non-clearable select should drop that dead branch.
+
+- [#108](https://github.com/SebastianWebdev/entangle-ui/pull/108) [`67edb59`](https://github.com/SebastianWebdev/entangle-ui/commit/67edb59caeadb6798318774e725a061f567f4a8f) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add viewport / 3D icon glyphs: `OrbitIcon`, `RotateIcon`, `SpinIcon`, `CameraIcon`, `CubeIcon`, and `ZoomFitIcon`.
+
+  The icon set previously lacked rotate/orbit, camera, cube/axis, and zoom-to-fit glyphs, so editor viewports had to reuse `RefreshIcon`/`HomeIcon` for unrelated meanings. These six additions match the existing 24×24 / 2px-stroke style, are exported from the root barrel, and are tree-shakeable like every other icon. Purely additive — no existing icon changed.
+
+### Patch Changes
+
+- [#106](https://github.com/SebastianWebdev/entangle-ui/pull/106) [`7c68e13`](https://github.com/SebastianWebdev/entangle-ui/commit/7c68e133d93a35287d82b3d1036ca0c3eac70521) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Fix the install and getting-started documentation across every surface so a new consumer can install and run the package.
+
+  The README (shipped on npm), the `docs/` quickstart and theming guides, the docs-site getting-started and theming pages, and the bundled skill all carried a stale install story:
+  - **Install tag.** `npm install entangle-ui@alpha` resolved to an ancient `0.1.0-alpha.0`; the documented command is now `npm install entangle-ui`.
+  - **React floor.** The `react`/`react-dom` peer requirement is `>=19.2.0`, not the documented `>=19.1.0`.
+  - **Peer dependencies.** The docs omitted `@tanstack/react-virtual` and `@vanilla-extract/css`; all peers are now listed with their real version ranges.
+  - **Theme import.** The documented `entangle-ui/darkTheme.css` and side-effect `entangle-ui/theme` imports did not register the `--etui-*` variables. Everything now uses the canonical `import 'entangle-ui/styles.css'`, and the default-theme examples no longer imply a `ThemeProvider` wrapper is required.
+
+  Documentation only — no runtime or API change.
+
+- [#107](https://github.com/SebastianWebdev/entangle-ui/pull/107) [`2c96ea1`](https://github.com/SebastianWebdev/entangle-ui/commit/2c96ea1e149b73c55d41f6ab1347d9cf8f6c60bf) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - `PropertySection`: render header controls as siblings of the collapse trigger instead of nested inside it.
+
+  The enable toggle (`checkable`) and the `actions` slot were rendered inside the section header's trigger `<button>`, which produced invalid HTML (`<button>` cannot contain another `<button>`/interactive control) and a React DOM warning. The header is now a flex strip containing the trigger button and a separate controls group as siblings, so toggles and actions are never nested in a button. The collapse behavior, sizing, and the expanded separator are unchanged; the trigger's hover highlight now covers the trigger area rather than the full strip width.
+
 ## 0.10.0
 
 ### Minor Changes
