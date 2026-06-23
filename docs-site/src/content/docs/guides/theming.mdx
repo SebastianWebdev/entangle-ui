@@ -38,12 +38,13 @@ The theme system is built on CSS custom properties:
 
 ## Default Theme
 
-The dark theme is applied globally on `:root` at build time. No provider is needed for the default look:
+Import the bundled stylesheet once at your app entry to register every `--etui-*` token on `:root`. No provider is needed for the default look:
 
 ```tsx
+import 'entangle-ui/styles.css';
 import { Button } from 'entangle-ui';
 
-// Works out of the box — dark theme is already active
+// Works out of the box — the default dark theme is active
 <Button variant="filled">Save</Button>;
 ```
 

@@ -5,7 +5,7 @@
 ## Install Entangle UI
 
 ```bash
-npm install entangle-ui@alpha
+npm install entangle-ui
 ```
 
 ### Peer Dependencies
@@ -13,15 +13,19 @@ npm install entangle-ui@alpha
 Entangle UI requires the following peer dependencies:
 
 ```bash
-npm install react react-dom @base-ui/react @floating-ui/react
+npm install react react-dom @base-ui/react @floating-ui/react @tanstack/react-virtual @vanilla-extract/css @vanilla-extract/dynamic @vanilla-extract/recipes
 ```
 
-| Package              | Version    |
-| -------------------- | ---------- |
-| `react`              | `>=19.1.0` |
-| `react-dom`          | `>=19.1.0` |
-| `@base-ui/react`     | `^1.1.0`   |
-| `@floating-ui/react` | `^0.27.17` |
+| Package                    | Version    |
+| -------------------------- | ---------- |
+| `react`                    | `>=19.2.0` |
+| `react-dom`                | `>=19.2.0` |
+| `@base-ui/react`           | `^1.1.0`   |
+| `@floating-ui/react`       | `^0.27.17` |
+| `@tanstack/react-virtual`  | `^3.13.0`  |
+| `@vanilla-extract/css`     | `^1.18.0`  |
+| `@vanilla-extract/dynamic` | `^2.1.5`   |
+| `@vanilla-extract/recipes` | `^0.5.7`   |
 
 :::note
 Entangle UI is ESM-only (`"type": "module"`). Make sure your bundler supports ES modules.

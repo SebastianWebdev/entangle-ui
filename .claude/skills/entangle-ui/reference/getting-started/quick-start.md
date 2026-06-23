@@ -9,7 +9,7 @@ Get up and running with Entangle UI in under five minutes.
 Import the dark theme CSS to register all `--etui-*` CSS custom properties on `:root`. No wrapper component is needed for the default look:
 
 ```tsx
-import 'entangle-ui/theme';
+import 'entangle-ui/styles.css';
 import { Button } from 'entangle-ui';
 
 function App() {
@@ -33,7 +33,7 @@ Override tokens with plain CSS on any selector:
 Or use `VanillaThemeProvider` for scoped overrides:
 
 ```tsx
-import 'entangle-ui/theme';
+import 'entangle-ui/styles.css';
 import { VanillaThemeProvider } from 'entangle-ui';
 
 function App() {
