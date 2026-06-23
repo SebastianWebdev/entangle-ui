@@ -1,0 +1,1 @@
+function o(t){var n=t.match(/^var\((.*)\)$/);return n?n[1]:t}function u(t,n){var r={};{var e=t;for(var a in e){var i=e[a];i!=null&&(r[o(a)]=i)}}return Object.defineProperty(r,"toString",{value:function(){return Object.keys(this).map(c=>"".concat(c,":").concat(this[c])).join(";")},writable:!1}),r}export{u as a};

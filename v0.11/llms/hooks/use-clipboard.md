@@ -1,0 +1,85 @@
+# useClipboard
+> Copy text to the clipboard with a built-in timeout-driven feedback state.
+
+`useClipboard` writes text to the system clipboard and tracks the result so your UI can flash a "Copied!" affordance without writing the timer logic yourself. It uses `navigator.clipboard.writeText` when available and falls back to `document.execCommand('copy')` when it isn't.
+
+**Live preview**
+
+## Import
+
+```ts
+import { useClipboard } from 'entangle-ui';
+```
+
+## Signature
+
+```ts
+function useClipboard(options?: UseClipboardOptions): UseClipboardReturn;
+
+type ClipboardStatus = 'idle' | 'copied' | 'error';
+
+interface UseClipboardOptions {
+  timeout?: number;
+}
+
+interface UseClipboardReturn {
+  status: ClipboardStatus;
+  copied: boolean;
+  error: Error | null;
+  copy: (text: string) => Promise<boolean>;
+  reset: () => void;
+}
+```
+
+## Usage
+
+```tsx
+function CopyButton({ value }: { value: string }) {
+  const { copy, copied } = useClipboard({ timeout: 1500 });
+
+  return (
+    <Button onClick={() => copy(value)}>{copied ? 'Copied!' : 'Copy'}</Button>
+  );
+}
+```
+
+### Basic
+
+**Basic**
+
+### Custom timeout
+
+**Custom timeout**
+
+```tsx
+const { copy, copied } = useClipboard({ timeout: 500 });
+```
+
+### Error handling
+
+The hook does not throw — failures surface through `status === 'error'` and `error`. Call `reset()` to clear the state explicitly.
+
+**Error handling**
+
+## API
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `timeout` | `number` | `2000` | Time in ms the `copied` state stays before resetting to `idle`. |
+
+## Returns
+
+| Field    | Type                                 | Notes                                                                                           |
+| -------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `status` | `'idle' \| 'copied' \| 'error'`      | Current feedback state.                                                                         |
+| `copied` | `boolean`                            | Convenience for `status === 'copied'`.                                                          |
+| `error`  | `Error \| null`                      | Last error from a failed copy. Stays around until the next successful copy or `reset()`.        |
+| `copy`   | `(text: string) => Promise<boolean>` | Copies to clipboard. Resolves with the success boolean. Never rejects.                          |
+| `reset`  | `() => void`                         | Cancels the pending timer and returns `status` to `'idle'`. Use it for "Copied!" to "Copy" UIs. |
+
+## Common pitfalls
+
+- **Permissions:** The Clipboard API requires a secure context (HTTPS) and, for some browsers, a user gesture. The hook does not retry — a permission denial surfaces as `status: 'error'` and the consumer can render a fallback (e.g. a "select to copy" textarea).
+- **SSR:** On the server `copy()` returns `false` and sets `status` to `'error'` without throwing. Wrap in a click handler — it should not be called during render.
+- **Multiple rapid copies:** Each successful `copy()` resets the timer, so spamming the button keeps the "Copied!" label visible without stacking pending timers.
+- **Long text:** The fallback path uses a hidden `<textarea>` and `document.execCommand('copy')`. Some browsers truncate very large payloads; prefer the modern API where possible.

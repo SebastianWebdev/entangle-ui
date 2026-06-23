@@ -1,0 +1,1 @@
+import{j as s}from"./jsx-runtime.u17CrQMm.js";import{R as c}from"./index.y-DWsWaV.js";import{I as r}from"./Icon.AS9sikgX.js";const e=c.memo(o=>s.jsxs(r,{...o,children:[s.jsx("circle",{cx:"12",cy:"12",r:"10"}),s.jsx("polyline",{points:"9,12 12,15 16,10"})]}));e.displayName="SuccessIcon";export{e as S};

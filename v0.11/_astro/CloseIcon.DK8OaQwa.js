@@ -1,0 +1,1 @@
+import{j as o}from"./jsx-runtime.u17CrQMm.js";import{R as e}from"./index.y-DWsWaV.js";import{I as r}from"./Icon.AS9sikgX.js";const m=e.memo(s=>o.jsxs(r,{...s,children:[o.jsx("line",{x1:"18",y1:"6",x2:"6",y2:"18"}),o.jsx("line",{x1:"6",y1:"6",x2:"18",y2:"18"})]}));m.displayName="CloseIcon";export{m as C};

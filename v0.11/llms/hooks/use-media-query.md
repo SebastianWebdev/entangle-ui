@@ -1,0 +1,64 @@
+# useMediaQuery
+> Reactive `matchMedia` listener with an SSR-safe fallback.
+
+`useMediaQuery` returns whether the current viewport matches a CSS media query and re-renders when the match changes. It uses the modern `addEventListener('change')` API with a fallback to the legacy `addListener` for older Safari, and supplies an SSR-safe `defaultMatches` for the initial server render. Reach for `useBreakpoint` when you only need the named library breakpoints.
+
+**Live preview**
+
+## Import
+
+```ts
+import { useMediaQuery } from 'entangle-ui';
+```
+
+## Signature
+
+```ts
+function useMediaQuery(query: string, options?: UseMediaQueryOptions): boolean;
+
+interface UseMediaQueryOptions {
+  defaultMatches?: boolean;
+}
+```
+
+## Usage
+
+```tsx
+function Layout() {
+  const isWide = useMediaQuery('(min-width: 768px)');
+  return isWide ? <DesktopLayout /> : <MobileLayout />;
+}
+```
+
+### Conditional render
+
+**Mobile vs desktop**
+
+### Other useful queries
+
+```tsx
+const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
+const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+const isPortrait = useMediaQuery('(orientation: portrait)');
+```
+
+## Arguments
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `query` *(required)* | `string` | — | CSS media query string. Wrap conditions in parentheses, e.g. `(min-width: 768px)` or `(prefers-color-scheme: dark)`. |
+| `options.defaultMatches` | `boolean` | `false` | SSR fallback used when `window.matchMedia` is unavailable. Returned on the first server render to keep hydration stable. |
+
+## Return value
+
+A `boolean` that is `true` when the query matches and updates as the viewport / user preferences change.
+
+## Related
+
+- `useBreakpoint` — convenience wrapper for the library's named breakpoint scale.
+
+## Common pitfalls
+
+- **Hydration mismatch:** if your server renders the desktop branch but the client first lands at mobile width, React will warn. Either render a layout-neutral shell until after mount or set `defaultMatches` to match your expected SSR audience.
+- **Query string identity:** the hook re-subscribes whenever the `query` string changes. Build it outside the render or memoize it if you compose it dynamically.
+- **Always-true / always-false queries:** an invalid query string never matches. Double-check parentheses and units (`min-width: 768px`, not `min-width: 768`).

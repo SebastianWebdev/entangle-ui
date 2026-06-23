@@ -1,0 +1,1 @@
+import{r}from"./index.y-DWsWaV.js";function o(t){const{draw:s,deps:c,paused:a=!1}=t,e=r.useRef(0),n=r.useCallback(s,c);r.useEffect(()=>{if(!a)return cancelAnimationFrame(e.current),e.current=requestAnimationFrame(n),()=>{cancelAnimationFrame(e.current)}},[n,a])}export{o as u};

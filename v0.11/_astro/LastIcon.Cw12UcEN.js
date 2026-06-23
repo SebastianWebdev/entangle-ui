@@ -1,0 +1,1 @@
+import{j as s}from"./jsx-runtime.u17CrQMm.js";import{R as t}from"./index.y-DWsWaV.js";import{I as r}from"./Icon.AS9sikgX.js";const a=t.memo(o=>s.jsx(r,{...o,children:s.jsx("path",{d:"M6 5v14M18 5l-7 7 7 7"})}));a.displayName="FirstIcon";const m=t.memo(o=>s.jsx(r,{...o,children:s.jsx("path",{d:"M18 5v14M6 5l7 7-7 7"})}));m.displayName="LastIcon";export{a as F,m as L};

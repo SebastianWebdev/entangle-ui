@@ -1,0 +1,1 @@
+import{j as o}from"./jsx-runtime.u17CrQMm.js";import{R as a}from"./index.y-DWsWaV.js";import{I as m}from"./Icon.AS9sikgX.js";const s=a.memo(r=>o.jsx(m,{...r,children:o.jsx("path",{d:"M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"})}));s.displayName="FolderIcon";export{s as F};

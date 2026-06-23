@@ -1,0 +1,1 @@
+import{r as e}from"./index.y-DWsWaV.js";function i(o={width:600,height:400},r={x:0,y:0,zoom:1}){const[n,s]=e.useState(r);return{transform:n,viewportSize:o,onNavigate:a=>{s(t=>({...t,x:o.width/2-a.worldPoint.x*t.zoom,y:o.height/2-a.worldPoint.y*t.zoom}))}}}export{i as u};

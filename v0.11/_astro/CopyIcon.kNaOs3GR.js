@@ -1,0 +1,1 @@
+import{j as o}from"./jsx-runtime.u17CrQMm.js";import{R as t}from"./index.y-DWsWaV.js";import{I as s}from"./Icon.AS9sikgX.js";const a=t.memo(r=>o.jsxs(s,{...r,children:[o.jsx("rect",{x:"9",y:"9",width:"13",height:"13",rx:"2",ry:"2"}),o.jsx("path",{d:"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"})]}));a.displayName="CopyIcon";export{a as C};
