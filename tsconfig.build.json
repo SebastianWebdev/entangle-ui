@@ -4,6 +4,7 @@
     "declaration": false,
     "declarationMap": false,
     "sourceMap": true,
+    "inlineSources": true,
     "outDir": "dist",
     "noEmit": false,
     "types": []

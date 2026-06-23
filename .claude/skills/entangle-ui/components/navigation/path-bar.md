@@ -65,7 +65,7 @@ Provide `getSiblings` to add a VS-Code-style dropdown to each crumb. Return the 
 />
 ```
 
-`getSiblings` is called during render for each segment, so keep it cheap (an array or map lookup) — or memoize the underlying data. Each crumb with a non-empty result gains a chevron caret that opens a [Menu](/components/navigation/menu) of siblings; the crumb label still navigates on click.
+`getSiblings` is called during render for each **visible** crumb (segments hidden behind the overflow ellipsis are skipped until expanded), so keep it cheap — an array or map lookup — or memoize the underlying data. Each crumb with a non-empty result gains a chevron caret that opens a [Menu](/components/navigation/menu) of siblings; the crumb label still navigates on click.
 
 ## Icons
 
@@ -119,6 +119,44 @@ PathBar reuses the Breadcrumbs collapse machinery. When `maxItems` is greater th
 <PathBar size="lg" value="src/components/Button.tsx" />
 ```
 
+`size` scales the typography, the default chevron separator, and the sibling-dropdown caret together.
+
+## Styling
+
+Every color, radius, and transition in PathBar reads from the `--etui-*` theme-contract custom properties — most of them inherited from [Breadcrumbs](/components/navigation/breadcrumbs). To re-skin a bar (or a whole subtree of your app) override those variables on any ancestor element; no component-level props required.
+
+**Default vs. custom token overrides**
+
+```tsx
+import type { CSSProperties } from 'react';
+
+const accent: CSSProperties = {
+  '--etui-color-text-secondary': '#7dd3fc', // folder crumbs
+  '--etui-color-text-primary': '#f0f9ff', // current segment + hover
+  '--etui-color-text-muted': '#38bdf8', // separators + idle caret
+  '--etui-radius-sm': '6px', // focus-ring / caret corners
+};
+
+<div style={accent}>
+  <PathBar value="src/components/Button/Button.tsx" />
+</div>;
+```
+
+The tokens PathBar reads:
+
+| Token                                           | Affects                                             |
+| ----------------------------------------------- | --------------------------------------------------- |
+| `--etui-color-text-secondary`                   | Folder (clickable) crumbs.                          |
+| `--etui-color-text-primary`                     | Current segment, crumb hover, and the active caret. |
+| `--etui-color-text-muted`                       | Separators and the idle sibling-dropdown caret.     |
+| `--etui-shadow-focus`                           | Focus ring on crumbs and the caret button.          |
+| `--etui-radius-sm`                              | Focus-ring and caret corner radius.                 |
+| `--etui-spacing-xs`, `--etui-spacing-sm`        | Gap between crumbs and the caret offset.            |
+| `--etui-transition-fast`                        | Hover / focus color transitions.                    |
+| `--etui-font-family-sans`, `--etui-font-size-*` | Bar typography (the `size` prop selects the step).  |
+
+For a fully custom palette across the whole app, prefer `createCustomTheme(...)` from the public API — overriding `--etui-*` directly is the right tool for a localized accent.
+
 ## Paths
 
 PathBar normalizes paths predictably:
@@ -151,12 +189,12 @@ Use PathBar for file-system-flavored locations: editor breadcrumb bars, asset pa
 | `onNavigate` | `(path: string, segment: PathSegment, index: number) => void` | — | Called when a folder crumb is clicked or a sibling is chosen. `path` is the activated segment’s value. |
 | `getSiblings` | `(segment: PathSegment, index: number) => ReadonlyArray<string \| PathSegment>` | — | Return a segment’s siblings to enable a dropdown picker on that crumb. Empty array = no dropdown. |
 | `rootIcon` | `ReactNode` | — | Icon shown before the first segment when it has no icon of its own. |
-| `separator` | `ReactNode` | `` | Separator inserted between segments. |
+| `separator` | `ReactNode` | `` | Separator inserted between segments. The default chevron scales with `size`. |
 | `maxItems` | `number` | `0` | Maximum segments before collapsing the middle. 0 never collapses. |
 | `itemsBeforeCollapse` | `number` | `1` | Leading segments kept visible when collapsed. |
 | `itemsAfterCollapse` | `number` | `2` | Trailing segments kept visible when collapsed. |
 | `expandable` | `boolean` | `true` | Allow clicking the ellipsis to reveal all segments. |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'sm'` | Typography and spacing scale. |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'sm'` | Typography and spacing scale. Also scales the default separator and the sibling-dropdown caret. |
 | `className` | `string` | — | Additional CSS class names. |
 | `style` | `CSSProperties` | — | Inline styles. |
 | `testId` | `string` | — | Test identifier for automated testing. |

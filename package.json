@@ -16,6 +16,7 @@
       "types": "./dist/types/index.d.ts",
       "default": "./dist/esm/index.js"
     },
+    "./styles.css": "./dist/esm/styles.js",
     "./palettes": {
       "types": "./dist/types/palettes.d.ts",
       "default": "./dist/esm/palettes.js"
@@ -53,7 +54,8 @@
     "type-check": "tsc --noEmit",
     "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
     "check:browser-safe": "tsx scripts/check-browser-safe.ts",
-    "prepublishOnly": "npm run clean && npm run build && npm run check:browser-safe",
+    "check:sourcemaps": "tsx scripts/check-sourcemaps.ts",
+    "prepublishOnly": "npm run clean && npm run build && npm run check:browser-safe && npm run check:sourcemaps",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "format:staged": "prettier --write --cache --ignore-unknown",

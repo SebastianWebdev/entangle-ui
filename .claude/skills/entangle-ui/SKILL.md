@@ -149,9 +149,11 @@ export function App() {
 - `useDebouncedCallback` → [hooks/use-debounced-callback.md](./hooks/use-debounced-callback.md) — Debounce a function with optional leading edge, maxWait, and cancel/flush controls.
 - `useDebouncedValue` → [hooks/use-debounced-value.md](./hooks/use-debounced-value.md) — Trailing-edge debounce for a reactive value — defer expensive work until input settles.
 - `useDisclosure` → [hooks/use-disclosure.md](./hooks/use-disclosure.md) — Manage an open/closed state with stable open, close, and toggle callbacks.
+- `useEventCallback` → [hooks/use-event-callback.md](./hooks/use-event-callback.md) — Stable callback identity that always invokes the most recently rendered version.
 - `useFocusTrap` → [hooks/use-focus-trap.md](./hooks/use-focus-trap.md) — Trap keyboard focus within a container element so Tab and Shift+Tab cycle without escaping.
 - `useHotkey` → [hooks/use-hotkey.md](./hooks/use-hotkey.md) — Bind a single keyboard combo to a callback with platform-aware Cmd/Ctrl mapping.
 - `useIntersectionObserver` → [hooks/use-intersection-observer.md](./hooks/use-intersection-observer.md) — Observe element visibility via IntersectionObserver with SSR-safe setup and a togglable `enabled` flag.
+- `useIsMounted` → [hooks/use-is-mounted.md](./hooks/use-is-mounted.md) — Stable getter that reports whether the component is still mounted.
 - `useKeyboard` → [hooks/use-keyboard.md](./hooks/use-keyboard.md) — Track the live state of modifier keys and currently pressed keys.
 - `useListboxNav` → [hooks/use-listbox-nav.md](./hooks/use-listbox-nav.md) — Shared keyboard navigation for listbox-like surfaces — tracks an active index, skips disabled items, and exposes a single keydown handler.
 - `useMediaQuery` → [hooks/use-media-query.md](./hooks/use-media-query.md) — Reactive `matchMedia` listener with an SSR-safe fallback.
@@ -165,6 +167,7 @@ export function App() {
 - `Accessibility` → [guides/accessibility.md](./guides/accessibility.md) — How Entangle UI handles accessibility concerns shared by every component, including reduced-motion support, focus rings, and keyboard semantics.
 - `Animations` → [guides/animations.md](./guides/animations.md) — Shared keyframes and utility classes for spinners, pulses, blinks, and fade-ins. Each utility honors prefers-reduced-motion.
 - `Styling` → [guides/styling.md](./guides/styling.md) — Learn how to style Entangle UI components using Vanilla Extract and theme tokens.
+- `Testing` → [guides/testing.md](./guides/testing.md) — How to test an application built with Entangle UI — Vitest + jsdom setup, loading the theme so CSS variables resolve, and stubbing the browser observers that editor components rely on.
 - `Theming` → [guides/theming.md](./guides/theming.md) — Learn how to customize and extend the Entangle UI theme system — colors, spacing, typography, shadows, and more.
 
 ### Reference
