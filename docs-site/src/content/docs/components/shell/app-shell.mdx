@@ -45,6 +45,31 @@ AppShell uses a compound component pattern. Each slot renders an appropriate sem
 | `AppShell.Dock`      | `<main>`             | Central content / viewport area  |
 | `AppShell.StatusBar` | `<footer>`           | Bottom status bar                |
 
+## Top Chrome
+
+The `AppShell.MenuBar` slot paints the menu-bar chrome background
+(`--etui-shell-menubar-bg`) by default, and a `MenuBar` placed inside it
+stretches to fill the slot. Together they read as one continuous chrome strip
+instead of a lighter content-width block — no per-app styling required. The
+`MenuBar` triggers inset their hover/active fill from the strip edges so the
+chrome reads cleanly.
+
+## Docking Panels
+
+There is no separate "panel dock" slot. Dock panels — a `PropertyPanel`,
+inspector, outliner, etc. — into the **side toolbar slots**
+(`AppShell.Toolbar position="left"` / `position="right"`). They render `<aside>`
+landmarks, size to their content, and pick up the `sideChromeSeparator`. The
+central `AppShell.Dock` is the viewport/canvas area; for resizable docks compose
+[`SplitPane`](../../layout/split-pane/) inside it.
+
+```tsx
+<AppShell.Dock>{/* viewport / canvas */}</AppShell.Dock>
+<AppShell.Toolbar position="right">
+  <PropertyPanel>{/* docked inspector */}</PropertyPanel>
+</AppShell.Toolbar>
+```
+
 ## Viewport Lock
 
 When `viewportLock` is enabled, the shell locks to the full viewport, preventing page scroll. This is the typical setup for editor applications.
@@ -263,6 +288,23 @@ function ToggleToolbarButton() {
     },
   ]}
 />
+
+## Styling
+
+AppShell defines no component-level CSS custom properties of its own; it is
+re-skinned through the shared `--etui-*` theme tokens below.
+
+### Theme tokens consumed
+
+| Token                                                                                               | Used for                        |
+| --------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `--etui-color-bg-primary`                                                                           | Shell background                |
+| `--etui-color-text-primary`                                                                         | Shell text color                |
+| `--etui-font-family-sans`                                                                           | Shell font family               |
+| `--etui-shell-menubar-bg`                                                                           | Menu-bar slot chrome background |
+| `--etui-color-border-default`                                                                       | Chrome separator borders        |
+| `--etui-shadow-separator-bottom` / `--etui-shadow-separator-right` / `--etui-shadow-separator-left` | Chrome separator shadows        |
+| `--etui-z-base`                                                                                     | Toolbar slot stacking order     |
 
 ## Accessibility
 

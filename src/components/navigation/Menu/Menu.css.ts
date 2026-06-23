@@ -3,6 +3,16 @@ import { style, globalStyle } from '@vanilla-extract/css';
 import { vars } from '@/theme/contract.css';
 
 /**
+ * The portaled, positioned element shared by Menu, submenus and ContextMenu.
+ * Base UI gives it `position: fixed` (its own stacking context), so the dropdown
+ * z-index must live here — not only on the inner Popup (`menuContentStyle`) — or
+ * a positioned sibling at a lower z-index paints over the menu.
+ */
+export const menuPositionerStyle = style({
+  zIndex: vars.zIndex.dropdown,
+});
+
+/**
  * Popup surface shared by Menu, submenus and ContextMenu.
  */
 export const menuContentStyle = style({

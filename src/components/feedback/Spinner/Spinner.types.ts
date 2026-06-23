@@ -39,6 +39,14 @@ export interface SpinnerBaseProps extends BaseComponent<HTMLSpanElement> {
    * @default false
    */
   showLabel?: boolean;
+  /**
+   * Render the spinner as purely decorative: `role="presentation"` +
+   * `aria-hidden`, with no live region. Use when the spinner sits inside an
+   * existing live region (e.g. `StatusBar`, which is itself `role="status"`) so
+   * the activity is not announced twice.
+   * @default false
+   */
+  decorative?: boolean;
 }
 
 export type SpinnerProps = Prettify<SpinnerBaseProps>;

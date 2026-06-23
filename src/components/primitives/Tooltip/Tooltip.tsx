@@ -7,7 +7,11 @@ import React from 'react';
 import { cx } from '@/utils/cx';
 
 import { ArrowSvg, StyledTooltipArrow } from './Arrow';
-import { tooltipContentStyle, tooltipTriggerStyle } from './Tooltip.css';
+import {
+  tooltipContentStyle,
+  tooltipTriggerStyle,
+  tooltipPositionerStyle,
+} from './Tooltip.css';
 import {
   CollisionAvoidance,
   TooltipAnimation,
@@ -284,6 +288,20 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   }
 
+  // Merge our z-index positioner class with any caller-provided className,
+  // honoring Base UI's function-className form (power-user `positionerProps`).
+  const incomingPositionerClassName = finalPositionerProps.className;
+  let positionerClassName: typeof incomingPositionerClassName;
+  if (typeof incomingPositionerClassName === 'function') {
+    positionerClassName = state =>
+      cx(tooltipPositionerStyle, incomingPositionerClassName(state));
+  } else {
+    positionerClassName = cx(
+      tooltipPositionerStyle,
+      incomingPositionerClassName
+    );
+  }
+
   // Handle cursor tracking. Copy into a local object instead of mutating the
   // caller-owned `rootProps` prop.
   const finalRootProps: Partial<BaseTooltipRootProps> = { ...rootProps };
@@ -327,7 +345,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
         </BaseTooltip.Trigger>
 
         <BaseTooltip.Portal>
-          <BaseTooltip.Positioner {...finalPositionerProps}>
+          <BaseTooltip.Positioner
+            {...finalPositionerProps}
+            className={positionerClassName}
+          >
             <BaseTooltip.Popup
               render={props => (
                 <div

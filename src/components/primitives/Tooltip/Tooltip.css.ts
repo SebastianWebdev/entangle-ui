@@ -32,6 +32,16 @@ export const tooltipContentStyle = style({
   },
 });
 
+/**
+ * The portaled, positioned element. Base UI gives it `position: fixed`, which
+ * creates its own stacking context — so the tooltip z-index must live here, not
+ * only on the inner Popup. Without it a positioned sibling at a lower z-index
+ * (e.g. an AppShell slot at `--etui-z-base`) paints over the tooltip.
+ */
+export const tooltipPositionerStyle = style({
+  zIndex: vars.zIndex.tooltip,
+});
+
 export const tooltipTriggerStyle = style({
   display: 'inline-block',
   cursor: 'pointer',

@@ -1,5 +1,6 @@
 import DemoWrapper from '../DemoWrapper';
 import { AppShell, MenuBar, StatusBar } from '@/components/shell';
+import { Stack } from '@/components/layout';
 import { Text } from '@/components/primitives';
 
 export default function AppShellDemo() {
@@ -38,6 +39,15 @@ export default function AppShellDemo() {
               <Text color="muted">Viewport Area</Text>
             </div>
           </AppShell.Dock>
+          <AppShell.Toolbar position="right">
+            <Stack gap={2} style={{ width: 180, padding: 12 }}>
+              <Text size="xs" color="muted">
+                Inspector
+              </Text>
+              <Text size="sm">Transform</Text>
+              <Text size="sm">Material</Text>
+            </Stack>
+          </AppShell.Toolbar>
           <AppShell.StatusBar>
             <StatusBar>
               <StatusBar.Section side="left">

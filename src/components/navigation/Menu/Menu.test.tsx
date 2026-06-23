@@ -5,6 +5,7 @@ import { vi } from 'vitest';
 import { renderWithTheme } from '@/tests/testUtils';
 
 import { Menu } from './Menu';
+import { menuPositionerStyle } from './Menu.css';
 
 // Mock Base UI Menu to avoid @floating-ui positioning loops in jsdom and to
 // keep the popup content mounted so items can be queried without opening.
@@ -45,7 +46,8 @@ vi.mock('@base-ui/react/menu', async () => {
       Root: Frag,
       Trigger,
       Portal: Frag,
-      Positioner: Div,
+      // Pass (not Div) so the className we set on the Positioner is observable.
+      Positioner: Pass,
       Popup: Pass,
       Group: Frag,
       GroupLabel: Div,
@@ -63,6 +65,21 @@ vi.mock('@base-ui/react/menu', async () => {
 });
 
 describe('Menu', () => {
+  describe('Layering', () => {
+    it('puts the dropdown z-index on the positioner so it escapes its own stacking context', () => {
+      const { container } = renderWithTheme(
+        <Menu>
+          <Menu.Trigger>Options</Menu.Trigger>
+          <Menu.Content>
+            <Menu.Item>Copy</Menu.Item>
+          </Menu.Content>
+        </Menu>
+      );
+      // The positioner (not only the popup) carries the dropdown z-index token.
+      expect(container.querySelector(`.${menuPositionerStyle}`)).not.toBeNull();
+    });
+  });
+
   describe('Rendering', () => {
     it('renders the trigger label', () => {
       renderWithTheme(

@@ -48,6 +48,11 @@ export const shellRoot = style({
 
 export const menuBarSlot = style({
   gridArea: 'menubar',
+  // Paint the menu-bar chrome background on the slot itself so the top chrome
+  // reads as one continuous strip even when the MenuBar does not fill every
+  // pixel (e.g. trailing content, different MenuBar size). Matches
+  // `MenuBar`'s own `vars.shell.menuBar.bg`.
+  background: vars.shell.menuBar.bg,
 });
 
 export const toolbarTopSlot = recipe({

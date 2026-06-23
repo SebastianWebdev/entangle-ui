@@ -34,9 +34,22 @@ export interface IconButtonBaseProps extends Omit<
    * Should be an Icon component or similar icon element.
    * The button will automatically size itself based on the icon size.
    *
+   * Equivalent to the `icon` prop — provide the glyph either way. When both are
+   * set, `icon` wins. Kept optional so `<IconButton icon={…} />` matches
+   * `Button`'s `icon` API.
+   *
    * @example <SaveIcon />, <AddIcon />
    */
-  children: React.ReactNode;
+  children?: React.ReactNode;
+
+  /**
+   * Icon element to display inside the button, mirroring `Button`'s `icon`
+   * prop so the two components share one API. Takes precedence over
+   * `children` when both are provided.
+   *
+   * @example <SaveIcon />, <AddIcon />
+   */
+  icon?: React.ReactNode;
 
   /**
    * Button size using standard library sizing
@@ -162,6 +175,7 @@ export type IconButtonProps = Prettify<IconButtonBaseProps>;
 export const IconButton = /*#__PURE__*/ React.memo<IconButtonProps>(
   ({
     children,
+    icon,
     className,
     size = 'md',
     variant = 'ghost',
@@ -176,6 +190,8 @@ export const IconButton = /*#__PURE__*/ React.memo<IconButtonProps>(
     ref,
     ...props
   }) => {
+    // `icon` mirrors Button's API; fall back to `children` for back-compat.
+    const glyph = icon ?? children;
     return (
       <button
         ref={ref}
@@ -196,11 +212,7 @@ export const IconButton = /*#__PURE__*/ React.memo<IconButtonProps>(
         style={style}
         {...props}
       >
-        {loading ? (
-          <div className={loadingSpinnerRecipe({ size })} />
-        ) : (
-          children
-        )}
+        {loading ? <div className={loadingSpinnerRecipe({ size })} /> : glyph}
       </button>
     );
   }

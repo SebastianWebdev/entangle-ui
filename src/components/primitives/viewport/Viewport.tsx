@@ -69,8 +69,11 @@ function categorizeChildren(children: React.ReactNode): CategorizedChildren {
 }
 
 /**
- * Viewport — pan/zoom canvas + HTML container for editor-style surfaces
- * such as node graphs, timelines, and 2D world editors.
+ * Viewport — **2D only.** A pan/zoom canvas + HTML container for editor-style
+ * surfaces such as node graphs, timelines, and 2D world editors. Despite the
+ * name it is *not* a 3D viewport: it owns a 2D pan/zoom transform, not a camera.
+ * For 3D, host your own WebGL/WebGPU canvas (e.g. inside an `AppShell.Dock`) and
+ * reach for `Viewport` only for 2D editor surfaces.
  *
  * Composes:
  * - Multiple perf-isolated `<ViewportLayer>` canvases (one draw cycle each).

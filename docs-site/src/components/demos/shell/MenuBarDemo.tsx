@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import DemoWrapper from '../DemoWrapper';
 import { MenuBar } from '@/components/shell';
 import { Stack } from '@/components/layout';
@@ -140,6 +141,39 @@ export function MenuBarDisabled() {
         </MenuBar.Menu>
         <MenuBar.Menu label="Debug" disabled>
           <MenuBar.Item>Step Over</MenuBar.Item>
+        </MenuBar.Menu>
+      </MenuBar>
+    </DemoWrapper>
+  );
+}
+
+export function MenuBarCheckable() {
+  const [showGrid, setShowGrid] = useState(true);
+  const [showAxes, setShowAxes] = useState(false);
+  const [shading, setShading] = useState('solid');
+
+  return (
+    <DemoWrapper padding="0" height="340px" withKeyboard>
+      <MenuBar>
+        <MenuBar.Menu label="View">
+          <MenuBar.CheckboxItem
+            checked={showGrid}
+            onCheckedChange={setShowGrid}
+          >
+            Show Grid
+          </MenuBar.CheckboxItem>
+          <MenuBar.CheckboxItem
+            checked={showAxes}
+            onCheckedChange={setShowAxes}
+          >
+            Show Axes
+          </MenuBar.CheckboxItem>
+          <MenuBar.Separator />
+          <MenuBar.RadioGroup value={shading} onValueChange={setShading}>
+            <MenuBar.RadioItem value="solid">Solid</MenuBar.RadioItem>
+            <MenuBar.RadioItem value="wireframe">Wireframe</MenuBar.RadioItem>
+            <MenuBar.RadioItem value="rendered">Rendered</MenuBar.RadioItem>
+          </MenuBar.RadioGroup>
         </MenuBar.Menu>
       </MenuBar>
     </DemoWrapper>

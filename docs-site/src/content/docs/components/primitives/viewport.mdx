@@ -7,6 +7,8 @@ import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
 import ViewportDemo from '../../../../components/demos/primitives/ViewportDemo';
 
+**2D only.** Despite the name, `Viewport` is **not** a 3D viewport — it owns a 2D pan/zoom transform, not a camera. For 3D, host your own WebGL/WebGPU canvas (for example inside an [`AppShell.Dock`](../../shell/app-shell/)) and reach for `Viewport` only for 2D editor surfaces.
+
 `Viewport` is the foundation primitive for editor-style 2D surfaces. It combines pan/zoom transform, perf-isolated canvas layers, world-anchored HTML, screen-space overlays, and marquee selection into a single composable primitive. Built to be the base for `NodeGraph`, `Timeline`, and similar surfaces.
 
 <ComponentPreview title="Live Preview">
