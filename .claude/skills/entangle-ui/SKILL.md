@@ -54,7 +54,7 @@ export function App() {
 - `Text` → [components/primitives/text.md](./components/primitives/text.md) — Versatile typography component with semantic variants, flexible sizing, and text styling for editor interfaces.
 - `TextArea` → [components/primitives/text-area.md](./components/primitives/text-area.md) — Multi-line text input with optional auto-resize, character count, monospace mode, and Input-parity styling.
 - `Tooltip` → [components/primitives/tooltip.md](./components/primitives/tooltip.md) — Contextual information tooltip with flexible positioning, collision handling, and animation support.
-- `Viewport` → [components/primitives/viewport.md](./components/primitives/viewport.md) — Pan/zoom canvas + HTML container for editor-style surfaces — node graphs, timelines, 2D world editors. Multi-layer rendering, world/screen overlays, marquee selection.
+- `Viewport` → [components/primitives/viewport.md](./components/primitives/viewport.md) — **2D only (not a 3D viewport — owns a 2D pan/zoom transform, not a camera; for 3D host your own WebGL canvas).** Pan/zoom canvas + HTML container for editor-style surfaces — node graphs, timelines, 2D world editors. Multi-layer rendering, world/screen overlays, marquee selection.
 - `VisuallyHidden` → [components/primitives/visually-hidden.md](./components/primitives/visually-hidden.md) — Hide content visually while keeping it announced by screen readers.
 
 ### Layout

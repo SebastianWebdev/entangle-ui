@@ -42,13 +42,17 @@ function resolveColor(color: SpinnerColor): string {
  * Loading / activity indicator.
  *
  * Announces itself via `role="status"` and `aria-label`; honors
- * `prefers-reduced-motion` by halting animation and dimming the indicator.
+ * `prefers-reduced-motion` by halting animation and dimming the indicator. Pass
+ * `decorative` to opt out of the live region when nested inside one (e.g. a
+ * `StatusBar`).
  *
  * @example
  * ```tsx
  * <Spinner />
  * <Spinner variant="dots" size="lg" />
  * <Spinner showLabel label="Fetching results..." />
+ * // Inside a StatusBar (already role="status"):
+ * <Spinner decorative size="sm" />
  * ```
  */
 export const Spinner = /*#__PURE__*/ React.memo<SpinnerProps>(
@@ -58,6 +62,7 @@ export const Spinner = /*#__PURE__*/ React.memo<SpinnerProps>(
     color = 'accent',
     label = 'Loading...',
     showLabel = false,
+    decorative = false,
     className,
     style,
     testId,
@@ -85,12 +90,16 @@ export const Spinner = /*#__PURE__*/ React.memo<SpinnerProps>(
         </span>
       );
 
+    // Decorative spinners drop the live region (and label) so a surrounding
+    // live region (e.g. StatusBar's role="status") is the single announcer.
+    const semanticProps: React.HTMLAttributes<HTMLSpanElement> = decorative
+      ? { role: 'presentation', 'aria-hidden': true }
+      : { role: 'status', 'aria-live': 'polite', 'aria-label': label };
+
     return (
       <span
         ref={ref}
-        role="status"
-        aria-live="polite"
-        aria-label={label}
+        {...semanticProps}
         className={cx(spinnerRootStyle, className)}
         style={{ ...inlineVars, ...style }}
         data-testid={testId}
@@ -99,7 +108,7 @@ export const Spinner = /*#__PURE__*/ React.memo<SpinnerProps>(
         {indicator}
         {showLabel ? (
           <span className={spinnerLabelStyle}>{label}</span>
-        ) : (
+        ) : decorative ? null : (
           <span className={visuallyHiddenStyle}>{label}</span>
         )}
       </span>

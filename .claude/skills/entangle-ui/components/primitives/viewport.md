@@ -1,6 +1,8 @@
 # Viewport
 
-> Pan/zoom canvas + HTML container for editor-style surfaces — node graphs, timelines, 2D world editors. Multi-layer rendering, world/screen overlays, marquee selection.
+> **2D only (not a 3D viewport).** Pan/zoom canvas + HTML container for editor-style surfaces — node graphs, timelines, 2D world editors. Multi-layer rendering, world/screen overlays, marquee selection.
+
+**2D only.** Despite the name, `Viewport` is **not** a 3D viewport — it owns a 2D pan/zoom transform, not a camera. For 3D, host your own WebGL/WebGPU canvas (e.g. inside an `AppShell.Dock`) and reach for `Viewport` only for 2D editor surfaces.
 
 `Viewport` is the foundation primitive for editor-style 2D surfaces. It combines pan/zoom transform, perf-isolated canvas layers, world-anchored HTML, screen-space overlays, and marquee selection into a single composable primitive. Built to be the base for `NodeGraph`, `Timeline`, and similar surfaces.
 

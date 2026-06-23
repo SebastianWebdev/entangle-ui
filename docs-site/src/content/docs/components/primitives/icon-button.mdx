@@ -21,12 +21,20 @@ import { IconButton } from 'entangle-ui';
 
 ## Usage
 
+Provide the glyph as `children` or via the `icon` prop — the latter mirrors
+[`Button`](../button/)'s `icon` API so the two components compose the same way.
+When both are set, `icon` wins.
+
 ```tsx
 import { SaveIcon } from 'entangle-ui';
 
+// As children
 <IconButton aria-label="Save file">
   <SaveIcon />
-</IconButton>;
+</IconButton>
+
+// Or via the icon prop (matches Button)
+<IconButton aria-label="Save file" icon={<SaveIcon />} />;
 ```
 
 ## Variants
@@ -168,9 +176,16 @@ The `loading` prop shows a spinner and disables interaction.
 <PropsTable
   props={[
     {
+      name: 'icon',
+      type: 'ReactNode',
+      description:
+        "Icon element to display inside the button, mirroring Button's icon prop. Takes precedence over children when both are set.",
+    },
+    {
       name: 'children',
       type: 'ReactNode',
-      description: 'Icon component to display inside the button.',
+      description:
+        'Icon element to display inside the button. Equivalent to the icon prop (kept for back-compat); icon wins when both are set.',
     },
     {
       name: 'aria-label',

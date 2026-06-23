@@ -74,5 +74,22 @@ describe('Spinner', () => {
       renderWithTheme(<Spinner ref={ref} />);
       expect(ref.current).toBeInstanceOf(HTMLElement);
     });
+
+    it('keeps role="status" and aria-live by default', () => {
+      renderWithTheme(<Spinner testId="spinner" />);
+      const el = screen.getByTestId('spinner');
+      expect(el).toHaveAttribute('role', 'status');
+      expect(el).toHaveAttribute('aria-live', 'polite');
+    });
+
+    it('opts out of the live region when decorative', () => {
+      renderWithTheme(<Spinner decorative testId="spinner" />);
+      // No nested live region: role/presentation + aria-hidden, no aria-live.
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      const el = screen.getByTestId('spinner');
+      expect(el).toHaveAttribute('role', 'presentation');
+      expect(el).toHaveAttribute('aria-hidden', 'true');
+      expect(el).not.toHaveAttribute('aria-live');
+    });
   });
 });

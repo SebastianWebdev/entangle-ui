@@ -162,6 +162,13 @@ When the user enables `prefers-reduced-motion: reduce` in their OS, animation is
       description: 'Show the label visually next to the spinner.',
     },
     {
+      name: 'decorative',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Render as purely decorative (role="presentation" + aria-hidden, no live region). Use when nested inside an existing live region such as StatusBar.',
+    },
+    {
       name: 'className',
       type: 'string',
       description: 'Additional CSS class names.',
@@ -186,3 +193,13 @@ When the user enables `prefers-reduced-motion: reduce` in their OS, animation is
 - `aria-label` defaults to `"Loading..."` and can be overridden via `label`
 - When `showLabel` is `false`, the label is rendered in a visually-hidden span so it remains discoverable by assistive tech
 - Animation is automatically halted under `prefers-reduced-motion: reduce`
+- Set `decorative` when the spinner sits inside an existing live region (e.g. a `StatusBar`, which is already `role="status"`). It then renders `role="presentation"` + `aria-hidden` with no `aria-live`, so the activity is announced once by the surrounding region instead of twice:
+
+```tsx
+<StatusBar>
+  <StatusBar.Section side="left">
+    <Spinner decorative size="sm" />
+    <StatusBar.Item>Building…</StatusBar.Item>
+  </StatusBar.Section>
+</StatusBar>
+```
