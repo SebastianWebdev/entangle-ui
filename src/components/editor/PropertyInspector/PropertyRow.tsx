@@ -15,6 +15,7 @@ import {
   rowRoot,
   rowLabel,
   fullWidthLabel,
+  labelTooltipTarget,
   modifiedDot,
   rowControl,
   fullWidthControl,
@@ -98,7 +99,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({
 
   const labelElement = tooltip ? (
     <Tooltip title={tooltip}>
-      <span style={{ display: 'contents' }}>
+      <span className={labelTooltipTarget}>
         {modifiedDotEl}
         {labelText}
       </span>

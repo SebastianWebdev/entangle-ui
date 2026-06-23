@@ -1,6 +1,7 @@
 import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import { renderHook, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { renderWithTheme } from '@/tests/testUtils';
 import { PropertyPanel } from './PropertyPanel';
@@ -317,6 +318,122 @@ describe('PropertySection', () => {
     });
   });
 
+  describe('Checkable', () => {
+    it('renders an enable toggle when checkable', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.getByTestId('section-toggle')).toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: 'Fog' })).toBeInTheDocument();
+    });
+
+    it('does not render a toggle when not checkable', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog">
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.queryByTestId('section-toggle')).not.toBeInTheDocument();
+    });
+
+    it('fires onCheckedChange when toggled', () => {
+      const onCheckedChange = vi.fn();
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection
+            title="Fog"
+            checkable
+            onCheckedChange={onCheckedChange}
+          >
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      // Default checked is true, so toggling reports false.
+      fireEvent.click(screen.getByTestId('section-toggle'));
+      expect(onCheckedChange).toHaveBeenCalledWith(false);
+    });
+
+    it('dims but keeps the body mounted when off', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable defaultChecked={false}>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      const body = screen.getByText('Body');
+      expect(body).toBeInTheDocument();
+      expect(body.parentElement).toHaveStyle({
+        opacity: '0.5',
+        pointerEvents: 'none',
+      });
+    });
+
+    it('does not dim the body when on', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable defaultChecked>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.getByText('Body').parentElement).not.toHaveStyle({
+        opacity: '0.5',
+      });
+    });
+
+    it('respects controlled checked', () => {
+      const { rerender } = renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable checked={false}>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.getByRole('switch')).toHaveAttribute(
+        'aria-checked',
+        'false'
+      );
+
+      rerender(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable checked={true}>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.getByRole('switch')).toHaveAttribute(
+        'aria-checked',
+        'true'
+      );
+    });
+
+    it('toggling checked does not collapse the section', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection title="Fog" checkable>
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      expect(screen.getByText('Body')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId('section-toggle'));
+
+      // Body stays mounted and the section stays expanded.
+      expect(screen.getByText('Body')).toBeInTheDocument();
+      const trigger = screen.getByText('Fog').closest('button') as HTMLElement;
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+  });
+
   describe('Accessibility', () => {
     it('trigger has aria-expanded', () => {
       renderWithTheme(
@@ -391,6 +508,17 @@ describe('PropertyRow', () => {
       );
       expect(screen.getByText('Position')).toBeInTheDocument();
       expect(screen.getByText('0, 0, 0')).toBeInTheDocument();
+    });
+
+    it('renders a ReactNode label', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertyRow label={<em data-testid="node-label">Position</em>}>
+            <span>0, 0, 0</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+      expect(screen.getByTestId('node-label')).toBeInTheDocument();
     });
 
     it('renders modified dot when modified', () => {
@@ -468,6 +596,38 @@ describe('PropertyRow', () => {
 
       fireEvent.click(screen.getByTestId('reset-button'));
       expect(onReset).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Label tooltip', () => {
+    it('gives the tooltip a real hover target (not display: contents)', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertyRow label="Opacity" tooltip="Object opacity (0-1)">
+            <span>Value</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+      // Regression guard: the previous wrapper used `display: contents`, which
+      // generated no box, so the tooltip never had a hover target.
+      const wrapper = screen.getByText('Opacity').parentElement as HTMLElement;
+      expect(wrapper).not.toHaveStyle({ display: 'contents' });
+    });
+
+    it('shows the tooltip when the label is hovered', async () => {
+      const user = userEvent.setup();
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertyRow label="Opacity" tooltip="Object opacity (0-1)">
+            <span>Value</span>
+          </PropertyRow>
+        </PropertyPanel>
+      );
+
+      await user.hover(screen.getByText('Opacity'));
+      expect(
+        await screen.findByText('Object opacity (0-1)', {}, { timeout: 2000 })
+      ).toBeInTheDocument();
     });
   });
 });

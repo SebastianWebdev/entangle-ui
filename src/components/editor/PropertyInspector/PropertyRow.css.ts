@@ -44,6 +44,18 @@ export const fullWidthLabel = style({
   userSelect: 'none',
 });
 
+// Wrapper for the tooltip trigger. It must generate a real box (not
+// `display: contents`) so the Tooltip has a hover/focus target — the Tooltip
+// primitive disables pointer events on the trigger itself and re-enables them
+// only on its direct child.
+export const labelTooltipTarget = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  minWidth: 0,
+  maxWidth: '100%',
+  overflow: 'hidden',
+});
+
 export const modifiedDot = style({
   width: '4px',
   height: '4px',

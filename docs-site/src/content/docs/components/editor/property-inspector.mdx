@@ -5,7 +5,10 @@ description: Property inspector system with collapsible sections, label-value ro
 
 import PropsTable from '../../../../components/PropsTable.astro';
 import ComponentPreview from '../../../../components/ComponentPreview.astro';
-import PropertyInspectorDemo from '../../../../components/demos/editor/PropertyInspectorDemo';
+import PropertyInspectorDemo, {
+  PropertyRowLabelDemo,
+  PropertySectionCheckableDemo,
+} from '../../../../components/demos/editor/PropertyInspectorDemo';
 
 A property inspector system for editor interfaces, modeled after the property panels found in 3D tools (Blender, Unity, Unreal). Composed of four components -- `PropertyPanel`, `PropertySection`, `PropertyRow`, and `PropertyGroup` -- plus a `usePropertyUndo` hook for undo/redo support. The panel provides shared context for size and search filtering to all child components.
 
@@ -112,6 +115,35 @@ Pass a custom element as the `indicator` prop, or `null` to hide the chevron ent
 </PropertySection>
 ```
 
+#### Checkable Section
+
+Set `checkable` to render a managed enable/disable toggle in the header — useful
+for optional effect stacks (fog, bloom, post-processing) where the whole group
+can be switched off. When off, the body is **dimmed and made non-interactive but
+stays mounted**, so its values are preserved. The toggle is independent of the
+collapse state, and supports controlled and uncontrolled use (`checked` /
+`defaultChecked` / `onCheckedChange`). The toggle's accessible name defaults to
+the section `title` (override with `checkLabel`).
+
+<ComponentPreview title="Checkable Section">
+  <PropertySectionCheckableDemo client:only="react" />
+</ComponentPreview>
+
+```tsx
+const [fogEnabled, setFogEnabled] = useState(true);
+
+<PropertySection
+  title="Fog"
+  checkable
+  checked={fogEnabled}
+  onCheckedChange={setFogEnabled}
+>
+  <PropertyRow label="Density">
+    <NumberInput value={density} onChange={setDensity} min={0} max={1} />
+  </PropertyRow>
+</PropertySection>;
+```
+
 ### PropertyRow
 
 A label-value row with configurable split ratio, modified state indicator, tooltip, and reset button. Inherits size from the parent `PropertyPanel` or can override it individually.
@@ -125,6 +157,32 @@ A label-value row with configurable split ratio, modified state indicator, toolt
   onReset={() => setOpacity(1)}
 >
   <Slider value={opacity} onChange={setOpacity} min={0} max={1} />
+</PropertyRow>
+```
+
+#### Label and Tooltip
+
+`label` accepts any `ReactNode`, so a label can pair an icon with text or any
+custom markup. When `tooltip` is set, hovering (or focusing) the label shows a
+tooltip describing the property.
+
+<ComponentPreview title="Label and Tooltip">
+  <PropertyRowLabelDemo client:only="react" />
+</ComponentPreview>
+
+```tsx
+<PropertyRow label="Opacity" tooltip="Surface opacity (0–1)">
+  <NumberInput value={opacity} onChange={setOpacity} min={0} max={1} />
+</PropertyRow>
+
+<PropertyRow
+  label={
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+      <StarIcon size={12} decorative /> Roughness
+    </span>
+  }
+>
+  <NumberInput value={roughness} onChange={setRoughness} min={0} max={1} />
 </PropertyRow>
 ```
 
@@ -360,6 +418,38 @@ function handleChange(newValue: number) {
       description: 'Whether the section is disabled (not collapsible, dimmed).',
     },
     {
+      name: 'checkable',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Whether to render a managed enable/disable toggle in the header. When off, the body is dimmed and non-interactive but stays mounted.',
+    },
+    {
+      name: 'checked',
+      type: 'boolean',
+      description:
+        'Whether the section is enabled (controlled). Requires checkable.',
+    },
+    {
+      name: 'defaultChecked',
+      type: 'boolean',
+      default: 'true',
+      description:
+        'Whether the section starts enabled (uncontrolled). Requires checkable.',
+    },
+    {
+      name: 'onCheckedChange',
+      type: '(checked: boolean) => void',
+      description:
+        'Callback when the enable toggle changes. Requires checkable.',
+    },
+    {
+      name: 'checkLabel',
+      type: 'string',
+      description:
+        'Accessible label for the enable toggle. Defaults to the section title.',
+    },
+    {
       name: 'size',
       type: "'sm' | 'md' | 'lg'",
       description:
@@ -408,14 +498,15 @@ function handleChange(newValue: number) {
   props={[
     {
       name: 'label',
-      type: 'string',
+      type: 'ReactNode',
       required: true,
-      description: 'Property label text.',
+      description:
+        'Property label. Accepts any renderable node (text, an icon + text, etc.).',
     },
     {
       name: 'tooltip',
       type: 'string',
-      description: 'Tooltip text shown on hover over the label.',
+      description: 'Tooltip text shown when the label is hovered or focused.',
     },
     {
       name: 'children',

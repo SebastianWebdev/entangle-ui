@@ -134,6 +134,37 @@ export interface PropertySectionBaseProps extends Omit<
   disabled?: boolean;
 
   /**
+   * Whether this section renders a managed enable/disable toggle in its header.
+   * When the toggle is off, the section body is dimmed and made
+   * non-interactive (but stays mounted). The toggle is independent of the
+   * collapse state.
+   * @default false
+   */
+  checkable?: boolean;
+
+  /**
+   * Whether the section is enabled (controlled). Requires `checkable`.
+   */
+  checked?: boolean;
+
+  /**
+   * Whether the section starts enabled (uncontrolled). Requires `checkable`.
+   * @default true
+   */
+  defaultChecked?: boolean;
+
+  /**
+   * Callback when the enable toggle changes. Requires `checkable`.
+   */
+  onCheckedChange?: (checked: boolean) => void;
+
+  /**
+   * Accessible label for the enable toggle.
+   * @default the section `title`
+   */
+  checkLabel?: string;
+
+  /**
    * Size override for this section and its rows
    */
   size?: PropertyInspectorSize;
@@ -161,9 +192,9 @@ export type PropertySectionProps = Prettify<PropertySectionBaseProps>;
 
 export interface PropertyRowBaseProps extends BaseComponent {
   /**
-   * Property label text
+   * Property label. Accepts any renderable node (text, an icon + text, etc.).
    */
-  label: string;
+  label: React.ReactNode;
 
   /**
    * Tooltip text for the label (shown on hover)
