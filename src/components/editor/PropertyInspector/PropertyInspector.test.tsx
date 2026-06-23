@@ -491,6 +491,27 @@ describe('PropertySection', () => {
       const trigger = screen.getByText('Fog').closest('button') as HTMLElement;
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
+
+    it('renders the toggle and actions outside the collapse trigger button', () => {
+      renderWithTheme(
+        <PropertyPanel>
+          <PropertySection
+            title="Fog"
+            checkable
+            actions={<button data-testid="sec-action">A</button>}
+          >
+            <div>Body</div>
+          </PropertySection>
+        </PropertyPanel>
+      );
+      // The interactive header controls must be siblings of the trigger, not
+      // nested inside it (a <button> cannot contain another <button>).
+      const trigger = screen.getByText('Fog').closest('button') as HTMLElement;
+      expect(trigger).not.toContainElement(
+        screen.getByTestId('section-toggle')
+      );
+      expect(trigger).not.toContainElement(screen.getByTestId('sec-action'));
+    });
   });
 
   describe('Accessibility', () => {

@@ -9,12 +9,13 @@ import { cx } from '@/utils/cx';
 import { usePropertyPanelContext } from './PropertyPanel';
 import {
   sectionRoot,
+  sectionHeader,
   sectionTrigger,
   chevron,
   chevronExpanded,
   iconArea,
   sectionLabel,
-  actionsArea,
+  headerControls,
   contentWrapper,
   contentInner,
 } from './PropertySection.css';
@@ -107,18 +108,6 @@ export const PropertySection: React.FC<PropertySectionProps> = ({
   // non-interactive but stays mounted (so its state is preserved).
   const isBodyDisabled = checkable && !resolvedChecked;
 
-  const handleActionsClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-  }, []);
-
-  // Prevent keyboard activation on nested action controls from bubbling up
-  // and toggling the section trigger.
-  const handleActionsKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.stopPropagation();
-    }
-  }, []);
-
   const showIndicator = indicator !== null;
 
   return (
@@ -129,46 +118,42 @@ export const PropertySection: React.FC<PropertySectionProps> = ({
       data-testid={testId}
       {...rest}
     >
-      <button
-        type="button"
-        id={triggerId}
-        aria-expanded={resolvedExpanded}
-        aria-controls={contentId}
-        aria-disabled={disabled || undefined}
-        disabled={disabled}
-        onClick={handleToggle}
-        onContextMenu={onContextMenu}
-        className={sectionTrigger({
+      <div
+        className={sectionHeader({
           size,
           disabled,
           expanded: resolvedExpanded,
         })}
       >
-        {showIndicator && (
-          <span
-            className={cx(chevron, resolvedExpanded && chevronExpanded)}
-            style={{
-              width: `${sizeConfig.chevronSize}px`,
-              height: `${sizeConfig.chevronSize}px`,
-            }}
-          >
-            {indicator ?? (
-              <ChevronRightIcon size={sizeConfig.chevronSize} decorative />
-            )}
-          </span>
-        )}
-        {icon && <span className={iconArea}>{icon}</span>}
-        <span className={sectionLabel}>{title}</span>
+        <button
+          type="button"
+          id={triggerId}
+          aria-expanded={resolvedExpanded}
+          aria-controls={contentId}
+          aria-disabled={disabled || undefined}
+          disabled={disabled}
+          onClick={handleToggle}
+          onContextMenu={onContextMenu}
+          className={sectionTrigger({ size, disabled })}
+        >
+          {showIndicator && (
+            <span
+              className={cx(chevron, resolvedExpanded && chevronExpanded)}
+              style={{
+                width: `${sizeConfig.chevronSize}px`,
+                height: `${sizeConfig.chevronSize}px`,
+              }}
+            >
+              {indicator ?? (
+                <ChevronRightIcon size={sizeConfig.chevronSize} decorative />
+              )}
+            </span>
+          )}
+          {icon && <span className={iconArea}>{icon}</span>}
+          <span className={sectionLabel}>{title}</span>
+        </button>
         {(checkable || actions) && (
-          // This wrapper is a non-semantic propagation boundary for the
-          // enable toggle and user-supplied action controls it hosts; it is
-          // not itself interactive, so it intentionally has no role.
-          // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-          <span
-            className={actionsArea}
-            onClick={handleActionsClick}
-            onKeyDown={handleActionsKeyDown}
-          >
+          <span className={headerControls}>
             {checkable && (
               <Switch
                 size={size}
@@ -182,7 +167,7 @@ export const PropertySection: React.FC<PropertySectionProps> = ({
             {actions}
           </span>
         )}
-      </button>
+      </div>
 
       {(resolvedExpanded || keepMounted) && (
         <div

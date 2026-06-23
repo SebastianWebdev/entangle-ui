@@ -16,6 +16,42 @@ globalStyle(`${sectionRoot} + ${sectionRoot}`, {
   marginTop: vars.spacing.sm,
 });
 
+// The header strip carries the background, height, and the expanded separator.
+// Interactive controls (the trigger button, the enable toggle, and `actions`)
+// are siblings inside it — so the toggle/actions are never nested in a button.
+export const sectionHeader = recipe({
+  base: {
+    display: 'flex',
+    alignItems: 'stretch',
+    width: '100%',
+    background: vars.colors.surface.default,
+  },
+  variants: {
+    size: {
+      sm: { height: '24px' },
+      md: { height: '28px' },
+      lg: { height: '32px' },
+    },
+    disabled: {
+      true: { opacity: 0.5 },
+      false: { opacity: 1 },
+    },
+    expanded: {
+      true: {
+        borderBottom: `1px solid ${vars.colors.border.default}`,
+      },
+      false: {
+        borderBottom: 'none',
+      },
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+    disabled: false,
+    expanded: false,
+  },
+});
+
 export const sectionTrigger = recipe({
   base: {
     margin: 0,
@@ -23,13 +59,14 @@ export const sectionTrigger = recipe({
     fontFamily: 'inherit',
     outline: 'none',
     userSelect: 'none',
-    width: '100%',
+    flex: 1,
+    minWidth: 0,
     textAlign: 'left',
     display: 'flex',
     alignItems: 'center',
     gap: vars.spacing.sm,
     fontWeight: vars.typography.fontWeight.medium,
-    background: vars.colors.surface.default,
+    background: 'transparent',
     color: vars.colors.text.primary,
     transition: `background ${vars.transitions.fast}`,
     selectors: {
@@ -45,17 +82,14 @@ export const sectionTrigger = recipe({
   variants: {
     size: {
       sm: {
-        height: '24px',
         padding: `0 ${vars.spacing.sm}`,
         fontSize: vars.typography.fontSize.md,
       },
       md: {
-        height: '28px',
         padding: `0 ${vars.spacing.md}`,
         fontSize: vars.typography.fontSize.md,
       },
       lg: {
-        height: '32px',
         padding: `0 ${vars.spacing.lg}`,
         fontSize: vars.typography.fontSize.lg,
       },
@@ -63,26 +97,15 @@ export const sectionTrigger = recipe({
     disabled: {
       true: {
         cursor: 'not-allowed',
-        opacity: 0.5,
       },
       false: {
         cursor: 'pointer',
-        opacity: 1,
-      },
-    },
-    expanded: {
-      true: {
-        borderBottom: `1px solid ${vars.colors.border.default}`,
-      },
-      false: {
-        borderBottom: 'none',
       },
     },
   },
   defaultVariants: {
     size: 'md',
     disabled: false,
-    expanded: false,
   },
 });
 
@@ -118,11 +141,12 @@ export const sectionLabel = style({
   whiteSpace: 'nowrap',
 });
 
-export const actionsArea = style({
+export const headerControls = style({
   display: 'flex',
   alignItems: 'center',
-  marginLeft: 'auto',
+  flexShrink: 0,
   gap: vars.spacing.xs,
+  paddingRight: vars.spacing.md,
 });
 
 export const contentWrapper = recipe({
