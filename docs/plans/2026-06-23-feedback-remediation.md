@@ -60,17 +60,23 @@ Every task follows the same protocol (do **not** skip steps):
 
 ---
 
-## Discrepancies between the 0.10.0 feedback and current `main`
+## Verification notes (built & inspected `npm install && npm run build` on current `main`)
 
-The feedback was written against the **published 0.10.0** bundle. Three items
-have drifted and are re-scoped accordingly — read these before picking up the
-related task:
+The feedback was written against the **published 0.10.0** bundle. I re-verified the
+three "is it still real?" items by actually building the package and grepping
+`dist/` (not just reading the externals list — that earlier shortcut produced two
+wrong calls, now corrected). **All three are confirmed real on current `main`.**
 
-| Feedback item                             | Status on current `main`                                                                                                                                                   | Effect on the task                                                                                           |
-| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `Tooltip` popup has no `z-index`          | **Already has** `zIndex: vars.zIndex.tooltip` (`Tooltip.css.ts:16`)                                                                                                        | Re-scoped to **verify + regression test** (Task F2), not a fresh fix                                         |
-| `picocolors`/`process` in browser bundle  | **Not reproducible from source**: not a dependency, not in the rollup externals graph, no `dist/` in a clean checkout                                                      | Re-scoped to **build-and-inspect + CI guard** (Task A1)                                                      |
-| `import 'entangle-ui/styles.css'` missing | Confirmed missing **and** `entangle-ui/darkTheme.css` is _also_ not exported; only `entangle-ui/theme` resolves; `darkTheme.css.ts` is **not** in the runtime import graph | Widened: Task A2 must decide & ship the **one canonical theme-load path** before docs (Task B1) can be fixed |
+| Feedback item                             | Status on current `main` (built & inspected)                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Effect on the task                                                                                           |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `picocolors`/`process` in browser bundle  | **CONFIRMED reproducible.** `npm run build` emits `dist/esm/node_modules/picocolors/picocolors.js` (`let p = process \|\| {}` at module-init) + the whole `@vanilla-extract/css` runtime + `lru-cache`. Root cause: `src/theme/createCustomTheme.ts` imports `createGlobalTheme` from `@vanilla-extract/css` at **runtime**, that package is **not** a rollup external, so it is inlined. `createCustomTheme` is re-exported from the public barrel, so any `entangle-ui` import pulls it in. | Task A1 is a **real 🔴 fix** (externalize `@vanilla-extract/css` / get it off the runtime path) + a CI guard |
+| `Tooltip` popup has no `z-index`          | **CONFIRMED still broken.** `Tooltip.css.ts:16` sets `zIndex: vars.zIndex.tooltip`, **but on the inner `BaseTooltip.Popup`** — the portaled, positioned `BaseTooltip.Positioner` (`Tooltip.tsx:330`) has **no** z-index. A positioned `AppShell` slot at `vars.zIndex.base` (=1) therefore paints over it. The token has been there since PR #29 (so it was present in 0.10.0 and never fixed the symptom).                                                                                   | Task F2 is a **real bug fix** (move/duplicate z-index onto the Positioner), not a verify task                |
+| `import 'entangle-ui/styles.css'` missing | **CONFIRMED missing, and worse:** `entangle-ui/darkTheme.css` is _also_ not exported; only `entangle-ui/theme` resolves; `darkTheme.css.ts` is **not** in the runtime import graph (only tests import it).                                                                                                                                                                                                                                                                                    | Task A2 must decide & ship the **one canonical theme-load path** before docs (Task B1) can be fixed          |
+
+> Note: I could not fetch `github.com/SebastianWebdev/procedural-planet`
+> (HTTP 404 — private/renamed; my GitHub access is scoped to `entangle-ui`). The
+> findings above are confirmed directly from the `entangle-ui` source + a real
+> build, which is the authoritative signal anyway.
 
 ---
 
@@ -91,7 +97,7 @@ related task:
 | **E1** | `AppShell` top-chrome + `MenuBar` fill/inset           | 🟡  | integration/theming | M     | —          |
 | **E2** | `MenuBar` checkable/radio items                        | 🟠  | feature             | M     | E1 (soft)  |
 | **F1** | `Slider` value tooltip → portal                        | 🟠  | bug/layout          | M     | —          |
-| **F2** | `Tooltip` z-index — verify + regression test           | 🟠  | verify              | S     | —          |
+| **F2** | `Tooltip` z-index on Positioner (renders under panels) | 🟠  | bug/layout          | S     | —          |
 | **G1** | Align `Button`/`IconButton` icon API                   | 🟡  | typing/DX           | S     | —          |
 | **G2** | `Spinner` `decorative` (live-region opt-out)           | 🟡  | a11y                | S     | —          |
 | **G3** | `Viewport` docs — lead with "2D only"                  | 🟡  | docs                | S     | —          |
@@ -111,33 +117,50 @@ first; A3/A4 can follow in parallel.
 
 - **Feedback:** _Browser crash: bundled Node build of `picocolors` reads
   `process`_ (Bugs).
-- **Current state:** `picocolors` is **not** a runtime dependency
-  (`package.json` has no `dependencies` block at all — only peers + dev), it is
-  **not** in `rollup.config.js` `EXTERNAL_PACKAGES` (lines 17–26) because nothing
-  in `src/` imports it, and a clean checkout has no `dist/` to inspect. The only
-  in-source `process` reference is guarded:
-  `src/components/editor/Minimap/Minimap.tsx:99`
-  (`if (process.env['NODE_ENV'] !== 'production')`).
-- **Therefore the task is verify-first:**
-  1. `npm run build`, then grep `dist/esm/**/*.js` for `process`, `require(`,
-     `picocolors`, `requirePicocolors`. (The guarded `process.env.NODE_ENV` in
-     Minimap is acceptable **only** if a bundler can statically replace it; decide
-     whether to wrap it so it cannot evaluate `process` at module-init in a raw
-     browser ESM context.)
-  2. **If found:** trace the import chain, mark the offending package external or
-     drop it from the runtime path, rebuild, confirm clean.
-  3. **If not found (expected):** the 0.10.0 issue is already resolved by the
-     current dependency graph — record that in the PR.
-  4. **Either way, add a regression guard** so this can never ship again: a build
-     post-check (script in `scripts/`, wired into `prepublishOnly` and/or a test)
-     that fails if any `dist/esm/**/*.js` contains a bare `process`/`require(`
-     reference outside an explicitly allow-listed, bundler-replaceable guard.
-- **Files:** `rollup.config.js`, `package.json` (`scripts`), new
-  `scripts/check-browser-safe.mjs` (or similar), `src/.../Minimap.tsx:99` (only if
-  the guard must be hardened).
-- **Tests:** the guard script itself is the test; add a unit/CI assertion that it
-  runs in `prepublishOnly`.
-- **Risk:** low. The guard is the durable deliverable even if nothing is found.
+- **Current state — CONFIRMED reproducible (built & inspected):** `npm run build`
+  on current `main` inlines the Node build of `picocolors` into the shipped ESM.
+  Verified artifacts:
+  - `dist/esm/node_modules/picocolors/picocolors.js:8` → `let p = process || {}, argv = p.argv || [] …` (evaluates `process` at module-init).
+  - `dist/esm/node_modules/@vanilla-extract/css/dist/vanilla-extract-css.esm.js` (the whole VE css runtime) + its `lru-cache` (also touches `process`) are bundled too.
+  - `dist/esm/theme/createCustomTheme.js` →
+    `import { createGlobalTheme } from '../node_modules/@vanilla-extract/css/dist/vanilla-extract-css.esm.js'`.
+- **Root cause:** `src/theme/createCustomTheme.ts:1,42` imports + calls
+  `createGlobalTheme` from `@vanilla-extract/css` at **runtime** (its own JSDoc even
+  says _"MUST be called in a .css.ts file (build-time only)"_ — but the module ships
+  in the runtime graph). `@vanilla-extract/css` is **not** in
+  `rollup.config.js` `EXTERNAL_PACKAGES` (only `@vanilla-extract/dynamic` and
+  `/recipes` are), so Rollup **inlines** it — and it depends on `picocolors`
+  (`@vanilla-extract/css/package.json` → `"picocolors": "^1.0.0"`).
+  `createCustomTheme` is re-exported from `src/index.ts` and `src/theme/index.ts`,
+  so **any** `entangle-ui` import drags this module in; in `vite dev` (no
+  tree-shaking) it evaluates at load → `process is not defined` → white screen.
+- **Deliverable (fix, not verify):**
+  1. Get `@vanilla-extract/css` off the inlined runtime path. Primary fix: add
+     `@vanilla-extract/css` to `EXTERNAL_PACKAGES` and declare it as a
+     `peerDependency` (consumers already pull it transitively via the VE peers; once
+     external, their bundler resolves `picocolors` itself and honours its `browser`
+     field → no `process`). Reconsider whether `createCustomTheme` (build-time-only
+     per its docs) belongs in the runtime barrel at all — consider moving it to a
+     build-time-only entry so the VE css runtime never reaches consumer browser code.
+  2. Rebuild and confirm `dist/esm` contains **no** `node_modules/picocolors`,
+     `node_modules/@vanilla-extract/css`, or `node_modules/lru-cache`, and no
+     `let p = process || {}` init.
+  3. **Add a regression guard:** a build post-check (`scripts/check-browser-safe.mjs`,
+     wired into `prepublishOnly` and a test) that fails if any `dist/esm/**/*.js`
+     contains a bare `process`/`require(` outside an allow-listed, bundler-replaceable
+     `process.env.NODE_ENV` guard, or inlines a `node_modules/` runtime that should be
+     external. (Note the one legitimate in-source guard:
+     `src/components/editor/Minimap/Minimap.tsx:99` — `process.env['NODE_ENV']`;
+     ensure it stays statically replaceable / allow-listed.)
+- **Files:** `rollup.config.js` (externals), `package.json` (`peerDependencies`,
+  `scripts`), possibly `src/theme/index.ts` + `src/index.ts` (move `createCustomTheme`
+  off the runtime barrel), new `scripts/check-browser-safe.mjs`.
+- **Tests:** the guard script (asserts a clean `dist`); a smoke test that importing
+  the package entry does not reference `process` at module-init.
+- **Risk:** medium — touches externals/peers (consumer install contract). Adding
+  `@vanilla-extract/css` as a peer is reasonable since `createCustomTheme` needs it;
+  call it out in the changeset. **This is the highest-priority task** — it
+  white-screens every browser consumer.
 
 ### A2 — Canonical theme / CSS entry point 🔴
 
@@ -424,22 +447,34 @@ position="right"` the intended home for a full `PropertyPanel`, or is there a
 - **Risk:** medium; verify no regression in keyboard/drag interaction or the
   existing Slider tests.
 
-### F2 — `Tooltip` z-index: verify + regression test 🟠
+### F2 — `Tooltip` z-index on the Positioner (renders under panels) 🟠
 
 - **Feedback:** _`Tooltip` popup has no `z-index` → renders under other panels_
-  (Bugs).
-- **Current state (verified):** `Tooltip.css.ts:16` **already** sets `zIndex:
-vars.zIndex.tooltip` (= 1000, same layer as dropdown/popover). The 0.10.0 bug
-  appears resolved.
-- **Deliverable:** reproduce the original scenario (tooltip inside an
-  `AppShell.Toolbar`/side panel that creates a positive-z stacking context) on
-  current `main` and confirm it stacks correctly. If it does, add a regression test
-  asserting the popup carries the `tooltip` z-index token and portals to body; if a
-  residual stacking-context issue remains (Base UI positioner trapped under a parent
-  context), fix by ensuring the portal escapes to `document.body` like `Select`.
-- **Files:** `Tooltip.tsx:318–360`, `Tooltip.css.ts` (likely no change); test only.
-- **Risk:** low; mostly verification. Close the loop so the feedback item is
-  formally retired.
+  (Bugs). **Confirmed still broken on `main`** (user observed it; structural cause
+  below).
+- **Current state (verified):** `Tooltip.css.ts:16` sets `zIndex:
+vars.zIndex.tooltip` (=1000) **on the inner `BaseTooltip.Popup`** — but the
+  element Floating UI actually positions/portals is `BaseTooltip.Positioner`
+  (`Tooltip.tsx:329–360`), which gets **no** z-index. A `position: fixed` Positioner
+  with `z-index: auto` creates its own root-level stacking context at level 0; an
+  `AppShell` slot positioned at `vars.zIndex.base` (=1, `AppShell.css.ts:56,88`)
+  therefore paints **over** the tooltip. The 1000 on the Popup is trapped inside the
+  Positioner's context and can't compete. (This is why `Select`/`Popover` work — they
+  put z-index on the actually-portaled positioned element via their own
+  `createPortal`.)
+- **Deliverable:** apply `zIndex: vars.zIndex.tooltip` to the **Positioner**
+  (give `BaseTooltip.Positioner` a class / pass it through `finalPositionerProps`),
+  not only the Popup. Then **audit the other Base UI `Positioner`/`Popup` pairs for
+  the same mistake** — `HoverCard` (`HoverCard.css.ts:7`, popover token), navigation
+  `Menu` (`Menu.css.ts:16`, dropdown token) — and fix consistently. Confirm
+  `Select`/`Popover` (manual `createPortal`) are already correct.
+- **Files:** `Tooltip.tsx:329–360`, `Tooltip.css.ts` (new `tooltipPositionerStyle`
+  or move zIndex), and the audited siblings; regression tests.
+- **Tests:** render a tooltip inside a positioned (`z-index:1`) container and assert
+  the portaled positioner carries the tooltip z-index token; jsdom can assert the
+  computed class/inline z-index on the positioner element.
+- **Risk:** low–medium; verify the arrow/positioning still renders and the audited
+  siblings don't regress their own snapshots.
 
 ---
 
@@ -549,24 +584,24 @@ Keep these behaviors intact; any task touching them must preserve them:
 
 ## Coverage check — every feedback entry is mapped
 
-| Feedback entry                                          | Task        |
-| ------------------------------------------------------- | ----------- |
-| Installation guide stale `@alpha` + peer deps           | B1          |
-| `entangle-ui/styles.css` does not exist                 | A2 + B1     |
-| `Viewport` 2D-vs-3D naming                              | G3          |
-| `MenuBar` in `AppShell.MenuBar` lighter block           | E1          |
-| `PropertySection` no checkable section                  | D2          |
-| `MenuBar` no checkable item                             | E2          |
-| PropertyInspector tight spacing + no fill-height scroll | D3          |
-| `Select` dropdown width / no `fullWidth`                | C1          |
-| `PropertyRow` tooltip never shows                       | D1          |
-| `picocolors` browser crash                              | A1          |
-| Sourcemaps point outside package                        | A3          |
-| `Tooltip` popup no z-index                              | F2 (verify) |
-| `Slider` value tooltip clips                            | F1          |
-| CSS side-effects force Vitest `inline`                  | A4 (+ A2)   |
-| `Button` icon prop vs `IconButton` children             | G1          |
-| `PropertyRow.label` typed `string`                      | D1          |
-| `Select` `onChange` null contract                       | C2          |
-| `Spinner` nested `role="status"`                        | G2          |
-| Icon set lacks rotation/camera glyphs                   | H1          |
+| Feedback entry                                          | Task      |
+| ------------------------------------------------------- | --------- |
+| Installation guide stale `@alpha` + peer deps           | B1        |
+| `entangle-ui/styles.css` does not exist                 | A2 + B1   |
+| `Viewport` 2D-vs-3D naming                              | G3        |
+| `MenuBar` in `AppShell.MenuBar` lighter block           | E1        |
+| `PropertySection` no checkable section                  | D2        |
+| `MenuBar` no checkable item                             | E2        |
+| PropertyInspector tight spacing + no fill-height scroll | D3        |
+| `Select` dropdown width / no `fullWidth`                | C1        |
+| `PropertyRow` tooltip never shows                       | D1        |
+| `picocolors` browser crash                              | A1        |
+| Sourcemaps point outside package                        | A3        |
+| `Tooltip` popup no z-index                              | F2        |
+| `Slider` value tooltip clips                            | F1        |
+| CSS side-effects force Vitest `inline`                  | A4 (+ A2) |
+| `Button` icon prop vs `IconButton` children             | G1        |
+| `PropertyRow.label` typed `string`                      | D1        |
+| `Select` `onChange` null contract                       | C2        |
+| `Spinner` nested `role="status"`                        | G2        |
+| Icon set lacks rotation/camera glyphs                   | H1        |
