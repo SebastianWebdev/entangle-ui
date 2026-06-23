@@ -74,6 +74,7 @@ export default defineConfig({
             { label: 'Accessibility', slug: 'guides/accessibility' },
             { label: 'Animations', slug: 'guides/animations' },
             { label: 'Styling', slug: 'guides/styling' },
+            { label: 'Testing', slug: 'guides/testing' },
             { label: 'Theming', slug: 'guides/theming' },
           ],
         },

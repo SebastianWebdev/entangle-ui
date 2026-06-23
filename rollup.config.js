@@ -55,11 +55,29 @@ export default [
       // breaking the `entangle-ui/theme` subpath export.
       'theme/index': 'src/theme/index.ts',
       'theme-values': 'src/theme-values.ts',
+      // Canonical stylesheet entry exposed as `entangle-ui/styles.css`. A
+      // side-effect-only module that registers the dark theme `:root` vars +
+      // global scrollbar rules so consumers can load the theme with one import.
+      styles: 'src/styles.ts',
     },
     output: {
       dir: 'dist/esm',
       format: 'esm',
       sourcemap: true,
+      // Keep published sourcemaps self-contained inside the package. Rollup
+      // emits `sources` like `../../../../../../src/foo.tsx`, which resolve to
+      // an unshipped `node_modules/entangle-ui/src/...` in a consumer and trip
+      // "source file outside its package" warnings. Rewrite them to stable
+      // package-relative `src/...` paths; paired with `inlineSources` in
+      // tsconfig.build.json the original source travels in `sourcesContent`,
+      // so debugging works without the (unpublished) src tree.
+      sourcemapPathTransform: relativeSourcePath => {
+        const normalized = relativeSourcePath.replace(/\\/g, '/');
+        const srcIndex = normalized.indexOf('src/');
+        return srcIndex === -1
+          ? normalized.replace(/^(?:\.\.\/)+/, '')
+          : normalized.slice(srcIndex);
+      },
       preserveModules: true,
       preserveModulesRoot: 'src',
       entryFileNames: '[name].js',
