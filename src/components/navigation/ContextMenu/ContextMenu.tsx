@@ -3,7 +3,10 @@
 import { ContextMenu as BaseContextMenu } from '@base-ui/react/context-menu';
 import React from 'react';
 
-import { menuContentStyle } from '@/components/navigation/Menu/Menu.css';
+import {
+  menuContentStyle,
+  menuPositionerStyle,
+} from '@/components/navigation/Menu/Menu.css';
 import {
   MenuGapContext,
   DEFAULT_MENU_GAP,
@@ -101,7 +104,7 @@ const ContextMenuContent = ({
   ...rest
 }: ContextMenuContentProps): React.ReactElement => (
   <BaseContextMenu.Portal>
-    <BaseContextMenu.Positioner>
+    <BaseContextMenu.Positioner className={menuPositionerStyle}>
       <BaseContextMenu.Popup
         ref={ref}
         className={cx(menuContentStyle, className)}

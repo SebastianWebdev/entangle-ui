@@ -7,7 +7,11 @@ import React from 'react';
 import { cx } from '@/utils/cx';
 
 import { ArrowSvg, StyledTooltipArrow } from './Arrow';
-import { tooltipContentStyle, tooltipTriggerStyle } from './Tooltip.css';
+import {
+  tooltipContentStyle,
+  tooltipTriggerStyle,
+  tooltipPositionerStyle,
+} from './Tooltip.css';
 import {
   CollisionAvoidance,
   TooltipAnimation,
@@ -327,7 +331,13 @@ export const Tooltip: React.FC<TooltipProps> = ({
         </BaseTooltip.Trigger>
 
         <BaseTooltip.Portal>
-          <BaseTooltip.Positioner {...finalPositionerProps}>
+          <BaseTooltip.Positioner
+            {...finalPositionerProps}
+            className={cx(
+              tooltipPositionerStyle,
+              finalPositionerProps.className
+            )}
+          >
             <BaseTooltip.Popup
               render={props => (
                 <div

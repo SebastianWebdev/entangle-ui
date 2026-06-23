@@ -12,6 +12,7 @@ import { cx } from '@/utils/cx';
 
 import {
   menuContentStyle,
+  menuPositionerStyle,
   menuItemStyle,
   itemStartSlotStyle,
   itemLabelStyle,
@@ -184,6 +185,7 @@ const MenuContent = ({
         align={align}
         sideOffset={sideOffset ?? gap}
         alignOffset={alignOffset}
+        className={menuPositionerStyle}
       >
         <BaseMenu.Popup
           ref={ref}

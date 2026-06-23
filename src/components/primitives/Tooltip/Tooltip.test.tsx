@@ -3,8 +3,27 @@ import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { renderWithTheme } from '@/tests/testUtils';
 import { Tooltip } from './Tooltip';
+import { tooltipPositionerStyle } from './Tooltip.css';
 
 describe('Tooltip', () => {
+  describe('Layering', () => {
+    it('applies the tooltip z-index to the portaled positioner, not only the popup', async () => {
+      const user = userEvent.setup({ delay: null });
+      renderWithTheme(
+        <Tooltip title="Tip" testId="tt" delay={0}>
+          <button>Trigger</button>
+        </Tooltip>
+      );
+      await user.hover(screen.getByText('Trigger'));
+      const popup = await screen.findByTestId('tt');
+      // Base UI structure: the Positioner is the popup's parent. The z-index
+      // token must live there so it escapes the positioner's own (fixed)
+      // stacking context and competes at the document root.
+      const positioner = popup.parentElement;
+      expect(positioner?.className).toContain(tooltipPositionerStyle);
+    });
+  });
+
   describe('Reduced motion', () => {
     const originalMatchMedia = window.matchMedia;
 
