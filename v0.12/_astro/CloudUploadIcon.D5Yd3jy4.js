@@ -1,0 +1,1 @@
+import{j as o}from"./jsx-runtime.u17CrQMm.js";import{R as m}from"./index.y-DWsWaV.js";import{I as s}from"./Icon.AS9sikgX.js";const r=m.memo(a=>o.jsxs(s,{...a,children:[o.jsx("path",{d:"M7 18a4 4 0 1 1 .5-7.97A6 6 0 0 1 18 11h.5a3.5 3.5 0 0 1 0 7H7z"}),o.jsx("path",{d:"M12 13v5m0-5l-2 2m2-2l2 2"})]}));r.displayName="CloudUploadIcon";export{r as C};

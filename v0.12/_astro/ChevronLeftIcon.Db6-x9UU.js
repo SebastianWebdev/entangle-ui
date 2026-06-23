@@ -1,0 +1,1 @@
+import{j as o}from"./jsx-runtime.u17CrQMm.js";import{R as e}from"./index.y-DWsWaV.js";import{I as t}from"./Icon.AS9sikgX.js";const n=e.memo(r=>o.jsx(t,{...r,children:o.jsx("polyline",{points:"15,18 9,12 15,6"})}));n.displayName="ChevronLeftIcon";export{n as C};
