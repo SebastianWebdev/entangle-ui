@@ -128,6 +128,9 @@ Enable the `searchable` prop to show a filter input inside the dropdown. A custo
 ## Clearable
 
 When `clearable` is enabled, a clear button appears when a value is selected.
+The `onChange` value type follows `clearable`: without it the callback only ever
+receives a real value (`T`), so no null check is needed; with `clearable` it can
+also receive `null` when the selection is cleared.
 
 <ComponentPreview title="Clearable">
   <SelectClearable client:only="react" />
@@ -409,8 +412,9 @@ Use the `name` prop for native form submission. A hidden `<input>` is rendered w
     },
     {
       name: 'onChange',
-      type: '(value: T | null) => void',
-      description: 'Callback when the selected value changes.',
+      type: '(value: T) => void',
+      description:
+        'Callback when the selected value changes. The value type is discriminated by `clearable`: a non-clearable select emits `T`; a `clearable` select emits `T | null` (null comes from the clear button).',
     },
     {
       name: 'onOpenChange',

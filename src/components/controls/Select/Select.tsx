@@ -225,7 +225,10 @@ export function Select<T extends string = string>({
       if (!isControlled) {
         setInternalValue(val);
       }
-      onChange?.(val);
+      // `onChange` is typed per `clearable` (it only receives `null` from the
+      // clear button, which requires `clearable`). Internally we always call it
+      // with `T | null`; the public discriminated union enforces the contract.
+      (onChange as ((value: T | null) => void) | undefined)?.(val);
       close();
     },
     [isControlled, onChange, close]

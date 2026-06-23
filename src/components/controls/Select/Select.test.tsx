@@ -4,7 +4,11 @@ import { vi, beforeEach } from 'vitest';
 import { vars } from '@/theme/contract.css';
 import { renderWithTheme } from '@/tests/testUtils';
 import { Select } from './Select';
-import type { SelectOptionItem, SelectOptionGroup } from './Select.types';
+import type {
+  SelectOptionItem,
+  SelectOptionGroup,
+  SelectProps,
+} from './Select.types';
 
 // Mock ResizeObserver (not available in jsdom, needed by ScrollArea)
 class MockResizeObserver {
@@ -285,6 +289,45 @@ describe('Select', () => {
       expect(
         screen.queryByLabelText('Clear selection')
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('onChange typing', () => {
+    // Compile-time contract (C2): `clearable` discriminates the `onChange`
+    // value type. These aliases fail `tsc` if the narrowing ever regresses.
+    type Equal<X, Y> =
+      (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2
+        ? true
+        : false;
+    type ParamOf<F> = F extends (value: infer V) => void ? V : never;
+    type NonClearableVariant = Exclude<
+      SelectProps<string>,
+      { clearable: true }
+    >;
+    type ClearableVariant = Extract<SelectProps<string>, { clearable: true }>;
+    type NonClearableValue = ParamOf<
+      NonNullable<NonClearableVariant['onChange']>
+    >;
+    type ClearableValue = ParamOf<NonNullable<ClearableVariant['onChange']>>;
+
+    it('infers a non-null value when not clearable and nullable when clearable', () => {
+      const nonClearableIsT: Equal<NonClearableValue, string> = true;
+      const clearableIsNullable: Equal<ClearableValue, string | null> = true;
+      expect(nonClearableIsT && clearableIsNullable).toBe(true);
+    });
+
+    it('clearable select emits null from the clear button', () => {
+      const handleChange = vi.fn();
+      renderWithTheme(
+        <Select
+          clearable
+          value="normal"
+          options={basicOptions}
+          onChange={handleChange}
+        />
+      );
+      fireEvent.click(screen.getByLabelText('Clear selection'));
+      expect(handleChange).toHaveBeenCalledWith(null);
     });
   });
 
