@@ -1,5 +1,78 @@
 # entangle-ui
 
+## 0.12.0
+
+### Minor Changes
+
+- [#109](https://github.com/SebastianWebdev/entangle-ui/pull/109) [`b61bfbd`](https://github.com/SebastianWebdev/entangle-ui/commit/b61bfbda7608652cdbcc68c7235980c6a113a9b4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - **E1 — AppShell top-chrome + MenuBar fill/inset.** `AppShell.MenuBar` now paints
+  the menu-bar chrome background (`--etui-shell-menubar-bg`) on the slot, and
+  `MenuBar` stretches to fill its host slot so the top chrome reads as one
+  continuous strip instead of a lighter content-width block. MenuBar triggers now
+  inset their hover/active fill (rounded, vertically centered) from the chrome
+  edges. Docs clarify that side toolbar slots (`AppShell.Toolbar position="left|right"`)
+  are the intended home for docked panels. Visual default change — no API change.
+
+- [#109](https://github.com/SebastianWebdev/entangle-ui/pull/109) [`b61bfbd`](https://github.com/SebastianWebdev/entangle-ui/commit/b61bfbda7608652cdbcc68c7235980c6a113a9b4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - **G1 — Align `Button` / `IconButton` icon API.** `IconButton` now accepts an
+  optional `icon` prop mirroring `Button`'s `icon`, so `<IconButton icon={…} />`
+  type-checks and the two components share one API. `children` still works for
+  back-compat (now optional); when both are set, `icon` wins. Additive.
+
+- [#109](https://github.com/SebastianWebdev/entangle-ui/pull/109) [`b61bfbd`](https://github.com/SebastianWebdev/entangle-ui/commit/b61bfbda7608652cdbcc68c7235980c6a113a9b4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - **E2 — MenuBar checkable / radio items.** Add `MenuBar.CheckboxItem`
+  (`checked` / `defaultChecked` / `onCheckedChange`) and `MenuBar.RadioGroup` +
+  `MenuBar.RadioItem` (`value` / `defaultValue` / `onValueChange`), mirroring the
+  navigation `Menu` API. Items reserve a leading check-mark gutter so checked and
+  unchecked rows align, use `role="menuitemcheckbox"` / `role="menuitemradio"` with
+  `aria-checked`, participate in arrow-key navigation, and keep the menu open on
+  activation by default (`closeOnClick={false}`). Additive.
+
+- [#109](https://github.com/SebastianWebdev/entangle-ui/pull/109) [`b61bfbd`](https://github.com/SebastianWebdev/entangle-ui/commit/b61bfbda7608652cdbcc68c7235980c6a113a9b4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - **F1 — Slider value tooltip → portal.** The drag value tooltip was an
+  absolutely-positioned child of the slider wrapper, so any ancestor `overflow`
+  (e.g. a `PropertySection` header) clipped it. It now renders in a portal to
+  `document.body` with fixed viewport coordinates anchored to the thumb, so it can
+  never be clipped. Added `tooltipPlacement?: 'top' | 'bottom'` (default `'top'`).
+  The portal is only mounted while dragging, so the idle/drag hot path is
+  unchanged. Default visual placement (above the thumb) is unchanged.
+
+- [#109](https://github.com/SebastianWebdev/entangle-ui/pull/109) [`b61bfbd`](https://github.com/SebastianWebdev/entangle-ui/commit/b61bfbda7608652cdbcc68c7235980c6a113a9b4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - **G2 — `Spinner` `decorative` (live-region opt-out).** Add `decorative?: boolean`
+  to `Spinner`. When set, the spinner renders `role="presentation"` + `aria-hidden`
+  with no `aria-live`, for use inside an existing live region (e.g. `StatusBar`,
+  which is itself `role="status"`) so activity isn't announced twice. Default
+  behavior (`role="status"` + `aria-live="polite"`) is unchanged. Additive.
+
+### Patch Changes
+
+- [#109](https://github.com/SebastianWebdev/entangle-ui/pull/109) [`b61bfbd`](https://github.com/SebastianWebdev/entangle-ui/commit/b61bfbda7608652cdbcc68c7235980c6a113a9b4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - **F2 — Tooltip z-index on the Positioner (renders under panels).** The tooltip
+  z-index (`--etui-z-tooltip`) was set on the inner `Popup`, trapped inside the
+  portaled `Positioner`'s own `position: fixed` stacking context, so a positioned
+  sibling at a lower z-index (e.g. an `AppShell` slot at `--etui-z-base`) painted
+  over the tooltip. The token now lives on the `Positioner`. Audited the other Base
+  UI `Positioner`/`Popup` pairs and applied the same fix to the navigation `Menu`
+  and `ContextMenu` (dropdown z-index now on their positioners). `HoverCard`,
+  `Select` and `Popover` were already correct (z-index on the positioned element).
+
+- [#109](https://github.com/SebastianWebdev/entangle-ui/pull/109) [`b61bfbd`](https://github.com/SebastianWebdev/entangle-ui/commit/b61bfbda7608652cdbcc68c7235980c6a113a9b4) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - **G3 — `Viewport` docs lead with "2D only".** The `Viewport` JSDoc, docs page,
+  and skill reference now lead with the 2D-only boundary (it owns a 2D pan/zoom
+  transform, not a 3D camera) and point to hosting your own WebGL/WebGPU canvas
+  for 3D. Docs-only; no API change.
+
+- [#111](https://github.com/SebastianWebdev/entangle-ui/pull/111) [`f933917`](https://github.com/SebastianWebdev/entangle-ui/commit/f933917f99da18ce70ed08bbfb103d03250346c2) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Fix `entangle-ui/styles.css` being tree-shaken out of production builds.
+
+  The `./styles.css` export resolved to `dist/esm/styles.js` — a JS shim whose
+  only job is to `import` the dark-theme tokens + global-scrollbar stylesheets for
+  their side effects. But the package's `sideEffects` allowlist only matches
+  `*.css`, `*.css.ts`, and `*.css.js`, so a plain `styles.js` (which exports
+  nothing) was flagged side-effect-free and dropped by production bundlers. The
+  canonical `import 'entangle-ui/styles.css'` setup then shipped **zero** `--etui-*`
+  token definitions: no colours, no fonts, and menu/tooltip popups with no
+  background or stacking. Dev was unaffected because dev servers don't tree-shake,
+  so the failure only surfaced in `build`/`preview`.
+
+  The stylesheet entry is now emitted as `dist/esm/styles.css.js`, which matches
+  the existing `*.css.js` side-effect glob (the same bucket as every component's
+  compiled style module), so the import survives production tree-shaking and the
+  dark theme lands on `:root` in dev and prod alike. No source or API change is
+  required in consumer apps.
+
 ## 0.11.0
 
 ### Minor Changes
