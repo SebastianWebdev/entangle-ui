@@ -167,6 +167,8 @@ Fine-tune orbit behavior with speed and pitch constraint options.
   orientation={orientation}
   orbitSpeed={1.5} // 1.5x orbit speed
   constrainPitch={true} // Clamp pitch to [-90, 90] degrees
+  invertYaw={false} // Flip the horizontal orbit direction
+  invertPitch={false} // Flip the vertical orbit direction
   onOrbit={delta => {
     /* ... */
   }}
@@ -175,6 +177,29 @@ Fine-tune orbit behavior with speed and pitch constraint options.
   }}
 />
 ```
+
+### Orbit sign convention
+
+`onOrbit` reports a **delta**, not an absolute orientation. By default, dragging
+right (or `ArrowRight`) emits a positive `deltaYaw`; dragging up (or `ArrowUp`)
+emits a positive `deltaPitch`. Add the delta to your camera's current angles. If
+drag-to-orbit feels mirrored against your camera controller, flip it with
+`invertYaw` / `invertPitch` rather than negating the delta yourself — the
+inversion is applied before `constrainPitch`, so pitch clamping stays correct at
+the poles.
+
+### Three.js / OrbitControls integration
+
+The gizmo is a DOM/canvas overlay **outside** the R3F `<Canvas>`, so it never
+touches the WebGL/WebGPU renderer and works on both backends. Keep the camera as
+the single source of truth: a sync component inside `<Canvas>` feeds
+`quaternionToEuler(camera.quaternion)` to `orientation` on the OrbitControls
+`'change'` event, while `onOrbit` / `onSnapToView` write the orbit angles back
+and call `controls.update()` (which re-fires `'change'`, closing the loop).
+`presetViewToOrientation(view, upAxis)` maps a snap target to `{ yaw, pitch }`;
+convert to OrbitControls angles with `azimuthal = yaw`, `polar = pitch + 90`
+(degrees → radians), clamped just inside `[0, π]` to avoid the degenerate pole.
+See the component docs page for the full copy-paste recipe.
 
 ## Event Callbacks
 
@@ -233,6 +258,8 @@ The `diameter` prop controls the pixel size of the canvas. The `size` prop affec
 | `interactionMode` | `'full' \| 'snap-only' \| 'orbit-only' \| 'display-only'` | `'full'` | Which interactions are enabled. |
 | `orbitSpeed` | `number` | `1` | Orbit speed multiplier for drag interactions. |
 | `constrainPitch` | `boolean` | `true` | Whether to constrain pitch rotation to [-90, 90] degrees. |
+| `invertYaw` | `boolean` | `false` | Flip the horizontal orbit direction. Emits the opposite `deltaYaw` sign so the camera turns the other way for the same gesture. |
+| `invertPitch` | `boolean` | `false` | Flip the vertical orbit direction. Emits the opposite `deltaPitch` sign (dragging up turns the camera down). |
 | `onOrbit` | `(delta: { deltaYaw: number; deltaPitch: number }) => void` | — | Called continuously while the user drags to orbit. |
 | `onOrbitEnd` | `(finalOrientation: GizmoOrientation) => void` | — | Called when the user finishes an orbit drag. |
 | `onSnapToView` | `(view: 'front' \| 'back' \| 'left' \| 'right' \| 'top' \| 'bottom') => void` | — | Called when the user clicks an axis to snap to a preset view. |

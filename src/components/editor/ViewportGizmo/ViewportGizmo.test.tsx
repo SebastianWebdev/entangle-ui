@@ -454,6 +454,73 @@ describe('ViewportGizmo', () => {
   });
 
   // ═══════════════════════════════════════
+  // Orbit inversion
+  // ═══════════════════════════════════════
+
+  describe('Orbit inversion', () => {
+    it('invertYaw flips the emitted yaw sign (keyboard)', () => {
+      const onOrbit = vi.fn();
+      renderGizmo({ onOrbit, invertYaw: true });
+      const canvas = getCanvas();
+
+      fireEvent.keyDown(canvas, { key: 'ArrowRight' });
+      expect(onOrbit).toHaveBeenCalledWith({ deltaYaw: -15, deltaPitch: 0 });
+    });
+
+    it('invertPitch flips the emitted pitch sign (keyboard)', () => {
+      const onOrbit = vi.fn();
+      renderGizmo({ onOrbit, invertPitch: true });
+      const canvas = getCanvas();
+
+      fireEvent.keyDown(canvas, { key: 'ArrowUp' });
+      expect(onOrbit).toHaveBeenCalledWith({ deltaYaw: 0, deltaPitch: -15 });
+    });
+
+    it('invertYaw flips the emitted yaw sign (drag)', () => {
+      const onOrbit = vi.fn();
+      renderGizmo({ onOrbit, invertYaw: true });
+      const canvas = getCanvas();
+
+      // Horizontal drag right (dx = 20): raw yaw +10, inverted to -10.
+      fireEvent.pointerDown(canvas, {
+        clientX: 60,
+        clientY: 60,
+        pointerId: 1,
+        button: 0,
+      });
+      fireEvent.pointerMove(canvas, { clientX: 80, clientY: 60, pointerId: 1 });
+
+      expect(onOrbit).toHaveBeenCalledWith({ deltaYaw: -10, deltaPitch: 0 });
+    });
+
+    it('leaves deltas untouched when neither invert flag is set', () => {
+      const onOrbit = vi.fn();
+      renderGizmo({ onOrbit });
+      const canvas = getCanvas();
+
+      fireEvent.keyDown(canvas, { key: 'ArrowRight' });
+      expect(onOrbit).toHaveBeenCalledWith({ deltaYaw: 15, deltaPitch: 0 });
+    });
+
+    it('constrainPitch clamps the inverted delta at the pole', () => {
+      // At pitch -85, ArrowUp raw-pitch is +15; invertPitch turns it into -15,
+      // which would drive the camera past -90. The constraint must clamp the
+      // already-inverted delta so the emitted value stops exactly at the pole.
+      const onOrbit = vi.fn();
+      renderGizmo({
+        onOrbit,
+        invertPitch: true,
+        constrainPitch: true,
+        orientation: { yaw: 0, pitch: -85 },
+      });
+      const canvas = getCanvas();
+
+      fireEvent.keyDown(canvas, { key: 'ArrowUp' });
+      expect(onOrbit).toHaveBeenCalledWith({ deltaYaw: 0, deltaPitch: -5 });
+    });
+  });
+
+  // ═══════════════════════════════════════
   // Accessibility
   // ═══════════════════════════════════════
 
