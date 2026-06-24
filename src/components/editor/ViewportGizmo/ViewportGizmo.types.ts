@@ -21,11 +21,17 @@ export interface GizmoOrientation {
 /**
  * Orbital rotation delta during a drag gesture.
  * The app applies this to its camera orbit controller.
+ *
+ * Sign convention (before any `invertYaw` / `invertPitch`): dragging the
+ * pointer right — or pressing `ArrowRight` — emits a positive `deltaYaw`;
+ * dragging up — or `ArrowUp` — emits a positive `deltaPitch`. Which way the
+ * camera actually turns is the consumer's choice; flip it with the
+ * `invertYaw` / `invertPitch` props if the motion feels mirrored.
  */
 export interface OrbitDelta {
-  /** Yaw change in degrees (horizontal drag) */
+  /** Yaw change in degrees. Positive = pointer dragged right / ArrowRight. */
   deltaYaw: number;
-  /** Pitch change in degrees (vertical drag) */
+  /** Pitch change in degrees. Positive = pointer dragged up / ArrowUp. */
   deltaPitch: number;
 }
 
@@ -145,7 +151,26 @@ export interface ViewportGizmoBaseProps extends Omit<
    */
   constrainPitch?: boolean;
 
-  /** Called continuously while the user drags to orbit. */
+  /**
+   * Invert the horizontal orbit direction. When true, the emitted `deltaYaw`
+   * sign is flipped, so the consumer's camera turns the opposite way for the
+   * same drag / arrow-key gesture. Use this when the orbit feels mirrored
+   * relative to your camera controller (e.g. Three.js OrbitControls).
+   * @default false
+   */
+  invertYaw?: boolean;
+
+  /**
+   * Invert the vertical orbit direction. When true, the emitted `deltaPitch`
+   * sign is flipped (dragging up turns the camera down).
+   * @default false
+   */
+  invertPitch?: boolean;
+
+  /**
+   * Called continuously while the user drags to orbit.
+   * See {@link OrbitDelta} for the delta sign convention.
+   */
   onOrbit?: (delta: OrbitDelta) => void;
 
   /** Called when the user finishes an orbit drag. */

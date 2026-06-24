@@ -195,6 +195,8 @@ Fine-tune orbit behavior with speed and pitch constraint options.
   orientation={orientation}
   orbitSpeed={1.5} // 1.5x orbit speed
   constrainPitch={true} // Clamp pitch to [-90, 90] degrees
+  invertYaw={false} // Flip the horizontal orbit direction
+  invertPitch={false} // Flip the vertical orbit direction
   onOrbit={delta => {
     /* ... */
   }}
@@ -203,6 +205,27 @@ Fine-tune orbit behavior with speed and pitch constraint options.
   }}
 />
 ```
+
+### Orbit sign convention
+
+`onOrbit` reports a **delta**, not an absolute orientation. By default, dragging
+the pointer **right** (or pressing `ArrowRight`) emits a positive `deltaYaw`, and
+dragging **up** (or `ArrowUp`) emits a positive `deltaPitch`. Add the delta to
+your camera's current angles to track the gesture:
+
+```tsx
+onOrbit={({ deltaYaw, deltaPitch }) => {
+  setOrientation(prev => ({
+    yaw: prev.yaw + deltaYaw,
+    pitch: prev.pitch + deltaPitch,
+  }));
+}}
+```
+
+Which way the camera turns is your choice. If drag-to-orbit feels mirrored
+against your camera controller, flip it with `invertYaw` / `invertPitch` rather
+than negating the delta yourself — the inversion is applied before
+`constrainPitch`, so pitch clamping stays correct at the poles.
 
 ## Event Callbacks
 
@@ -234,6 +257,128 @@ Fine-tune orbit behavior with speed and pitch constraint options.
   }}
 />
 ```
+
+## Integrating with Three.js / OrbitControls
+
+`ViewportGizmo` renders as a **DOM/canvas overlay outside** the R3F `<Canvas>`,
+so it never touches the WebGL/WebGPU renderer — it works identically on both
+backends. The camera stays the single source of truth: the gizmo only _reflects_
+`orientation` and reports interactions, while a small sync component pushes the
+live camera pose back up to it. `onOrbit` and `onSnapToView` write to
+`OrbitControls`, whose `update()` re-fires `'change'`, closing the loop with no
+drift.
+
+The library exports the math you need so there is nothing to hand-derive:
+`quaternionToEuler` turns `camera.quaternion` into the gizmo's Euler convention,
+and `presetViewToOrientation` maps a snap target to angles.
+
+```tsx
+import { useEffect, useRef, useState } from 'react';
+import { Canvas, useThree } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import {
+  ViewportGizmo,
+  quaternionToEuler,
+  presetViewToOrientation,
+  type GizmoOrientation,
+  type GizmoPresetView,
+  type OrbitDelta,
+} from 'entangle-ui';
+
+const DEG2RAD = Math.PI / 180;
+// Keep the polar angle just inside [0, π], where the azimuth degenerates.
+const POLE_EPS = 0.01;
+const clampPolar = (p: number) =>
+  Math.min(Math.PI - POLE_EPS, Math.max(POLE_EPS, p));
+
+// Display path (camera → gizmo). Lives INSIDE <Canvas> because it needs the
+// R3F camera; renders nothing.
+function CameraOrientationSync({
+  controlsRef,
+  onChange,
+}: {
+  controlsRef: React.RefObject<OrbitControlsImpl | null>;
+  onChange: (orientation: GizmoOrientation) => void;
+}) {
+  const camera = useThree(state => state.camera);
+
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    const sync = () => {
+      const q = camera.quaternion;
+      onChange(quaternionToEuler(q.x, q.y, q.z, q.w));
+    };
+    sync();
+    controls.addEventListener('change', sync);
+    return () => controls.removeEventListener('change', sync);
+  }, [camera, controlsRef, onChange]);
+
+  return null;
+}
+
+export function ViewportWithGizmo() {
+  const controlsRef = useRef<OrbitControlsImpl>(null);
+  const [orientation, setOrientation] = useState<GizmoOrientation>({
+    yaw: 0,
+    pitch: 0,
+  });
+
+  // Interaction path (gizmo → camera). Nudge the orbit angles, then update()
+  // re-fires 'change' and the display path pulls the new pose straight back.
+  const handleOrbit = ({ deltaYaw, deltaPitch }: OrbitDelta) => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    controls.setAzimuthalAngle(
+      controls.getAzimuthalAngle() + deltaYaw * DEG2RAD
+    );
+    controls.setPolarAngle(
+      clampPolar(controls.getPolarAngle() + deltaPitch * DEG2RAD)
+    );
+    controls.update();
+  };
+
+  const handleSnapToView = (view: GizmoPresetView) => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    const { yaw, pitch } = presetViewToOrientation(view, 'y-up');
+    controls.setAzimuthalAngle(yaw * DEG2RAD);
+    controls.setPolarAngle(clampPolar((pitch + 90) * DEG2RAD));
+    controls.update();
+  };
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <Canvas>
+        {/* …your scene… */}
+        <OrbitControls ref={controlsRef} />
+        <CameraOrientationSync
+          controlsRef={controlsRef}
+          onChange={setOrientation}
+        />
+      </Canvas>
+
+      <div style={{ position: 'absolute', right: 12, bottom: 12 }}>
+        <ViewportGizmo
+          orientation={orientation}
+          onOrbit={handleOrbit}
+          onSnapToView={handleSnapToView}
+          // Flip these if drag-to-orbit turns the camera the wrong way.
+          invertYaw={false}
+          invertPitch={false}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+:::note
+The drag direction depends on your engine's azimuth/polar sign conventions.
+Confirm it visually once and, if it feels mirrored, set `invertYaw` and/or
+`invertPitch` on the gizmo — don't negate the deltas by hand.
+:::
 
 ## Size and Diameter
 
@@ -327,6 +472,20 @@ The `diameter` prop controls the pixel size of the canvas. The `size` prop affec
       type: 'boolean',
       default: 'true',
       description: 'Whether to constrain pitch rotation to [-90, 90] degrees.',
+    },
+    {
+      name: 'invertYaw',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Flip the horizontal orbit direction. Emits the opposite deltaYaw sign so the camera turns the other way for the same gesture.',
+    },
+    {
+      name: 'invertPitch',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Flip the vertical orbit direction. Emits the opposite deltaPitch sign (dragging up turns the camera down).',
     },
     {
       name: 'onOrbit',

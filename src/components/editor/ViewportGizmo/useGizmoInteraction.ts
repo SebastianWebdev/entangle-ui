@@ -23,6 +23,8 @@ interface UseGizmoInteractionOptions {
   interactionMode: 'full' | 'snap-only' | 'orbit-only' | 'display-only';
   orbitSpeed: number;
   constrainPitch: boolean;
+  invertYaw: boolean;
+  invertPitch: boolean;
   disabled: boolean;
   onOrbit?: (delta: OrbitDelta) => void;
   onOrbitEnd?: (finalOrientation: GizmoOrientation) => void;
@@ -58,6 +60,8 @@ export function useGizmoInteraction(
     interactionMode,
     orbitSpeed,
     constrainPitch,
+    invertYaw,
+    invertPitch,
     disabled,
     onOrbit,
     onOrbitEnd,
@@ -94,6 +98,25 @@ export function useGizmoInteraction(
       return { px: e.clientX - rect.left, py: e.clientY - rect.top };
     },
     [canvasRef]
+  );
+
+  // Single emission point for orbit deltas so the pointer and keyboard paths
+  // stay consistent. Inversion is applied last, then pitch is constrained
+  // against the value that will actually be applied — this keeps the
+  // constraint correct at both poles regardless of `invertPitch`.
+  const emitOrbit = useCallback(
+    (rawYaw: number, rawPitch: number) => {
+      const deltaYaw = invertYaw ? -rawYaw : rawYaw;
+      let deltaPitch = invertPitch ? -rawPitch : rawPitch;
+
+      if (constrainPitch) {
+        deltaPitch =
+          clamp(orientation.pitch + deltaPitch, -90, 90) - orientation.pitch;
+      }
+
+      onOrbit?.({ deltaYaw, deltaPitch });
+    },
+    [invertYaw, invertPitch, constrainPitch, orientation.pitch, onOrbit]
   );
 
   const onPointerDown = useCallback(
@@ -145,15 +168,7 @@ export function useGizmoInteraction(
         }
 
         if (hasDraggedRef.current) {
-          const deltaYaw = dx * orbitSpeed * 0.5;
-          let deltaPitch = -dy * orbitSpeed * 0.5;
-
-          if (constrainPitch) {
-            const newPitch = orientation.pitch + deltaPitch;
-            deltaPitch = clamp(newPitch, -90, 90) - orientation.pitch;
-          }
-
-          onOrbit?.({ deltaYaw, deltaPitch });
+          emitOrbit(dx * orbitSpeed * 0.5, -dy * orbitSpeed * 0.5);
         }
 
         lastPointerRef.current = { x: e.clientX, y: e.clientY };
@@ -181,7 +196,7 @@ export function useGizmoInteraction(
       canvasRef,
       allowOrbit,
       orbitSpeed,
-      constrainPitch,
+      emitOrbit,
       orientation,
       interactionMode,
       disabled,
@@ -189,7 +204,6 @@ export function useGizmoInteraction(
       center,
       armLength,
       upAxis,
-      onOrbit,
     ]
   );
 
@@ -258,35 +272,25 @@ export function useGizmoInteraction(
       switch (e.key) {
         case 'ArrowLeft':
           if (allowOrbit) {
-            onOrbit?.({ deltaYaw: -step, deltaPitch: 0 });
+            emitOrbit(-step, 0);
             handled = true;
           }
           break;
         case 'ArrowRight':
           if (allowOrbit) {
-            onOrbit?.({ deltaYaw: step, deltaPitch: 0 });
+            emitOrbit(step, 0);
             handled = true;
           }
           break;
         case 'ArrowUp':
           if (allowOrbit) {
-            let deltaPitch = step;
-            if (constrainPitch) {
-              deltaPitch =
-                clamp(orientation.pitch + step, -90, 90) - orientation.pitch;
-            }
-            onOrbit?.({ deltaYaw: 0, deltaPitch });
+            emitOrbit(0, step);
             handled = true;
           }
           break;
         case 'ArrowDown':
           if (allowOrbit) {
-            let deltaPitch = -step;
-            if (constrainPitch) {
-              deltaPitch =
-                clamp(orientation.pitch - step, -90, 90) - orientation.pitch;
-            }
-            onOrbit?.({ deltaYaw: 0, deltaPitch });
+            emitOrbit(0, -step);
             handled = true;
           }
           break;
@@ -324,9 +328,7 @@ export function useGizmoInteraction(
       interactionMode,
       allowOrbit,
       allowSnap,
-      constrainPitch,
-      orientation,
-      onOrbit,
+      emitOrbit,
       onSnapToView,
       onOriginClick,
     ]
