@@ -94,6 +94,10 @@ export default defineConfig({
                   label: 'Collapsible',
                   slug: 'components/primitives/collapsible',
                 },
+                {
+                  label: 'EditableText',
+                  slug: 'components/primitives/editable-text',
+                },
                 { label: 'Icon', slug: 'components/primitives/icon' },
                 {
                   label: 'IconButton',

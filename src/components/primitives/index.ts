@@ -4,6 +4,11 @@ export { Button } from './Button';
 export { Checkbox, CheckboxGroup } from './Checkbox';
 export { Code } from './Code';
 export { Collapsible } from './Collapsible';
+export {
+  EditableText,
+  DEFAULT_EDITABLE_TEXT_LABELS,
+  resolveEditableTextLabels,
+} from './EditableText';
 export { HoverCard } from './HoverCard';
 export { Icon } from './Icon';
 export { IconButton } from './IconButton';
@@ -42,6 +47,14 @@ export type {
 } from './Checkbox';
 export type { CodeProps, CodeSize } from './Code';
 export type { CollapsibleProps, CollapsibleSize } from './Collapsible';
+export type {
+  EditableTextActivationMode,
+  EditableTextBaseProps,
+  EditableTextEndReason,
+  EditableTextHandle,
+  EditableTextLabels,
+  EditableTextProps,
+} from './EditableText';
 export type {
   HoverCardBaseProps,
   HoverCardContentBaseProps,
