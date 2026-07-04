@@ -1,0 +1,1 @@
+import{j as o}from"./jsx-runtime.u17CrQMm.js";import{R as s}from"./index.y-DWsWaV.js";import{I as e}from"./Icon.AS9sikgX.js";const m=s.memo(r=>o.jsx(e,{...r,children:o.jsx("polyline",{points:"20,6 9,17 4,12"})}));m.displayName="CheckIcon";export{m as C};

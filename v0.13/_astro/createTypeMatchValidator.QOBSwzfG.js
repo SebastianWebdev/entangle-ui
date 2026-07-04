@@ -1,0 +1,1 @@
+function u(e){const c=new Set(e?.directions??["right->left","left->right"]),n=e?.anyType??"any",l=e?.allowSameNode??!1,s=e?.match??((t,a)=>t===void 0||a===void 0||t===a?!0:t===n||a===n);return(t,a,r)=>!l&&r.sameNode||!c.has(r.sideCombo)?!1:s(r.sourceDataType,r.targetDataType)}export{u as c};

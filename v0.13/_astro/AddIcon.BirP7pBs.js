@@ -1,0 +1,1 @@
+import{j as o}from"./jsx-runtime.u17CrQMm.js";import{R as r}from"./index.y-DWsWaV.js";import{I as m}from"./Icon.AS9sikgX.js";const x=r.memo(s=>o.jsxs(m,{...s,children:[o.jsx("line",{x1:"12",y1:"5",x2:"12",y2:"19"}),o.jsx("line",{x1:"5",y1:"12",x2:"19",y2:"12"})]}));x.displayName="AddIcon";export{x as A};

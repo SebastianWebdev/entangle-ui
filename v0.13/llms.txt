@@ -1,0 +1,165 @@
+# Entangle UI
+
+> React component library for professional editor interfaces — 3D tools, node editors, parameter systems.
+
+These plain-text resources are intended for LLM-assisted development. Each page mirrors the rendered docs but with JSX demos stripped so the content is fully consumable by language models.
+
+- [Full documentation (single file)](https://entangle-ui.dev/llms-full.txt)
+- [Per-page documentation index](https://entangle-ui.dev/llms/)
+
+## Overview
+
+- [Entangle UI](https://entangle-ui.dev/llms/index.md): React component library for professional editor interfaces
+
+## Getting Started
+
+- [Installation](https://entangle-ui.dev/llms/getting-started/installation.md): How to install and set up Entangle UI in your project.
+- [Introduction](https://entangle-ui.dev/llms/getting-started/introduction.md): Entangle UI is a React component library for building professional editor interfaces — 3D tools, node editors, parameter systems, and more.
+- [Quick Start](https://entangle-ui.dev/llms/getting-started/quick-start.md): Get up and running with Entangle UI in under five minutes.
+
+## Guides
+
+- [Accessibility](https://entangle-ui.dev/llms/guides/accessibility.md): How Entangle UI handles accessibility concerns shared by every component, including reduced-motion support, focus rings, and keyboard semantics.
+- [Animations](https://entangle-ui.dev/llms/guides/animations.md): Shared keyframes and utility classes for spinners, pulses, blinks, and fade-ins. Each utility honors prefers-reduced-motion.
+- [Styling](https://entangle-ui.dev/llms/guides/styling.md): Learn how to style Entangle UI components using Vanilla Extract and theme tokens.
+- [Testing](https://entangle-ui.dev/llms/guides/testing.md): How to test an application built with Entangle UI — Vitest + jsdom setup, loading the theme so CSS variables resolve, and stubbing the browser observers that editor components rely on.
+- [Theming](https://entangle-ui.dev/llms/guides/theming.md): Learn how to customize and extend the Entangle UI theme system — colors, spacing, typography, shadows, and more.
+
+## Components — Primitives
+
+- [Avatar](https://entangle-ui.dev/llms/components/primitives/avatar.md): Identity primitive with image, initials, and icon fallback chain. AvatarGroup handles overlapping clusters with overflow.
+- [Badge](https://entangle-ui.dev/llms/components/primitives/badge.md): Inline status indicator and tag primitive with subtle, solid, outline, and dot variants.
+- [Button](https://entangle-ui.dev/llms/components/primitives/button.md): Versatile button component for editor interfaces with multiple variants, sizes, and states.
+- [Checkbox](https://entangle-ui.dev/llms/components/primitives/checkbox.md): Checkbox component for boolean selection with indeterminate state, labels, and group support.
+- [Code](https://entangle-ui.dev/llms/components/primitives/code.md): Inline code primitive backed by the theme inset background and monospace font.
+- [Collapsible](https://entangle-ui.dev/llms/components/primitives/collapsible.md): Expandable/collapsible section component for organizing content in panels and settings interfaces.
+- [EditableText](https://entangle-ui.dev/llms/components/primitives/editable-text.md): Text that looks like Text but becomes an inline editor on click — for renaming layers, nodes, and assets in place.
+- [HoverCard](https://entangle-ui.dev/llms/components/primitives/hover-card.md): Hover- and focus-driven floating panel for previews, with safe-polygon cursor handover from trigger to content.
+- [Icon](https://entangle-ui.dev/llms/components/primitives/icon.md): SVG icon wrapper component with standardized sizing and color theming for editor interfaces.
+- [IconButton](https://entangle-ui.dev/llms/components/primitives/icon-button.md): Square button component for icon-based actions in toolbars and editor interfaces.
+- [Input](https://entangle-ui.dev/llms/components/primitives/input.md): Versatile text input component for editor interfaces with labels, icons, error states, and multiple sizes.
+- [Kbd](https://entangle-ui.dev/llms/components/primitives/kbd.md): Keyboard shortcut keycaps with platform-aware glyph rendering.
+- [Link](https://entangle-ui.dev/llms/components/primitives/link.md): Styled anchor primitive with variants, external-link affordances, and polymorphic router integration.
+- [Paper](https://entangle-ui.dev/llms/components/primitives/paper.md): Surface component providing elevation, nesting hierarchy, and visual depth for editor interface panels and cards.
+- [Popover](https://entangle-ui.dev/llms/components/primitives/popover.md): Floating content container anchored to a trigger element with collision detection and focus management.
+- [Radio](https://entangle-ui.dev/llms/components/primitives/radio.md): Radio and RadioGroup for mutually exclusive selection in forms and property panels.
+- [Switch](https://entangle-ui.dev/llms/components/primitives/switch.md): Toggle switch component for boolean on/off states in editor toolbars and settings panels.
+- [Text](https://entangle-ui.dev/llms/components/primitives/text.md): Versatile typography component with semantic variants, flexible sizing, and text styling for editor interfaces.
+- [TextArea](https://entangle-ui.dev/llms/components/primitives/text-area.md): Multi-line text input with optional auto-resize, character count, monospace mode, and Input-parity styling.
+- [Tooltip](https://entangle-ui.dev/llms/components/primitives/tooltip.md): Contextual information tooltip with flexible positioning, collision handling, and animation support.
+- [Viewport](https://entangle-ui.dev/llms/components/primitives/viewport.md): Pan/zoom canvas + HTML container for editor-style surfaces — node graphs, timelines, 2D world editors. Multi-layer rendering, world/screen overlays, marquee selection.
+- [VisuallyHidden](https://entangle-ui.dev/llms/components/primitives/visually-hidden.md): Hide content visually while keeping it announced by screen readers.
+
+## Components — Layout
+
+- [Accordion](https://entangle-ui.dev/llms/components/layout/accordion.md): Collapsible sections component using a compound pattern for property inspectors, settings panels, and grouped content.
+- [Card](https://entangle-ui.dev/llms/components/layout/card.md): Bounded surface for a single semantic unit, with outlined, filled, and elevated variants and a compound API for header / media / body / footer.
+- [Divider](https://entangle-ui.dev/llms/components/layout/divider.md): Thin horizontal or vertical rule for separating content, with optional centered label.
+- [Flex](https://entangle-ui.dev/llms/components/layout/flex.md): Comprehensive flexbox layout component with full control over direction, alignment, wrapping, spacing, and responsive breakpoints.
+- [Grid](https://entangle-ui.dev/llms/components/layout/grid.md): A responsive 12-column grid system built on CSS Grid for creating structured layouts with flexible column spans.
+- [ListItem](https://entangle-ui.dev/llms/components/layout/list-item.md): Reusable list row primitive with leading and trailing slots, selected/active/hover states, and built-in keyboard activation.
+- [PageHeader](https://entangle-ui.dev/llms/components/layout/page-header.md): Structural page or view header with optional icon, subtitle, breadcrumbs, and right-aligned actions.
+- [PanelSurface](https://entangle-ui.dev/llms/components/layout/panel-surface.md): Structured panel container with compound Header, Body, and Footer sub-components for editor panels and tool windows.
+- [ScrollArea](https://entangle-ui.dev/llms/components/layout/scroll-area.md): Custom scrollable container with styled scrollbars, drag-to-scroll thumbs, fade masks, and configurable visibility behavior.
+- [Spacer](https://entangle-ui.dev/llms/components/layout/spacer.md): A flexible spacer component that expands to fill available space or provides fixed spacing between elements.
+- [SplitPane](https://entangle-ui.dev/llms/components/layout/split-pane.md): Resizable split-pane layout with draggable dividers, collapsible panels, and keyboard-accessible resizing for editor interfaces.
+- [Stack](https://entangle-ui.dev/llms/components/layout/stack.md): Simple stacking component for arranging elements vertically or horizontally with consistent spacing.
+
+## Components — Controls
+
+- [CartesianPicker](https://entangle-ui.dev/llms/components/controls/cartesian-picker.md): 2D point picker for selecting coordinates on a cartesian grid with crosshair, snap-to-grid, and custom rendering.
+- [ColorPicker](https://entangle-ui.dev/llms/components/controls/color-picker.md): Full-featured color picker with saturation/value area, hue slider, alpha channel, input modes, presets, and built-in palettes.
+- [Combobox](https://entangle-ui.dev/llms/components/controls/combobox.md): Single-value select with an editable input, built-in fuzzy filtering, and optional free-solo or creatable modes.
+- [CurveEditor](https://entangle-ui.dev/llms/components/controls/curve-editor.md): Interactive bezier curve editor for animation timing, color grading, and value remapping with keyframes, tangent modes, and presets.
+- [FileTree](https://entangle-ui.dev/llms/components/controls/file-tree.md): File-system-flavored TreeView specialization with automatic file-type icons and drag-and-drop import of OS files.
+- [FileUploader](https://entangle-ui.dev/llms/components/controls/file-uploader.md): Drag-and-drop file uploader with type and size validation, per-row status, and an animated progress bar.
+- [MultiSelect](https://entangle-ui.dev/llms/components/controls/multi-select.md): Multi-value select that renders chosen options as inline chips, with a "+N more" overflow badge and optional search.
+- [NumberInput](https://entangle-ui.dev/llms/components/controls/number-input.md): Blender-style numeric input with drag-to-scrub, step buttons, expression evaluation, and modifier key support.
+- [Select](https://entangle-ui.dev/llms/components/controls/select.md): Dropdown select component with searchable mode, grouped options, keyboard navigation, and clearable state.
+- [Slider](https://entangle-ui.dev/llms/components/controls/slider.md): A professional slider component with drag interaction, keyboard navigation, and modifier key support.
+- [TagInput](https://entangle-ui.dev/llms/components/controls/tag-input.md): Multi-value text input that captures a list of strings as removable chips, with configurable commit keys and validation.
+- [TreeView](https://entangle-ui.dev/llms/components/controls/tree-view.md): Hierarchical collapsible tree for scene hierarchies, file browsers, and layer stacks with multi-selection and inline renaming.
+- [VectorInput](https://entangle-ui.dev/llms/components/controls/vector-input.md): Grouped numeric input for Vec2, Vec3, and Vec4 vectors with per-axis labels, color coding, and linked proportional editing.
+
+## Components — Navigation
+
+- [Breadcrumbs](https://entangle-ui.dev/llms/components/navigation/breadcrumbs.md): Hierarchical navigation trail for pages, editor paths, and nested resources.
+- [ContextMenu](https://entangle-ui.dev/llms/components/navigation/context-menu.md): Composable right-click context menu. Scope menus per area, reuse the shared Menu item primitives, or drop in a fully custom panel.
+- [Menu](https://entangle-ui.dev/llms/components/navigation/menu.md): Composable menu with icon/label/shortcut items, radio and checkbox selection, grouped items, nested submenus, and keyboard navigation.
+- [Pagination](https://entangle-ui.dev/llms/components/navigation/pagination.md): Page navigator with sibling/boundary ellipsis logic, controlled and uncontrolled modes, three sizes, and optional first/last jump buttons.
+- [PathBar](https://entangle-ui.dev/llms/components/navigation/path-bar.md): File-path breadcrumbs like the VS Code editor bar — clickable segments, sibling dropdowns, and overflow collapsing.
+- [SegmentedControl](https://entangle-ui.dev/llms/components/navigation/segmented-control.md): Toolbar-density mutually exclusive selector for view modes, layout toggles, and other small option groups.
+- [Tabs](https://entangle-ui.dev/llms/components/navigation/tabs.md): Compound tab component for switching between views with underline, pills, and enclosed variants.
+
+## Components — Feedback
+
+- [Alert](https://entangle-ui.dev/llms/components/feedback/alert.md): Persistent inline status banner with semantic variants, three appearances, optional close button, and a compound API for richer layouts.
+- [CommandPalette](https://entangle-ui.dev/llms/components/feedback/command-palette.md): Search-driven command list shown as a centred floating dialog, with fuzzy filtering, keyboard navigation, grouping, and recent-item tracking.
+- [Dialog](https://entangle-ui.dev/llms/components/feedback/dialog.md): Accessible modal dialog with overlay, focus trap, keyboard support, and compound sub-components for headers, bodies, and footers.
+- [Drawer](https://entangle-ui.dev/llms/components/feedback/drawer.md): Anchored sliding panel for filters, navigation, or detail views. Four anchors, modal and non-modal modes, and a compound API.
+- [EmptyState](https://entangle-ui.dev/llms/components/feedback/empty-state.md): Generic empty / loading state surface with icon, title, description, and action slots.
+- [LogView](https://entangle-ui.dev/llms/components/feedback/log-view.md): Virtualized console output panel with level coloring, filtering, text search, follow-tail auto-scroll, timestamps, and copy.
+- [ProgressBar](https://entangle-ui.dev/llms/components/feedback/progress-bar.md): Linear and circular progress indicators with determinate, indeterminate, striped, and labeled variants.
+- [Skeleton](https://entangle-ui.dev/llms/components/feedback/skeleton.md): Loading-placeholder primitive with rect, circle, and line shapes plus pulse, wave, and static animations.
+- [Spinner](https://entangle-ui.dev/llms/components/feedback/spinner.md): Loading and activity indicator with ring, dots, and pulse variants. Honors prefers-reduced-motion.
+- [Stat](https://entangle-ui.dev/llms/components/feedback/stat.md): KPI / metric display with label, value, optional trend delta, helper, and leading icon.
+- [Toast](https://entangle-ui.dev/llms/components/feedback/toast.md): Toast notification system with severity levels, auto-dismiss, progress indicator, action buttons, and configurable positioning.
+
+## Components — Shell
+
+- [AppShell](https://entangle-ui.dev/llms/components/shell/app-shell.md): Top-level layout shell for editor applications with slots for menu bar, toolbars, dock area, and status bar.
+- [FloatingPanel](https://entangle-ui.dev/llms/components/shell/floating-panel.md): Draggable, resizable floating panel with collapse/expand, z-index stacking, and controlled/uncontrolled modes.
+- [MenuBar](https://entangle-ui.dev/llms/components/shell/menu-bar.md): Application menu bar with dropdown menus, sub-menus, keyboard shortcuts, and full keyboard navigation.
+- [StatusBar](https://entangle-ui.dev/llms/components/shell/status-bar.md): Application status bar with left/right sections, interactive items, badges, and color variants.
+- [Toolbar](https://entangle-ui.dev/llms/components/shell/toolbar.md): Configurable toolbar with buttons, toggles, groups, separators, and roving tabindex keyboard navigation.
+
+## Components — Editor
+
+- [AssetBrowser](https://entangle-ui.dev/llms/components/editor/asset-browser.md): Controlled content browser for files and folders — grid/list views, thumbnails, folder navigation, search, filter, sort, selection, marquee, and drag-and-drop.
+- [ChatPanel](https://entangle-ui.dev/llms/components/editor/chat-panel.md): Complete chat interface system for AI assistant integration with messages, input, tool calls, code blocks, and attachments.
+- [Minimap](https://entangle-ui.dev/llms/components/editor/minimap.md): Shared navigation primitive that renders a miniature of editor content alongside a draggable rectangle mirroring the main viewport's visible region. Designed for NodeGraph, Timeline, and custom 2D editor surfaces.
+- [NodeGraph](https://entangle-ui.dev/llms/components/editor/nodegraph.md): Data-driven node editor surface — ports, Bézier edges, multi-select, drag, marquee, snap-to-grid, connection validation, keyboard nav, groups, a minimap slot, a toolbar slot, a spawn palette, and an imperative camera handle. Composes the Viewport primitive.
+- [PropertyInspector](https://entangle-ui.dev/llms/components/editor/property-inspector.md): Property inspector system with collapsible sections, label-value rows, groups, search filtering, and undo support.
+- [Timeline](https://entangle-ui.dev/llms/components/editor/timeline.md): Horizontal multi-track animation timeline / dope sheet. Frame-based time axis, keyframes (shared CurveEditor model), a scrubbing playhead, zoom/pan, snap-to-frame, full keyframe editing, dope-sheet & graph modes, collapsible track groups, per-track expand-to-graph, and an optional built-in playback loop — all on a perf-isolated canvas.
+- [TransformControl](https://entangle-ui.dev/llms/components/editor/transform-control.md): The canonical position / rotation / scale property control for 3D editor interfaces. Composes VectorInput, Select and PropertyRow into one high-level component.
+- [ViewportGizmo](https://entangle-ui.dev/llms/components/editor/viewport-gizmo.md): 3D orientation gizmo for viewport navigation with orbit, snap-to-view, axis colors, and multiple interaction modes.
+
+## Hooks
+
+- [Hooks](https://entangle-ui.dev/llms/hooks.md): Reusable hooks shipped alongside Entangle UI components.
+- [useBreakpoint](https://entangle-ui.dev/llms/hooks/use-breakpoint.md): Reactive named-breakpoint matcher for the library's responsive scale.
+- [useClickOutside](https://entangle-ui.dev/llms/hooks/use-click-outside.md): Fire a callback when a click occurs outside a referenced element.
+- [useClipboard](https://entangle-ui.dev/llms/hooks/use-clipboard.md): Copy text to the clipboard with a built-in timeout-driven feedback state.
+- [useControlledState](https://entangle-ui.dev/llms/hooks/use-controlled-state.md): Manage a value that may be either controlled by a prop or uncontrolled with an internal default.
+- [useDebouncedCallback](https://entangle-ui.dev/llms/hooks/use-debounced-callback.md): Debounce a function with optional leading edge, maxWait, and cancel/flush controls.
+- [useDebouncedValue](https://entangle-ui.dev/llms/hooks/use-debounced-value.md): Trailing-edge debounce for a reactive value — defer expensive work until input settles.
+- [useDisclosure](https://entangle-ui.dev/llms/hooks/use-disclosure.md): Manage an open/closed state with stable open, close, and toggle callbacks.
+- [useEventCallback](https://entangle-ui.dev/llms/hooks/use-event-callback.md): Stable callback identity that always invokes the most recently rendered version.
+- [useFocusTrap](https://entangle-ui.dev/llms/hooks/use-focus-trap.md): Trap keyboard focus within a container element so Tab and Shift+Tab cycle without escaping.
+- [useHotkey](https://entangle-ui.dev/llms/hooks/use-hotkey.md): Bind a single keyboard combo to a callback with platform-aware Cmd/Ctrl mapping.
+- [useIntersectionObserver](https://entangle-ui.dev/llms/hooks/use-intersection-observer.md): Observe element visibility via IntersectionObserver with SSR-safe setup and a togglable `enabled` flag.
+- [useIsMounted](https://entangle-ui.dev/llms/hooks/use-is-mounted.md): Stable getter that reports whether the component is still mounted.
+- [useKeyboard](https://entangle-ui.dev/llms/hooks/use-keyboard.md): Track the live state of modifier keys and currently pressed keys.
+- [useListboxNav](https://entangle-ui.dev/llms/hooks/use-listbox-nav.md): Shared keyboard navigation for listbox-like surfaces — tracks an active index, skips disabled items, and exposes a single keydown handler.
+- [useMediaQuery](https://entangle-ui.dev/llms/hooks/use-media-query.md): Reactive `matchMedia` listener with an SSR-safe fallback.
+- [useMergedRef](https://entangle-ui.dev/llms/hooks/use-merged-ref.md): Merge multiple refs (object or callback) into a single callback ref.
+- [useResizeObserver](https://entangle-ui.dev/llms/hooks/use-resize-observer.md): Observe size changes on an element with SSR-safe setup and automatic cleanup.
+- [useTheme](https://entangle-ui.dev/llms/hooks/use-theme.md): Read the current theme — resolved CSS variable values, the active variant, and helpers for canvas drawing or third-party libraries.
+- [useThrottledCallback](https://entangle-ui.dev/llms/hooks/use-throttled-callback.md): Rate-limit a function so it fires at most once per delay window, with optional leading/trailing edges.
+
+## Showcase
+
+- [Animation Editor](https://entangle-ui.dev/llms/showcase/animation-editor.md): A timeline-driven animation editor built around the Entangle UI Timeline — multi-track dope sheet / graph editor, a live 3D-CSS cube driven by the keyframe curves, scene tree, and frame-bound inspector.
+- [Full Editor](https://entangle-ui.dev/llms/showcase/editor.md): A complete 3D editor interface built entirely with Entangle UI components.
+
+## Icons
+
+- [Icons](https://entangle-ui.dev/llms/icons.md): Browse and use the 93 built-in SVG icons included with Entangle UI.
+
+## components/data
+
+- [DataTable](https://entangle-ui.dev/llms/components/data/data-table.md): Data-driven table with sortable columns, row selection, sticky header, optional column resizing, and row virtualization for large datasets.
+
+## llms-txt
+
+- [Docs for LLMs](https://entangle-ui.dev/llms/llms-txt.md): Plain-text documentation tuned for LLM coding assistants — short index and full single-file copy of the entangle-ui docs.

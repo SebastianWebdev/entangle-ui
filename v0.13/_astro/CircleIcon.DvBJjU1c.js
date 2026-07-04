@@ -1,0 +1,1 @@
+import{j as r}from"./jsx-runtime.u17CrQMm.js";import{R as c}from"./index.y-DWsWaV.js";import{I as e}from"./Icon.AS9sikgX.js";const m=c.memo(o=>r.jsx(e,{...o,children:r.jsx("circle",{cx:"12",cy:"12",r:"10"})}));m.displayName="CircleIcon";export{m as C};
