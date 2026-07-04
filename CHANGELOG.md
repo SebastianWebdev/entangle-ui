@@ -1,5 +1,13 @@
 # entangle-ui
 
+## 0.13.0
+
+### Minor Changes
+
+- [#114](https://github.com/SebastianWebdev/entangle-ui/pull/114) [`6594d8e`](https://github.com/SebastianWebdev/entangle-ui/commit/6594d8ef89d07e14e5322a1bd296f91dca1014d5) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - Add `EditableText`: a primitive that renders like `Text` but becomes a chrome-less inline editor on click — the editor-UI pattern for renaming layers, nodes, and assets in place. The idle state renders a real `<Text>` (inheriting every typography prop) and the editing state renders an `<input>` sharing the same typography recipe, so the swap is seamless; the field auto-sizes to its content with no measurement effects. Supports controlled/uncontrolled `value`, `activationMode` (`single` / `double`, plus Enter/F2 keyboard activation), commit on Enter/blur, cancel on Escape, `submitOnBlur` and `selectOnEdit` toggles, an imperative handle (`edit` / `commit` / `cancel` / `focus` / `isEditing` / `getElement`), full i18n via `labels` (`DEFAULT_EDITABLE_TEXT_LABELS`), and overridable `--etui-editable-text-*` custom properties.
+
+- [#112](https://github.com/SebastianWebdev/entangle-ui/pull/112) [`4fc41c6`](https://github.com/SebastianWebdev/entangle-ui/commit/4fc41c62a5ce8e6fa1d90f6772875b64a482a23c) Thanks [@SebastianWebdev](https://github.com/SebastianWebdev)! - ViewportGizmo: add `invertYaw` and `invertPitch` props to flip the orbit drag direction without negating the `onOrbit` delta by hand. Inversion is applied before `constrainPitch`, so pitch clamping stays correct at the poles. Also documents the `onOrbit` delta sign convention and adds a copy-paste Three.js / R3F `OrbitControls` integration recipe to the docs.
+
 ## 0.12.0
 
 ### Minor Changes
