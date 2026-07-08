@@ -1,0 +1,35 @@
+---
+title: Experimental Icons
+description: Trial of Recraft V4.1-generated icons, normalized to the Icon contract.
+---
+
+import ComponentPreview from '../../components/ComponentPreview.astro';
+import ExperimentalIconsDemo from '../../components/demos/experimental/ExperimentalIconsDemo';
+
+These icons are generated with **Recraft V4.1** and normalized to the `Icon`
+contract so they can be evaluated next to the built-in line icons. They are
+**not** part of the stable public API.
+
+:::note
+Recraft produces solid, **fill-based** artwork (dark shapes with white knockouts
+on a white background) — not the thin strokes used by the built-in line icons.
+Each export is merged into a single `fill-rule="evenodd"` path painted with
+`currentColor`, so the white knockouts become transparent holes and the icon
+renders as a flat filled glyph that adapts to any background.
+:::
+
+<ComponentPreview title="Current vs. Recraft">
+  <ExperimentalIconsDemo client:only="react" />
+</ComponentPreview>
+
+## Access
+
+Experimental icons are exported under the `ExperimentalIcons` namespace to avoid
+clashing with the stable icons of the same name:
+
+```tsx
+import { ExperimentalIcons } from 'entangle-ui';
+
+<ExperimentalIcons.RobotIcon size="lg" />
+<ExperimentalIcons.FolderCogIcon size="lg" color="accent" />
+```

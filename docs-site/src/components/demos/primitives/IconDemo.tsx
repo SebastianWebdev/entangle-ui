@@ -293,7 +293,13 @@ export default function IconDemo() {
               </Button>
             ))}
           </Stack>
-          <Flex wrap="wrap" gap={2} style={{ flex: 1 }}>
+          <Flex
+            wrap="wrap"
+            gap={2}
+            align="flex-start"
+            alignContent="flex-start"
+            style={{ flex: 1 }}
+          >
             {filteredIcons.map(({ name, component: IconComp }) => (
               <Paper
                 key={name}
@@ -301,9 +307,11 @@ export default function IconDemo() {
                 padding={8}
                 style={{
                   width: 80,
+                  height: 80,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: 6,
                 }}
               >
